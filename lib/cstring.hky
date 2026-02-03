@@ -1,0 +1,32 @@
+// Using string module
+// reference https://www.w3schools.com/c/c_ref_string.php
+
+// Memory Manipulation Functions
+extern void* memchr(const void*, int, size_t);
+extern int memcmp(const void*, const void*, size_t);
+extern void* memcpy(void*, const void*, size_t);
+extern void* memmove(void*, const void*, size_t);
+extern void* memset(void*, int, size_t);
+
+// String Manipulation Functions
+extern char* strcat(char*, const char*);
+extern char* strcpy(char*, const char*);
+extern char* strncat(char*, const char*, size_t);
+extern char* strncpy(char*, const char*, size_t);
+extern char* strtok(char*, const char*);
+extern size_t strxfrm(char*, const char*, size_t);
+
+// String Inspection and Search Functions
+extern char* strchr(const char*, int);
+extern int strcmp(const char*, const char*);
+extern int strcoll(const char*, const char*);
+extern size_t strcspn(const char*, const char*);
+extern size_t strlen(const char*);
+extern int strncmp(const char*, const char*, size_t);
+extern char* strpbrk(const char*, const char*);
+extern char* strrchr(const char*, int);
+extern size_t strspn(const char*, const char*);
+extern char* strstr(const char*, const char*);
+
+// Error Handling Functions
+extern char* strerror(int);

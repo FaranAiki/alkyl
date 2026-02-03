@@ -1,5 +1,10 @@
+// TODO: raise error for undefined variable
+
 int main() {
-  let x = "Hello, World!";
-  print "%s\n", x;
+  let t = 100;
+  while {
+    t = t - 1;
+    print "%d", t;
+  }
 }
 

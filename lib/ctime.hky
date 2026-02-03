@@ -1,0 +1,15 @@
+// Using time module
+// reference https://www.w3schools.com/c/c_ref_time.php
+
+// Time Manipulation and Retrieval
+extern clock_t clock(void);
+extern double difftime(time_t, time_t);
+extern time_t mktime(struct tm*);
+extern time_t time(time_t*);
+
+// Time Conversion and Formatting
+extern char* asctime(const struct tm*);
+extern char* ctime(const time_t*);
+extern struct tm* gmtime(const time_t*);
+extern struct tm* localtime(const time_t*);
+extern size_t strftime(char*, size_t, const char*, const struct tm*);

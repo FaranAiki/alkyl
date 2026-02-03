@@ -1,0 +1,28 @@
+// Using stdlib module
+// reference https://www.w3schools.com/c/c_ref_stdlib.php
+
+// String Conversion Functions
+extern double atof(const char*);
+extern int atoi(const char*);
+extern long atol(const char*);
+extern long long atoll(const char*);
+
+// Memory Management Functions
+extern void* calloc(size_t, size_t);
+extern void free(void*);
+extern void* malloc(size_t);
+extern void* realloc(void*, size_t);
+
+// Random Number Generation Functions
+extern int rand(void);
+extern void srand(unsigned int);
+
+// Environment and Communication Functions
+extern void exit(int);
+
+// Searching and Sorting Functions
+extern void qsort(void*, size_t, size_t, int (*)(const void*, const void*));
+
+// Integer Arithmetic Functions
+extern int abs(int);
+extern div_t div(int, int);
