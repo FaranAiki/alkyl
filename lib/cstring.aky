@@ -1,0 +1,29 @@
+// auto link because 
+// it is standard in C language
+
+// Copying Functions
+extern char* strcpy(char*, const char*);
+extern char* strncpy(char*, const char*, size_t);
+extern void* memcpy(void*, const void*, size_t);
+extern void* memmove(void*, const void*, size_t);
+
+// Concatenation Functions
+extern char* strcat(char*, const char*);
+extern char* strncat(char*, const char*, size_t);
+
+// Comparison Functions
+extern int strcmp(const char*, const char*);
+extern int strncmp(const char*, const char*, size_t);
+extern int memcmp(const void*, const void*, size_t);
+
+// Searching Functions
+extern char* strchr(const char*, int);
+extern char* strrchr(const char*, int);
+extern char* strstr(const char*, const char*);
+extern void* memchr(const void*, int, size_t);
+
+// Miscellaneous Functions
+extern size_t strlen(const char*);
+extern void* memset(void*, int, size_t);
+extern char* strerror(int);
+extern char* strtok(char*, const char*);

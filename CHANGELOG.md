@@ -23,3 +23,9 @@ Mutable and arrays
 
 ## 0.0.4 
 * Shitty REPL
+
+## 0.0.5 
+* Some C-libs like mathematics and cmath 
+* Restructure the codegen so that it is easier to vibecode and program manually
+* Added while loop
+* Added link and import functionality is good

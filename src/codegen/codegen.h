@@ -1,48 +1,54 @@
 #ifndef CODEGEN_H
 #define CODEGEN_H
 
+#include "parser.h"
 #include <llvm-c/Core.h>
 #include <llvm-c/ExecutionEngine.h>
-#include "parser.h"
+#include <llvm-c/Analysis.h>
 
-// --- TYPES ---
-
-// Symbol Table Entry
 typedef struct Symbol {
   char *name;
-  LLVMValueRef value; // Pointer to memory (alloca or global)
-  LLVMTypeRef type;   // The LLVM Type
+  LLVMValueRef value;
+  LLVMTypeRef type;
   int is_array;
   int is_mutable;
   struct Symbol *next;
 } Symbol;
 
-// Context
 typedef struct {
   LLVMModuleRef module;
   LLVMBuilderRef builder;
-  LLVMValueRef printf_func;
+  Symbol *symbols;
+  
   LLVMTypeRef printf_type;
-  LLVMValueRef input_func; 
-  LLVMValueRef strcmp_func; 
-  Symbol *symbols; 
+  LLVMValueRef printf_func;
+  
+  LLVMValueRef input_func;
+  LLVMValueRef strcmp_func;
 } CodegenCtx;
 
-// --- PROTOTYPES ---
-
-// Standard compiler entry point
+// --- Core API ---
+void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef builder);
 LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name);
 
-// Internal functions exposed for CLI/JIT
-void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef builder);
+// --- Shared Internal ---
 void add_symbol(CodegenCtx *ctx, const char *name, LLVMValueRef val, LLVMTypeRef type, int is_array, int is_mut);
 Symbol* find_symbol(CodegenCtx *ctx, const char *name);
 LLVMTypeRef get_llvm_type(VarType t);
 
-// Granular codegen functions
+// --- Dispatchers ---
 LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node);
 void codegen_node(CodegenCtx *ctx, ASTNode *node);
-void codegen_func_def(CodegenCtx *ctx, FuncDefNode *node);
+
+// --- Stmt Handlers ---
+void codegen_assign(CodegenCtx *ctx, AssignNode *node);
 void codegen_var_decl(CodegenCtx *ctx, VarDeclNode *node);
+void codegen_return(CodegenCtx *ctx, ReturnNode *node);
+
+// --- Flow Handlers ---
+void codegen_func_def(CodegenCtx *ctx, FuncDefNode *node);
+void codegen_loop(CodegenCtx *ctx, LoopNode *node);
+void codegen_while(CodegenCtx *ctx, WhileNode *node);
+void codegen_if(CodegenCtx *ctx, IfNode *node);
 
 #endif

@@ -4,7 +4,7 @@
  *
  */
 
-#include "alkyl.h"
+#include "main.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -61,6 +61,19 @@ int main(int argc, char *argv[]) {
   Lexer l;
   lexer_init(&l, code);
   ASTNode *root = parse_program(&l);
+  
+  // Extract 'link' directives from AST
+  ASTNode *curr = root;
+  while(curr) {
+      if (curr->type == NODE_LINK) {
+          LinkNode *lnk = (LinkNode*)curr;
+          if (strlen(link_flags) + strlen(lnk->lib_name) + 4 < sizeof(link_flags)) {
+              strcat(link_flags, " -l");
+              strcat(link_flags, lnk->lib_name);
+          }
+      }
+      curr = curr->next;
+  }
 
   LLVMInitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
@@ -109,6 +122,7 @@ int main(int argc, char *argv[]) {
   // Cleanup (Simplified for tutorial)
   LLVMDisposeModule(module);
   free(code);
+  free_ast(root);
   
   return 0;
 }

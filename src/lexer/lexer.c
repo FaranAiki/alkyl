@@ -49,7 +49,6 @@ Token lexer_next(Lexer *l) {
     break;
   }
 
-  // Record start position of the token
   t.line = l->line;
   t.col = l->col;
 
@@ -60,15 +59,12 @@ Token lexer_next(Lexer *l) {
     return t;
   }
 
-  // Ellipsis ...
   if (c == '.') {
       if (l->src[l->pos+1] == '.' && l->src[l->pos+2] == '.') {
           advance(l); advance(l); advance(l);
           t.type = TOKEN_ELLIPSIS;
           return t;
       }
-      // Assuming no single dot tokens for now (like struct access)
-      // If added later, handle here.
   }
 
   if (c == ',') { advance(l); t.type = TOKEN_COMMA; return t; }
@@ -96,7 +92,6 @@ Token lexer_next(Lexer *l) {
     t.type = TOKEN_GT; return t;
   }
 
-  // Single Character Tokens
   if (c == '[') { advance(l); t.type = TOKEN_LBRACKET; return t; }
   if (c == ']') { advance(l); t.type = TOKEN_RBRACKET; return t; }
   if (c == '{') { advance(l); t.type = TOKEN_LBRACE; return t; }
@@ -110,7 +105,6 @@ Token lexer_next(Lexer *l) {
   if (c == '/') { advance(l); t.type = TOKEN_SLASH; return t; }
   if (c == '^') { advance(l); t.type = TOKEN_XOR; return t; }
 
-  // Numbers
   if (isdigit(c)) {
     long val = 0;
     while (isdigit(peek(l))) {
@@ -135,13 +129,11 @@ Token lexer_next(Lexer *l) {
     return t;
   }
 
-  // Character Literals ('a')
   if (c == '\'') {
-      advance(l); // Eat opening '
+      advance(l); 
       char val = advance(l);
       
       if (val == '\\') {
-          // Simple escape handling
           char next = advance(l);
           switch(next) {
               case 'n': val = '\n'; break;
@@ -154,7 +146,7 @@ Token lexer_next(Lexer *l) {
           }
       }
       
-      if (peek(l) == '\'') advance(l); // Eat closing '
+      if (peek(l) == '\'') advance(l); 
       else {
           fprintf(stderr, "Lexer Error: Unclosed character literal at %d:%d\n", l->line, l->col);
           exit(1);
@@ -165,9 +157,8 @@ Token lexer_next(Lexer *l) {
       return t;
   }
 
-  // Strings with Escape Character Support
   if (c == '"') {
-    advance(l); // eat opening quote
+    advance(l); 
     
     size_t capacity = 32;
     size_t length = 0;
@@ -179,10 +170,9 @@ Token lexer_next(Lexer *l) {
 
     while (peek(l) != '"' && peek(l) != '\0') {
       char val = peek(l);
-      
       if (val == '\\') {
-        advance(l); // consume backslash
-        if (peek(l) == '\0') break; // unexpected end
+        advance(l); 
+        if (peek(l) == '\0') break; 
 
         char escaped = peek(l);
         switch (escaped) {
@@ -193,14 +183,13 @@ Token lexer_next(Lexer *l) {
           case '\\': val = '\\'; break;
           case '"': val = '"'; break;
           case '\'': val = '\''; break;
-          default: val = escaped; break; // Unknown escape, keep char
+          default: val = escaped; break; 
         }
-        advance(l); // consume escaped char
+        advance(l); 
       } else {
-        advance(l); // consume normal char
+        advance(l); 
       }
       
-      // Resize buffer if needed
       if (length + 1 >= capacity) {
         capacity *= 2;
         buffer = realloc(buffer, capacity);
@@ -213,7 +202,6 @@ Token lexer_next(Lexer *l) {
     }
     
     buffer[length] = '\0';
-    
     if (peek(l) == '"') advance(l);
     
     t.type = TOKEN_STRING;
@@ -221,7 +209,6 @@ Token lexer_next(Lexer *l) {
     return t;
   }
 
-  // Keywords and Identifiers
   if (isalpha(c)) {
     int start = l->pos; 
     
@@ -239,8 +226,9 @@ Token lexer_next(Lexer *l) {
     }
     word[length] = '\0';
 
-    // Keywords
     if (strcmp(word, "loop") == 0) t.type = TOKEN_LOOP;
+    else if (strcmp(word, "while") == 0) t.type = TOKEN_WHILE;
+    else if (strcmp(word, "once") == 0) t.type = TOKEN_ONCE;
     else if (strcmp(word, "if") == 0) t.type = TOKEN_IF;
     else if (strcmp(word, "elif") == 0) t.type = TOKEN_ELIF;
     else if (strcmp(word, "else") == 0) t.type = TOKEN_ELSE;
@@ -257,9 +245,9 @@ Token lexer_next(Lexer *l) {
     else if (strcmp(word, "imut") == 0) t.type = TOKEN_KW_IMUT;
     else if (strcmp(word, "immutable") == 0) t.type = TOKEN_KW_IMUT;
     
-    // Modules & FFI
     else if (strcmp(word, "import") == 0) t.type = TOKEN_IMPORT;
     else if (strcmp(word, "extern") == 0) t.type = TOKEN_EXTERN;
+    else if (strcmp(word, "link") == 0) t.type = TOKEN_LINK;
 
     else if (strcmp(word, "true") == 0) t.type = TOKEN_TRUE;
     else if (strcmp(word, "false") == 0) t.type = TOKEN_FALSE;
