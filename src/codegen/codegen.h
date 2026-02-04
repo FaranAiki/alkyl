@@ -9,19 +9,34 @@
 typedef struct Symbol {
   char *name;
   LLVMValueRef value;
-  LLVMTypeRef type; // LLVM type
-  VarType vtype;    // AST type (for pointer arithmetic/deref)
+  LLVMTypeRef type; 
+  VarType vtype;    
   int is_array;
   int is_mutable;
   struct Symbol *next;
 } Symbol;
 
-// Registry for function return types
 typedef struct FuncSymbol {
     char *name;
     VarType ret_type;
     struct FuncSymbol *next;
 } FuncSymbol;
+
+typedef struct ClassMember {
+    char *name;
+    LLVMTypeRef type;
+    int index;
+    VarType vtype;
+    ASTNode *init_expr; // For default values
+    struct ClassMember *next;
+} ClassMember;
+
+typedef struct ClassInfo {
+    char *name;
+    LLVMTypeRef struct_type;
+    ClassMember *members;
+    struct ClassInfo *next;
+} ClassInfo;
 
 typedef struct LoopContext {
   LLVMBasicBlockRef continue_target;
@@ -33,7 +48,8 @@ typedef struct {
   LLVMModuleRef module;
   LLVMBuilderRef builder;
   Symbol *symbols;
-  FuncSymbol *functions; // New
+  FuncSymbol *functions;
+  ClassInfo *classes; // New: Class Registry
   LoopContext *current_loop; 
   
   LLVMTypeRef printf_type;
@@ -53,8 +69,14 @@ Symbol* find_symbol(CodegenCtx *ctx, const char *name);
 void add_func_symbol(CodegenCtx *ctx, const char *name, VarType ret_type);
 FuncSymbol* find_func_symbol(CodegenCtx *ctx, const char *name);
 
-LLVMTypeRef get_llvm_type(VarType t);
+// Class Helpers
+void add_class_info(CodegenCtx *ctx, ClassInfo *ci);
+ClassInfo* find_class(CodegenCtx *ctx, const char *name);
+int get_member_index(ClassInfo *ci, const char *member, LLVMTypeRef *out_type, VarType *out_vtype);
+
+LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t); // Updated signature to look up classes
 VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node);
+LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node);
 
 // --- Dispatchers ---
 LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node);

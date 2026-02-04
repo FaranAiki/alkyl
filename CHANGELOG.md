@@ -44,3 +44,9 @@ Mutable and arrays
 * primitive misc folder for tree-sitter
 * VarType opaque pointers
 * primitive define only with type (define name as type)
+
+## 0.0.8 
+* good define 
+* classes but still suck anyway because is/has is not that defined
+* proper let 
+* typeof

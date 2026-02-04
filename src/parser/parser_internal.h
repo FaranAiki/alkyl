@@ -13,8 +13,15 @@ extern jmp_buf *parser_env;
 // --- CORE FUNCTIONS (parser_core.c) ---
 void parser_fail(const char *msg);
 void eat(Lexer *l, TokenType type);
-VarType parse_type(Lexer *l); // Replaces get_type_from_token
+VarType parse_type(Lexer *l); 
 char* read_import_file(const char* filename);
+
+// Macro Registry
+// Now supports params and multi-token bodies
+void register_macro(const char *name, char **params, int param_count, Token *body, int body_len);
+
+// helper to allow top.c to peek/consume raw tokens for define parsing
+Token lexer_next_raw(Lexer *l); 
 
 // --- EXPRESSION PARSERS (parser_expr.c) ---
 ASTNode* parse_call(Lexer *l, char *name);

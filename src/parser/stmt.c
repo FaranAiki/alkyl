@@ -116,6 +116,7 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
       return (ASTNode*)node;
   }
   
+  // PAREN-LESS CALL LOGIC (Restored)
   TokenType t = current_token.type;
   int is_arg_start = (t == TOKEN_NUMBER || t == TOKEN_FLOAT || t == TOKEN_STRING || 
         t == TOKEN_CHAR_LIT || t == TOKEN_TRUE || t == TOKEN_FALSE || 
@@ -161,9 +162,6 @@ ASTNode* parse_var_decl_internal(Lexer *l) {
   else if (current_token.type == TOKEN_KW_IMUT) { is_mut = 0; eat(l, TOKEN_KW_IMUT); }
   
   VarType vtype = parse_type(l);
-  if (vtype.base == TYPE_UNKNOWN) { 
-      parser_fail("Expected type"); 
-  }
 
   if (current_token.type == TOKEN_KW_MUT) { is_mut = 1; eat(l, TOKEN_KW_MUT); }
   else if (current_token.type == TOKEN_KW_IMUT) { is_mut = 0; eat(l, TOKEN_KW_IMUT); }
@@ -191,10 +189,6 @@ ASTNode* parse_var_decl_internal(Lexer *l) {
   if (current_token.type == TOKEN_ASSIGN) {
     eat(l, TOKEN_ASSIGN);
     init = parse_expression(l);
-  } else {
-    if (vtype.base == TYPE_AUTO || is_mut == 0) {
-        parser_fail("Error: Immutable or 'let' variables must be initialized");
-    }
   }
 
   eat(l, TOKEN_SEMICOLON);
@@ -225,25 +219,18 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
   if (current_token.type == TOKEN_BREAK) return parse_break(l);
   if (current_token.type == TOKEN_CONTINUE) return parse_continue(l);
   
-  // Need to peek if it is a type start
-  // This is ambiguous with identifiers. parse_type handles it.
-  // We'll try parse_type. If unknown, we rollback? 
-  // Lexer is not rewindable easily.
-  // But parse_type only eats tokens if it MATCHES.
-  // If it matches a type, we go to var decl.
-  // Exception: parse_type eats nothing if it's an identifier that is NOT an alias.
-  // In that case it returns TYPE_UNKNOWN.
-  
-  // NOTE: parse_type eats nothing if it fails match.
+  // Peek logic for type-first var decls
   VarType peek_t = parse_type(l); 
   if (peek_t.base != TYPE_UNKNOWN) {
-      // It was a type, but parse_type ate it!
-      // parse_var_decl_internal expects to parse the type again? 
-      // No, parse_var_decl_internal calls parse_type.
-      // We are in trouble because we ate the type.
-      // Refactor: parse_var_decl should accept the parsed type.
-      // OR: We implement a helper "parse_var_decl_with_type"
-      
+      // Fix: Check for Constructor Calls masquerading as Types
+      if (peek_t.base == TYPE_CLASS && current_token.type == TOKEN_LPAREN) {
+          // It's a constructor call: Person("A", 1);
+          // We have the name in peek_t.class_name
+          ASTNode* call = parse_call(l, peek_t.class_name);
+          eat(l, TOKEN_SEMICOLON);
+          return call;
+      }
+
       int is_mut = 1;
       if (current_token.type == TOKEN_KW_MUT) { is_mut = 1; eat(l, TOKEN_KW_MUT); }
       else if (current_token.type == TOKEN_KW_IMUT) { is_mut = 0; eat(l, TOKEN_KW_IMUT); }
@@ -253,8 +240,6 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
       current_token.text = NULL;
       eat(l, TOKEN_IDENTIFIER);
       
-      // ... Copy rest of logic from parse_var_decl_internal ...
-      // To avoid duplication, I will just inline it here for now.
       int is_array = 0;
       ASTNode *array_size = NULL;
       if (current_token.type == TOKEN_LBRACKET) {
@@ -267,8 +252,6 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
       if (current_token.type == TOKEN_ASSIGN) {
         eat(l, TOKEN_ASSIGN);
         init = parse_expression(l);
-      } else {
-        if (peek_t.base == TYPE_AUTO) parser_fail("Init required for let");
       }
       eat(l, TOKEN_SEMICOLON);
       VarDeclNode *node = calloc(1, sizeof(VarDeclNode));
@@ -287,7 +270,6 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
   }
 
   if (current_token.type == TOKEN_IDENTIFIER) return parse_assignment_or_call(l);
-  if (current_token.type == TOKEN_SEMICOLON) { eat(l, TOKEN_SEMICOLON); return NULL; }
   
   ASTNode *expr = parse_expression(l);
   if (current_token.type == TOKEN_SEMICOLON) eat(l, TOKEN_SEMICOLON);
@@ -345,15 +327,7 @@ ASTNode* parse_statements(Lexer *l) {
   ASTNode *head = NULL;
   ASTNode **current = &head;
   while (current_token.type != TOKEN_EOF && current_token.type != TOKEN_RBRACE) {
-    TokenType start_type = current_token.type;
-    int start_pos = l->pos; 
     ASTNode *stmt = parse_single_statement_or_block(l);
-    if (l->pos == start_pos && current_token.type == start_type) {
-        if (current_token.type == TOKEN_EOF) break;
-        fprintf(stderr, "Parser Error: Infinite loop detected. Force advancing.\n");
-        eat(l, current_token.type); 
-        continue;
-    }
     if (stmt) {
       *current = stmt;
       current = &stmt->next;

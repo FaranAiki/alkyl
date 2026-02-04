@@ -2,13 +2,22 @@
 
 // import "lib/cstring.hky";
 
-define i64 as int;
-define pointer as k;
-define ref as *;
+class Person {
+  char name[256] = "unnamed";
+  int age = 0;
+}
+
+class Mahasiswa is Person {
+  int nim = 0;
+}
 
 int main() {
-  int ref x = 0;
-
-  print "%d\n", x;
+  let Faran = Person ("Namaku Faran Aiki", 10);
+  let Faran_Mahasiswa = Mahasiswa (
+    Faran.name,
+    Faran.age,
+    18225122
+  );
+  print "%d\n", Faran_Mahasiswa.age;
 }
 

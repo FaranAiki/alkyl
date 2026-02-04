@@ -67,6 +67,7 @@ Token lexer_next(Lexer *l) {
           t.type = TOKEN_ELLIPSIS;
           return t;
       }
+      advance(l); t.type = TOKEN_DOT; return t;
   }
 
   if (c == ',') { advance(l); t.type = TOKEN_COMMA; return t; }
@@ -300,6 +301,16 @@ Token lexer_next(Lexer *l) {
     else if (strcmp(word, "break") == 0) t.type = TOKEN_BREAK;
     else if (strcmp(word, "continue") == 0) t.type = TOKEN_CONTINUE;
     
+    else if (strcmp(word, "define") == 0) t.type = TOKEN_DEFINE;
+    else if (strcmp(word, "as") == 0) t.type = TOKEN_AS;
+    
+    else if (strcmp(word, "class") == 0) t.type = TOKEN_CLASS;
+    else if (strcmp(word, "is") == 0) t.type = TOKEN_IS;
+    else if (strcmp(word, "has") == 0) t.type = TOKEN_HAS;
+    else if (strcmp(word, "open") == 0) t.type = TOKEN_OPEN;
+    else if (strcmp(word, "closed") == 0) t.type = TOKEN_CLOSED;
+    else if (strcmp(word, "typeof") == 0) t.type = TOKEN_TYPEOF; // New
+
     else if (strcmp(word, "void") == 0) t.type = TOKEN_KW_VOID;
     else if (strcmp(word, "int") == 0) t.type = TOKEN_KW_INT;
     else if (strcmp(word, "char") == 0) t.type = TOKEN_KW_CHAR;
@@ -307,9 +318,6 @@ Token lexer_next(Lexer *l) {
     else if (strcmp(word, "single") == 0) t.type = TOKEN_KW_SINGLE;
     else if (strcmp(word, "double") == 0) t.type = TOKEN_KW_DOUBLE;
     else if (strcmp(word, "let") == 0) t.type = TOKEN_KW_LET;
-    
-    else if (strcmp(word, "define") == 0) t.type = TOKEN_DEFINE;
-    else if (strcmp(word, "as") == 0) t.type = TOKEN_AS;
     
     else if (strcmp(word, "mut") == 0) t.type = TOKEN_KW_MUT;
     else if (strcmp(word, "mutable") == 0) t.type = TOKEN_KW_MUT;
@@ -333,7 +341,6 @@ Token lexer_next(Lexer *l) {
     return t;
   }
 
-  // Handle unexpected character by advancing to prevent infinite loops on stuck char
   advance(l);
   t.type = TOKEN_UNKNOWN;
   return t;

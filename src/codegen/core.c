@@ -9,28 +9,24 @@ void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef buil
     ctx->builder = builder;
     ctx->symbols = NULL;
     ctx->functions = NULL;
+    ctx->classes = NULL;
     ctx->current_loop = NULL;
 
-    // printf
     LLVMTypeRef printf_args[] = { LLVMPointerType(LLVMInt8Type(), 0) };
     ctx->printf_type = LLVMFunctionType(LLVMInt32Type(), printf_args, 1, true);
     ctx->printf_func = LLVMAddFunction(module, "printf", ctx->printf_type);
     
-    // malloc
     LLVMTypeRef malloc_args[] = { LLVMInt64Type() };
     LLVMTypeRef malloc_type = LLVMFunctionType(LLVMPointerType(LLVMInt8Type(), 0), malloc_args, 1, false);
     LLVMValueRef malloc_func = LLVMAddFunction(module, "malloc", malloc_type);
     
-    // getchar
     LLVMTypeRef getchar_type = LLVMFunctionType(LLVMInt32Type(), NULL, 0, false);
     LLVMValueRef getchar_func = LLVMAddFunction(module, "getchar", getchar_type);
     
-    // strcmp
     LLVMTypeRef strcmp_args[] = { LLVMPointerType(LLVMInt8Type(), 0), LLVMPointerType(LLVMInt8Type(), 0) };
     LLVMTypeRef strcmp_type = LLVMFunctionType(LLVMInt32Type(), strcmp_args, 2, false);
     ctx->strcmp_func = LLVMAddFunction(module, "strcmp", strcmp_type);
 
-    // Input func helper
     LLVMValueRef generate_input_func(LLVMModuleRef module, LLVMBuilderRef builder, LLVMValueRef malloc_func, LLVMValueRef getchar_func);
     ctx->input_func = generate_input_func(module, builder, malloc_func, getchar_func);
 }
@@ -73,7 +69,34 @@ FuncSymbol* find_func_symbol(CodegenCtx *ctx, const char *name) {
     return NULL;
 }
 
-LLVMTypeRef get_llvm_type(VarType t) {
+void add_class_info(CodegenCtx *ctx, ClassInfo *ci) {
+    ci->next = ctx->classes;
+    ctx->classes = ci;
+}
+
+ClassInfo* find_class(CodegenCtx *ctx, const char *name) {
+    ClassInfo *cur = ctx->classes;
+    while(cur) {
+        if (strcmp(cur->name, name) == 0) return cur;
+        cur = cur->next;
+    }
+    return NULL;
+}
+
+int get_member_index(ClassInfo *ci, const char *member, LLVMTypeRef *out_type, VarType *out_vtype) {
+    ClassMember *m = ci->members;
+    while(m) {
+        if (strcmp(m->name, member) == 0) {
+            if (out_type) *out_type = m->type;
+            if (out_vtype) *out_vtype = m->vtype;
+            return m->index;
+        }
+        m = m->next;
+    }
+    return -1;
+}
+
+LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
   LLVMTypeRef base_type;
   
   switch (t.base) {
@@ -84,10 +107,16 @@ LLVMTypeRef get_llvm_type(VarType t) {
     case TYPE_DOUBLE: base_type = LLVMDoubleType(); break;
     case TYPE_VOID: base_type = LLVMVoidType(); break;
     case TYPE_STRING: base_type = LLVMPointerType(LLVMInt8Type(), 0); break;
+    case TYPE_CLASS: {
+        if (!t.class_name) return LLVMInt32Type(); // Error fallback
+        ClassInfo *ci = find_class(ctx, t.class_name);
+        if (ci) base_type = ci->struct_type;
+        else base_type = LLVMStructCreateNamed(LLVMGetGlobalContext(), t.class_name); // Placeholder
+        break;
+    }
     default: base_type = LLVMInt32Type(); break;
   }
   
-  // Wrap in pointers
   for (int i=0; i<t.ptr_depth; i++) {
     base_type = LLVMPointerType(base_type, 0);
   }
@@ -95,60 +124,45 @@ LLVMTypeRef get_llvm_type(VarType t) {
   return base_type;
 }
 
-// Helper to generate the input function body
 LLVMValueRef generate_input_func(LLVMModuleRef module, LLVMBuilderRef builder, LLVMValueRef malloc_func, LLVMValueRef getchar_func) {
     LLVMTypeRef ret_type = LLVMPointerType(LLVMInt8Type(), 0);
     LLVMTypeRef func_type = LLVMFunctionType(ret_type, NULL, 0, false);
     LLVMValueRef func = LLVMAddFunction(module, "input", func_type);
-    
     LLVMBasicBlockRef entry = LLVMAppendBasicBlock(func, "entry");
     LLVMBasicBlockRef loop_cond = LLVMAppendBasicBlock(func, "loop_cond");
     LLVMBasicBlockRef loop_body = LLVMAppendBasicBlock(func, "loop_body");
     LLVMBasicBlockRef loop_end = LLVMAppendBasicBlock(func, "loop_end");
-
     LLVMBuilderRef b = LLVMCreateBuilder();
     LLVMPositionBuilderAtEnd(b, entry);
-
     LLVMValueRef buf_size = LLVMConstInt(LLVMInt64Type(), 256, 0);
     LLVMValueRef buf_args[] = { buf_size };
     LLVMValueRef buf = LLVMBuildCall2(b, LLVMGlobalGetValueType(malloc_func), malloc_func, buf_args, 1, "buf");
-
     LLVMValueRef i_ptr = LLVMBuildAlloca(b, LLVMInt32Type(), "i");
     LLVMBuildStore(b, LLVMConstInt(LLVMInt32Type(), 0, 0), i_ptr);
-    
     LLVMBuildBr(b, loop_cond);
-
     LLVMPositionBuilderAtEnd(b, loop_cond);
     LLVMValueRef c = LLVMBuildCall2(b, LLVMGlobalGetValueType(getchar_func), getchar_func, NULL, 0, "c");
     LLVMValueRef is_nl = LLVMBuildICmp(b, LLVMIntEQ, c, LLVMConstInt(LLVMInt32Type(), 10, 0), "is_nl");
     LLVMValueRef is_eof = LLVMBuildICmp(b, LLVMIntEQ, c, LLVMConstInt(LLVMInt32Type(), -1, 0), "is_eof");
     LLVMValueRef stop = LLVMBuildOr(b, is_nl, is_eof, "stop");
-    
     LLVMValueRef curr_i = LLVMBuildLoad2(b, LLVMInt32Type(), i_ptr, "curr_i");
     LLVMValueRef max_len = LLVMConstInt(LLVMInt32Type(), 255, 0);
     LLVMValueRef is_full = LLVMBuildICmp(b, LLVMIntSGE, curr_i, max_len, "is_full");
-    
     LLVMValueRef stop_final = LLVMBuildOr(b, stop, is_full, "stop_final");
-    
     LLVMBuildCondBr(b, stop_final, loop_end, loop_body);
-
     LLVMPositionBuilderAtEnd(b, loop_body);
     LLVMValueRef char_trunc = LLVMBuildTrunc(b, c, LLVMInt8Type(), "char");
     LLVMValueRef ptr = LLVMBuildGEP2(b, LLVMInt8Type(), buf, &curr_i, 1, "ptr");
     LLVMBuildStore(b, char_trunc, ptr);
-    
     LLVMValueRef next_i = LLVMBuildAdd(b, curr_i, LLVMConstInt(LLVMInt32Type(), 1, 0), "next_i");
     LLVMBuildStore(b, next_i, i_ptr);
     LLVMBuildBr(b, loop_cond);
-
     LLVMPositionBuilderAtEnd(b, loop_end);
     curr_i = LLVMBuildLoad2(b, LLVMInt32Type(), i_ptr, "final_i");
     LLVMValueRef end_ptr = LLVMBuildGEP2(b, LLVMInt8Type(), buf, &curr_i, 1, "end_ptr");
     LLVMBuildStore(b, LLVMConstInt(LLVMInt8Type(), 0, 0), end_ptr);
-    
     LLVMBuildRet(b, buf);
     LLVMDisposeBuilder(b);
-
     return func;
 }
 
@@ -159,8 +173,70 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name) {
   CodegenCtx ctx;
   codegen_init_ctx(&ctx, module, builder);
   
-  // Pre-pass: Register functions
+  // Pass 1: Register Class Types (Opaque first, then bodies)
   ASTNode *iter = root;
+  while(iter) {
+      if (iter->type == NODE_CLASS) {
+          ClassNode *cn = (ClassNode*)iter;
+          ClassInfo *ci = malloc(sizeof(ClassInfo));
+          ci->name = strdup(cn->name);
+          ci->struct_type = LLVMStructCreateNamed(LLVMGetGlobalContext(), cn->name);
+          ci->members = NULL;
+          add_class_info(&ctx, ci);
+      }
+      iter = iter->next;
+  }
+  
+  // Pass 1.5: Fill Class Bodies
+  iter = root;
+  while(iter) {
+      if (iter->type == NODE_CLASS) {
+          ClassNode *cn = (ClassNode*)iter;
+          ClassInfo *ci = find_class(&ctx, cn->name);
+          
+          ASTNode *m = cn->members;
+          int member_count = 0;
+          ASTNode *temp = m;
+          while(temp) { 
+              if (temp->type == NODE_VAR_DECL) member_count++; 
+              temp = temp->next; 
+          }
+          
+          LLVMTypeRef *elem_types = malloc(sizeof(LLVMTypeRef) * member_count);
+          int idx = 0;
+          
+          // Clear linked list first to rebuild in correct order
+          ci->members = NULL;
+          ClassMember **tail = &ci->members;
+          m = cn->members;
+          
+          while(m) {
+              if (m->type == NODE_VAR_DECL) {
+                  VarDeclNode *vd = (VarDeclNode*)m;
+                  ClassMember *cm = malloc(sizeof(ClassMember));
+                  cm->name = strdup(vd->name);
+                  cm->vtype = vd->var_type;
+                  cm->type = get_llvm_type(&ctx, vd->var_type);
+                  cm->index = idx;
+                  cm->init_expr = vd->initializer; // COPY POINTER (AST persists)
+                  cm->next = NULL;
+                  *tail = cm;
+                  tail = &cm->next;
+                  
+                  elem_types[idx] = cm->type;
+                  idx++;
+              }
+              m = m->next;
+          }
+          
+          LLVMStructSetBody(ci->struct_type, elem_types, member_count, false);
+          free(elem_types);
+      }
+      iter = iter->next;
+  }
+
+  // Pass 2: Register functions
+  iter = root;
   while(iter) {
       if (iter->type == NODE_FUNC_DEF) {
           FuncDefNode *fd = (FuncDefNode*)iter;
@@ -169,20 +245,21 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name) {
       iter = iter->next;
   }
 
-  // 1. Generate Explicit Functions First
+  // Pass 3: Generate Code
   ASTNode *curr = root;
   while (curr) {
     if (curr->type == NODE_FUNC_DEF) {
       codegen_func_def(&ctx, (FuncDefNode*)curr);
     }
+    // Classes already handled
     curr = curr->next;
   }
 
-  // 2. Generate Implicit Main
+  // Implicit Main
   int has_stmts = 0;
   curr = root;
   while(curr) {
-    if (curr->type != NODE_FUNC_DEF && curr->type != NODE_LINK) { has_stmts = 1; break; }
+    if (curr->type != NODE_FUNC_DEF && curr->type != NODE_LINK && curr->type != NODE_CLASS) { has_stmts = 1; break; }
     curr = curr->next;
   }
 
@@ -199,7 +276,7 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name) {
         
         curr = root;
         while (curr) {
-          if (curr->type != NODE_FUNC_DEF && curr->type != NODE_LINK) {
+          if (curr->type != NODE_FUNC_DEF && curr->type != NODE_LINK && curr->type != NODE_CLASS) {
             ASTNode *next = curr->next;
             curr->next = NULL; 
             codegen_node(&ctx, curr);
@@ -214,11 +291,20 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name) {
 
   LLVMDisposeBuilder(builder);
   
+  // Cleanup
   Symbol *s = ctx.symbols;
   while(s) { Symbol *next = s->next; free(s->name); free(s); s = next; }
-  
   FuncSymbol *f = ctx.functions;
   while(f) { FuncSymbol *next = f->next; free(f->name); free(f); f = next; }
+  // Classes
+  ClassInfo *c = ctx.classes;
+  while(c) {
+      ClassMember *cm = c->members;
+      while(cm) { ClassMember *nxt = cm->next; free(cm->name); free(cm); cm = nxt; }
+      ClassInfo *nxt = c->next;
+      free(c->name); free(c);
+      c = nxt;
+  }
 
   return module;
 }

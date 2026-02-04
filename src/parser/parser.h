@@ -25,7 +25,10 @@ typedef enum {
   NODE_ARRAY_LIT, 
   NODE_ARRAY_ACCESS, 
   NODE_INC_DEC, 
-  NODE_LINK 
+  NODE_LINK,
+  NODE_CLASS,
+  NODE_MEMBER_ACCESS,
+  NODE_TYPEOF // New
 } NodeType;
 
 typedef enum {
@@ -37,12 +40,14 @@ typedef enum {
   TYPE_DOUBLE,
   TYPE_STRING,
   TYPE_AUTO,
+  TYPE_CLASS, 
   TYPE_UNKNOWN
 } BaseType;
 
 typedef struct {
   BaseType base;
-  int ptr_depth; // 0 = val, 1 = *val, 2 = **val
+  int ptr_depth; 
+  char *class_name; 
 } VarType;
 
 typedef struct ASTNode {
@@ -52,7 +57,7 @@ typedef struct ASTNode {
 
 typedef struct Parameter {
   VarType type;
-  char *name; // Can be NULL for extern
+  char *name; 
   struct Parameter *next;
 } Parameter;
 
@@ -61,9 +66,28 @@ typedef struct {
   char *name;
   VarType ret_type;
   Parameter *params;
-  ASTNode *body; // NULL if extern (FFI)
+  ASTNode *body; 
   int is_varargs; 
+  int is_open; 
 } FuncDefNode;
+
+typedef struct {
+  ASTNode base;
+  char *name;
+  char *parent_name; 
+  struct {
+      char **names;
+      int count;
+  } traits; 
+  ASTNode *members; 
+  int is_open; 
+} ClassNode;
+
+typedef struct {
+  ASTNode base;
+  ASTNode *object; 
+  char *member_name; 
+} MemberAccessNode;
 
 typedef struct {
   ASTNode base;
@@ -112,6 +136,7 @@ typedef struct {
   int is_mutable; 
   int is_array;   
   ASTNode *array_size; 
+  int is_open; 
 } VarDeclNode;
 
 typedef struct {
@@ -119,6 +144,7 @@ typedef struct {
   char *name;
   ASTNode *value;
   ASTNode *index; 
+  ASTNode *target; 
   int op; 
 } AssignNode; 
 
@@ -127,7 +153,8 @@ typedef struct {
   char *name;
   ASTNode *index; 
   int is_prefix; 
-  int op; 
+  int op;
+  ASTNode *target; 
 } IncDecNode;
 
 typedef struct {

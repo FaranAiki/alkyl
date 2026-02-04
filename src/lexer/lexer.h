@@ -15,6 +15,7 @@ typedef enum {
   TOKEN_SEMICOLON,
   TOKEN_COMMA,  
   TOKEN_ELLIPSIS, 
+  TOKEN_DOT,    
   
   TOKEN_NUMBER,   
   TOKEN_FLOAT,  
@@ -41,8 +42,17 @@ typedef enum {
   TOKEN_RETURN,
   TOKEN_BREAK,
   TOKEN_CONTINUE,
-  TOKEN_DEFINE, // New: define
-  TOKEN_AS,     // New: as
+  
+  TOKEN_DEFINE, 
+  TOKEN_AS,     
+
+  // OOP Keywords
+  TOKEN_CLASS,
+  TOKEN_IS,     
+  TOKEN_HAS,    
+  TOKEN_OPEN,   
+  TOKEN_CLOSED, 
+  TOKEN_TYPEOF, // New: typeof keyword
 
   TOKEN_KW_VOID,   
   TOKEN_KW_INT,  

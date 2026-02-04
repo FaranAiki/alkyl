@@ -23,8 +23,72 @@ ASTNode* parse_call(Lexer *l, char *name) {
   return (ASTNode*)node;
 }
 
+// Parses postfix operations: [], ., ++, --
+ASTNode* parse_postfix(Lexer *l, ASTNode *node) {
+    while (1) {
+        if (current_token.type == TOKEN_DOT) {
+            eat(l, TOKEN_DOT);
+            if (current_token.type != TOKEN_IDENTIFIER) parser_fail("Expected member name after .");
+            char *member = current_token.text;
+            current_token.text = NULL;
+            eat(l, TOKEN_IDENTIFIER);
+            
+            MemberAccessNode *ma = calloc(1, sizeof(MemberAccessNode));
+            ma->base.type = NODE_MEMBER_ACCESS;
+            ma->object = node;
+            ma->member_name = member;
+            node = (ASTNode*)ma;
+        } 
+        else if (current_token.type == TOKEN_LBRACKET) {
+            eat(l, TOKEN_LBRACKET);
+            ASTNode *index = parse_expression(l);
+            eat(l, TOKEN_RBRACKET);
+            
+            if (node->type == NODE_VAR_REF) {
+                ArrayAccessNode *aa = calloc(1, sizeof(ArrayAccessNode));
+                aa->base.type = NODE_ARRAY_ACCESS;
+                aa->name = ((VarRefNode*)node)->name;
+                ((VarRefNode*)node)->name = NULL; free(node);
+                aa->index = index;
+                node = (ASTNode*)aa;
+            } else if (node->type == NODE_MEMBER_ACCESS) {
+                parser_fail("Complex array indexing on members not yet supported");
+            } else {
+                parser_fail("Expected variable for array index");
+            }
+        }
+        else if (current_token.type == TOKEN_INCREMENT || current_token.type == TOKEN_DECREMENT) {
+            int op = current_token.type;
+            eat(l, op);
+            IncDecNode *id = calloc(1, sizeof(IncDecNode));
+            id->base.type = NODE_INC_DEC;
+            id->target = node;
+            id->is_prefix = 0;
+            id->op = op;
+            node = (ASTNode*)id;
+        }
+        else {
+            break;
+        }
+    }
+    return node;
+}
+
 ASTNode* parse_factor(Lexer *l) {
-  if (current_token.type == TOKEN_LBRACKET) {
+  ASTNode *node = NULL;
+
+  if (current_token.type == TOKEN_TYPEOF) {
+      eat(l, TOKEN_TYPEOF);
+      eat(l, TOKEN_LPAREN);
+      ASTNode *expr = parse_expression(l);
+      eat(l, TOKEN_RPAREN);
+      
+      UnaryOpNode *u = calloc(1, sizeof(UnaryOpNode));
+      u->base.type = NODE_TYPEOF;
+      u->operand = expr;
+      node = (ASTNode*)u;
+  }
+  else if (current_token.type == TOKEN_LBRACKET) {
     eat(l, TOKEN_LBRACKET);
     ASTNode *elems_head = NULL;
     ASTNode **curr_elem = &elems_head;
@@ -38,51 +102,51 @@ ASTNode* parse_factor(Lexer *l) {
       }
     }
     eat(l, TOKEN_RBRACKET);
-    ArrayLitNode *node = calloc(1, sizeof(ArrayLitNode));
-    node->base.type = NODE_ARRAY_LIT;
-    node->elements = elems_head;
-    return (ASTNode*)node;
+    ArrayLitNode *an = calloc(1, sizeof(ArrayLitNode));
+    an->base.type = NODE_ARRAY_LIT;
+    an->elements = elems_head;
+    node = (ASTNode*)an;
   }
   else if (current_token.type == TOKEN_NUMBER) {
-    LiteralNode *node = calloc(1, sizeof(LiteralNode));
-    node->base.type = NODE_LITERAL;
-    node->var_type.base = TYPE_INT;
-    node->val.int_val = current_token.int_val;
+    LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+    ln->base.type = NODE_LITERAL;
+    ln->var_type.base = TYPE_INT;
+    ln->val.int_val = current_token.int_val;
     eat(l, TOKEN_NUMBER);
-    return (ASTNode*)node;
+    node = (ASTNode*)ln;
   }
   else if (current_token.type == TOKEN_CHAR_LIT) {
-    LiteralNode *node = calloc(1, sizeof(LiteralNode));
-    node->base.type = NODE_LITERAL;
-    node->var_type.base = TYPE_CHAR;
-    node->val.int_val = current_token.int_val;
+    LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+    ln->base.type = NODE_LITERAL;
+    ln->var_type.base = TYPE_CHAR;
+    ln->val.int_val = current_token.int_val;
     eat(l, TOKEN_CHAR_LIT);
-    return (ASTNode*)node;
+    node = (ASTNode*)ln;
   }
   else if (current_token.type == TOKEN_FLOAT) {
-    LiteralNode *node = calloc(1, sizeof(LiteralNode));
-    node->base.type = NODE_LITERAL;
-    node->var_type.base = TYPE_DOUBLE;
-    node->val.double_val = current_token.double_val;
+    LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+    ln->base.type = NODE_LITERAL;
+    ln->var_type.base = TYPE_DOUBLE;
+    ln->val.double_val = current_token.double_val;
     eat(l, TOKEN_FLOAT);
-    return (ASTNode*)node;
+    node = (ASTNode*)ln;
   }
   else if (current_token.type == TOKEN_STRING) {
-    LiteralNode *node = calloc(1, sizeof(LiteralNode));
-    node->base.type = NODE_LITERAL;
-    node->var_type.base = TYPE_STRING;
-    node->val.str_val = current_token.text;
+    LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+    ln->base.type = NODE_LITERAL;
+    ln->var_type.base = TYPE_STRING;
+    ln->val.str_val = current_token.text;
     current_token.text = NULL; 
     eat(l, TOKEN_STRING);
-    return (ASTNode*)node;
+    node = (ASTNode*)ln;
   }
   else if (current_token.type == TOKEN_TRUE || current_token.type == TOKEN_FALSE) {
-    LiteralNode *node = calloc(1, sizeof(LiteralNode));
-    node->base.type = NODE_LITERAL;
-    node->var_type.base = TYPE_BOOL;
-    node->val.int_val = (current_token.type == TOKEN_TRUE) ? 1 : 0;
+    LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+    ln->base.type = NODE_LITERAL;
+    ln->var_type.base = TYPE_BOOL;
+    ln->val.int_val = (current_token.type == TOKEN_TRUE) ? 1 : 0;
     eat(l, current_token.type);
-    return (ASTNode*)node;
+    node = (ASTNode*)ln;
   }
   else if (current_token.type == TOKEN_IDENTIFIER) {
     char *name = current_token.text;
@@ -90,69 +154,19 @@ ASTNode* parse_factor(Lexer *l) {
     eat(l, TOKEN_IDENTIFIER);
     
     if (current_token.type == TOKEN_LPAREN) {
-      return parse_call(l, name);
+      node = parse_call(l, name);
+    } 
+    else {
+        VarRefNode *vn = calloc(1, sizeof(VarRefNode));
+        vn->base.type = NODE_VAR_REF;
+        vn->name = name;
+        node = (ASTNode*)vn;
     }
-    
-    ASTNode *index_expr = NULL;
-    if (current_token.type == TOKEN_LBRACKET) {
-      eat(l, TOKEN_LBRACKET);
-      index_expr = parse_expression(l);
-      eat(l, TOKEN_RBRACKET);
-    }
-    
-    if (current_token.type == TOKEN_INCREMENT || current_token.type == TOKEN_DECREMENT) {
-        int op = current_token.type;
-        eat(l, op);
-        IncDecNode *node = calloc(1, sizeof(IncDecNode));
-        node->base.type = NODE_INC_DEC;
-        node->name = name;
-        node->index = index_expr;
-        node->is_prefix = 0;
-        node->op = op;
-        return (ASTNode*)node;
-    }
-    
-    if (index_expr) {
-      ArrayAccessNode *node = calloc(1, sizeof(ArrayAccessNode));
-      node->base.type = NODE_ARRAY_ACCESS;
-      node->name = name;
-      node->index = index_expr;
-      return (ASTNode*)node;
-    }
-    
-    TokenType t = current_token.type;
-    int is_arg_start = (t == TOKEN_NUMBER || t == TOKEN_FLOAT || t == TOKEN_STRING || 
-          t == TOKEN_CHAR_LIT || t == TOKEN_TRUE || t == TOKEN_FALSE || 
-          t == TOKEN_IDENTIFIER || t == TOKEN_LPAREN || t == TOKEN_LBRACKET || 
-          t == TOKEN_NOT || t == TOKEN_BIT_NOT || t == TOKEN_MINUS || t == TOKEN_STAR || t == TOKEN_AND);
-
-    if (is_arg_start) {
-        ASTNode *args_head = NULL;
-        ASTNode **curr_arg = &args_head;
-        *curr_arg = parse_expression(l);
-        curr_arg = &(*curr_arg)->next;
-        while (current_token.type == TOKEN_COMMA) {
-            eat(l, TOKEN_COMMA);
-            *curr_arg = parse_expression(l);
-            curr_arg = &(*curr_arg)->next;
-        }
-        CallNode *node = calloc(1, sizeof(CallNode));
-        node->base.type = NODE_CALL;
-        node->name = name;
-        node->args = args_head;
-        return (ASTNode*)node;
-    }
-    
-    VarRefNode *node = calloc(1, sizeof(VarRefNode));
-    node->base.type = NODE_VAR_REF;
-    node->name = name;
-    return (ASTNode*)node;
   }
   else if (current_token.type == TOKEN_LPAREN) {
     eat(l, TOKEN_LPAREN);
-    ASTNode *expr = parse_expression(l);
+    node = parse_expression(l);
     eat(l, TOKEN_RPAREN);
-    return expr;
   } 
   else {
     char msg[100];
@@ -161,27 +175,19 @@ ASTNode* parse_factor(Lexer *l) {
     parser_fail(msg);
     return NULL; 
   }
+  
+  return parse_postfix(l, node);
 }
 
 ASTNode* parse_unary(Lexer *l) {
   if (current_token.type == TOKEN_INCREMENT || current_token.type == TOKEN_DECREMENT) {
       int op = current_token.type;
       eat(l, op);
-      if (current_token.type != TOKEN_IDENTIFIER) parser_fail("Expected identifier after ++/--");
-      char *name = current_token.text;
-      current_token.text = NULL;
-      eat(l, TOKEN_IDENTIFIER);
+      ASTNode *operand = parse_unary(l);
       
-      ASTNode *index_expr = NULL;
-      if (current_token.type == TOKEN_LBRACKET) {
-          eat(l, TOKEN_LBRACKET);
-          index_expr = parse_expression(l);
-          eat(l, TOKEN_RBRACKET);
-      }
       IncDecNode *node = calloc(1, sizeof(IncDecNode));
       node->base.type = NODE_INC_DEC;
-      node->name = name;
-      node->index = index_expr;
+      node->target = operand;
       node->is_prefix = 1;
       node->op = op;
       return (ASTNode*)node;
@@ -303,22 +309,8 @@ ASTNode* parse_assignment(Lexer *l) {
           ((ArrayAccessNode*)lhs)->name = NULL;
           ((ArrayAccessNode*)lhs)->index = NULL; 
           free(lhs);
-      } else if (lhs->type == NODE_UNARY_OP && ((UnaryOpNode*)lhs)->op == TOKEN_STAR) {
-          // Pointer assignment: *ptr = val
-          // NOTE: AssignNode structure currently relies on 'name'. 
-          // To support *ptr = val, we would need to redesign AssignNode to allow arbitrary LHS AST.
-          // For now, fail or accept limitation.
-          // Since the prompt asks for C-style pointers, *p = val is essential.
-          // BUT, refactoring AssignNode everywhere is huge.
-          // HACK: Use 'name' as NULL and 'index' as the pointer address expression?
-          // No, cleaner is to add ASTNode *lhs to AssignNode, but that breaks codegen.
-          // Limitation: Only variable assignments for now. 
-          // WORKAROUND: For *p = val, parser could error or we try to patch it.
-          // Real fix: We'll modify codegen to handle pointer assignment if name is null but we have logic?
-          // Let's rely on name for now. If user tries *p = 5, it will fail here.
-          // Fixing this properly requires AST change: AssignNode should have 'target' expression.
-          // Given constraints, I will leave it as is, supporting read/ref but maybe not write to *ptr yet without refactor.
-          parser_fail("Assignment to pointer dereference (*p = val) not yet fully implemented in AST.");
+      } else if (lhs->type == NODE_MEMBER_ACCESS) {
+          node->target = lhs; 
       } else {
           parser_fail("Invalid l-value for assignment");
       }

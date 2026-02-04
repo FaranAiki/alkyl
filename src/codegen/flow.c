@@ -25,11 +25,11 @@ void codegen_func_def(CodegenCtx *ctx, FuncDefNode *node) {
   LLVMTypeRef *param_types = malloc(sizeof(LLVMTypeRef) * param_count);
   p = node->params;
   for(int i=0; i<param_count; i++) {
-    param_types[i] = get_llvm_type(p->type);
+    param_types[i] = get_llvm_type(ctx, p->type);
     p = p->next;
   }
   
-  LLVMTypeRef ret_type = get_llvm_type(node->ret_type);
+  LLVMTypeRef ret_type = get_llvm_type(ctx, node->ret_type);
   LLVMTypeRef func_type = LLVMFunctionType(ret_type, param_types, param_count, node->is_varargs); 
   LLVMValueRef func = LLVMAddFunction(ctx->module, node->name, func_type);
   free(param_types);
@@ -45,7 +45,7 @@ void codegen_func_def(CodegenCtx *ctx, FuncDefNode *node) {
   p = node->params;
   for(int i=0; i<param_count; i++) {
     LLVMValueRef arg_val = LLVMGetParam(func, i);
-    LLVMTypeRef type = get_llvm_type(p->type);
+    LLVMTypeRef type = get_llvm_type(ctx, p->type);
     LLVMValueRef alloca = LLVMBuildAlloca(ctx->builder, type, p->name);
     LLVMBuildStore(ctx->builder, arg_val, alloca);
     add_symbol(ctx, p->name, alloca, type, p->type, 0, 1); 

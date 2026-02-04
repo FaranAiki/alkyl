@@ -133,7 +133,8 @@ int run_repl(void) {
                 } 
                 else if (curr->type == NODE_VAR_DECL) {
                     VarDeclNode *vd = (VarDeclNode*)curr;
-                    LLVMTypeRef type = (vd->var_type.base == TYPE_AUTO) ? LLVMInt32Type() : get_llvm_type(vd->var_type);
+                    // FIX: Pass &ctx to get_llvm_type
+                    LLVMTypeRef type = (vd->var_type.base == TYPE_AUTO) ? LLVMInt32Type() : get_llvm_type(&ctx, vd->var_type);
                     LLVMValueRef gVar = LLVMAddGlobal(module, type, vd->name);
                     LLVMSetLinkage(gVar, LLVMCommonLinkage);
                     LLVMSetInitializer(gVar, LLVMConstNull(type));
