@@ -2,12 +2,12 @@
 
 // import "lib/cstring.hky";
 
-class Person {
+open class Person {
   char name[256] = "unnamed";
   int age = 0;
 }
 
-class Mahasiswa is Person {
+open class Mahasiswa is Person {
   int nim = 0;
 }
 
