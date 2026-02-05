@@ -2,6 +2,7 @@
 #define PARSER_INTERNAL_H
 
 #include "parser.h"
+#include "../diagnostic/diagnostic.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
@@ -11,7 +12,8 @@ extern Token current_token;
 extern jmp_buf *parser_env;
 
 // --- CORE FUNCTIONS (parser_core.c) ---
-void parser_fail(const char *msg);
+// Updated to take Lexer* for context lookup in error reporting
+void parser_fail(Lexer *l, const char *msg);
 void eat(Lexer *l, TokenType type);
 VarType parse_type(Lexer *l); 
 char* read_import_file(const char* filename);
@@ -28,7 +30,7 @@ Token lexer_next_raw(Lexer *l);
 
 // --- EXPRESSION PARSERS (parser_expr.c) ---
 ASTNode* parse_call(Lexer *l, char *name);
-ASTNode* parse_postfix(Lexer *l, ASTNode *node); // Exposed for stmt.c
+ASTNode* parse_postfix(Lexer *l, ASTNode *node); 
 
 // --- STATEMENT PARSERS (parser_stmt.c) ---
 ASTNode* parse_single_statement_or_block(Lexer *l);

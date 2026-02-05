@@ -10,7 +10,7 @@ ASTNode* parse_top_level(Lexer *l) {
   // 0. DEFINE
   if (current_token.type == TOKEN_DEFINE) {
     eat(l, TOKEN_DEFINE);
-    if (current_token.type != TOKEN_IDENTIFIER) parser_fail("Expected macro name");
+    if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected macro name after 'define'");
     char *macro_name = strdup(current_token.text);
     eat(l, TOKEN_IDENTIFIER);
     
@@ -21,12 +21,12 @@ ASTNode* parse_top_level(Lexer *l) {
         int cap = 4;
         params = malloc(sizeof(char*) * cap);
         while(current_token.type != TOKEN_RPAREN) {
-            if (current_token.type != TOKEN_IDENTIFIER) parser_fail("Expected parameter name in define");
+            if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected parameter name in define definition");
             if (param_count >= cap) { cap *= 2; params = realloc(params, sizeof(char*)*cap); }
             params[param_count++] = strdup(current_token.text);
             eat(l, TOKEN_IDENTIFIER);
             if (current_token.type == TOKEN_COMMA) eat(l, TOKEN_COMMA);
-            else if (current_token.type != TOKEN_RPAREN) parser_fail("Expected comma or )");
+            else if (current_token.type != TOKEN_RPAREN) parser_fail(l, "Expected ',' or ')' in macro parameters");
         }
         eat(l, TOKEN_RPAREN);
     }
@@ -60,7 +60,7 @@ ASTNode* parse_top_level(Lexer *l) {
       
       if (current_token.type == TOKEN_CLASS) {
           eat(l, TOKEN_CLASS);
-          if (current_token.type != TOKEN_IDENTIFIER) parser_fail("Expected class name");
+          if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected class name after 'class'");
           char *class_name = strdup(current_token.text);
           eat(l, TOKEN_IDENTIFIER);
           
@@ -69,7 +69,7 @@ ASTNode* parse_top_level(Lexer *l) {
           char *parent_name = NULL;
           if (current_token.type == TOKEN_IS) {
               eat(l, TOKEN_IS);
-              if (current_token.type != TOKEN_IDENTIFIER) parser_fail("Expected parent class name");
+              if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected parent class name after 'is'");
               parent_name = strdup(current_token.text);
               eat(l, TOKEN_IDENTIFIER);
           }
@@ -81,7 +81,7 @@ ASTNode* parse_top_level(Lexer *l) {
               int cap = 4;
               traits = malloc(sizeof(char*) * cap);
               do {
-                  if (current_token.type != TOKEN_IDENTIFIER) parser_fail("Expected trait name");
+                  if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected trait name after 'has'");
                   if (trait_count >= cap) { cap *= 2; traits = realloc(traits, sizeof(char*)*cap); }
                   traits[trait_count++] = strdup(current_token.text);
                   eat(l, TOKEN_IDENTIFIER);
@@ -102,7 +102,7 @@ ASTNode* parse_top_level(Lexer *l) {
               
               VarType vt = parse_type(l);
               if (vt.base != TYPE_UNKNOWN) {
-                  if (current_token.type != TOKEN_IDENTIFIER) parser_fail("Expected member name");
+                  if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected member name in class body");
                   char *mem_name = strdup(current_token.text);
                   eat(l, TOKEN_IDENTIFIER);
                   
@@ -115,7 +115,7 @@ ASTNode* parse_top_level(Lexer *l) {
                       if (current_token.type != TOKEN_RPAREN) {
                           while(1) {
                               VarType pt = parse_type(l);
-                              if(pt.base == TYPE_UNKNOWN) parser_fail("Expected param type");
+                              if(pt.base == TYPE_UNKNOWN) parser_fail(l, "Expected parameter type in method declaration");
                               char *pname = strdup(current_token.text);
                               eat(l, TOKEN_IDENTIFIER);
                               Parameter *p = calloc(1, sizeof(Parameter));
@@ -171,7 +171,7 @@ ASTNode* parse_top_level(Lexer *l) {
                       curr_member = &var->base.next;
                   }
               } else {
-                  parser_fail("Unexpected token in class body");
+                  parser_fail(l, "Unexpected token in class body. Expected member declaration or '}'.");
               }
           }
           eat(l, TOKEN_RBRACE);
@@ -199,7 +199,7 @@ ASTNode* parse_top_level(Lexer *l) {
       if (current_token.type == TOKEN_IDENTIFIER) eat(l, TOKEN_IDENTIFIER);
       else eat(l, TOKEN_STRING);
     } else {
-      parser_fail("Expected library name after link");
+      parser_fail(l, "Expected library name (string or identifier) after 'link'");
     }
     if (current_token.type == TOKEN_SEMICOLON) eat(l, TOKEN_SEMICOLON);
     LinkNode *node = calloc(1, sizeof(LinkNode));
@@ -211,13 +211,18 @@ ASTNode* parse_top_level(Lexer *l) {
   // 2. IMPORT
   if (current_token.type == TOKEN_IMPORT) {
     eat(l, TOKEN_IMPORT);
-    if (current_token.type != TOKEN_STRING) parser_fail("Expected string after import");
+    if (current_token.type != TOKEN_STRING) parser_fail(l, "Expected file path string after 'import'");
     char* fname = current_token.text;
     current_token.text = NULL;
     eat(l, TOKEN_STRING);
     eat(l, TOKEN_SEMICOLON);
     char* src = read_import_file(fname);
-    if (!src) { fprintf(stderr, "Could not open import file: %s\n", fname); free(fname); parser_fail("Import error"); }
+    if (!src) { 
+        char msg[256];
+        snprintf(msg, 256, "Could not open imported file: '%s'", fname);
+        free(fname); 
+        parser_fail(l, msg); 
+    }
     free(fname);
     Token saved_token = current_token;
     current_token.text = NULL; current_token.type = TOKEN_UNKNOWN; 
@@ -232,8 +237,8 @@ ASTNode* parse_top_level(Lexer *l) {
   if (current_token.type == TOKEN_EXTERN) {
     eat(l, TOKEN_EXTERN);
     VarType ret_type = parse_type(l);
-    if (ret_type.base == TYPE_UNKNOWN) { parser_fail("Expected return type for extern"); }
-    if (current_token.type != TOKEN_IDENTIFIER) { parser_fail("Expected extern function name"); }
+    if (ret_type.base == TYPE_UNKNOWN) { parser_fail(l, "Expected return type for extern function"); }
+    if (current_token.type != TOKEN_IDENTIFIER) { parser_fail(l, "Expected extern function name"); }
     char *name = current_token.text; current_token.text = NULL; eat(l, TOKEN_IDENTIFIER);
     eat(l, TOKEN_LPAREN);
     Parameter *params_head = NULL; Parameter **curr_param = &params_head;
@@ -242,7 +247,7 @@ ASTNode* parse_top_level(Lexer *l) {
       while (1) {
         if (current_token.type == TOKEN_ELLIPSIS) { eat(l, TOKEN_ELLIPSIS); is_varargs = 1; break; }
         VarType ptype = parse_type(l);
-        if (ptype.base == TYPE_UNKNOWN) { parser_fail("Expected param type"); }
+        if (ptype.base == TYPE_UNKNOWN) { parser_fail(l, "Expected parameter type"); }
         char *pname = NULL;
         if (current_token.type == TOKEN_IDENTIFIER) { pname = current_token.text; current_token.text = NULL; eat(l, TOKEN_IDENTIFIER); }
         Parameter *p = calloc(1, sizeof(Parameter)); p->type = ptype; p->name = pname; *curr_param = p; curr_param = &p->next;
@@ -265,7 +270,7 @@ ASTNode* parse_top_level(Lexer *l) {
       return parse_single_statement_or_block(l);
   }
 
-  if (current_token.type != TOKEN_IDENTIFIER) { parser_fail("Expected identifier after type"); }
+  if (current_token.type != TOKEN_IDENTIFIER) { parser_fail(l, "Expected identifier definition after type"); }
   char *name = current_token.text; current_token.text = NULL; eat(l, TOKEN_IDENTIFIER);
   
   if (current_token.type == TOKEN_LPAREN) {
@@ -274,7 +279,7 @@ ASTNode* parse_top_level(Lexer *l) {
     if (current_token.type != TOKEN_RPAREN) {
       while (1) {
         VarType ptype = parse_type(l);
-        if (ptype.base == TYPE_UNKNOWN) parser_fail("Expected param type");
+        if (ptype.base == TYPE_UNKNOWN) parser_fail(l, "Expected parameter type in function definition");
         char *pname = current_token.text; current_token.text = NULL; eat(l, TOKEN_IDENTIFIER);
         Parameter *p = calloc(1, sizeof(Parameter)); p->type = ptype; p->name = pname; *curr_param = p; curr_param = &p->next;
         if (current_token.type == TOKEN_COMMA) eat(l, TOKEN_COMMA); else break;
@@ -296,7 +301,7 @@ ASTNode* parse_top_level(Lexer *l) {
     }
     ASTNode *init = NULL;
     if (current_token.type == TOKEN_ASSIGN) { eat(l, TOKEN_ASSIGN); init = parse_expression(l); } 
-    else { if (vtype.base == TYPE_AUTO) { parser_fail("Init required for 'let'"); } }
+    else { if (vtype.base == TYPE_AUTO) { parser_fail(l, "'let' variable declaration must have an initializer"); } }
     eat(l, TOKEN_SEMICOLON);
     VarDeclNode *node = calloc(1, sizeof(VarDeclNode));
     node->base.type = NODE_VAR_DECL; node->var_type = vtype; node->name = name_val;

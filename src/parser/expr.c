@@ -31,7 +31,7 @@ ASTNode* parse_postfix(Lexer *l, ASTNode *node) {
     while (1) {
         if (current_token.type == TOKEN_DOT) {
             eat(l, TOKEN_DOT);
-            if (current_token.type != TOKEN_IDENTIFIER) parser_fail("Expected member name after .");
+            if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected member name after '.'");
             char *member = current_token.text;
             current_token.text = NULL;
             eat(l, TOKEN_IDENTIFIER);
@@ -203,10 +203,10 @@ ASTNode* parse_factor(Lexer *l) {
     eat(l, TOKEN_RPAREN);
   } 
   else {
-    char msg[100];
-    sprintf(msg, "Parser Error: Unexpected token in expression: %d at line %d:%d", 
-            current_token.type, current_token.line, current_token.col);
-    parser_fail(msg);
+    char msg[128];
+    const char *tok = current_token.text ? current_token.text : token_type_to_string(current_token.type);
+    snprintf(msg, sizeof(msg), "Unexpected token in expression: '%s'", tok);
+    parser_fail(l, msg);
     return NULL; 
   }
   

@@ -52,7 +52,6 @@ typedef struct Expansion {
 
 Expansion *expansion_head = NULL;
 
-// Deep copy a token (duplicating strings)
 Token token_clone(Token t) {
     Token new_t = t;
     if (t.text) new_t.text = strdup(t.text);
@@ -62,16 +61,13 @@ Token token_clone(Token t) {
 void register_macro(const char *name, char **params, int param_count, Token *body, int body_len) {
     Macro *m = malloc(sizeof(Macro));
     m->name = strdup(name);
-    m->params = params; // Takes ownership
+    m->params = params; 
     m->param_count = param_count;
-    
-    // Deep copy body tokens to persist them
     m->body = malloc(sizeof(Token) * body_len);
     for (int i=0; i<body_len; i++) {
         m->body[i] = token_clone(body[i]);
     }
     m->body_len = body_len;
-    
     m->next = macro_head;
     macro_head = m;
 }
@@ -85,7 +81,6 @@ Macro* find_macro(const char *name) {
     return NULL;
 }
 
-// Helper to free a sequence of tokens
 void free_token_seq(Token *tokens, int count) {
     for(int i=0; i<count; i++) {
         if (tokens[i].text) free(tokens[i].text);
@@ -114,8 +109,6 @@ Token get_next_token_expanded(Lexer *l) {
     return lexer_next(l);
 }
 
-// --- REVISED MACRO LOGIC ---
-
 Token fetch_safe(Lexer *l) { return get_next_token_expanded(l); }
 
 void parser_set_recovery(jmp_buf *env) { parser_env = env; }
@@ -124,8 +117,10 @@ void safe_free_current_token() {
   if (current_token.text) { free(current_token.text); current_token.text = NULL; }
 }
 
-void parser_fail(const char *msg) {
-    fprintf(stderr, "%s\n", msg);
+// --- UPDATED ERROR HANDLING ---
+
+void parser_fail(Lexer *l, const char *msg) {
+    report_error(l, current_token, msg);
     safe_free_current_token();
     if (parser_env) longjmp(*parser_env, 1);
     else exit(1);
@@ -144,6 +139,7 @@ void eat(Lexer *l, TokenType type) {
     safe_free_current_token();
     Token t = fetch_safe(l);
     
+    // Macro expansion logic
     while (t.type == TOKEN_IDENTIFIER) {
         Macro *m = find_macro(t.text);
         if (!m) break; 
@@ -154,8 +150,7 @@ void eat(Lexer *l, TokenType type) {
         if (m->param_count > 0) {
             Token peek = fetch_safe(l);
             if (peek.type != TOKEN_LPAREN) {
-                fprintf(stderr, "Error: Function-like macro '%s' requires arguments list.\n", m->name);
-                exit(1);
+                parser_fail(l, "Function-like macro requires arguments list '('.");
             }
             if(peek.text) free(peek.text);
 
@@ -168,7 +163,7 @@ void eat(Lexer *l, TokenType type) {
                 int depth = 0;
                 while(1) {
                     Token arg_t = fetch_safe(l);
-                    if (arg_t.type == TOKEN_EOF) parser_fail("EOF in macro args");
+                    if (arg_t.type == TOKEN_EOF) parser_fail(l, "Unexpected EOF in macro arguments");
                     
                     if (arg_t.type == TOKEN_LPAREN) depth++;
                     else if (arg_t.type == TOKEN_RPAREN) {
@@ -246,11 +241,23 @@ void eat(Lexer *l, TokenType type) {
     current_token = t;
 
   } else {
-    char msg[128];
-    const char *tok_txt = current_token.text ? current_token.text : "(symbol)";
-    sprintf(msg, "Parser Error: Unexpected token '%s' (type %d), expected type %d at line %d:%d", 
-            tok_txt, current_token.type, type, current_token.line, current_token.col);
-    parser_fail(msg);
+    // Generate professional error message
+    char msg[256];
+    const char *expected = get_token_description(type);
+    const char *found = current_token.type == TOKEN_EOF ? "end of file" : 
+                        (current_token.text ? current_token.text : token_type_to_string(current_token.type));
+    
+    if (type == TOKEN_SEMICOLON) {
+        snprintf(msg, sizeof(msg), "Expected ';' after statement, but found '%s'", found);
+    } else if (type == TOKEN_RPAREN) {
+        snprintf(msg, sizeof(msg), "Expected ')' to close expression, but found '%s'", found);
+    } else if (type == TOKEN_RBRACE) {
+        snprintf(msg, sizeof(msg), "Expected '}' to close block, but found '%s'", found);
+    } else {
+        snprintf(msg, sizeof(msg), "Expected '%s' but found '%s'", expected, found);
+    }
+    
+    parser_fail(l, msg);
   }
 }
 
@@ -301,139 +308,32 @@ char* read_import_file(const char* filename) {
 }
 
 void free_ast(ASTNode *node) {
+  // ... (Identical to previous AST free logic) ...
+  // To save space in this response, assuming standard AST freeing logic here
+  // The important part is parser_fail and eat logic above.
   if (!node) return;
   if (node->next) free_ast(node->next);
-  
   switch (node->type) {
-    case NODE_TYPEOF: {
-        UnaryOpNode *u = (UnaryOpNode*)node;
-        free_ast(u->operand);
-        break;
-    }
-    case NODE_MEMBER_ACCESS: {
-        MemberAccessNode *m = (MemberAccessNode*)node;
-        free_ast(m->object);
-        if (m->member_name) free(m->member_name);
-        break;
-    }
-    case NODE_CLASS: {
-        ClassNode *c = (ClassNode*)node;
-        free(c->name);
-        if (c->parent_name) free(c->parent_name);
-        if (c->traits.names) {
-            for(int i=0; i<c->traits.count; i++) free(c->traits.names[i]);
-            free(c->traits.names);
-        }
-        free_ast(c->members);
-        break;
-    }
-    case NODE_FUNC_DEF: {
-      FuncDefNode *f = (FuncDefNode*)node;
-      if (f->name) free(f->name);
-      Parameter *p = f->params;
-      while (p) {
-        Parameter *next = p->next;
-        if (p->name) free(p->name);
-        free(p);
-        p = next;
-      }
-      free_ast(f->body);
-      break;
-    }
-    case NODE_VAR_DECL: {
-      VarDeclNode *v = (VarDeclNode*)node;
-      if (v->name) free(v->name);
-      if (v->var_type.class_name) free(v->var_type.class_name);
-      free_ast(v->initializer);
-      free_ast(v->array_size);
-      break;
-    }
-    case NODE_ASSIGN: {
-      AssignNode *a = (AssignNode*)node;
-      if (a->name) free(a->name);
-      free_ast(a->value);
-      free_ast(a->index);
-      free_ast(a->target);
-      break;
-    }
-    case NODE_VAR_REF: {
-      VarRefNode *v = (VarRefNode*)node;
-      if (v->name) free(v->name);
-      break;
-    }
-    case NODE_ARRAY_ACCESS: {
-      ArrayAccessNode *a = (ArrayAccessNode*)node;
-      free_ast(a->target); // Updated to free Generic Target
-      free_ast(a->index);
-      break;
-    }
-    case NODE_CALL: {
-      CallNode *c = (CallNode*)node;
-      if (c->name) free(c->name);
-      free_ast(c->args);
-      break;
-    }
-    case NODE_RETURN: {
-      ReturnNode *r = (ReturnNode*)node;
-      free_ast(r->value);
-      break;
-    }
-    case NODE_IF: {
-      IfNode *i = (IfNode*)node;
-      free_ast(i->condition);
-      free_ast(i->then_body);
-      free_ast(i->else_body);
-      break;
-    }
-    case NODE_WHILE: {
-      WhileNode *w = (WhileNode*)node;
-      free_ast(w->condition);
-      free_ast(w->body);
-      break;
-    }
-    case NODE_LOOP: {
-      LoopNode *l = (LoopNode*)node;
-      free_ast(l->iterations);
-      free_ast(l->body);
-      break;
-    }
-    case NODE_BINARY_OP: {
-      BinaryOpNode *b = (BinaryOpNode*)node;
-      free_ast(b->left);
-      free_ast(b->right);
-      break;
-    }
-    case NODE_UNARY_OP: {
-      UnaryOpNode *u = (UnaryOpNode*)node;
-      free_ast(u->operand);
-      break;
-    }
-    case NODE_ARRAY_LIT: {
-      ArrayLitNode *a = (ArrayLitNode*)node;
-      free_ast(a->elements);
-      break;
-    }
-    case NODE_LINK: {
-      LinkNode *l = (LinkNode*)node;
-      if (l->lib_name) free(l->lib_name);
-      break;
-    }
-    case NODE_LITERAL: {
-      LiteralNode *l = (LiteralNode*)node;
-      if (l->var_type.base == TYPE_STRING && l->val.str_val) {
-        free(l->val.str_val);
-      }
-      break;
-    }
-    case NODE_INC_DEC: {
-        IncDecNode *id = (IncDecNode*)node;
-        if (id->name) free(id->name);
-        free_ast(id->index);
-        break;
-    }
-    default:
-      break;
+    case NODE_TYPEOF: { UnaryOpNode *u = (UnaryOpNode*)node; free_ast(u->operand); break; }
+    case NODE_MEMBER_ACCESS: { MemberAccessNode *m = (MemberAccessNode*)node; free_ast(m->object); if (m->member_name) free(m->member_name); break; }
+    case NODE_CLASS: { ClassNode *c = (ClassNode*)node; free(c->name); if (c->parent_name) free(c->parent_name); if (c->traits.names) { for(int i=0; i<c->traits.count; i++) free(c->traits.names[i]); free(c->traits.names); } free_ast(c->members); break; }
+    case NODE_FUNC_DEF: { FuncDefNode *f = (FuncDefNode*)node; if (f->name) free(f->name); Parameter *p = f->params; while (p) { Parameter *next = p->next; if (p->name) free(p->name); free(p); p = next; } free_ast(f->body); break; }
+    case NODE_VAR_DECL: { VarDeclNode *v = (VarDeclNode*)node; if (v->name) free(v->name); if (v->var_type.class_name) free(v->var_type.class_name); free_ast(v->initializer); free_ast(v->array_size); break; }
+    case NODE_ASSIGN: { AssignNode *a = (AssignNode*)node; if (a->name) free(a->name); free_ast(a->value); free_ast(a->index); free_ast(a->target); break; }
+    case NODE_VAR_REF: { VarRefNode *v = (VarRefNode*)node; if (v->name) free(v->name); break; }
+    case NODE_ARRAY_ACCESS: { ArrayAccessNode *a = (ArrayAccessNode*)node; free_ast(a->target); free_ast(a->index); break; }
+    case NODE_CALL: { CallNode *c = (CallNode*)node; if (c->name) free(c->name); free_ast(c->args); break; }
+    case NODE_RETURN: { ReturnNode *r = (ReturnNode*)node; free_ast(r->value); break; }
+    case NODE_IF: { IfNode *i = (IfNode*)node; free_ast(i->condition); free_ast(i->then_body); free_ast(i->else_body); break; }
+    case NODE_WHILE: { WhileNode *w = (WhileNode*)node; free_ast(w->condition); free_ast(w->body); break; }
+    case NODE_LOOP: { LoopNode *l = (LoopNode*)node; free_ast(l->iterations); free_ast(l->body); break; }
+    case NODE_BINARY_OP: { BinaryOpNode *b = (BinaryOpNode*)node; free_ast(b->left); free_ast(b->right); break; }
+    case NODE_UNARY_OP: { UnaryOpNode *u = (UnaryOpNode*)node; free_ast(u->operand); break; }
+    case NODE_ARRAY_LIT: { ArrayLitNode *a = (ArrayLitNode*)node; free_ast(a->elements); break; }
+    case NODE_LINK: { LinkNode *l = (LinkNode*)node; if (l->lib_name) free(l->lib_name); break; }
+    case NODE_LITERAL: { LiteralNode *l = (LiteralNode*)node; if (l->var_type.base == TYPE_STRING && l->val.str_val) { free(l->val.str_val); } break; }
+    case NODE_INC_DEC: { IncDecNode *id = (IncDecNode*)node; if (id->name) free(id->name); free_ast(id->index); break; }
+    default: break;
   }
-  
   free(node);
 }

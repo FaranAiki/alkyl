@@ -137,7 +137,7 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
       return node; // Can be a Call, MethodCall, IncDec, or just VarRef expression statement
   }
   
-  parser_fail("Expected assignment, function call, or increment/decrement");
+  parser_fail(l, "Expected statement: assignment, function call, increment/decrement, or semicolon.");
   return NULL;
 }
 
@@ -152,7 +152,7 @@ ASTNode* parse_var_decl_internal(Lexer *l) {
   else if (current_token.type == TOKEN_KW_IMUT) { is_mut = 0; eat(l, TOKEN_KW_IMUT); }
 
   if (current_token.type != TOKEN_IDENTIFIER) { 
-      parser_fail("Expected variable name"); 
+      parser_fail(l, "Expected variable name after type in declaration"); 
   }
   char *name = current_token.text;
   current_token.text = NULL;
@@ -207,10 +207,9 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
   // Peek logic for type-first var decls
   VarType peek_t = parse_type(l); 
   if (peek_t.base != TYPE_UNKNOWN) {
-      // Fix: Check for Constructor Calls masquerading as Types
+      // Check for Constructor Calls masquerading as Types
       if (peek_t.base == TYPE_CLASS && current_token.type == TOKEN_LPAREN) {
           // It's a constructor call: Person("A", 1);
-          // We have the name in peek_t.class_name
           ASTNode* call = parse_call(l, peek_t.class_name);
           eat(l, TOKEN_SEMICOLON);
           return call;
@@ -220,7 +219,7 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
       if (current_token.type == TOKEN_KW_MUT) { is_mut = 1; eat(l, TOKEN_KW_MUT); }
       else if (current_token.type == TOKEN_KW_IMUT) { is_mut = 0; eat(l, TOKEN_KW_IMUT); }
       
-      if (current_token.type != TOKEN_IDENTIFIER) parser_fail("Expected variable name");
+      if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected variable name in declaration");
       char *name = current_token.text;
       current_token.text = NULL;
       eat(l, TOKEN_IDENTIFIER);
