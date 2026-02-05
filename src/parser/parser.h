@@ -181,7 +181,7 @@ typedef struct {
 
 typedef struct {
   ASTNode base;
-  char *name;
+  ASTNode *target; // Changed from char *name to generic target
   ASTNode *index;
 } ArrayAccessNode;
 

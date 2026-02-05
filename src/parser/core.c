@@ -363,7 +363,7 @@ void free_ast(ASTNode *node) {
     }
     case NODE_ARRAY_ACCESS: {
       ArrayAccessNode *a = (ArrayAccessNode*)node;
-      if (a->name) free(a->name);
+      free_ast(a->target); // Updated to free Generic Target
       free_ast(a->index);
       break;
     }

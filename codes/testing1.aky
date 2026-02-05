@@ -1,0 +1,13 @@
+open class Engine {
+  void running() {
+    printf("I am running brr.");
+  }
+}
+
+open class Car has Engine {
+  
+}
+
+Car toyota = Car();
+
+toyota[Engine].running();

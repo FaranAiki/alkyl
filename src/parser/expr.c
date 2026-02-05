@@ -71,9 +71,6 @@ ASTNode* parse_postfix(Lexer *l, ASTNode *node) {
             
             // Check for Trait Access: [ClassName]
             if (current_token.type == TOKEN_IDENTIFIER && is_typename(current_token.text)) {
-                // It is likely a trait access if we assume types are only used for this inside [] here
-                // Note: This prevents using variables with same name as classes as indices.
-                // Assuming Type names are distinct enough or context implies it.
                 char *trait_name = strdup(current_token.text);
                 eat(l, TOKEN_IDENTIFIER);
                 eat(l, TOKEN_RBRACKET);
@@ -84,26 +81,15 @@ ASTNode* parse_postfix(Lexer *l, ASTNode *node) {
                 ta->trait_name = trait_name;
                 node = (ASTNode*)ta;
             } else {
-                // Array Access
+                // Generic Array Access
                 ASTNode *index = parse_expression(l);
                 eat(l, TOKEN_RBRACKET);
                 
-                if (node->type == NODE_VAR_REF) {
-                    ArrayAccessNode *aa = calloc(1, sizeof(ArrayAccessNode));
-                    aa->base.type = NODE_ARRAY_ACCESS;
-                    aa->name = ((VarRefNode*)node)->name;
-                    ((VarRefNode*)node)->name = NULL; free(node);
-                    aa->index = index;
-                    node = (ASTNode*)aa;
-                } else {
-                    // Generic array access support is limited in current AST
-                    // Fallback: Parser Error or hack
-                    // For now, allow it but warn, or strictly require var ref
-                    // Current codegen only supports NODE_ARRAY_ACCESS with name.
-                    // To support expr[index], we need generic node.
-                    // Keeping constraint for now as per previous iterations.
-                    parser_fail("Expected variable for array index (generic indexing pending)");
-                }
+                ArrayAccessNode *aa = calloc(1, sizeof(ArrayAccessNode));
+                aa->base.type = NODE_ARRAY_ACCESS;
+                aa->target = node; // Generic target (allows nesting)
+                aa->index = index;
+                node = (ASTNode*)aa;
             }
         }
         else if (current_token.type == TOKEN_INCREMENT || current_token.type == TOKEN_DECREMENT) {
@@ -350,16 +336,9 @@ ASTNode* parse_assignment(Lexer *l) {
           node->name = ((VarRefNode*)lhs)->name; 
           ((VarRefNode*)lhs)->name = NULL; 
           free(lhs);
-      } else if (lhs->type == NODE_ARRAY_ACCESS) {
-          node->name = ((ArrayAccessNode*)lhs)->name;
-          node->index = ((ArrayAccessNode*)lhs)->index;
-          ((ArrayAccessNode*)lhs)->name = NULL;
-          ((ArrayAccessNode*)lhs)->index = NULL; 
-          free(lhs);
-      } else if (lhs->type == NODE_MEMBER_ACCESS) {
-          node->target = lhs; 
       } else {
-          parser_fail("Invalid l-value for assignment");
+          // Generic target (MemberAccess, ArrayAccess, etc)
+          node->target = lhs; 
       }
       return (ASTNode*)node;
   }

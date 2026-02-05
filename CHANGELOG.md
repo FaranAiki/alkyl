@@ -58,3 +58,7 @@ Mutable and arrays
 * todo fix inheritance shit (constructor)
 * just code manually at this point (?) but I am too lazy bruhh
 * idk i am partially satisfied
+
+## 0.1.1 
+* fixed inheritance 
+* fixed array

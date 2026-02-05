@@ -9,15 +9,19 @@ void codegen_assign(CodegenCtx *ctx, AssignNode *node) {
   LLVMTypeRef elem_type = NULL;
 
   if (node->target) {
+      // Modern generic path: Handle MemberAccess, ArrayAccess, Generic Refs via codegen_addr
       ptr = codegen_addr(ctx, node->target);
       VarType vt = codegen_calc_type(ctx, node->target);
       elem_type = get_llvm_type(ctx, vt);
   } else {
+      // Fallback path for simple VarRef assignments (name only)
       Symbol *sym = find_symbol(ctx, node->name);
       
       // If local/global var found
       if (sym) {
           if (node->index) {
+            // Legacy path: This path might be dead code if parser uses target for arrays now,
+            // but kept for safety if AssignNode is constructed differently elsewhere.
             LLVMValueRef idx = codegen_expr(ctx, node->index);
             if (LLVMGetTypeKind(LLVMTypeOf(idx)) != LLVMIntegerTypeKind) {
              idx = LLVMBuildFPToUI(ctx->builder, idx, LLVMInt64Type(), "idx_cast");
