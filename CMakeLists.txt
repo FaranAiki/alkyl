@@ -29,6 +29,8 @@ include_directories(
 )
 
 set(COMMON_SOURCES 
+    src/diagnostic/diagnostic.c
+
     src/lexer/lexer.c
     
     src/parser/core.c 

@@ -33,6 +33,11 @@ ASTNode* parse_continue(Lexer *l) {
 }
 
 ASTNode* parse_assignment_or_call(Lexer *l) {
+  // Capture the start token (the identifier) before eating it.
+  // This allows error messages to point to 'opn' instead of the token after it.
+  Token start_token = current_token;
+  if (start_token.text) start_token.text = strdup(start_token.text); // Clone text if valid
+
   // 1. Parse Identifier
   char *name = current_token.text;
   current_token.text = NULL; 
@@ -46,13 +51,11 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
   // 2. Check for Standard Call (start with parens)
   if (current_token.type == TOKEN_LPAREN) {
       char *fname = ((VarRefNode*)node)->name;
-      // node->name is now owned by fname. free container.
       free(node); 
       node = parse_call(l, fname);
   }
 
   // 3. Apply Postfix Operations ( .member, [index], ++, -- )
-  // This handles chains like: x.y.z, x[i], x.method(), x++
   node = parse_postfix(l, node);
 
   // 4. Check for Assignment
@@ -86,19 +89,17 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
     an->value = expr;
     an->op = op;
     
-    // Assign target
     if (node->type == NODE_VAR_REF) {
         an->name = ((VarRefNode*)node)->name;
         ((VarRefNode*)node)->name = NULL; free(node);
     } else {
-        // Generic l-value (MemberAccess, ArrayAccess)
         an->target = node; 
     }
+    if (start_token.text) free(start_token.text);
     return (ASTNode*)an;
   }
   
-  // 5. Check for Paren-less Call (Only valid on simple identifiers for now)
-  // e.g. print "hello";
+  // 5. Check for Paren-less Call
   if (node->type == NODE_VAR_REF) {
       TokenType t = current_token.type;
       int is_arg_start = (t == TOKEN_NUMBER || t == TOKEN_FLOAT || t == TOKEN_STRING || 
@@ -108,7 +109,7 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
 
       if (is_arg_start) {
           char *fname = ((VarRefNode*)node)->name;
-          free(node); // convert to call
+          free(node); 
           
           ASTNode *args_head = NULL;
           ASTNode **curr_arg = &args_head;
@@ -127,6 +128,7 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
           cn->base.type = NODE_CALL;
           cn->name = fname;
           cn->args = args_head;
+          if (start_token.text) free(start_token.text);
           return (ASTNode*)cn;
       }
   }
@@ -134,10 +136,34 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
   // 6. Statement End
   if (current_token.type == TOKEN_SEMICOLON) {
       eat(l, TOKEN_SEMICOLON);
-      return node; // Can be a Call, MethodCall, IncDec, or just VarRef expression statement
+      if (start_token.text) free(start_token.text);
+      return node; 
   }
   
-  parser_fail(l, "Expected statement: assignment, function call, increment/decrement, or semicolon.");
+  // --- Enhanced Error Reporting ---
+  // If we reach here, we parsed an identifier but couldn't form a valid statement.
+  
+  char msg[256];
+  const char *suggestion = find_closest_keyword(((VarRefNode*)node)->name);
+  
+  if (suggestion) {
+      snprintf(msg, sizeof(msg), "Invalid statement starting with identifier '%s'. Did you mean '%s'?", 
+               ((VarRefNode*)node)->name, suggestion);
+  } else {
+      snprintf(msg, sizeof(msg), "Unexpected identifier '%s'. Expected assignment, function call, or keyword.", 
+               ((VarRefNode*)node)->name);
+  }
+  
+  // Clean up incomplete node before failing
+  if (node->type == NODE_VAR_REF) {
+      if (((VarRefNode*)node)->name) free(((VarRefNode*)node)->name);
+  }
+  free(node);
+  
+  // Use parser_fail_at with the saved start_token to point caret at 'opn', not 'class'
+  parser_fail_at(l, start_token, msg);
+  
+  if (start_token.text) free(start_token.text);
   return NULL;
 }
 

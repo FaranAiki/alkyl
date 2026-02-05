@@ -9,11 +9,18 @@
 
 // --- SHARED GLOBALS ---
 extern Token current_token;
-extern jmp_buf *parser_env;
+extern jmp_buf *parser_env;      // For REPL recovery
+extern jmp_buf *parser_recover_buf; // For file parsing recovery
+extern int parser_error_count;   // Total errors found
 
 // --- CORE FUNCTIONS (parser_core.c) ---
-// Updated to take Lexer* for context lookup in error reporting
+// Report error at current token
 void parser_fail(Lexer *l, const char *msg);
+// Report error at specific token (fix for caret position)
+void parser_fail_at(Lexer *l, Token t, const char *msg);
+// Skip tokens until a sync point is found
+void parser_sync(Lexer *l);
+
 void eat(Lexer *l, TokenType type);
 VarType parse_type(Lexer *l); 
 char* read_import_file(const char* filename);
@@ -25,7 +32,6 @@ void register_macro(const char *name, char **params, int param_count, Token *bod
 void register_typename(const char *name);
 int is_typename(const char *name);
 
-// helper to allow top.c to peek/consume raw tokens for define parsing
 Token lexer_next_raw(Lexer *l); 
 
 // --- EXPRESSION PARSERS (parser_expr.c) ---

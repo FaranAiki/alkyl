@@ -2,6 +2,67 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+#include <math.h>
+
+// --- Keyword Database for "Did you mean?" ---
+static const char* KEYWORDS[] = {
+    "loop", "while", "once", "if", "elif", "else", "return", "break", "continue",
+    "define", "as", "class", "is", "has", "open", "closed", "typeof",
+    "void", "int", "char", "bool", "single", "double", "let",
+    "mut", "mutable", "imut", "immutable", "import", "extern", "link",
+    "true", "false", "not", NULL
+};
+
+// Standard Levenshtein Distance Algorithm
+int levenshtein_dist(const char *s1, const char *s2) {
+    int len1 = strlen(s1);
+    int len2 = strlen(s2);
+    
+    if (abs(len1 - len2) > 3) return abs(len1 - len2);
+
+    int *col = malloc((len1 + 1) * sizeof(int));
+    if (!col) return 100;
+    
+    for (int y = 0; y <= len1; y++) col[y] = y;
+    
+    for (int x = 1; x <= len2; x++) {
+        col[0] = x;
+        int last_diag = x - 1;
+        for (int y = 1; y <= len1; y++) {
+            int old_diag = col[y];
+            col[y] = (s1[y-1] == s2[x-1]) ? last_diag : 
+                     (1 + (col[y] < col[y-1] ? (col[y] < last_diag ? col[y] : last_diag) : (col[y-1] < last_diag ? col[y-1] : last_diag)));
+            last_diag = old_diag;
+        }
+    }
+    
+    int result = col[len1];
+    free(col);
+    return result;
+}
+
+const char* find_closest_keyword(const char *ident) {
+    if (!ident) return NULL;
+    
+    const char *best_match = NULL;
+    int best_dist = 100;
+    int ident_len = strlen(ident);
+    
+    for (int i = 0; KEYWORDS[i] != NULL; i++) {
+        int dist = levenshtein_dist(ident, KEYWORDS[i]);
+        
+        // Thresholds: strict for short words, lenient for long
+        int threshold = (ident_len <= 3) ? 1 : 2;
+        
+        if (dist <= threshold && dist < best_dist) {
+            best_dist = dist;
+            best_match = KEYWORDS[i];
+        }
+    }
+    
+    return best_match;
+}
 
 const char* token_type_to_string(TokenType type) {
     switch (type) {
@@ -12,7 +73,6 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_STRING: return "string";
         case TOKEN_CHAR_LIT: return "char";
         
-        // Symbols
         case TOKEN_LPAREN: return "(";
         case TOKEN_RPAREN: return ")";
         case TOKEN_LBRACE: return "{";
@@ -24,7 +84,6 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_DOT: return ".";
         case TOKEN_ELLIPSIS: return "...";
         
-        // Operators
         case TOKEN_ASSIGN: return "=";
         case TOKEN_EQ: return "==";
         case TOKEN_NEQ: return "!=";
@@ -50,17 +109,21 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_AND_AND: return "&&";
         case TOKEN_OR_OR: return "||";
         
-        // Keywords
         case TOKEN_IF: return "if";
         case TOKEN_ELSE: return "else";
         case TOKEN_WHILE: return "while";
         case TOKEN_LOOP: return "loop";
         case TOKEN_RETURN: return "return";
-        case TOKEN_VAR_DECL: return "let"; // Map implicit internal type if needed, or keywords directly
         case TOKEN_KW_INT: return "int";
         case TOKEN_KW_VOID: return "void";
         case TOKEN_CLASS: return "class";
         case TOKEN_DEFINE: return "define";
+        
+        // Contextual keywords mapping
+        case TOKEN_OPEN: return "open";
+        case TOKEN_CLOSED: return "closed";
+        case TOKEN_IS: return "is";
+        case TOKEN_HAS: return "has";
         
         default: return "token";
     }
@@ -86,15 +149,12 @@ void report_error(Lexer *l, Token t, const char *msg) {
         return;
     }
 
-    // 1. Header
     fprintf(stderr, DIAG_BOLD "%d:%d: " DIAG_RED "error: " DIAG_RESET DIAG_BOLD "%s" DIAG_RESET "\n", 
             t.line, t.col, msg);
 
-    // 2. Find the start of the line in source
     const char *line_start = l->src;
     int current_line = 1;
     
-    // Scan from beginning of source to find the line
     const char *ptr = l->src;
     const char *last_line_ptr = l->src;
     
@@ -107,8 +167,6 @@ void report_error(Lexer *l, Token t, const char *msg) {
     }
     line_start = last_line_ptr;
 
-    // 3. Print the code snippet
-    // Print line number gutter? Optional, let's keep it simple first
     fprintf(stderr, "  " DIAG_GREY "| " DIAG_RESET); 
     
     const char *c = line_start;
@@ -118,10 +176,8 @@ void report_error(Lexer *l, Token t, const char *msg) {
     }
     fputc('\n', stderr);
 
-    // 4. Print the caret pointer
     fprintf(stderr, "  " DIAG_GREY "| " DIAG_RESET);
     
-    // We need to iterate again to handle tabs correctly
     c = line_start;
     int col_counter = 1;
     while (col_counter < t.col && *c != '\n' && *c != '\0') {
@@ -133,9 +189,20 @@ void report_error(Lexer *l, Token t, const char *msg) {
     
     fprintf(stderr, DIAG_GREEN "^" DIAG_RESET "\n");
     
-    // 5. Optional Hint (Logic can be extended)
+    int hint_printed = 0;
+    
     if (strstr(msg, "Expected ';'")) {
          fprintf(stderr, DIAG_CYAN "Hint: Try adding a semicolon at the end of the expression.\n" DIAG_RESET);
+         hint_printed = 1;
     }
-    fprintf(stderr, "\n");
+    
+    if (t.type == TOKEN_IDENTIFIER && t.text) {
+        const char *suggestion = find_closest_keyword(t.text);
+        if (suggestion) {
+            fprintf(stderr, DIAG_YELLOW "Hint: Did you mean '%s'?\n" DIAG_RESET, suggestion);
+            hint_printed = 1;
+        }
+    }
+    
+    if (!hint_printed) fprintf(stderr, "\n");
 }

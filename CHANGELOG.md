@@ -62,3 +62,6 @@ Mutable and arrays
 ## 0.1.1 
 * fixed inheritance 
 * fixed array
+
+## 0.1.2 
+* new diagnostic but too shitty and make it does not like C lol

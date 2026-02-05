@@ -10,6 +10,7 @@
 #define DIAG_BOLD   "\033[1m"
 #define DIAG_GREY   "\033[0;90m"
 #define DIAG_CYAN   "\033[1;36m"
+#define DIAG_YELLOW "\033[1;33m"
 
 // Report a detailed error with source snippet
 void report_error(Lexer *l, Token t, const char *msg);
@@ -19,5 +20,8 @@ const char* token_type_to_string(TokenType type);
 
 // Helper to hint about missing delimiters
 const char* get_token_description(TokenType type);
+
+// "Did you mean?" logic
+const char* find_closest_keyword(const char *ident);
 
 #endif

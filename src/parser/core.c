@@ -3,7 +3,9 @@
 
 // Global State
 Token current_token = {TOKEN_UNKNOWN, NULL, 0, 0.0};
-jmp_buf *parser_env = NULL;
+jmp_buf *parser_env = NULL;         // REPL
+jmp_buf *parser_recover_buf = NULL; // Compilation
+int parser_error_count = 0;
 
 // --- MACRO SYSTEM DEFINITIONS ---
 
@@ -117,13 +119,30 @@ void safe_free_current_token() {
   if (current_token.text) { free(current_token.text); current_token.text = NULL; }
 }
 
-// --- UPDATED ERROR HANDLING ---
+// --- ERROR HANDLING & SYNC ---
+
+void parser_fail_at(Lexer *l, Token t, const char *msg) {
+    report_error(l, t, msg);
+    parser_error_count++;
+    
+    // Recovery Strategy:
+    // 1. If in REPL (parser_env set), jump immediately (one error per line usually).
+    // 2. If in FILE (parser_recover_buf set), jump to sync point.
+    // 3. Else exit (fatal).
+    
+    safe_free_current_token();
+    
+    if (parser_recover_buf) {
+        longjmp(*parser_recover_buf, 1);
+    } else if (parser_env) {
+        longjmp(*parser_env, 1);
+    } else {
+        exit(1);
+    }
+}
 
 void parser_fail(Lexer *l, const char *msg) {
-    report_error(l, current_token, msg);
-    safe_free_current_token();
-    if (parser_env) longjmp(*parser_env, 1);
-    else exit(1);
+    parser_fail_at(l, current_token, msg);
 }
 
 void parser_reset(void) {
@@ -132,6 +151,43 @@ void parser_reset(void) {
     current_token.int_val = 0; current_token.double_val = 0.0;
     current_token.line = 0; current_token.col = 0;
     parser_env = NULL;
+    parser_recover_buf = NULL;
+    parser_error_count = 0;
+}
+
+// Panic Mode Synchronization
+// Skips tokens until we find a statement boundary or safe point
+void parser_sync(Lexer *l) {
+    while (current_token.type != TOKEN_EOF) {
+        // Safe boundaries
+        if (current_token.type == TOKEN_SEMICOLON) {
+            eat(l, TOKEN_SEMICOLON); // Consume the ; and return to start fresh
+            return;
+        }
+        if (current_token.type == TOKEN_RBRACE) {
+            eat(l, TOKEN_RBRACE); // Consume } and return
+            return;
+        }
+        
+        // Start of new constructs
+        switch (current_token.type) {
+            case TOKEN_CLASS:
+            case TOKEN_KW_INT:
+            case TOKEN_KW_VOID:
+            case TOKEN_KW_CHAR:
+            case TOKEN_KW_BOOL:
+            case TOKEN_IF:
+            case TOKEN_WHILE:
+            case TOKEN_LOOP:
+            case TOKEN_RETURN:
+            case TOKEN_KW_LET:
+            case TOKEN_DEFINE:
+                return; // Don't consume, just restart parsing here
+            default:
+                // Skip erroneous token
+                eat(l, current_token.type); 
+        }
+    }
 }
 
 void eat(Lexer *l, TokenType type) {
@@ -139,7 +195,7 @@ void eat(Lexer *l, TokenType type) {
     safe_free_current_token();
     Token t = fetch_safe(l);
     
-    // Macro expansion logic
+    // Macro expansion logic (same as before)
     while (t.type == TOKEN_IDENTIFIER) {
         Macro *m = find_macro(t.text);
         if (!m) break; 
@@ -241,7 +297,6 @@ void eat(Lexer *l, TokenType type) {
     current_token = t;
 
   } else {
-    // Generate professional error message
     char msg[256];
     const char *expected = get_token_description(type);
     const char *found = current_token.type == TOKEN_EOF ? "end of file" : 

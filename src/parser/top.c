@@ -7,6 +7,10 @@ void parser_advance(Lexer *l);
 void register_typename(const char *name); // from core.c
 
 ASTNode* parse_top_level(Lexer *l) {
+  // ... (Same logic for DEFINE, CLASS, LINK, IMPORT, EXTERN, VAR_DECL) ...
+  // Keeping brevity for existing logic, but ensuring parser_fail calls propagate
+  // through the exception mechanism in core.c
+  
   // 0. DEFINE
   if (current_token.type == TOKEN_DEFINE) {
     eat(l, TOKEN_DEFINE);
@@ -317,8 +321,18 @@ ASTNode* parse_program(Lexer *l) {
   
   ASTNode *head = NULL;
   ASTNode **current = &head;
+  
+  // Setup Recovery Buffer
+  jmp_buf recover_buf;
+  parser_recover_buf = &recover_buf;
 
   while (current_token.type != TOKEN_EOF) {
+    // If an error occurs, we come back here via longjmp
+    if (setjmp(recover_buf) != 0) {
+        parser_sync(l);
+        if (current_token.type == TOKEN_EOF) break;
+    }
+    
     ASTNode *node = parse_top_level(l);
     if (node) {
         if (!*current) *current = node; 
@@ -328,6 +342,7 @@ ASTNode* parse_program(Lexer *l) {
     }
   }
   
+  parser_recover_buf = NULL; // Clear recovery
   safe_free_current_token();
   return head;
 }
