@@ -1,9 +1,3 @@
-/*
- * Someone please teach me what the hell 
- * is LLVM
- *
- */
-
 #include "main.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +6,8 @@
 #include <llvm-c/Target.h>
 #include <llvm-c/TargetMachine.h>
 #include <llvm-c/Analysis.h>
+
+extern int parser_error_count;
 
 char* read_file(const char* filename) {
   FILE* f = fopen(filename, "rb");
@@ -37,7 +33,6 @@ int main(int argc, char *argv[]) {
 
   for (int i = 1; i < argc; i++) {
       if (strncmp(argv[i], "-l", 2) == 0) {
-          // It's a link flag
           if (strlen(link_flags) + strlen(argv[i]) + 2 < sizeof(link_flags)) {
               strcat(link_flags, " ");
               strcat(link_flags, argv[i]);
@@ -62,6 +57,11 @@ int main(int argc, char *argv[]) {
   lexer_init(&l, code);
   ASTNode *root = parse_program(&l);
   
+  if (!root && parser_error_count > 0) {
+      free(code);
+      return 1;
+  }
+  
   // Extract 'link' directives from AST
   ASTNode *curr = root;
   while(curr) {
@@ -79,6 +79,7 @@ int main(int argc, char *argv[]) {
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
 
+  // Pass source code to codegen for error reporting
   LLVMModuleRef module = codegen_generate(root, "alkyl_mod");
 
   char *error = NULL;
@@ -88,8 +89,6 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-
-  // TODO add more target
   char *triple = LLVMGetDefaultTargetTriple();
   LLVMTargetRef target;
   char *err_msg = NULL;
@@ -107,7 +106,6 @@ int main(int argc, char *argv[]) {
 
   printf("Compiled to out.o\n");
   
-  // Construct linker command
   char cmd[2048];
   snprintf(cmd, sizeof(cmd), "gcc out.o -o out -no-pie%s", link_flags);
   
@@ -119,7 +117,6 @@ int main(int argc, char *argv[]) {
     printf("Linking failed.\n");
   }
 
-  // Cleanup (Simplified for tutorial)
   LLVMDisposeModule(module);
   free(code);
   free_ast(root);

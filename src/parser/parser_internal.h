@@ -13,6 +13,9 @@ extern jmp_buf *parser_env;      // For REPL recovery
 extern jmp_buf *parser_recover_buf; // For file parsing recovery
 extern int parser_error_count;   // Total errors found
 
+// Namespace State
+extern char parser_current_namespace[512]; 
+
 // --- CORE FUNCTIONS (parser_core.c) ---
 // Report error at current token
 void parser_fail(Lexer *l, const char *msg);

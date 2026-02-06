@@ -53,13 +53,13 @@ typedef struct {
   ClassInfo *classes; 
   LoopContext *current_loop; 
   
+  // For error reporting
+  const char *source_code;
+
   LLVMTypeRef printf_type;
   LLVMValueRef printf_func;
-  
   LLVMValueRef input_func;
   LLVMValueRef strcmp_func;
-  
-  // String Helpers
   LLVMValueRef malloc_func;
   LLVMValueRef strlen_func;
   LLVMValueRef strcpy_func;
@@ -67,8 +67,11 @@ typedef struct {
 } CodegenCtx;
 
 // --- Core API ---
-void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef builder);
-LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name);
+void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef builder, const char *source);
+LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name, const char *source);
+
+// --- Error Helper ---
+void codegen_error(CodegenCtx *ctx, ASTNode *node, const char *msg);
 
 // --- Shared Internal ---
 void add_symbol(CodegenCtx *ctx, const char *name, LLVMValueRef val, LLVMTypeRef type, VarType vtype, int is_array, int is_mut);

@@ -53,7 +53,7 @@ VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
         ArrayAccessNode *an = (ArrayAccessNode*)node;
         VarType t = codegen_calc_type(ctx, an->target);
         if (t.array_size > 0) {
-             t.array_size = 0; // Decay/Dereference one level
+             t.array_size = 0; 
              return t;
         }
         if (t.ptr_depth > 0) {
@@ -115,7 +115,10 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
                 }
             }
         }
-        fprintf(stderr, "Error: Undefined variable %s\n", r->name); exit(1);
+        char msg[128];
+        snprintf(msg, sizeof(msg), "Undefined variable '%s'", r->name);
+        codegen_error(ctx, node, msg);
+        return NULL; // Unreachable
     } 
     else if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
@@ -128,12 +131,18 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
                  obj_addr = LLVMBuildLoad2(ctx->builder, ptr_type, obj_addr, "ptr_obj_load");
              }
         } else {
-             fprintf(stderr, "Error: Member access on temporary r-value not supported\n"); exit(1);
+             codegen_error(ctx, node, "Member access on temporary r-value not supported");
         }
         while(obj_type.ptr_depth > 0) obj_type.ptr_depth--;
         ClassInfo *ci = find_class(ctx, obj_type.class_name);
+        if (!ci) codegen_error(ctx, ma->object, "Unknown class type");
+
         int idx = get_member_index(ci, ma->member_name, NULL, NULL);
-        if (idx == -1) { fprintf(stderr, "Error: Unknown member %s\n", ma->member_name); exit(1); }
+        if (idx == -1) { 
+             char msg[128];
+             snprintf(msg, sizeof(msg), "Unknown member '%s' in class '%s'", ma->member_name, ci->name);
+             codegen_error(ctx, node, msg);
+        }
         LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), idx, 0) };
         return LLVMBuildGEP2(ctx->builder, ci->struct_type, obj_addr, indices, 2, "mem_gep");
     }
@@ -150,7 +159,11 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
         char trait_member[128];
         sprintf(trait_member, "__trait_%s", ta->trait_name);
         int idx = get_member_index(ci, trait_member, NULL, NULL);
-        if (idx == -1) { fprintf(stderr, "Error: Class %s does not have trait %s\n", ci->name, ta->trait_name); exit(1); }
+        if (idx == -1) { 
+            char msg[128];
+            snprintf(msg, sizeof(msg), "Class '%s' does not have trait '%s'", ci->name, ta->trait_name);
+            codegen_error(ctx, node, msg); 
+        }
         LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), idx, 0) };
         return LLVMBuildGEP2(ctx->builder, ci->struct_type, obj_addr, indices, 2, "trait_gep");
     }
@@ -166,17 +179,11 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
             idx = LLVMBuildIntCast(ctx->builder, idx, LLVMInt64Type(), "idx_cast");
         }
         
-        // Handle array decay vs pointer indexing
         if (vt.array_size > 0) {
-             // Fixed size array [N x T]* -> GEP(0, i)
              LLVMValueRef indices[] = { LLVMConstInt(LLVMInt64Type(), 0, 0), idx };
              return LLVMBuildGEP2(ctx->builder, get_llvm_type(ctx, vt), base_ptr, indices, 2, "array_elem");
         } else {
-             // Pointer T** (address of pointer var) -> Load T* -> GEP(i)
-             LLVMTypeRef ptr_ptr_type = get_llvm_type(ctx, vt); // This returns T*... wait
-             // If var is T*, codegen_addr returns T**.
-             // get_llvm_type(T*) returns T*.
-             // We need to load T* from T**.
+             LLVMTypeRef ptr_ptr_type = get_llvm_type(ctx, vt);
              LLVMValueRef arr_base = LLVMBuildLoad2(ctx->builder, ptr_ptr_type, base_ptr, "ptr_base");
              LLVMTypeRef elem_type = LLVMGetElementType(ptr_ptr_type);
              return LLVMBuildGEP2(ctx->builder, elem_type, arr_base, &idx, 1, "ptr_elem");
@@ -185,8 +192,8 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
         UnaryOpNode *u = (UnaryOpNode*)node;
         if (u->op == TOKEN_STAR) return codegen_expr(ctx, u->operand);
     }
-    fprintf(stderr, "Error: Cannot take address of r-value\n");
-    exit(1);
+    codegen_error(ctx, node, "Cannot take address of r-value");
+    return NULL;
 }
 
 LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
@@ -207,19 +214,15 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
 
             if (arg && !is_trait) {
                 val_to_store = codegen_expr(ctx, arg);
-                // Smart String Alloc (Constructor Arg)
                 LLVMTypeRef mem_t = m->type;
                 LLVMTypeRef val_t = LLVMTypeOf(val_to_store);
                 if (LLVMGetTypeKind(mem_t) == LLVMArrayTypeKind && LLVMGetTypeKind(val_t) == LLVMPointerTypeKind) {
-                     // char[] = char* -> strcpy
                      LLVMValueRef indices[] = { LLVMConstInt(LLVMInt64Type(), 0, 0), LLVMConstInt(LLVMInt64Type(), 0, 0) };
                      LLVMValueRef dest = LLVMBuildGEP2(ctx->builder, mem_t, mem_ptr, indices, 2, "dest_ptr");
                      LLVMValueRef args[] = { dest, val_to_store };
                      LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->strcpy_func), ctx->strcpy_func, args, 2, "");
                      val_to_store = NULL; 
                 } else if (LLVMGetTypeKind(mem_t) == LLVMPointerTypeKind && LLVMGetTypeKind(val_t) == LLVMPointerTypeKind) {
-                     // char* = char* -> strdup (The "alloc" part)
-                     // Check if it is char*
                      if (LLVMGetIntTypeWidth(LLVMGetElementType(mem_t)) == 8) {
                          LLVMValueRef args[] = { val_to_store };
                          val_to_store = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->strdup_func), ctx->strdup_func, args, 1, "dup_str");
@@ -228,7 +231,6 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
                 arg = arg->next;
             } else if (m->init_expr) {
                 val_to_store = codegen_expr(ctx, m->init_expr);
-                // Smart String Alloc (Default Init)
                 LLVMTypeRef mem_t = m->type;
                 LLVMTypeRef val_t = LLVMTypeOf(val_to_store);
                 if (LLVMGetTypeKind(mem_t) == LLVMArrayTypeKind && LLVMGetTypeKind(val_t) == LLVMPointerTypeKind) {
@@ -251,7 +253,6 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
         }
         return LLVMBuildLoad2(ctx->builder, ci->struct_type, alloca, "ctor_res");
     }
-    // ... Print/Input/Func ...
     if (strcmp(c->name, "print") == 0) {
       int arg_count = 0; ASTNode *curr = c->args; while(curr) { arg_count++; curr = curr->next; }
       LLVMValueRef *args = malloc(sizeof(LLVMValueRef) * arg_count);
@@ -264,7 +265,11 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
        return LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->input_func), ctx->input_func, NULL, 0, "input_res");
     }
     LLVMValueRef func = LLVMGetNamedFunction(ctx->module, c->name);
-    if (!func) { fprintf(stderr, "Error: Undefined function %s\n", c->name); return LLVMConstInt(LLVMInt32Type(), 0, 0); }
+    if (!func) {
+        char msg[128];
+        snprintf(msg, sizeof(msg), "Undefined function '%s'", c->name);
+        codegen_error(ctx, node, msg);
+    }
     int arg_count = 0; ASTNode *curr = c->args; while(curr) { arg_count++; curr = curr->next; }
     LLVMValueRef *args = malloc(sizeof(LLVMValueRef) * arg_count);
     curr = c->args; for(int i=0; i<arg_count; i++) { args[i] = codegen_expr(ctx, curr); curr = curr->next; }
@@ -272,7 +277,6 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
     LLVMValueRef ret = LLVMBuildCall2(ctx->builder, ftype, func, args, arg_count, "");
     free(args); return ret;
   }
-  // ... Other Nodes ...
   else if (node->type == NODE_VAR_REF) {
       LLVMValueRef addr = codegen_addr(ctx, node);
       VarType vt = codegen_calc_type(ctx, node);
@@ -295,9 +299,8 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
   }
   else if (node->type == NODE_ARRAY_ACCESS) {
       LLVMValueRef addr = codegen_addr(ctx, node);
-      VarType vt = codegen_calc_type(ctx, node); // This gets element type
+      VarType vt = codegen_calc_type(ctx, node); 
       LLVMTypeRef type = get_llvm_type(ctx, vt); 
-      // Array element could be another array or a primitive
       if (LLVMGetTypeKind(type) == LLVMArrayTypeKind) {
            LLVMValueRef indices[] = { LLVMConstInt(LLVMInt64Type(), 0, 0), LLVMConstInt(LLVMInt64Type(), 0, 0) };
            return LLVMBuildGEP2(ctx->builder, type, addr, indices, 2, "array_elem_decay");
@@ -311,7 +314,6 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
           VarType vt = codegen_calc_type(ctx, ((AssignNode*)node)->target);
           return LLVMBuildLoad2(ctx->builder, get_llvm_type(ctx, vt), addr, "assign_reload");
       } else {
-          // Fallback for old style name-based assignment (should be rare now)
           Symbol *s = find_symbol(ctx, ((AssignNode*)node)->name);
           if (s) return LLVMBuildLoad2(ctx->builder, s->type, s->value, "assign_reload");
       }
@@ -321,7 +323,7 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
     IncDecNode *id = (IncDecNode*)node;
     LLVMValueRef ptr; LLVMTypeRef elem_type;
     if (id->target) { ptr = codegen_addr(ctx, id->target); VarType vt = codegen_calc_type(ctx, id->target); elem_type = get_llvm_type(ctx, vt); } 
-    else { Symbol *sym = find_symbol(ctx, id->name); if (!sym) exit(1); ptr = sym->value; elem_type = sym->type; }
+    else { Symbol *sym = find_symbol(ctx, id->name); if (!sym) codegen_error(ctx, node, "Undefined variable"); ptr = sym->value; elem_type = sym->type; }
     LLVMValueRef curr = LLVMBuildLoad2(ctx->builder, elem_type, ptr, "curr_val");
     LLVMValueRef next;
     if (LLVMGetTypeKind(elem_type) == LLVMPointerTypeKind) {
@@ -362,7 +364,11 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
               ci = find_class(ctx, ci->parent_name);
           }
       }
-      if (!func) { fprintf(stderr, "Error: Method %s not found\n", mc->method_name); exit(1); }
+      if (!func) { 
+          char msg[128];
+          snprintf(msg, sizeof(msg), "Method '%s' not found", mc->method_name);
+          codegen_error(ctx, node, msg); 
+      }
       int arg_count = 1; ASTNode *arg = mc->args; while(arg) { arg_count++; arg = arg->next; }
       LLVMValueRef *args = malloc(sizeof(LLVMValueRef) * arg_count);
       args[0] = obj_ptr; 
@@ -408,7 +414,6 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
       if (op->op == TOKEN_MINUS) return LLVMBuildSub(ctx->builder, l, r, "sub");
       if (op->op == TOKEN_STAR) return LLVMBuildMul(ctx->builder, l, r, "mul");
       if (op->op == TOKEN_SLASH) return LLVMBuildSDiv(ctx->builder, l, r, "div");
-      // ... Add float/comp/etc logic if missing, kept brief to focus on request ...
       return LLVMConstInt(LLVMInt32Type(), 0, 0);
   }
   return LLVMConstInt(LLVMInt32Type(), 0, 0);

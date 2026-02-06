@@ -3,7 +3,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+void set_loc(ASTNode *n, int line, int col) {
+    if(n) { n->line = line; n->col = col; }
+}
+
 ASTNode* parse_return(Lexer *l) {
+  int line = current_token.line, col = current_token.col;
   eat(l, TOKEN_RETURN);
   ASTNode *val = NULL;
   if (current_token.type != TOKEN_SEMICOLON) {
@@ -13,49 +18,57 @@ ASTNode* parse_return(Lexer *l) {
   ReturnNode *node = calloc(1, sizeof(ReturnNode));
   node->base.type = NODE_RETURN;
   node->value = val;
+  set_loc((ASTNode*)node, line, col);
   return (ASTNode*)node;
 }
 
 ASTNode* parse_break(Lexer *l) {
+    int line = current_token.line, col = current_token.col;
     eat(l, TOKEN_BREAK);
     eat(l, TOKEN_SEMICOLON);
     BreakNode *node = calloc(1, sizeof(BreakNode));
     node->base.type = NODE_BREAK;
+    set_loc((ASTNode*)node, line, col);
     return (ASTNode*)node;
 }
 
 ASTNode* parse_continue(Lexer *l) {
+    int line = current_token.line, col = current_token.col;
     eat(l, TOKEN_CONTINUE);
     eat(l, TOKEN_SEMICOLON);
     ContinueNode *node = calloc(1, sizeof(ContinueNode));
     node->base.type = NODE_CONTINUE;
+    set_loc((ASTNode*)node, line, col);
     return (ASTNode*)node;
 }
 
 ASTNode* parse_assignment_or_call(Lexer *l) {
-  // Capture the start token (the identifier) before eating it.
-  // This allows error messages to point to 'opn' instead of the token after it.
+  // Capture start token for location and error reporting
   Token start_token = current_token;
-  if (start_token.text) start_token.text = strdup(start_token.text); // Clone text if valid
+  if (start_token.text) start_token.text = strdup(start_token.text); 
+
+  int line = current_token.line;
+  int col = current_token.col;
 
   // 1. Parse Identifier
   char *name = current_token.text;
   current_token.text = NULL; 
   eat(l, TOKEN_IDENTIFIER);
   
-  // Base node is VarRef
   ASTNode *node = calloc(1, sizeof(VarRefNode));
   ((VarRefNode*)node)->base.type = NODE_VAR_REF;
   ((VarRefNode*)node)->name = name;
+  set_loc(node, line, col);
 
   // 2. Check for Standard Call (start with parens)
   if (current_token.type == TOKEN_LPAREN) {
       char *fname = ((VarRefNode*)node)->name;
       free(node); 
       node = parse_call(l, fname);
+      set_loc(node, line, col); // Ensure location is preserved
   }
 
-  // 3. Apply Postfix Operations ( .member, [index], ++, -- )
+  // 3. Apply Postfix Operations
   node = parse_postfix(l, node);
 
   // 4. Check for Assignment
@@ -95,6 +108,7 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
     } else {
         an->target = node; 
     }
+    set_loc((ASTNode*)an, line, col);
     if (start_token.text) free(start_token.text);
     return (ASTNode*)an;
   }
@@ -128,6 +142,7 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
           cn->base.type = NODE_CALL;
           cn->name = fname;
           cn->args = args_head;
+          set_loc((ASTNode*)cn, line, col);
           if (start_token.text) free(start_token.text);
           return (ASTNode*)cn;
       }
@@ -140,27 +155,17 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
       return node; 
   }
   
-  // --- Enhanced Error Reporting ---
-  // If we reach here, we parsed an identifier but couldn't form a valid statement.
+  // --- Enhanced Error Reporting (Cleaned up) ---
   
   char msg[256];
-  const char *suggestion = find_closest_keyword(((VarRefNode*)node)->name);
+  snprintf(msg, sizeof(msg), "Invalid statement starting with identifier '%s'.", 
+           ((VarRefNode*)node)->name);
   
-  if (suggestion) {
-      snprintf(msg, sizeof(msg), "Invalid statement starting with identifier '%s'. Did you mean '%s'?", 
-               ((VarRefNode*)node)->name, suggestion);
-  } else {
-      snprintf(msg, sizeof(msg), "Unexpected identifier '%s'. Expected assignment, function call, or keyword.", 
-               ((VarRefNode*)node)->name);
-  }
-  
-  // Clean up incomplete node before failing
   if (node->type == NODE_VAR_REF) {
       if (((VarRefNode*)node)->name) free(((VarRefNode*)node)->name);
   }
   free(node);
   
-  // Use parser_fail_at with the saved start_token to point caret at 'opn', not 'class'
   parser_fail_at(l, start_token, msg);
   
   if (start_token.text) free(start_token.text);
@@ -168,6 +173,7 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
 }
 
 ASTNode* parse_var_decl_internal(Lexer *l) {
+  int line = current_token.line, col = current_token.col;
   int is_mut = 1; 
   if (current_token.type == TOKEN_KW_MUT) { is_mut = 1; eat(l, TOKEN_KW_MUT); }
   else if (current_token.type == TOKEN_KW_IMUT) { is_mut = 0; eat(l, TOKEN_KW_IMUT); }
@@ -212,6 +218,7 @@ ASTNode* parse_var_decl_internal(Lexer *l) {
   node->is_mutable = is_mut;
   node->is_array = is_array;
   node->array_size = array_size;
+  set_loc((ASTNode*)node, line, col);
   return (ASTNode*)node;
 }
 
@@ -223,6 +230,8 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
     return block;
   }
   
+  int line = current_token.line, col = current_token.col;
+
   if (current_token.type == TOKEN_LOOP) return parse_loop(l);
   if (current_token.type == TOKEN_WHILE) return parse_while(l);
   if (current_token.type == TOKEN_IF) return parse_if(l);
@@ -230,14 +239,12 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
   if (current_token.type == TOKEN_BREAK) return parse_break(l);
   if (current_token.type == TOKEN_CONTINUE) return parse_continue(l);
   
-  // Peek logic for type-first var decls
   VarType peek_t = parse_type(l); 
   if (peek_t.base != TYPE_UNKNOWN) {
-      // Check for Constructor Calls masquerading as Types
       if (peek_t.base == TYPE_CLASS && current_token.type == TOKEN_LPAREN) {
-          // It's a constructor call: Person("A", 1);
           ASTNode* call = parse_call(l, peek_t.class_name);
           eat(l, TOKEN_SEMICOLON);
+          set_loc(call, line, col);
           return call;
       }
 
@@ -272,6 +279,7 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
       node->is_mutable = is_mut;
       node->is_array = is_array;
       node->array_size = array_size;
+      set_loc((ASTNode*)node, line, col);
       return (ASTNode*)node;
   }
   
@@ -287,16 +295,19 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
 }
 
 ASTNode* parse_loop(Lexer *l) {
+  int line = current_token.line, col = current_token.col;
   eat(l, TOKEN_LOOP);
   ASTNode *expr = parse_expression(l);
   LoopNode *node = calloc(1, sizeof(LoopNode));
   node->base.type = NODE_LOOP;
   node->iterations = expr;
   node->body = parse_single_statement_or_block(l);
+  set_loc((ASTNode*)node, line, col);
   return (ASTNode*)node;
 }
 
 ASTNode* parse_while(Lexer *l) {
+    int line = current_token.line, col = current_token.col;
     eat(l, TOKEN_WHILE);
     int is_do_while = 0;
     if (current_token.type == TOKEN_ONCE) {
@@ -310,10 +321,12 @@ ASTNode* parse_while(Lexer *l) {
     node->condition = cond;
     node->body = body;
     node->is_do_while = is_do_while;
+    set_loc((ASTNode*)node, line, col);
     return (ASTNode*)node;
 }
 
 ASTNode* parse_if(Lexer *l) {
+  int line = current_token.line, col = current_token.col;
   eat(l, TOKEN_IF);
   ASTNode *cond = parse_expression(l);
   ASTNode *then_body = parse_single_statement_or_block(l);
@@ -330,6 +343,7 @@ ASTNode* parse_if(Lexer *l) {
   node->condition = cond;
   node->then_body = then_body;
   node->else_body = else_body;
+  set_loc((ASTNode*)node, line, col);
   return (ASTNode*)node;
 }
 

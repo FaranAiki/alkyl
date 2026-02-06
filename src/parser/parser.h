@@ -1,7 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "lexer.h"
+#include "../lexer/lexer.h"
 #include <setjmp.h>
 
 // --- TYPES ---
@@ -50,12 +50,15 @@ typedef struct {
   BaseType base;
   int ptr_depth; 
   char *class_name;
-  int array_size; // Added: Support for fixed-size arrays in type system
+  int array_size; 
 } VarType;
 
 typedef struct ASTNode {
   NodeType type;
   struct ASTNode *next; 
+  // Source Location
+  int line;
+  int col;
 } ASTNode;
 
 typedef struct Parameter {
@@ -181,7 +184,7 @@ typedef struct {
 
 typedef struct {
   ASTNode base;
-  ASTNode *target; // Changed from char *name to generic target
+  ASTNode *target; 
   ASTNode *index;
 } ArrayAccessNode;
 

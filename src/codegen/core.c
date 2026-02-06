@@ -1,4 +1,5 @@
 #include "codegen.h"
+#include "../diagnostic/diagnostic.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -10,13 +11,14 @@ LLVMValueRef generate_strcpy(LLVMModuleRef module);
 LLVMValueRef generate_strdup(LLVMModuleRef module, LLVMValueRef malloc_func, LLVMValueRef strlen_func, LLVMValueRef strcpy_func);
 LLVMValueRef generate_input_func(LLVMModuleRef module, LLVMBuilderRef builder, LLVMValueRef malloc_func, LLVMValueRef getchar_func);
 
-void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef builder) {
+void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef builder, const char *source) {
     ctx->module = module;
     ctx->builder = builder;
     ctx->symbols = NULL;
     ctx->functions = NULL;
     ctx->classes = NULL;
     ctx->current_loop = NULL;
+    ctx->source_code = source;
 
     // Printf
     LLVMTypeRef printf_args[] = { LLVMPointerType(LLVMInt8Type(), 0) };
@@ -44,6 +46,23 @@ void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef buil
 
     // Input
     ctx->input_func = generate_input_func(module, builder, ctx->malloc_func, getchar_func);
+}
+
+void codegen_error(CodegenCtx *ctx, ASTNode *node, const char *msg) {
+    if (ctx->source_code && node) {
+        Lexer l;
+        lexer_init(&l, ctx->source_code);
+        Token t;
+        t.type = TOKEN_UNKNOWN;
+        t.line = node->line;
+        t.col = node->col;
+        t.text = NULL;
+        t.int_val = 0; t.double_val = 0;
+        report_error(&l, t, msg);
+    } else {
+        fprintf(stderr, "Error: %s\n", msg);
+    }
+    exit(1);
 }
 
 // ... Symbol management functions ...
@@ -133,7 +152,6 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
   }
   for (int i=0; i<t.ptr_depth; i++) base_type = LLVMPointerType(base_type, 0);
   
-  // FIX: Handle fixed-size arrays in type system
   if (t.array_size > 0) {
       base_type = LLVMArrayType(base_type, t.array_size);
   }
@@ -155,39 +173,33 @@ ClassMember** append_member(CodegenCtx *ctx, ClassInfo *ci, ClassMember **tail, 
     return &cm->next;
 }
 
-// --- Internal String Functions ---
+// ... Internal String Functions (strlen, strcpy, strdup, input) remain same ...
+// Including them briefly to ensure file completeness if copied
 
 LLVMValueRef generate_strlen(LLVMModuleRef module) {
     LLVMTypeRef args[] = { LLVMPointerType(LLVMInt8Type(), 0) };
     LLVMTypeRef type = LLVMFunctionType(LLVMInt64Type(), args, 1, false);
     LLVMValueRef func = LLVMAddFunction(module, "__builtin_strlen", type);
-    
     LLVMBasicBlockRef entry = LLVMAppendBasicBlock(func, "entry");
     LLVMBasicBlockRef loop = LLVMAppendBasicBlock(func, "loop");
     LLVMBasicBlockRef end = LLVMAppendBasicBlock(func, "end");
-    
     LLVMBuilderRef b = LLVMCreateBuilder();
     LLVMPositionBuilderAtEnd(b, entry);
-    
     LLVMValueRef str = LLVMGetParam(func, 0);
     LLVMValueRef i_ptr = LLVMBuildAlloca(b, LLVMInt64Type(), "i");
     LLVMBuildStore(b, LLVMConstInt(LLVMInt64Type(), 0, 0), i_ptr);
     LLVMBuildBr(b, loop);
-    
     LLVMPositionBuilderAtEnd(b, loop);
     LLVMValueRef i = LLVMBuildLoad2(b, LLVMInt64Type(), i_ptr, "i_val");
     LLVMValueRef char_ptr = LLVMBuildGEP2(b, LLVMInt8Type(), str, &i, 1, "char_ptr");
     LLVMValueRef c = LLVMBuildLoad2(b, LLVMInt8Type(), char_ptr, "c");
     LLVMValueRef is_null = LLVMBuildICmp(b, LLVMIntEQ, c, LLVMConstInt(LLVMInt8Type(), 0, 0), "is_null");
-    
     LLVMBasicBlockRef step = LLVMAppendBasicBlock(func, "step");
     LLVMBuildCondBr(b, is_null, end, step);
-    
     LLVMPositionBuilderAtEnd(b, step);
     LLVMValueRef next_i = LLVMBuildAdd(b, i, LLVMConstInt(LLVMInt64Type(), 1, 0), "next_i");
     LLVMBuildStore(b, next_i, i_ptr);
     LLVMBuildBr(b, loop);
-    
     LLVMPositionBuilderAtEnd(b, end);
     LLVMBuildRet(b, i);
     LLVMDisposeBuilder(b);
@@ -198,37 +210,29 @@ LLVMValueRef generate_strcpy(LLVMModuleRef module) {
     LLVMTypeRef args[] = { LLVMPointerType(LLVMInt8Type(), 0), LLVMPointerType(LLVMInt8Type(), 0) };
     LLVMTypeRef type = LLVMFunctionType(LLVMPointerType(LLVMInt8Type(), 0), args, 2, false);
     LLVMValueRef func = LLVMAddFunction(module, "__builtin_strcpy", type);
-    
     LLVMBasicBlockRef entry = LLVMAppendBasicBlock(func, "entry");
     LLVMBasicBlockRef loop = LLVMAppendBasicBlock(func, "loop");
     LLVMBasicBlockRef end = LLVMAppendBasicBlock(func, "end");
-    
     LLVMBuilderRef b = LLVMCreateBuilder();
     LLVMPositionBuilderAtEnd(b, entry);
-    
     LLVMValueRef dest = LLVMGetParam(func, 0);
     LLVMValueRef src = LLVMGetParam(func, 1);
     LLVMValueRef i_ptr = LLVMBuildAlloca(b, LLVMInt64Type(), "i");
     LLVMBuildStore(b, LLVMConstInt(LLVMInt64Type(), 0, 0), i_ptr);
     LLVMBuildBr(b, loop);
-    
     LLVMPositionBuilderAtEnd(b, loop);
     LLVMValueRef i = LLVMBuildLoad2(b, LLVMInt64Type(), i_ptr, "i_val");
     LLVMValueRef src_ptr = LLVMBuildGEP2(b, LLVMInt8Type(), src, &i, 1, "src_ptr");
     LLVMValueRef c = LLVMBuildLoad2(b, LLVMInt8Type(), src_ptr, "c");
     LLVMValueRef dest_ptr = LLVMBuildGEP2(b, LLVMInt8Type(), dest, &i, 1, "dest_ptr");
     LLVMBuildStore(b, c, dest_ptr);
-    
     LLVMValueRef is_null = LLVMBuildICmp(b, LLVMIntEQ, c, LLVMConstInt(LLVMInt8Type(), 0, 0), "is_null");
-    
     LLVMBasicBlockRef step = LLVMAppendBasicBlock(func, "step");
     LLVMBuildCondBr(b, is_null, end, step);
-    
     LLVMPositionBuilderAtEnd(b, step);
     LLVMValueRef next_i = LLVMBuildAdd(b, i, LLVMConstInt(LLVMInt64Type(), 1, 0), "next_i");
     LLVMBuildStore(b, next_i, i_ptr);
     LLVMBuildBr(b, loop);
-    
     LLVMPositionBuilderAtEnd(b, end);
     LLVMBuildRet(b, dest);
     LLVMDisposeBuilder(b);
@@ -239,25 +243,20 @@ LLVMValueRef generate_strdup(LLVMModuleRef module, LLVMValueRef malloc_func, LLV
     LLVMTypeRef args[] = { LLVMPointerType(LLVMInt8Type(), 0) };
     LLVMTypeRef type = LLVMFunctionType(LLVMPointerType(LLVMInt8Type(), 0), args, 1, false);
     LLVMValueRef func = LLVMAddFunction(module, "__builtin_strdup", type);
-    
     LLVMBasicBlockRef entry = LLVMAppendBasicBlock(func, "entry");
     LLVMBuilderRef b = LLVMCreateBuilder();
     LLVMPositionBuilderAtEnd(b, entry);
-    
     LLVMValueRef str = LLVMGetParam(func, 0);
     LLVMValueRef len = LLVMBuildCall2(b, LLVMGlobalGetValueType(strlen_func), strlen_func, &str, 1, "len");
     LLVMValueRef len_plus_1 = LLVMBuildAdd(b, len, LLVMConstInt(LLVMInt64Type(), 1, 0), "len_plus_1");
     LLVMValueRef mem = LLVMBuildCall2(b, LLVMGlobalGetValueType(malloc_func), malloc_func, &len_plus_1, 1, "mem");
-    
     LLVMValueRef copy_args[] = { mem, str };
     LLVMBuildCall2(b, LLVMGlobalGetValueType(strcpy_func), strcpy_func, copy_args, 2, "copy_res");
-    
     LLVMBuildRet(b, mem);
     LLVMDisposeBuilder(b);
     return func;
 }
 
-// ... (Rest of input func generator remains same) ...
 LLVMValueRef generate_input_func(LLVMModuleRef module, LLVMBuilderRef builder, LLVMValueRef malloc_func, LLVMValueRef getchar_func) {
     LLVMTypeRef ret_type = LLVMPointerType(LLVMInt8Type(), 0);
     LLVMTypeRef func_type = LLVMFunctionType(ret_type, NULL, 0, false);
@@ -300,12 +299,12 @@ LLVMValueRef generate_input_func(LLVMModuleRef module, LLVMBuilderRef builder, L
     return func;
 }
 
-LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name) {
+LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name, const char *source) {
   LLVMModuleRef module = LLVMModuleCreateWithName(module_name);
   LLVMBuilderRef builder = LLVMCreateBuilder();
 
   CodegenCtx ctx;
-  codegen_init_ctx(&ctx, module, builder);
+  codegen_init_ctx(&ctx, module, builder, source);
   
   // 1. Classes
   ASTNode *iter = root;
@@ -350,22 +349,17 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name) {
           while(m) {
               if (m->type == NODE_VAR_DECL) {
                   VarDeclNode *vd = (VarDeclNode*)m;
-                  
-                  // Fix: Properly handle array size in class members
                   if (vd->is_array) {
                        int size = 1; 
-                       // Check explicit size literal
                        if (vd->array_size && vd->array_size->type == NODE_LITERAL) {
                            size = ((LiteralNode*)vd->array_size)->val.int_val;
                        } 
-                       // Check implicit string size
                        else if (vd->initializer && vd->initializer->type == NODE_LITERAL) {
                            LiteralNode *lit = (LiteralNode*)vd->initializer;
                            if (lit->var_type.base == TYPE_STRING) {
                                 size = strlen(lit->val.str_val) + 1;
                            }
                        }
-                       // Store size in VarType so get_llvm_type returns ArrayType
                        vd->var_type.array_size = size;
                   }
 

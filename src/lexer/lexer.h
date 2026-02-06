@@ -52,7 +52,9 @@ typedef enum {
   TOKEN_HAS,    
   TOKEN_OPEN,   
   TOKEN_CLOSED, 
-  TOKEN_TYPEOF, // New: typeof keyword
+  TOKEN_TYPEOF, 
+
+  TOKEN_NAMESPACE, // Added
 
   TOKEN_KW_VOID,   
   TOKEN_KW_INT,  

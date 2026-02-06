@@ -309,7 +309,8 @@ Token lexer_next(Lexer *l) {
     else if (strcmp(word, "has") == 0) t.type = TOKEN_HAS;
     else if (strcmp(word, "open") == 0) t.type = TOKEN_OPEN;
     else if (strcmp(word, "closed") == 0) t.type = TOKEN_CLOSED;
-    else if (strcmp(word, "typeof") == 0) t.type = TOKEN_TYPEOF; // New
+    else if (strcmp(word, "typeof") == 0) t.type = TOKEN_TYPEOF;
+    else if (strcmp(word, "namespace") == 0) t.type = TOKEN_NAMESPACE;
 
     else if (strcmp(word, "void") == 0) t.type = TOKEN_KW_VOID;
     else if (strcmp(word, "int") == 0) t.type = TOKEN_KW_INT;

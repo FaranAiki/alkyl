@@ -1,6 +1,7 @@
 #include "cli.h"
 #include "parser.h"
 #include "codegen.h"
+#include "parser_internal.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -80,7 +81,9 @@ int run_repl(void) {
 
     LLVMBuilderRef builder = LLVMCreateBuilder();
     CodegenCtx ctx;
-    codegen_init_ctx(&ctx, module, builder);
+    // Pass NULL source for now as we don't persist REPL history fully in ctx yet, 
+    // or pass buffer if we want errors on current line
+    codegen_init_ctx(&ctx, module, builder, NULL);
     LLVMDisposeBuilder(builder);
 
     int cmd_count = 0;
@@ -116,6 +119,9 @@ int run_repl(void) {
             ASTNode *root = parse_program(&l);
             if (!root) { free(buffer); continue; }
 
+            // Update source code context for this REPL line
+            ctx.source_code = buffer;
+
             LLVMModuleRef out_mod;
             char *remove_err = NULL;
             if (LLVMRemoveModule(engine, module, &out_mod, &remove_err) != 0) {
@@ -133,7 +139,6 @@ int run_repl(void) {
                 } 
                 else if (curr->type == NODE_VAR_DECL) {
                     VarDeclNode *vd = (VarDeclNode*)curr;
-                    // FIX: Pass &ctx to get_llvm_type
                     LLVMTypeRef type = (vd->var_type.base == TYPE_AUTO) ? LLVMInt32Type() : get_llvm_type(&ctx, vd->var_type);
                     LLVMValueRef gVar = LLVMAddGlobal(module, type, vd->name);
                     LLVMSetLinkage(gVar, LLVMCommonLinkage);
