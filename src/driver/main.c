@@ -7,6 +7,9 @@
 #include <llvm-c/TargetMachine.h>
 #include <llvm-c/Analysis.h>
 
+// Include Semantic Analysis
+#include "../semantic/semantic.h"
+
 extern int parser_error_count;
 
 char* read_file(const char* filename) {
@@ -61,6 +64,15 @@ int main(int argc, char *argv[]) {
       free(code);
       return 1;
   }
+  
+  // --- SEMANTIC ANALYSIS PHASE ---
+  if (semantic_analysis(root, code) != 0) {
+      fprintf(stderr, "Semantic analysis failed. Compilation stopped.\n");
+      free(code);
+      free_ast(root);
+      return 1;
+  }
+  // -------------------------------
   
   // Extract 'link' directives from AST
   ASTNode *curr = root;

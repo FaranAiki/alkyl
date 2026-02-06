@@ -43,14 +43,12 @@ ASTNode* parse_continue(Lexer *l) {
 }
 
 ASTNode* parse_assignment_or_call(Lexer *l) {
-  // Capture start token for location and error reporting
   Token start_token = current_token;
   if (start_token.text) start_token.text = strdup(start_token.text); 
 
   int line = current_token.line;
   int col = current_token.col;
 
-  // 1. Parse Identifier
   char *name = current_token.text;
   current_token.text = NULL; 
   eat(l, TOKEN_IDENTIFIER);
@@ -60,18 +58,15 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
   ((VarRefNode*)node)->name = name;
   set_loc(node, line, col);
 
-  // 2. Check for Standard Call (start with parens)
   if (current_token.type == TOKEN_LPAREN) {
       char *fname = ((VarRefNode*)node)->name;
       free(node); 
       node = parse_call(l, fname);
-      set_loc(node, line, col); // Ensure location is preserved
+      set_loc(node, line, col); 
   }
 
-  // 3. Apply Postfix Operations
   node = parse_postfix(l, node);
 
-  // 4. Check for Assignment
   int is_assign = 0;
   switch (current_token.type) {
       case TOKEN_ASSIGN:
@@ -113,7 +108,6 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
     return (ASTNode*)an;
   }
   
-  // 5. Check for Paren-less Call
   if (node->type == NODE_VAR_REF) {
       TokenType t = current_token.type;
       int is_arg_start = (t == TOKEN_NUMBER || t == TOKEN_FLOAT || t == TOKEN_STRING || 
@@ -148,27 +142,38 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
       }
   }
 
-  // 6. Statement End
   if (current_token.type == TOKEN_SEMICOLON) {
       eat(l, TOKEN_SEMICOLON);
       if (start_token.text) free(start_token.text);
       return node; 
   }
   
-  // --- Enhanced Error Reporting (Cleaned up) ---
-  
+  // Error handling: Check for typos of keywords
   char msg[256];
   snprintf(msg, sizeof(msg), "Invalid statement starting with identifier '%s'.", 
            ((VarRefNode*)node)->name);
   
+  const char *keyword_suggestion = find_closest_keyword(((VarRefNode*)node)->name);
+  
+  report_error(l, start_token, msg);
+  if (keyword_suggestion) {
+      char hint[128];
+      snprintf(hint, sizeof(hint), "Did you mean %s?", keyword_suggestion);
+      report_hint(l, start_token, hint);
+  }
+
   if (node->type == NODE_VAR_REF) {
       if (((VarRefNode*)node)->name) free(((VarRefNode*)node)->name);
   }
   free(node);
   
-  parser_fail_at(l, start_token, msg);
-  
+  parser_error_count++;
   if (start_token.text) free(start_token.text);
+  
+  if (parser_recover_buf) longjmp(*parser_recover_buf, 1);
+  else if (parser_env) longjmp(*parser_env, 1);
+  else exit(1);
+
   return NULL;
 }
 

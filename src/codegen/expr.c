@@ -1,4 +1,5 @@
 #include "codegen.h"
+#include "../diagnostic/diagnostic.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +12,45 @@ char* format_string(const char* input) {
   return new_str;
 }
 
-// ... codegen_calc_type ... 
+// Helper: Find closest match in context (Variables, Functions, Classes, Namespaces)
+const char* find_closest_match(CodegenCtx *ctx, const char *name) {
+    const char *best = NULL;
+    int min_dist = 100;
+
+    // 1. Check Symbols (Variables)
+    Symbol *s = ctx->symbols;
+    while(s) {
+        int d = levenshtein_dist(name, s->name);
+        if (d < min_dist && d < 4) { min_dist = d; best = s->name; }
+        s = s->next;
+    }
+
+    // 2. Check Functions
+    FuncSymbol *f = ctx->functions;
+    while(f) {
+        int d = levenshtein_dist(name, f->name);
+        if (d < min_dist && d < 4) { min_dist = d; best = f->name; }
+        f = f->next;
+    }
+
+    // 3. Check Classes
+    ClassInfo *c = ctx->classes;
+    while(c) {
+        int d = levenshtein_dist(name, c->name);
+        if (d < min_dist && d < 4) { min_dist = d; best = c->name; }
+        c = c->next;
+    }
+
+    // 4. Check Namespaces
+    for(int i=0; i<ctx->known_namespace_count; i++) {
+        int d = levenshtein_dist(name, ctx->known_namespaces[i]);
+        if (d < min_dist && d < 4) { min_dist = d; best = ctx->known_namespaces[i]; }
+    }
+
+    return best;
+}
+
+// --- codegen_calc_type --- 
 VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
     VarType vt = {TYPE_UNKNOWN, 0, NULL};
     if (!node) return vt;
@@ -44,16 +83,10 @@ VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
             char *ns_name = ((VarRefNode*)ma->object)->name;
             if (is_namespace(ctx, ns_name)) {
                 // Resolution: This is a namespace access
-                // We assume user is accessing a function call, handled in NODE_CALL/NODE_EXPR
-                // But if they are accessing a variable inside namespace, handle here?
-                // Standard approach: Return unknown here, let codegen_expr resolve if value needed.
-                // However, calc_type needs to know return type.
-                // We'd need to look up function symbol with mangled name.
                 char mangled[256];
                 sprintf(mangled, "%s_%s", ns_name, ma->member_name);
                 FuncSymbol *fs = find_func_symbol(ctx, mangled);
                 if (fs) return fs->ret_type;
-                // Variable?
                 Symbol *s = find_symbol(ctx, mangled);
                 if (s) return s->vtype;
             }
@@ -147,10 +180,24 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
                 }
             }
         }
+        
+        // Error with hint
         char msg[128];
-        snprintf(msg, sizeof(msg), "Undefined variable '%s'", r->name);
-        codegen_error(ctx, node, msg);
-        return NULL; // Unreachable
+        snprintf(msg, sizeof(msg), "Undefined variable '%s'.", r->name);
+        
+        Lexer l;
+        lexer_init(&l, ctx->source_code);
+        Token t = {TOKEN_UNKNOWN, NULL, 0, 0.0, node->line, node->col};
+        
+        report_error(&l, t, msg);
+        
+        const char *best = find_closest_match(ctx, r->name);
+        if (best) {
+            char hint[128];
+            snprintf(hint, sizeof(hint), "Did you mean '%s'?", best);
+            report_hint(&l, t, hint);
+        }
+        exit(1);
     } 
     else if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
@@ -163,6 +210,23 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
                 sprintf(mangled, "%s_%s", ns_name, ma->member_name);
                 Symbol *s = find_symbol(ctx, mangled);
                 if (s) return s->value;
+                
+                char msg[128];
+                snprintf(msg, sizeof(msg), "Undefined member '%s' in namespace '%s'.", ma->member_name, ns_name);
+                
+                Lexer l;
+                lexer_init(&l, ctx->source_code);
+                Token t = {TOKEN_UNKNOWN, NULL, 0, 0.0, node->line, node->col};
+                report_error(&l, t, msg);
+
+                const char *best = find_closest_match(ctx, mangled);
+                if (best) {
+                     const char *short_best = (strncmp(best, ns_name, strlen(ns_name)) == 0) ? (best + strlen(ns_name) + 1) : best;
+                     char hint[128];
+                     snprintf(hint, sizeof(hint), "Did you mean '%s'?", short_best);
+                     report_hint(&l, t, hint);
+                }
+                exit(1);
             }
         }
 
@@ -253,9 +317,7 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
         while (m) {
             LLVMValueRef mem_ptr = LLVMBuildStructGEP2(ctx->builder, ci->struct_type, alloca, m->index, "mem_ptr");
             LLVMValueRef val_to_store = NULL;
-            
             int is_trait = (strncmp(m->name, "__trait_", 8) == 0);
-
             if (arg && !is_trait) {
                 val_to_store = codegen_expr(ctx, arg);
                 LLVMTypeRef mem_t = m->type;
@@ -311,8 +373,19 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
     LLVMValueRef func = LLVMGetNamedFunction(ctx->module, c->name);
     if (!func) {
         char msg[128];
-        snprintf(msg, sizeof(msg), "Undefined function '%s'", c->name);
-        codegen_error(ctx, node, msg);
+        snprintf(msg, sizeof(msg), "Undefined function '%s'.", c->name);
+        Lexer l;
+        lexer_init(&l, ctx->source_code);
+        Token t = {TOKEN_UNKNOWN, NULL, 0, 0.0, node->line, node->col};
+        report_error(&l, t, msg);
+        
+        const char *best = find_closest_match(ctx, c->name);
+        if (best) {
+            char hint[128];
+            snprintf(hint, sizeof(hint), "Did you mean '%s'?", best);
+            report_hint(&l, t, hint);
+        }
+        exit(1);
     }
     int arg_count = 0; ASTNode *curr = c->args; while(curr) { arg_count++; curr = curr->next; }
     LLVMValueRef *args = malloc(sizeof(LLVMValueRef) * arg_count);
@@ -385,8 +458,6 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
   }
   else if (node->type == NODE_METHOD_CALL) {
       MethodCallNode *mc = (MethodCallNode*)node;
-      
-      // Namespace Method Call
       if (mc->object->type == NODE_VAR_REF) {
           char *ns_name = ((VarRefNode*)mc->object)->name;
           if (is_namespace(ctx, ns_name)) {
@@ -395,8 +466,18 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
              LLVMValueRef func = LLVMGetNamedFunction(ctx->module, mangled);
              if (!func) {
                  char msg[128];
-                 snprintf(msg, sizeof(msg), "Namespace method '%s' not found", mangled);
-                 codegen_error(ctx, node, msg);
+                 snprintf(msg, sizeof(msg), "Namespace method '%s' not found.", mc->method_name);
+                 Lexer l; lexer_init(&l, ctx->source_code);
+                 Token t = {TOKEN_UNKNOWN, NULL, 0, 0.0, node->line, node->col};
+                 report_error(&l, t, msg);
+                 const char *best = find_closest_match(ctx, mangled);
+                 if (best) {
+                     const char *short_best = (strncmp(best, ns_name, strlen(ns_name)) == 0) ? (best + strlen(ns_name) + 1) : best;
+                     char hint[128];
+                     snprintf(hint, sizeof(hint), "Did you mean '%s'?", short_best);
+                     report_hint(&l, t, hint);
+                 }
+                 exit(1);
              }
              int arg_count = 0; ASTNode *arg = mc->args; while(arg) { arg_count++; arg = arg->next; }
              LLVMValueRef *args = malloc(sizeof(LLVMValueRef) * arg_count);
@@ -407,7 +488,6 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
              free(args); return ret;
           }
       }
-
       LLVMValueRef obj_ptr = codegen_addr(ctx, mc->object);
       VarType obj_type = codegen_calc_type(ctx, mc->object);
       if (obj_type.ptr_depth > 0) {

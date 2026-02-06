@@ -28,9 +28,14 @@ include_directories(
     src/driver
 )
 
-set(COMMON_SOURCES 
-    src/diagnostic/diagnostic.c
+set(MUST_LLVM_SOURCES
+    src/codegen/stmt.c
+    src/codegen/flow.c
+    src/codegen/core.c
+    src/codegen/expr.c
+)
 
+set(MUST_LANG_SOURCES 
     src/lexer/lexer.c
     
     src/parser/core.c 
@@ -38,12 +43,15 @@ set(COMMON_SOURCES
     src/parser/stmt.c 
     src/parser/top.c 
 
-    src/codegen/core.c
-    src/codegen/expr.c
-    src/codegen/stmt.c
-    src/codegen/flow.c
+    src/semantic/semantic.c    
+    
+    src/diagnostic/diagnostic.c
 )
 
+set(COMMON_SOURCES
+  ${MUST_LANG_SOURCES}
+  ${MUST_LLVM_SOURCES}
+)
 
 add_executable(alkyl src/driver/main.c ${COMMON_SOURCES})
 add_executable(alkyl-cli src/driver/cli.c ${COMMON_SOURCES})
