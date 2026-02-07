@@ -53,6 +53,7 @@ ASTNode* parse_assignment_or_call(Lexer *l);
 ASTNode* parse_loop(Lexer *l);
 ASTNode* parse_while(Lexer *l);
 ASTNode* parse_if(Lexer *l);
+ASTNode* parse_switch(Lexer *l); // Added
 ASTNode* parse_return(Lexer *l);
 ASTNode* parse_break(Lexer *l);
 ASTNode* parse_continue(Lexer *l);

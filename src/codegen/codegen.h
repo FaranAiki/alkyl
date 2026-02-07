@@ -13,6 +13,7 @@ typedef struct Symbol {
   VarType vtype;    
   int is_array;
   int is_mutable;
+  int is_direct_value; // True for Enum constants (r-values)
   struct Symbol *next;
 } Symbol;
 
@@ -129,6 +130,7 @@ void codegen_func_def(CodegenCtx *ctx, FuncDefNode *node);
 void codegen_loop(CodegenCtx *ctx, LoopNode *node);
 void codegen_while(CodegenCtx *ctx, WhileNode *node);
 void codegen_if(CodegenCtx *ctx, IfNode *node);
+void codegen_switch(CodegenCtx *ctx, SwitchNode *node); // Added
 void codegen_break(CodegenCtx *ctx);
 void codegen_continue(CodegenCtx *ctx);
 

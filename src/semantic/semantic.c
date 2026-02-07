@@ -25,6 +25,12 @@ typedef struct SemFunc {
     struct SemFunc *next;
 } SemFunc;
 
+typedef struct SemEnum {
+    char *name;
+    struct SemEnumMember { char *name; struct SemEnumMember *next; } *members;
+    struct SemEnum *next;
+} SemEnum;
+
 typedef struct SemClass {
     char *name;
     char *parent_name; 
@@ -43,6 +49,7 @@ typedef struct {
     Scope *current_scope;
     SemFunc *functions;
     SemClass *classes;
+    SemEnum *enums; // Added
     
     int error_count;
     
@@ -310,6 +317,15 @@ static SemFunc* find_func(SemCtx *ctx, const char *name) {
     return NULL;
 }
 
+static SemEnum* find_sem_enum(SemCtx *ctx, const char *name) {
+    SemEnum *e = ctx->enums;
+    while(e) {
+        if (strcmp(e->name, name) == 0) return e;
+        e = e->next;
+    }
+    return NULL;
+}
+
 static void add_class(SemCtx *ctx, const char *name, const char *parent, char **traits, int trait_count) {
     SemClass *c = malloc(sizeof(SemClass));
     c->name = strdup(name);
@@ -423,6 +439,13 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
                     if (mem) {
                         return mem->type;
                     }
+                }
+
+                // Check for Enum Name used as reference (e.g. implicit to namespace)
+                // Although EnumName alone is not a value.
+                if (find_sem_enum(ctx, name)) {
+                    sem_error(ctx, node, "'%s' is an Enum type, not a value. Use '%s.Member' or access members directly.", name, name);
+                    return unknown;
                 }
                 
                 sem_error(ctx, node, "Undefined symbol '%s'", name);
@@ -630,6 +653,18 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
 
         case NODE_ARRAY_ACCESS: {
             ArrayAccessNode *aa = (ArrayAccessNode*)node;
+            
+            // Enum String Mapping Support: Enum[val]
+            if (aa->target->type == NODE_VAR_REF) {
+                 char *name = ((VarRefNode*)aa->target)->name;
+                 SemEnum *se = find_sem_enum(ctx, name);
+                 if (se) {
+                     VarType idx_t = check_expr(ctx, aa->index);
+                     if (idx_t.base != TYPE_INT) sem_error(ctx, aa->index, "Enum string lookup requires integer index");
+                     return (VarType){TYPE_STRING, 0, NULL};
+                 }
+            }
+
             VarType target_t = check_expr(ctx, aa->target);
             VarType idx_t = check_expr(ctx, aa->index);
             
@@ -658,6 +693,22 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
         
         case NODE_MEMBER_ACCESS: {
              MemberAccessNode *ma = (MemberAccessNode*)node;
+             
+             // Enum Member Access Support: Enum.Member
+             if (ma->object->type == NODE_VAR_REF) {
+                 char *name = ((VarRefNode*)ma->object)->name;
+                 SemEnum *se = find_sem_enum(ctx, name);
+                 if (se) {
+                     // Verify member existence
+                     int found = 0;
+                     struct SemEnumMember *m = se->members;
+                     while(m) { if(strcmp(m->name, ma->member_name) == 0) { found=1; break; } m=m->next; }
+                     if (!found) sem_error(ctx, node, "Enum '%s' has no member '%s'", name, ma->member_name);
+                     
+                     return (VarType){TYPE_INT, 0, NULL};
+                 }
+             }
+
              VarType obj_t = check_expr(ctx, ma->object);
              
              if (obj_t.base == TYPE_UNKNOWN) return unknown;
@@ -711,6 +762,9 @@ static void check_stmt(SemCtx *ctx, ASTNode *node) {
                      if (vd->var_type.base == TYPE_STRING && init_t.base == TYPE_STRING) ok = 1;
                      if (vd->var_type.base == TYPE_CHAR && vd->is_array && init_t.base == TYPE_STRING) ok = 1;
                      if (vd->var_type.base == TYPE_CHAR && vd->var_type.ptr_depth == 1 && init_t.base == TYPE_STRING) ok = 1;
+                     
+                     // Allow Enum (Int) assigned to Int
+                     if (vd->var_type.base == TYPE_INT && init_t.base == TYPE_INT) ok = 1;
 
                      if (!ok) {
                         sem_error(ctx, node, "Variable '%s' type mismatch. Declared '%s', init '%s'", 
@@ -779,6 +833,36 @@ static void check_stmt(SemCtx *ctx, ASTNode *node) {
             break;
         }
 
+        case NODE_SWITCH: {
+            SwitchNode *s = (SwitchNode*)node;
+            VarType ct = check_expr(ctx, s->condition);
+            // Basic check: must be scalar
+            if (ct.base != TYPE_INT && ct.base != TYPE_CHAR) {
+                // Warning or error for non-integer switch?
+            }
+            
+            enter_scope(ctx);
+            
+            int prev_loop = ctx->in_loop;
+            ctx->in_loop = 1; // Allow break inside switch
+            
+            ASTNode *c = s->cases;
+            while(c) {
+                CaseNode *cn = (CaseNode*)c;
+                VarType vt = check_expr(ctx, cn->value);
+                if (!are_types_equal(ct, vt)) {
+                    // Type mismatch warning
+                }
+                check_stmt(ctx, cn->body);
+                c = c->next;
+            }
+            if (s->default_case) check_stmt(ctx, s->default_case);
+            
+            ctx->in_loop = prev_loop;
+            exit_scope(ctx);
+            break;
+        }
+
         case NODE_LOOP: {
             LoopNode *l = (LoopNode*)node;
             check_expr(ctx, l->iterations);
@@ -806,7 +890,7 @@ static void check_stmt(SemCtx *ctx, ASTNode *node) {
         case NODE_BREAK:
         case NODE_CONTINUE:
             if (!ctx->in_loop) {
-                sem_error(ctx, node, "'break' or 'continue' used outside of loop");
+                sem_error(ctx, node, "'break' or 'continue' used outside of loop or switch");
             }
             break;
 
@@ -899,6 +983,63 @@ static void scan_declarations(SemCtx *ctx, ASTNode *node, const char *prefix) {
              scan_declarations(ctx, ns->body, new_prefix);
              if (qualified) free(qualified);
         }
+        else if (node->type == NODE_ENUM) {
+            EnumNode *en = (EnumNode*)node;
+            
+            char *name = en->name;
+            char *qualified = NULL;
+            if (prefix) {
+                 int len = strlen(prefix) + strlen(name) + 2;
+                 qualified = malloc(len);
+                 snprintf(qualified, len, "%s.%s", prefix, name);
+                 name = qualified;
+            }
+
+            SemEnum *se = malloc(sizeof(SemEnum));
+            se->name = strdup(name);
+            se->members = NULL;
+            se->next = ctx->enums;
+            ctx->enums = se;
+
+            EnumEntry *ent = en->entries;
+            struct SemEnumMember **tail = &se->members;
+            
+            while(ent) {
+                // Add to internal list
+                struct SemEnumMember *m = malloc(sizeof(struct SemEnumMember));
+                m->name = strdup(ent->name);
+                m->next = NULL;
+                *tail = m;
+                tail = &m->next;
+
+                // Add as Global Symbol (to support direct access)
+                char *member_name = ent->name;
+                char *qualified_mem = NULL;
+                if (prefix) {
+                     int len = strlen(prefix) + strlen(member_name) + 2;
+                     qualified_mem = malloc(len);
+                     snprintf(qualified_mem, len, "%s.%s", prefix, member_name);
+                     member_name = qualified_mem;
+                }
+                
+                // Note: We use "." for semantic scoping, but codegen uses "_" or expects mangled name.
+                // However, semantic analysis just needs to know the symbol exists.
+                // For direct access `let x = Ayam`, we register `Ayam`.
+                // If inside namespace, `let x = NS.Ayam`? or `let x = Ayam` if inside NS?
+                // The user example `let sarapan = Ayam` implies simple scope injection.
+                
+                VarType vt = {TYPE_INT, 0, NULL};
+                
+                // Register simple name (unqualified) if we are at top level or if we want direct injection
+                // We'll register the simple name for now to satisfy "let x = Ayam".
+                add_symbol(ctx, ent->name, vt, 0, 0, 0, en->base.line, en->base.col);
+                
+                if (qualified_mem) free(qualified_mem);
+                ent = ent->next;
+            }
+            if (qualified) free(qualified);
+        }
+
         node = node->next;
     }
 }
@@ -946,6 +1087,7 @@ int semantic_analysis(ASTNode *root, const char *source) {
     ctx.current_scope = NULL;
     ctx.functions = NULL;
     ctx.classes = NULL;
+    ctx.enums = NULL; // Init enums
     ctx.error_count = 0;
     ctx.in_loop = 0;
     ctx.current_class = NULL;
@@ -974,6 +1116,13 @@ int semantic_analysis(ASTNode *root, const char *source) {
         while(mem) { SemSymbol *mn = mem->next; free(mem->name); free(mem); mem = mn; }
         free(ctx.classes); 
         ctx.classes = n; 
+    }
+    while(ctx.enums) {
+        SemEnum *n = ctx.enums->next;
+        struct SemEnumMember *m = ctx.enums->members;
+        while(m) { struct SemEnumMember *next = m->next; free(m->name); free(m); m = next; }
+        free(ctx.enums->name); free(ctx.enums);
+        ctx.enums = n;
     }
 
     return ctx.error_count;

@@ -179,16 +179,111 @@ void codegen_while(CodegenCtx *ctx, WhileNode *node) {
   LLVMPositionBuilderAtEnd(ctx->builder, end_bb);
 }
 
+void codegen_switch(CodegenCtx *ctx, SwitchNode *node) {
+    LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
+    LLVMValueRef cond = codegen_expr(ctx, node->condition);
+    
+    // Ensure condition is an integer for switch
+    if (LLVMGetTypeKind(LLVMTypeOf(cond)) != LLVMIntegerTypeKind) {
+        // Simple error or attempt cast
+        cond = LLVMBuildIntCast(ctx->builder, cond, LLVMInt32Type(), "switch_cond_cast");
+    }
+
+    LLVMBasicBlockRef end_bb = LLVMAppendBasicBlock(func, "switch_end");
+    LLVMBasicBlockRef default_bb = LLVMAppendBasicBlock(func, "switch_default");
+    
+    // Pre-scan to create basic blocks for all cases
+    int case_count = 0;
+    ASTNode *c = node->cases;
+    while(c) { case_count++; c = c->next; }
+    
+    LLVMBasicBlockRef *case_bbs = malloc(sizeof(LLVMBasicBlockRef) * case_count);
+    for(int i=0; i<case_count; i++) {
+        case_bbs[i] = LLVMAppendBasicBlock(func, "case_bb");
+    }
+    
+    // Create the Switch Instruction
+    LLVMValueRef switch_inst = LLVMBuildSwitch(ctx->builder, cond, default_bb, case_count);
+    
+    // Fill cases
+    c = node->cases;
+    int i = 0;
+    while(c) {
+        CaseNode *cn = (CaseNode*)c;
+        
+        // Add case to switch inst
+        LLVMValueRef val = codegen_expr(ctx, cn->value);
+        if (!LLVMIsConstant(val)) {
+             // Error: Case value must be constant
+        }
+        
+        // Fix for LLVMConstIntCast/ZExt implicit declaration
+        // We manually extract the value and create a new constant of the correct type
+        if (LLVMTypeOf(val) != LLVMTypeOf(cond)) {
+            if (LLVMIsConstant(val) && LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMIntegerTypeKind) {
+                unsigned long long raw_val = LLVMConstIntGetZExtValue(val);
+                val = LLVMConstInt(LLVMTypeOf(cond), raw_val, 0);
+            } else {
+                // Fallback (mostly for pointers or odd types, though switch implies int)
+                val = LLVMConstBitCast(val, LLVMTypeOf(cond));
+            }
+        }
+        
+        LLVMAddCase(switch_inst, val, case_bbs[i]);
+        
+        // Gen Body
+        LLVMPositionBuilderAtEnd(ctx->builder, case_bbs[i]);
+        
+        // Allow `break` to jump to end_bb
+        push_loop_ctx(ctx, NULL, end_bb); 
+        codegen_node(ctx, cn->body);
+        pop_loop_ctx(ctx);
+        
+        // Handle Fallthrough or Break
+        if (!LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(ctx->builder))) {
+            if (cn->is_leak) {
+                // Fallthrough to next case, or default, or end
+                if (i + 1 < case_count) {
+                    LLVMBuildBr(ctx->builder, case_bbs[i+1]);
+                } else {
+                    // Leak last case falls to default
+                    LLVMBuildBr(ctx->builder, default_bb);
+                }
+            } else {
+                // Standard Auto-Break
+                LLVMBuildBr(ctx->builder, end_bb);
+            }
+        }
+        
+        c = c->next;
+        i++;
+    }
+    free(case_bbs);
+    
+    // Default Block
+    LLVMPositionBuilderAtEnd(ctx->builder, default_bb);
+    if (node->default_case) {
+        push_loop_ctx(ctx, NULL, end_bb);
+        codegen_node(ctx, node->default_case);
+        pop_loop_ctx(ctx);
+    }
+    if (!LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(ctx->builder))) {
+        LLVMBuildBr(ctx->builder, end_bb);
+    }
+    
+    LLVMPositionBuilderAtEnd(ctx->builder, end_bb);
+}
+
 void codegen_break(CodegenCtx *ctx) {
     if (!ctx->current_loop) {
-        fprintf(stderr, "Error: 'break' outside of loop\n");
+        fprintf(stderr, "Error: 'break' outside of loop or switch\n");
         exit(1);
     }
     LLVMBuildBr(ctx->builder, ctx->current_loop->break_target);
 }
 
 void codegen_continue(CodegenCtx *ctx) {
-    if (!ctx->current_loop) {
+    if (!ctx->current_loop || !ctx->current_loop->continue_target) {
         fprintf(stderr, "Error: 'continue' outside of loop\n");
         exit(1);
     }

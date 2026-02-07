@@ -13,6 +13,7 @@ typedef enum {
   TOKEN_LPAREN,   
   TOKEN_RPAREN,   
   TOKEN_SEMICOLON,
+  TOKEN_COLON,    // Added ':'
   TOKEN_COMMA,  
   TOKEN_ELLIPSIS, 
   TOKEN_DOT,    
@@ -42,6 +43,10 @@ typedef enum {
   TOKEN_RETURN,
   TOKEN_BREAK,
   TOKEN_CONTINUE,
+  TOKEN_SWITCH,   // Added
+  TOKEN_CASE,     // Added
+  TOKEN_DEFAULT,  // Added
+  TOKEN_LEAK,     // Added
   
   TOKEN_DEFINE, 
   TOKEN_AS,     
@@ -56,7 +61,7 @@ typedef enum {
   TOKEN_TYPEOF, 
 
   TOKEN_NAMESPACE, 
-  TOKEN_ENUM, // Added
+  TOKEN_ENUM, 
 
   TOKEN_KW_VOID,   
   TOKEN_KW_INT,  

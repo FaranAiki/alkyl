@@ -16,6 +16,8 @@ typedef enum {
   NODE_LOOP,    
   NODE_WHILE,   
   NODE_IF,
+  NODE_SWITCH,  // Added
+  NODE_CASE,    // Added
   NODE_VAR_DECL,  
   NODE_ASSIGN,  
   NODE_VAR_REF,
@@ -28,7 +30,7 @@ typedef enum {
   NODE_LINK,
   NODE_CLASS,
   NODE_NAMESPACE, 
-  NODE_ENUM, // Added
+  NODE_ENUM, 
   NODE_MEMBER_ACCESS,
   NODE_METHOD_CALL, 
   NODE_TRAIT_ACCESS, 
@@ -107,7 +109,7 @@ typedef struct {
 typedef struct {
   ASTNode base;
   char *name;
-  ASTNode *body; // List of statements/declarations inside the namespace
+  ASTNode *body; 
 } NamespaceNode;
 
 typedef struct {
@@ -167,6 +169,21 @@ typedef struct {
   ASTNode *then_body;
   ASTNode *else_body;
 } IfNode;
+
+// Switch Structs
+typedef struct {
+    ASTNode base;
+    ASTNode *value; // Case Value (Literal/Enum)
+    ASTNode *body;  // Statement List
+    int is_leak;    // Fallthrough flag
+} CaseNode;
+
+typedef struct {
+    ASTNode base;
+    ASTNode *condition;
+    ASTNode *cases; // List of CaseNodes
+    ASTNode *default_case; // List of statements for default
+} SwitchNode;
 
 typedef struct {
   ASTNode base;

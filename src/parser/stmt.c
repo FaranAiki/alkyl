@@ -240,6 +240,7 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
   if (current_token.type == TOKEN_LOOP) return parse_loop(l);
   if (current_token.type == TOKEN_WHILE) return parse_while(l);
   if (current_token.type == TOKEN_IF) return parse_if(l);
+  if (current_token.type == TOKEN_SWITCH) return parse_switch(l); // Hook up switch
   if (current_token.type == TOKEN_RETURN) return parse_return(l);
   if (current_token.type == TOKEN_BREAK) return parse_break(l);
   if (current_token.type == TOKEN_CONTINUE) return parse_continue(l);
@@ -350,6 +351,80 @@ ASTNode* parse_if(Lexer *l) {
   node->else_body = else_body;
   set_loc((ASTNode*)node, line, col);
   return (ASTNode*)node;
+}
+
+// Helper: Parse a block of statements until a Switch Case Label or End Brace is met
+static ASTNode* parse_case_body_stmts(Lexer *l) {
+    ASTNode *head = NULL;
+    ASTNode **current = &head;
+    while (current_token.type != TOKEN_EOF && 
+           current_token.type != TOKEN_RBRACE && 
+           current_token.type != TOKEN_CASE && 
+           current_token.type != TOKEN_LEAK &&
+           current_token.type != TOKEN_DEFAULT) {
+        ASTNode *stmt = parse_single_statement_or_block(l);
+        if (stmt) {
+            *current = stmt;
+            current = &stmt->next;
+        }
+    }
+    return head;
+}
+
+ASTNode* parse_switch(Lexer *l) {
+    int line = current_token.line, col = current_token.col;
+    eat(l, TOKEN_SWITCH);
+    eat(l, TOKEN_LPAREN);
+    ASTNode *cond = parse_expression(l);
+    eat(l, TOKEN_RPAREN);
+    eat(l, TOKEN_LBRACE);
+
+    ASTNode *cases_head = NULL;
+    ASTNode **cases_curr = &cases_head;
+    ASTNode *default_body = NULL;
+
+    while (current_token.type != TOKEN_RBRACE && current_token.type != TOKEN_EOF) {
+        int is_leak = 0;
+        if (current_token.type == TOKEN_LEAK) {
+            eat(l, TOKEN_LEAK);
+            is_leak = 1;
+        }
+        
+        if (current_token.type == TOKEN_CASE) {
+            eat(l, TOKEN_CASE);
+            ASTNode *val = parse_expression(l);
+            eat(l, TOKEN_COLON);
+            
+            ASTNode *body = parse_case_body_stmts(l);
+            
+            CaseNode *cn = calloc(1, sizeof(CaseNode));
+            cn->base.type = NODE_CASE;
+            cn->value = val;
+            cn->body = body;
+            cn->is_leak = is_leak;
+            set_loc((ASTNode*)cn, line, col); // Use approximate start loc
+            
+            *cases_curr = (ASTNode*)cn;
+            cases_curr = &cn->base.next;
+        } 
+        else if (current_token.type == TOKEN_DEFAULT) {
+             eat(l, TOKEN_DEFAULT);
+             eat(l, TOKEN_COLON);
+             if (default_body) parser_fail(l, "Duplicate default case");
+             default_body = parse_case_body_stmts(l);
+        } else {
+            parser_fail(l, "Expected 'case', 'leak case', or 'default' inside switch");
+        }
+    }
+    eat(l, TOKEN_RBRACE);
+
+    SwitchNode *node = calloc(1, sizeof(SwitchNode));
+    node->base.type = NODE_SWITCH;
+    node->condition = cond;
+    node->cases = cases_head;
+    node->default_case = default_body;
+    set_loc((ASTNode*)node, line, col);
+    return (ASTNode*)node;
 }
 
 ASTNode* parse_statements(Lexer *l) {

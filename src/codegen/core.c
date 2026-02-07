@@ -81,6 +81,7 @@ void add_symbol(CodegenCtx *ctx, const char *name, LLVMValueRef val, LLVMTypeRef
   s->vtype = vtype;
   s->is_array = is_array;
   s->is_mutable = is_mut;
+  s->is_direct_value = 0; // Default to variable
   s->next = ctx->symbols;
   ctx->symbols = s;
 }
@@ -443,6 +444,29 @@ void scan_enums(CodegenCtx *ctx, ASTNode *node, const char *prefix) {
                 info->next = NULL;
                 *tail = info;
                 tail = &info->next;
+                
+                // Add member as direct constant symbol
+                Symbol *s = malloc(sizeof(Symbol));
+                
+                // Name mangling for the constant:
+                // If we are in a namespace, mangle. If not, use raw name.
+                // NOTE: This injects the name into the current scope (global)
+                // matching user's request for "let x = Ayam;"
+                
+                char full_name[256];
+                if (prefix && strlen(prefix) > 0) snprintf(full_name, sizeof(full_name), "%s_%s", prefix, ent->name);
+                else strcpy(full_name, ent->name);
+                
+                s->name = strdup(full_name);
+                s->value = LLVMConstInt(LLVMInt32Type(), ent->value, 0);
+                s->type = LLVMInt32Type();
+                s->vtype = (VarType){TYPE_INT, 0, NULL};
+                s->is_array = 0;
+                s->is_mutable = 0;
+                s->is_direct_value = 1; // Mark as r-value constant
+                s->next = ctx->symbols;
+                ctx->symbols = s;
+
                 ent = ent->next;
             }
             

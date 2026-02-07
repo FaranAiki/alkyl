@@ -195,7 +195,12 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
     if (node->type == NODE_VAR_REF) {
         VarRefNode *r = (VarRefNode*)node;
         Symbol *sym = find_symbol(ctx, r->name);
-        if (sym) return sym->value;
+        if (sym) {
+            if (sym->is_direct_value) {
+                codegen_error(ctx, node, "Cannot take address of enum constant");
+            }
+            return sym->value;
+        }
         Symbol *this_sym = find_symbol(ctx, "this");
         if (this_sym) {
             LLVMValueRef this_val = LLVMBuildLoad2(ctx->builder, this_sym->type, this_sym->value, "this_ptr");
@@ -238,7 +243,10 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
                 char mangled[256];
                 sprintf(mangled, "%s_%s", ns_name, ma->member_name);
                 Symbol *s = find_symbol(ctx, mangled);
-                if (s) return s->value;
+                if (s) {
+                     if (s->is_direct_value) codegen_error(ctx, node, "Cannot take address of constant");
+                     return s->value;
+                }
                 
                 char msg[128];
                 snprintf(msg, sizeof(msg), "Undefined member '%s' in namespace '%s'.", ma->member_name, ns_name);
@@ -437,6 +445,12 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
     free(args); return ret;
   }
   else if (node->type == NODE_VAR_REF) {
+      Symbol *sym = find_symbol(ctx, ((VarRefNode*)node)->name);
+      // Check if it's a direct value (like an Enum constant)
+      if (sym && sym->is_direct_value) {
+          return sym->value;
+      }
+
       LLVMValueRef addr = codegen_addr(ctx, node);
       VarType vt = codegen_calc_type(ctx, node);
       LLVMTypeRef type = get_llvm_type(ctx, vt);

@@ -71,6 +71,7 @@ Token lexer_next(Lexer *l) {
   }
 
   if (c == ',') { advance(l); t.type = TOKEN_COMMA; return t; }
+  if (c == ':') { advance(l); t.type = TOKEN_COLON; return t; } // Added
   if (c == '[') { advance(l); t.type = TOKEN_LBRACKET; return t; }
   if (c == ']') { advance(l); t.type = TOKEN_RBRACKET; return t; }
   if (c == '{') { advance(l); t.type = TOKEN_LBRACE; return t; }
@@ -301,6 +302,11 @@ Token lexer_next(Lexer *l) {
     else if (strcmp(word, "break") == 0) t.type = TOKEN_BREAK;
     else if (strcmp(word, "continue") == 0) t.type = TOKEN_CONTINUE;
     
+    else if (strcmp(word, "switch") == 0) t.type = TOKEN_SWITCH; // Added
+    else if (strcmp(word, "case") == 0) t.type = TOKEN_CASE;     // Added
+    else if (strcmp(word, "default") == 0) t.type = TOKEN_DEFAULT; // Added
+    else if (strcmp(word, "leak") == 0) t.type = TOKEN_LEAK;     // Added
+
     else if (strcmp(word, "define") == 0) t.type = TOKEN_DEFINE;
     else if (strcmp(word, "as") == 0) t.type = TOKEN_AS;
     else if (strcmp(word, "typedef") == 0) t.type = TOKEN_TYPEDEF;
