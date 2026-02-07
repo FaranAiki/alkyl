@@ -22,12 +22,18 @@ const char* diag_get_namespace(void);
 void report_error(Lexer *l, Token t, const char *msg);
 
 // Report a hint (Yellow)
+// Standardized "Did you mean 'X'?" or general hints
 void report_hint(Lexer *l, Token t, const char *msg);
+
+// Report a suggestion (Yellow)
+// Wraps report_hint to strictly output "hint: Did you mean 'suggestion'?"
+void report_suggestion(Lexer *l, Token t, const char *suggestion);
 
 // Report info (Blue)
 void report_info(Lexer *l, Token t, const char *msg);
 
 // Report a reason (Purple)
+// Used to provide context (e.g., "previous definition was here")
 void report_reason(Lexer *l, Token t, const char *msg);
 
 // Convert a token type to a human-readable string (e.g., TOKEN_SEMICOLON -> ";")

@@ -1,7 +1,7 @@
 #ifndef CODEGEN_H
 #define CODEGEN_H
 
-#include "parser.h"
+#include "../parser/parser.h"
 #include <llvm-c/Core.h>
 #include <llvm-c/ExecutionEngine.h>
 #include <llvm-c/Analysis.h>
@@ -39,6 +39,19 @@ typedef struct ClassInfo {
     struct ClassInfo *next;
 } ClassInfo;
 
+typedef struct EnumEntryInfo {
+    char *name;
+    int value;
+    struct EnumEntryInfo *next;
+} EnumEntryInfo;
+
+typedef struct EnumInfo {
+    char *name;
+    EnumEntryInfo *entries;
+    LLVMValueRef to_string_func;
+    struct EnumInfo *next;
+} EnumInfo;
+
 typedef struct LoopContext {
   LLVMBasicBlockRef continue_target;
   LLVMBasicBlockRef break_target;
@@ -51,6 +64,7 @@ typedef struct {
   Symbol *symbols;
   FuncSymbol *functions;
   ClassInfo *classes; 
+  EnumInfo *enums; // Added
   LoopContext *current_loop; 
   
   // Namespacing
@@ -92,6 +106,10 @@ int is_namespace(CodegenCtx *ctx, const char *name);
 void add_class_info(CodegenCtx *ctx, ClassInfo *ci);
 ClassInfo* find_class(CodegenCtx *ctx, const char *name);
 int get_member_index(ClassInfo *ci, const char *member, LLVMTypeRef *out_type, VarType *out_vtype);
+
+// Enum Helpers
+void add_enum_info(CodegenCtx *ctx, EnumInfo *ei);
+EnumInfo* find_enum(CodegenCtx *ctx, const char *name);
 
 LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t); 
 VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node);

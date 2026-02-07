@@ -35,6 +35,10 @@ void register_macro(const char *name, char **params, int param_count, Token *bod
 void register_typename(const char *name);
 int is_typename(const char *name);
 
+// Alias Registry (Typedef)
+void register_alias(const char *name, VarType target);
+VarType* get_alias(const char *name);
+
 Token lexer_next_raw(Lexer *l); 
 
 // --- EXPRESSION PARSERS (parser_expr.c) ---

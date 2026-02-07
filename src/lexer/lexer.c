@@ -303,6 +303,7 @@ Token lexer_next(Lexer *l) {
     
     else if (strcmp(word, "define") == 0) t.type = TOKEN_DEFINE;
     else if (strcmp(word, "as") == 0) t.type = TOKEN_AS;
+    else if (strcmp(word, "typedef") == 0) t.type = TOKEN_TYPEDEF;
     
     else if (strcmp(word, "class") == 0) t.type = TOKEN_CLASS;
     else if (strcmp(word, "is") == 0) t.type = TOKEN_IS;

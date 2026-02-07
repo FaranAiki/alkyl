@@ -45,6 +45,7 @@ typedef enum {
   
   TOKEN_DEFINE, 
   TOKEN_AS,     
+  TOKEN_TYPEDEF, 
 
   // OOP Keywords
   TOKEN_CLASS,
@@ -54,7 +55,8 @@ typedef enum {
   TOKEN_CLOSED, 
   TOKEN_TYPEOF, 
 
-  TOKEN_NAMESPACE, // Added
+  TOKEN_NAMESPACE, 
+  TOKEN_ENUM, // Added
 
   TOKEN_KW_VOID,   
   TOKEN_KW_INT,  

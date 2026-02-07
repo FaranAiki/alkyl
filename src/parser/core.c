@@ -47,6 +47,47 @@ int is_typename(const char *name) {
     return 0;
 }
 
+// --- ALIAS REGISTRY (For typedefs) ---
+typedef struct TypeAlias {
+    char *name;
+    VarType target;
+    struct TypeAlias *next;
+} TypeAlias;
+
+TypeAlias *alias_head = NULL;
+
+void register_alias(const char *name, VarType target) {
+    // Overwrite if exists, or push new
+    TypeAlias *curr = alias_head;
+    while(curr) {
+        if (strcmp(curr->name, name) == 0) {
+            // Free old class_name if needed?
+            // For now, just overwrite
+            curr->target = target;
+            return;
+        }
+        curr = curr->next;
+    }
+
+    TypeAlias *a = malloc(sizeof(TypeAlias));
+    a->name = strdup(name);
+    a->target = target;
+    // Deep copy class name if present
+    if (target.class_name) a->target.class_name = strdup(target.class_name);
+    
+    a->next = alias_head;
+    alias_head = a;
+}
+
+VarType* get_alias(const char *name) {
+    TypeAlias *curr = alias_head;
+    while(curr) {
+        if (strcmp(curr->name, name) == 0) return &curr->target;
+        curr = curr->next;
+    }
+    return NULL;
+}
+
 // Expansion Stack (for handling nested macros)
 typedef struct Expansion {
     Token *tokens;
@@ -311,7 +352,14 @@ VarType parse_type(Lexer *l) {
   VarType t = {TYPE_UNKNOWN, 0, NULL}; 
   
   if (current_token.type == TOKEN_IDENTIFIER) {
-      if (is_typename(current_token.text)) {
+      // Check Alias First
+      VarType *alias = get_alias(current_token.text);
+      if (alias) {
+          t = *alias; // Copy alias definition
+          if (t.class_name) t.class_name = strdup(t.class_name);
+          eat(l, TOKEN_IDENTIFIER);
+      }
+      else if (is_typename(current_token.text)) {
           t.base = TYPE_CLASS;
           t.class_name = strdup(current_token.text);
           eat(l, TOKEN_IDENTIFIER);

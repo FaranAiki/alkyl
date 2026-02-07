@@ -1,8 +1,10 @@
 // --- Alkyl Language Example ---
+typedef string as char[];
 
 // 1. External Definitions (FFI)
 // 'print' is intrinsic, but we can define others
 extern int system(string cmd);
+
 
 // 2. Namespaces
 namespace Math {

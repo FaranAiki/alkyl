@@ -1,6 +1,8 @@
 #include "parser_internal.h"
+#include "../diagnostic/diagnostic.h" // For find_closest_keyword
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h> // For snprintf
 
 // Forward decl
 void parser_advance(Lexer *l);
@@ -61,7 +63,35 @@ ASTNode* parse_top_level(Lexer *l) {
         eat(l, TOKEN_RPAREN);
     }
     
+    // Explicitly check for 'as' to provide a smart error message
+    if (current_token.type != TOKEN_AS) {
+        const char *found = current_token.text;
+        if (!found) {
+            // Handle keywords that might not have text populated in the token
+            if (current_token.type == TOKEN_TYPEDEF) found = "typedef";
+            else if (current_token.type == TOKEN_IDENTIFIER) found = "identifier";
+            else found = token_type_to_string(current_token.type);
+        }
+        
+        char msg[256];
+        snprintf(msg, sizeof(msg), "Expected 'as' after macro definition, but found '%s'", found);
+        report_error(l, current_token, msg);
+        
+        char hint[256];
+        snprintf(hint, sizeof(hint), "Expected 'as'. Did you mean \"define %s as %s...\"?", macro_name, found);
+        report_hint(l, current_token, hint);
+        
+        free(macro_name);
+        if (params) {
+            for(int i=0; i<param_count; i++) free(params[i]);
+            free(params);
+        }
+        
+        if (parser_recover_buf) longjmp(*parser_recover_buf, 1);
+        exit(1);
+    }
     eat(l, TOKEN_AS);
+    
     Token *body_tokens = malloc(sizeof(Token) * 32);
     int body_cap = 32;
     int body_len = 0;
@@ -77,6 +107,86 @@ ASTNode* parse_top_level(Lexer *l) {
     free(macro_name);
     free(body_tokens);
     return NULL; 
+  }
+
+  // 0.2 TYPEDEF
+  if (current_token.type == TOKEN_TYPEDEF) {
+      eat(l, TOKEN_TYPEDEF);
+      if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected new type name after 'typedef'");
+      char *new_name = strdup(current_token.text);
+      eat(l, TOKEN_IDENTIFIER);
+      
+      if (current_token.type == TOKEN_AS) eat(l, TOKEN_AS);
+      
+      VarType target = parse_type(l);
+      if (target.base == TYPE_UNKNOWN) parser_fail(l, "Unknown type in typedef");
+      
+      // Handle array syntax for typedefs: typedef string as char[]
+      while (current_token.type == TOKEN_LBRACKET) {
+          eat(l, TOKEN_LBRACKET);
+          if (current_token.type != TOKEN_RBRACKET) {
+              ASTNode *sz = parse_expression(l);
+              if (sz && sz->type == NODE_LITERAL) target.array_size = ((LiteralNode*)sz)->val.int_val;
+              free_ast(sz);
+          }
+          eat(l, TOKEN_RBRACKET);
+          target.ptr_depth++;
+      }
+      
+      register_alias(new_name, target);
+      eat(l, TOKEN_SEMICOLON);
+      free(new_name);
+      return NULL;
+  }
+  
+  // 0.3 ENUM
+  if (current_token.type == TOKEN_ENUM) {
+      eat(l, TOKEN_ENUM);
+      if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected enum name");
+      char *enum_name = strdup(current_token.text);
+      eat(l, TOKEN_IDENTIFIER);
+      register_typename(enum_name); // Allow enum to be used as type name
+
+      eat(l, TOKEN_LBRACE);
+      
+      EnumEntry *entries_head = NULL;
+      EnumEntry **curr_entry = &entries_head;
+      int current_val = 0;
+
+      while (current_token.type != TOKEN_RBRACE && current_token.type != TOKEN_EOF) {
+          if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected enum member name");
+          char *member_name = strdup(current_token.text);
+          eat(l, TOKEN_IDENTIFIER);
+          
+          if (current_token.type == TOKEN_ASSIGN) {
+              eat(l, TOKEN_ASSIGN);
+              // Simple constant expression handling
+              int sign = 1;
+              if (current_token.type == TOKEN_MINUS) { sign = -1; eat(l, TOKEN_MINUS); }
+              if (current_token.type != TOKEN_NUMBER) parser_fail(l, "Expected integer value for enum member");
+              current_val = current_token.int_val * sign;
+              eat(l, TOKEN_NUMBER);
+          }
+          
+          EnumEntry *entry = malloc(sizeof(EnumEntry));
+          entry->name = member_name;
+          entry->value = current_val;
+          entry->next = NULL;
+          *curr_entry = entry;
+          curr_entry = &entry->next;
+          
+          current_val++;
+          
+          if (current_token.type == TOKEN_COMMA) eat(l, TOKEN_COMMA);
+          else if (current_token.type != TOKEN_RBRACE) parser_fail(l, "Expected ',' or '}' in enum definition");
+      }
+      eat(l, TOKEN_RBRACE);
+      
+      EnumNode *en = calloc(1, sizeof(EnumNode));
+      en->base.type = NODE_ENUM;
+      en->name = enum_name;
+      en->entries = entries_head;
+      return (ASTNode*)en;
   }
 
   // --- CLASS PARSING ---
@@ -153,8 +263,6 @@ ASTNode* parse_top_level(Lexer *l) {
                                   eat(l, TOKEN_LBRACKET);
                                   if (current_token.type != TOKEN_RBRACKET) {
                                       ASTNode *sz = parse_expression(l);
-                                      // Ignore size for parameter types (decay to pointer)
-                                      // if (sz && sz->type == NODE_LITERAL) pt.array_size = ((LiteralNode*)sz)->val.int_val;
                                       free_ast(sz);
                                   }
                                   eat(l, TOKEN_RBRACKET);
@@ -300,8 +408,6 @@ ASTNode* parse_top_level(Lexer *l) {
             eat(l, TOKEN_LBRACKET);
             if (current_token.type != TOKEN_RBRACKET) {
                 ASTNode *sz = parse_expression(l);
-                // Ignore size for parameter types (decay to pointer)
-                // if (sz && sz->type == NODE_LITERAL) ptype.array_size = ((LiteralNode*)sz)->val.int_val;
                 free_ast(sz);
             }
             eat(l, TOKEN_RBRACKET);
@@ -321,6 +427,44 @@ ASTNode* parse_top_level(Lexer *l) {
 
   if (current_token.type == TOKEN_KW_MUT || current_token.type == TOKEN_KW_IMUT) {
     return parse_var_decl_internal(l);
+  }
+
+  // Capture location before parsing type
+  int line = current_token.line;
+  int col = current_token.col;
+
+  // SMART TYPO CHECK: Before calling parse_type (which might swallow the identifier if it were a type),
+  // check if the current identifier is a butchered keyword.
+  if (current_token.type == TOKEN_IDENTIFIER) {
+      // Define local list of top-level keywords to check against
+      const char *top_kws[] = {
+          "typedef", "namespace", "define", "class", "import", "link", "extern", 
+          "struct", "enum", "const", "let", "mut", "imut", "return", "if", "while", NULL
+      };
+      
+      const char *best_kw = NULL;
+      int min_dist = 3;
+      
+      for(int i=0; top_kws[i]; i++) {
+          int d = levenshtein_dist(current_token.text, top_kws[i]);
+          if (d < min_dist) {
+              min_dist = d;
+              best_kw = top_kws[i];
+          }
+      }
+
+      if (best_kw) {
+           char err_msg[256];
+           snprintf(err_msg, 256, "Invalid token '%s'", current_token.text);
+           report_error(l, current_token, err_msg);
+           
+           char hint_msg[256];
+           snprintf(hint_msg, 256, "'%s' looks like keyword '%s'. Did you mean to use %s?", current_token.text, best_kw, best_kw);
+           report_hint(l, current_token, hint_msg);
+           
+           if (parser_recover_buf) longjmp(*parser_recover_buf, 1);
+           exit(1); 
+      }
   }
 
   VarType vtype = parse_type(l);
@@ -344,8 +488,6 @@ ASTNode* parse_top_level(Lexer *l) {
             eat(l, TOKEN_LBRACKET);
             if (current_token.type != TOKEN_RBRACKET) {
                 ASTNode *sz = parse_expression(l);
-                // Ignore size for parameter types (decay to pointer)
-                // if (sz && sz->type == NODE_LITERAL) ptype.array_size = ((LiteralNode*)sz)->val.int_val;
                 free_ast(sz);
             }
             eat(l, TOKEN_RBRACKET);
@@ -360,6 +502,8 @@ ASTNode* parse_top_level(Lexer *l) {
     ASTNode *body = parse_statements(l); eat(l, TOKEN_RBRACE);
     FuncDefNode *node = calloc(1, sizeof(FuncDefNode));
     node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = vtype; node->params = params_head; node->body = body;
+    // Set location
+    node->base.line = line; node->base.col = col;
     return (ASTNode*)node;
   } else {
     char *name_val = name;
@@ -378,6 +522,8 @@ ASTNode* parse_top_level(Lexer *l) {
     node->base.type = NODE_VAR_DECL; node->var_type = vtype; node->name = name_val;
     node->initializer = init; node->is_mutable = 1; 
     node->is_array = is_array; node->array_size = array_size;
+    // Set location
+    node->base.line = line; node->base.col = col;
     return (ASTNode*)node;
   }
 }

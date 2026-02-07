@@ -10,6 +10,7 @@ LLVMValueRef generate_strlen(LLVMModuleRef module);
 LLVMValueRef generate_strcpy(LLVMModuleRef module);
 LLVMValueRef generate_strdup(LLVMModuleRef module, LLVMValueRef malloc_func, LLVMValueRef strlen_func, LLVMValueRef strcpy_func);
 LLVMValueRef generate_input_func(LLVMModuleRef module, LLVMBuilderRef builder, LLVMValueRef malloc_func, LLVMValueRef getchar_func);
+LLVMValueRef generate_enum_to_string_func(CodegenCtx *ctx, EnumInfo *ei);
 
 void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef builder, const char *source) {
     ctx->module = module;
@@ -17,6 +18,7 @@ void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef buil
     ctx->symbols = NULL;
     ctx->functions = NULL;
     ctx->classes = NULL;
+    ctx->enums = NULL; // Init enums
     ctx->current_loop = NULL;
     ctx->source_code = source;
     
@@ -116,6 +118,20 @@ void add_class_info(CodegenCtx *ctx, ClassInfo *ci) {
 
 ClassInfo* find_class(CodegenCtx *ctx, const char *name) {
     ClassInfo *cur = ctx->classes;
+    while(cur) {
+        if (strcmp(cur->name, name) == 0) return cur;
+        cur = cur->next;
+    }
+    return NULL;
+}
+
+void add_enum_info(CodegenCtx *ctx, EnumInfo *ei) {
+    ei->next = ctx->enums;
+    ctx->enums = ei;
+}
+
+EnumInfo* find_enum(CodegenCtx *ctx, const char *name) {
+    EnumInfo *cur = ctx->enums;
     while(cur) {
         if (strcmp(cur->name, name) == 0) return cur;
         cur = cur->next;
@@ -317,6 +333,49 @@ LLVMValueRef generate_input_func(LLVMModuleRef module, LLVMBuilderRef builder, L
     return func;
 }
 
+LLVMValueRef generate_enum_to_string_func(CodegenCtx *ctx, EnumInfo *ei) {
+    if (ei->to_string_func) return ei->to_string_func;
+    
+    char func_name[256];
+    snprintf(func_name, sizeof(func_name), "__enum_str_%s", ei->name);
+    
+    LLVMTypeRef args[] = { LLVMInt32Type() };
+    LLVMTypeRef func_type = LLVMFunctionType(LLVMPointerType(LLVMInt8Type(), 0), args, 1, false);
+    LLVMValueRef func = LLVMAddFunction(ctx->module, func_name, func_type);
+    
+    LLVMBasicBlockRef entry = LLVMAppendBasicBlock(func, "entry");
+    LLVMBasicBlockRef default_bb = LLVMAppendBasicBlock(func, "default");
+    
+    LLVMBuilderRef b = LLVMCreateBuilder();
+    LLVMPositionBuilderAtEnd(b, entry);
+    
+    LLVMValueRef val = LLVMGetParam(func, 0);
+    
+    LLVMValueRef switch_inst = LLVMBuildSwitch(b, val, default_bb, 0);
+    
+    EnumEntryInfo *e = ei->entries;
+    while(e) {
+        LLVMBasicBlockRef case_bb = LLVMAppendBasicBlock(func, e->name);
+        LLVMPositionBuilderAtEnd(b, case_bb);
+        
+        LLVMValueRef str = LLVMBuildGlobalStringPtr(ctx->builder, e->name, "enum_str");
+        LLVMBuildRet(b, str);
+        
+        LLVMAddCase(switch_inst, LLVMConstInt(LLVMInt32Type(), e->value, 0), case_bb);
+        e = e->next;
+    }
+    
+    LLVMPositionBuilderAtEnd(b, default_bb);
+    LLVMValueRef unknown = LLVMBuildGlobalStringPtr(ctx->builder, "?", "unknown_enum");
+    LLVMBuildRet(b, unknown);
+    
+    LLVMDisposeBuilder(b);
+    
+    ei->to_string_func = func;
+    return func;
+}
+
+
 // Helper: Scan for Classes recursively
 void scan_classes(CodegenCtx *ctx, ASTNode *node, const char *prefix) {
     while (node) {
@@ -348,6 +407,53 @@ void scan_classes(CodegenCtx *ctx, ASTNode *node, const char *prefix) {
             else strcpy(new_prefix, ns->name);
             add_namespace_name(ctx, new_prefix);
             scan_classes(ctx, ns->body, new_prefix);
+        }
+        node = node->next;
+    }
+}
+
+// Helper: Scan for Enums recursively
+void scan_enums(CodegenCtx *ctx, ASTNode *node, const char *prefix) {
+    while (node) {
+        if (node->type == NODE_ENUM) {
+            EnumNode *en = (EnumNode*)node;
+            EnumInfo *ei = malloc(sizeof(EnumInfo));
+            
+            if (prefix && strlen(prefix) > 0) {
+                char mangled[256];
+                sprintf(mangled, "%s_%s", prefix, en->name);
+                ei->name = strdup(mangled);
+                // Update node name
+                free(en->name);
+                en->name = strdup(mangled);
+            } else {
+                ei->name = strdup(en->name);
+            }
+            
+            ei->entries = NULL;
+            ei->to_string_func = NULL;
+            
+            EnumEntry *ent = en->entries;
+            EnumEntryInfo **tail = &ei->entries;
+            
+            while(ent) {
+                EnumEntryInfo *info = malloc(sizeof(EnumEntryInfo));
+                info->name = strdup(ent->name);
+                info->value = ent->value;
+                info->next = NULL;
+                *tail = info;
+                tail = &info->next;
+                ent = ent->next;
+            }
+            
+            add_enum_info(ctx, ei);
+        }
+        else if (node->type == NODE_NAMESPACE) {
+            NamespaceNode *ns = (NamespaceNode*)node;
+            char new_prefix[256];
+            if (prefix && strlen(prefix) > 0) sprintf(new_prefix, "%s_%s", prefix, ns->name);
+            else strcpy(new_prefix, ns->name);
+            scan_enums(ctx, ns->body, new_prefix);
         }
         node = node->next;
     }
@@ -481,6 +587,9 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name, const cha
   
   // 1. Classes Scan (Recursive)
   scan_classes(&ctx, root, NULL);
+
+  // 1.2 Enums Scan (Recursive)
+  scan_enums(&ctx, root, NULL);
   
   // 1.5 Class Bodies Scan (Recursive)
   scan_class_bodies(&ctx, root);
@@ -521,7 +630,7 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name, const cha
   int has_stmts = 0;
   curr = root;
   while(curr) {
-    if (curr->type != NODE_FUNC_DEF && curr->type != NODE_LINK && curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE) { has_stmts = 1; break; }
+    if (curr->type != NODE_FUNC_DEF && curr->type != NODE_LINK && curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE && curr->type != NODE_ENUM) { has_stmts = 1; break; }
     curr = curr->next;
   }
 
@@ -538,7 +647,7 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name, const cha
         
         curr = root;
         while (curr) {
-          if (curr->type != NODE_FUNC_DEF && curr->type != NODE_LINK && curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE) {
+          if (curr->type != NODE_FUNC_DEF && curr->type != NODE_LINK && curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE && curr->type != NODE_ENUM) {
             ASTNode *next = curr->next;
             curr->next = NULL; 
             codegen_node(&ctx, curr);
@@ -564,6 +673,14 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name, const cha
       ClassInfo *nxt = c->next;
       free(c->name); if(c->parent_name) free(c->parent_name); free(c);
       c = nxt;
+  }
+  EnumInfo *e = ctx.enums;
+  while(e) {
+      EnumEntryInfo *ei = e->entries;
+      while(ei) { EnumEntryInfo *nxt = ei->next; free(ei->name); free(ei); ei = nxt; }
+      EnumInfo *nxt = e->next;
+      free(e->name); free(e);
+      e = nxt;
   }
   
   // Free namespace info

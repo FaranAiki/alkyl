@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Forward decl
+LLVMValueRef generate_enum_to_string_func(CodegenCtx *ctx, EnumInfo *ei);
+
 char* format_string(const char* input) {
   if (!input) return NULL;
   size_t len = strlen(input);
@@ -46,6 +49,14 @@ const char* find_closest_match(CodegenCtx *ctx, const char *name) {
         int d = levenshtein_dist(name, ctx->known_namespaces[i]);
         if (d < min_dist && d < 4) { min_dist = d; best = ctx->known_namespaces[i]; }
     }
+    
+    // 5. Check Enums
+    EnumInfo *e = ctx->enums;
+    while(e) {
+        int d = levenshtein_dist(name, e->name);
+        if (d < min_dist && d < 4) { min_dist = d; best = e->name; }
+        e = e->next;
+    }
 
     return best;
 }
@@ -80,15 +91,22 @@ VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
         
         // Check for Namespace Access
         if (ma->object->type == NODE_VAR_REF) {
-            char *ns_name = ((VarRefNode*)ma->object)->name;
-            if (is_namespace(ctx, ns_name)) {
+            char *name = ((VarRefNode*)ma->object)->name;
+            if (is_namespace(ctx, name)) {
                 // Resolution: This is a namespace access
                 char mangled[256];
-                sprintf(mangled, "%s_%s", ns_name, ma->member_name);
+                sprintf(mangled, "%s_%s", name, ma->member_name);
                 FuncSymbol *fs = find_func_symbol(ctx, mangled);
                 if (fs) return fs->ret_type;
                 Symbol *s = find_symbol(ctx, mangled);
                 if (s) return s->vtype;
+            }
+            // Check for Enum Access (constant resolution)
+            EnumInfo *ei = find_enum(ctx, name);
+            if (ei) {
+                // Member of enum is int
+                VarType t = {TYPE_INT, 0, NULL};
+                return t;
             }
         }
 
@@ -105,6 +123,17 @@ VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
     }
     else if (node->type == NODE_ARRAY_ACCESS) {
         ArrayAccessNode *an = (ArrayAccessNode*)node;
+        
+        // Check for Enum Mapping Access
+        if (an->target->type == NODE_VAR_REF) {
+            char *name = ((VarRefNode*)an->target)->name;
+            EnumInfo *ei = find_enum(ctx, name);
+            if (ei) {
+                VarType t = {TYPE_STRING, 0, NULL};
+                return t;
+            }
+        }
+        
         VarType t = codegen_calc_type(ctx, an->target);
         if (t.array_size > 0) {
              t.array_size = 0; 
@@ -228,6 +257,10 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
                 }
                 exit(1);
             }
+            // Enum Constant Access isn't an L-value address
+            if (find_enum(ctx, ns_name)) {
+                codegen_error(ctx, node, "Cannot take address of enum constant");
+            }
         }
 
         LLVMValueRef obj_addr = NULL;
@@ -277,6 +310,15 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
     }
     else if (node->type == NODE_ARRAY_ACCESS) {
         ArrayAccessNode *an = (ArrayAccessNode*)node;
+        
+        // Check for Enum Mapping
+        if (an->target->type == NODE_VAR_REF) {
+            char *name = ((VarRefNode*)an->target)->name;
+            if (find_enum(ctx, name)) {
+                codegen_error(ctx, node, "Cannot take address of enum string mapping");
+            }
+        }
+        
         LLVMValueRef base_ptr = codegen_addr(ctx, an->target);
         VarType vt = codegen_calc_type(ctx, an->target);
         
@@ -405,6 +447,27 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
       return LLVMBuildLoad2(ctx->builder, type, addr, "var_load");
   }
   else if (node->type == NODE_MEMBER_ACCESS) {
+      MemberAccessNode *ma = (MemberAccessNode*)node;
+      
+      // Handle Enum Member Access: ENUM.VAL
+      if (ma->object->type == NODE_VAR_REF) {
+          char *name = ((VarRefNode*)ma->object)->name;
+          EnumInfo *ei = find_enum(ctx, name);
+          if (ei) {
+              EnumEntryInfo *ent = ei->entries;
+              while(ent) {
+                  if (strcmp(ent->name, ma->member_name) == 0) {
+                      return LLVMConstInt(LLVMInt32Type(), ent->value, 0);
+                  }
+                  ent = ent->next;
+              }
+              // Fallthrough if not found -> Error
+              char msg[128];
+              snprintf(msg, sizeof(msg), "Enum '%s' has no member '%s'", name, ma->member_name);
+              codegen_error(ctx, node, msg);
+          }
+      }
+
       LLVMValueRef addr = codegen_addr(ctx, node);
       VarType vt = codegen_calc_type(ctx, node);
       LLVMTypeRef type = get_llvm_type(ctx, vt);
@@ -415,6 +478,26 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
       return LLVMBuildLoad2(ctx->builder, type, addr, "member_load");
   }
   else if (node->type == NODE_ARRAY_ACCESS) {
+      ArrayAccessNode *an = (ArrayAccessNode*)node;
+      
+      // Handle Enum String Mapping: ENUM[VAL]
+      if (an->target->type == NODE_VAR_REF) {
+          char *name = ((VarRefNode*)an->target)->name;
+          EnumInfo *ei = find_enum(ctx, name);
+          if (ei) {
+              LLVMValueRef idx = codegen_expr(ctx, an->index);
+              // Ensure integer
+              if (LLVMGetTypeKind(LLVMTypeOf(idx)) != LLVMIntegerTypeKind) {
+                  idx = LLVMBuildFPToUI(ctx->builder, idx, LLVMInt32Type(), "idx_cast");
+              } else {
+                  idx = LLVMBuildIntCast(ctx->builder, idx, LLVMInt32Type(), "idx_cast");
+              }
+              LLVMValueRef func = generate_enum_to_string_func(ctx, ei);
+              LLVMValueRef args[] = { idx };
+              return LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(func), func, args, 1, "enum_str");
+          }
+      }
+
       LLVMValueRef addr = codegen_addr(ctx, node);
       VarType vt = codegen_calc_type(ctx, node); 
       LLVMTypeRef type = get_llvm_type(ctx, vt); 

@@ -13,6 +13,9 @@ typedef struct SemSymbol {
     int is_mutable;
     int is_array;
     int array_size; // 0 if unknown or dynamic
+    // Location for error reporting
+    int decl_line;
+    int decl_col;
     struct SemSymbol *next;
 } SemSymbol;
 
@@ -24,6 +27,10 @@ typedef struct SemFunc {
 
 typedef struct SemClass {
     char *name;
+    char *parent_name; 
+    char **traits;      // List of implemented traits
+    int trait_count;
+    SemSymbol *members; // List of class fields
     struct SemClass *next;
 } SemClass;
 
@@ -57,7 +64,6 @@ static void sem_error(SemCtx *ctx, ASTNode *node, const char *fmt, ...) {
     vsnprintf(msg, sizeof(msg), fmt, args);
     va_end(args);
 
-    // Create a dummy token for the diagnostic system
     Token t;
     t.line = node ? node->line : 0;
     t.col = node ? node->col : 0;
@@ -71,10 +77,46 @@ static void sem_error(SemCtx *ctx, ASTNode *node, const char *fmt, ...) {
     report_error(ctx->source_code ? &l : NULL, t, msg);
 }
 
+static void sem_reason(SemCtx *ctx, int line, int col, const char *fmt, ...) {
+    char msg[1024];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, args);
+    va_end(args);
+
+    Token t;
+    t.line = line;
+    t.col = col;
+    t.text = NULL;
+    
+    Lexer l;
+    if (ctx->source_code) {
+        lexer_init(&l, ctx->source_code);
+    }
+    report_reason(ctx->source_code ? &l : NULL, t, msg);
+}
+
+static void sem_suggestion(SemCtx *ctx, ASTNode *node, const char *suggestion) {
+    Token t;
+    t.line = node ? node->line : 0;
+    t.col = node ? node->col : 0;
+    t.text = NULL;
+    
+    Lexer l;
+    if (ctx->source_code) {
+        lexer_init(&l, ctx->source_code);
+    }
+    report_suggestion(ctx->source_code ? &l : NULL, t, suggestion);
+}
+
 static int are_types_equal(VarType a, VarType b) {
     if (a.base != b.base) {
-        // Auto resolves to anything (simplification)
         if (a.base == TYPE_AUTO || b.base == TYPE_AUTO) return 1;
+        
+        // Implicit string compatibility
+        if (a.base == TYPE_STRING && b.base == TYPE_CHAR && b.ptr_depth == 1) return 1;
+        if (b.base == TYPE_STRING && a.base == TYPE_CHAR && a.ptr_depth == 1) return 1;
+
         return 0;
     }
     if (a.ptr_depth != b.ptr_depth) return 0;
@@ -82,14 +124,17 @@ static int are_types_equal(VarType a, VarType b) {
         if (a.class_name && b.class_name) {
             return strcmp(a.class_name, b.class_name) == 0;
         }
-        return 0; // Invalid class types
+        return 0;
     }
-    // Note: Array size/presence is not strictly checked here, handled in context
     return 1;
 }
 
 static const char* type_to_str(VarType t) {
-    static char buf[64];
+    static char buffers[4][128];
+    static int idx = 0;
+    char *buf = buffers[idx];
+    idx = (idx + 1) % 4;
+
     const char *base;
     switch (t.base) {
         case TYPE_INT: base = "int"; break;
@@ -111,6 +156,80 @@ static const char* type_to_str(VarType t) {
         strcat(buf, tmp);
     }
     return buf;
+}
+
+static const char* find_closest_type_name(SemCtx *ctx, const char *name) {
+    const char *primitives[] = {
+        "int", "char", "bool", "single", "double", "void", "string", "let", "auto", NULL
+    };
+    
+    const char *best = NULL;
+    int min_dist = 3; 
+
+    for (int i = 0; primitives[i]; i++) {
+        int d = levenshtein_dist(name, primitives[i]);
+        if (d < min_dist) {
+            min_dist = d;
+            best = primitives[i];
+        }
+    }
+
+    SemClass *c = ctx->classes;
+    while(c) {
+        int d = levenshtein_dist(name, c->name);
+        if (d < min_dist) {
+            min_dist = d;
+            best = c->name;
+        }
+        c = c->next;
+    }
+    
+    return best;
+}
+
+static const char* find_closest_func_name(SemCtx *ctx, const char *name) {
+    const char *builtins[] = {"print", "printf", "input", NULL};
+    const char *best = NULL;
+    int min_dist = 3;
+
+    for (int i = 0; builtins[i]; i++) {
+        int d = levenshtein_dist(name, builtins[i]);
+        if (d < min_dist) {
+            min_dist = d;
+            best = builtins[i];
+        }
+    }
+
+    SemFunc *f = ctx->functions;
+    while(f) {
+        int d = levenshtein_dist(name, f->name);
+        if (d < min_dist) {
+            min_dist = d;
+            best = f->name;
+        }
+        f = f->next;
+    }
+    return best;
+}
+
+static const char* find_closest_var_name(SemCtx *ctx, const char *name) {
+    const char *best = NULL;
+    int min_dist = 3;
+    
+    Scope *scope = ctx->current_scope;
+    while(scope) {
+        SemSymbol *s = scope->symbols;
+        while(s) {
+            int d = levenshtein_dist(name, s->name);
+            if (d < min_dist) {
+                min_dist = d;
+                best = s->name;
+            }
+            s = s->next;
+        }
+        scope = scope->parent;
+    }
+    return best;
 }
 
 // --- Scope Management ---
@@ -139,13 +258,15 @@ static void exit_scope(SemCtx *ctx) {
     free(s);
 }
 
-static void add_symbol(SemCtx *ctx, const char *name, VarType type, int is_mut, int is_arr, int arr_size) {
+static void add_symbol(SemCtx *ctx, const char *name, VarType type, int is_mut, int is_arr, int arr_size, int line, int col) {
     SemSymbol *s = malloc(sizeof(SemSymbol));
     s->name = strdup(name);
     s->type = type;
     s->is_mutable = is_mut;
     s->is_array = is_arr;
     s->array_size = arr_size;
+    s->decl_line = line;
+    s->decl_col = col;
     s->next = ctx->current_scope->symbols;
     ctx->current_scope->symbols = s;
 }
@@ -189,11 +310,60 @@ static SemFunc* find_func(SemCtx *ctx, const char *name) {
     return NULL;
 }
 
-static void add_class(SemCtx *ctx, const char *name) {
+static void add_class(SemCtx *ctx, const char *name, const char *parent, char **traits, int trait_count) {
     SemClass *c = malloc(sizeof(SemClass));
     c->name = strdup(name);
+    c->parent_name = parent ? strdup(parent) : NULL;
+    
+    c->trait_count = trait_count;
+    c->traits = NULL;
+    if (trait_count > 0) {
+        c->traits = malloc(sizeof(char*) * trait_count);
+        for(int i=0; i<trait_count; i++) c->traits[i] = strdup(traits[i]);
+    }
+    
+    c->members = NULL; // Init members
     c->next = ctx->classes;
     ctx->classes = c;
+}
+
+static SemClass* find_sem_class(SemCtx *ctx, const char *name) {
+    SemClass *c = ctx->classes;
+    while(c) {
+        if (strcmp(c->name, name) == 0) return c;
+        c = c->next;
+    }
+    return NULL;
+}
+
+static SemSymbol* find_member(SemCtx *ctx, const char *class_name, const char *member_name) {
+    SemClass *cls = find_sem_class(ctx, class_name);
+    if (!cls) return NULL;
+
+    SemSymbol *mem = cls->members;
+    while(mem) {
+        if (strcmp(mem->name, member_name) == 0) return mem;
+        mem = mem->next;
+    }
+
+    if (cls->parent_name) {
+        return find_member(ctx, cls->parent_name, member_name);
+    }
+    return NULL;
+}
+
+static int class_has_trait(SemCtx *ctx, const char *class_name, const char *trait_name) {
+    SemClass *c = find_sem_class(ctx, class_name);
+    if (!c) return 0;
+    
+    for (int i=0; i<c->trait_count; i++) {
+        if (strcmp(c->traits[i], trait_name) == 0) return 1;
+    }
+    
+    if (c->parent_name) {
+        return class_has_trait(ctx, c->parent_name, trait_name);
+    }
+    return 0;
 }
 
 // --- Traversal Prototypes ---
@@ -214,7 +384,6 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
         case NODE_ARRAY_LIT: {
             ArrayLitNode *an = (ArrayLitNode*)node;
             if (!an->elements) {
-                // Return unknown array type if empty
                 VarType t = {TYPE_UNKNOWN, 0, NULL, 1}; 
                 return t;
             }
@@ -223,7 +392,6 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
             int count = 1;
             while(curr) {
                 VarType t = check_expr(ctx, curr);
-                // Allow some flexibility? strict for now
                 if (!are_types_equal(first_t, t)) {
                     sem_error(ctx, curr, "Array element type mismatch. Expected '%s', got '%s'", 
                               type_to_str(first_t), type_to_str(t));
@@ -231,7 +399,6 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
                 curr = curr->next;
                 count++;
             }
-            // Propagate the type as an array
             VarType ret = first_t;
             ret.array_size = count; 
             return ret;
@@ -241,21 +408,31 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
             char *name = ((VarRefNode*)node)->name;
             SemSymbol *sym = find_symbol(ctx, name);
             if (!sym) {
-                // Check if it's 'this'
                 if (strcmp(name, "this") == 0) {
                     if (!ctx->current_class) {
                         sem_error(ctx, node, "'this' used outside of class method");
                         return unknown;
                     }
-                    VarType t = {TYPE_CLASS, 1, strdup(ctx->current_class)}; // this is T*
+                    VarType t = {TYPE_CLASS, 1, strdup(ctx->current_class)}; 
                     return t;
                 }
                 
-                sem_error(ctx, node, "Undefined variable '%s'", name);
+                // Check for Implicit 'this' member access
+                if (ctx->current_class) {
+                    SemSymbol *mem = find_member(ctx, ctx->current_class, name);
+                    if (mem) {
+                        return mem->type;
+                    }
+                }
+                
+                sem_error(ctx, node, "Undefined symbol '%s'", name);
+                
+                const char *guess = find_closest_var_name(ctx, name);
+                if (guess) sem_suggestion(ctx, node, guess);
+                
                 return unknown;
             }
             VarType res = sym->type;
-            // If it's an array, ensure type info reflects that
             if (sym->is_array) {
                  res.array_size = sym->array_size > 0 ? sym->array_size : 1; 
             }
@@ -290,7 +467,22 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
             if (a->name) {
                 SemSymbol *sym = find_symbol(ctx, a->name);
                 if (!sym) {
-                    sem_error(ctx, node, "Assignment to undefined variable '%s'", a->name);
+                    // Check Implicit 'this' member assign
+                    if (ctx->current_class) {
+                         SemSymbol *mem = find_member(ctx, ctx->current_class, a->name);
+                         if (mem) {
+                             l_type = mem->type;
+                             is_const = !mem->is_mutable;
+                         } else {
+                             sem_error(ctx, node, "Assignment to undefined symbol '%s'", a->name);
+                             const char *guess = find_closest_var_name(ctx, a->name);
+                             if (guess) sem_suggestion(ctx, node, guess);
+                         }
+                    } else {
+                        sem_error(ctx, node, "Assignment to undefined symbol '%s'", a->name);
+                        const char *guess = find_closest_var_name(ctx, a->name);
+                        if (guess) sem_suggestion(ctx, node, guess);
+                    }
                 } else {
                     l_type = sym->type;
                     is_const = !sym->is_mutable;
@@ -300,14 +492,13 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
             }
             
             if (is_const) {
-                sem_error(ctx, node, "Cannot assign to immutable variable '%s'", a->name);
+                sem_error(ctx, node, "Cannot assign to immutable variable '%s'", a->name ? a->name : "target");
             }
 
             VarType r_type = check_expr(ctx, a->value);
             
             if (l_type.base != TYPE_UNKNOWN && r_type.base != TYPE_UNKNOWN) {
                 if (!are_types_equal(l_type, r_type)) {
-                    // Implicit cast check (e.g. array -> ptr)
                     int compatible = 0;
                     if (l_type.ptr_depth > 0 && r_type.array_size > 0 && l_type.base == r_type.base) compatible = 1;
                     
@@ -334,10 +525,25 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
                 
                 if (is_cls) {
                     VarType ret = {TYPE_CLASS, 0, strdup(c->name)};
+                    // Construct args check? For now simplified.
                     return ret;
                 }
 
-                sem_error(ctx, node, "Undefined function '%s'", c->name);
+                sem_error(ctx, node, "Undefined symbol '%s'", c->name);
+
+                const char *type_guess = find_closest_type_name(ctx, c->name);
+                const char *func_guess = find_closest_func_name(ctx, c->name);
+                
+                if (type_guess) {
+                    Token t; t.line = node->line; t.col = node->col; t.text = NULL;
+                    Lexer l; lexer_init(&l, ctx->source_code);
+                    char hint_msg[256];
+                    snprintf(hint_msg, sizeof(hint_msg), "'%s' looks like type '%s'. Did you mean to declare a variable?", c->name, type_guess);
+                    report_hint(&l, t, hint_msg);
+                } else if (func_guess) {
+                    sem_suggestion(ctx, node, func_guess);
+                }
+
                 return unknown;
             }
             
@@ -350,6 +556,78 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
             return f->ret_type;
         }
         
+        case NODE_METHOD_CALL: {
+            MethodCallNode *mc = (MethodCallNode*)node;
+            
+            if (mc->object->type == NODE_VAR_REF) {
+                char *ns_name = ((VarRefNode*)mc->object)->name;
+                char qname[512];
+                snprintf(qname, sizeof(qname), "%s.%s", ns_name, mc->method_name);
+                
+                SemFunc *f = find_func(ctx, qname);
+                if (f) {
+                     ASTNode *arg = mc->args;
+                     while(arg) { check_expr(ctx, arg); arg = arg->next; }
+                     return f->ret_type;
+                }
+            }
+            
+            VarType obj_type = check_expr(ctx, mc->object);
+            if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
+                const char *curr_cls_name = obj_type.class_name;
+                while (curr_cls_name) {
+                    char qname[512];
+                    snprintf(qname, sizeof(qname), "%s.%s", curr_cls_name, mc->method_name);
+                    SemFunc *f = find_func(ctx, qname);
+                    if (f) {
+                         ASTNode *arg = mc->args;
+                         while(arg) { check_expr(ctx, arg); arg = arg->next; }
+                         return f->ret_type;
+                    }
+                    
+                    SemClass *cls = find_sem_class(ctx, curr_cls_name);
+                    
+                    if (cls && cls->parent_name) {
+                        curr_cls_name = cls->parent_name;
+                    } else {
+                        break; 
+                    }
+                }
+            }
+            
+            ASTNode *arg = mc->args;
+            while(arg) { check_expr(ctx, arg); arg = arg->next; }
+            
+            ASTNode *err_node = node;
+            if ((node->line == 0 && node->col == 0) && mc->object) {
+                err_node = mc->object;
+            }
+            sem_error(ctx, err_node, "Method '%s' not found", mc->method_name);
+
+            return unknown;
+        }
+        
+        case NODE_TRAIT_ACCESS: {
+            TraitAccessNode *ta = (TraitAccessNode*)node;
+            VarType obj_t = check_expr(ctx, ta->object);
+            
+            if (obj_t.base != TYPE_CLASS || !obj_t.class_name) {
+                sem_error(ctx, node, "Trait access requires class object, got '%s'", type_to_str(obj_t));
+                return unknown;
+            }
+            
+            if (!class_has_trait(ctx, obj_t.class_name, ta->trait_name)) {
+                sem_error(ctx, node, "Class '%s' does not implement trait '%s'", obj_t.class_name, ta->trait_name);
+                return unknown;
+            }
+            
+            // Result is the trait type (as a class)
+            // Preserves pointer depth of the original object
+            VarType trait_type = {TYPE_CLASS, obj_t.ptr_depth, strdup(ta->trait_name)};
+            trait_type.array_size = obj_t.array_size;
+            return trait_type;
+        }
+
         case NODE_ARRAY_ACCESS: {
             ArrayAccessNode *aa = (ArrayAccessNode*)node;
             VarType target_t = check_expr(ctx, aa->target);
@@ -359,7 +637,6 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
                 sem_error(ctx, node, "Array index must be an integer, got '%s'", type_to_str(idx_t));
             }
             
-            // Out of Bounds Check (Static)
             if (aa->index->type == NODE_LITERAL) {
                 int idx = ((LiteralNode*)aa->index)->val.int_val;
                 if (aa->target->type == NODE_VAR_REF) {
@@ -381,10 +658,21 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
         
         case NODE_MEMBER_ACCESS: {
              MemberAccessNode *ma = (MemberAccessNode*)node;
-             VarType t = check_expr(ctx, ma->object);
-             // Cannot easily verify member existence/type without tracking struct definitions fully.
-             // For now, assume it returns Unknown to avoid blocking compilation, or try best effort if class info available.
-             // TODO: Enhance class member tracking
+             VarType obj_t = check_expr(ctx, ma->object);
+             
+             if (obj_t.base == TYPE_UNKNOWN) return unknown;
+
+             if (obj_t.ptr_depth > 0) obj_t.ptr_depth--;
+             
+             if (obj_t.base == TYPE_CLASS && obj_t.class_name) {
+                 SemSymbol *mem = find_member(ctx, obj_t.class_name, ma->member_name);
+                 if (mem) {
+                     return mem->type;
+                 } else {
+                     sem_error(ctx, node, "Class '%s' has no member '%s'", obj_t.class_name, ma->member_name);
+                 }
+             }
+             
              VarType ret = {TYPE_UNKNOWN, 0, NULL};
              return ret;
         }
@@ -400,8 +688,12 @@ static void check_stmt(SemCtx *ctx, ASTNode *node) {
     switch(node->type) {
         case NODE_VAR_DECL: {
             VarDeclNode *vd = (VarDeclNode*)node;
-            if (find_symbol_current_scope(ctx, vd->name)) {
+            SemSymbol *existing = find_symbol_current_scope(ctx, vd->name);
+            if (existing) {
                 sem_error(ctx, node, "Redefinition of variable '%s' in current scope", vd->name);
+                if (existing->decl_line > 0) {
+                    sem_reason(ctx, existing->decl_line, existing->decl_col, "Previous definition of '%s' was here", vd->name);
+                }
             }
             
             VarType inferred = vd->var_type;
@@ -417,24 +709,27 @@ static void check_stmt(SemCtx *ctx, ASTNode *node) {
                 if (!are_types_equal(vd->var_type, init_t)) {
                      int ok = 0;
                      if (vd->var_type.base == TYPE_STRING && init_t.base == TYPE_STRING) ok = 1;
-                     // String literal to char array
                      if (vd->var_type.base == TYPE_CHAR && vd->is_array && init_t.base == TYPE_STRING) ok = 1;
-                     
+                     if (vd->var_type.base == TYPE_CHAR && vd->var_type.ptr_depth == 1 && init_t.base == TYPE_STRING) ok = 1;
+
                      if (!ok) {
                         sem_error(ctx, node, "Variable '%s' type mismatch. Declared '%s', init '%s'", 
                                   vd->name, type_to_str(vd->var_type), type_to_str(init_t));
+                        
+                        if (vd->var_type.base == TYPE_CHAR && init_t.base == TYPE_STRING) {
+                             Token t; t.line = node->line; t.col = node->col; t.text = NULL;
+                             Lexer l; lexer_init(&l, ctx->source_code);
+                             report_hint(&l, t, "Possible typedef mismatch. Note that 'string' literals are compatible with 'char*' or 'char[]'.");
+                        }
                      }
                 } else {
-                    // Types match base, check array compatibility
                     if (vd->is_array) {
                         if (init_t.array_size <= 0 && init_t.ptr_depth == 0) {
-                             // Trying to assign scalar to array
                              sem_error(ctx, node, "Cannot initialize array '%s' with scalar type '%s'", 
                                       vd->name, type_to_str(init_t));
                         }
                     } else {
                         if (init_t.array_size > 0) {
-                             // Trying to assign array to scalar
                              sem_error(ctx, node, "Cannot initialize scalar '%s' with array type '%s'", 
                                       vd->name, type_to_str(init_t));
                         }
@@ -449,13 +744,12 @@ static void check_stmt(SemCtx *ctx, ASTNode *node) {
                 } else if (vd->initializer && vd->initializer->type == NODE_LITERAL && ((LiteralNode*)vd->initializer)->var_type.base == TYPE_STRING) {
                      arr_size = strlen(((LiteralNode*)vd->initializer)->val.str_val) + 1;
                 } else if (vd->initializer && vd->initializer->type == NODE_ARRAY_LIT) {
-                     // Get size from array literal
                      ASTNode* el = ((ArrayLitNode*)vd->initializer)->elements;
                      while(el) { arr_size++; el = el->next; }
                 }
             }
 
-            add_symbol(ctx, vd->name, inferred, vd->is_mutable, vd->is_array, arr_size);
+            add_symbol(ctx, vd->name, inferred, vd->is_mutable, vd->is_array, arr_size, node->line, node->col);
             break;
         }
 
@@ -529,18 +823,81 @@ static void check_stmt(SemCtx *ctx, ASTNode *node) {
 
 // --- Driver Logic ---
 
-static void scan_declarations(SemCtx *ctx, ASTNode *node) {
+static void scan_declarations(SemCtx *ctx, ASTNode *node, const char *prefix) {
     while(node) {
         if (node->type == NODE_FUNC_DEF) {
             FuncDefNode *fd = (FuncDefNode*)node;
-            add_func(ctx, fd->name, fd->ret_type);
+            char *name = fd->name;
+            char *qualified = NULL;
+            if (prefix) {
+                int len = strlen(prefix) + strlen(name) + 2;
+                qualified = malloc(len);
+                snprintf(qualified, len, "%s.%s", prefix, name);
+                name = qualified;
+            }
+            add_func(ctx, name, fd->ret_type);
+            if (qualified) free(qualified);
         } 
         else if (node->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)node;
-            add_class(ctx, cn->name);
+            char *name = cn->name;
+            char *qualified = NULL;
+            if (prefix) {
+                int len = strlen(prefix) + strlen(name) + 2;
+                qualified = malloc(len);
+                snprintf(qualified, len, "%s.%s", prefix, name);
+                name = qualified;
+            }
+            
+            add_class(ctx, name, cn->parent_name, cn->traits.names, cn->traits.count);
+            
+            // Register Fields
+            SemClass *cls = find_sem_class(ctx, name);
+            if (cls) {
+                ASTNode *mem = cn->members;
+                while(mem) {
+                    if (mem->type == NODE_VAR_DECL) {
+                        VarDeclNode *vd = (VarDeclNode*)mem;
+                        SemSymbol *s = malloc(sizeof(SemSymbol));
+                        s->name = strdup(vd->name);
+                        s->type = vd->var_type;
+                        s->is_mutable = vd->is_mutable;
+                        s->is_array = vd->is_array;
+                        
+                        int arr_size = 0;
+                        if (vd->is_array) {
+                            if (vd->array_size && vd->array_size->type == NODE_LITERAL) {
+                                arr_size = ((LiteralNode*)vd->array_size)->val.int_val;
+                            }
+                        }
+                        s->array_size = arr_size;
+                        
+                        s->decl_line = vd->base.line;
+                        s->decl_col = vd->base.col;
+                        s->next = cls->members;
+                        cls->members = s;
+                    }
+                    mem = mem->next;
+                }
+            }
+
+            // Recurse into class members so methods are registered as Class.Method
+            scan_declarations(ctx, cn->members, name);
+
+            if (qualified) free(qualified);
         }
         else if (node->type == NODE_NAMESPACE) {
-             scan_declarations(ctx, ((NamespaceNode*)node)->body);
+             NamespaceNode *ns = (NamespaceNode*)node;
+             char *new_prefix = ns->name;
+             char *qualified = NULL;
+             if (prefix) {
+                 int len = strlen(prefix) + strlen(ns->name) + 2;
+                 qualified = malloc(len);
+                 snprintf(qualified, len, "%s.%s", prefix, ns->name);
+                 new_prefix = qualified;
+             }
+             scan_declarations(ctx, ns->body, new_prefix);
+             if (qualified) free(qualified);
         }
         node = node->next;
     }
@@ -555,7 +912,7 @@ static void check_program(SemCtx *ctx, ASTNode *node) {
             
             Parameter *p = fd->params;
             while(p) {
-                add_symbol(ctx, p->name, p->type, 1, 0, 0); 
+                add_symbol(ctx, p->name, p->type, 1, 0, 0, 0, 0); 
                 p = p->next;
             }
             
@@ -570,6 +927,9 @@ static void check_program(SemCtx *ctx, ASTNode *node) {
         }
         else if (node->type == NODE_VAR_DECL) {
              check_stmt(ctx, node); 
+        }
+        else if (node->type == NODE_NAMESPACE) {
+             check_program(ctx, ((NamespaceNode*)node)->body);
         }
         else if (node->type == NODE_CLASS) {
              // Basic class check
@@ -593,16 +953,28 @@ int semantic_analysis(ASTNode *root, const char *source) {
     
     enter_scope(&ctx);
     
-    // Pass 1: Register top-level symbols
-    scan_declarations(&ctx, root);
-    
-    // Pass 2: Verify bodies
+    scan_declarations(&ctx, root, NULL);
     check_program(&ctx, root);
     
     exit_scope(&ctx);
     
     while(ctx.functions) { SemFunc *n = ctx.functions->next; free(ctx.functions->name); free(ctx.functions); ctx.functions = n; }
-    while(ctx.classes) { SemClass *n = ctx.classes->next; free(ctx.classes->name); free(ctx.classes); ctx.classes = n; }
+    while(ctx.classes) { 
+        SemClass *n = ctx.classes->next; 
+        free(ctx.classes->name); 
+        if (ctx.classes->parent_name) free(ctx.classes->parent_name);
+        
+        if (ctx.classes->traits) {
+            for(int i=0; i<ctx.classes->trait_count; i++) free(ctx.classes->traits[i]);
+            free(ctx.classes->traits);
+        }
+        
+        // Free members
+        SemSymbol *mem = ctx.classes->members;
+        while(mem) { SemSymbol *mn = mem->next; free(mem->name); free(mem); mem = mn; }
+        free(ctx.classes); 
+        ctx.classes = n; 
+    }
 
     return ctx.error_count;
 }

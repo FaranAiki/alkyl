@@ -93,6 +93,7 @@ static void print_source_snippet(Lexer *l, Token t) {
     
     fprintf(stderr, "  %s|%s %.*s\n", DIAG_GREY, DIAG_RESET, line_len, line_start);
     fprintf(stderr, "  %s|%s ", DIAG_GREY, DIAG_RESET);
+    // Be careful with tabs, but assuming spaces for now or simple offset
     for (int i = 1; i < t.col; i++) fprintf(stderr, " ");
     fprintf(stderr, "%s^%s\n", DIAG_BOLD, DIAG_RESET);
 }
@@ -119,9 +120,18 @@ void report_error(Lexer *l, Token t, const char *msg) {
 }
 
 void report_hint(Lexer *l, Token t, const char *msg) {
-    // Hints follow an error and don't repeat the snippet
+    // Hints follow an error and don't repeat the snippet usually, 
+    // but if passed specific location different from error, maybe useful.
+    // For now keeping simple.
     (void)l; (void)t; 
     fprintf(stderr, "%shint:%s %s\n", DIAG_YELLOW, DIAG_RESET, msg);
+}
+
+void report_suggestion(Lexer *l, Token t, const char *suggestion) {
+    // Standardized format for "Did you mean?"
+    char buf[256];
+    snprintf(buf, sizeof(buf), "Did you mean '%s'?", suggestion);
+    report_hint(l, t, buf);
 }
 
 void report_info(Lexer *l, Token t, const char *msg) {
@@ -129,9 +139,9 @@ void report_info(Lexer *l, Token t, const char *msg) {
 }
 
 void report_reason(Lexer *l, Token t, const char *msg) {
-    // Reasons follow an error and don't repeat the snippet
-    (void)l; (void)t;
-    fprintf(stderr, "%sreason:%s %s\n", DIAG_PURPLE, DIAG_RESET, msg);
+    // Reason prints location/snippet to show context (e.g. definition site)
+    fprintf(stderr, "%d:%d: %sreason:%s %s\n", t.line, t.col, DIAG_PURPLE, DIAG_RESET, msg);
+    if (l) print_source_snippet(l, t);
 }
 
 const char* token_type_to_string(TokenType type) {
