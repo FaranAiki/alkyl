@@ -71,7 +71,7 @@ Token lexer_next(Lexer *l) {
   }
 
   if (c == ',') { advance(l); t.type = TOKEN_COMMA; return t; }
-  if (c == ':') { advance(l); t.type = TOKEN_COLON; return t; } // Added
+  if (c == ':') { advance(l); t.type = TOKEN_COLON; return t; } 
   if (c == '[') { advance(l); t.type = TOKEN_LBRACKET; return t; }
   if (c == ']') { advance(l); t.type = TOKEN_RBRACKET; return t; }
   if (c == '{') { advance(l); t.type = TOKEN_LBRACE; return t; }
@@ -302,10 +302,10 @@ Token lexer_next(Lexer *l) {
     else if (strcmp(word, "break") == 0) t.type = TOKEN_BREAK;
     else if (strcmp(word, "continue") == 0) t.type = TOKEN_CONTINUE;
     
-    else if (strcmp(word, "switch") == 0) t.type = TOKEN_SWITCH; // Added
-    else if (strcmp(word, "case") == 0) t.type = TOKEN_CASE;     // Added
-    else if (strcmp(word, "default") == 0) t.type = TOKEN_DEFAULT; // Added
-    else if (strcmp(word, "leak") == 0) t.type = TOKEN_LEAK;     // Added
+    else if (strcmp(word, "switch") == 0) t.type = TOKEN_SWITCH; 
+    else if (strcmp(word, "case") == 0) t.type = TOKEN_CASE;     
+    else if (strcmp(word, "default") == 0) t.type = TOKEN_DEFAULT; 
+    else if (strcmp(word, "leak") == 0) t.type = TOKEN_LEAK;     
 
     else if (strcmp(word, "define") == 0) t.type = TOKEN_DEFINE;
     else if (strcmp(word, "as") == 0) t.type = TOKEN_AS;
@@ -318,6 +318,7 @@ Token lexer_next(Lexer *l) {
     else if (strcmp(word, "closed") == 0) t.type = TOKEN_CLOSED;
     else if (strcmp(word, "typeof") == 0) t.type = TOKEN_TYPEOF;
     else if (strcmp(word, "namespace") == 0) t.type = TOKEN_NAMESPACE;
+    else if (strcmp(word, "enum") == 0) t.type = TOKEN_ENUM; 
 
     else if (strcmp(word, "void") == 0) t.type = TOKEN_KW_VOID;
     else if (strcmp(word, "int") == 0) t.type = TOKEN_KW_INT;

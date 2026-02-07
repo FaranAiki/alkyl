@@ -4,9 +4,19 @@ enum Makanan {
   Burger,
   Sapi,
   Daging
-};
+}
 
 int main() {
   let sarapan = Makanan.Ayam;
-  print "%s", Makanan[sarapan];
+  print "%s is %d\n", Makanan[sarapan], sarapan;
+  sarapan++;
+  print "%s is %d\n", Makanan[sarapan], sarapan;
+  switch (sarapan) {
+    case Ayam:
+      print "Ayam!";
+    laek case Burger:
+      print "Yeay!";
+    case Sapi:
+      print "Huh!";
+  }
 }

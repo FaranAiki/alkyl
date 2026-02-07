@@ -26,14 +26,16 @@ Macro *macro_head = NULL;
 // --- TYPE REGISTRY (For class names) ---
 typedef struct TypeName {
     char *name;
+    int is_enum; 
     struct TypeName *next;
 } TypeName;
 
 TypeName *type_head = NULL;
 
-void register_typename(const char *name) {
+void register_typename(const char *name, int is_enum) {
     TypeName *t = malloc(sizeof(TypeName));
     t->name = strdup(name);
+    t->is_enum = is_enum;
     t->next = type_head;
     type_head = t;
 }
@@ -42,6 +44,15 @@ int is_typename(const char *name) {
     TypeName *cur = type_head;
     while(cur) {
         if (strcmp(cur->name, name) == 0) return 1;
+        cur = cur->next;
+    }
+    return 0;
+}
+
+int get_typename_kind(const char *name) {
+    TypeName *cur = type_head;
+    while(cur) {
+        if (strcmp(cur->name, name) == 0) return cur->is_enum ? 2 : 1;
         cur = cur->next;
     }
     return 0;
@@ -61,8 +72,6 @@ void register_alias(const char *name, VarType target) {
     TypeAlias *curr = alias_head;
     while(curr) {
         if (strcmp(curr->name, name) == 0) {
-            // Free old class_name if needed?
-            // For now, just overwrite
             curr->target = target;
             return;
         }
@@ -72,7 +81,6 @@ void register_alias(const char *name, VarType target) {
     TypeAlias *a = malloc(sizeof(TypeAlias));
     a->name = strdup(name);
     a->target = target;
-    // Deep copy class name if present
     if (target.class_name) a->target.class_name = strdup(target.class_name);
     
     a->next = alias_head;
@@ -359,12 +367,21 @@ VarType parse_type(Lexer *l) {
           if (t.class_name) t.class_name = strdup(t.class_name);
           eat(l, TOKEN_IDENTIFIER);
       }
-      else if (is_typename(current_token.text)) {
-          t.base = TYPE_CLASS;
-          t.class_name = strdup(current_token.text);
-          eat(l, TOKEN_IDENTIFIER);
-      } else {
-          return t;
+      else {
+          int kind = get_typename_kind(current_token.text);
+          if (kind != 0) {
+              if (kind == 2) { 
+                  // Enum - treat as INT for compatibility
+                  t.base = TYPE_INT;
+              } else {
+                  // Class
+                  t.base = TYPE_CLASS;
+                  t.class_name = strdup(current_token.text);
+              }
+              eat(l, TOKEN_IDENTIFIER);
+          } else {
+              return t;
+          }
       }
   } else {
       switch(current_token.type) {

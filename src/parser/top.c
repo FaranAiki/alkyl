@@ -1,12 +1,11 @@
 #include "parser_internal.h"
-#include "../diagnostic/diagnostic.h" // For find_closest_keyword
+#include "../diagnostic/diagnostic.h" 
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h> // For snprintf
+#include <stdio.h> 
 
 // Forward decl
 void parser_advance(Lexer *l);
-void register_typename(const char *name); // from core.c
 
 ASTNode* parse_top_level(Lexer *l) {
   
@@ -26,7 +25,6 @@ ASTNode* parse_top_level(Lexer *l) {
           ASTNode *n = parse_top_level(l);
           if (n) {
               *body_curr = n;
-              // Advance pointer to the end of the newly added chain
               while (*body_curr) body_curr = &(*body_curr)->next;
           }
       }
@@ -67,7 +65,6 @@ ASTNode* parse_top_level(Lexer *l) {
     if (current_token.type != TOKEN_AS) {
         const char *found = current_token.text;
         if (!found) {
-            // Handle keywords that might not have text populated in the token
             if (current_token.type == TOKEN_TYPEDEF) found = "typedef";
             else if (current_token.type == TOKEN_IDENTIFIER) found = "identifier";
             else found = token_type_to_string(current_token.type);
@@ -121,7 +118,6 @@ ASTNode* parse_top_level(Lexer *l) {
       VarType target = parse_type(l);
       if (target.base == TYPE_UNKNOWN) parser_fail(l, "Unknown type in typedef");
       
-      // Handle array syntax for typedefs: typedef string as char[]
       while (current_token.type == TOKEN_LBRACKET) {
           eat(l, TOKEN_LBRACKET);
           if (current_token.type != TOKEN_RBRACKET) {
@@ -145,7 +141,7 @@ ASTNode* parse_top_level(Lexer *l) {
       if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected enum name");
       char *enum_name = strdup(current_token.text);
       eat(l, TOKEN_IDENTIFIER);
-      register_typename(enum_name); // Allow enum to be used as type name
+      register_typename(enum_name, 1); // Register as ENUM (is_enum = 1)
 
       eat(l, TOKEN_LBRACE);
       
@@ -160,7 +156,6 @@ ASTNode* parse_top_level(Lexer *l) {
           
           if (current_token.type == TOKEN_ASSIGN) {
               eat(l, TOKEN_ASSIGN);
-              // Simple constant expression handling
               int sign = 1;
               if (current_token.type == TOKEN_MINUS) { sign = -1; eat(l, TOKEN_MINUS); }
               if (current_token.type != TOKEN_NUMBER) parser_fail(l, "Expected integer value for enum member");
@@ -204,7 +199,7 @@ ASTNode* parse_top_level(Lexer *l) {
           char *class_name = strdup(current_token.text);
           eat(l, TOKEN_IDENTIFIER);
           
-          register_typename(class_name);
+          register_typename(class_name, 0); // Register as CLASS (is_enum = 0)
           
           char *parent_name = NULL;
           if (current_token.type == TOKEN_IS) {
@@ -433,10 +428,8 @@ ASTNode* parse_top_level(Lexer *l) {
   int line = current_token.line;
   int col = current_token.col;
 
-  // SMART TYPO CHECK: Before calling parse_type (which might swallow the identifier if it were a type),
-  // check if the current identifier is a butchered keyword.
+  // SMART TYPO CHECK
   if (current_token.type == TOKEN_IDENTIFIER) {
-      // Define local list of top-level keywords to check against
       const char *top_kws[] = {
           "typedef", "namespace", "define", "class", "import", "link", "extern", 
           "struct", "enum", "const", "let", "mut", "imut", "return", "if", "while", NULL

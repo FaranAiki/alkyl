@@ -32,7 +32,7 @@ char* read_import_file(const char* filename);
 void register_macro(const char *name, char **params, int param_count, Token *body, int body_len);
 
 // Type Registry (OOP)
-void register_typename(const char *name);
+void register_typename(const char *name, int is_enum);
 int is_typename(const char *name);
 
 // Alias Registry (Typedef)
@@ -53,7 +53,7 @@ ASTNode* parse_assignment_or_call(Lexer *l);
 ASTNode* parse_loop(Lexer *l);
 ASTNode* parse_while(Lexer *l);
 ASTNode* parse_if(Lexer *l);
-ASTNode* parse_switch(Lexer *l); // Added
+ASTNode* parse_switch(Lexer *l); 
 ASTNode* parse_return(Lexer *l);
 ASTNode* parse_break(Lexer *l);
 ASTNode* parse_continue(Lexer *l);
