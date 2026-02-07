@@ -151,6 +151,18 @@ VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
     }
     else if (node->type == NODE_CALL) {
         CallNode *c = (CallNode*)node;
+        
+        // Builtin return type inference
+        if (strcmp(c->name, "input") == 0) {
+             vt.base = TYPE_STRING;
+             return vt;
+        }
+        if (strcmp(c->name, "malloc") == 0 || strcmp(c->name, "alloc") == 0) {
+             vt.base = TYPE_VOID;
+             vt.ptr_depth = 1; 
+             return vt;
+        }
+
         FuncSymbol *fs = find_func_symbol(ctx, c->name);
         if (fs) return fs->ret_type;
         ClassInfo *ci = find_class(ctx, c->name);
@@ -419,6 +431,28 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
     if (strcmp(c->name, "input") == 0) {
        if (c->args) { LLVMValueRef p = codegen_expr(ctx, c->args); LLVMValueRef pa[] = { p }; LLVMBuildCall2(ctx->builder, ctx->printf_type, ctx->printf_func, pa, 1, ""); }
        return LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->input_func), ctx->input_func, NULL, 0, "input_res");
+    }
+    if (strcmp(c->name, "malloc") == 0 || strcmp(c->name, "alloc") == 0) {
+        LLVMValueRef size_val = codegen_expr(ctx, c->args);
+        // Ensure size is i64
+        if (LLVMGetTypeKind(LLVMTypeOf(size_val)) != LLVMIntegerTypeKind) {
+             size_val = LLVMBuildFPToUI(ctx->builder, size_val, LLVMInt64Type(), "size_cast");
+        } else {
+             size_val = LLVMBuildIntCast(ctx->builder, size_val, LLVMInt64Type(), "size_cast");
+        }
+        LLVMValueRef args[] = { size_val };
+        return LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->malloc_func), ctx->malloc_func, args, 1, "malloc_res");
+    }
+    if (strcmp(c->name, "free") == 0) {
+        LLVMValueRef ptr_val = codegen_expr(ctx, c->args);
+        // Cast to i8* safely
+        if (LLVMGetTypeKind(LLVMTypeOf(ptr_val)) == LLVMIntegerTypeKind) {
+             ptr_val = LLVMBuildIntToPtr(ctx->builder, ptr_val, LLVMPointerType(LLVMInt8Type(), 0), "free_cast");
+        } else {
+             ptr_val = LLVMBuildBitCast(ctx->builder, ptr_val, LLVMPointerType(LLVMInt8Type(), 0), "free_cast");
+        }
+        LLVMValueRef args[] = { ptr_val };
+        return LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->free_func), ctx->free_func, args, 1, "");
     }
     LLVMValueRef func = LLVMGetNamedFunction(ctx->module, c->name);
     if (!func) {

@@ -240,7 +240,7 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
   if (current_token.type == TOKEN_LOOP) return parse_loop(l);
   if (current_token.type == TOKEN_WHILE) return parse_while(l);
   if (current_token.type == TOKEN_IF) return parse_if(l);
-  if (current_token.type == TOKEN_SWITCH) return parse_switch(l); // Hook up switch
+  if (current_token.type == TOKEN_SWITCH) return parse_switch(l);
   if (current_token.type == TOKEN_RETURN) return parse_return(l);
   if (current_token.type == TOKEN_BREAK) return parse_break(l);
   if (current_token.type == TOKEN_CONTINUE) return parse_continue(l);
@@ -374,9 +374,10 @@ static ASTNode* parse_case_body_stmts(Lexer *l) {
 ASTNode* parse_switch(Lexer *l) {
     int line = current_token.line, col = current_token.col;
     eat(l, TOKEN_SWITCH);
-    eat(l, TOKEN_LPAREN);
+    
+    // Condition is now parsed without mandatory parentheses
     ASTNode *cond = parse_expression(l);
-    eat(l, TOKEN_RPAREN);
+    
     eat(l, TOKEN_LBRACE);
 
     ASTNode *cases_head = NULL;
@@ -385,6 +386,9 @@ ASTNode* parse_switch(Lexer *l) {
 
     while (current_token.type != TOKEN_RBRACE && current_token.type != TOKEN_EOF) {
         int is_leak = 0;
+        int case_line = current_token.line;
+        int case_col = current_token.col;
+
         if (current_token.type == TOKEN_LEAK) {
             eat(l, TOKEN_LEAK);
             is_leak = 1;
@@ -392,20 +396,40 @@ ASTNode* parse_switch(Lexer *l) {
         
         if (current_token.type == TOKEN_CASE) {
             eat(l, TOKEN_CASE);
-            ASTNode *val = parse_expression(l);
-            eat(l, TOKEN_COLON);
             
-            ASTNode *body = parse_case_body_stmts(l);
-            
-            CaseNode *cn = calloc(1, sizeof(CaseNode));
-            cn->base.type = NODE_CASE;
-            cn->value = val;
-            cn->body = body;
-            cn->is_leak = is_leak;
-            set_loc((ASTNode*)cn, line, col); // Use approximate start loc
-            
-            *cases_curr = (ASTNode*)cn;
-            cases_curr = &cn->base.next;
+            // Comma-separated cases loop
+            while(1) {
+                ASTNode *val = parse_expression(l);
+                
+                if (current_token.type == TOKEN_COMMA) {
+                    eat(l, TOKEN_COMMA);
+                    // Create an implicit leak case (empty body, force leak)
+                    CaseNode *cn = calloc(1, sizeof(CaseNode));
+                    cn->base.type = NODE_CASE;
+                    cn->value = val;
+                    cn->body = NULL; 
+                    cn->is_leak = 1; // Must leak to the next case in the list
+                    set_loc((ASTNode*)cn, case_line, case_col);
+                    
+                    *cases_curr = (ASTNode*)cn;
+                    cases_curr = &cn->base.next;
+                } else {
+                    // Last item in the comma list (or single item)
+                    eat(l, TOKEN_COLON);
+                    ASTNode *body = parse_case_body_stmts(l);
+                    
+                    CaseNode *cn = calloc(1, sizeof(CaseNode));
+                    cn->base.type = NODE_CASE;
+                    cn->value = val;
+                    cn->body = body;
+                    cn->is_leak = is_leak; // Use the originally declared leak status
+                    set_loc((ASTNode*)cn, case_line, case_col);
+                    
+                    *cases_curr = (ASTNode*)cn;
+                    cases_curr = &cn->base.next;
+                    break; // Done with this case group
+                }
+            }
         } 
         else if (current_token.type == TOKEN_DEFAULT) {
              eat(l, TOKEN_DEFAULT);

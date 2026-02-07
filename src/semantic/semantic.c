@@ -117,6 +117,11 @@ static void sem_suggestion(SemCtx *ctx, ASTNode *node, const char *suggestion) {
 }
 
 static int are_types_equal(VarType a, VarType b) {
+    // Allow void* to be compatible with any pointer type (for malloc)
+    if (a.ptr_depth > 0 && b.ptr_depth > 0) {
+        if (a.base == TYPE_VOID || b.base == TYPE_VOID) return 1;
+    }
+
     if (a.base != b.base) {
         if (a.base == TYPE_AUTO || b.base == TYPE_AUTO) return 1;
         
@@ -195,7 +200,7 @@ static const char* find_closest_type_name(SemCtx *ctx, const char *name) {
 }
 
 static const char* find_closest_func_name(SemCtx *ctx, const char *name) {
-    const char *builtins[] = {"print", "printf", "input", NULL};
+    const char *builtins[] = {"print", "printf", "input", "malloc", "alloc", "free", NULL};
     const char *best = NULL;
     int min_dist = 3;
 
@@ -536,6 +541,44 @@ static VarType check_expr(SemCtx *ctx, ASTNode *node) {
         case NODE_CALL: {
             CallNode *c = (CallNode*)node;
             if (strcmp(c->name, "print") == 0 || strcmp(c->name, "printf") == 0) {
+                 VarType ret = {TYPE_VOID, 0, NULL};
+                 return ret;
+            }
+            
+            if (strcmp(c->name, "input") == 0) {
+                 VarType ret = {TYPE_STRING, 0, NULL};
+                 return ret;
+            }
+
+            // Built-in memory management
+            if (strcmp(c->name, "malloc") == 0 || strcmp(c->name, "alloc") == 0) {
+                 if (!c->args) {
+                     sem_error(ctx, node, "'%s' requires 1 argument (size)", c->name);
+                 } else if (c->args->next) {
+                     sem_error(ctx, node, "'%s' requires exactly 1 argument", c->name);
+                 } else {
+                     VarType t = check_expr(ctx, c->args);
+                     if (t.base != TYPE_INT) {
+                         sem_error(ctx, c->args, "Size argument must be an integer");
+                     }
+                 }
+                 // Return void* (TYPE_VOID with pointer depth 1)
+                 VarType ret = {TYPE_VOID, 1, NULL};
+                 return ret;
+            }
+
+            if (strcmp(c->name, "free") == 0) {
+                 if (!c->args) {
+                     sem_error(ctx, node, "'free' requires 1 argument");
+                 } else if (c->args->next) {
+                     sem_error(ctx, node, "'free' requires exactly 1 argument");
+                 } else {
+                     VarType t = check_expr(ctx, c->args);
+                     // Expect a pointer or array or string (if dynamic)
+                     if (t.ptr_depth == 0 && t.array_size == 0 && t.base != TYPE_STRING) {
+                          sem_error(ctx, c->args, "Expected pointer argument for 'free'");
+                     }
+                 }
                  VarType ret = {TYPE_VOID, 0, NULL};
                  return ret;
             }

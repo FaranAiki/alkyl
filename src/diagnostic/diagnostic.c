@@ -40,11 +40,25 @@ int levenshtein_dist(const char *s1, const char *s2) {
     for (int i = 1; i <= len1; i++) {
         for (int j = 1; j <= len2; j++) {
             int cost = (s1[i - 1] == s2[j - 1]) ? 0 : 1;
-            matrix[i][j] = min3(
+            
+            // Standard Levenshtein operations
+            int res = min3(
                 matrix[i - 1][j] + 1,      // Deletion
                 matrix[i][j - 1] + 1,      // Insertion
                 matrix[i - 1][j - 1] + cost // Substitution
             );
+
+            // Damerau-Levenshtein Transposition check
+            // Checks if swapping adjacent characters creates a match
+            if (i > 1 && j > 1 && 
+                s1[i - 1] == s2[j - 2] && 
+                s1[i - 2] == s2[j - 1]) {
+                
+                int trans = matrix[i - 2][j - 2] + 1; // Cost of transposition is 1
+                if (trans < res) res = trans;
+            }
+
+            matrix[i][j] = res;
         }
     }
     return matrix[len1][len2];
@@ -55,7 +69,9 @@ const char* find_closest_keyword(const char *ident) {
         "int", "void", "char", "bool", "single", "double", "return", 
         "if", "else", "while", "loop", "break", "continue", "class", 
         "namespace", "import", "link", "extern", "define", "has", "is",
-        "open", "closed", "let", "mut", "imut", "typeof", NULL
+        "open", "closed", "let", "mut", "imut", "typeof", 
+        "switch", "case", "default", "leak", // Added missing switch keywords
+        NULL
     };
     
     const char *best = NULL;

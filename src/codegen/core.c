@@ -36,6 +36,11 @@ void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef buil
     LLVMTypeRef malloc_args[] = { LLVMInt64Type() };
     LLVMTypeRef malloc_type = LLVMFunctionType(LLVMPointerType(LLVMInt8Type(), 0), malloc_args, 1, false);
     ctx->malloc_func = LLVMAddFunction(module, "malloc", malloc_type);
+
+    // Free
+    LLVMTypeRef free_args[] = { LLVMPointerType(LLVMInt8Type(), 0) };
+    LLVMTypeRef free_type = LLVMFunctionType(LLVMVoidType(), free_args, 1, false);
+    ctx->free_func = LLVMAddFunction(module, "free", free_type);
     
     // Getchar
     LLVMTypeRef getchar_type = LLVMFunctionType(LLVMInt32Type(), NULL, 0, false);

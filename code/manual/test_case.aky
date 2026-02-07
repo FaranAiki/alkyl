@@ -1,4 +1,5 @@
 
+// enak ada makanan nih
 enum Makanan {
   Ayam,
   Burger,
@@ -7,16 +8,21 @@ enum Makanan {
 }
 
 int main() {
+  char *s = "buat";
   let sarapan = Makanan.Ayam;
   print "%s is %d\n", Makanan[sarapan], sarapan;
   sarapan++;
   print "%s is %d\n", Makanan[sarapan], sarapan;
+  sarapan = Daging;
   switch (sarapan) {
-    case Ayam:
-      print "Ayam!";
-    laek case Burger:
-      print "Yeay!";
+    case Ayam, Daging:
+      print "Ayam ato ngak daging!\n";
+    leak case Burger:
+      print "Yeay!\n";
     case Sapi:
-      print "Huh!";
+      print "Huh!\n";
   }
+  let nama = input("Nama: ");
+  print "%s\n", nama;
+  free nama;
 }
