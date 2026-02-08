@@ -1,0 +1,63 @@
+// import "lib/cstring.hky";
+
+import "std"; 
+
+open class Hand {
+  void wave(int n) {
+    // Standard function: printf or print
+    print("I am waving %d times\n", n);
+  }
+}
+
+open class Person has Hand {
+  char name[256] = "unnamed";
+  int age = 0;
+
+  void introduce() {
+    // 'name' and 'age' are implicitly accessing this.name and this.age
+    // Logic: Analyzer finds 'name' in class Person, prepends 'this.'
+    print("My name is %s\n and I am %d years old\n", name, age);
+  }
+  
+  // Example of shadowing logic if you uncomment this:
+  /*
+  void setAge(int age) {
+      // 2:3 info: Global variable 'age' is shadowed in this line.
+      this.age = age; 
+  }
+  */
+}
+
+open class Mahasiswa is Person {
+  int nim = 0;
+  
+  void introduce() {
+    // 'name' is resolved via 'is Person' lookup
+    print("My name is %s with nim %d\n", name, nim);
+  }
+}
+
+int main() {
+  // Assuming constructor syntax: Type(args...)
+  let Faran = Person("Muhammad Faran Aiki", 18);
+  
+  print("%s\n", Faran.name);
+  
+  let Faran_Mahasiswa = Mahasiswa(
+    Faran.name,
+    Faran.age,
+    18225122
+  );
+
+  int a[12] = [1,2,3];
+  print("%d!\n", a[2]);
+  
+  Faran.introduce();
+  
+  // Accessing Trait specific methods
+  Faran[Hand].wave(5);
+  Faran_Mahasiswa[Hand].wave(5);
+  
+  Faran_Mahasiswa.introduce();
+  print("%d\n", Faran_Mahasiswa.age);
+}
