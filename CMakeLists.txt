@@ -44,6 +44,9 @@ set(MUST_LANG_SOURCES
     src/parser/top.c 
 
     src/semantic/semantic.c    
+    src/semantic/check.c    
+    src/semantic/scope.c    
+    src/semantic/utils.c    
     
     src/diagnostic/diagnostic.c
 )

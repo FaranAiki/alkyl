@@ -1,0 +1,486 @@
+#include "semantic.h"
+
+// TODO simplify this
+VarType check_expr(SemCtx *ctx, ASTNode *node) {
+    VarType unknown = {TYPE_UNKNOWN, 0, NULL};
+    if (!node) return unknown;
+
+    switch(node->type) {
+        case NODE_LITERAL:
+            return ((LiteralNode*)node)->var_type;
+        
+        case NODE_ARRAY_LIT: {
+            ArrayLitNode *an = (ArrayLitNode*)node;
+            if (!an->elements) {
+                VarType t = {TYPE_UNKNOWN, 0, NULL, 1}; 
+                return t;
+            }
+            VarType first_t = check_expr(ctx, an->elements);
+            ASTNode *curr = an->elements->next;
+            int count = 1;
+            while(curr) {
+                VarType t = check_expr(ctx, curr);
+                if (!are_types_equal(first_t, t)) {
+                    sem_error(ctx, curr, "Array element type mismatch. Expected '%s', got '%s'", 
+                              type_to_str(first_t), type_to_str(t));
+                }
+                curr = curr->next;
+                count++;
+            }
+            VarType ret = first_t;
+            ret.array_size = count; 
+            return ret;
+        }
+
+        case NODE_VAR_REF: {
+            char *name = ((VarRefNode*)node)->name;
+            SemSymbol *sym = find_symbol_semantic(ctx, name);
+            if (!sym) {
+                if (strcmp(name, "this") == 0) {
+                    if (!ctx->current_class) {
+                        sem_error(ctx, node, "'this' used outside of class method");
+                        return unknown;
+                    }
+                    VarType t = {TYPE_CLASS, 1, strdup(ctx->current_class)}; 
+                    return t;
+                }
+                
+                // Check for Implicit 'this' member access
+                if (ctx->current_class) {
+                    SemSymbol *mem = find_member(ctx, ctx->current_class, name);
+                    if (mem) {
+                        return mem->type;
+                    }
+                }
+
+                if (find_sem_enum(ctx, name)) {
+                    sem_error(ctx, node, "'%s' is an Enum type, not a value. Use '%s.Member' or access members directly.", name, name);
+                    return unknown;
+                }
+                
+                sem_error(ctx, node, "Undefined symbol '%s'", name);
+                
+                const char *guess = find_closest_var_name(ctx, name);
+                if (guess) sem_suggestion(ctx, node, guess);
+                
+                return unknown;
+            }
+            VarType res = sym->type;
+            if (sym->is_array) {
+                 res.array_size = sym->array_size > 0 ? sym->array_size : 1; 
+            }
+            return res;
+        }
+
+        case NODE_BINARY_OP: {
+            BinaryOpNode *op = (BinaryOpNode*)node;
+            VarType l = check_expr(ctx, op->left);
+            VarType r = check_expr(ctx, op->right);
+            
+            if (l.base == TYPE_UNKNOWN || r.base == TYPE_UNKNOWN) return unknown;
+
+            if (l.base == TYPE_STRING && r.base == TYPE_STRING && l.ptr_depth == 0 && r.ptr_depth == 0) {
+                 if (op->op == TOKEN_PLUS) return l; 
+                 if (op->op == TOKEN_EQ || op->op == TOKEN_NEQ || 
+                     op->op == TOKEN_LT || op->op == TOKEN_GT || 
+                     op->op == TOKEN_LTE || op->op == TOKEN_GTE) {
+                     return (VarType){TYPE_BOOL, 0, NULL};
+                 }
+            }
+
+            if (!are_types_equal(l, r)) {
+                if (!((l.base == TYPE_INT || l.base == TYPE_FLOAT || l.base == TYPE_DOUBLE) && 
+                      (r.base == TYPE_INT || r.base == TYPE_FLOAT || r.base == TYPE_DOUBLE))) {
+                    sem_error(ctx, node, "Type mismatch in binary operation: '%s' vs '%s'", type_to_str(l), type_to_str(r));
+                }
+            }
+            if (op->op == TOKEN_LT || op->op == TOKEN_GT || op->op == TOKEN_EQ || op->op == TOKEN_NEQ || op->op == TOKEN_LTE || op->op == TOKEN_GTE) {
+                VarType bool_t = {TYPE_BOOL, 0, NULL};
+                return bool_t;
+            }
+            return l;
+        }
+
+        case NODE_ASSIGN: {
+            AssignNode *a = (AssignNode*)node;
+            VarType l_type = unknown;
+            int is_const = 0;
+            
+            if (a->name) {
+                SemSymbol *sym = find_symbol_semantic(ctx, a->name);
+                if (!sym) {
+                    if (ctx->current_class) {
+                         SemSymbol *mem = find_member(ctx, ctx->current_class, a->name);
+                         if (mem) {
+                             l_type = mem->type;
+                             is_const = !mem->is_mutable;
+                         } else {
+                             sem_error(ctx, node, "Assignment to undefined symbol '%s'", a->name);
+                             const char *guess = find_closest_var_name(ctx, a->name);
+                             if (guess) sem_suggestion(ctx, node, guess);
+                         }
+                    } else {
+                        sem_error(ctx, node, "Assignment to undefined symbol '%s'", a->name);
+                        const char *guess = find_closest_var_name(ctx, a->name);
+                        if (guess) sem_suggestion(ctx, node, guess);
+                    }
+                } else {
+                    l_type = sym->type;
+                    is_const = !sym->is_mutable;
+                }
+            } else if (a->target) {
+                l_type = check_expr(ctx, a->target);
+            }
+            
+            if (is_const) {
+                sem_error(ctx, node, "Cannot assign to immutable variable '%s'", a->name ? a->name : "target");
+            }
+
+            VarType r_type = check_expr(ctx, a->value);
+            
+            if (l_type.base != TYPE_UNKNOWN && r_type.base != TYPE_UNKNOWN) {
+                if (!are_types_equal(l_type, r_type)) {
+                    int compatible = 0;
+                    if (get_conversion_cost(r_type, l_type) != -1) compatible = 1;
+                    if (l_type.ptr_depth > 0 && r_type.array_size > 0 && l_type.base == r_type.base) compatible = 1;
+                    
+                    if (!compatible) {
+                         sem_error(ctx, node, "Type mismatch in assignment. Expected '%s', got '%s'", type_to_str(l_type), type_to_str(r_type));
+                    }
+                }
+            }
+            return l_type;
+        }
+
+        case NODE_CALL: {
+            CallNode *c = (CallNode*)node;
+            ASTNode *arg = c->args;
+            while(arg) { check_expr(ctx, arg); arg = arg->next; }
+
+            // Builtins
+            if (strcmp(c->name, "print") == 0 || strcmp(c->name, "printf") == 0) return (VarType){TYPE_VOID, 0, NULL};
+            if (strcmp(c->name, "input") == 0) return (VarType){TYPE_STRING, 0, NULL};
+            if (strcmp(c->name, "malloc") == 0 || strcmp(c->name, "alloc") == 0) return (VarType){TYPE_VOID, 1, NULL};
+            if (strcmp(c->name, "free") == 0) return (VarType){TYPE_VOID, 0, NULL};
+            if (strcmp(c->name, "setjmp") == 0) return (VarType){TYPE_INT, 0, NULL};
+            if (strcmp(c->name, "longjmp") == 0) return (VarType){TYPE_VOID, 0, NULL};
+
+            SemFunc *match = resolve_overload(ctx, node, c->name, c->args);
+            if (match) {
+                c->mangled_name = strdup(match->mangled_name);
+                return match->ret_type;
+            }
+            
+            // Check if class constructor
+            SemClass *cls = ctx->classes;
+            int is_cls = 0;
+            while(cls) { if(strcmp(cls->name, c->name) == 0) { is_cls=1; break; } cls = cls->next; }
+            if (is_cls) {
+                return (VarType){TYPE_CLASS, 0, strdup(c->name)};
+            }
+
+            sem_error(ctx, node, "No matching overload for function '%s'", c->name);
+            const char *type_guess = find_closest_type_name(ctx, c->name);
+            const char *func_guess = find_closest_func_name(ctx, c->name);
+            
+            if (type_guess) {
+                char hint_msg[256];
+                snprintf(hint_msg, sizeof(hint_msg), "'%s' looks like type '%s'. Did you mean to declare a variable?", c->name, type_guess);
+                sem_hint(ctx, node, hint_msg);
+            } else if (func_guess) {
+                sem_suggestion(ctx, node, func_guess);
+            }
+
+            return unknown;
+        }
+        
+        case NODE_METHOD_CALL: {
+            MethodCallNode *mc = (MethodCallNode*)node;
+            
+            VarType obj_t = {TYPE_UNKNOWN, 0, NULL};
+
+            // Case 1: Implicit 'this' call? (object is null in parser?)
+            // Actually parser assigns 'this' explicitly or handles it?
+            // If the parser produces METHOD_CALL, it has an object.
+            
+            if (mc->object->type == NODE_VAR_REF) {
+                char *var_name = ((VarRefNode*)mc->object)->name;
+                
+                // Check if it's a Namespace Call? e.g. Math.sin()
+                // Not supported cleanly here yet without Symbol lookup.
+                // Assuming it's a variable or 'this'.
+                obj_t = check_expr(ctx, mc->object);
+            } else {
+                obj_t = check_expr(ctx, mc->object);
+            }
+            
+            ASTNode *arg = mc->args;
+            while(arg) { check_expr(ctx, arg); arg = arg->next; }
+
+            if (obj_t.base == TYPE_CLASS && obj_t.class_name) {
+                char *owner = NULL;
+                SemFunc *f = resolve_method_in_hierarchy(ctx, node, obj_t.class_name, mc->method_name, mc->args, &owner);
+                
+                if (f) {
+                    mc->mangled_name = strdup(f->mangled_name);
+                    mc->owner_class = owner; 
+                    return f->ret_type;
+                } else {
+                    sem_error(ctx, node, "Method '%s' not found in class '%s' (or parents/traits)", mc->method_name, obj_t.class_name);
+                }
+            } else {
+                sem_error(ctx, node, "Method call on non-class type '%s'", type_to_str(obj_t));
+            }
+
+            return unknown; 
+        }
+        
+        case NODE_TRAIT_ACCESS: {
+            TraitAccessNode *ta = (TraitAccessNode*)node;
+            VarType obj_t = check_expr(ctx, ta->object);
+            
+            if (obj_t.base != TYPE_CLASS || !obj_t.class_name) {
+                sem_error(ctx, node, "Trait access requires class object, got '%s'", type_to_str(obj_t));
+                return unknown;
+            }
+            
+            if (!class_has_trait(ctx, obj_t.class_name, ta->trait_name)) {
+                sem_error(ctx, node, "Class '%s' does not implement trait '%s'", obj_t.class_name, ta->trait_name);
+                return unknown;
+            }
+            
+            VarType trait_type = {TYPE_CLASS, obj_t.ptr_depth, strdup(ta->trait_name)};
+            trait_type.array_size = obj_t.array_size;
+            return trait_type;
+        }
+
+        case NODE_ARRAY_ACCESS: {
+            ArrayAccessNode *aa = (ArrayAccessNode*)node;
+            
+            if (aa->target->type == NODE_VAR_REF) {
+                 char *name = ((VarRefNode*)aa->target)->name;
+                 SemEnum *se = find_sem_enum(ctx, name);
+                 if (se) {
+                     VarType idx_t = check_expr(ctx, aa->index);
+                     if (idx_t.base != TYPE_INT) sem_error(ctx, aa->index, "Enum string lookup requires integer index");
+                     return (VarType){TYPE_STRING, 0, NULL};
+                 }
+            }
+
+            VarType target_t = check_expr(ctx, aa->target);
+            VarType idx_t = check_expr(ctx, aa->index);
+            
+            if (idx_t.base != TYPE_INT) {
+                sem_error(ctx, node, "Array index must be an integer, got '%s'", type_to_str(idx_t));
+            }
+            
+            if (target_t.base == TYPE_STRING && target_t.ptr_depth == 0) {
+                 return (VarType){TYPE_CHAR, 0, NULL};
+            }
+
+            if (aa->index->type == NODE_LITERAL) {
+                int idx = ((LiteralNode*)aa->index)->val.int_val;
+                if (aa->target->type == NODE_VAR_REF) {
+                    SemSymbol *sym = find_symbol_semantic(ctx, ((VarRefNode*)aa->target)->name);
+                    if (sym && sym->is_array && sym->array_size > 0) {
+                        if (idx < 0 || idx >= sym->array_size) {
+                            sem_error(ctx, node, "Array index %d out of bounds (size %d)", idx, sym->array_size);
+                        }
+                    }
+                }
+            }
+            
+            if (target_t.ptr_depth > 0) target_t.ptr_depth--;
+            else if (target_t.array_size > 0) {
+                 target_t.array_size = 0; 
+            }
+            return target_t;
+        }
+        
+        case NODE_MEMBER_ACCESS: {
+             MemberAccessNode *ma = (MemberAccessNode*)node;
+             
+             if (ma->object->type == NODE_VAR_REF) {
+                 char *name = ((VarRefNode*)ma->object)->name;
+                 SemEnum *se = find_sem_enum(ctx, name);
+                 if (se) {
+                     int found = 0;
+                     struct SemEnumMember *m = se->members;
+                     while(m) { if(strcmp(m->name, ma->member_name) == 0) { found=1; break; } m=m->next; }
+                     if (!found) sem_error(ctx, node, "Enum '%s' has no member '%s'", name, ma->member_name);
+                     
+                     return (VarType){TYPE_INT, 0, NULL};
+                 }
+             }
+
+             VarType obj_t = check_expr(ctx, ma->object);
+             
+             if (obj_t.base == TYPE_UNKNOWN) return unknown;
+
+             if (obj_t.ptr_depth > 0) obj_t.ptr_depth--;
+             
+             if (obj_t.base == TYPE_CLASS && obj_t.class_name) {
+                 SemSymbol *mem = find_member(ctx, obj_t.class_name, ma->member_name);
+                 if (mem) {
+                     return mem->type;
+                 } else {
+                     sem_error(ctx, node, "Class '%s' has no member '%s'", obj_t.class_name, ma->member_name);
+                 }
+             }
+             
+             VarType ret = {TYPE_UNKNOWN, 0, NULL};
+             return ret;
+        }
+
+        default:
+            return unknown;
+    }
+}
+
+void check_stmt(SemCtx *ctx, ASTNode *node) {
+    if (!node) return;
+    
+    switch(node->type) {
+        case NODE_VAR_DECL: {
+            VarDeclNode *vd = (VarDeclNode*)node;
+            SemSymbol *existing = find_symbol_current_scope(ctx, vd->name);
+            if (existing) {
+                sem_error(ctx, node, "Redefinition of variable '%s' in current scope", vd->name);
+                if (existing->decl_line > 0) {
+                    sem_reason(ctx, existing->decl_line, existing->decl_col, "Previous definition of '%s' was here", vd->name);
+                }
+            }
+            
+            VarType inferred = vd->var_type;
+            if (vd->var_type.base == TYPE_AUTO) {
+                if (!vd->initializer) {
+                    sem_error(ctx, node, "Cannot infer type for '%s' without initializer", vd->name);
+                    inferred.base = TYPE_INT; 
+                } else {
+                    inferred = check_expr(ctx, vd->initializer);
+                }
+            } else if (vd->initializer) {
+                VarType init_t = check_expr(ctx, vd->initializer);
+                if (!are_types_equal(vd->var_type, init_t)) {
+                     int ok = 0;
+                     if (get_conversion_cost(init_t, vd->var_type) != -1) ok = 1;
+                     
+                     if (vd->var_type.base == TYPE_STRING && init_t.base == TYPE_STRING) ok = 1;
+                     if (vd->var_type.base == TYPE_CHAR && vd->is_array && init_t.base == TYPE_STRING) ok = 1;
+                     if (vd->var_type.base == TYPE_CHAR && vd->var_type.ptr_depth == 1 && init_t.base == TYPE_STRING) ok = 1;
+                     
+                     if (!ok) {
+                        sem_error(ctx, node, "Variable '%s' type mismatch. Declared '%s', init '%s'", 
+                                  vd->name, type_to_str(vd->var_type), type_to_str(init_t));
+                     }
+                }
+            }
+            
+            int arr_size = 0;
+            if (vd->is_array) {
+                if (vd->array_size && vd->array_size->type == NODE_LITERAL) {
+                    arr_size = ((LiteralNode*)vd->array_size)->val.int_val;
+                } else if (vd->initializer && vd->initializer->type == NODE_LITERAL && ((LiteralNode*)vd->initializer)->var_type.base == TYPE_STRING) {
+                     arr_size = strlen(((LiteralNode*)vd->initializer)->val.str_val) + 1;
+                } else if (vd->initializer && vd->initializer->type == NODE_ARRAY_LIT) {
+                     ASTNode* el = ((ArrayLitNode*)vd->initializer)->elements;
+                     while(el) { arr_size++; el = el->next; }
+                }
+            }
+
+            add_symbol_semantic(ctx, vd->name, inferred, vd->is_mutable, vd->is_array, arr_size, node->line, node->col);
+            break;
+        }
+
+        case NODE_RETURN: {
+            ReturnNode *r = (ReturnNode*)node;
+            VarType ret_t = {TYPE_VOID, 0, NULL};
+            if (r->value) ret_t = check_expr(ctx, r->value);
+            
+            if (!are_types_equal(ctx->current_func_ret_type, ret_t)) {
+                if (get_conversion_cost(ret_t, ctx->current_func_ret_type) == -1) {
+                    sem_error(ctx, node, "Return type mismatch. Expected '%s', got '%s'", 
+                              type_to_str(ctx->current_func_ret_type), type_to_str(ret_t));
+                }
+            }
+            break;
+        }
+
+        case NODE_IF: {
+            IfNode *i = (IfNode*)node;
+            check_expr(ctx, i->condition);
+            enter_scope(ctx);
+            check_stmt(ctx, i->then_body);
+            exit_scope(ctx);
+            if (i->else_body) {
+                enter_scope(ctx);
+                check_stmt(ctx, i->else_body);
+                exit_scope(ctx);
+            }
+            break;
+        }
+
+        case NODE_SWITCH: {
+            SwitchNode *s = (SwitchNode*)node;
+            check_expr(ctx, s->condition);
+            
+            enter_scope(ctx);
+            int prev_loop = ctx->in_loop;
+            ctx->in_loop = 1; 
+            
+            ASTNode *c = s->cases;
+            while(c) {
+                CaseNode *cn = (CaseNode*)c;
+                check_expr(ctx, cn->value);
+                check_stmt(ctx, cn->body);
+                c = c->next;
+            }
+            if (s->default_case) check_stmt(ctx, s->default_case);
+            
+            ctx->in_loop = prev_loop;
+            exit_scope(ctx);
+            break;
+        }
+
+        case NODE_LOOP: {
+            LoopNode *l = (LoopNode*)node;
+            check_expr(ctx, l->iterations);
+            int prev_loop = ctx->in_loop;
+            ctx->in_loop = 1;
+            enter_scope(ctx);
+            check_stmt(ctx, l->body);
+            exit_scope(ctx);
+            ctx->in_loop = prev_loop;
+            break;
+        }
+        
+        case NODE_WHILE: {
+            WhileNode *w = (WhileNode*)node;
+            check_expr(ctx, w->condition);
+            int prev_loop = ctx->in_loop;
+            ctx->in_loop = 1;
+            enter_scope(ctx);
+            check_stmt(ctx, w->body);
+            exit_scope(ctx);
+            ctx->in_loop = prev_loop;
+            break;
+        }
+
+        case NODE_BREAK:
+        case NODE_CONTINUE:
+            if (!ctx->in_loop) {
+                sem_error(ctx, node, "'break' or 'continue' used outside of loop or switch");
+            }
+            break;
+
+        case NODE_FUNC_DEF:
+            break;
+
+        default:
+            check_expr(ctx, node); 
+            break;
+    }
+    
+    if (node->next) check_stmt(ctx, node->next);
+}
+
