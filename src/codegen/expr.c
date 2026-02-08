@@ -15,6 +15,33 @@ char* format_string(const char* input) {
   return new_str;
 }
 
+// Helper to stringify type for typeof
+static void get_type_name(VarType t, char *buf) {
+    switch (t.base) {
+        case TYPE_INT: strcpy(buf, "int"); break;
+        case TYPE_CHAR: strcpy(buf, "char"); break;
+        case TYPE_BOOL: strcpy(buf, "bool"); break;
+        case TYPE_FLOAT: strcpy(buf, "float"); break;
+        case TYPE_DOUBLE: strcpy(buf, "double"); break;
+        case TYPE_VOID: strcpy(buf, "void"); break;
+        case TYPE_STRING: strcpy(buf, "string"); break;
+        case TYPE_CLASS: 
+            strcpy(buf, t.class_name ? t.class_name : "object"); 
+            break;
+        default: strcpy(buf, "unknown"); break;
+    }
+    
+    // Pointers
+    for(int i=0; i<t.ptr_depth; i++) strcat(buf, "*");
+    
+    // Arrays
+    if (t.array_size > 0) {
+        char tmp[32];
+        sprintf(tmp, "[%d]", t.array_size);
+        strcat(buf, tmp);
+    }
+}
+
 // Calculate the Alkyl VarType of an expression (for type checking/inference in codegen)
 VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
     VarType vt = {TYPE_UNKNOWN, 0, NULL};
@@ -74,7 +101,8 @@ VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
         if (ci) {
             vt.base = TYPE_CLASS;
             vt.class_name = strdup(call->name);
-            vt.ptr_depth = 0; // Constructor returns the struct (or ptr if we decide so, usually struct in var)
+            // FIX: Constructor returns a pointer to the object on heap
+            vt.ptr_depth = 1; 
             return vt;
         }
 
@@ -88,6 +116,10 @@ VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
              FuncSymbol *fs = find_func_symbol(ctx, mc->mangled_name);
              if (fs) return fs->ret_type;
         }
+    }
+    
+    if (node->type == NODE_TYPEOF) {
+        return (VarType){TYPE_STRING, 0, NULL};
     }
     
     return vt;
@@ -314,7 +346,6 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
       if (!obj_ptr) codegen_error(ctx, node, "Invalid object for method call");
       
       // 2. Adjust 'this' pointer if method belongs to parent or trait
-      // FIX: Check if class_name is valid before strcmp to avoid SEGFAULT
       if (mc->owner_class && obj_t.class_name && strcmp(mc->owner_class, obj_t.class_name) != 0) {
           ClassInfo *ci = find_class(ctx, obj_t.class_name);
           
@@ -542,6 +573,15 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
           }
           return LLVMBuildLoad2(ctx->builder, sym->type, sym->value, sym->name);
       }
+  }
+  else if (node->type == NODE_TYPEOF) {
+      UnaryOpNode *tn = (UnaryOpNode*)node;
+      VarType t = codegen_calc_type(ctx, tn->operand);
+      
+      char buf[256];
+      get_type_name(t, buf);
+      
+      return LLVMBuildGlobalStringPtr(ctx->builder, buf, "typeof_str");
   }
   
   return LLVMConstInt(LLVMInt32Type(), 0, 0);
