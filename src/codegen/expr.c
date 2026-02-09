@@ -52,6 +52,18 @@ VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
     if (node->type == NODE_VAR_REF) {
         Symbol *s = find_symbol(ctx, ((VarRefNode*)node)->name);
         if (s) return s->vtype;
+
+        // Implicit 'this' member type lookup
+        Symbol *this_sym = find_symbol(ctx, "this");
+        if (this_sym && this_sym->vtype.class_name) {
+             ClassInfo *ci = find_class(ctx, this_sym->vtype.class_name);
+             if (ci) {
+                 VarType mvt;
+                 if (get_member_index(ci, ((VarRefNode*)node)->name, NULL, &mvt) != -1) {
+                     return mvt;
+                 }
+             }
+        }
     }
     
     if (node->type == NODE_ARRAY_ACCESS) {
@@ -564,7 +576,8 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
       }
   }
   else if (node->type == NODE_VAR_REF) {
-      Symbol *sym = find_symbol(ctx, ((VarRefNode*)node)->name);
+      const char *name = ((VarRefNode*)node)->name;
+      Symbol *sym = find_symbol(ctx, name);
       if (sym) {
           // Fix for Array Decay: Return pointer to start instead of loading aggregate
           if (sym->vtype.array_size > 0 && sym->vtype.ptr_depth == 0) {
@@ -573,6 +586,35 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
           }
           return LLVMBuildLoad2(ctx->builder, sym->type, sym->value, sym->name);
       }
+      
+      // Implicit 'this' Member Access
+      Symbol *this_sym = find_symbol(ctx, "this");
+      if (this_sym && this_sym->vtype.class_name) {
+           ClassInfo *ci = find_class(ctx, this_sym->vtype.class_name);
+           if (ci) {
+               LLVMTypeRef mem_type;
+               VarType mvt;
+               int idx = get_member_index(ci, name, &mem_type, &mvt);
+               
+               if (idx != -1) {
+                   LLVMValueRef this_val = LLVMBuildLoad2(ctx->builder, this_sym->type, this_sym->value, "this_ptr");
+                   LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), idx, 0) };
+                   LLVMValueRef mem_ptr = LLVMBuildGEP2(ctx->builder, ci->struct_type, this_val, indices, 2, "implicit_mem_ptr");
+                   
+                   // Handle Array Decay for Members
+                   if (mvt.array_size > 0 && mvt.ptr_depth == 0) {
+                       LLVMValueRef arr_indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), 0, 0) };
+                       return LLVMBuildGEP2(ctx->builder, mem_type, mem_ptr, arr_indices, 2, "mem_arr_decay");
+                   }
+
+                   return LLVMBuildLoad2(ctx->builder, mem_type, mem_ptr, name);
+               }
+           }
+      }
+
+      char msg[256];
+      snprintf(msg, sizeof(msg), "Codegen Error: Undefined variable '%s'", name);
+      codegen_error(ctx, node, msg);
   }
   else if (node->type == NODE_TYPEOF) {
       UnaryOpNode *tn = (UnaryOpNode*)node;
