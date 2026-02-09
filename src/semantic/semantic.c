@@ -69,6 +69,11 @@ void scan_declarations(SemCtx *ctx, ASTNode *node, const char *prefix) {
                         s->type = vd->var_type;
                         s->is_mutable = vd->is_mutable;
                         s->is_array = vd->is_array;
+                        
+                        // Set Decl Location
+                        s->decl_line = vd->base.line;
+                        s->decl_col = vd->base.col;
+
                         s->next = cls->members;
                         cls->members = s;
                     }
@@ -132,6 +137,38 @@ void check_program(SemCtx *ctx, ASTNode *node) {
             
             Parameter *p = fd->params;
             while(p) {
+                // Check shadowing for parameters
+                SemSymbol *shadowed = NULL;
+                Scope *s = ctx->current_scope->parent;
+                
+                // 1. Check outer scopes (globals)
+                while (s) {
+                    SemSymbol *sym = s->symbols;
+                    while (sym) {
+                        if (strcmp(sym->name, p->name) == 0) {
+                            shadowed = sym;
+                            break;
+                        }
+                        sym = sym->next;
+                    }
+                    if (shadowed) break;
+                    s = s->parent;
+                }
+                
+                // 2. Check class members if inside method
+                if (!shadowed && fd->class_name) {
+                    SemSymbol *mem = find_member(ctx, fd->class_name, p->name);
+                    if (mem) shadowed = mem;
+                }
+
+                if (shadowed) {
+                     char msg[256];
+                     snprintf(msg, 256, "Parameter '%s' shadows a variable in outer scope", p->name);
+                     sem_info(ctx, node, msg);
+                     if (shadowed->decl_line > 0)
+                        sem_reason(ctx, shadowed->decl_line, shadowed->decl_col, "Shadowed declaration is here");
+                }
+
                 add_symbol_semantic(ctx, p->name, p->type, 1, 0, 0, 0, 0); 
                 p = p->next;
             }

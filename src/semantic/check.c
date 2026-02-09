@@ -349,6 +349,40 @@ void check_stmt(SemCtx *ctx, ASTNode *node) {
                 if (existing->decl_line > 0) {
                     sem_reason(ctx, existing->decl_line, existing->decl_col, "Previous definition of '%s' was here", vd->name);
                 }
+            } else {
+                // Check for shadowing in outer scopes
+                Scope *s = ctx->current_scope->parent;
+                SemSymbol *shadowed = NULL;
+                const char *shadow_type = "outer scope";
+                
+                while (s) {
+                    SemSymbol *sym = s->symbols;
+                    while (sym) {
+                        if (strcmp(sym->name, vd->name) == 0) {
+                            shadowed = sym;
+                            break;
+                        }
+                        sym = sym->next;
+                    }
+                    if (shadowed) break;
+                    s = s->parent;
+                }
+
+                // Check for shadowing class members (implicit 'this')
+                if (!shadowed && ctx->current_class) {
+                    SemSymbol *mem = find_member(ctx, ctx->current_class, vd->name);
+                    if (mem) {
+                        shadowed = mem;
+                        shadow_type = "class member";
+                    }
+                }
+
+                if (shadowed) {
+                    sem_info(ctx, node, "Variable '%s' shadows a variable in %s", vd->name, shadow_type);
+                    if (shadowed->decl_line > 0) {
+                        sem_reason(ctx, shadowed->decl_line, shadowed->decl_col, "Shadowed declaration is here");
+                    }
+                }
             }
             
             VarType inferred = vd->var_type;
@@ -483,4 +517,3 @@ void check_stmt(SemCtx *ctx, ASTNode *node) {
     
     if (node->next) check_stmt(ctx, node->next);
 }
-
