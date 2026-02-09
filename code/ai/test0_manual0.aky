@@ -18,14 +18,10 @@ open class Person has Hand {
     // Logic: Analyzer finds 'name' in class Person, prepends 'this.'
     print("My name is %s\n and I am %d years old\n", name, age);
   }
-  
-  // Example of shadowing logic if you uncomment this:
-  /*
+ 
   void setAge(int age) {
-      // 2:3 info: Global variable 'age' is shadowed in this line.
       this.age = age; 
   }
-  */
 }
 
 open class Mahasiswa is Person {
@@ -59,5 +55,8 @@ int main() {
   Faran_Mahasiswa[Hand].wave(5);
   
   Faran_Mahasiswa.introduce();
+  print("%d\n", Faran_Mahasiswa.age);
+
+  Faran_Mahasiswa.setAge(5);
   print("%d\n", Faran_Mahasiswa.age);
 }

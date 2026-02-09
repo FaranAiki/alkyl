@@ -748,7 +748,20 @@ void scan_functions(CodegenCtx *ctx, ASTNode *node, const char *prefix) {
                         mangled = strdup(buf);
                     }
                     
-                    add_func_symbol(ctx, mangled, fd->ret_type, NULL, 0);
+                    // FIX: Capture parameters correctly for method overload resolution
+                    int pcount = 0;
+                    Parameter *p = fd->params;
+                    while(p) { pcount++; p=p->next; }
+                    
+                    VarType *ptypes = NULL;
+                    if (pcount > 0) {
+                        ptypes = malloc(sizeof(VarType) * pcount);
+                        p = fd->params;
+                        int i = 0;
+                        while(p) { ptypes[i++] = p->type; p=p->next; }
+                    }
+
+                    add_func_symbol(ctx, mangled, fd->ret_type, ptypes, pcount);
                     // Note: We don't free mangled here as add_func_symbol duplicates it? 
                     // No, add_func_symbol strdups it. We must free if we allocated strdup.
                     free(mangled);
@@ -791,22 +804,11 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name, const cha
         while(m) {
             if (m->type == NODE_FUNC_DEF) {
                 FuncDefNode *fd = (FuncDefNode*)m;
-                char *original_name = fd->name;
-                
-                // Temporarily swap name for codegen logic to use mangled
-                if (fd->mangled_name) fd->name = fd->mangled_name;
-                else {
-                     // Should not happen, but safe fallback logic
-                     char mangled[256];
-                     sprintf(mangled, "%s_%s", cn->name, fd->name);
-                     fd->name = strdup(mangled); // Leak
-                }
+                // REMOVED: Name swapping hack that was risky and redundant.
+                // codegen_func_def already prioritizes mangled_name.
                 
                 fd->class_name = cn->name;
                 codegen_func_def(&ctx, fd);
-                
-                // Restore
-                fd->name = original_name; 
             }
             m = m->next;
         }

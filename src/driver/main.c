@@ -78,7 +78,6 @@ int main(int argc, char *argv[]) {
   // -------------------------------
   
   // Extract 'link' directives from AST
-  // TODO should be great right idk
   ASTNode *curr = root;
   while(curr) {
     if (curr->type == NODE_LINK) {
@@ -96,7 +95,8 @@ int main(int argc, char *argv[]) {
   LLVMInitializeNativeAsmParser();
 
   // Pass source code to codegen for error reporting
-  LLVMModuleRef module = codegen_generate(root, "alkyl_mod");
+  // FIX: Passed 'code' as the 3rd argument to match prototype
+  LLVMModuleRef module = codegen_generate(root, "alkyl_mod", code);
 
   char *error = NULL;
   if (LLVMVerifyModule(module, LLVMAbortProcessAction, &error)) {

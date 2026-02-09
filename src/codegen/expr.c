@@ -408,6 +408,14 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
       }
 
       LLVMValueRef func = LLVMGetNamedFunction(ctx->module, mc->mangled_name);
+      
+      // Fallback: Try "Class_Method" if mangled name not found (e.g. definition used simple naming)
+      if (!func && mc->owner_class) {
+           char fallback[256];
+           snprintf(fallback, sizeof(fallback), "%s_%s", mc->owner_class, mc->method_name);
+           func = LLVMGetNamedFunction(ctx->module, fallback);
+      }
+
       if (!func) {
           char msg[256];
           snprintf(msg, 256, "Linker Error: Method '%s' not found.", mc->mangled_name);

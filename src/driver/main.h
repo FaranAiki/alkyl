@@ -10,6 +10,6 @@
 
 // --- CODEGEN PROTOTYPES ---
 
-LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name);
+LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name, const char *source);
 
 #endif
