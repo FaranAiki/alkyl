@@ -1,64 +1,41 @@
-Alkyl Language Specification and Design
+# Alkyl Language Specification and Design
 
 Alkyl is a statically typed, compiled programming language that blends C-style syntax with modern features like namespaces, classes (with traits), string handling, and macro definitions. It compiles to LLVM IR.
 
-1. Basics
+## 1. Basics
 
-Comments
+### Comments
 
 Alkyl supports C-style comments.
 
+```alkyl
 // This is a single-line comment
 /* This is a 
    multi-line comment */
+```
 
-
-Data Types
+### Data Types
 
 Alkyl supports several primitive types and pointers.
 
-Type Keyword
+| **Type Keyword** | **Description** |
+| :--- | :--- |
+| `int` | 32-bit Integer |
+| `char` | 8-bit Character |
+| `bool` | Boolean (`true`/`false`) |
+| `single` | Single-precision floating point (float) |
+| `double` | Double-precision floating point |
+| `string` | String type (managed `char*`) |
+| `void` | Empty type |
+| `let` / `auto` | Type inference |
 
-Description
-
-int
-
-32-bit Integer
-
-char
-
-8-bit Character
-
-bool
-
-Boolean (true/false)
-
-single
-
-Single-precision floating point (float)
-
-double
-
-Double-precision floating point
-
-string
-
-String type (managed char*)
-
-void
-
-Empty type
-
-let / auto
-
-Type inference
-
-Variables
+### Variables
 
 Variables can be mutable or immutable.
 
-Syntax:
+**Syntax:**
 
+```alkyl
 // Explicit typing
 int x = 10;
 string name = "Alkyl";
@@ -71,57 +48,66 @@ mut int count = 0;   // Mutable
 imut int id = 123;   // Immutable (default behavior typically depends on context, Alkyl treats default declarations as mutable in some contexts but provides keywords for clarity)
 
 // Pointers
+// Rarely used for standard programming langauge, unless used for low-level programming
 int* ptr = null;
+```
 
-
-Arrays
+### Arrays
 
 Arrays can be declared with fixed sizes.
 
-int[5] numbers;           // Uninitialized array of size 5
-int[] arr = [1, 2, 3];    // Array literal, size inferred
+```alkyl
+int numbers[5];           // Uninitialized array of size 5
+int arr[] = [1, 2, 3];    // Array literal, size inferred
+```
 
+## 2. Control Flow
 
-2. Control Flow
+### If-Else
 
-If-Else
-
-if (x > 10) {
-    print("Greater");
+```alkyl
+// Alkyl permits no brace after if
+if x > 10 {
+    print "Greater";
 } elif (x == 10) {
     print("Equal");
 } else {
     print("Lesser");
 }
+```
 
+### Loops
 
-Loops
+**Standard While:**
 
-Standard While:
-
-while (x > 0) {
+```alkyl
+while x > 0 {
     x--;
 }
+```
 
+**Do-While (While Once):**
 
-Do-While (While Once):
-
-while once (x > 0) {
+```alkyl
+while once x > 0 {
     // Executes at least once
     x--;
 }
+```
 
+**Loop:**
 
-Infinite Loop:
-
-loop {
-    if (check()) break;
+```alkyl
+// TODO make this more approriate
+loop 5 {
+    print "Five times!";
 }
+```
 
+**Switch Statement:**
+Alkyl supports `switch` with explicit fallthrough syntax (`leak`).
 
-Switch Statement:
-Alkyl supports switch with explicit fallthrough syntax (leak).
-
+```alkyl
 switch (val) {
     case 1: 
         print("One");
@@ -132,12 +118,13 @@ switch (val) {
     default:
         print("Default");
 }
+```
 
-
-3. Functions
+## 3. Functions
 
 Functions are defined with a return type, name, and parameter list. Alkyl supports function overloading.
 
+```alkyl
 int add(int a, int b) {
     return a + b;
 }
@@ -150,19 +137,18 @@ double add(double a, double b) {
 void main() {
     print(add(1, 2));
 }
+```
 
-
-4. Object-Oriented Programming
+## 4. Object-Oriented Programming
 
 Alkyl uses a class-based system with single inheritance and traits (mixins).
 
-Classes
+### Classes
 
-class Vector {
-    open {
-        int x;
-        int y;
-    }
+```alkyl
+open class Vector {
+    int x;
+    int y;
 
     // Constructor-like logic is often handled via manual init or factory methods currently,
     // though the parser allows methods inside classes.
@@ -170,10 +156,11 @@ class Vector {
         printf("Vec: %d, %d", this.x, this.y);
     }
 }
+```
 
+### Inheritance (`is`)
 
-Inheritance (is)
-
+```alkyl
 class Entity {
     int id;
 }
@@ -181,12 +168,13 @@ class Entity {
 class Player is Entity {
     string name;
 }
+```
 
-
-Traits (has)
+### Traits (`has`)
 
 Traits act as interfaces or mixins.
 
+```alkyl
 class Printable {
     void print_self() { ... }
 }
@@ -194,105 +182,105 @@ class Printable {
 class User has Printable {
     // User now has print_self
 }
+```
 
+### Visibility
 
-Visibility
+* `open`: Public members.
+* `closed`: Private members.
 
-open: Public members.
+## 5. Metaprogramming & Macros
 
-closed: Private members.
-
-5. Metaprogramming & Macros
-
-Macros (define)
+### Macros (`define`)
 
 Alkyl supports token-replacement macros.
 
+```alkyl
 define PI as 3.14159;
 define MAX(a, b) as ((a > b) ? a : b);
 
 // Comma-separated definitions
 define foo, bar as 100; // foo and bar both expand to 100
+```
 
+### Type Aliasing (`typedef`)
 
-Type Aliasing (typedef)
-
+```alkyl
 typedef Integer as int;
 typedef StringArray as string[];
+```
 
+## 6. Namespaces & Enums
 
-6. Namespaces & Enums
-
-Namespaces
+### Namespaces
 
 Organize code into logical blocks.
 
+```alkyl
 namespace Math {
     int add(int a, int b) { return a + b; }
 }
 
 // Access
-Math_add(1, 2); // (Current implementation usually flattens names or requires specific mangling lookup)
+Math.add(1, 2); // (Current implementation usually flattens names or requires specific mangling lookup)
+```
 
+### Enums
 
-Enums
-
+```alkyl
 enum Color {
     Red,
     Green = 10,
     Blue
 }
+```
 
+## 7. Modular Programming & FFI
 
-7. Modular Programming & FFI
-
-Import
+### Import
 
 Includes source files directly.
 
+```alkyl
 import "std/math.aky";
+```
 
-
-Extern (FFI)
+### Extern (FFI)
 
 Declare functions implemented in C or linked libraries.
 
+```alkyl
 extern int printf(string fmt, ...);
+```
 
-
-Link
+### Link
 
 Link against system libraries.
 
+```alkyl
 link "m"; // Links libm
+```
 
-
-8. Built-in Features
+## 8. Built-in Features
 
 Alkyl provides several intrinsics and helper functions:
 
-print(arg): Generic printer.
+* **`print(arg)`**: Generic printer.
+* **`printf(fmt, ...)`**: C-style formatted print.
+* **`input()`**: Reads a string from stdin.
+* **`malloc(size)` / `free(ptr)`**: Manual memory management.
+* **`typeof(expr)`**: Returns the type name as a string at runtime/compile-time.
+* **String Operators**:
+    * `+`: String concatenation.
+    * `==` / `!=`: String content comparison.
 
-printf(fmt, ...): C-style formatted print.
-
-input(): Reads a string from stdin.
-
-malloc(size) / free(ptr): Manual memory management.
-
-typeof(expr): Returns the type name as a string at runtime/compile-time.
-
-String Operators:
-
-+: String concatenation.
-
-== / !=: String content comparison.
-
+```alkyl
 string s1 = "Hello";
 string s2 = " World";
 string s3 = s1 + s2; // "Hello World"
+```
 
-
-9. Error Handling
+## 9. Error Handling
 
 Alkyl compiler provides "Did you mean?" suggestions for typos in keywords, variable names, and function names using Levenshtein distance calculations.
 
