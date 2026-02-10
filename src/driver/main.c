@@ -91,7 +91,6 @@ int main(int argc, char *argv[]) {
   LLVMInitializeNativeAsmParser();
 
   // Pass source code to codegen for error reporting
-  // FIX: Passed 'code' as the 3rd argument to match prototype
   LLVMModuleRef module = codegen_generate(root, "alkyl_mod", code);
 
   char *error = NULL;

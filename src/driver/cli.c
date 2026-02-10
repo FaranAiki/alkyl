@@ -1,3 +1,5 @@
+// This still SUCK ASS
+
 #include "cli.h"
 #include "parser.h"
 #include "codegen.h"

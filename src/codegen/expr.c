@@ -754,7 +754,7 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
       }
 
       char msg[256];
-      snprintf(msg, sizeof(msg), "Codegen Error: Undefined variable '%s'", name);
+      snprintf(msg, sizeof(msg), "Undefined variable '%s'", name);
       codegen_error(ctx, node, msg);
   }
   else if (node->type == NODE_TYPEOF) {

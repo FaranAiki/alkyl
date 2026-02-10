@@ -1,7 +1,12 @@
 int main() {
   char a[] = ['a','b','c','\0'];
-  // a[0] += 1;
+  // a[0] += '1';
   print "%s\n", a;
   let t = c"s";
-  print "%s\n", typeof(a);
+  print "%s:%s\n", typeof(a), typeof(t);
+  let t0 = "s";
+  print "%s\n", typeof(t0);
+  print "%s\n", t0 + t0;
+  loop 64 { t0 = t0 + t0; }
+  // print "%s\n", t0;
 }
