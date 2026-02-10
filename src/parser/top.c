@@ -7,6 +7,12 @@
 // Forward decl
 void parser_advance(Lexer *l);
 
+typedef struct MacroSig {
+    char *name;
+    char **params;
+    int param_count;
+} MacroSig;
+
 ASTNode* parse_top_level(Lexer *l) {
   
   // 0. NAMESPACE
@@ -40,26 +46,49 @@ ASTNode* parse_top_level(Lexer *l) {
   // 0.1 DEFINE
   if (current_token.type == TOKEN_DEFINE) {
     eat(l, TOKEN_DEFINE);
-    if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected macro name after 'define'");
-    char *macro_name = strdup(current_token.text);
-    eat(l, TOKEN_IDENTIFIER);
-    
-    char **params = NULL;
-    int param_count = 0;
-    if (current_token.type == TOKEN_LPAREN) {
-        eat(l, TOKEN_LPAREN);
-        int cap = 4;
-        params = malloc(sizeof(char*) * cap);
-        while(current_token.type != TOKEN_RPAREN) {
-            if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected parameter name in define definition");
-            if (param_count >= cap) { cap *= 2; params = realloc(params, sizeof(char*)*cap); }
-            params[param_count++] = strdup(current_token.text);
-            eat(l, TOKEN_IDENTIFIER);
-            if (current_token.type == TOKEN_COMMA) eat(l, TOKEN_COMMA);
-            else if (current_token.type != TOKEN_RPAREN) parser_fail(l, "Expected ',' or ')' in macro parameters");
+
+    MacroSig *sigs = NULL;
+    int sig_count = 0;
+    int sig_cap = 0;
+
+    // Parse comma-separated macro signatures
+    do {
+        if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected macro name after 'define'");
+        char *macro_name = strdup(current_token.text);
+        eat(l, TOKEN_IDENTIFIER);
+        
+        char **params = NULL;
+        int param_count = 0;
+        if (current_token.type == TOKEN_LPAREN) {
+            eat(l, TOKEN_LPAREN);
+            int cap = 4;
+            params = malloc(sizeof(char*) * cap);
+            while(current_token.type != TOKEN_RPAREN) {
+                if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected parameter name in define definition");
+                if (param_count >= cap) { cap *= 2; params = realloc(params, sizeof(char*)*cap); }
+                params[param_count++] = strdup(current_token.text);
+                eat(l, TOKEN_IDENTIFIER);
+                if (current_token.type == TOKEN_COMMA) eat(l, TOKEN_COMMA);
+                else if (current_token.type != TOKEN_RPAREN) parser_fail(l, "Expected ',' or ')' in macro parameters");
+            }
+            eat(l, TOKEN_RPAREN);
         }
-        eat(l, TOKEN_RPAREN);
-    }
+
+        if (sig_count >= sig_cap) {
+            sig_cap = (sig_cap == 0) ? 2 : sig_cap * 2;
+            sigs = realloc(sigs, sizeof(MacroSig) * sig_cap);
+        }
+        sigs[sig_count].name = macro_name;
+        sigs[sig_count].params = params;
+        sigs[sig_count].param_count = param_count;
+        sig_count++;
+
+        if (current_token.type == TOKEN_COMMA) {
+            eat(l, TOKEN_COMMA);
+        } else {
+            break;
+        }
+    } while (1);
     
     // Explicitly check for 'as' to provide a smart error message
     if (current_token.type != TOKEN_AS) {
@@ -75,14 +104,18 @@ ASTNode* parse_top_level(Lexer *l) {
         report_error(l, current_token, msg);
         
         char hint[256];
-        snprintf(hint, sizeof(hint), "Expected 'as'. Did you mean \"define %s as %s...\"?", macro_name, found);
+        snprintf(hint, sizeof(hint), "Expected 'as'. Did you mean \"define %s as %s...\"?", sigs[0].name, found);
         report_hint(l, current_token, hint);
         
-        free(macro_name);
-        if (params) {
-            for(int i=0; i<param_count; i++) free(params[i]);
-            free(params);
+        // Clean up
+        for(int i=0; i<sig_count; i++) {
+            free(sigs[i].name);
+            if (sigs[i].params) {
+                for(int p=0; p<sigs[i].param_count; p++) free(sigs[i].params[p]);
+                free(sigs[i].params);
+            }
         }
+        free(sigs);
         
         if (parser_recover_buf) longjmp(*parser_recover_buf, 1);
         exit(1);
@@ -100,9 +133,21 @@ ASTNode* parse_top_level(Lexer *l) {
         eat(l, current_token.type);
     }
     if (current_token.type == TOKEN_SEMICOLON) eat(l, TOKEN_SEMICOLON);
-    register_macro(macro_name, params, param_count, body_tokens, body_len);
-    free(macro_name);
+    
+    // Register all collected macros with the same body
+    for(int i=0; i<sig_count; i++) {
+        register_macro(sigs[i].name, sigs[i].params, sigs[i].param_count, body_tokens, body_len);
+        free(sigs[i].name);
+        // Note: params ownership is transferred to register_macro
+    }
+    
+    // Free local body tokens (register_macro deep copies them)
+    for(int k=0; k<body_len; k++) {
+        if (body_tokens[k].text) free(body_tokens[k].text);
+    }
     free(body_tokens);
+    free(sigs);
+
     return NULL; 
   }
 
