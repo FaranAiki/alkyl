@@ -15,6 +15,14 @@ typedef struct MacroSig {
 
 ASTNode* parse_top_level(Lexer *l) {
   
+  // Fix: Handle empty statements (semicolons) at top level.
+  // This prevents the parser from attempting to parse a semicolon as an expression,
+  // which ensures that definitions following a namespace or class (e.g. '};') are reached.
+  if (current_token.type == TOKEN_SEMICOLON) {
+      eat(l, TOKEN_SEMICOLON);
+      return NULL;
+  }
+
   // 0. NAMESPACE
   if (current_token.type == TOKEN_NAMESPACE) {
       eat(l, TOKEN_NAMESPACE);
