@@ -67,17 +67,13 @@ int main(int argc, char *argv[]) {
       return 1;
   }
   
-  // --- SEMANTIC ANALYSIS PHASE ---
   if (semantic_analysis(root, code, filename) != 0) {
-      // TODO move this to diagnostic to make it standardized
-      fprintf(stderr, "Semantic analysis failed. Compilation stopped.\n");
       free(code);
       free_ast(root);
       return 1;
   }
   // -------------------------------
   
-  // Extract 'link' directives from AST
   ASTNode *curr = root;
   while(curr) {
     if (curr->type == NODE_LINK) {
