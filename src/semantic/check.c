@@ -1,6 +1,7 @@
 #include "semantic.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // TODO simplify this
 VarType check_expr(SemCtx *ctx, ASTNode *node) {
@@ -183,6 +184,15 @@ VarType check_expr(SemCtx *ctx, ASTNode *node) {
                          if (cost > 0) {
                              sem_info(ctx, node, "Implicit conversion from '%s' to '%s'", 
                                       type_to_str(r_type), type_to_str(l_type));
+
+                             // Inject CastNode into AST
+                             CastNode *cast = calloc(1, sizeof(CastNode));
+                             cast->base.type = NODE_CAST;
+                             cast->base.line = a->value->line;
+                             cast->base.col = a->value->col;
+                             cast->var_type = l_type;
+                             cast->operand = a->value;
+                             a->value = (ASTNode*)cast;
                          }
                     } else {
                          sem_error(ctx, node, "Type mismatch in assignment. Expected '%s', got '%s'", type_to_str(l_type), type_to_str(r_type));
@@ -420,6 +430,33 @@ VarType check_expr(SemCtx *ctx, ASTNode *node) {
             return (VarType){TYPE_STRING, 0, NULL};
         }
 
+        case NODE_CAST: {
+            CastNode *cn = (CastNode*)node;
+            VarType from = check_expr(ctx, cn->operand);
+            VarType to = cn->var_type;
+            
+            // Check validity of cast
+            int cost = get_conversion_cost(from, to);
+            // Also allow explicit casts for things that implicit doesn't allow (like double -> int cost 2)
+            // or pointer casts
+            
+            if (cost == -1) {
+                // Check pointer casts
+                if (from.ptr_depth > 0 && to.ptr_depth > 0) {
+                    // Pointer to Pointer is usually allowed explicitly
+                } else if (from.ptr_depth > 0 && to.base == TYPE_INT) {
+                    // Ptr to Int
+                } else if (from.base == TYPE_INT && to.ptr_depth > 0) {
+                    // Int to Ptr
+                } else {
+                     // Still warn/error if completely incompatible? 
+                     // For now, we trust the explicit cast mostly, but could warn.
+                }
+            }
+            
+            return to;
+        }
+
         default:
             return unknown;
     }
@@ -495,6 +532,15 @@ void check_stmt(SemCtx *ctx, ASTNode *node) {
                          if (cost > 0) {
                              sem_info(ctx, node, "Implicit conversion from '%s' to '%s'", 
                                       type_to_str(init_t), type_to_str(vd->var_type));
+
+                             // Inject CastNode into AST
+                             CastNode *cast = calloc(1, sizeof(CastNode));
+                             cast->base.type = NODE_CAST;
+                             cast->base.line = vd->initializer->line;
+                             cast->base.col = vd->initializer->col;
+                             cast->var_type = vd->var_type;
+                             cast->operand = vd->initializer;
+                             vd->initializer = (ASTNode*)cast;
                          }
                      } else {
                         sem_error(ctx, node, "Variable '%s' type mismatch. Declared '%s', init '%s'", 
@@ -525,7 +571,19 @@ void check_stmt(SemCtx *ctx, ASTNode *node) {
             if (r->value) ret_t = check_expr(ctx, r->value);
             
             if (!are_types_equal(ctx->current_func_ret_type, ret_t)) {
-                if (get_conversion_cost(ret_t, ctx->current_func_ret_type) == -1) {
+                int cost = get_conversion_cost(ret_t, ctx->current_func_ret_type);
+                if (cost != -1) {
+                    if (cost > 0 && r->value) {
+                         // Inject CastNode into AST for implicit return conversion
+                         CastNode *cast = calloc(1, sizeof(CastNode));
+                         cast->base.type = NODE_CAST;
+                         cast->base.line = r->value->line;
+                         cast->base.col = r->value->col;
+                         cast->var_type = ctx->current_func_ret_type;
+                         cast->operand = r->value;
+                         r->value = (ASTNode*)cast;
+                    }
+                } else {
                     sem_error(ctx, node, "Return type mismatch. Expected '%s', got '%s'", 
                               type_to_str(ctx->current_func_ret_type), type_to_str(ret_t));
                 }

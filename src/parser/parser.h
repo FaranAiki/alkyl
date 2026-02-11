@@ -35,8 +35,9 @@ typedef enum {
   NODE_METHOD_CALL, 
   NODE_TRAIT_ACCESS, 
   NODE_TYPEOF,
-  NODE_HAS_METHOD,    // New
-  NODE_HAS_ATTRIBUTE  // New
+  NODE_HAS_METHOD,    
+  NODE_HAS_ATTRIBUTE,  
+  NODE_CAST,
 } NodeType;
 
 typedef enum {
@@ -137,6 +138,12 @@ typedef struct {
   ASTNode *object;
   char *trait_name;
 } TraitAccessNode;
+
+typedef struct {
+    ASTNode base;
+    VarType var_type;
+    ASTNode *operand;
+} CastNode;
 
 typedef struct {
   ASTNode base;

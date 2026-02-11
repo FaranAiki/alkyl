@@ -47,6 +47,10 @@ VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
     VarType vt = {TYPE_UNKNOWN, 0, NULL};
     if (!node) return vt;
     
+    if (node->type == NODE_CAST) {
+        return ((CastNode*)node)->var_type;
+    }
+
     if (node->type == NODE_LITERAL) return ((LiteralNode*)node)->var_type;
     
     if (node->type == NODE_VAR_REF) {
@@ -895,6 +899,57 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
           return LLVMBuildGEP2(ctx->builder, arr_type, global_arr, indices, 2, "attr_list_ptr");
       }
       return LLVMConstPointerNull(LLVMPointerType(LLVMPointerType(LLVMInt8Type(), 0), 0));
+  }
+  else if (node->type == NODE_CAST) {
+      CastNode *cn = (CastNode*)node;
+      LLVMValueRef val = codegen_expr(ctx, cn->operand);
+      VarType from = codegen_calc_type(ctx, cn->operand);
+      VarType to = cn->var_type;
+      LLVMTypeRef to_type = get_llvm_type(ctx, to);
+      
+      // Handle casts
+      
+      // Int -> Float
+      if ((from.base == TYPE_INT || from.base == TYPE_CHAR || from.base == TYPE_BOOL) && 
+          (to.base == TYPE_FLOAT || to.base == TYPE_DOUBLE)) {
+           return LLVMBuildSIToFP(ctx->builder, val, to_type, "cast_si_fp");
+      }
+      
+      // Float -> Int
+      if ((from.base == TYPE_FLOAT || from.base == TYPE_DOUBLE) && 
+          (to.base == TYPE_INT || to.base == TYPE_CHAR || to.base == TYPE_BOOL)) {
+           return LLVMBuildFPToSI(ctx->builder, val, to_type, "cast_fp_si");
+      }
+      
+      // Int -> Int (width change)
+      if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMIntegerTypeKind && LLVMGetTypeKind(to_type) == LLVMIntegerTypeKind) {
+           return LLVMBuildIntCast(ctx->builder, val, to_type, "cast_int");
+      }
+      
+      // Float -> Float (width change)
+      if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMFloatTypeKind && LLVMGetTypeKind(to_type) == LLVMDoubleTypeKind) {
+           return LLVMBuildFPExt(ctx->builder, val, to_type, "cast_fpext");
+      }
+      if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMDoubleTypeKind && LLVMGetTypeKind(to_type) == LLVMFloatTypeKind) {
+           return LLVMBuildFPTrunc(ctx->builder, val, to_type, "cast_fptrunc");
+      }
+
+      // Ptr -> Ptr
+      if (from.ptr_depth > 0 && to.ptr_depth > 0) {
+          return LLVMBuildBitCast(ctx->builder, val, to_type, "cast_ptr");
+      }
+      
+      // Ptr -> Int
+      if (from.ptr_depth > 0 && to.base == TYPE_INT) {
+           return LLVMBuildPtrToInt(ctx->builder, val, to_type, "cast_ptr_int");
+      }
+
+      // Int -> Ptr
+      if (from.base == TYPE_INT && to.ptr_depth > 0) {
+           return LLVMBuildIntToPtr(ctx->builder, val, to_type, "cast_int_ptr");
+      }
+
+      return LLVMBuildBitCast(ctx->builder, val, to_type, "cast_generic");
   }
   
   return LLVMConstInt(LLVMInt32Type(), 0, 0);

@@ -32,9 +32,6 @@ ASTNode* parse_call(Lexer *l, char *name) {
   node->base.type = NODE_CALL;
   node->name = name;
   node->args = args_head;
-  // Note: Caller usually sets location for the identifier before calling parse_call, 
-  // but if name was passed in, we might want to attach location to the call node itself roughly.
-  // The caller of parse_call (parse_factor) handles the identifier location.
   return (ASTNode*)node;
 }
 
@@ -275,11 +272,6 @@ ASTNode* parse_factor(Lexer *l) {
         set_loc(node, line, col);
     }
   }
-  else if (current_token.type == TOKEN_LPAREN) {
-    eat(l, TOKEN_LPAREN);
-    node = parse_expression(l);
-    eat(l, TOKEN_RPAREN);
-  } 
   else {
     char msg[128];
     const char *tok = current_token.text ? current_token.text : token_type_to_string(current_token.type);
@@ -321,6 +313,46 @@ ASTNode* parse_unary(Lexer *l) {
     set_loc((ASTNode*)node, line, col);
     return (ASTNode*)node;
   }
+
+  // Handle Parenthesis: Either Cast (Type) or Expression (Expr)
+  if (current_token.type == TOKEN_LPAREN) {
+      eat(l, TOKEN_LPAREN);
+      
+      int is_cast = 0;
+      TokenType t = current_token.type;
+      
+      // Heuristic: Check if next token starts a type
+      if (t == TOKEN_KW_INT || t == TOKEN_KW_CHAR || t == TOKEN_KW_BOOL || 
+          t == TOKEN_KW_SINGLE || t == TOKEN_KW_DOUBLE || t == TOKEN_KW_VOID || 
+          t == TOKEN_KW_STRING || t == TOKEN_KW_LET) {
+          is_cast = 1;
+      } else if (t == TOKEN_IDENTIFIER) {
+          if (is_typename(current_token.text) || get_alias(current_token.text)) {
+              is_cast = 1;
+          }
+      }
+      
+      if (is_cast) {
+          // Explicit Cast: (Type) Unary
+          VarType type = parse_type(l);
+          eat(l, TOKEN_RPAREN);
+          ASTNode *operand = parse_unary(l);
+          
+          CastNode *node = calloc(1, sizeof(CastNode));
+          node->base.type = NODE_CAST;
+          node->var_type = type;
+          node->operand = operand;
+          set_loc((ASTNode*)node, line, col);
+          return (ASTNode*)node;
+      } else {
+          // Parenthesized Expression: (Expr)
+          ASTNode *expr = parse_expression(l);
+          eat(l, TOKEN_RPAREN);
+          // Apply postfix ops (e.g. (a + b).method())
+          return parse_postfix(l, expr);
+      }
+  }
+
   return parse_factor(l);
 }
 
