@@ -27,7 +27,8 @@ ASTNode* parse_top_level(Lexer *l) {
       if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected namespace name");
       char *ns_name = strdup(current_token.text);
       eat(l, TOKEN_IDENTIFIER);
-      
+      // TODO maybe namespace .. as ... { } ?
+
       eat(l, TOKEN_LBRACE);
       
       ASTNode *body_head = NULL;

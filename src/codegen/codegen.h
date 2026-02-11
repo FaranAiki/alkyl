@@ -3,6 +3,7 @@
 
 #include "../parser/parser.h"
 #include "../semantic/semantic.h"
+#include <stdbool.h>
 #include <llvm-c/Core.h>
 #include <llvm-c/ExecutionEngine.h>
 #include <llvm-c/Analysis.h>
@@ -162,5 +163,12 @@ void codegen_if(CodegenCtx *ctx, IfNode *node);
 void codegen_switch(CodegenCtx *ctx, SwitchNode *node);
 void codegen_break(CodegenCtx *ctx);
 void codegen_continue(CodegenCtx *ctx);
+
+// builtin
+LLVMValueRef generate_strlen(LLVMModuleRef module);
+LLVMValueRef generate_strcpy(LLVMModuleRef module);
+LLVMValueRef generate_strdup(LLVMModuleRef module, LLVMValueRef malloc_func, LLVMValueRef strlen_func, LLVMValueRef strcpy_func);
+LLVMValueRef generate_input_func(LLVMModuleRef module, LLVMBuilderRef builder, LLVMValueRef malloc_func, LLVMValueRef getchar_func);
+LLVMValueRef generate_enum_to_string_func(CodegenCtx *ctx, EnumInfo *ei);
 
 #endif

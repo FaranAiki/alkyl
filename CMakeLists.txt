@@ -33,6 +33,7 @@ set(MUST_LLVM_SOURCES
     src/codegen/flow.c
     src/codegen/core.c
     src/codegen/expr.c
+    src/codegen/builtin.c
 )
 
 set(MUST_LANG_SOURCES 
