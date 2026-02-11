@@ -1,0 +1,22 @@
+int main() {
+  let a = 1;
+  print "expected type a: int, got: %s\n", typeof(a);
+  let b = 1.0;
+  print "expected type b: double, got: %s\n", typeof(b);
+  let c = -1;
+  print "expected type c: int, got: %s\n", typeof(c);
+  let d = "aa";
+  print "expected type d: string, got: %s\n", typeof(d);
+  let e = c"aa";
+  print "expected type d: char*, got: %s\n", typeof(e);
+
+  // implicit casting test 
+  int aa = -1;
+  print "aa should be -1, got: %d\n", aa;
+  
+  double bb = 16;
+  print "bb should 16, got: %lf\n", bb;
+
+  int cc = 12.0;
+  print "cc should 12, got: %d\n", cc;
+}

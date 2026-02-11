@@ -262,10 +262,18 @@ int get_conversion_cost(VarType from, VarType to) {
     if (are_types_equal(from, to)) return 0;
     
     if (from.ptr_depth == 0 && to.ptr_depth == 0) {
+        // Widening (Safe) - Cost 1
         if (from.base == TYPE_INT && to.base == TYPE_DOUBLE) return 1;
         if (from.base == TYPE_INT && to.base == TYPE_FLOAT) return 1;
         if (from.base == TYPE_FLOAT && to.base == TYPE_DOUBLE) return 1;
         if (from.base == TYPE_CHAR && to.base == TYPE_INT) return 1;
+
+        // Narrowing (Lossy) - Cost 2
+        // Allows implicit cast but we can warn about it
+        if (from.base == TYPE_DOUBLE && to.base == TYPE_INT) return 2;
+        if (from.base == TYPE_FLOAT && to.base == TYPE_INT) return 2;
+        if (from.base == TYPE_DOUBLE && to.base == TYPE_FLOAT) return 2;
+        if (from.base == TYPE_INT && to.base == TYPE_CHAR) return 2;
     }
     
     if (from.base == TYPE_STRING && from.ptr_depth == 0) {

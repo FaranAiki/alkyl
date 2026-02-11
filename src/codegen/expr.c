@@ -159,6 +159,16 @@ VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
         return ret;
     }
     
+    // Handle Unary Ops (like -1)
+    if (node->type == NODE_UNARY_OP) {
+        UnaryOpNode *u = (UnaryOpNode*)node;
+        VarType t = codegen_calc_type(ctx, u->operand);
+        if (u->op == TOKEN_AND) { t.ptr_depth++; return t; }
+        if (u->op == TOKEN_STAR) { if (t.ptr_depth > 0) t.ptr_depth--; return t; }
+        if (u->op == TOKEN_NOT) { return (VarType){TYPE_BOOL, 0, NULL}; }
+        return t; // Pass through for MINUS, BIT_NOT
+    }
+    
     return vt;
 }
 
@@ -258,6 +268,14 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
                      }
                  }
              }
+         }
+     }
+
+     if (node->type == NODE_UNARY_OP) {
+         UnaryOpNode *u = (UnaryOpNode*)node;
+         // Dereference (*p) is an L-value
+         if (u->op == TOKEN_STAR) {
+             return codegen_expr(ctx, u->operand);
          }
      }
      
@@ -596,6 +614,41 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
       if (op->op == TOKEN_NEQ) return LLVMBuildICmp(ctx->builder, LLVMIntNE, l, r, "neq");
 
       return LLVMConstInt(LLVMInt32Type(), 0, 0);
+  }
+  else if (node->type == NODE_UNARY_OP) {
+      UnaryOpNode *u = (UnaryOpNode*)node;
+      
+      if (u->op == TOKEN_AND) {
+          return codegen_addr(ctx, u->operand);
+      }
+      
+      LLVMValueRef operand = codegen_expr(ctx, u->operand);
+      VarType t = codegen_calc_type(ctx, u->operand);
+      
+      if (u->op == TOKEN_MINUS) {
+          if (t.base == TYPE_FLOAT || t.base == TYPE_DOUBLE) 
+              return LLVMBuildFNeg(ctx->builder, operand, "neg");
+          else 
+              return LLVMBuildNeg(ctx->builder, operand, "neg");
+      }
+      if (u->op == TOKEN_NOT) {
+          // Logical NOT (!x). x == 0
+          if (t.base == TYPE_FLOAT || t.base == TYPE_DOUBLE)
+              return LLVMBuildFCmp(ctx->builder, LLVMRealOEQ, operand, LLVMConstNull(LLVMTypeOf(operand)), "not");
+          else
+              return LLVMBuildICmp(ctx->builder, LLVMIntEQ, operand, LLVMConstNull(LLVMTypeOf(operand)), "not");
+      }
+      if (u->op == TOKEN_BIT_NOT) {
+          return LLVMBuildNot(ctx->builder, operand, "bit_not");
+      }
+      if (u->op == TOKEN_STAR) {
+          // Dereference
+          // We need the element type for the load.
+          VarType vt = codegen_calc_type(ctx, u->operand);
+          if (vt.ptr_depth > 0) vt.ptr_depth--;
+          LLVMTypeRef load_type = get_llvm_type(ctx, vt);
+          return LLVMBuildLoad2(ctx->builder, load_type, operand, "deref");
+      }
   }
   else if (node->type == NODE_ARRAY_ACCESS) {
         ArrayAccessNode *aa = (ArrayAccessNode*)node;

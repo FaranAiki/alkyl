@@ -103,6 +103,37 @@ VarType check_expr(SemCtx *ctx, ASTNode *node) {
             return l;
         }
 
+        case NODE_UNARY_OP: {
+            UnaryOpNode *u = (UnaryOpNode*)node;
+            VarType t = check_expr(ctx, u->operand);
+            if (t.base == TYPE_UNKNOWN) return unknown;
+
+            if (u->op == TOKEN_MINUS || u->op == TOKEN_BIT_NOT) {
+                if (t.base == TYPE_INT || t.base == TYPE_FLOAT || t.base == TYPE_DOUBLE) return t;
+                sem_error(ctx, node, "Invalid operand type '%s' for unary operator", type_to_str(t));
+                return unknown;
+            }
+            if (u->op == TOKEN_NOT) {
+                // Logical NOT
+                return (VarType){TYPE_BOOL, 0, NULL};
+            }
+            if (u->op == TOKEN_STAR) {
+                // Dereference
+                if (t.ptr_depth > 0) {
+                    t.ptr_depth--;
+                    return t;
+                }
+                sem_error(ctx, node, "Cannot dereference non-pointer type '%s'", type_to_str(t));
+                return unknown;
+            }
+            if (u->op == TOKEN_AND) {
+                // Address of
+                t.ptr_depth++;
+                return t;
+            }
+            return t;
+        }
+
         case NODE_ASSIGN: {
             AssignNode *a = (AssignNode*)node;
             VarType l_type = unknown;
@@ -142,11 +173,18 @@ VarType check_expr(SemCtx *ctx, ASTNode *node) {
             
             if (l_type.base != TYPE_UNKNOWN && r_type.base != TYPE_UNKNOWN) {
                 if (!are_types_equal(l_type, r_type)) {
+                    int cost = get_conversion_cost(r_type, l_type);
                     int compatible = 0;
-                    if (get_conversion_cost(r_type, l_type) != -1) compatible = 1;
+                    if (cost != -1) compatible = 1;
                     if (l_type.ptr_depth > 0 && r_type.array_size > 0 && l_type.base == r_type.base) compatible = 1;
                     
-                    if (!compatible) {
+                    if (compatible) {
+                         // Warn on implicit casting if cost > 0
+                         if (cost > 0) {
+                             sem_info(ctx, node, "Implicit conversion from '%s' to '%s'", 
+                                      type_to_str(r_type), type_to_str(l_type));
+                         }
+                    } else {
                          sem_error(ctx, node, "Type mismatch in assignment. Expected '%s', got '%s'", type_to_str(l_type), type_to_str(r_type));
                     }
                 }
@@ -444,14 +482,21 @@ void check_stmt(SemCtx *ctx, ASTNode *node) {
             } else if (vd->initializer) {
                 VarType init_t = check_expr(ctx, vd->initializer);
                 if (!are_types_equal(vd->var_type, init_t)) {
+                     int cost = get_conversion_cost(init_t, vd->var_type);
                      int ok = 0;
-                     if (get_conversion_cost(init_t, vd->var_type) != -1) ok = 1;
+                     if (cost != -1) ok = 1;
                      
                      if (vd->var_type.base == TYPE_STRING && init_t.base == TYPE_STRING) ok = 1;
                      if (vd->var_type.base == TYPE_CHAR && vd->is_array && init_t.base == TYPE_STRING) ok = 1;
                      if (vd->var_type.base == TYPE_CHAR && vd->var_type.ptr_depth == 1 && init_t.base == TYPE_STRING) ok = 1;
                      
-                     if (!ok) {
+                     if (ok) {
+                         // Print info for implicit conversion (widening or narrowing)
+                         if (cost > 0) {
+                             sem_info(ctx, node, "Implicit conversion from '%s' to '%s'", 
+                                      type_to_str(init_t), type_to_str(vd->var_type));
+                         }
+                     } else {
                         sem_error(ctx, node, "Variable '%s' type mismatch. Declared '%s', init '%s'", 
                                   vd->name, type_to_str(vd->var_type), type_to_str(init_t));
                      }
