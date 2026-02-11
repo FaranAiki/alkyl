@@ -520,6 +520,8 @@ void scan_classes(CodegenCtx *ctx, ASTNode *node, const char *prefix) {
             ci->parent_name = cn->parent_name ? strdup(cn->parent_name) : NULL;
             ci->struct_type = LLVMStructCreateNamed(LLVMGetGlobalContext(), ci->name);
             ci->members = NULL;
+            ci->method_names = NULL;
+            ci->method_count = 0;
             
             // Capture Traits
             ci->trait_count = cn->traits.count;
@@ -742,6 +744,8 @@ void scan_functions(CodegenCtx *ctx, ASTNode *node, const char *prefix) {
         }
         else if (node->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)node;
+            ClassInfo *ci = find_class(ctx, cn->name);
+
             ASTNode *m = cn->members;
             while(m) {
                 if (m->type == NODE_FUNC_DEF) {
@@ -771,6 +775,14 @@ void scan_functions(CodegenCtx *ctx, ASTNode *node, const char *prefix) {
                     }
 
                     add_func_symbol(ctx, mangled, fd->ret_type, ptypes, pcount);
+                    
+                    // Add method metadata to ClassInfo
+                    if (ci) {
+                        ci->method_count++;
+                        ci->method_names = realloc(ci->method_names, sizeof(char*) * ci->method_count);
+                        ci->method_names[ci->method_count-1] = strdup(fd->name);
+                    }
+
                     // Note: We don't free mangled here as add_func_symbol duplicates it? 
                     // No, add_func_symbol strdups it. We must free if we allocated strdup.
                     free(mangled);

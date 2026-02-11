@@ -358,6 +358,29 @@ VarType check_expr(SemCtx *ctx, ASTNode *node) {
              VarType ret = {TYPE_UNKNOWN, 0, NULL};
              return ret;
         }
+        
+        case NODE_HAS_METHOD:
+        case NODE_HAS_ATTRIBUTE: {
+            UnaryOpNode *u = (UnaryOpNode*)node;
+            VarType t = check_expr(ctx, u->operand);
+            if (t.base != TYPE_CLASS || !t.class_name) {
+                sem_error(ctx, node, "hasmethod/hasattribute requires a class instance or type.");
+                return unknown;
+            }
+            // Return array of strings (string[] -> char**)
+            // In Alkyl, TYPE_STRING is char*. Array is size > 0.
+            // But here the size is unknown at compile time (or rather, fixed but we just return pointer to start)
+            VarType ret = {TYPE_STRING, 0, NULL};
+            ret.array_size = 0; // Treated as pointer to array decay
+            ret.ptr_depth = 1; // char**
+            return ret;
+        }
+        
+        case NODE_TYPEOF: {
+            UnaryOpNode *u = (UnaryOpNode*)node;
+            check_expr(ctx, u->operand);
+            return (VarType){TYPE_STRING, 0, NULL};
+        }
 
         default:
             return unknown;

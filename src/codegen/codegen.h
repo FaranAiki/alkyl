@@ -53,6 +53,10 @@ typedef struct ClassInfo {
     int trait_count;
     TraitOffset *trait_offsets;
 
+    // Metadata for reflection (hasmethod)
+    char **method_names;
+    int method_count;
+
     struct ClassInfo *next;
 } ClassInfo;
 

@@ -2,12 +2,20 @@ class Animal {
   string t;
 
   void speak(string s) {
-    print "I said %s", s;
+    print "I said %s", t+s;
+  }
+
+  void speak_noparam() {
+    print "%s", t;
   }
 }
 
 int main() {
-  char s[] = "this";
-  s[0] = 'a';
-  printf "%s", s;
+  // Animal bebek;
+  // printf "%s", typeof bebek;
+  // bebek.speak("iya");
+  let bebek2 = Animal("Aku bebek");
+  let a = hasattribute(bebek2);
+  printf "%s\n", (a[0]) + "5";
+  bebek2.speak("iya");
 }

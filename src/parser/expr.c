@@ -4,6 +4,7 @@
 
 // Forward declarations
 int is_typename(const char *name); // from core.c
+ASTNode* parse_unary(Lexer *l);
 
 // Local helper to set location
 static void set_loc(ASTNode *n, int line, int col) {
@@ -133,11 +134,49 @@ ASTNode* parse_factor(Lexer *l) {
 
   if (current_token.type == TOKEN_TYPEOF) {
       eat(l, TOKEN_TYPEOF);
-      eat(l, TOKEN_LPAREN);
-      ASTNode *expr = parse_expression(l);
-      eat(l, TOKEN_RPAREN);
+      ASTNode *expr;
+      // Allow optional parenthesis
+      if (current_token.type == TOKEN_LPAREN) {
+          eat(l, TOKEN_LPAREN);
+          expr = parse_expression(l);
+          eat(l, TOKEN_RPAREN);
+      } else {
+          expr = parse_unary(l); // Parse unary to bind tightly to next factor
+      }
       UnaryOpNode *u = calloc(1, sizeof(UnaryOpNode));
       u->base.type = NODE_TYPEOF;
+      u->operand = expr;
+      node = (ASTNode*)u;
+      set_loc(node, line, col);
+  }
+  else if (current_token.type == TOKEN_HASMETHOD) {
+      eat(l, TOKEN_HASMETHOD);
+      ASTNode *expr;
+      if (current_token.type == TOKEN_LPAREN) {
+          eat(l, TOKEN_LPAREN);
+          expr = parse_expression(l);
+          eat(l, TOKEN_RPAREN);
+      } else {
+          expr = parse_unary(l);
+      }
+      UnaryOpNode *u = calloc(1, sizeof(UnaryOpNode));
+      u->base.type = NODE_HAS_METHOD;
+      u->operand = expr;
+      node = (ASTNode*)u;
+      set_loc(node, line, col);
+  }
+  else if (current_token.type == TOKEN_HASATTRIBUTE) {
+      eat(l, TOKEN_HASATTRIBUTE);
+      ASTNode *expr;
+      if (current_token.type == TOKEN_LPAREN) {
+          eat(l, TOKEN_LPAREN);
+          expr = parse_expression(l);
+          eat(l, TOKEN_RPAREN);
+      } else {
+          expr = parse_unary(l);
+      }
+      UnaryOpNode *u = calloc(1, sizeof(UnaryOpNode));
+      u->base.type = NODE_HAS_ATTRIBUTE;
       u->operand = expr;
       node = (ASTNode*)u;
       set_loc(node, line, col);

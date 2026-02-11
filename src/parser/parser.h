@@ -34,7 +34,9 @@ typedef enum {
   NODE_MEMBER_ACCESS,
   NODE_METHOD_CALL, 
   NODE_TRAIT_ACCESS, 
-  NODE_TYPEOF
+  NODE_TYPEOF,
+  NODE_HAS_METHOD,    // New
+  NODE_HAS_ATTRIBUTE  // New
 } NodeType;
 
 typedef enum {
