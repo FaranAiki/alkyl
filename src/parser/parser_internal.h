@@ -63,6 +63,6 @@ ASTNode* parse_class(Lexer *l);
 ASTNode* parse_define(Lexer *l);
 ASTNode* parse_typedef(Lexer *l);
 ASTNode* parse_import(Lexer *l);
-
+ASTNode* parse_link(Lexer *l);
 
 #endif

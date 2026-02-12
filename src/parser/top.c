@@ -13,6 +13,229 @@ typedef struct MacroSig {
     int param_count;
 } MacroSig;
 
+ASTNode* parse_define(Lexer *l) {
+  eat(l, TOKEN_DEFINE);
+
+  MacroSig *sigs = NULL;
+  int sig_count = 0;
+  int sig_cap = 0;
+
+  // Parse comma-separated macro signatures
+  do {
+      if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected macro name after 'define'");
+      char *macro_name = strdup(current_token.text);
+      eat(l, TOKEN_IDENTIFIER);
+      
+      char **params = NULL;
+      int param_count = 0;
+      if (current_token.type == TOKEN_LPAREN) {
+          eat(l, TOKEN_LPAREN);
+          int cap = 4;
+          params = malloc(sizeof(char*) * cap);
+          while(current_token.type != TOKEN_RPAREN) {
+              if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected parameter name in define definition");
+              if (param_count >= cap) { cap *= 2; params = realloc(params, sizeof(char*)*cap); }
+              params[param_count++] = strdup(current_token.text);
+              eat(l, TOKEN_IDENTIFIER);
+              if (current_token.type == TOKEN_COMMA) eat(l, TOKEN_COMMA);
+              else if (current_token.type != TOKEN_RPAREN) parser_fail(l, "Expected ',' or ')' in macro parameters");
+          }
+          eat(l, TOKEN_RPAREN);
+      }
+
+      if (sig_count >= sig_cap) {
+          sig_cap = (sig_cap == 0) ? 2 : sig_cap * 2;
+          sigs = realloc(sigs, sizeof(MacroSig) * sig_cap);
+      }
+      sigs[sig_count].name = macro_name;
+      sigs[sig_count].params = params;
+      sigs[sig_count].param_count = param_count;
+      sig_count++;
+
+      if (current_token.type == TOKEN_COMMA) {
+          eat(l, TOKEN_COMMA);
+      } else {
+          break;
+      }
+  } while (1);
+  
+  // Explicitly check for 'as' to provide a smart error message
+  if (current_token.type != TOKEN_AS) {
+      const char *found = current_token.text;
+      if (!found) {
+          if (current_token.type == TOKEN_TYPEDEF) found = "typedef";
+          else if (current_token.type == TOKEN_IDENTIFIER) found = "identifier";
+          else found = token_type_to_string(current_token.type);
+      }
+      
+      char msg[256];
+      snprintf(msg, sizeof(msg), "Expected 'as' after macro definition, but found '%s'", found);
+      report_error(l, current_token, msg);
+      
+      char hint[256];
+      snprintf(hint, sizeof(hint), "Did you mean \"define %s as %s...\"?", sigs[0].name, found);
+      report_hint(l, current_token, hint);
+      
+      // Clean up
+      for(int i=0; i<sig_count; i++) {
+          free(sigs[i].name);
+          if (sigs[i].params) {
+              for(int p=0; p<sigs[i].param_count; p++) free(sigs[i].params[p]);
+              free(sigs[i].params);
+          }
+      }
+      free(sigs);
+      
+      if (parser_recover_buf) longjmp(*parser_recover_buf, 1);
+      // exit(1);
+  }
+  eat(l, TOKEN_AS);
+  
+  Token *body_tokens = malloc(sizeof(Token) * 32);
+  int body_cap = 32;
+  int body_len = 0;
+  while (current_token.type != TOKEN_SEMICOLON && current_token.type != TOKEN_EOF) {
+      if (body_len >= body_cap) { body_cap *= 2; body_tokens = realloc(body_tokens, sizeof(Token)*body_cap); }
+      Token t = current_token;
+      if (t.text) t.text = strdup(t.text);
+      body_tokens[body_len++] = t;
+      eat(l, current_token.type);
+  }
+  if (current_token.type == TOKEN_SEMICOLON) eat(l, TOKEN_SEMICOLON);
+  
+  // Register all collected macros with the same body
+  for(int i=0; i<sig_count; i++) {
+      register_macro(sigs[i].name, sigs[i].params, sigs[i].param_count, body_tokens, body_len);
+      free(sigs[i].name);
+      // Note: params ownership is transferred to register_macro
+  }
+  
+  // Free local body tokens (register_macro deep copies them)
+  for(int k=0; k<body_len; k++) {
+      if (body_tokens[k].text) free(body_tokens[k].text);
+  }
+  free(body_tokens);
+  free(sigs);
+
+  return NULL; 
+}
+
+ASTNode* parse_typedef(Lexer *l) {
+  eat(l, TOKEN_TYPEDEF);
+  if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected new type name after 'typedef'");
+  char *new_name = strdup(current_token.text);
+  eat(l, TOKEN_IDENTIFIER);
+  
+  if (current_token.type == TOKEN_AS) eat(l, TOKEN_AS);
+  
+  VarType target = parse_type(l);
+  if (target.base == TYPE_UNKNOWN) parser_fail(l, "Unknown type in typedef");
+  
+  while (current_token.type == TOKEN_LBRACKET) {
+      eat(l, TOKEN_LBRACKET);
+      if (current_token.type != TOKEN_RBRACKET) {
+          ASTNode *sz = parse_expression(l);
+          if (sz && sz->type == NODE_LITERAL) target.array_size = ((LiteralNode*)sz)->val.int_val;
+          free_ast(sz);
+      }
+      eat(l, TOKEN_RBRACKET);
+      target.ptr_depth++;
+  }
+  
+  register_alias(new_name, target);
+  eat(l, TOKEN_SEMICOLON);
+  free(new_name);
+  return NULL;
+}
+
+ASTNode* parse_extern(Lexer *l) {
+  eat(l, TOKEN_EXTERN);
+  VarType ret_type = parse_type(l);
+  if (ret_type.base == TYPE_UNKNOWN) { parser_fail(l, "Expected return type for extern function"); }
+  if (current_token.type != TOKEN_IDENTIFIER) { parser_fail(l, "Expected extern function name"); }
+  char *name = current_token.text; current_token.text = NULL; eat(l, TOKEN_IDENTIFIER);
+  eat(l, TOKEN_LPAREN);
+  Parameter *params_head = NULL; Parameter **curr_param = &params_head;
+  int is_varargs = 0;
+  if (current_token.type != TOKEN_RPAREN) {
+    while (1) {
+      if (current_token.type == TOKEN_ELLIPSIS) { eat(l, TOKEN_ELLIPSIS); is_varargs = 1; break; }
+      VarType ptype = parse_type(l);
+      if (ptype.base == TYPE_UNKNOWN) { parser_fail(l, "Expected parameter type"); }
+      char *pname = NULL;
+      if (current_token.type == TOKEN_IDENTIFIER) { pname = current_token.text; current_token.text = NULL; eat(l, TOKEN_IDENTIFIER); }
+      
+      if (current_token.type == TOKEN_LBRACKET) {
+          eat(l, TOKEN_LBRACKET);
+          if (current_token.type != TOKEN_RBRACKET) {
+              ASTNode *sz = parse_expression(l);
+              free_ast(sz);
+          }
+          eat(l, TOKEN_RBRACKET);
+          ptype.ptr_depth++;
+      }
+      
+      Parameter *p = calloc(1, sizeof(Parameter)); p->type = ptype; p->name = pname; *curr_param = p; curr_param = &p->next;
+      if (current_token.type == TOKEN_COMMA) eat(l, TOKEN_COMMA); else break;
+    }
+  }
+  eat(l, TOKEN_RPAREN); eat(l, TOKEN_SEMICOLON);
+  FuncDefNode *node = calloc(1, sizeof(FuncDefNode));
+  node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = ret_type;
+  node->params = params_head; node->body = NULL; node->is_varargs = is_varargs;
+  return (ASTNode*)node;
+
+}
+
+ASTNode* parse_import(Lexer *l) {
+  eat(l, TOKEN_IMPORT);
+  if (current_token.type != TOKEN_STRING) parser_fail(l, "Expected file path string after 'import'");
+  char* fname = current_token.text;
+  current_token.text = NULL;
+  eat(l, TOKEN_STRING);
+  eat(l, TOKEN_SEMICOLON);
+  
+  char* src = read_import_file(fname);
+  if (!src) { 
+      char msg[256];
+      snprintf(msg, 256, "Could not open imported file: '%s'", fname);
+      free(fname); 
+      parser_fail(l, msg); 
+  }
+  
+  Token saved_token = current_token;
+  current_token.text = NULL; current_token.type = TOKEN_UNKNOWN; 
+  Lexer import_l; lexer_init(&import_l, src);
+  import_l.filename = fname; // Set filename on the imported lexer
+  
+  ASTNode* imported_root = parse_program(&import_l);
+  
+  free(src);
+  free(fname); // Can free filename string here since import_l is stack allocated and done
+  
+  current_token = saved_token;
+  return imported_root; 
+
+}
+
+ASTNode* parse_link(Lexer *l) {
+  eat(l, TOKEN_LINK);
+  char *lib_name = NULL;
+  if (current_token.type == TOKEN_IDENTIFIER || current_token.type == TOKEN_STRING) {
+    lib_name = current_token.text;
+    current_token.text = NULL;
+    if (current_token.type == TOKEN_IDENTIFIER) eat(l, TOKEN_IDENTIFIER);
+    else eat(l, TOKEN_STRING);
+  } else {
+    parser_fail(l, "Expected library name (string or identifier) after 'link'");
+  }
+  if (current_token.type == TOKEN_SEMICOLON) eat(l, TOKEN_SEMICOLON);
+  LinkNode *node = calloc(1, sizeof(LinkNode));
+  node->base.type = NODE_LINK;
+  node->lib_name = lib_name;
+  return (ASTNode*)node;
+}
+
 ASTNode* parse_enum(Lexer *l) {
   eat(l, TOKEN_ENUM);
   if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected enum name");
@@ -222,7 +445,6 @@ ASTNode* parse_top_level(Lexer *l) {
       return NULL;
   }
 
-  // 0. NAMESPACE
   if (current_token.type == TOKEN_NAMESPACE) {
       eat(l, TOKEN_NAMESPACE);
       // TODO: this is when the namespace {} (without identifier)
@@ -254,142 +476,13 @@ ASTNode* parse_top_level(Lexer *l) {
 
   // 0.1 DEFINE
   if (current_token.type == TOKEN_DEFINE) {
-    eat(l, TOKEN_DEFINE);
-
-    MacroSig *sigs = NULL;
-    int sig_count = 0;
-    int sig_cap = 0;
-
-    // Parse comma-separated macro signatures
-    do {
-        if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected macro name after 'define'");
-        char *macro_name = strdup(current_token.text);
-        eat(l, TOKEN_IDENTIFIER);
-        
-        char **params = NULL;
-        int param_count = 0;
-        if (current_token.type == TOKEN_LPAREN) {
-            eat(l, TOKEN_LPAREN);
-            int cap = 4;
-            params = malloc(sizeof(char*) * cap);
-            while(current_token.type != TOKEN_RPAREN) {
-                if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected parameter name in define definition");
-                if (param_count >= cap) { cap *= 2; params = realloc(params, sizeof(char*)*cap); }
-                params[param_count++] = strdup(current_token.text);
-                eat(l, TOKEN_IDENTIFIER);
-                if (current_token.type == TOKEN_COMMA) eat(l, TOKEN_COMMA);
-                else if (current_token.type != TOKEN_RPAREN) parser_fail(l, "Expected ',' or ')' in macro parameters");
-            }
-            eat(l, TOKEN_RPAREN);
-        }
-
-        if (sig_count >= sig_cap) {
-            sig_cap = (sig_cap == 0) ? 2 : sig_cap * 2;
-            sigs = realloc(sigs, sizeof(MacroSig) * sig_cap);
-        }
-        sigs[sig_count].name = macro_name;
-        sigs[sig_count].params = params;
-        sigs[sig_count].param_count = param_count;
-        sig_count++;
-
-        if (current_token.type == TOKEN_COMMA) {
-            eat(l, TOKEN_COMMA);
-        } else {
-            break;
-        }
-    } while (1);
-    
-    // Explicitly check for 'as' to provide a smart error message
-    if (current_token.type != TOKEN_AS) {
-        const char *found = current_token.text;
-        if (!found) {
-            if (current_token.type == TOKEN_TYPEDEF) found = "typedef";
-            else if (current_token.type == TOKEN_IDENTIFIER) found = "identifier";
-            else found = token_type_to_string(current_token.type);
-        }
-        
-        char msg[256];
-        snprintf(msg, sizeof(msg), "Expected 'as' after macro definition, but found '%s'", found);
-        report_error(l, current_token, msg);
-        
-        char hint[256];
-        snprintf(hint, sizeof(hint), "Did you mean \"define %s as %s...\"?", sigs[0].name, found);
-        report_hint(l, current_token, hint);
-        
-        // Clean up
-        for(int i=0; i<sig_count; i++) {
-            free(sigs[i].name);
-            if (sigs[i].params) {
-                for(int p=0; p<sigs[i].param_count; p++) free(sigs[i].params[p]);
-                free(sigs[i].params);
-            }
-        }
-        free(sigs);
-        
-        if (parser_recover_buf) longjmp(*parser_recover_buf, 1);
-        // exit(1);
-    }
-    eat(l, TOKEN_AS);
-    
-    Token *body_tokens = malloc(sizeof(Token) * 32);
-    int body_cap = 32;
-    int body_len = 0;
-    while (current_token.type != TOKEN_SEMICOLON && current_token.type != TOKEN_EOF) {
-        if (body_len >= body_cap) { body_cap *= 2; body_tokens = realloc(body_tokens, sizeof(Token)*body_cap); }
-        Token t = current_token;
-        if (t.text) t.text = strdup(t.text);
-        body_tokens[body_len++] = t;
-        eat(l, current_token.type);
-    }
-    if (current_token.type == TOKEN_SEMICOLON) eat(l, TOKEN_SEMICOLON);
-    
-    // Register all collected macros with the same body
-    for(int i=0; i<sig_count; i++) {
-        register_macro(sigs[i].name, sigs[i].params, sigs[i].param_count, body_tokens, body_len);
-        free(sigs[i].name);
-        // Note: params ownership is transferred to register_macro
-    }
-    
-    // Free local body tokens (register_macro deep copies them)
-    for(int k=0; k<body_len; k++) {
-        if (body_tokens[k].text) free(body_tokens[k].text);
-    }
-    free(body_tokens);
-    free(sigs);
-
-    return NULL; 
+    return parse_define(l);
   }
 
-  // 0.2 TYPEDEF
   if (current_token.type == TOKEN_TYPEDEF) {
-      eat(l, TOKEN_TYPEDEF);
-      if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected new type name after 'typedef'");
-      char *new_name = strdup(current_token.text);
-      eat(l, TOKEN_IDENTIFIER);
-      
-      if (current_token.type == TOKEN_AS) eat(l, TOKEN_AS);
-      
-      VarType target = parse_type(l);
-      if (target.base == TYPE_UNKNOWN) parser_fail(l, "Unknown type in typedef");
-      
-      while (current_token.type == TOKEN_LBRACKET) {
-          eat(l, TOKEN_LBRACKET);
-          if (current_token.type != TOKEN_RBRACKET) {
-              ASTNode *sz = parse_expression(l);
-              if (sz && sz->type == NODE_LITERAL) target.array_size = ((LiteralNode*)sz)->val.int_val;
-              free_ast(sz);
-          }
-          eat(l, TOKEN_RBRACKET);
-          target.ptr_depth++;
-      }
-      
-      register_alias(new_name, target);
-      eat(l, TOKEN_SEMICOLON);
-      free(new_name);
-      return NULL;
+    return parse_typedef(l);
   }
   
-  // 0.3 ENUM
   if (current_token.type == TOKEN_ENUM) {
     return parse_enum(l);
   }
@@ -399,93 +492,17 @@ ASTNode* parse_top_level(Lexer *l) {
     return parse_class(l);
   }
 
-  // 1. LINK
   if (current_token.type == TOKEN_LINK) {
-    eat(l, TOKEN_LINK);
-    char *lib_name = NULL;
-    if (current_token.type == TOKEN_IDENTIFIER || current_token.type == TOKEN_STRING) {
-      lib_name = current_token.text;
-      current_token.text = NULL;
-      if (current_token.type == TOKEN_IDENTIFIER) eat(l, TOKEN_IDENTIFIER);
-      else eat(l, TOKEN_STRING);
-    } else {
-      parser_fail(l, "Expected library name (string or identifier) after 'link'");
-    }
-    if (current_token.type == TOKEN_SEMICOLON) eat(l, TOKEN_SEMICOLON);
-    LinkNode *node = calloc(1, sizeof(LinkNode));
-    node->base.type = NODE_LINK;
-    node->lib_name = lib_name;
-    return (ASTNode*)node;
+    return parse_link(l);
   }
 
-  // 2. IMPORT
   if (current_token.type == TOKEN_IMPORT) {
-    eat(l, TOKEN_IMPORT);
-    if (current_token.type != TOKEN_STRING) parser_fail(l, "Expected file path string after 'import'");
-    char* fname = current_token.text;
-    current_token.text = NULL;
-    eat(l, TOKEN_STRING);
-    eat(l, TOKEN_SEMICOLON);
-    
-    char* src = read_import_file(fname);
-    if (!src) { 
-        char msg[256];
-        snprintf(msg, 256, "Could not open imported file: '%s'", fname);
-        free(fname); 
-        parser_fail(l, msg); 
-    }
-    
-    Token saved_token = current_token;
-    current_token.text = NULL; current_token.type = TOKEN_UNKNOWN; 
-    Lexer import_l; lexer_init(&import_l, src);
-    import_l.filename = fname; // Set filename on the imported lexer
-    
-    ASTNode* imported_root = parse_program(&import_l);
-    
-    free(src);
-    free(fname); // Can free filename string here since import_l is stack allocated and done
-    
-    current_token = saved_token;
-    return imported_root; 
+    return parse_import(l);
   }
   
   // 3. EXTERN (FFI)
   if (current_token.type == TOKEN_EXTERN) {
-    eat(l, TOKEN_EXTERN);
-    VarType ret_type = parse_type(l);
-    if (ret_type.base == TYPE_UNKNOWN) { parser_fail(l, "Expected return type for extern function"); }
-    if (current_token.type != TOKEN_IDENTIFIER) { parser_fail(l, "Expected extern function name"); }
-    char *name = current_token.text; current_token.text = NULL; eat(l, TOKEN_IDENTIFIER);
-    eat(l, TOKEN_LPAREN);
-    Parameter *params_head = NULL; Parameter **curr_param = &params_head;
-    int is_varargs = 0;
-    if (current_token.type != TOKEN_RPAREN) {
-      while (1) {
-        if (current_token.type == TOKEN_ELLIPSIS) { eat(l, TOKEN_ELLIPSIS); is_varargs = 1; break; }
-        VarType ptype = parse_type(l);
-        if (ptype.base == TYPE_UNKNOWN) { parser_fail(l, "Expected parameter type"); }
-        char *pname = NULL;
-        if (current_token.type == TOKEN_IDENTIFIER) { pname = current_token.text; current_token.text = NULL; eat(l, TOKEN_IDENTIFIER); }
-        
-        if (current_token.type == TOKEN_LBRACKET) {
-            eat(l, TOKEN_LBRACKET);
-            if (current_token.type != TOKEN_RBRACKET) {
-                ASTNode *sz = parse_expression(l);
-                free_ast(sz);
-            }
-            eat(l, TOKEN_RBRACKET);
-            ptype.ptr_depth++;
-        }
-        
-        Parameter *p = calloc(1, sizeof(Parameter)); p->type = ptype; p->name = pname; *curr_param = p; curr_param = &p->next;
-        if (current_token.type == TOKEN_COMMA) eat(l, TOKEN_COMMA); else break;
-      }
-    }
-    eat(l, TOKEN_RPAREN); eat(l, TOKEN_SEMICOLON);
-    FuncDefNode *node = calloc(1, sizeof(FuncDefNode));
-    node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = ret_type;
-    node->params = params_head; node->body = NULL; node->is_varargs = is_varargs;
-    return (ASTNode*)node;
+    return parse_extern(l);
   }
 
   if (current_token.type == TOKEN_KW_MUT || current_token.type == TOKEN_KW_IMUT) {
