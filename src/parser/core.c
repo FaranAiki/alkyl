@@ -3,14 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Global State
 Token current_token = {TOKEN_UNKNOWN, NULL, 0, 0.0};
 jmp_buf *parser_env = NULL;         // REPL
 jmp_buf *parser_recover_buf = NULL; // Compilation
 int parser_error_count = 0;
-char parser_current_namespace[512] = "";
 
-// --- MACRO SYSTEM DEFINITIONS ---
+// Why is the type of this shit looks like this lmaoo
 
 typedef struct Macro {
     char *name;
@@ -23,7 +21,6 @@ typedef struct Macro {
 
 Macro *macro_head = NULL;
 
-// --- TYPE REGISTRY (For class names) ---
 typedef struct TypeName {
     char *name;
     int is_enum; 
@@ -58,7 +55,6 @@ int get_typename_kind(const char *name) {
     return 0;
 }
 
-// --- ALIAS REGISTRY (For typedefs) ---
 typedef struct TypeAlias {
     char *name;
     VarType target;
@@ -69,6 +65,7 @@ TypeAlias *alias_head = NULL;
 
 void register_alias(const char *name, VarType target) {
     // Overwrite if exists, or push new
+    // TODO give info/warning
     TypeAlias *curr = alias_head;
     while(curr) {
         if (strcmp(curr->name, name) == 0) {
@@ -96,7 +93,6 @@ VarType* get_alias(const char *name) {
     return NULL;
 }
 
-// Expansion Stack (for handling nested macros)
 typedef struct Expansion {
     Token *tokens;
     int count;
@@ -183,7 +179,7 @@ void parser_fail_at(Lexer *l, Token t, const char *msg) {
     } else if (parser_env) {
         longjmp(*parser_env, 1);
     } else {
-        exit(1);
+        // exit(1);
     }
 }
 

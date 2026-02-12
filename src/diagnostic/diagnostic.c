@@ -123,7 +123,6 @@ const char* find_closest_keyword(const char *ident) {
     return best;
 }
 
-// --- Source Line Printing ---
 static void print_source_snippet(Lexer *l, Token t) {
     if (!l || !l->src) return;
 
@@ -193,13 +192,6 @@ void report_hint(Lexer *l, Token t, const char *msg) {
     // For now keeping simple.
     (void)l; (void)t; 
     fprintf(stderr, "%shint:%s %s\n", DIAG_YELLOW, DIAG_RESET, msg);
-}
-
-void report_suggestion(Lexer *l, Token t, const char *suggestion) {
-    // Standardized format for "Did you mean?"
-    char buf[256];
-    snprintf(buf, sizeof(buf), "Did you mean '%s'?", suggestion);
-    report_hint(l, t, buf);
 }
 
 void report_info(Lexer *l, Token t, const char *msg) {

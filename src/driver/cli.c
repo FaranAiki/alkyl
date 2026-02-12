@@ -61,9 +61,7 @@ char* get_smart_input(const char* prompt) {
 }
 
 int run_repl(void) {
-    printf(COL_CYAN "==========================================\n");
-    printf("       Alkyl Command Line Interface       \n");
-    printf("==========================================\n" COL_RESET);
+    printf(COL_CYAN "Alkyl CLI v0.0.1 \n" COL_RESET);
     printf("Type " COL_YELLOW "'exit'" COL_RESET " or " COL_YELLOW "'quit'" COL_RESET " to leave.\n\n");
 
     LLVMInitializeNativeTarget();

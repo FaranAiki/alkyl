@@ -265,7 +265,7 @@ void codegen_switch(CodegenCtx *ctx, SwitchNode *node) {
 void codegen_break(CodegenCtx *ctx) {
     if (!ctx->current_loop) {
         fprintf(stderr, "Error: 'break' outside of loop or switch\n");
-        exit(1);
+        // exit(1);
     }
     LLVMBuildBr(ctx->builder, ctx->current_loop->break_target);
 }
@@ -273,13 +273,12 @@ void codegen_break(CodegenCtx *ctx) {
 void codegen_continue(CodegenCtx *ctx) {
     if (!ctx->current_loop || !ctx->current_loop->continue_target) {
         fprintf(stderr, "Error: 'continue' outside of loop\n");
-        exit(1);
+        // exit(1);
     }
     LLVMBuildBr(ctx->builder, ctx->current_loop->continue_target);
 }
 
 void codegen_if(CodegenCtx *ctx, IfNode *node) {
-    // ... (unchanged)
   LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
   LLVMBasicBlockRef then_bb = LLVMAppendBasicBlock(func, "if_then");
   LLVMBasicBlockRef else_bb = LLVMAppendBasicBlock(func, "if_else");

@@ -172,7 +172,7 @@ ASTNode* parse_assignment_or_call(Lexer *l) {
   
   if (parser_recover_buf) longjmp(*parser_recover_buf, 1);
   else if (parser_env) longjmp(*parser_env, 1);
-  else exit(1);
+  // else exit(1);
 
   return NULL;
 }

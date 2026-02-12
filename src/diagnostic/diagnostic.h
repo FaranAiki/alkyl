@@ -28,10 +28,6 @@ void report_warning(Lexer *l, Token t, const char *msg);
 // Standardized "Did you mean 'X'?" or general hints
 void report_hint(Lexer *l, Token t, const char *msg);
 
-// Report a suggestion (Yellow)
-// Wraps report_hint to strictly output "hint: Did you mean 'suggestion'?"
-void report_suggestion(Lexer *l, Token t, const char *suggestion);
-
 // Report info (Blue)
 void report_info(Lexer *l, Token t, const char *msg);
 

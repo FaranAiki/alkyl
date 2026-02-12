@@ -125,7 +125,7 @@ ASTNode* parse_top_level(Lexer *l) {
         free(sigs);
         
         if (parser_recover_buf) longjmp(*parser_recover_buf, 1);
-        exit(1);
+        // exit(1);
     }
     eat(l, TOKEN_AS);
     

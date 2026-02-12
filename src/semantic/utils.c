@@ -235,7 +235,7 @@ void sem_suggestion(SemCtx *ctx, ASTNode *node, const char *suggestion) {
         lexer_init(&l, ctx->source_code);
         l.filename = ctx->filename;
     }
-    report_suggestion(ctx->source_code ? &l : NULL, t, suggestion);
+    report_hint(ctx->source_code ? &l : NULL, t, suggestion);
 }
 
 int are_types_equal(VarType a, VarType b) {
