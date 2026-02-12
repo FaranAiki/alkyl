@@ -99,8 +99,8 @@ void codegen_func_def(CodegenCtx *ctx, FuncDefNode *node) {
   if (prev_block) LLVMPositionBuilderAtEnd(ctx->builder, prev_block);
 }
 
+// loop [int] {}
 void codegen_loop(CodegenCtx *ctx, LoopNode *node) {
-  // ... (unchanged) ...
   LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
   LLVMBasicBlockRef cond_bb = LLVMAppendBasicBlock(func, "loop_cond");
   LLVMBasicBlockRef body_bb = LLVMAppendBasicBlock(func, "loop_body");
@@ -142,8 +142,8 @@ void codegen_loop(CodegenCtx *ctx, LoopNode *node) {
   LLVMPositionBuilderAtEnd(ctx->builder, end_bb);
 }
 
+// while or while once
 void codegen_while(CodegenCtx *ctx, WhileNode *node) {
-    // ... (unchanged)
   LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
   LLVMBasicBlockRef cond_bb = LLVMAppendBasicBlock(func, "while_cond");
   LLVMBasicBlockRef body_bb = LLVMAppendBasicBlock(func, "while_body");
@@ -188,8 +188,8 @@ void codegen_while(CodegenCtx *ctx, WhileNode *node) {
   LLVMPositionBuilderAtEnd(ctx->builder, end_bb);
 }
 
+// switch ()
 void codegen_switch(CodegenCtx *ctx, SwitchNode *node) {
-    // ... (unchanged) ...
     LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
     LLVMValueRef cond = codegen_expr(ctx, node->condition);
     

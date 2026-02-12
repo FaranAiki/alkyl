@@ -432,6 +432,7 @@ VarType check_expr(SemCtx *ctx, ASTNode *node) {
 
         case NODE_CAST: {
             CastNode *cn = (CastNode*)node;
+            cn->var_type = resolve_typedef(ctx, cn->var_type);
             VarType from = check_expr(ctx, cn->operand);
             VarType to = cn->var_type;
             
@@ -462,12 +463,20 @@ VarType check_expr(SemCtx *ctx, ASTNode *node) {
     }
 }
 
+void check_block(SemCtx *ctx, ASTNode *node) {
+    while (node) {
+        check_stmt(ctx, node);
+        node = node->next;
+    }
+}
+
 void check_stmt(SemCtx *ctx, ASTNode *node) {
     if (!node) return;
     
     switch(node->type) {
         case NODE_VAR_DECL: {
             VarDeclNode *vd = (VarDeclNode*)node;
+            vd->var_type = resolve_typedef(ctx, vd->var_type);
             SemSymbol *existing = find_symbol_current_scope(ctx, vd->name);
             if (existing) {
                 sem_error(ctx, node, "Redefinition of variable '%s' in current scope", vd->name);
@@ -595,11 +604,11 @@ void check_stmt(SemCtx *ctx, ASTNode *node) {
             IfNode *i = (IfNode*)node;
             check_expr(ctx, i->condition);
             enter_scope(ctx);
-            check_stmt(ctx, i->then_body);
+            check_block(ctx, i->then_body);
             exit_scope(ctx);
             if (i->else_body) {
                 enter_scope(ctx);
-                check_stmt(ctx, i->else_body);
+                check_block(ctx, i->else_body);
                 exit_scope(ctx);
             }
             break;
@@ -617,10 +626,10 @@ void check_stmt(SemCtx *ctx, ASTNode *node) {
             while(c) {
                 CaseNode *cn = (CaseNode*)c;
                 check_expr(ctx, cn->value);
-                check_stmt(ctx, cn->body);
+                check_block(ctx, cn->body);
                 c = c->next;
             }
-            if (s->default_case) check_stmt(ctx, s->default_case);
+            if (s->default_case) check_block(ctx, s->default_case);
             
             ctx->in_loop = prev_loop;
             exit_scope(ctx);
@@ -633,7 +642,7 @@ void check_stmt(SemCtx *ctx, ASTNode *node) {
             int prev_loop = ctx->in_loop;
             ctx->in_loop = 1;
             enter_scope(ctx);
-            check_stmt(ctx, l->body);
+            check_block(ctx, l->body);
             exit_scope(ctx);
             ctx->in_loop = prev_loop;
             break;
@@ -645,7 +654,7 @@ void check_stmt(SemCtx *ctx, ASTNode *node) {
             int prev_loop = ctx->in_loop;
             ctx->in_loop = 1;
             enter_scope(ctx);
-            check_stmt(ctx, w->body);
+            check_block(ctx, w->body);
             exit_scope(ctx);
             ctx->in_loop = prev_loop;
             break;
@@ -665,6 +674,4 @@ void check_stmt(SemCtx *ctx, ASTNode *node) {
             check_expr(ctx, node); 
             break;
     }
-    
-    if (node->next) check_stmt(ctx, node->next);
 }

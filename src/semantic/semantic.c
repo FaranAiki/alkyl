@@ -4,6 +4,26 @@
 #include <string.h>
 #include <stdarg.h>
 
+VarType resolve_typedef(SemCtx *ctx, VarType t) {
+    // We resolve custom types (aliases) recursively
+    if (t.class_name) {
+        SemTypedef *td = ctx->typedefs;
+        while (td) {
+            if (strcmp(td->name, t.class_name) == 0) {
+                VarType resolved = resolve_typedef(ctx, td->target_type);
+                // Inherit pointer depth and array properties from the alias usage
+                resolved.ptr_depth += t.ptr_depth;
+                if (t.array_size > 0) {
+                    resolved.array_size = t.array_size;
+                }
+                return resolved;
+            }
+            td = td->next;
+        }
+    }
+    return t;
+}
+
 void scan_declarations(SemCtx *ctx, ASTNode *node, const char *prefix) {
     while(node) {
         if (node->type == NODE_FUNC_DEF) {
@@ -203,7 +223,7 @@ void check_program(SemCtx *ctx, ASTNode *node) {
                  ctx->current_class = fd->class_name;
             }
 
-            check_stmt(ctx, fd->body);
+            check_block(ctx, fd->body);
             
             ctx->current_class = NULL;
             exit_scope(ctx);

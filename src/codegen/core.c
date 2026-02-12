@@ -19,6 +19,8 @@ void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef buil
     ctx->known_namespaces = NULL;
     ctx->known_namespace_count = 0;
 
+    // TODO add open, fopen, .etc
+
     // Printf
     LLVMTypeRef printf_args[] = { LLVMPointerType(LLVMInt8Type(), 0) };
     ctx->printf_type = LLVMFunctionType(LLVMInt32Type(), printf_args, 1, true);

@@ -286,6 +286,7 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
      return NULL;
 }
 
+// TODO simplify this
 LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
   if (!node) return LLVMConstInt(LLVMInt32Type(), 0, 0);
 
@@ -353,6 +354,8 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
         LLVMValueRef args[] = { LLVMBuildBitCast(ctx->builder, ptr, LLVMPointerType(LLVMInt8Type(), 0), "free_cast") };
         return LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->free_func), ctx->free_func, args, 1, "");
     }
+
+    // TODO add open and others
 
     // Function Call with Overload Support
     const char *target_name = c->mangled_name ? c->mangled_name : c->name;

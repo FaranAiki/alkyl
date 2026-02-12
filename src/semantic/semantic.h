@@ -51,6 +51,12 @@ typedef struct SemClass {
     struct SemClass *next;
 } SemClass;
 
+typedef struct SemTypedef {
+    char *name;
+    VarType target_type;
+    struct SemTypedef *next;
+} SemTypedef;
+
 typedef struct Scope {
     SemSymbol *symbols;
     struct Scope *parent;
@@ -61,6 +67,7 @@ typedef struct {
     SemFunc *functions;
     SemClass *classes;
     SemEnum *enums; 
+    SemTypedef *typedefs;
     
     int error_count;
     
@@ -79,6 +86,7 @@ typedef struct {
 // Recursive checkers
 VarType check_expr(SemCtx *ctx, ASTNode *node);
 void check_stmt(SemCtx *ctx, ASTNode *node);
+void check_block(SemCtx *ctx, ASTNode *node);
 
 // Mangling helpers
 void mangle_type(char *buf, VarType t);
@@ -117,6 +125,9 @@ SemClass* find_sem_class(SemCtx *ctx, const char *name);
 SemSymbol* find_member(SemCtx *ctx, const char *class_name, const char *member_name);
 int class_has_trait(SemCtx *ctx, const char *class_name, const char *trait_name);
 SemFunc* resolve_method_in_hierarchy(SemCtx *ctx, ASTNode *call_node, const char *class_name, const char *method_name, ASTNode *args, char **out_owner_class);
+
+void add_typedef(SemCtx *ctx, const char *name, VarType target);
+VarType resolve_typedef(SemCtx *ctx, VarType t);
 
 // Driver Logic
 void scan_declarations(SemCtx *ctx, ASTNode *node, const char *prefix);
