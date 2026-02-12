@@ -1,7 +1,7 @@
 
 // import "c/stdlib";
 
-extern int atoi(const char*);
+extern int atoi(char*);
 
 int add_1(int param) {
   return param + 1;
@@ -19,7 +19,7 @@ int autozero(int whatever) {
   return 0;
 }
 
-fun[int] choose(int a) {
+func[int] choose(int a) {
   switch a {
     case 1:
       return add_1;

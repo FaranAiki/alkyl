@@ -10,11 +10,19 @@ extern size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
 
 // Make the member of the class private
 closed class File {
-  FILE *ptr;
+  string filename;
+  string mode;
+  FILE *fd_ptr;
   int is_closed = 0;
   
   string read() {
+    
   }
+
+  string close() {
+    fclose(fd_ptr);
+  }
+
 }
 
 // use fopen here using extern
@@ -30,6 +38,6 @@ Usage:
   let csv_data = io.open("data.csv", "r");
   // using flux and stream
   for lines in csv_data {
-
+    print "line: %s\n", lines;
   }
 */
