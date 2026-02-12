@@ -9,10 +9,10 @@ flux int gen() {
 
 int main() {
   let t = gen();  
-  print "Ss\n";
+  print "%s\n", typeof(t);
 
   // print i to 500
-  for i in 500 {
+  for i in 50 {
     print "%d\n", i;
   }
 
@@ -22,7 +22,7 @@ int main() {
   }
 
   print "Emit!\n";
-  for emitted in t {
+  for emitted in gen() {
     print "%d", emitted;
   }
 }

@@ -207,7 +207,8 @@ void codegen_node(CodegenCtx *ctx, ASTNode *node) {
   else if (node->type == NODE_INC_DEC) codegen_expr(ctx, node); 
   else if (node->type == NODE_MEMBER_ACCESS) codegen_expr(ctx, node);
   else if (node->type == NODE_METHOD_CALL) codegen_expr(ctx, node); 
-  else if (node->type == NODE_LINK) { }
+  else if (node->type == NODE_FOR_IN) codegen_for_in(ctx, (ForInNode*)node); 
+  else if (node->type == NODE_LINK) { /* used in the main itself */}
   else if (node->type == NODE_NAMESPACE) {
       NamespaceNode *ns = (NamespaceNode*)node;
       char *old_prefix = ctx->current_prefix;

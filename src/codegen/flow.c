@@ -661,6 +661,7 @@ void codegen_emit(CodegenCtx *ctx, EmitNode *node) {
 
 void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
     // 1. Evaluate Collection
+
     LLVMValueRef col = codegen_expr(ctx, node->collection);
     VarType col_type = codegen_calc_type(ctx, node->collection);
     
@@ -733,6 +734,7 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
              snprintf(next_name, 256, "UnknownFlux_next");
         }
 
+        // TODO what the fuck is this
         LLVMValueRef next_func = LLVMGetNamedFunction(ctx->module, next_name);
         if (!next_func) {
              codegen_error(ctx, (ASTNode*)node, "Could not find flux next function. (Note: iterating variables bound to fluxes requires type inference that may be lost in this version)");
