@@ -81,7 +81,8 @@ void codegen_error(CodegenCtx *ctx, ASTNode *node, const char *msg) {
     } else {
         fprintf(stderr, "Error: %s\n", msg);
     }
-    // exit(1);
+    // TODO: if in repl, do not exit
+    exit(1);
 }
 
 // ... Symbol management functions ...

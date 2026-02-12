@@ -179,7 +179,8 @@ void parser_fail_at(Lexer *l, Token t, const char *msg) {
     } else if (parser_env) {
         longjmp(*parser_env, 1);
     } else {
-        // exit(1);
+        // TODO make this not die
+        exit(1);
     }
 }
 
