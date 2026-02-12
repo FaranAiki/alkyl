@@ -67,6 +67,12 @@ typedef enum {
   TOKEN_NAMESPACE, 
   TOKEN_ENUM, 
 
+  // Flux / Generator Support
+  TOKEN_FLUX,
+  TOKEN_EMIT,
+  TOKEN_FOR,
+  TOKEN_IN,
+
   TOKEN_KW_VOID,   
   TOKEN_KW_INT,  
   TOKEN_KW_CHAR,   

@@ -255,6 +255,19 @@ VarType check_expr_internal(SemCtx *ctx, ASTNode *node) {
             SemFunc *match = resolve_overload(ctx, node, c->name, c->args);
             if (match) {
                 c->mangled_name = strdup(match->mangled_name);
+                
+                if (match->is_flux) {
+                    // Flux function call returns a Context*, not the raw value.
+                    // We mark the return type as TYPE_CLASS with a special name or just struct ptr
+                    // Actually, the easiest is to return the same 'class' type the backend will use.
+                    // Let's pretend it's a pointer to the flux struct.
+                    // BUT for semantic checking inside other expressions, we care about the values yielded?
+                    // No, myrange(10) returns an iterator object.
+                    VarType vt = match->ret_type;
+                    // vt.ptr_depth++; // return FluxCtx*
+                    // Actually we return void* (FluxCtx*) effectively
+                    return (VarType){TYPE_VOID, 1, NULL, 0, 0}; 
+                }
                 return match->ret_type;
             }
             
@@ -627,6 +640,69 @@ void check_stmt(SemCtx *ctx, ASTNode *node) {
                               type_to_str(ctx->current_func_ret_type), type_to_str(ret_t));
                 }
             }
+            break;
+        }
+
+        case NODE_EMIT: {
+            if (!ctx->in_flux) {
+                sem_error(ctx, node, "'emit'/ 'yield' can only be used inside a flux function");
+                break;
+            }
+            EmitNode *e = (EmitNode*)node;
+            VarType val_t = check_expr(ctx, e->value);
+            
+            // Check against current function return type
+            // Note: Flux definitions are parsed as FuncDefNode with is_flux=1
+            // The ret_type in FuncDef is the T in flux T.
+            
+            if (!are_types_equal(ctx->current_func_ret_type, val_t)) {
+                 sem_error(ctx, node, "Emit type mismatch. Expected '%s', got '%s'", 
+                           type_to_str(ctx->current_func_ret_type), type_to_str(val_t));
+            }
+            break;
+        }
+        
+        case NODE_FOR_IN: {
+            ForInNode *f = (ForInNode*)node;
+            VarType col_t = check_expr(ctx, f->collection);
+            
+            VarType iter_t = {TYPE_UNKNOWN, 0, NULL, 0, 0};
+            
+            if (col_t.base == TYPE_STRING) {
+                iter_t.base = TYPE_CHAR;
+            } else if (col_t.base == TYPE_CHAR && col_t.ptr_depth == 1) {
+                iter_t.base = TYPE_CHAR;
+            } else if (col_t.array_size > 0 || col_t.ptr_depth > 0) {
+                // Array or pointer iteration
+                iter_t = col_t;
+                if (iter_t.array_size > 0) iter_t.array_size = 0;
+                if (iter_t.ptr_depth > 0) iter_t.ptr_depth--;
+            } else if (col_t.base == TYPE_INT || col_t.base == TYPE_LONG) {
+                // Numeric range iteration: 0 to N
+                iter_t = col_t;
+            } else if (col_t.base == TYPE_VOID && col_t.ptr_depth == 1) {
+                // Assume generic flux iterator context (void*)
+                // This is a weak check because we don't carry the generic T of the flux in the pointer type well
+                // In a robust compiler we would use generics.
+                // For now, we assume if it's a pointer to void (Flux context), we trust the user or default to INT
+                // Or better: look up if it was a flux function call
+                iter_t.base = TYPE_INT; // Default fallback
+            } else {
+                 // Try to see if it's a class with iterate?
+                 // Not implemented in this basic version
+            }
+            
+            f->iter_type = iter_t;
+            
+            enter_scope(ctx);
+            add_symbol_semantic(ctx, f->var_name, iter_t, 0, 0, 0, node->line, node->col);
+            
+            int prev_loop = ctx->in_loop;
+            ctx->in_loop = 1;
+            check_block(ctx, f->body);
+            ctx->in_loop = prev_loop;
+            
+            exit_scope(ctx);
             break;
         }
 

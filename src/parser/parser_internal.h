@@ -55,6 +55,10 @@ ASTNode* parse_return(Lexer *l);
 ASTNode* parse_break(Lexer *l);
 ASTNode* parse_continue(Lexer *l);
 
+// Flux Parsing
+ASTNode* parse_emit(Lexer *l);
+ASTNode* parse_for_in(Lexer *l);
+
 // parse top level 
 ASTNode* parse_top_level(Lexer *l); 
 

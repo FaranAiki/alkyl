@@ -58,13 +58,14 @@ SemSymbol* find_symbol_semantic(SemCtx *ctx, const char *name) {
     return NULL;
 }
 
-void add_func(SemCtx *ctx, const char *name, char *mangled, VarType ret, VarType *params, int pcount) {
+void add_func(SemCtx *ctx, const char *name, char *mangled, VarType ret, VarType *params, int pcount, int is_flux) {
     SemFunc *f = malloc(sizeof(SemFunc));
     f->name = strdup(name);
     f->mangled_name = strdup(mangled);
     f->ret_type = ret;
     f->param_types = params; 
     f->param_count = pcount;
+    f->is_flux = is_flux;
     f->next = ctx->functions;
     ctx->functions = f;
 }

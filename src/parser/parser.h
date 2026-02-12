@@ -38,6 +38,9 @@ typedef enum {
   NODE_HAS_METHOD,    
   NODE_HAS_ATTRIBUTE,  
   NODE_CAST,
+  // Flux Nodes
+  NODE_EMIT,
+  NODE_FOR_IN
 } NodeType;
 
 typedef enum {
@@ -91,6 +94,7 @@ typedef struct {
   int is_varargs; 
   int is_open; 
   char *class_name; 
+  int is_flux; // Flag for flux functions
 } FuncDefNode;
 
 typedef struct {
@@ -165,6 +169,12 @@ typedef struct {
   ASTNode *value;
 } ReturnNode;
 
+// Flux: emit
+typedef struct {
+    ASTNode base;
+    ASTNode *value;
+} EmitNode;
+
 typedef struct {
   ASTNode base;
 } BreakNode;
@@ -185,6 +195,16 @@ typedef struct {
   ASTNode *body;
   int is_do_while; 
 } WhileNode;
+
+// Flux: for var in collection
+typedef struct {
+    ASTNode base;
+    char *var_name;
+    ASTNode *collection;
+    ASTNode *body;
+    // Semantic info
+    VarType iter_type; // Type of 'var_name'
+} ForInNode;
 
 typedef struct {
   ASTNode base;

@@ -1,0 +1,27 @@
+flux int gen() {
+  int t = 0;
+  while t <= 100 {
+    t++;
+    emit t;
+  }
+  return 1;
+}
+
+int main() {
+  // let t = gen();  
+  print "Ss\n";
+
+  // print i to 500
+  for i in 500 {
+    print "%d\n", i;
+  }
+
+  for c in "Hello, World!" {
+    print "%c\n", c;
+  }
+
+  /*
+  for emitted in t {
+    print "%d", emitted;
+  }*/
+}

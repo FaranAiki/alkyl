@@ -79,7 +79,7 @@ void scan_declarations(SemCtx *ctx, ASTNode *node, const char *prefix) {
                     exist = exist->next;
                 }
                 
-                add_func(ctx, lookup_name, mangled, fd->ret_type, ptypes, pcount);
+                add_func(ctx, lookup_name, mangled, fd->ret_type, ptypes, pcount, fd->is_flux);
                 free(mangled);
             }
             
@@ -181,6 +181,9 @@ void check_program(SemCtx *ctx, ASTNode *node) {
         if (node->type == NODE_FUNC_DEF) {
             FuncDefNode *fd = (FuncDefNode*)node;
             ctx->current_func_ret_type = fd->ret_type;
+            int prev_flux = ctx->in_flux;
+            ctx->in_flux = fd->is_flux;
+
             enter_scope(ctx);
             
             Parameter *p = fd->params;
@@ -231,6 +234,7 @@ void check_program(SemCtx *ctx, ASTNode *node) {
             
             ctx->current_class = NULL;
             exit_scope(ctx);
+            ctx->in_flux = prev_flux;
         }
         else if (node->type == NODE_VAR_DECL) {
              check_stmt(ctx, node); 
@@ -303,6 +307,7 @@ int semantic_analysis(ASTNode *root, const char *source, const char *filename) {
     ctx.enums = NULL; 
     ctx.error_count = 0;
     ctx.in_loop = 0;
+    ctx.in_flux = 0;
     ctx.current_class = NULL;
     ctx.source_code = source;
     ctx.filename = filename;

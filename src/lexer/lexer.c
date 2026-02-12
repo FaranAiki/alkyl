@@ -427,6 +427,12 @@ Token lexer_next(Lexer *l) {
     else if (strcmp(word, "namespace") == 0) t.type = TOKEN_NAMESPACE;
     else if (strcmp(word, "enum") == 0) t.type = TOKEN_ENUM; 
 
+    // Flux / Generator Support
+    else if (strcmp(word, "flux") == 0) t.type = TOKEN_FLUX;
+    else if (strcmp(word, "emit") == 0) t.type = TOKEN_EMIT;
+    else if (strcmp(word, "for") == 0) t.type = TOKEN_FOR;
+    else if (strcmp(word, "in") == 0) t.type = TOKEN_IN;
+
     else if (strcmp(word, "void") == 0) t.type = TOKEN_KW_VOID;
     else if (strcmp(word, "int") == 0) t.type = TOKEN_KW_INT;
     else if (strcmp(word, "short") == 0) t.type = TOKEN_KW_SHORT;

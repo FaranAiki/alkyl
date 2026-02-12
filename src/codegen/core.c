@@ -19,6 +19,11 @@ void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef buil
     ctx->known_namespaces = NULL;
     ctx->known_namespace_count = 0;
 
+    // Flux init
+    ctx->current_switch_inst = NULL;
+    ctx->flux_ctx_val = NULL;
+    ctx->next_flux_state = 0;
+
     // TODO add open, fopen, .etc
 
     // Printf
@@ -582,7 +587,12 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name, const cha
   ASTNode *curr = root;
   while (curr) {
     if (curr->type == NODE_FUNC_DEF) {
-      codegen_func_def(&ctx, (FuncDefNode*)curr);
+        FuncDefNode *fd = (FuncDefNode*)curr;
+        if (fd->is_flux) {
+            codegen_flux_def(&ctx, fd);
+        } else {
+            codegen_func_def(&ctx, fd);
+        }
     }
     if (curr->type == NODE_CLASS) {
         ClassNode *cn = (ClassNode*)curr;
@@ -591,7 +601,18 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name, const cha
             if (m->type == NODE_FUNC_DEF) {
                 FuncDefNode *fd = (FuncDefNode*)m;
                 fd->class_name = cn->name;
-                codegen_func_def(&ctx, fd);
+                if (fd->is_flux) {
+                    // Prepend Class Name for unique struct naming in flux
+                    char flux_name[256];
+                    snprintf(flux_name, 256, "%s_%s", cn->name, fd->name);
+                    // Temporarily swap name for generation logic
+                    char *old_name = fd->name;
+                    fd->name = flux_name; 
+                    codegen_flux_def(&ctx, fd);
+                    fd->name = old_name;
+                } else {
+                    codegen_func_def(&ctx, fd);
+                }
             }
             m = m->next;
         }

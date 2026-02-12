@@ -426,6 +426,33 @@ ASTNode* parse_class(Lexer *l) {
           if (current_token.type == TOKEN_OPEN) { member_open = 1; eat(l, TOKEN_OPEN); }
           else if (current_token.type == TOKEN_CLOSED) { member_open = 0; eat(l, TOKEN_CLOSED); }
           
+          if (current_token.type == TOKEN_FLUX) {
+              // Anonymous Flux in Class
+              // flux Type { ... }
+              eat(l, TOKEN_FLUX);
+              VarType vt = parse_type(l);
+              
+              eat(l, TOKEN_LBRACE);
+              ASTNode *body = parse_statements(l);
+              eat(l, TOKEN_RBRACE);
+              
+              FuncDefNode *func = calloc(1, sizeof(FuncDefNode));
+              func->base.type = NODE_FUNC_DEF;
+              func->base.line = line;
+              func->base.col = col;
+              func->name = strdup("iterate"); // Special name for anonymous flux
+              func->ret_type = vt;
+              func->params = NULL;
+              func->body = body;
+              func->is_open = member_open;
+              func->class_name = strdup(class_name);
+              func->is_flux = 1;
+              
+              *curr_member = (ASTNode*)func;
+              curr_member = &func->base.next;
+              continue;
+          }
+
           VarType vt = parse_type(l);
           if (vt.base != TYPE_UNKNOWN) {
               if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected member name in class body");
@@ -609,11 +636,10 @@ ASTNode* parse_top_level(Lexer *l) {
   int col = current_token.col;
 
   // SMART TYPO CHECK
-  // try parse_return 
   if (current_token.type == TOKEN_IDENTIFIER) {
       const char *top_kws[] = {
           "typedef", "namespace", "define", "class", "import", "link", "extern", 
-          "struct", "enum", "const", "let", "mut", "imut", "return", "if", "while", NULL
+          "struct", "enum", "const", "let", "mut", "imut", "return", "if", "while", "flux", NULL
       };
       
       const char *best_kw = NULL;
@@ -639,6 +665,13 @@ ASTNode* parse_top_level(Lexer *l) {
            if (parser_recover_buf) longjmp(*parser_recover_buf, 1);
            exit(1); 
       }
+  }
+
+  // Parse Function or Flux
+  int is_flux = 0;
+  if (current_token.type == TOKEN_FLUX) {
+      is_flux = 1;
+      eat(l, TOKEN_FLUX);
   }
 
   VarType vtype = parse_type(l);
@@ -676,6 +709,7 @@ ASTNode* parse_top_level(Lexer *l) {
     ASTNode *body = parse_statements(l); eat(l, TOKEN_RBRACE);
     FuncDefNode *node = calloc(1, sizeof(FuncDefNode));
     node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = vtype; node->params = params_head; node->body = body;
+    node->is_flux = is_flux; // Mark as flux if applicable
     // Set location
     node->base.line = line; node->base.col = col;
     return (ASTNode*)node;

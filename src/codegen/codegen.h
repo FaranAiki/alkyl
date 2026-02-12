@@ -113,6 +113,11 @@ typedef struct {
   // setjmp/longjmp support
   LLVMValueRef setjmp_func;
   LLVMValueRef longjmp_func;
+
+  // Flux / Generator Support
+  LLVMValueRef current_switch_inst; // Switch instruction for the current flux function
+  LLVMValueRef flux_ctx_val;        // Pointer to the flux context struct
+  int next_flux_state;              // Counter for state labels
 } CodegenCtx;
 
 // --- Core API ---
@@ -165,6 +170,11 @@ void codegen_if(CodegenCtx *ctx, IfNode *node);
 void codegen_switch(CodegenCtx *ctx, SwitchNode *node);
 void codegen_break(CodegenCtx *ctx);
 void codegen_continue(CodegenCtx *ctx);
+
+// Flux Handlers
+void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node);
+void codegen_emit(CodegenCtx *ctx, EmitNode *node);
+void codegen_for_in(CodegenCtx *ctx, ForInNode *node);
 
 // builtin
 LLVMValueRef generate_strlen(LLVMModuleRef module);

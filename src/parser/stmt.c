@@ -22,6 +22,42 @@ ASTNode* parse_return(Lexer *l) {
   return (ASTNode*)node;
 }
 
+ASTNode* parse_emit(Lexer *l) {
+    int line = current_token.line, col = current_token.col;
+    eat(l, TOKEN_EMIT);
+    ASTNode *val = parse_expression(l);
+    eat(l, TOKEN_SEMICOLON);
+    
+    EmitNode *node = calloc(1, sizeof(EmitNode));
+    node->base.type = NODE_EMIT;
+    node->value = val;
+    set_loc((ASTNode*)node, line, col);
+    return (ASTNode*)node;
+}
+
+ASTNode* parse_for_in(Lexer *l) {
+    int line = current_token.line, col = current_token.col;
+    eat(l, TOKEN_FOR);
+    
+    if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected identifier after 'for'");
+    char *var_name = strdup(current_token.text);
+    eat(l, TOKEN_IDENTIFIER);
+    
+    if (current_token.type != TOKEN_IN) parser_fail(l, "Expected 'in' after variable in for-loop");
+    eat(l, TOKEN_IN);
+    
+    ASTNode *collection = parse_expression(l);
+    ASTNode *body = parse_single_statement_or_block(l);
+    
+    ForInNode *node = calloc(1, sizeof(ForInNode));
+    node->base.type = NODE_FOR_IN;
+    node->var_name = var_name;
+    node->collection = collection;
+    node->body = body;
+    set_loc((ASTNode*)node, line, col);
+    return (ASTNode*)node;
+}
+
 ASTNode* parse_break(Lexer *l) {
     int line = current_token.line, col = current_token.col;
     eat(l, TOKEN_BREAK);
@@ -245,6 +281,9 @@ ASTNode* parse_single_statement_or_block(Lexer *l) {
   if (current_token.type == TOKEN_BREAK) return parse_break(l);
   if (current_token.type == TOKEN_CONTINUE) return parse_continue(l);
   
+  if (current_token.type == TOKEN_EMIT) return parse_emit(l);
+  if (current_token.type == TOKEN_FOR) return parse_for_in(l);
+
   VarType peek_t = parse_type(l); 
   if (peek_t.base != TYPE_UNKNOWN) {
       if (peek_t.base == TYPE_CLASS && current_token.type == TOKEN_LPAREN) {

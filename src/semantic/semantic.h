@@ -30,6 +30,7 @@ typedef struct SemFunc {
     VarType ret_type;
     VarType *param_types;
     int param_count;
+    int is_flux;         // Added for flux checking
     struct SemFunc *next;
 } SemFunc;
 
@@ -75,6 +76,7 @@ typedef struct {
     // Context tracking
     VarType current_func_ret_type; // For checking return types
     int in_loop;                   // For checking break/continue
+    int in_flux;                   // Added: For checking emit
     const char *current_class;     // For 'this' context
     const char *source_code;       // For error reporting
     const char *filename;          // For error reporting context
@@ -118,7 +120,7 @@ SemSymbol* find_symbol_current_scope(SemCtx *ctx, const char *name);
 SemSymbol* find_symbol_semantic(SemCtx *ctx, const char *name);
 
 // Symbol Table Management (Functions, Classes, Enums)
-void add_func(SemCtx *ctx, const char *name, char *mangled, VarType ret, VarType *params, int pcount);
+void add_func(SemCtx *ctx, const char *name, char *mangled, VarType ret, VarType *params, int pcount, int is_flux);
 SemFunc* resolve_overload(SemCtx *ctx, ASTNode *call_node, const char *name, ASTNode *args_list);
 SemEnum* find_sem_enum(SemCtx *ctx, const char *name);
 void add_class(SemCtx *ctx, const char *name, const char *parent, char **traits, int trait_count);
