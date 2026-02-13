@@ -486,7 +486,12 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     
     char struct_name[256];
     snprintf(struct_name, 256, "FluxCtx_%s", node->name);
-    LLVMTypeRef ctx_type = LLVMStructCreateNamed(LLVMGetGlobalContext(), struct_name);
+    
+    // Check if type already exists (from forward declaration in let)
+    LLVMTypeRef ctx_type = LLVMGetTypeByName(ctx->module, struct_name);
+    if (!ctx_type) {
+        ctx_type = LLVMStructCreateNamed(LLVMGetGlobalContext(), struct_name);
+    }
     LLVMStructSetBody(ctx_type, struct_elems, total_fields, false);
     
     // SAVE CTX TYPE

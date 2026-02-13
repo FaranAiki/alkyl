@@ -128,6 +128,11 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
+  if (LLVMPrintModuleToFile(module, "out.ll", &err_msg) != 0) {
+    fprintf(stderr, "Emit Error: %s\n", err_msg);
+    return 1;
+  }
+
   printf("Compiled to out.o\n");
   
   char cmd[2048];

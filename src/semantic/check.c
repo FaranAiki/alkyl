@@ -257,16 +257,10 @@ VarType check_expr_internal(SemCtx *ctx, ASTNode *node) {
                 c->mangled_name = strdup(match->mangled_name);
                 
                 if (match->is_flux) {
-                    // Flux function call returns a Context*, not the raw value.
-                    // We mark the return type as TYPE_CLASS with a special name or just struct ptr
-                    // Actually, the easiest is to return the same 'class' type the backend will use.
-                    // Let's pretend it's a pointer to the flux struct.
-                    // BUT for semantic checking inside other expressions, we care about the values yielded?
-                    // No, myrange(10) returns an iterator object.
-                    VarType vt = match->ret_type;
-                    // vt.ptr_depth++; // return FluxCtx*
-                    // Actually we return void* (FluxCtx*) effectively
-                    return (VarType){TYPE_VOID, 1, NULL, 0, 0}; 
+                    // Fix: Return specific Flux context type pointer instead of void*
+                    char *ctx_name = malloc(256);
+                    snprintf(ctx_name, 256, "FluxCtx_%s", match->name); // Use match->name as base
+                    return (VarType){TYPE_CLASS, 1, ctx_name, 0, 0}; 
                 }
                 return match->ret_type;
             }

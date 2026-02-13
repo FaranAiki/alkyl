@@ -225,9 +225,19 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
     case TYPE_STRING: base_type = LLVMPointerType(LLVMInt8Type(), 0); break;
     case TYPE_CLASS: {
         if (!t.class_name) return LLVMInt32Type(); 
+        
+        // 1. Try finding in our ClassInfo list (user defined classes)
         ClassInfo *ci = find_class(ctx, t.class_name);
-        if (ci) base_type = ci->struct_type;
-        else base_type = LLVMStructCreateNamed(LLVMGetGlobalContext(), t.class_name);
+        if (ci) {
+            base_type = ci->struct_type;
+        } else {
+            // 2. Try finding existing LLVM struct (e.g. FluxCtx created earlier or elsewhere)
+            base_type = LLVMGetTypeByName(ctx->module, t.class_name);
+            if (!base_type) {
+                // 3. Create opaque forward declaration if it doesn't exist
+                base_type = LLVMStructCreateNamed(LLVMGetGlobalContext(), t.class_name);
+            }
+        }
         break;
     }
     default: base_type = LLVMInt32Type(); break;

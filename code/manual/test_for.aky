@@ -4,25 +4,40 @@ flux int gen() {
     t++;
     emit t;
   }
-  return 1;
 }
 
 int main() {
-  let t = gen();  
+  let t = gen();
+  let my_arr = [1,2,3,4];
   print "%s\n", typeof(t);
+  print "%s\n", typeof(my_arr);
 
   // print i to 500
   for i in 50 {
     print "%d\n", i;
   }
 
+  // character looping
   print "This will loop hello world!\n";
   for c in "Hello, World!" {
-    print "%c\n", c;
+    print "%c:%s\n", c, typeof(c);
   }
 
+  // integer array looping 
+  print "This will loop integer";
+  /*
+  for i in [1,2,3,4] {
+    print "%d\n:%s", i, typeof(i);
+  }*/
+
+  // string looping 
+  /*
+  for s in ["Hey", "My", "Name", "Is", "Faran"] {
+    print "%s is %s\n", s, typeof(s);
+  } */
+
   print "Emit!\n";
-  for emitted in t {
+  for emitted in gen() {
     print "%d", emitted;
   }
 }
