@@ -225,19 +225,9 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
     case TYPE_STRING: base_type = LLVMPointerType(LLVMInt8Type(), 0); break;
     case TYPE_CLASS: {
         if (!t.class_name) return LLVMInt32Type(); 
-        
-        // 1. Try finding in our ClassInfo list (user defined classes)
         ClassInfo *ci = find_class(ctx, t.class_name);
-        if (ci) {
-            base_type = ci->struct_type;
-        } else {
-            // 2. Try finding existing LLVM struct (e.g. FluxCtx created earlier or elsewhere)
-            base_type = LLVMGetTypeByName(ctx->module, t.class_name);
-            if (!base_type) {
-                // 3. Create opaque forward declaration if it doesn't exist
-                base_type = LLVMStructCreateNamed(LLVMGetGlobalContext(), t.class_name);
-            }
-        }
+        if (ci) base_type = ci->struct_type;
+        else base_type = LLVMStructCreateNamed(LLVMGetGlobalContext(), t.class_name);
         break;
     }
     default: base_type = LLVMInt32Type(); break;
@@ -287,7 +277,6 @@ void scan_classes(CodegenCtx *ctx, ASTNode *node, const char *prefix) {
             ci->parent_name = cn->parent_name ? strdup(cn->parent_name) : NULL;
             ci->struct_type = LLVMStructCreateNamed(LLVMGetGlobalContext(), ci->name);
             ci->is_extern = cn->is_extern;
-            ci->is_union = cn->is_union; // Copy Union Flag
             ci->members = NULL;
             ci->method_names = NULL;
             ci->method_count = 0;
@@ -458,11 +447,6 @@ void scan_class_bodies(CodegenCtx *ctx, ASTNode *node) {
                 
                 // 3. Own Members
                 m = cn->members;
-                
-                // Union Tracking
-                unsigned long long union_max_size = 0;
-                LLVMTypeRef union_max_type = LLVMArrayType(LLVMInt8Type(), 1);
-
                 while(m) {
                     if (m->type == NODE_VAR_DECL) {
                         VarDeclNode *vd = (VarDeclNode*)m;
@@ -491,37 +475,15 @@ void scan_class_bodies(CodegenCtx *ctx, ASTNode *node) {
                         }
                         
                         element_types[idx] = mt;
-                        
-                        // Union Size Calculation
-                        if (ci->is_union) {
-                             LLVMTargetDataRef td = LLVMGetModuleDataLayout(ctx->module);
-                             if (td) {
-                                 unsigned long long sz = LLVMABISizeOfType(td, mt);
-                                 if (sz >= union_max_size) {
-                                     union_max_size = sz;
-                                     union_max_type = mt;
-                                 }
-                             } else {
-                                 // Fallback if no target data (rare), assume bytes
-                                 // Or just trust primitive sizes if we implemented a helper
-                                 // For now, assume this works as LLVMModule usually has default layout or we are in a JIT
-                             }
-                        }
-
                         tail = append_member(ctx, ci, tail, &idx, vd->name, mvt, mt, vd->initializer);
                     }
                     m = m->next;
                 }
                 
-                if (ci->is_union) {
-                    // Union body is just the largest member type
-                    LLVMStructSetBody(ci->struct_type, &union_max_type, 1, false);
-                } else {
-                    if (member_count > 0)
-                        LLVMStructSetBody(ci->struct_type, element_types, member_count, false);
-                    else
-                        LLVMStructSetBody(ci->struct_type, NULL, 0, false); // Empty struct
-                }
+                if (member_count > 0)
+                    LLVMStructSetBody(ci->struct_type, element_types, member_count, false);
+                else
+                    LLVMStructSetBody(ci->struct_type, NULL, 0, false); // Empty struct
 
                 free(element_types);
             }
@@ -637,6 +599,7 @@ LLVMModuleRef codegen_generate(ASTNode *root, const char *module_name, const cha
   // Code Gen
   ASTNode *curr = root;
   while (curr) {
+    debug("Current codegen generate node is %s", node_type_to_string(curr->type));
     if (curr->type == NODE_FUNC_DEF) {
         FuncDefNode *fd = (FuncDefNode*)curr;
         if (fd->is_flux) {

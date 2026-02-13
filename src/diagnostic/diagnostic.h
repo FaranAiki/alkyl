@@ -2,6 +2,7 @@
 #define DIAGNOSTIC_H
 
 #include "../lexer/lexer.h"
+#include "../parser/parser.h"
 
 // Colors for terminal output
 #define DIAG_RED    "\033[1;31m"
@@ -37,6 +38,7 @@ void report_reason(Lexer *l, Token t, const char *msg);
 
 // Convert a token type to a human-readable string (e.g., TOKEN_SEMICOLON -> ";")
 const char* token_type_to_string(TokenType type);
+const char* node_type_to_string(NodeType type);
 
 // Helper to hint about missing delimiters
 const char* get_token_description(TokenType type);
