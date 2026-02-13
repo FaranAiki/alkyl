@@ -7,7 +7,6 @@
 void codegen_assign(CodegenCtx *ctx, AssignNode *node) {
   LLVMValueRef ptr = NULL;
   LLVMTypeRef elem_type = NULL;
-
   if (node->target) {
       ptr = codegen_addr(ctx, node->target);
       VarType vt = codegen_calc_type(ctx, node->target);
@@ -192,6 +191,7 @@ void codegen_return(CodegenCtx *ctx, ReturnNode *node) {
 // code generation for node
 void codegen_node(CodegenCtx *ctx, ASTNode *node) {
   while (node) {
+      debug("Current codegen node is %s", node_type_to_string(node->type));
   if (node->type == NODE_FUNC_DEF) codegen_func_def(ctx, (FuncDefNode*)node);
   else if (node->type == NODE_RETURN) codegen_return(ctx, (ReturnNode*)node);
   else if (node->type == NODE_CALL) codegen_expr(ctx, node); 
