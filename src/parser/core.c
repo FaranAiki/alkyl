@@ -512,10 +512,7 @@ ASTNode* parse_program(Lexer *l) {
         if (current_token.type == TOKEN_EOF) break;
     }
    
-    #define DEBUG
-    #ifdef DEBUG
-    printf("current token type: %d\n", current_token.type);
-    #endif
+    debug("Current token type: %s\n", token_type_to_string(current_token.type));
 
     ASTNode *node = parse_top_level(l);
     if (node) {
@@ -526,6 +523,8 @@ ASTNode* parse_program(Lexer *l) {
         while (iter->next) iter = iter->next;
         current = &iter->next;
     }
+
+    debug("Token consumed safely");
   }
   
   parser_recover_buf = NULL; // Clear recovery

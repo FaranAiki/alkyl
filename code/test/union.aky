@@ -1,10 +1,10 @@
 union Registration {
   int id;
-  char name[4];
-}
+  char *name;
+};
 
 int main() {
-  printf "Testing union!";
+  printf "Testing union!\n";
 
   Registration jablay;
 

@@ -4,6 +4,12 @@
 #include "../lexer/lexer.h"
 #include <setjmp.h>
 
+#ifdef DEBUG 
+#define debug(msg, ...) printf(msg, ##__VA_ARGS__); putchar('\n');
+#else 
+#define debug(msg, ...) 
+#endif
+
 // --- TYPES ---
 
 typedef enum {
