@@ -219,9 +219,9 @@ ASTNode* parse_extern(Lexer *l) {
   eat(l, TOKEN_EXTERN);
   
   // Check for 'extern class/struct FILE;' opaque type declarations
-  if (current_token.type == TOKEN_CLASS || current_token.type == TOKEN_STRUCT) {
+  if (current_token.type == TOKEN_CLASS || current_token.type == TOKEN_STRUCT || current_token.type == TOKEN_UNION) {
       eat(l, current_token.type);
-      if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected name for extern class/struct");
+      if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected name for extern class/struct/union");
       char *name = strdup(current_token.text);
       eat(l, TOKEN_IDENTIFIER);
       eat(l, TOKEN_SEMICOLON);
@@ -382,9 +382,10 @@ ASTNode* parse_class(Lexer *l) {
   if (current_token.type == TOKEN_OPEN) { is_open = 1; eat(l, TOKEN_OPEN); }
   else if (current_token.type == TOKEN_CLOSED) { is_open = 0; eat(l, TOKEN_CLOSED); }
   
-  if (current_token.type == TOKEN_CLASS || current_token.type == TOKEN_STRUCT) {
+  if (current_token.type == TOKEN_CLASS || current_token.type == TOKEN_STRUCT || current_token.type == TOKEN_UNION) {
+      int is_union = (current_token.type == TOKEN_UNION);
       eat(l, current_token.type);
-      if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected class name after 'class' or 'struct'");
+      if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected name after 'class', 'struct' or 'union'");
       char *class_name = strdup(current_token.text);
       eat(l, TOKEN_IDENTIFIER);
       
@@ -553,6 +554,7 @@ ASTNode* parse_class(Lexer *l) {
       cls->traits.count = trait_count;
       cls->members = members_head;
       cls->is_open = is_open;
+      cls->is_union = is_union;
       
       return (ASTNode*)cls;
   }
@@ -609,6 +611,7 @@ ASTNode* parse_top_level(Lexer *l) {
   }
   if (current_token.type == TOKEN_CLASS || 
       current_token.type == TOKEN_STRUCT || 
+      current_token.type == TOKEN_UNION || 
       (current_token.type == TOKEN_OPEN) || 
       (current_token.type == TOKEN_CLOSED)) {
     return parse_class(l);
@@ -639,7 +642,7 @@ ASTNode* parse_top_level(Lexer *l) {
   if (current_token.type == TOKEN_IDENTIFIER) {
       const char *top_kws[] = {
           "typedef", "namespace", "define", "class", "import", "link", "extern", 
-          "struct", "enum", "const", "let", "mut", "imut", "return", "if", "while", "flux", NULL
+          "struct", "enum", "const", "let", "mut", "imut", "return", "if", "while", "flux", "union", NULL
       };
       
       const char *best_kw = NULL;

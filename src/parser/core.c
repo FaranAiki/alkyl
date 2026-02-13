@@ -214,6 +214,8 @@ void parser_sync(Lexer *l) {
         switch (current_token.type) {
             // skip all case
             case TOKEN_CLASS:
+            case TOKEN_STRUCT:
+            case TOKEN_UNION: // Skip union
             case TOKEN_NAMESPACE:
             case TOKEN_KW_INT:
             case TOKEN_KW_VOID:
@@ -509,7 +511,12 @@ ASTNode* parse_program(Lexer *l) {
         parser_sync(l);
         if (current_token.type == TOKEN_EOF) break;
     }
-    
+   
+    #define DEBUG
+    #ifdef DEBUG
+    printf("current token type: %d\n", current_token.type);
+    #endif
+
     ASTNode *node = parse_top_level(l);
     if (node) {
         if (!*current) *current = node; 

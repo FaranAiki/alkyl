@@ -691,6 +691,7 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
     } else {
         // Flux Iteration
         // col is likely the FluxCtx* returned by the Init function
+        printf("Array is here\n");
         flux_ctx = col;
     }
     
@@ -701,12 +702,6 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
     LLVMValueRef condition = NULL;
     
     if (flux_ctx) {
-        // Call Next(ctx)
-        // Need to construct function name: implicit assumption needed or lookup
-        // Hack: We try to find {FluxName}_next. 
-        // Since we don't have the flux name easily here without analyzing 'collection' expression deeply,
-        // we try to derive it from the LLVM Struct Name or Fallback
-        
         char next_name[256];
         int found = 0;
         

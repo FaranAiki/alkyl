@@ -131,6 +131,9 @@ VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
         CallNode *call = (CallNode*)node;
         const char *name = call->mangled_name ? call->mangled_name : call->name;
         
+        // FIX: Handle NULL name to prevent strcmp segfault
+        if (!name) return vt;
+
         FuncSymbol *fs = find_func_symbol(ctx, name);
         if (fs) return fs->ret_type;
         
@@ -233,25 +236,43 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
          if (obj_t.base == TYPE_CLASS && obj_t.class_name) {
              ClassInfo *ci = find_class(ctx, obj_t.class_name);
              if (ci) {
-                 int idx = get_member_index(ci, ma->member_name, NULL, NULL);
+                 LLVMTypeRef member_type = NULL;
+                 int idx = get_member_index(ci, ma->member_name, &member_type, NULL);
                  if (idx != -1) {
-                     if (obj_t.ptr_depth > 0) {
-                        LLVMValueRef base;
-                        if (obj) {
-                            base = LLVMBuildLoad2(ctx->builder, LLVMPointerType(ci->struct_type, 0), obj, "obj_ptr");
-                        } else {
-                            base = codegen_expr(ctx, ma->object);
-                        }
-                        LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), idx, 0) };
-                        return LLVMBuildGEP2(ctx->builder, ci->struct_type, base, indices, 2, "mem_ptr");
+                     if (ci->is_union) {
+                         // UNION: Bitcast pointer to member type pointer
+                         LLVMValueRef base = obj;
+                         if (obj_t.ptr_depth > 0) {
+                             if (obj) base = LLVMBuildLoad2(ctx->builder, LLVMPointerType(ci->struct_type, 0), obj, "obj_ptr");
+                             else base = codegen_expr(ctx, ma->object);
+                         } else {
+                            if (!obj) {
+                                char msg[256];
+                                snprintf(msg, 256, "Cannot access union member '%s' of r-value", ma->member_name);
+                                codegen_error(ctx, node, msg);
+                            }
+                         }
+                         return LLVMBuildBitCast(ctx->builder, base, LLVMPointerType(member_type, 0), "union_mem_ptr");
                      } else {
-                        if (!obj) {
-                             char msg[256];
-                             snprintf(msg, 256, "Cannot access member '%s' of r-value struct", ma->member_name);
-                             codegen_error(ctx, node, msg);
+                        // STRUCT: Use GEP
+                        if (obj_t.ptr_depth > 0) {
+                            LLVMValueRef base;
+                            if (obj) {
+                                base = LLVMBuildLoad2(ctx->builder, LLVMPointerType(ci->struct_type, 0), obj, "obj_ptr");
+                            } else {
+                                base = codegen_expr(ctx, ma->object);
+                            }
+                            LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), idx, 0) };
+                            return LLVMBuildGEP2(ctx->builder, ci->struct_type, base, indices, 2, "mem_ptr");
+                        } else {
+                            if (!obj) {
+                                char msg[256];
+                                snprintf(msg, 256, "Cannot access member '%s' of r-value struct", ma->member_name);
+                                codegen_error(ctx, node, msg);
+                            }
+                            LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), idx, 0) };
+                            return LLVMBuildGEP2(ctx->builder, ci->struct_type, obj, indices, 2, "mem_ptr");
                         }
-                        LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), idx, 0) };
-                        return LLVMBuildGEP2(ctx->builder, ci->struct_type, obj, indices, 2, "mem_ptr");
                      }
                  }
              }
@@ -273,6 +294,13 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
 
   if (node->type == NODE_CALL) {
     CallNode *c = (CallNode*)node;
+    
+    // FIX: Guard against NULL name in calls
+    if (!c->name) {
+        codegen_error(ctx, node, "Function call with no name");
+        return LLVMConstInt(LLVMInt32Type(), 0, 0);
+    }
+
     ClassInfo *ci = find_class(ctx, c->name);
     if (ci) {
         LLVMValueRef size = LLVMSizeOf(ci->struct_type);
@@ -282,11 +310,19 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
         ASTNode *arg = c->args;
         ClassMember *m = ci->members;
         
+        // Constructor logic
         while (arg && m) {
             LLVMValueRef arg_val = codegen_expr(ctx, arg);
+            LLVMValueRef mem_ptr;
             
-            LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), m->index, 0) };
-            LLVMValueRef mem_ptr = LLVMBuildGEP2(ctx->builder, ci->struct_type, obj, indices, 2, "init_mem_ptr");
+            if (ci->is_union) {
+                // Union: Bitcast to member pointer and store
+                mem_ptr = LLVMBuildBitCast(ctx->builder, obj, LLVMPointerType(m->type, 0), "union_init_ptr");
+            } else {
+                // Struct: GEP to member index
+                LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), m->index, 0) };
+                mem_ptr = LLVMBuildGEP2(ctx->builder, ci->struct_type, obj, indices, 2, "init_mem_ptr");
+            }
             
             if (m->vtype.array_size > 0 && m->vtype.base == TYPE_CHAR) {
                  LLVMValueRef dest = LLVMBuildBitCast(ctx->builder, mem_ptr, LLVMPointerType(LLVMInt8Type(), 0), "dest_cast");
@@ -743,6 +779,9 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
           VarType vt = codegen_calc_type(ctx, node);
           
           if (vt.array_size > 0 && vt.ptr_depth == 0) {
+               // Decay
+               // Union member array decay: still same base address if union
+               // But codegen_addr handles the bitcast for union already
                LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), 0, 0) };
                return LLVMBuildGEP2(ctx->builder, get_llvm_type(ctx, vt), addr, indices, 2, "mem_decay");
           }
@@ -808,8 +847,14 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
                
                if (idx != -1) {
                    LLVMValueRef this_val = LLVMBuildLoad2(ctx->builder, this_sym->type, this_sym->value, "this_ptr");
-                   LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), idx, 0) };
-                   LLVMValueRef mem_ptr = LLVMBuildGEP2(ctx->builder, ci->struct_type, this_val, indices, 2, "implicit_mem_ptr");
+                   LLVMValueRef mem_ptr;
+
+                   if (ci->is_union) {
+                       mem_ptr = LLVMBuildBitCast(ctx->builder, this_val, LLVMPointerType(mem_type, 0), "implicit_union_ptr");
+                   } else {
+                       LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), idx, 0) };
+                       mem_ptr = LLVMBuildGEP2(ctx->builder, ci->struct_type, this_val, indices, 2, "implicit_mem_ptr");
+                   }
                    
                    if (mvt.array_size > 0 && mvt.ptr_depth == 0) {
                        LLVMValueRef arr_indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), 0, 0) };

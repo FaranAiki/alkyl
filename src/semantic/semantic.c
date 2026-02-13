@@ -96,7 +96,7 @@ void scan_declarations(SemCtx *ctx, ASTNode *node, const char *prefix) {
                 name = qualified;
             }
             
-            add_class(ctx, name, cn->parent_name, cn->traits.names, cn->traits.count);
+            add_class(ctx, name, cn->parent_name, cn->traits.names, cn->traits.count, cn->is_union);
             
             SemClass *cls = find_sem_class(ctx, name);
             if (cls) {

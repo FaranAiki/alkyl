@@ -417,6 +417,7 @@ Token lexer_next(Lexer *l) {
     
     else if (strcmp(word, "class") == 0) t.type = TOKEN_CLASS;
     else if (strcmp(word, "struct") == 0) t.type = TOKEN_STRUCT; // Handle struct alias
+    else if (strcmp(word, "union") == 0) t.type = TOKEN_UNION;   // Handle union
     else if (strcmp(word, "is") == 0) t.type = TOKEN_IS;
     else if (strcmp(word, "has") == 0) t.type = TOKEN_HAS;
     else if (strcmp(word, "open") == 0) t.type = TOKEN_OPEN;

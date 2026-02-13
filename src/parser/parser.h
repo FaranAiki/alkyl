@@ -108,6 +108,7 @@ typedef struct {
   ASTNode *members; 
   int is_open; 
   int is_extern; // Added for opaque C types
+  int is_union;  // Added for union types
 } ClassNode;
 
 typedef struct EnumEntry {

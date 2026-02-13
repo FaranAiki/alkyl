@@ -116,7 +116,7 @@ SemEnum* find_sem_enum(SemCtx *ctx, const char *name) {
     return NULL;
 }
 
-void add_class(SemCtx *ctx, const char *name, const char *parent, char **traits, int trait_count) {
+void add_class(SemCtx *ctx, const char *name, const char *parent, char **traits, int trait_count, int is_union) {
     SemClass *c = malloc(sizeof(SemClass));
     c->name = strdup(name);
     c->parent_name = parent ? strdup(parent) : NULL;
@@ -129,6 +129,7 @@ void add_class(SemCtx *ctx, const char *name, const char *parent, char **traits,
     }
     
     c->members = NULL; 
+    c->is_union = is_union;
     c->next = ctx->classes;
     ctx->classes = c;
 }

@@ -1,0 +1,16 @@
+union Registration {
+  int id;
+  char name[4];
+}
+
+int main() {
+  printf "Testing union!";
+
+  Registration jablay;
+
+  jablay.id = 10;
+  printf "10 == %d\n", jablay;
+
+  jablay.name = c"bin"; // 4 
+  printf "bin == %s\n", jablay;
+}

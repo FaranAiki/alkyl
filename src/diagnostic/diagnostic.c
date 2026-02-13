@@ -200,20 +200,141 @@ void report_reason(Lexer *l, Token t, const char *msg) {
     if (l) print_source_snippet(l, t);
 }
 
+// DO NOT USE STRING-INDEXED 
+// BECAUSE IT IS VERY EASY TO BE BUGGY
 const char* token_type_to_string(TokenType type) {
     switch (type) {
-        case TOKEN_IDENTIFIER: return "identifier";
-        case TOKEN_LPAREN: return "(";
-        case TOKEN_RPAREN: return ")";
-        case TOKEN_LBRACE: return "{";
-        case TOKEN_RBRACE: return "}";
+        case TOKEN_EOF: return "EOF";
+        case TOKEN_LOOP: return "loop";
+        case TOKEN_WHILE: return "while";
+        case TOKEN_ONCE: return "once";
         case TOKEN_LBRACKET: return "[";
         case TOKEN_RBRACKET: return "]";
+        case TOKEN_LBRACE: return "{";
+        case TOKEN_RBRACE: return "}";
+        case TOKEN_LPAREN: return "(";
+        case TOKEN_RPAREN: return ")";
         case TOKEN_SEMICOLON: return ";";
+        case TOKEN_COLON: return ":";
         case TOKEN_COMMA: return ",";
+        case TOKEN_ELLIPSIS: return "...";
+        case TOKEN_DOT: return ".";
+
+        case TOKEN_NUMBER: return "number";
+        case TOKEN_FLOAT: return "float";
+        case TOKEN_STRING: return "string";
+        case TOKEN_C_STRING: return "c-string";
+        case TOKEN_CHAR_LIT: return "char";
+        case TOKEN_IDENTIFIER: return "identifier";
+
+        // Assignment
         case TOKEN_ASSIGN: return "=";
-        case TOKEN_EOF: return "EOF";
-        default: return "token";
+        case TOKEN_PLUS_ASSIGN: return "+=";
+        case TOKEN_MINUS_ASSIGN: return "-=";
+        case TOKEN_STAR_ASSIGN: return "*=";
+        case TOKEN_SLASH_ASSIGN: return "/=";
+        case TOKEN_MOD_ASSIGN: return "%=";
+        case TOKEN_AND_ASSIGN: return "&=";
+        case TOKEN_OR_ASSIGN: return "|=";
+        case TOKEN_XOR_ASSIGN: return "^=";
+        case TOKEN_LSHIFT_ASSIGN: return "<<=";
+        case TOKEN_RSHIFT_ASSIGN: return ">>=";
+
+        case TOKEN_IF: return "if";
+        case TOKEN_ELIF: return "elif";
+        case TOKEN_ELSE: return "else";
+        case TOKEN_RETURN: return "return";
+        case TOKEN_BREAK: return "break";
+        case TOKEN_CONTINUE: return "continue";
+        case TOKEN_SWITCH: return "switch";
+        case TOKEN_CASE: return "case";
+        case TOKEN_DEFAULT: return "default";
+        case TOKEN_LEAK: return "leak";
+
+        case TOKEN_DEFINE: return "define";
+        case TOKEN_AS: return "as";
+        case TOKEN_TYPEDEF: return "typedef";
+
+        // OOP Keywords
+        case TOKEN_CLASS: return "class";
+        case TOKEN_STRUCT: return "struct";
+        case TOKEN_UNION: return "union";
+        case TOKEN_IS: return "is";
+        case TOKEN_HAS: return "has";
+        case TOKEN_OPEN: return "open";
+        case TOKEN_CLOSED: return "closed";
+        case TOKEN_TYPEOF: return "typeof";
+        case TOKEN_HASMETHOD: return "hasmethod";
+        case TOKEN_HASATTRIBUTE: return "hasattribute";
+
+        case TOKEN_NAMESPACE: return "namespace";
+        case TOKEN_ENUM: return "enum";
+
+        // Flux / Generator Support
+        case TOKEN_FLUX: return "flux";
+        case TOKEN_EMIT: return "emit";
+        case TOKEN_FOR: return "for";
+        case TOKEN_IN: return "in";
+
+        case TOKEN_KW_VOID: return "void";
+        case TOKEN_KW_INT: return "int";
+        case TOKEN_KW_CHAR: return "char";
+        case TOKEN_KW_BOOL: return "bool";
+        case TOKEN_KW_SINGLE: return "single";
+        case TOKEN_KW_DOUBLE: return "double";
+        case TOKEN_KW_STRING: return "string";
+        case TOKEN_KW_LET: return "let";
+
+        case TOKEN_KW_SHORT: return "short";
+        case TOKEN_KW_LONG: return "long";
+        case TOKEN_KW_UNSIGNED: return "unsigned";
+
+        // Extended Literal Tokens
+        case TOKEN_ULONG_LONG_LIT: return "ulong long";
+        case TOKEN_LONG_LONG_LIT: return "long long";
+        case TOKEN_ULONG_LIT: return "ulong";
+        case TOKEN_LONG_LIT: return "long";
+        case TOKEN_UINT_LIT: return "uint";
+        case TOKEN_LONG_DOUBLE_LIT: return "long double";
+
+        case TOKEN_KW_MUT: return "mut";
+        case TOKEN_KW_IMUT: return "imut";
+
+        case TOKEN_IMPORT: return "import";
+        case TOKEN_EXTERN: return "extern";
+        case TOKEN_LINK: return "link";
+
+        case TOKEN_TRUE: return "true";
+        case TOKEN_FALSE: return "false";
+
+        case TOKEN_NOT: return "!";
+        case TOKEN_BIT_NOT: return "~";
+
+        case TOKEN_PLUS: return "+";
+        case TOKEN_INCREMENT: return "++";
+        case TOKEN_MINUS: return "-";
+        case TOKEN_DECREMENT: return "--";
+        case TOKEN_STAR: return "*";
+        case TOKEN_SLASH: return "/";
+        case TOKEN_MOD: return "%";
+        case TOKEN_AND: return "&";
+        case TOKEN_OR: return "|";
+        case TOKEN_XOR: return "^";
+        case TOKEN_LSHIFT: return "<<";
+        case TOKEN_RSHIFT: return ">>";
+
+        case TOKEN_AND_AND: return "&&";
+        case TOKEN_OR_OR: return "||";
+
+        case TOKEN_EQ: return "==";
+        case TOKEN_NEQ: return "!=";
+        case TOKEN_LT: return "<";
+        case TOKEN_GT: return ">";
+        case TOKEN_LTE: return "<=";
+        case TOKEN_GTE: return ">=";
+
+        case TOKEN_UNKNOWN: return "unknown";
+        default: return "unknown_token";
     }
 }
 

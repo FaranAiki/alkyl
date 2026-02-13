@@ -56,6 +56,7 @@ typedef enum {
   // OOP Keywords
   TOKEN_CLASS,
   TOKEN_STRUCT, // Added struct keyword
+  TOKEN_UNION,  // Added union keyword
   TOKEN_IS,     
   TOKEN_HAS,    
   TOKEN_OPEN,   

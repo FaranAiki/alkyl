@@ -7,6 +7,7 @@
 #include <llvm-c/Core.h>
 #include <llvm-c/ExecutionEngine.h>
 #include <llvm-c/Analysis.h>
+#include <llvm-c/Target.h>
 
 typedef struct Symbol {
   char *name;
@@ -60,6 +61,7 @@ typedef struct ClassInfo {
     int method_count;
     
     int is_extern; // Supports opaque types
+    int is_union;  // Support unions
 
     struct ClassInfo *next;
 } ClassInfo;
