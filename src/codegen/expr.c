@@ -112,8 +112,16 @@ VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
         }
 
         VarType t = codegen_calc_type(ctx, aa->target);
-        if (t.ptr_depth > 0) t.ptr_depth--;
-        else if (t.array_size > 0) { t.array_size = 0; } // Decay array to element
+        
+        // PRIORITY FIX: Array vs Pointer precedence for Array Access
+        // If it was an array (array_size > 0), access peels the array.
+        // If it was a pointer (ptr_depth > 0), access dereferences.
+        if (t.array_size > 0) {
+            t.array_size = 0; 
+        } else if (t.ptr_depth > 0) {
+            t.ptr_depth--;
+        }
+        
         return t;
     }
 
@@ -232,14 +240,20 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
          VarType t = codegen_calc_type(ctx, aa->target);
          LLVMTypeRef el_type = get_llvm_type(ctx, t);
          
-         if (t.ptr_depth > 0) {
+         // PRIORITY FIX:
+         // If array_size > 0, it is an array allocation (e.g. int a[10] or int *a[2]).
+         // We GEP into it directly.
+         if (t.array_size > 0) {
+             LLVMValueRef indices[] = { LLVMConstInt(LLVMInt64Type(), 0, 0), index };
+             return LLVMBuildGEP2(ctx->builder, el_type, target, indices, 2, "arr_idx");
+         } 
+         // If ptr_depth > 0 (and array_size == 0), it is a pointer (e.g. int *p).
+         // We must Load the pointer value, then GEP.
+         else if (t.ptr_depth > 0) {
              LLVMValueRef base = LLVMBuildLoad2(ctx->builder, el_type, target, "ptr_base");
              t.ptr_depth--;
              LLVMTypeRef inner_type = get_llvm_type(ctx, t);
              return LLVMBuildGEP2(ctx->builder, inner_type, base, &index, 1, "ptr_idx");
-         } else if (t.array_size > 0) {
-             LLVMValueRef indices[] = { LLVMConstInt(LLVMInt64Type(), 0, 0), index };
-             return LLVMBuildGEP2(ctx->builder, el_type, target, indices, 2, "arr_idx");
          }
      }
 
@@ -819,15 +833,19 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
         LLVMValueRef index = codegen_expr(ctx, aa->index);
         LLVMTypeRef el_type = get_llvm_type(ctx, target_t); 
         
-        if (target_t.ptr_depth > 0) {
+        // PRIORITY FIX: Array vs Pointer precedence for GEP
+        if (target_t.array_size > 0) {
+             // Array: GEP(0, idx)
+             LLVMValueRef indices[] = { LLVMConstInt(LLVMInt64Type(), 0, 0), index };
+             LLVMValueRef gep = LLVMBuildGEP2(ctx->builder, el_type, target, indices, 2, "arr_idx");
+             return LLVMBuildLoad2(ctx->builder, LLVMGetElementType(el_type), gep, "val");
+        } 
+        else if (target_t.ptr_depth > 0) {
+            // Pointer: Load base, then GEP(idx)
             el_type = LLVMGetElementType(el_type);
             LLVMValueRef base = LLVMBuildLoad2(ctx->builder, el_type, target, "ptr_base");
             LLVMValueRef gep = LLVMBuildGEP2(ctx->builder, LLVMGetElementType(el_type), base, &index, 1, "ptr_idx");
             return LLVMBuildLoad2(ctx->builder, LLVMGetElementType(el_type), gep, "val");
-        } else {
-             LLVMValueRef indices[] = { LLVMConstInt(LLVMInt64Type(), 0, 0), index };
-             LLVMValueRef gep = LLVMBuildGEP2(ctx->builder, el_type, target, indices, 2, "arr_idx");
-             return LLVMBuildLoad2(ctx->builder, LLVMGetElementType(el_type), gep, "val");
         }
   }
   else if (node->type == NODE_MEMBER_ACCESS) {
