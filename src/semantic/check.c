@@ -405,10 +405,14 @@ VarType check_expr_internal(SemCtx *ctx, ASTNode *node) {
                  return unknown;
             }
             
-            if (target_t.ptr_depth > 0) target_t.ptr_depth--;
-            else if (target_t.array_size > 0) {
+            // PRIORITY FIX: Array access priority
+            // If it's a fixed array, accessing it peels the array layer first
+            if (target_t.array_size > 0) {
                  target_t.array_size = 0; 
+            } else if (target_t.ptr_depth > 0) {
+                 target_t.ptr_depth--;
             }
+            
             return target_t;
         }
         
