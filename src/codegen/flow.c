@@ -111,12 +111,6 @@ void codegen_loop(CodegenCtx *ctx, LoopNode *node) {
   LLVMValueRef counter_ptr = NULL;
   
   if (ctx->flux_ctx_val) {
-      // If inside flux, loop counters need to persist in the struct if yielding
-      // For simplicity, we assume generic loop counters are transient unless explicitly declared as vars
-      // But standard 'loop' counter is implicit. Let's make it stack allocated.
-      // If we yield inside a loop, the stack is lost.
-      // FIX: For flux, we ideally need to spill this to the struct.
-      // Since this is a "Simple" implementation, we rely on the user to use 'for' or 'while' with explicit vars for robust state.
       counter_ptr = LLVMBuildAlloca(ctx->builder, LLVMInt64Type(), "loop_i");
   } else {
       counter_ptr = LLVMBuildAlloca(ctx->builder, LLVMInt64Type(), "loop_i");
@@ -183,9 +177,6 @@ void codegen_while(CodegenCtx *ctx, WhileNode *node) {
   } else {
       LLVMBuildBr(ctx->builder, cond_bb);
       LLVMPositionBuilderAtEnd(ctx->builder, cond_bb);
-      
-      // If we are in flux, this is a re-entry point potential.
-      // But standard while logic is fine as long as vars are persistent.
       
       LLVMValueRef cond = codegen_expr(ctx, node->condition);
       if (LLVMGetTypeKind(LLVMTypeOf(cond)) != LLVMIntegerTypeKind || LLVMGetIntTypeWidth(LLVMTypeOf(cond)) != 1) {
@@ -321,7 +312,7 @@ void codegen_if(CodegenCtx *ctx, IfNode *node) {
 // --- FLUX CODE GENERATION ---
 
 // Helper to collect variable declarations in the flux body
-void collect_flux_vars(ASTNode *node, LLVMTypeRef *types, char **names, int *count, int *cap, CodegenCtx *ctx) {
+void collect_flux_vars(ASTNode *node, LLVMTypeRef *types, VarType *vtypes, char **names, int *count, int *cap, CodegenCtx *ctx) {
     if (!node) return;
     
     if (node->type == NODE_VAR_DECL) {
@@ -329,58 +320,84 @@ void collect_flux_vars(ASTNode *node, LLVMTypeRef *types, char **names, int *cou
         if (*count >= *cap) {
             *cap *= 2;
             types = realloc(types, sizeof(LLVMTypeRef) * (*cap));
+            vtypes = realloc(vtypes, sizeof(VarType) * (*cap));
             names = realloc(names, sizeof(char*) * (*cap));
         }
         
-        // Determine type
-        LLVMTypeRef t = get_llvm_type(ctx, vd->var_type);
+        // Determine type using codegen calculation if AUTO
+        VarType final_vt = vd->var_type;
+        if (final_vt.base == TYPE_AUTO && vd->initializer) {
+            final_vt = codegen_calc_type(ctx, vd->initializer);
+        }
+        
+        LLVMTypeRef t = get_llvm_type(ctx, final_vt);
+
         if (vd->is_array) {
-            int sz = vd->array_size && vd->array_size->type == NODE_LITERAL ? ((LiteralNode*)vd->array_size)->val.int_val : 10;
+            int sz = 10;
+            if (vd->array_size && vd->array_size->type == NODE_LITERAL) {
+                sz = ((LiteralNode*)vd->array_size)->val.int_val;
+            } else if (vd->initializer && vd->initializer->type == NODE_ARRAY_LIT) {
+                // Infer size from initializer
+                ArrayLitNode *lit = (ArrayLitNode*)vd->initializer;
+                int c = 0; ASTNode *el = lit->elements;
+                while(el) { c++; el = el->next; }
+                sz = c;
+            }
+            final_vt.array_size = sz;
             t = LLVMArrayType(t, sz);
         }
 
         names[*count] = strdup(vd->name);
         types[*count] = t;
+        vtypes[*count] = final_vt;
         (*count)++;
     }
     
+    // Recurse children
     if (node->type == NODE_IF) {
-        collect_flux_vars(((IfNode*)node)->then_body, types, names, count, cap, ctx);
-        collect_flux_vars(((IfNode*)node)->else_body, types, names, count, cap, ctx);
+        collect_flux_vars(((IfNode*)node)->then_body, types, vtypes, names, count, cap, ctx);
+        collect_flux_vars(((IfNode*)node)->else_body, types, vtypes, names, count, cap, ctx);
     } else if (node->type == NODE_WHILE) {
-        collect_flux_vars(((WhileNode*)node)->body, types, names, count, cap, ctx);
+        collect_flux_vars(((WhileNode*)node)->body, types, vtypes, names, count, cap, ctx);
     } else if (node->type == NODE_LOOP) {
-        collect_flux_vars(((LoopNode*)node)->body, types, names, count, cap, ctx);
+        collect_flux_vars(((LoopNode*)node)->body, types, vtypes, names, count, cap, ctx);
     } else if (node->type == NODE_FOR_IN) {
         // Handle iterator variable
         ForInNode *f = (ForInNode*)node;
         if (*count >= *cap) {
             *cap *= 2;
             types = realloc(types, sizeof(LLVMTypeRef) * (*cap));
+            vtypes = realloc(vtypes, sizeof(VarType) * (*cap));
             names = realloc(names, sizeof(char*) * (*cap));
         }
-        // Simplified inference for iterator vars (assuming int or char*)
         names[*count] = strdup(f->var_name);
         types[*count] = get_llvm_type(ctx, f->iter_type);
+        vtypes[*count] = f->iter_type;
         (*count)++;
         
-        collect_flux_vars(f->body, types, names, count, cap, ctx);
+        collect_flux_vars(f->body, types, vtypes, names, count, cap, ctx);
+    } else if (node->type == NODE_SWITCH) {
+        SwitchNode *sw = (SwitchNode*)node;
+        ASTNode *c = sw->cases;
+        while(c) {
+            collect_flux_vars(((CaseNode*)c)->body, types, vtypes, names, count, cap, ctx);
+            c = c->next;
+        }
+        if (sw->default_case) {
+            collect_flux_vars(sw->default_case, types, vtypes, names, count, cap, ctx);
+        }
     }
 
-    collect_flux_vars(node->next, types, names, count, cap, ctx);
+    collect_flux_vars(node->next, types, vtypes, names, count, cap, ctx);
 }
 
 // Helper: Transform NODE_RETURN into NODE_BREAK inside flux
-// Because standard return logic emits 'ret' which mismatches the state machine return type.
-// Break will jump to 'finished' block (state 0) via the dummy loop context.
 void replace_returns_with_breaks(ASTNode *node) {
     while (node) {
         if (node->type == NODE_RETURN) {
             node->type = NODE_BREAK;
-            // Value is ignored as flux return is effectively void (end of stream)
         }
         
-        // Recurse
         if (node->type == NODE_IF) {
             replace_returns_with_breaks(((IfNode*)node)->then_body);
             replace_returns_with_breaks(((IfNode*)node)->else_body);
@@ -404,11 +421,9 @@ void replace_returns_with_breaks(ASTNode *node) {
 }
 
 // Helper: Rewrite VarDecls to Assignments in Flux Body
-// This prevents reallocation of stack variables that should be persistent in the struct.
 ASTNode* rewrite_decls_to_assigns(ASTNode *node) {
     if (!node) return NULL;
     
-    // Process next first (list tail)
     node->next = rewrite_decls_to_assigns(node->next);
     
     if (node->type == NODE_VAR_DECL) {
@@ -424,18 +439,12 @@ ASTNode* rewrite_decls_to_assigns(ASTNode *node) {
             an->value = vd->initializer;
             an->op = TOKEN_ASSIGN;
             
-            // Note: We don't free 'vd' here to avoid double-free if managed elsewhere,
-            // but in a proper compiler pass we should.
-            
             return (ASTNode*)an;
         } else {
-            // No initializer: just skip/remove the node
-            // The variable storage is already in the struct.
             return node->next;
         }
     }
     
-    // Recurse children
     if (node->type == NODE_IF) {
         ((IfNode*)node)->then_body = rewrite_decls_to_assigns(((IfNode*)node)->then_body);
         ((IfNode*)node)->else_body = rewrite_decls_to_assigns(((IfNode*)node)->else_body);
@@ -445,6 +454,14 @@ ASTNode* rewrite_decls_to_assigns(ASTNode *node) {
         ((LoopNode*)node)->body = rewrite_decls_to_assigns(((LoopNode*)node)->body);
     } else if (node->type == NODE_FOR_IN) {
         ((ForInNode*)node)->body = rewrite_decls_to_assigns(((ForInNode*)node)->body);
+    } else if (node->type == NODE_SWITCH) {
+        SwitchNode *sw = (SwitchNode*)node;
+        ASTNode *c = sw->cases;
+        while(c) {
+             ((CaseNode*)c)->body = rewrite_decls_to_assigns(((CaseNode*)c)->body);
+             c = c->next;
+        }
+        sw->default_case = rewrite_decls_to_assigns(sw->default_case);
     }
     
     return node;
@@ -452,19 +469,31 @@ ASTNode* rewrite_decls_to_assigns(ASTNode *node) {
 
 void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     // 1. Define the Context Struct
-    // Struct { i32 state, params..., locals... }
-    
     int param_count = 0;
     Parameter *p = node->params;
     while(p) { param_count++; p = p->next; }
     
+    // Temporarily add params to symbol table so collect_flux_vars can infer types of locals
+    Symbol *saved_pre_scan_syms = ctx->symbols;
+    p = node->params;
+    for(int i=0; i<param_count; i++) {
+        // We don't have LLVM values yet, but we need symbols for codegen_calc_type to work.
+        // We can pass NULL as value since calc_type only needs vtype.
+        add_symbol(ctx, p->name, NULL, NULL, p->type, 0, 1);
+        p = p->next;
+    }
+
     // Locals scan
     int local_cap = 16;
     int local_count = 0;
     LLVMTypeRef *local_types = malloc(sizeof(LLVMTypeRef) * local_cap);
+    VarType *local_vtypes = malloc(sizeof(VarType) * local_cap);
     char **local_names = malloc(sizeof(char*) * local_cap);
     
-    collect_flux_vars(node->body, local_types, local_names, &local_count, &local_cap, ctx);
+    collect_flux_vars(node->body, local_types, local_vtypes, local_names, &local_count, &local_cap, ctx);
+    
+    // Restore symbols (remove params) to clean state before actual codegen
+    ctx->symbols = saved_pre_scan_syms;
 
     // Total fields: 1 (state) + params + locals
     int total_fields = 1 + param_count + local_count;
@@ -487,20 +516,25 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     char struct_name[256];
     snprintf(struct_name, 256, "FluxCtx_%s", node->name);
     
-    // Check if type already exists (from forward declaration in let)
     LLVMTypeRef ctx_type = LLVMGetTypeByName(ctx->module, struct_name);
     if (!ctx_type) {
         ctx_type = LLVMStructCreateNamed(LLVMGetGlobalContext(), struct_name);
     }
     LLVMStructSetBody(ctx_type, struct_elems, total_fields, false);
     
-    // SAVE CTX TYPE
+    // CRITICAL FIX: Register the struct type as a ClassInfo so get_llvm_type 
+    // can find it by name if it's used elsewhere (e.g. by implicit inference),
+    // preventing creation of opaque collision types (.0)
+    if (!find_class(ctx, struct_name)) {
+        ClassInfo *ci = calloc(1, sizeof(ClassInfo));
+        ci->name = strdup(struct_name);
+        ci->struct_type = ctx_type;
+        add_class_info(ctx, ci);
+    }
+
     ctx->current_flux_struct_type = ctx_type;
     
-    // 2. Generate the Init/Factory Function (The one the user calls)
-    // Returns FluxCtx* (Pointer to heap allocated context)
-    
-    // Params are passed to Init function
+    // 2. Generate the Init/Factory Function
     LLVMTypeRef *init_param_types = malloc(sizeof(LLVMTypeRef) * param_count);
     p = node->params;
     for(int i=0; i<param_count; i++) {
@@ -514,16 +548,13 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     LLVMBasicBlockRef init_entry = LLVMAppendBasicBlock(init_func, "entry");
     LLVMPositionBuilderAtEnd(ctx->builder, init_entry);
     
-    // Malloc context
     LLVMValueRef size = LLVMSizeOf(ctx_type);
     LLVMValueRef mem = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->malloc_func), ctx->malloc_func, &size, 1, "ctx_mem");
     LLVMValueRef ctx_ptr = LLVMBuildBitCast(ctx->builder, mem, LLVMPointerType(ctx_type, 0), "ctx");
     
-    // Initialize State = 0
     LLVMValueRef state_ptr = LLVMBuildStructGEP2(ctx->builder, ctx_type, ctx_ptr, 0, "state_ptr");
     LLVMBuildStore(ctx->builder, LLVMConstInt(LLVMInt32Type(), 0, 0), state_ptr);
     
-    // Store Params into Context
     for(int i=0; i<param_count; i++) {
         LLVMValueRef arg = LLVMGetParam(init_func, i);
         LLVMValueRef field_ptr = LLVMBuildStructGEP2(ctx->builder, ctx_type, ctx_ptr, 1+i, "param_ptr");
@@ -532,10 +563,7 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     
     LLVMBuildRet(ctx->builder, ctx_ptr);
     
-    // 3. Generate the Next Function (The state machine)
-    // Returns { i1 isValid, T value }
-    // Args: FluxCtx*
-    
+    // 3. Generate the Next Function
     LLVMTypeRef yield_type = get_llvm_type(ctx, node->ret_type);
     LLVMTypeRef res_struct_elems[] = { LLVMInt1Type(), yield_type };
     LLVMTypeRef res_type = LLVMStructType(res_struct_elems, 2, false);
@@ -553,15 +581,11 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     LLVMValueRef ctx_arg = LLVMGetParam(next_func, 0);
     ctx->flux_ctx_val = ctx_arg;
     
-    // Load State
     LLVMValueRef current_state_ptr = LLVMBuildStructGEP2(ctx->builder, ctx_type, ctx_arg, 0, "state_ptr");
     LLVMValueRef current_state = LLVMBuildLoad2(ctx->builder, LLVMInt32Type(), current_state_ptr, "state");
     
-    // Register Symbols pointing to Context GEPs
-    // DO THIS BEFORE SWITCH so GEPs are in the entry block before terminator
     Symbol *saved_syms = ctx->symbols;
     
-    // Add Params
     p = node->params;
     for(int i=0; i<param_count; i++) {
         LLVMValueRef field_ptr = LLVMBuildStructGEP2(ctx->builder, ctx_type, ctx_arg, 1+i, p->name);
@@ -569,15 +593,11 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
         p = p->next;
     }
     
-    // Add Locals
     for(int i=0; i<local_count; i++) {
         LLVMValueRef field_ptr = LLVMBuildStructGEP2(ctx->builder, ctx_type, ctx_arg, 1+param_count+i, local_names[i]);
-        VarType vt = {TYPE_UNKNOWN, 0, NULL, 0, 0}; 
-        add_symbol(ctx, local_names[i], field_ptr, local_types[i], vt, 0, 1);
+        add_symbol(ctx, local_names[i], field_ptr, local_types[i], local_vtypes[i], 0, 1);
     }
     
-    // Create Switch
-    // Logic start block
     LLVMBasicBlockRef start_bb = LLVMAppendBasicBlock(next_func, "start_logic");
     LLVMBasicBlockRef default_bb = LLVMAppendBasicBlock(next_func, "finished");
     
@@ -586,42 +606,32 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     ctx->current_switch_inst = switch_inst;
     ctx->next_flux_state = 1;
 
-    // Fix 1: Replace RETURN with BREAK to avoid bad return types and terminator issues
     replace_returns_with_breaks(node->body);
-
-    // Fix 2: Rewrite VarDecls to Assignments to use struct fields instead of stack allocas
     node->body = rewrite_decls_to_assigns(node->body);
 
-    // Push a dummy loop context so BREAK commands (from replaced returns) jump to default_bb (finished)
     push_loop_ctx(ctx, default_bb, default_bb);
-
-    // Generate Body
     LLVMPositionBuilderAtEnd(ctx->builder, start_bb);
     codegen_node(ctx, node->body);
-    
     pop_loop_ctx(ctx);
 
-    // Fallthrough to finish
     if (!LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(ctx->builder))) {
         LLVMBuildBr(ctx->builder, default_bb);
     }
     
-    // Finish Block (Return {0, undef})
     LLVMPositionBuilderAtEnd(ctx->builder, default_bb);
     LLVMValueRef undef_ret = LLVMGetUndef(res_type);
     LLVMValueRef ret_0 = LLVMBuildInsertValue(ctx->builder, undef_ret, LLVMConstInt(LLVMInt1Type(), 0, 0), 0, "set_valid");
     LLVMBuildRet(ctx->builder, ret_0);
 
-    // Cleanup
     ctx->symbols = saved_syms;
     ctx->current_switch_inst = NULL;
     ctx->flux_ctx_val = NULL;
-    
     ctx->current_flux_struct_type = NULL;
     
     free(struct_elems);
     free(init_param_types);
     free(local_types);
+    free(local_vtypes);
     free(local_names);
 }
 
@@ -633,10 +643,7 @@ void codegen_emit(CodegenCtx *ctx, EmitNode *node) {
     LLVMValueRef val = codegen_expr(ctx, node->value);
     int next_state = ctx->next_flux_state++;
     
-    // Update State in Context
     LLVMValueRef ctx_ptr = ctx->flux_ctx_val;
-    
-    // FIX SEGV: Use cached struct type instead of deriving from pointer
     if (!ctx->current_flux_struct_type) {
          codegen_error(ctx, (ASTNode*)node, "Internal Error: Emit used without flux struct type context");
     }
@@ -645,53 +652,39 @@ void codegen_emit(CodegenCtx *ctx, EmitNode *node) {
     LLVMValueRef state_ptr = LLVMBuildStructGEP2(ctx->builder, ctx_type, ctx_ptr, 0, "state_ptr");
     LLVMBuildStore(ctx->builder, LLVMConstInt(LLVMInt32Type(), next_state, 0), state_ptr);
     
-    // Return {1, val}
     LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
     LLVMTypeRef res_type = LLVMGetReturnType(LLVMGlobalGetValueType(func));
     
     LLVMValueRef undef = LLVMGetUndef(res_type);
     LLVMValueRef res_1 = LLVMBuildInsertValue(ctx->builder, undef, LLVMConstInt(LLVMInt1Type(), 1, 0), 0, "set_valid");
-    
-    // Cast if necessary (float to int etc, simplistic check here)
-    // Assume semantic check ensured compatibility
     LLVMValueRef res_2 = LLVMBuildInsertValue(ctx->builder, res_1, val, 1, "set_val");
     
     LLVMBuildRet(ctx->builder, res_2);
     
-    // Resume Block
     LLVMBasicBlockRef resume_bb = LLVMAppendBasicBlock(func, "resume");
     LLVMAddCase(ctx->current_switch_inst, LLVMConstInt(LLVMInt32Type(), next_state, 0), resume_bb);
     LLVMPositionBuilderAtEnd(ctx->builder, resume_bb);
 }
 
 void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
-    // 1. Evaluate Collection
-
     LLVMValueRef col = codegen_expr(ctx, node->collection);
     VarType col_type = codegen_calc_type(ctx, node->collection);
     
-    // 2. Setup Loop
     LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
     LLVMBasicBlockRef cond_bb = LLVMAppendBasicBlock(func, "for_cond");
     LLVMBasicBlockRef body_bb = LLVMAppendBasicBlock(func, "for_body");
     LLVMBasicBlockRef end_bb = LLVMAppendBasicBlock(func, "for_end");
     
-    // Loop State Variables
-    LLVMValueRef iter_ptr = NULL; // For arrays/strings
-    LLVMValueRef flux_ctx = NULL; // For flux
+    LLVMValueRef iter_ptr = NULL;
+    LLVMValueRef flux_ctx = NULL;
     
     if (col_type.base == TYPE_STRING || (col_type.base == TYPE_CHAR && col_type.ptr_depth == 1)) {
-        // String Iteration
         iter_ptr = LLVMBuildAlloca(ctx->builder, LLVMPointerType(LLVMInt8Type(), 0), "str_iter");
         LLVMBuildStore(ctx->builder, col, iter_ptr);
-    } else if (col_type.base == TYPE_INT) {
-        // Range Iteration 0..N
+    } else if (col_type.base == TYPE_INT && col_type.array_size == 0 && col_type.ptr_depth == 0) {
         iter_ptr = LLVMBuildAlloca(ctx->builder, LLVMInt64Type(), "range_i");
         LLVMBuildStore(ctx->builder, LLVMConstInt(LLVMInt64Type(), 0, 0), iter_ptr);
     } else {
-        // Flux Iteration
-        // col is likely the FluxCtx* returned by the Init function
-        printf("Array is here\n");
         flux_ctx = col;
     }
     
@@ -710,17 +703,12 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
              snprintf(next_name, 256, "%s_next", cn->name);
              found = 1;
         } else {
-             // Try to deduce from LLVM Type Name
-             // LLVMTypeOf(flux_ctx) -> FluxCtx_NAME*
              LLVMTypeRef ptr_t = LLVMTypeOf(flux_ctx);
              if (LLVMGetTypeKind(ptr_t) == LLVMPointerTypeKind) {
                  LLVMTypeRef el_t = LLVMGetElementType(ptr_t);
-                 // If it was stored in i8*, we can't get it. But if it is fresh or typed:
                  if (LLVMGetTypeKind(el_t) == LLVMStructTypeKind) {
                      const char *sname = LLVMGetStructName(el_t);
                      if (sname && strncmp(sname, "FluxCtx_", 8) == 0) {
-                         // Found it! sname is FluxCtx_gen
-                         // We want gen_next
                          snprintf(next_name, 256, "%s_next", sname + 8);
                          found = 1;
                      }
@@ -728,20 +716,13 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
              }
         }
         
-        if (!found) {
-             // Fallback: This usually happens if flux_ctx was cast to i8*.
-             // In simple compiler, assuming flux vars don't mix, we might fail here.
-             snprintf(next_name, 256, "UnknownFlux_next");
-        }
+        if (!found) snprintf(next_name, 256, "UnknownFlux_next");
 
-        // TODO what the fuck is this
         LLVMValueRef next_func = LLVMGetNamedFunction(ctx->module, next_name);
         if (!next_func) {
-             codegen_error(ctx, (ASTNode*)node, "Could not find flux next function. (Note: iterating variables bound to fluxes requires type inference that may be lost in this version)");
+             codegen_error(ctx, (ASTNode*)node, "Could not find flux next function.");
         }
         
-        // Bitcast flux_ctx to the expected argument type (FluxCtx*)
-        // This handles cases where flux_ctx is i8*
         LLVMTypeRef func_t = LLVMGlobalGetValueType(next_func);
         LLVMTypeRef expected_ptr_t = LLVMTypeOf(LLVMGetParam(next_func, 0));
         
@@ -753,15 +734,13 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
         condition = LLVMBuildExtractValue(ctx->builder, res, 0, "is_valid");
         current_val = LLVMBuildExtractValue(ctx->builder, res, 1, "val");
     } 
-    else if (col_type.base == TYPE_INT) {
+    else if (iter_ptr && col_type.base == TYPE_INT) {
         LLVMValueRef idx = LLVMBuildLoad2(ctx->builder, LLVMInt64Type(), iter_ptr, "idx");
-        // Cast col to i64
         LLVMValueRef limit = LLVMBuildIntCast(ctx->builder, col, LLVMInt64Type(), "limit");
         condition = LLVMBuildICmp(ctx->builder, LLVMIntSLT, idx, limit, "chk");
         current_val = LLVMBuildIntCast(ctx->builder, idx, LLVMInt32Type(), "val");
     }
     else {
-        // String
         LLVMValueRef p = LLVMBuildLoad2(ctx->builder, LLVMPointerType(LLVMInt8Type(), 0), iter_ptr, "p");
         LLVMValueRef c = LLVMBuildLoad2(ctx->builder, LLVMInt8Type(), p, "char");
         condition = LLVMBuildICmp(ctx->builder, LLVMIntNE, c, LLVMConstInt(LLVMInt8Type(), 0, 0), "chk");
@@ -770,18 +749,12 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
     
     LLVMBuildCondBr(ctx->builder, condition, body_bb, end_bb);
     
-    // Body
     LLVMPositionBuilderAtEnd(ctx->builder, body_bb);
     
-    // Bind Loop Var
     LLVMTypeRef var_type = get_llvm_type(ctx, node->iter_type);
-    
     LLVMValueRef var_alloca = NULL;
     int is_new_var = 1;
     
-    // Check if we are in flux and var already exists in context (lifted to struct)
-    // Logic: If in flux, symbols are already in ctx->symbols via codegen_flux_def pre-pass.
-    // So find_symbol should return the GEP.
     if (ctx->flux_ctx_val) {
         Symbol *existing = find_symbol(ctx, node->var_name);
         if (existing) {
@@ -805,10 +778,9 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
     codegen_node(ctx, node->body);
     pop_loop_ctx(ctx);
     
-    // Step
     if (flux_ctx) {
-        // Step happens in check (by calling next again)
-    } else if (col_type.base == TYPE_INT) {
+        // Step in check
+    } else if (iter_ptr && col_type.base == TYPE_INT) {
         LLVMValueRef idx = LLVMBuildLoad2(ctx->builder, LLVMInt64Type(), iter_ptr, "idx");
         LLVMValueRef nxt = LLVMBuildAdd(ctx->builder, idx, LLVMConstInt(LLVMInt64Type(), 1, 0), "inc");
         LLVMBuildStore(ctx->builder, nxt, iter_ptr);

@@ -292,7 +292,7 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
 LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
   if (!node) return LLVMConstInt(LLVMInt32Type(), 0, 0);
 
-  debug("Node type for codegen expr: %s", node_type_to_string(node->type));
+  debug("Enter: Node type for codegen expr: %s", node_type_to_string(node->type));
 
   if (node->type == NODE_CALL) {
     CallNode *c = (CallNode*)node;
@@ -499,6 +499,8 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
       LLVMTypeRef ftype = LLVMGlobalGetValueType(func);
       LLVMValueRef ret = LLVMBuildCall2(ctx->builder, ftype, func, args, arg_count + 1, "");
       free(args);
+  debug("Enter: Node type for codegen expr: %s", node_type_to_string(node->type));
+
       return ret;
   }
   else if (node->type == NODE_TRAIT_ACCESS) {

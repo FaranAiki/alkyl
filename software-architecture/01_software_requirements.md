@@ -6,7 +6,11 @@ This defines what must be done, what should be done, what could be done, and wha
 
 ### Must 
 
+Implement basic extern in C for FFI 
+
 ### Should 
+
+
 
 ### Could 
 
