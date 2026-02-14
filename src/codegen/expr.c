@@ -51,6 +51,59 @@ static void get_type_name(VarType t, char *buf) {
     }
 }
 
+// Helper to determine the structural LLVM type stored at an L-Value address.
+// This allows resolving multidimensional arrays (e.g. [2 x [2 x i32]]) where VarType loses info.
+// We avoid inspecting Pointers to prevent issues with Opaque Pointers.
+static LLVMTypeRef get_lvalue_struct_type(CodegenCtx *ctx, ASTNode *node) {
+    if (!node) return NULL;
+
+    if (node->type == NODE_VAR_REF) {
+        Symbol *sym = find_symbol(ctx, ((VarRefNode*)node)->name);
+        if (sym) return sym->type; // Returns the allocated type (e.g. [2 x [2 x i32]])
+
+        Symbol *this_sym = find_symbol(ctx, "this");
+        if (this_sym && this_sym->vtype.class_name) {
+             ClassInfo *ci = find_class(ctx, this_sym->vtype.class_name);
+             if (ci) {
+                 LLVMTypeRef mtype;
+                 if (get_member_index(ci, ((VarRefNode*)node)->name, &mtype, NULL) != -1) {
+                     return mtype;
+                 }
+             }
+        }
+        return NULL;
+    }
+
+    if (node->type == NODE_ARRAY_ACCESS) {
+        ArrayAccessNode *aa = (ArrayAccessNode*)node;
+        LLVMTypeRef parent_t = get_lvalue_struct_type(ctx, aa->target);
+        if (!parent_t) return NULL;
+
+        // Only peel explicit Arrays. 
+        // We do NOT inspect Pointers because they might be Opaque, crashing LLVMGetElementType.
+        if (LLVMGetTypeKind(parent_t) == LLVMArrayTypeKind) {
+            return LLVMGetElementType(parent_t);
+        }
+        
+        return NULL;
+    }
+
+    if (node->type == NODE_MEMBER_ACCESS) {
+        MemberAccessNode *ma = (MemberAccessNode*)node;
+        VarType obj_vt = codegen_calc_type(ctx, ma->object);
+        if (obj_vt.class_name) {
+            ClassInfo *ci = find_class(ctx, obj_vt.class_name);
+            LLVMTypeRef mtype;
+            if (ci && get_member_index(ci, ma->member_name, &mtype, NULL) != -1) {
+                return mtype;
+            }
+        }
+        return NULL;
+    }
+
+    return NULL;
+}
+
 // Calculate the Alkyl VarType of an expression (for type checking/inference in codegen)
 VarType codegen_calc_type(CodegenCtx *ctx, ASTNode *node) {
     VarType vt = {TYPE_UNKNOWN, 0, NULL, 0, 0};
@@ -233,24 +286,35 @@ LLVMValueRef codegen_addr(CodegenCtx *ctx, ASTNode *node) {
               if (find_enum(ctx, ((VarRefNode*)aa->target)->name)) return NULL;
          }
 
+         // Get the address of the target
          LLVMValueRef target = codegen_addr(ctx, aa->target);
-         if (!target) target = codegen_expr(ctx, aa->target); 
          
+         // If target is NULL (e.g. r-value array), we can't get an address
+         if (!target) return NULL;
+
          LLVMValueRef index = codegen_expr(ctx, aa->index);
-         VarType t = codegen_calc_type(ctx, aa->target);
-         LLVMTypeRef el_type = get_llvm_type(ctx, t);
          
-         // PRIORITY FIX:
-         // If array_size > 0, it is an array allocation (e.g. int a[10] or int *a[2]).
-         // We GEP into it directly.
-         if (t.array_size > 0) {
+         // ROBUST ARRAY LOGIC:
+         // Use get_lvalue_struct_type to inspect the structural type of the target address.
+         // This handles Multidimensional Arrays (explicit types).
+         
+         LLVMTypeRef target_struct_type = get_lvalue_struct_type(ctx, aa->target);
+         
+         if (target_struct_type && LLVMGetTypeKind(target_struct_type) == LLVMArrayTypeKind) {
+             // Case 1: Target points to an explicit Array (e.g. [10 x i32]* or [2 x [2 x i32]]*)
+             // We need GEP(0, index) to peel one layer
              LLVMValueRef indices[] = { LLVMConstInt(LLVMInt64Type(), 0, 0), index };
-             return LLVMBuildGEP2(ctx->builder, el_type, target, indices, 2, "arr_idx");
+             return LLVMBuildGEP2(ctx->builder, target_struct_type, target, indices, 2, "arr_idx");
          } 
-         // If ptr_depth > 0 (and array_size == 0), it is a pointer (e.g. int *p).
-         // We must Load the pointer value, then GEP.
-         else if (t.ptr_depth > 0) {
-             LLVMValueRef base = LLVMBuildLoad2(ctx->builder, el_type, target, "ptr_base");
+         
+         // Case 2: Pointers (including opaque pointers)
+         // Fallback to VarType info which is safe against Opaque Pointers.
+         
+         VarType t = codegen_calc_type(ctx, aa->target);
+         LLVMTypeRef llvm_t = get_llvm_type(ctx, t);
+         
+         if (t.ptr_depth > 0) {
+             LLVMValueRef base = LLVMBuildLoad2(ctx->builder, llvm_t, target, "ptr_base");
              t.ptr_depth--;
              LLVMTypeRef inner_type = get_llvm_type(ctx, t);
              return LLVMBuildGEP2(ctx->builder, inner_type, base, &index, 1, "ptr_idx");
@@ -828,12 +892,33 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
              return LLVMBuildLoad2(ctx->builder, LLVMInt8Type(), gep, "char_val");
         }
         
-        LLVMValueRef target = codegen_addr(ctx, aa->target);
-        if(!target) target = codegen_expr(ctx, aa->target); 
+        // PRIORITY FIX:
+        // Prioritize using codegen_addr logic (which inspects LLVM types via get_lvalue_struct_type) 
+        // for correct Array Access.
+        
+        LLVMValueRef target_ptr = codegen_addr(ctx, node);
+        if (target_ptr) {
+            // Determine the structural type pointed to by target_ptr
+            LLVMTypeRef struct_type = get_lvalue_struct_type(ctx, node);
+            
+            // If the RESULT of the access (what target_ptr points to) is an Array, we decay it.
+            if (struct_type && LLVMGetTypeKind(struct_type) == LLVMArrayTypeKind) {
+                 LLVMValueRef indices[] = { LLVMConstInt(LLVMInt64Type(), 0, 0), LLVMConstInt(LLVMInt64Type(), 0, 0) };
+                 return LLVMBuildGEP2(ctx->builder, struct_type, target_ptr, indices, 2, "arr_decay");
+            } else if (struct_type) {
+                 return LLVMBuildLoad2(ctx->builder, struct_type, target_ptr, "arr_val");
+            } else {
+                 // Fallback if struct_type check failed but we have a pointer
+                 LLVMTypeRef elem_type = get_llvm_type(ctx, target_t); 
+                 return LLVMBuildLoad2(ctx->builder, elem_type, target_ptr, "arr_val");
+            }
+        }
+        
+        // Fallback for R-Values (e.g. [1,2][0]) where codegen_addr returns NULL
+        LLVMValueRef target = codegen_expr(ctx, aa->target); 
         LLVMValueRef index = codegen_expr(ctx, aa->index);
         LLVMTypeRef el_type = get_llvm_type(ctx, target_t); 
         
-        // PRIORITY FIX: Array vs Pointer precedence for GEP
         if (target_t.array_size > 0) {
              // Array: GEP(0, idx)
              LLVMValueRef indices[] = { LLVMConstInt(LLVMInt64Type(), 0, 0), index };
@@ -843,8 +928,8 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
         else if (target_t.ptr_depth > 0) {
             // Pointer: Load base, then GEP(idx)
             el_type = LLVMGetElementType(el_type);
-            LLVMValueRef base = LLVMBuildLoad2(ctx->builder, el_type, target, "ptr_base");
-            LLVMValueRef gep = LLVMBuildGEP2(ctx->builder, LLVMGetElementType(el_type), base, &index, 1, "ptr_idx");
+            // If target is already a pointer value, we use it as base
+            LLVMValueRef gep = LLVMBuildGEP2(ctx->builder, LLVMGetElementType(el_type), target, &index, 1, "ptr_idx");
             return LLVMBuildLoad2(ctx->builder, LLVMGetElementType(el_type), gep, "val");
         }
   }
@@ -869,16 +954,21 @@ LLVMValueRef codegen_expr(CodegenCtx *ctx, ASTNode *node) {
       LLVMValueRef addr = codegen_addr(ctx, node);
       if (addr) {
           VarType vt = codegen_calc_type(ctx, node);
-          
+          LLVMTypeRef type = get_llvm_type(ctx, vt);
+
+          // Use structural type check for robust decay logic if available
+          LLVMTypeRef struct_type = get_lvalue_struct_type(ctx, node);
+          if (struct_type && LLVMGetTypeKind(struct_type) == LLVMArrayTypeKind) {
+               LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), 0, 0) };
+               return LLVMBuildGEP2(ctx->builder, struct_type, addr, indices, 2, "mem_decay");
+          }
+
           if (vt.array_size > 0 && vt.ptr_depth == 0) {
-               // Decay
-               // Union member array decay: still same base address if union
-               // But codegen_addr handles the bitcast for union already
+               // Fallback Decay
                LLVMValueRef indices[] = { LLVMConstInt(LLVMInt32Type(), 0, 0), LLVMConstInt(LLVMInt32Type(), 0, 0) };
                return LLVMBuildGEP2(ctx->builder, get_llvm_type(ctx, vt), addr, indices, 2, "mem_decay");
           }
 
-          LLVMTypeRef type = get_llvm_type(ctx, vt);
           return LLVMBuildLoad2(ctx->builder, type, addr, "mem_val");
       }
   }
