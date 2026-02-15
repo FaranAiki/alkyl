@@ -142,6 +142,33 @@ void scan_declarations(SemCtx *ctx, ASTNode *node, const char *prefix) {
              scan_declarations(ctx, ns->body, new_prefix);
              if (qualified) free(qualified);
         }
+        else if (node->type == NODE_ENUM) {
+            EnumNode *en = (EnumNode*)node;
+            char *name = en->name ? en->name : "anonymous_enum";
+            
+            SemEnum *se = malloc(sizeof(SemEnum));
+            se->name = strdup(name);
+            se->members = NULL;
+            se->next = ctx->enums;
+            ctx->enums = se;
+
+            EnumEntry *ent = en->entries;
+            struct SemEnumMember **tail = &se->members;
+            
+            while(ent) {
+                if (ent->name) {
+                    struct SemEnumMember *m = malloc(sizeof(struct SemEnumMember));
+                    m->name = strdup(ent->name);
+                    m->next = NULL;
+                    *tail = m;
+                    tail = &m->next;
+
+                    VarType vt = {TYPE_INT, 0, NULL, 0, 0};
+                    add_symbol_semantic(ctx, ent->name, vt, 0, 0, 0, en->base.line, en->base.col);
+                }
+                ent = ent->next;
+            }
+        }
         node = node->next;
     }
 }
