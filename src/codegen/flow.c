@@ -195,7 +195,13 @@ void codegen_switch(CodegenCtx *ctx, SwitchNode *node) {
     LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
     LLVMValueRef cond = codegen_expr(ctx, node->condition);
     
-    if (LLVMGetTypeKind(LLVMTypeOf(cond)) != LLVMIntegerTypeKind) {
+    // FIX: Explicitly promote to i32 if the condition is smaller (e.g. i8, i1)
+    if (LLVMGetTypeKind(LLVMTypeOf(cond)) == LLVMIntegerTypeKind) {
+        unsigned width = LLVMGetIntTypeWidth(LLVMTypeOf(cond));
+        if (width < 32) {
+             cond = LLVMBuildZExt(ctx->builder, cond, LLVMInt32Type(), "switch_cond_prom");
+        }
+    } else {
         cond = LLVMBuildIntCast(ctx->builder, cond, LLVMInt32Type(), "switch_cond_cast");
     }
 
@@ -218,12 +224,20 @@ void codegen_switch(CodegenCtx *ctx, SwitchNode *node) {
     while(c) {
         CaseNode *cn = (CaseNode*)c;
         LLVMValueRef val = codegen_expr(ctx, cn->value);
+        
+        // FIX: Ensure case values match the promoted condition type (i32)
         if (LLVMTypeOf(val) != LLVMTypeOf(cond)) {
+            // Case 1: Constant Integer (most common)
             if (LLVMIsConstant(val) && LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMIntegerTypeKind) {
                 unsigned long long raw_val = LLVMConstIntGetZExtValue(val);
                 val = LLVMConstInt(LLVMTypeOf(cond), raw_val, 0);
-            } else {
-                val = LLVMConstBitCast(val, LLVMTypeOf(cond));
+            } 
+            // Case 2: BitCast fallback for non-constants or weird types.
+            // We removed explicit ConstZExt calls to avoid implicit declaration errors.
+            else {
+                 if (LLVMGetIntTypeWidth(LLVMTypeOf(val)) == LLVMGetIntTypeWidth(LLVMTypeOf(cond))) {
+                      val = LLVMConstBitCast(val, LLVMTypeOf(cond));
+                 }
             }
         }
         
@@ -355,10 +369,6 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     LLVMValueRef id = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_id), ctx->coro_id, id_args, 4, "id");
     
     // 2. Allocation Logic
-    // For simplicity, we just malloc always, but typical llvm.coro uses llvm.coro.alloc intrinsic check
-    // However, LLVM default pipeline often requires llvm.coro.alloc usage to optimize out allocations.
-    // %size = call i64 @llvm.coro.size.i64()
-    // %mem = call i8* @malloc(i64 %size)
     LLVMValueRef size = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_size), ctx->coro_size, NULL, 0, "size");
     LLVMValueRef mem = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->malloc_func), ctx->malloc_func, &size, 1, "mem");
     LLVMBuildBr(ctx->builder, begin_bb);
@@ -394,11 +404,18 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     LLVMValueRef suspend_args[] = { save_tok, LLVMConstInt(LLVMInt1Type(), 0, 0) }; // false = final? no
     LLVMValueRef suspend_res = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_suspend), ctx->coro_suspend, suspend_args, 2, "initial_suspend");
     
-    LLVMBasicBlockRef wake_bb = body_bb; 
+    // FIX: Explicitly cast i8 result to i32 for safety against backend promotion issues on i8 ops
+    LLVMValueRef suspend_res_i32 = LLVMBuildZExt(ctx->builder, suspend_res, LLVMInt32Type(), "suspend_res_i32");
     
-    LLVMValueRef switch_inst = LLVMBuildSwitch(ctx->builder, suspend_res, suspend_bb, 2);
-    LLVMAddCase(switch_inst, LLVMConstInt(LLVMInt8Type(), 0, 0), wake_bb);
-    LLVMAddCase(switch_inst, LLVMConstInt(LLVMInt8Type(), 1, 0), cleanup_bb);
+    // Use ICmp on i32 to be perfectly safe
+    LLVMBasicBlockRef check_cleanup_bb = LLVMAppendBasicBlock(func, "check_cleanup");
+    
+    LLVMValueRef is_zero = LLVMBuildICmp(ctx->builder, LLVMIntEQ, suspend_res_i32, LLVMConstInt(LLVMInt32Type(), 0, 0), "is_resume");
+    LLVMBuildCondBr(ctx->builder, is_zero, body_bb, check_cleanup_bb);
+    
+    LLVMPositionBuilderAtEnd(ctx->builder, check_cleanup_bb);
+    LLVMValueRef is_one = LLVMBuildICmp(ctx->builder, LLVMIntEQ, suspend_res_i32, LLVMConstInt(LLVMInt32Type(), 1, 0), "is_cleanup");
+    LLVMBuildCondBr(ctx->builder, is_one, cleanup_bb, suspend_bb);
     
     // Suspend Path: Return handle
     LLVMPositionBuilderAtEnd(ctx->builder, suspend_bb);
@@ -437,9 +454,19 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
         LLVMValueRef final_suspend_args[] = { final_save, LLVMConstInt(LLVMInt1Type(), 1, 0) }; // true = final
         LLVMValueRef final_res = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_suspend), ctx->coro_suspend, final_suspend_args, 2, "final_suspend");
         
-        LLVMValueRef final_sw = LLVMBuildSwitch(ctx->builder, final_res, suspend_bb, 2);
-        LLVMAddCase(final_sw, LLVMConstInt(LLVMInt8Type(), 0, 0), cleanup_bb); // Should trap actually
-        LLVMAddCase(final_sw, LLVMConstInt(LLVMInt8Type(), 1, 0), cleanup_bb);
+        // FIX: Promote to i32 before compare to avoid backend issues
+        LLVMValueRef final_res_i32 = LLVMBuildZExt(ctx->builder, final_res, LLVMInt32Type(), "final_res_i32");
+        
+        LLVMBasicBlockRef fin_suspend_bb = LLVMAppendBasicBlock(func, "fin_suspend");
+
+        LLVMValueRef is_zero_fin = LLVMBuildICmp(ctx->builder, LLVMIntEQ, final_res_i32, LLVMConstInt(LLVMInt32Type(), 0, 0), "is_zero");
+        LLVMValueRef is_one_fin = LLVMBuildICmp(ctx->builder, LLVMIntEQ, final_res_i32, LLVMConstInt(LLVMInt32Type(), 1, 0), "is_one");
+        LLVMValueRef is_cleanup = LLVMBuildOr(ctx->builder, is_zero_fin, is_one_fin, "is_cleanup");
+        
+        LLVMBuildCondBr(ctx->builder, is_cleanup, cleanup_bb, fin_suspend_bb);
+        
+        LLVMPositionBuilderAtEnd(ctx->builder, fin_suspend_bb);
+        LLVMBuildRet(ctx->builder, hdl);
     }
 
     ctx->symbols = saved_syms;
@@ -474,33 +501,29 @@ void codegen_emit(CodegenCtx *ctx, EmitNode *node) {
     LLVMValueRef suspend_args[] = { save_tok, LLVMConstInt(LLVMInt1Type(), 0, 0) };
     LLVMValueRef suspend_res = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_suspend), ctx->coro_suspend, suspend_args, 2, "yield_suspend");
     
+    // FIX: Promote to i32
+    LLVMValueRef suspend_res_i32 = LLVMBuildZExt(ctx->builder, suspend_res, LLVMInt32Type(), "suspend_res_i32");
+    
     LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
     LLVMBasicBlockRef resume_bb = LLVMAppendBasicBlock(func, "after_yield");
-    LLVMBasicBlockRef cleanup_bb = LLVMAppendBasicBlock(func, "yield_cleanup"); // Reuse or new?
-    // Note: We need to jump to the function's cleanup block if suspend returns 1
-    // But getting reference to it is hard without tracking it in ctx.
-    // For now, let's just make a trap/unreachable for cleanup path here or logic to free.
-    // Better: If suspend returns 1, it means we are being destroyed. We should return from the function (which eventually hits coro.end).
-    
-    // Handle Suspend Result
+    LLVMBasicBlockRef cleanup_bb = LLVMAppendBasicBlock(func, "yield_cleanup"); 
     LLVMBasicBlockRef suspend_ret_bb = LLVMAppendBasicBlock(func, "suspend_ret");
+    LLVMBasicBlockRef check_cleanup_emit_bb = LLVMAppendBasicBlock(func, "check_cleanup_emit");
+
+    // FIX: Use ICmp on i32
+    LLVMValueRef is_zero_emit = LLVMBuildICmp(ctx->builder, LLVMIntEQ, suspend_res_i32, LLVMConstInt(LLVMInt32Type(), 0, 0), "is_resume");
+    LLVMBuildCondBr(ctx->builder, is_zero_emit, resume_bb, check_cleanup_emit_bb);
     
-    LLVMValueRef sw = LLVMBuildSwitch(ctx->builder, suspend_res, suspend_ret_bb, 2);
-    LLVMAddCase(sw, LLVMConstInt(LLVMInt8Type(), 0, 0), resume_bb);
-    LLVMAddCase(sw, LLVMConstInt(LLVMInt8Type(), 1, 0), cleanup_bb);
-    
-    // Suspend Path: Need to return the handle? 
-    // In `codegen_flux_def`, the initial path returned the handle.
-    // Subsequent suspends just return void (control flow back to resume).
-    // The coro.suspend intrinsic handles the jump to the return block if we wire it up, 
-    // but in raw IR, -1 means "suspend", so we must return from the function.
-    // Since the function signature returns i8*, we return Undef or Null here (value is ignored by resume caller).
+    LLVMPositionBuilderAtEnd(ctx->builder, check_cleanup_emit_bb);
+    LLVMValueRef is_one_emit = LLVMBuildICmp(ctx->builder, LLVMIntEQ, suspend_res_i32, LLVMConstInt(LLVMInt32Type(), 1, 0), "is_cleanup");
+    LLVMBuildCondBr(ctx->builder, is_one_emit, cleanup_bb, suspend_ret_bb);
+
+    // Suspend Path
     LLVMPositionBuilderAtEnd(ctx->builder, suspend_ret_bb);
     LLVMBuildRet(ctx->builder, LLVMConstPointerNull(LLVMPointerType(LLVMInt8Type(), 0)));
 
     // Cleanup Path
     LLVMPositionBuilderAtEnd(ctx->builder, cleanup_bb);
-    // Ideally jump to main cleanup, but here just return.
     LLVMBuildRet(ctx->builder, LLVMConstPointerNull(LLVMPointerType(LLVMInt8Type(), 0)));
 
     // Resume Path

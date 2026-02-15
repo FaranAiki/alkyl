@@ -195,18 +195,19 @@ void codegen_return(CodegenCtx *ctx, ReturnNode *node) {
       LLVMValueRef res = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_suspend), ctx->coro_suspend, args, 2, "final_suspend");
       
       // Fix for LLVM Crash (PromoteIntegerOperand):
-      // llvm.coro.suspend returns i8 and MUST be followed by a switch/branch on its result.
-      // An unconditional branch here confuses the CoroSplit pass/DAG Legalizer.
+      // The previous ZExt+Switch fix failed on some backends.
+      // Replacing Switch with explicit ICmp/Br avoids legalization issues with i8.
       
       LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
       LLVMBasicBlockRef suspend_bb = LLVMAppendBasicBlock(func, "final_suspend_ret");
       
-      // Case -1 (default): Suspend -> Return handle to caller
-      // Case 0 (resume): Cleanup (should not happen on final)
-      // Case 1 (destroy): Cleanup
-      LLVMValueRef sw = LLVMBuildSwitch(ctx->builder, res, suspend_bb, 2);
-      LLVMAddCase(sw, LLVMConstInt(LLVMInt8Type(), 0, 0), ctx->flux_return_block);
-      LLVMAddCase(sw, LLVMConstInt(LLVMInt8Type(), 1, 0), ctx->flux_return_block);
+      // Check if res == 0 (Resume) or res == 1 (Destroy)
+      LLVMValueRef is_zero = LLVMBuildICmp(ctx->builder, LLVMIntEQ, res, LLVMConstInt(LLVMInt8Type(), 0, 0), "is_zero");
+      LLVMValueRef is_one = LLVMBuildICmp(ctx->builder, LLVMIntEQ, res, LLVMConstInt(LLVMInt8Type(), 1, 0), "is_one");
+      LLVMValueRef is_cleanup = LLVMBuildOr(ctx->builder, is_zero, is_one, "is_cleanup");
+      
+      // Branch: Cleanup/Resume -> cleanup block, Suspend -> suspend block
+      LLVMBuildCondBr(ctx->builder, is_cleanup, ctx->flux_return_block, suspend_bb);
       
       // In suspend block, return the coroutine handle (this is where execution returns to caller)
       LLVMPositionBuilderAtEnd(ctx->builder, suspend_bb);
