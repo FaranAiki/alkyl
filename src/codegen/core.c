@@ -21,6 +21,7 @@ void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef buil
 
     // Flux init
     ctx->flux_promise_val = NULL;
+    ctx->flux_promise_type = NULL;
     ctx->flux_coro_hdl = NULL; // Init handle
     ctx->flux_return_block = NULL;
 

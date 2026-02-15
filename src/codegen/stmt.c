@@ -183,7 +183,8 @@ void codegen_return(CodegenCtx *ctx, ReturnNode *node) {
   // Check if we are inside a Flux function
   if (ctx->flux_promise_val) {
       // Return in Flux = Finish
-      LLVMValueRef finished_ptr = LLVMBuildStructGEP2(ctx->builder, LLVMGetElementType(LLVMTypeOf(ctx->flux_promise_val)), ctx->flux_promise_val, 0, "fin_ptr");
+      // Fix: Use explicitly tracked struct type for GEP, do NOT use LLVMGetElementType on potential opaque pointer
+      LLVMValueRef finished_ptr = LLVMBuildStructGEP2(ctx->builder, ctx->flux_promise_type, ctx->flux_promise_val, 0, "fin_ptr");
       LLVMBuildStore(ctx->builder, LLVMConstInt(LLVMInt1Type(), 1, 0), finished_ptr);
       
       // Final Suspend with SAVE
@@ -193,12 +194,23 @@ void codegen_return(CodegenCtx *ctx, ReturnNode *node) {
       LLVMValueRef args[] = { save_tok, LLVMConstInt(LLVMInt1Type(), 1, 0) };
       LLVMValueRef res = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_suspend), ctx->coro_suspend, args, 2, "final_suspend");
       
-      // Branch to cleanup or suspend return
-      // Similar to emit logic, we need to handle the result
-      // But practically, final suspend never returns 0.
+      // Fix for LLVM Crash (PromoteIntegerOperand):
+      // llvm.coro.suspend returns i8 and MUST be followed by a switch/branch on its result.
+      // An unconditional branch here confuses the CoroSplit pass/DAG Legalizer.
       
-      // We can just branch to the pre-calculated return block (cleanup)
-      LLVMBuildBr(ctx->builder, ctx->flux_return_block);
+      LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
+      LLVMBasicBlockRef suspend_bb = LLVMAppendBasicBlock(func, "final_suspend_ret");
+      
+      // Case -1 (default): Suspend -> Return handle to caller
+      // Case 0 (resume): Cleanup (should not happen on final)
+      // Case 1 (destroy): Cleanup
+      LLVMValueRef sw = LLVMBuildSwitch(ctx->builder, res, suspend_bb, 2);
+      LLVMAddCase(sw, LLVMConstInt(LLVMInt8Type(), 0, 0), ctx->flux_return_block);
+      LLVMAddCase(sw, LLVMConstInt(LLVMInt8Type(), 1, 0), ctx->flux_return_block);
+      
+      // In suspend block, return the coroutine handle (this is where execution returns to caller)
+      LLVMPositionBuilderAtEnd(ctx->builder, suspend_bb);
+      LLVMBuildRet(ctx->builder, ctx->flux_coro_hdl);
       
       return;
   }

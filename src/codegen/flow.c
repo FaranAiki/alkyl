@@ -417,7 +417,8 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     LLVMPositionBuilderAtEnd(ctx->builder, body_bb);
     
     // Save Promise context for emit/return
-    ctx->flux_promise_val = promise; 
+    ctx->flux_promise_val = promise;
+    ctx->flux_promise_type = promise_type; // Store explicitly to avoid opaque ptr issues
     ctx->flux_return_block = cleanup_bb; // Actually, return means final suspend
 
     codegen_node(ctx, node->body);
@@ -443,6 +444,7 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
 
     ctx->symbols = saved_syms;
     ctx->flux_promise_val = NULL;
+    ctx->flux_promise_type = NULL;
     ctx->flux_return_block = NULL;
     ctx->flux_coro_hdl = NULL;
 }
@@ -455,7 +457,8 @@ void codegen_emit(CodegenCtx *ctx, EmitNode *node) {
     LLVMValueRef val = codegen_expr(ctx, node->value);
     
     // 1. Store value in promise
-    LLVMTypeRef promise_type = LLVMGetElementType(LLVMTypeOf(ctx->flux_promise_val));
+    // Use stored explicit type instead of relying on opaque pointer introspection
+    LLVMTypeRef promise_type = ctx->flux_promise_type; 
     LLVMValueRef val_ptr = LLVMBuildStructGEP2(ctx->builder, promise_type, ctx->flux_promise_val, 1, "val_ptr");
     LLVMBuildStore(ctx->builder, val, val_ptr);
     

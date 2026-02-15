@@ -120,6 +120,7 @@ typedef struct {
 
   // Flux / Generator Support (LLVM Coroutines)
   LLVMValueRef flux_promise_val; // Pointer to the Promise alloca in current flux func
+  LLVMTypeRef flux_promise_type; // Explicit tracking of promise struct type (avoids opaque ptr issues)
   LLVMValueRef flux_coro_hdl;    // Added: Current Coroutine Handle (i8*)
   LLVMBasicBlockRef flux_return_block; // Cleanup block to jump to on return
 
