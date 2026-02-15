@@ -10,17 +10,17 @@ This knowledge area describes how requirements for the Alkyl language are drawn 
 
 ## 2.1 Research Sources
 
-Comparative Language Analysis: analyzing features in C, C++, Rust, Zig, and Odin to determine "best-in-class" syntax and semantics.
+Analyzing features in C, C++, Haskell, Julia, Ruby, Python, Rust, Zig, Odin, and others to determine "best-in-class" syntax and semantics.
 
-LLVM Documentation: Reviewing llvm-c headers to understand the capabilities and limitations of the backend.
+Moreover, reviewing llvm-c headers to understand the capabilities and limitations of the backend is part of crucial step to initialize self-hosting.
 
-System Programming Standards: Reviewing ABI specifications (System V ABI) to ensure interoperability requirements are met.
+Thus, reviewing ABI specifications (System V ABI) to ensure interoperability requirements are met are a must.
 
 ## 3 Conduct Elicitation
 
 ### 3.1. Elicitation Techniques
 
-Document Analysis: Studying existing codebases (libc headers) to determine what features Alkyl needs to seamlessly import/bind to them.
+Studying existing codebases (libc headers) to determine what features Alkyl needs to seamlessly import/bind to them.
 
 Prototyping (Spikes): Creating small, throwaway parsers or codegen tests (e.g., code/test/) to verify if a syntax idea is parsable and implementable.
 

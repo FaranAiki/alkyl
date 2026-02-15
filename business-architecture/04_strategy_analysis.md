@@ -25,7 +25,7 @@ To establish Alkyl as a pragmatic, high-performance systems programming language
 
 ### 3.2 Nearby Future
 
-Alkyl is capable of compiling itself.
+Alkyl is capable of compiling itself and no obvious bug/undefined behavior.
 
 ### 3.3 Capability Matrix
 

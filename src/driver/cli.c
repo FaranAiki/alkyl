@@ -84,7 +84,7 @@ int run_repl(void) {
     while (1) {
         parser_reset();
 
-        char *buffer = get_smart_input(DIAG_GREEN ":> " DIAG_GREEN);
+        char *buffer = get_smart_input(DIAG_GREEN ":> " DIAG_RESET);
         if (!buffer) break; 
 
         if (strcmp(buffer, "exit ") == 0 || strcmp(buffer, "quit ") == 0) { 
