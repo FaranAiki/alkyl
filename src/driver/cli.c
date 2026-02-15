@@ -29,7 +29,7 @@ char* get_smart_input(const char* prompt) {
         if (first_line && strlen(line) > 0) add_history(line);
         int line_len = strlen(line);
         if (total_len + line_len + 2 >= INPUT_BUFFER_SIZE) {
-            printf(COL_RED "Input too long!\n" COL_RESET);
+            printf(DIAG_RED "Input too long!\n" DIAG_RESET);
             free(line); free(input_buffer); return NULL;
         }
         strcat(input_buffer, line);
@@ -53,8 +53,8 @@ char* get_smart_input(const char* prompt) {
 }
 
 int run_repl(void) {
-    printf(COL_CYAN "Alkyl CLI v0.0.1 \n" COL_RESET);
-    printf("Type " COL_YELLOW "'exit'" COL_RESET " or " COL_YELLOW "'quit'" COL_RESET " to leave.\n\n");
+    printf(DIAG_CYAN "Alkyl CLI v0.0.1 \n" DIAG_RESET);
+    printf("Type " DIAG_YELLOW "'exit'" DIAG_RESET " or " DIAG_YELLOW "'quit'" DIAG_RESET " to leave.\n\n");
 
     LLVMInitializeNativeTarget();
     LLVMInitializeNativeAsmPrinter();
@@ -66,7 +66,7 @@ int run_repl(void) {
     char *error = NULL;
 
     if (LLVMCreateExecutionEngineForModule(&engine, module, &error) != 0) {
-        fprintf(stderr, COL_RED "Failed to create execution engine: %s\n" COL_RESET, error);
+        fprintf(stderr, DIAG_RED "Failed to create execution engine: %s\n" DIAG_RESET, error);
         LLVMDisposeMessage(error);
         return 1;
     }
@@ -84,7 +84,7 @@ int run_repl(void) {
     while (1) {
         parser_reset();
 
-        char *buffer = get_smart_input(COL_GREEN "alkyl> " COL_RESET);
+        char *buffer = get_smart_input(DIAG_GREEN ":> " DIAG_GREEN);
         if (!buffer) break; 
 
         if (strcmp(buffer, "exit ") == 0 || strcmp(buffer, "quit ") == 0) { 
@@ -127,7 +127,7 @@ int run_repl(void) {
             while (curr) {
                 if (curr->type == NODE_FUNC_DEF) {
                     codegen_func_def(&ctx, (FuncDefNode*)curr);
-                    printf(COL_BLUE "Function '%s' defined.\n" COL_RESET, ((FuncDefNode*)curr)->name);
+                    printf(DIAG_BLUE "Function '%s' defined.\n" DIAG_RESET, ((FuncDefNode*)curr)->name);
                 } 
                 else if (curr->type == NODE_VAR_DECL) {
                     VarDeclNode *vd = (VarDeclNode*)curr;
@@ -155,7 +155,7 @@ int run_repl(void) {
                         LLVMDisposeGenericValue(exec_res);
                         LLVMRemoveModule(engine, module, &out_mod, &remove_err); 
                     }
-                    printf(COL_BLUE "%s defined.\n" COL_RESET, vd->name);
+                    printf(DIAG_BLUE "%s defined.\n" DIAG_RESET, vd->name);
                 }
                 else {
                     char temp_name[64];

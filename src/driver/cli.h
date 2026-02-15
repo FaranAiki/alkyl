@@ -1,6 +1,8 @@
 #ifndef CLI_H
 #define CLI_H
 
+#define INPUT_BUFFER_SIZE 4096
+
 #include "../compiler_debug/compiler_debug.h"
 
 // Entry point for the Interactive Shell
