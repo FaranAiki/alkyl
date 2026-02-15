@@ -523,12 +523,8 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
     LLVMValueRef iter_ptr = NULL;
     LLVMValueRef flux_hdl = NULL;
 
-    // FIX: Determine Yield Type for Flux BEFORE generating promise code or variable allocation
-    // Semantic analysis may have incorrectly set node->iter_type to the Generator Context (opaque struct)
-    // instead of the yield type. We try to resolve the real yield type from the function symbol.
     VarType iter_alk_type = node->iter_type;
     
-    // Prioritize detecting Flux via CALL node symbol lookup
     if (node->collection->type == NODE_CALL) {
         CallNode *cn = (CallNode*)node->collection;
         const char *fname = cn->mangled_name ? cn->mangled_name : cn->name;
@@ -567,9 +563,6 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
         LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_resume), ctx->coro_resume, res_args, 1, "");
         
         // Access Promise
-        // Need to know the Promise Type.
-        // { i1 finished, YieldType val }
-        // Use corrected iter_alk_type to ensure we don't try to embed unsized struct
         LLVMTypeRef val_type = get_llvm_type(ctx, iter_alk_type);
         LLVMTypeRef prom_struct_elems[] = { LLVMInt1Type(), val_type };
         LLVMTypeRef prom_type = LLVMStructType(prom_struct_elems, 2, false);

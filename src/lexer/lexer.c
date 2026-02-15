@@ -365,7 +365,7 @@ int lex_word(Lexer *l, Token *t) {
   word[length] = '\0';
 
   // Keyword Checks
-  #define tokenwis(T) strcmp(word, T)
+  // #define tokenwis(T) strcmp(word, T)
   if (strcmp(word, "loop") == 0) t->type = TOKEN_LOOP;
   else if (strcmp(word, "while") == 0) t->type = TOKEN_WHILE;
   else if (strcmp(word, "once") == 0) t->type = TOKEN_ONCE;

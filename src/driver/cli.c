@@ -15,14 +15,6 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-#define COL_RESET   "\033[0m"
-#define COL_GREEN   "\033[1;32m"
-#define COL_BLUE    "\033[1;34m"
-#define COL_RED     "\033[1;31m"
-#define COL_CYAN    "\033[1;36m"
-#define COL_YELLOW  "\033[1;33m"
-#define INPUT_BUFFER_SIZE 4096
-
 char* get_smart_input(const char* prompt) {
     char *input_buffer = malloc(INPUT_BUFFER_SIZE);
     if (!input_buffer) return NULL;

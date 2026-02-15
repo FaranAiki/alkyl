@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
   lexer_init(&l, code);
   l.filename = filename; // Set filename for diagnostic context
 
-  debug("Finished lexing. Start parsing.");
+  debug_step("Finished lexing. Start parsing.");
 
   ASTNode *root = parse_program(&l);
   
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
   }
   // -------------------------------
  
-  debug("Finished semantic analysis. Start macro-linking.");
+  debug_step("Finished semantic analysis. Start macro-linking.");
   ASTNode *curr = root;
   while(curr) {
     if (curr->type == NODE_LINK) {
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
     curr = curr->next;
   }
 
-  debug("Finished semantic analysis. Start Codegen.");
+  debug_step("Finished semantic analysis. Start Codegen.");
 
   LLVMInitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();

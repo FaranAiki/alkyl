@@ -424,6 +424,7 @@ ASTNode* parse_class(Lexer *l) {
       ASTNode *members_head = NULL;
       ASTNode **curr_member = &members_head;
       
+      // TODO this
       while (current_token.type != TOKEN_RBRACE && current_token.type != TOKEN_EOF) {
           int member_open = is_open;
           int line = current_token.line;

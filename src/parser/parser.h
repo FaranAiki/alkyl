@@ -2,14 +2,8 @@
 #define PARSER_H
 
 #include "../lexer/lexer.h"
+#include "../compiler_debug/compiler_debug.h"
 #include <setjmp.h>
-
-#define DEBUG
-#ifdef DEBUG 
-#define debug(msg, ...) printf(msg, ##__VA_ARGS__); putchar('\n');
-#else 
-#define debug(msg, ...) 
-#endif
 
 // --- TYPES ---
 
