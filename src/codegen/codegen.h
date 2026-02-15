@@ -203,5 +203,6 @@ LLVMValueRef generate_input_func(LLVMModuleRef module, LLVMBuilderRef builder, L
 LLVMValueRef generate_enum_to_string_func(CodegenCtx *ctx, EnumInfo *ei);
 
 char* format_string(const char* input);
+void get_type_name(VarType t, char *buf);
 
 #endif
