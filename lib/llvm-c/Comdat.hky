@@ -4,7 +4,7 @@
 #include "llvm-c/Types.h"
 #include "llvm-c/Visibility.h"
 LLVM_C_EXTERN_C_BEGIN
-typedef enum {
+enum LLVMComdatSelectionKind [
   LLVMAnyComdatSelectionKind,        ///< The linker may choose any COMDAT.
   LLVMExactMatchComdatSelectionKind, ///< The data referenced by the COMDAT must
                                      ///< be the same.
@@ -13,7 +13,7 @@ typedef enum {
   LLVMNoDeduplicateComdatSelectionKind, ///< No deduplication is performed.
   LLVMSameSizeComdatSelectionKind ///< The data referenced by the COMDAT must be
                                   ///< the same size.
-} LLVMComdatSelectionKind;
+];
 LLVM_C_ABI LLVMComdatRef LLVMGetOrInsertComdat(LLVMModuleRef M,
                                                const char *Name);
 LLVM_C_ABI LLVMComdatRef LLVMGetComdat(LLVMValueRef V);

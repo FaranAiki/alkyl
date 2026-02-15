@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <stdio.h> 
 
+// Forward declaration for semantic check.
+// We assume this function is available in the parser context (semantics.c or similar)
+// to check if an identifier is currently a defined type in the symbol table.
+extern int is_typename(const char *name);
+
 // Forward decl
 void parser_advance(Lexer *l);
 
@@ -123,8 +128,6 @@ ASTNode* parse_define(Lexer *l) {
   free(sigs);
 
   // Consume the semicolon AFTER registering the macro.
-  // This ensures that when the Lexer fetches the next token, 
-  // it is aware of the newly registered macro and can expand it.
   if (current_token.type == TOKEN_SEMICOLON) eat(l, TOKEN_SEMICOLON);
 
   return NULL; 
@@ -133,24 +136,47 @@ ASTNode* parse_define(Lexer *l) {
 ASTNode* parse_typedef(Lexer *l) {
   eat(l, TOKEN_TYPEDEF);
   
-  // Allow C-style: typedef Type Name;
-  // We check if the current token looks like a type to discern usage.
-  // Note: This is heuristic.
-  if (current_token.type >= TOKEN_KW_INT && current_token.type <= TOKEN_KW_VOID) {
-      // C-style likely
+  int start_is_type = 0;
+  
+  // 1. Determine if the first token is a Type (C-style or `typedef Type as Name`)
+  //    Check for Primitive Keywords
+  if ((current_token.type >= TOKEN_KW_VOID && current_token.type <= TOKEN_KW_LET) || // Covers VOID..LET (INT, CHAR, STRING...)
+      (current_token.type >= TOKEN_KW_SHORT && current_token.type <= TOKEN_KW_UNSIGNED) ||
+      current_token.type == TOKEN_STRUCT || 
+      current_token.type == TOKEN_UNION || 
+      current_token.type == TOKEN_ENUM || 
+      current_token.type == TOKEN_CLASS) {
+      start_is_type = 1;
+  }
+  //    Check for Defined Type Identifier
+  else if (current_token.type == TOKEN_IDENTIFIER) {
+      // is_typename should return true if the identifier is already registered as a type/alias
+      if (is_typename(current_token.text)) {
+          start_is_type = 1;
+      }
+  }
+
+  if (start_is_type) {
+      // Logic: typedef Type [as] Name;
+      // This handles:
+      //   typedef int x;      (C-style)
+      //   typedef int as x;   (Equivalent to above, per request)
+      
       VarType target = parse_type(l);
       
+      // Allow optional 'as' for "typedef int as myint"
+      if (current_token.type == TOKEN_AS) {
+          eat(l, TOKEN_AS);
+      }
+      
       while(1) {
-          // this means 
-          // typedef (exist) as (new)
-          if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected new type name after 'typedef'");
+          if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected new alias name after type in typedef");
           
-          // else
           char *new_name = strdup(current_token.text);
           eat(l, TOKEN_IDENTIFIER);
           
           VarType current_target = target;
-          // Handle C-style array: typedef int x[10];
+          // Handle C-style array declaration: typedef int x[10];
           while (current_token.type == TOKEN_LBRACKET) {
               eat(l, TOKEN_LBRACKET);
               if (current_token.type != TOKEN_RBRACKET) {
@@ -168,52 +194,55 @@ ASTNode* parse_typedef(Lexer *l) {
           if (current_token.type == TOKEN_COMMA) eat(l, TOKEN_COMMA);
           else break;
       }
-      
-      eat(l, TOKEN_SEMICOLON);
-      return NULL;
-  }
-  
-  // Default Style: typedef Name1, Name2 as Type;
-  char **names = NULL;
-  int name_count = 0;
-  int name_cap = 4;
-  names = malloc(sizeof(char*) * name_cap);
-  
-  while (1) {
-      if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected new type name after 'typedef'");
-      if (name_count >= name_cap) { name_cap *= 2; names = realloc(names, sizeof(char*) * name_cap); }
-      names[name_count++] = strdup(current_token.text);
-      eat(l, TOKEN_IDENTIFIER);
-      
-      if (current_token.type == TOKEN_COMMA) eat(l, TOKEN_COMMA);
-      else break;
-  }
-  
-  if (current_token.type == TOKEN_AS) {
-      eat(l, TOKEN_AS);
   } else {
-      parser_fail(l, "Expected 'as' or ',' after typedef names");
-  }
-  
-  VarType target = parse_type(l);
-  if (target.base == TYPE_UNKNOWN) parser_fail(l, "Unknown type in typedef");
-  
-  while (current_token.type == TOKEN_LBRACKET) {
-      eat(l, TOKEN_LBRACKET);
-      if (current_token.type != TOKEN_RBRACKET) {
-          ASTNode *sz = parse_expression(l);
-          if (sz && sz->type == NODE_LITERAL) target.array_size = ((LiteralNode*)sz)->val.int_val;
-          free_ast(sz);
+      // Logic: typedef Name [as] Type;
+      // This handles:
+      //   typedef x as int;
+      //   typedef x, y as int;
+      
+      char **names = NULL;
+      int name_count = 0;
+      int name_cap = 4;
+      names = malloc(sizeof(char*) * name_cap);
+      
+      while (1) {
+          if (current_token.type != TOKEN_IDENTIFIER) parser_fail(l, "Expected new type name after 'typedef'");
+          if (name_count >= name_cap) { name_cap *= 2; names = realloc(names, sizeof(char*) * name_cap); }
+          names[name_count++] = strdup(current_token.text);
+          eat(l, TOKEN_IDENTIFIER);
+          
+          if (current_token.type == TOKEN_COMMA) eat(l, TOKEN_COMMA);
+          else break;
       }
-      eat(l, TOKEN_RBRACKET);
-      target.ptr_depth++;
+      
+      // Here 'as' is required to distinguish from malformed C-style
+      if (current_token.type == TOKEN_AS) {
+          eat(l, TOKEN_AS);
+      } else {
+          parser_fail(l, "Expected 'as' or ',' after typedef names");
+      }
+      
+      VarType target = parse_type(l);
+      if (target.base == TYPE_UNKNOWN) parser_fail(l, "Unknown type in typedef");
+      
+      // Handle array type syntax: typedef name as int[];
+      while (current_token.type == TOKEN_LBRACKET) {
+          eat(l, TOKEN_LBRACKET);
+          if (current_token.type != TOKEN_RBRACKET) {
+              ASTNode *sz = parse_expression(l);
+              if (sz && sz->type == NODE_LITERAL) target.array_size = ((LiteralNode*)sz)->val.int_val;
+              free_ast(sz);
+          }
+          eat(l, TOKEN_RBRACKET);
+          target.ptr_depth++;
+      }
+      
+      for (int i = 0; i < name_count; i++) {
+          register_alias(names[i], target);
+          free(names[i]);
+      }
+      free(names);
   }
-  
-  for (int i = 0; i < name_count; i++) {
-      register_alias(names[i], target);
-      free(names[i]);
-  }
-  free(names);
   
   eat(l, TOKEN_SEMICOLON);
   return NULL;
