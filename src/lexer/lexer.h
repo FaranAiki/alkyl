@@ -167,4 +167,6 @@ int lex_char(Lexer *l, Token *t);
 int lex_string(Lexer *l, Token *t);
 int lex_word(Lexer *l, Token *t);
 
+#include "emitter.h"
+
 #endif

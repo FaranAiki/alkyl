@@ -325,4 +325,6 @@ void parser_reset(void);
 // CLI Hooks
 void parser_set_recovery(jmp_buf *env);
 
+#include "emitter.h"
+
 #endif // PARSER_H

@@ -1,3 +1,5 @@
+// How to make C do this huhh
+
 #ifndef COMPILER_DEBUG_H
 #define COMPILER_DEBUG_H
 
@@ -16,13 +18,27 @@
   #define debug_flow(msg, ...) printf(__FILE__ ": " DIAG_BLUE "flow: " DIAG_RESET msg, ##__VA_ARGS__); putchar('\n');
 #else 
   #define debug_flow(msg, ...) 
-#endif
+#endif // DEBUG_FLOW 
 
 #define DEBUG_STEP
 #ifdef DEBUG_STEP 
   #define debug_step(msg, ...) printf(DIAG_CYAN "step: " DIAG_RESET msg, ##__VA_ARGS__); putchar('\n');
 #else 
   #define debug_step(msg, ...) 
-#endif
+#endif // DEBUG_STEP
+
+#define DEBUG_LEXER_OUT
+#ifdef DEBUG_LEXER_OUT 
+  #define to_token_out(l, f) lexer_to_file(l, f)
+#else 
+  #define to_token_out(l, f)
+#endif // DEBUG_TOKEN_OUT 
+
+#define DEBUG_PARSER_OUT
+#ifdef DEBUG_PARSER_OUT 
+  #define to_ast_out(p, f) parser_to_file(p, f)
+#else 
+  #define to_ast_out(p, f) 
+#endif // DEBUG_PARSER_OUT
 
 #endif // COMPILER_DEBUG_H

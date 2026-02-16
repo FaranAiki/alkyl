@@ -28,8 +28,6 @@ char advance(Lexer *l) {
   return c;
 }
 
-// --- Helpers ---
-
 void skip_whitespace_and_comments(Lexer *l) {
   while (1) {
     char c = peek(l);
@@ -87,7 +85,6 @@ int lex_symbol(Lexer *l, Token *t) {
       advance(l); t->type = TOKEN_DOT; return 1;
   }
 
-  // Single Char Matches
   switch (c) {
       case ',': advance(l); t->type = TOKEN_COMMA; return 1;
       case ':': advance(l); t->type = TOKEN_COLON; return 1;
@@ -100,8 +97,6 @@ int lex_symbol(Lexer *l, Token *t) {
       case ';': advance(l); t->type = TOKEN_SEMICOLON; return 1;
       case '~': advance(l); t->type = TOKEN_BIT_NOT; return 1;
   }
-
-  // Compound Operators
 
   if (c == '=') { 
     advance(l); 

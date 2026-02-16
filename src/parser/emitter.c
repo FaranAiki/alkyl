@@ -1,0 +1,573 @@
+#include "emitter.h"
+#include "../lexer/lexer.h"
+#include "../diagnostic/diagnostic.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+
+// --- Private String Builder Utility ---
+
+typedef struct {
+    char *data;
+    size_t len;
+    size_t cap;
+} StringBuilder;
+
+static void sb_init(StringBuilder *sb) {
+    sb->cap = 2048; // Increased initial cap
+    sb->len = 0;
+    sb->data = malloc(sb->cap);
+    if (sb->data) sb->data[0] = '\0';
+}
+
+static void sb_append(StringBuilder *sb, const char *str) {
+    if (!str || !sb->data) return;
+    size_t slen = strlen(str);
+    if (sb->len + slen + 1 >= sb->cap) {
+        sb->cap = (sb->cap * 2) + slen;
+        char *new_data = realloc(sb->data, sb->cap);
+        if (!new_data) { free(sb->data); sb->data = NULL; return; }
+        sb->data = new_data;
+    }
+    strcpy(sb->data + sb->len, str);
+    sb->len += slen;
+}
+
+static void sb_append_fmt(StringBuilder *sb, const char *fmt, ...) {
+    if (!sb->data) return;
+    va_list args;
+    va_start(args, fmt);
+    
+    va_list args_copy;
+    va_copy(args_copy, args);
+    int len = vsnprintf(NULL, 0, fmt, args_copy);
+    va_end(args_copy);
+
+    if (len < 0) { va_end(args); return; }
+
+    if (sb->len + len + 1 >= sb->cap) {
+        sb->cap = (sb->cap * 2) + len;
+        char *new_data = realloc(sb->data, sb->cap);
+        if (!new_data) { free(sb->data); sb->data = NULL; va_end(args); return; }
+        sb->data = new_data;
+    }
+    
+    vsnprintf(sb->data + sb->len, len + 1, fmt, args);
+    sb->len += len;
+    va_end(args);
+}
+
+static char* sb_free_and_return(StringBuilder *sb) {
+    return sb->data; 
+}
+
+// --- Emitter Logic ---
+
+static void emit_indent(StringBuilder *sb, int indent) {
+    for (int i = 0; i < indent; i++) sb_append(sb, "  ");
+}
+
+static void emit_type(StringBuilder *sb, VarType t) {
+    if (t.is_unsigned) sb_append(sb, "unsigned ");
+    
+    switch (t.base) {
+        case TYPE_INT: sb_append(sb, "int"); break;
+        case TYPE_SHORT: sb_append(sb, "short"); break;
+        case TYPE_LONG: sb_append(sb, "long"); break;
+        case TYPE_LONG_LONG: sb_append(sb, "long long"); break;
+        case TYPE_CHAR: sb_append(sb, "char"); break;
+        case TYPE_BOOL: sb_append(sb, "bool"); break;
+        case TYPE_FLOAT: sb_append(sb, "single"); break;
+        case TYPE_DOUBLE: sb_append(sb, "double"); break;
+        case TYPE_LONG_DOUBLE: sb_append(sb, "long double"); break;
+        case TYPE_VOID: sb_append(sb, "void"); break;
+        case TYPE_STRING: sb_append(sb, "string"); break;
+        case TYPE_AUTO: sb_append(sb, "let"); break;
+        case TYPE_CLASS: sb_append(sb, t.class_name ? t.class_name : "class"); break;
+        default: sb_append(sb, "auto"); break;
+    }
+
+    for (int i = 0; i < t.ptr_depth; i++) sb_append(sb, "*");
+    
+    if (t.array_size > 0) {
+        // Simple fixed array notation for now
+        sb_append_fmt(sb, "[%d]", t.array_size);
+    }
+}
+
+static void emit_ast_node(StringBuilder *sb, ASTNode *node, int indent);
+
+// Helper to decide if a node needs a semicolon when acting as a statement
+static int needs_semicolon(NodeType type) {
+    switch (type) {
+        case NODE_CALL:
+        case NODE_METHOD_CALL:
+        case NODE_ASSIGN:
+        case NODE_INC_DEC:
+        case NODE_UNARY_OP:
+        case NODE_BINARY_OP:
+        case NODE_VAR_REF:
+        case NODE_ARRAY_ACCESS:
+        case NODE_MEMBER_ACCESS:
+        case NODE_CAST:
+            return 1;
+        default:
+            return 0;
+    }
+}
+
+static void emit_block(StringBuilder *sb, ASTNode *body, int indent) {
+    sb_append(sb, " {\n");
+    ASTNode *curr = body;
+    while (curr) {
+        emit_indent(sb, indent + 1);
+        emit_ast_node(sb, curr, indent + 1);
+        if (needs_semicolon(curr->type)) {
+            sb_append(sb, ";");
+        }
+        sb_append(sb, "\n");
+        curr = curr->next;
+    }
+    emit_indent(sb, indent);
+    sb_append(sb, "}");
+}
+
+static void emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
+    if (!node) return;
+
+    switch (node->type) {
+        case NODE_ROOT:
+            // Should not happen for individual nodes, but safe fallback
+            break;
+
+        case NODE_FUNC_DEF: {
+            FuncDefNode *fn = (FuncDefNode*)node;
+            if (fn->is_flux) sb_append(sb, "flux ");
+            emit_type(sb, fn->ret_type);
+            sb_append_fmt(sb, " %s(", fn->name ? fn->name : "anon");
+            
+            Parameter *p = fn->params;
+            while (p) {
+                emit_type(sb, p->type);
+                sb_append_fmt(sb, " %s", p->name);
+                if (p->next) sb_append(sb, ", ");
+                p = p->next;
+            }
+            if (fn->is_varargs) {
+                if (fn->params) sb_append(sb, ", ");
+                sb_append(sb, "...");
+            }
+            sb_append(sb, ")");
+            if (fn->body) emit_block(sb, fn->body, indent);
+            else sb_append(sb, ";");
+            break;
+        }
+
+        case NODE_VAR_DECL: {
+            VarDeclNode *vn = (VarDeclNode*)node;
+            if (vn->is_mutable) sb_append(sb, "mut ");
+            
+            emit_type(sb, vn->var_type);
+            sb_append_fmt(sb, " %s", vn->name);
+            
+            if (vn->is_array) {
+                // If explicit array size was parsed separately
+                sb_append(sb, "[");
+                if (vn->array_size) emit_ast_node(sb, vn->array_size, 0);
+                sb_append(sb, "]");
+            }
+
+            if (vn->initializer) {
+                sb_append(sb, " = ");
+                emit_ast_node(sb, vn->initializer, 0);
+            }
+            sb_append(sb, ";");
+            break;
+        }
+
+        case NODE_NAMESPACE: {
+            NamespaceNode *ns = (NamespaceNode*)node;
+            sb_append_fmt(sb, "namespace %s", ns->name);
+            emit_block(sb, ns->body, indent);
+            break;
+        }
+
+        case NODE_CLASS: {
+            ClassNode *cn = (ClassNode*)node;
+            if (cn->is_extern) sb_append(sb, "extern ");
+            sb_append_fmt(sb, "%s %s", cn->is_union ? "union" : "class", cn->name);
+            if (cn->parent_name) sb_append_fmt(sb, " is %s", cn->parent_name);
+            
+            sb_append(sb, " {\n");
+            ASTNode *mem = cn->members;
+            while (mem) {
+                emit_indent(sb, indent + 1);
+                emit_ast_node(sb, mem, indent + 1);
+                sb_append(sb, "\n");
+                mem = mem->next;
+            }
+            emit_indent(sb, indent);
+            sb_append(sb, "};\n");
+            break;
+        }
+
+        case NODE_ENUM: {
+            EnumNode *en = (EnumNode*)node;
+            sb_append_fmt(sb, "enum %s [", en->name);
+            EnumEntry *cur = en->entries;
+            while(cur) {
+                sb_append(sb, cur->name);
+                if (cur->value != -1) sb_append_fmt(sb, " = %d", cur->value);
+                if (cur->next) sb_append(sb, ", ");
+                cur = cur->next;
+            }
+            sb_append(sb, "];");
+            break;
+        }
+
+        case NODE_RETURN: {
+            ReturnNode *rn = (ReturnNode*)node;
+            sb_append(sb, "return");
+            if (rn->value) {
+                sb_append(sb, " ");
+                emit_ast_node(sb, rn->value, 0);
+            }
+            sb_append(sb, ";");
+            break;
+        }
+
+        case NODE_BREAK:
+            sb_append(sb, "break;");
+            break;
+        
+        case NODE_CONTINUE:
+            sb_append(sb, "continue;");
+            break;
+
+        case NODE_IF: {
+            IfNode *in = (IfNode*)node;
+            sb_append(sb, "if ");
+            emit_ast_node(sb, in->condition, 0);
+            emit_block(sb, in->then_body, indent);
+            if (in->else_body) {
+                sb_append(sb, " else ");
+                if (in->else_body->type == NODE_IF) {
+                    emit_ast_node(sb, in->else_body, indent); // chain else if
+                } else {
+                    emit_block(sb, in->else_body, indent);
+                }
+            }
+            break;
+        }
+
+        case NODE_WHILE: {
+            WhileNode *wn = (WhileNode*)node;
+            sb_append(sb, "while ");
+            if (wn->is_do_while) sb_append(sb, "once ");
+            emit_ast_node(sb, wn->condition, 0);
+            emit_block(sb, wn->body, indent);
+            break;
+        }
+
+        case NODE_LOOP: {
+            LoopNode *ln = (LoopNode*)node;
+            sb_append(sb, "loop ");
+            emit_ast_node(sb, ln->iterations, 0);
+            emit_block(sb, ln->body, indent);
+            break;
+        }
+        
+        case NODE_FOR_IN: {
+            ForInNode *fn = (ForInNode*)node;
+            sb_append_fmt(sb, "for %s in ", fn->var_name);
+            emit_ast_node(sb, fn->collection, 0);
+            emit_block(sb, fn->body, indent);
+            break;
+        }
+
+        case NODE_EMIT: {
+            EmitNode *en = (EmitNode*)node;
+            sb_append(sb, "emit ");
+            emit_ast_node(sb, en->value, 0);
+            sb_append(sb, ";");
+            break;
+        }
+
+        case NODE_SWITCH: {
+            SwitchNode *sn = (SwitchNode*)node;
+            sb_append(sb, "switch ");
+            emit_ast_node(sb, sn->condition, 0);
+            sb_append(sb, " {\n");
+            ASTNode *c = sn->cases;
+            while (c) {
+                CaseNode *cn = (CaseNode*)c;
+                emit_indent(sb, indent + 1);
+                if (cn->is_leak) sb_append(sb, "leak ");
+                sb_append(sb, "case ");
+                emit_ast_node(sb, cn->value, 0);
+                sb_append(sb, ":");
+                if (cn->body) {
+                    sb_append(sb, "\n");
+                    ASTNode *stmt = cn->body;
+                    while (stmt) {
+                        emit_indent(sb, indent + 2);
+                        emit_ast_node(sb, stmt, indent + 2);
+                        if (needs_semicolon(stmt->type)) sb_append(sb, ";");
+                        sb_append(sb, "\n");
+                        stmt = stmt->next;
+                    }
+                } else {
+                    sb_append(sb, "\n");
+                }
+                c = c->next;
+            }
+            if (sn->default_case) {
+                emit_indent(sb, indent + 1);
+                sb_append(sb, "default:\n");
+                ASTNode *stmt = sn->default_case;
+                while (stmt) {
+                    emit_indent(sb, indent + 2);
+                    emit_ast_node(sb, stmt, indent + 2);
+                    if (needs_semicolon(stmt->type)) sb_append(sb, ";");
+                    sb_append(sb, "\n");
+                    stmt = stmt->next;
+                }
+            }
+            emit_indent(sb, indent);
+            sb_append(sb, "}");
+            break;
+        }
+
+        case NODE_CALL: {
+            CallNode *cn = (CallNode*)node;
+            sb_append_fmt(sb, "%s(", cn->name);
+            ASTNode *arg = cn->args;
+            while (arg) {
+                emit_ast_node(sb, arg, 0);
+                if (arg->next) sb_append(sb, ", ");
+                arg = arg->next;
+            }
+            sb_append(sb, ")");
+            break;
+        }
+        
+        case NODE_METHOD_CALL: {
+            MethodCallNode *mc = (MethodCallNode*)node;
+            emit_ast_node(sb, mc->object, 0);
+            sb_append_fmt(sb, ".%s(", mc->method_name);
+            ASTNode *arg = mc->args;
+            while (arg) {
+                emit_ast_node(sb, arg, 0);
+                if (arg->next) sb_append(sb, ", ");
+                arg = arg->next;
+            }
+            sb_append(sb, ")");
+            break;
+        }
+
+        case NODE_ASSIGN: {
+            AssignNode *an = (AssignNode*)node;
+            if (an->name) sb_append(sb, an->name);
+            else emit_ast_node(sb, an->target, 0);
+            
+            switch(an->op) {
+                case TOKEN_ASSIGN: sb_append(sb, " = "); break;
+                case TOKEN_PLUS_ASSIGN: sb_append(sb, " += "); break;
+                case TOKEN_MINUS_ASSIGN: sb_append(sb, " -= "); break;
+                // Add more logic here if needed
+                default: sb_append(sb, " = "); break; 
+            }
+            emit_ast_node(sb, an->value, 0);
+            break;
+        }
+
+        case NODE_BINARY_OP: {
+            BinaryOpNode *bn = (BinaryOpNode*)node;
+            sb_append(sb, "(");
+            emit_ast_node(sb, bn->left, 0);
+            
+            const char *op = "?";
+            switch (bn->op) {
+                case TOKEN_PLUS: op = "+"; break;
+                case TOKEN_MINUS: op = "-"; break;
+                case TOKEN_STAR: op = "*"; break;
+                case TOKEN_SLASH: op = "/"; break;
+                case TOKEN_MOD: op = "%"; break;
+                case TOKEN_EQ: op = "=="; break;
+                case TOKEN_NEQ: op = "!="; break;
+                case TOKEN_LT: op = "<"; break;
+                case TOKEN_GT: op = ">"; break;
+                case TOKEN_LTE: op = "<="; break;
+                case TOKEN_GTE: op = ">="; break;
+                case TOKEN_AND: op = "&"; break;
+                case TOKEN_OR: op = "|"; break;
+                case TOKEN_XOR: op = "^"; break;
+                case TOKEN_LSHIFT: op = "<<"; break;
+                case TOKEN_RSHIFT: op = ">>"; break;
+                case TOKEN_AND_AND: op = "&&"; break;
+                case TOKEN_OR_OR: op = "||"; break;
+                default: op = "?"; break;
+            }
+            sb_append_fmt(sb, " %s ", op);
+            emit_ast_node(sb, bn->right, 0);
+            sb_append(sb, ")");
+            break;
+        }
+
+        case NODE_UNARY_OP: {
+            UnaryOpNode *un = (UnaryOpNode*)node;
+            const char *op = "";
+            switch (un->op) {
+                case TOKEN_MINUS: op = "-"; break;
+                case TOKEN_NOT: op = "!"; break;
+                case TOKEN_BIT_NOT: op = "~"; break;
+                case TOKEN_STAR: op = "*"; break;
+                case TOKEN_AND: op = "&"; break;
+            }
+            sb_append(sb, op);
+            // Parenthesis for safety
+            sb_append(sb, "(");
+            emit_ast_node(sb, un->operand, 0);
+            sb_append(sb, ")");
+            break;
+        }
+
+        case NODE_INC_DEC: {
+            IncDecNode *id = (IncDecNode*)node;
+            const char *op = (id->op == TOKEN_INCREMENT) ? "++" : "--";
+            if (id->is_prefix) {
+                sb_append(sb, op);
+                emit_ast_node(sb, id->target, 0);
+            } else {
+                emit_ast_node(sb, id->target, 0);
+                sb_append(sb, op);
+            }
+            break;
+        }
+        
+        case NODE_LITERAL: {
+            LiteralNode *ln = (LiteralNode*)node;
+            if (ln->var_type.base == TYPE_INT) sb_append_fmt(sb, "%d", ln->val.int_val);
+            else if (ln->var_type.base == TYPE_FLOAT) sb_append_fmt(sb, "%ff", ln->val.double_val);
+            else if (ln->var_type.base == TYPE_STRING) sb_append_fmt(sb, "\"%s\"", ln->val.str_val);
+            else if (ln->var_type.base == TYPE_BOOL) sb_append(sb, ln->val.int_val ? "true" : "false");
+            else sb_append(sb, "literal");
+            break;
+        }
+
+        case NODE_ARRAY_LIT: {
+            ArrayLitNode *an = (ArrayLitNode*)node;
+            sb_append(sb, "[");
+            ASTNode *el = an->elements;
+            while(el) {
+                emit_ast_node(sb, el, 0);
+                if (el->next) sb_append(sb, ", ");
+                el = el->next;
+            }
+            sb_append(sb, "]");
+            break;
+        }
+
+        case NODE_VAR_REF: {
+            VarRefNode *vn = (VarRefNode*)node;
+            sb_append(sb, vn->name);
+            break;
+        }
+
+        case NODE_ARRAY_ACCESS: {
+            ArrayAccessNode *aa = (ArrayAccessNode*)node;
+            emit_ast_node(sb, aa->target, 0);
+            sb_append(sb, "[");
+            emit_ast_node(sb, aa->index, 0);
+            sb_append(sb, "]");
+            break;
+        }
+        
+        case NODE_MEMBER_ACCESS: {
+            MemberAccessNode *ma = (MemberAccessNode*)node;
+            emit_ast_node(sb, ma->object, 0);
+            sb_append_fmt(sb, ".%s", ma->member_name);
+            break;
+        }
+
+        case NODE_CAST: {
+            CastNode *cn = (CastNode*)node;
+            emit_ast_node(sb, cn->operand, 0);
+            sb_append(sb, " as ");
+            emit_type(sb, cn->var_type);
+            break;
+        }
+        
+        case NODE_LINK: {
+            LinkNode *ln = (LinkNode*)node;
+            sb_append_fmt(sb, "link \"%s\";", ln->lib_name);
+            break;
+        }
+        
+        case NODE_TYPEOF: {
+            UnaryOpNode *un = (UnaryOpNode*)node;
+            sb_append(sb, "typeof(");
+            emit_ast_node(sb, un->operand, 0);
+            sb_append(sb, ")");
+            break;
+        }
+
+        case NODE_TRAIT_ACCESS: {
+            TraitAccessNode *ta = (TraitAccessNode*)node;
+            emit_ast_node(sb, ta->object, 0);
+            sb_append_fmt(sb, "[%s]", ta->trait_name);
+            break;
+        }
+        
+        default:
+            sb_append_fmt(sb, "/* Unhandled Node Type: %d */", node->type);
+            break;
+    }
+}
+
+char* parser_to_string(ASTNode *root) {
+    StringBuilder sb;
+    sb_init(&sb);
+    if (!sb.data) return NULL;
+    
+    ASTNode *curr = root;
+    while (curr) {
+        emit_ast_node(&sb, curr, 0);
+        // Only append semicolon for expression statements at top level (unlikely but possible)
+        if (needs_semicolon(curr->type)) sb_append(&sb, ";");
+        sb_append(&sb, "\n");
+        curr = curr->next;
+    }
+    
+    return sb_free_and_return(&sb);
+}
+
+void parser_to_file(ASTNode *root, const char *filename) {
+    char *str = parser_to_string(root);
+    if (str) {
+        FILE *f = fopen(filename, "w");
+        if (f) {
+            fputs(str, f);
+            fclose(f);
+        }
+        free(str);
+    }
+}
+
+char* parser_string_to_string(const char *src) {
+    Lexer l;
+    lexer_init(&l, src);
+    ASTNode *root = parse_program(&l);
+    char *res = parser_to_string(root);
+    free_ast(root);
+    return res;
+}
+
+void parser_string_to_file(const char *src, const char *filename) {
+    Lexer l;
+    lexer_init(&l, src);
+    ASTNode *root = parse_program(&l);
+    parser_to_file(root, filename);
+    free_ast(root);
+}

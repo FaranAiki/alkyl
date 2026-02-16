@@ -44,11 +44,13 @@ set(MUST_LLVM_SOURCES
 
 set(MUST_LANG_SOURCES 
     src/lexer/lexer.c
+    src/lexer/emitter.c    
     
     src/parser/core.c 
     src/parser/expr.c 
     src/parser/stmt.c 
     src/parser/top.c 
+    src/parser/emitter.c 
 
     src/semantic/semantic.c    
     src/semantic/check.c    

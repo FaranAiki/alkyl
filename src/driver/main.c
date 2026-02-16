@@ -7,10 +7,10 @@
 #include <llvm-c/TargetMachine.h>
 #include <llvm-c/Analysis.h>
 
-// Include Semantic Analysis
-#include "../semantic/semantic.h"
-
+// fix this shit I don't want a global variable
 extern int parser_error_count;
+
+#define BASENAME "out"
 
 char* read_file(const char* filename) {
   FILE* f = fopen(filename, "rb");
@@ -62,6 +62,13 @@ int main(int argc, char *argv[]) {
 
   debug_step("Finished lexing. Start parsing.");
 
+  // generate for debugging 
+  Lexer l_debug = l;
+  lexer_init(&l_debug, code);
+  l.filename = filename;
+
+  to_token_out(&l_debug, BASENAME ".tok");
+
   ASTNode *root = parse_program(&l);
   
   if (!root && parser_error_count > 0) {
@@ -74,8 +81,11 @@ int main(int argc, char *argv[]) {
       free_ast(root);
       return 1;
   }
-  // -------------------------------
  
+  ASTNode *root_debug = parse_program(&l_debug);
+
+  to_ast_out(root_debug, BASENAME ".ast");
+
   debug_step("Finished semantic analysis. Start macro-linking.");
   ASTNode *curr = root;
   while(curr) {
@@ -89,14 +99,14 @@ int main(int argc, char *argv[]) {
     curr = curr->next;
   }
 
-  debug_step("Finished semantic analysis. Start Codegen.");
+  debug_step("Finished macro-linking. Start Codegen.");
 
   LLVMInitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
 
   // Pass source code to codegen for error reporting
-  LLVMModuleRef module = codegen_generate(root, "alkyl_mod", code);
+  LLVMModuleRef module = codegen_generate(root, "alkyl_llvm", code);
 
   char *error = NULL;
   if (LLVMVerifyModule(module, LLVMAbortProcessAction, &error)) {
@@ -115,25 +125,25 @@ int main(int argc, char *argv[]) {
     LLVMCodeGenLevelAggressive, LLVMRelocPIC, LLVMCodeModelDefault
   );
 
-  if (LLVMTargetMachineEmitToFile(machine, module, "out.o", LLVMObjectFile, &err_msg) != 0) {
+  if (LLVMTargetMachineEmitToFile(machine, module, BASENAME ".o", LLVMObjectFile, &err_msg) != 0) {
     fprintf(stderr, "Emit Error: %s\n", err_msg);
     return 1;
   }
 
-  if (LLVMPrintModuleToFile(module, "out.ll", &err_msg) != 0) {
+  if (LLVMPrintModuleToFile(module, BASENAME ".ll", &err_msg) != 0) {
     fprintf(stderr, "Emit Error: %s\n", err_msg);
     return 1;
   }
 
-  printf("Compiled to out.o\n");
+  printf("Compiled to "BASENAME".o\n");
   
   char cmd[2048];
-  snprintf(cmd, sizeof(cmd), "gcc -g -O0 out.o -o out -no-pie%s", link_flags);
+  snprintf(cmd, sizeof(cmd), "gcc -g -O0 "BASENAME".o -o "BASENAME" -no-pie %s", link_flags);
   
   printf("Linking: %s\n", cmd);
   int res = system(cmd);
   if (res == 0) {
-    printf("Linked to ./out\n");
+    printf("Linked to ./"BASENAME"\n");
   } else {
     printf("Linking failed.\n");
   }
