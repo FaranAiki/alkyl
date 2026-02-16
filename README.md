@@ -4,6 +4,10 @@ A simple programming language written using LLVM-IR.
 
 Alkyl is named after aikil (aiki language) and alkyl in chemistry which is a highly reactive and foundational. 
 
+# Status
+
+70% written by AI, 30% written by myself. Although it is not purely vibecoded as AI cannot generate LLVM and C instructions perfectly, most of the backend and some frontend code is written by Gemini AI.
+
 # Purpose 
 
 Creating a programming language that can be automated using Artificial Intelligence. As the world grows, programming may not using languages like Python, C, Rust, Zig, or others. This is why this programming language exist: to make it easy for AI to understand, generate, and check.

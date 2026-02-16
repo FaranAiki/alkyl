@@ -343,7 +343,6 @@ void collect_flux_variables(CodegenCtx *ctx, ASTNode *node, int *struct_idx) {
         collect_flux_variables(ctx, fin->body, struct_idx);
     }
     
-    // Always recurse into siblings to ensure we catch all declarations in a block
     collect_flux_variables(ctx, node->next, struct_idx);
 }
 
@@ -351,7 +350,6 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     const char *func_name = node->mangled_name ? node->mangled_name : node->name;
     
     // --- STEP 1: PREPARE CONTEXT STRUCT ---
-    // Layout: { i32 state, i1 finished, YieldType value, Params..., Locals... }
     
     ctx->flux_vars = NULL;
     int struct_idx = 3; 
@@ -390,7 +388,6 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
         fv = fv->next;
     }
     
-    // Create Unique Struct Name for this generator
     char struct_name[256];
     snprintf(struct_name, 256, "FluxCtx_%s", func_name);
     LLVMTypeRef ctx_struct_type = LLVMStructCreateNamed(LLVMGetGlobalContext(), struct_name);
@@ -462,7 +459,6 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     LLVMValueRef state_addr = LLVMBuildStructGEP2(ctx->builder, ctx_struct_type, ctx->flux_ctx_ptr, 0, "state_addr");
     LLVMValueRef current_state = LLVMBuildLoad2(ctx->builder, LLVMInt32Type(), state_addr, "state");
     
-    // Populate symbol table with GEPs *BEFORE* building the switch terminator
     Symbol *saved_scope = ctx->symbols;
     
     p_idx = 3;
@@ -485,7 +481,7 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
         fv_iter = fv_iter->next;
     }
 
-    // NOW build the terminator
+    // TERMINATOR MUST BE LAST IN BLOCK
     LLVMBasicBlockRef start_bb = LLVMAppendBasicBlock(resume_func, "start");
     LLVMBasicBlockRef end_bb = LLVMAppendBasicBlock(resume_func, "end_flux"); 
     
@@ -498,7 +494,6 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     
     codegen_node(ctx, node->body);
     
-    // Implicit return/finish
     if (!LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(ctx->builder))) {
         LLVMValueRef fin_addr = LLVMBuildStructGEP2(ctx->builder, ctx_struct_type, ctx->flux_ctx_ptr, 1, "fin_addr");
         LLVMBuildStore(ctx->builder, LLVMConstInt(LLVMInt1Type(), 1, 0), fin_addr);
@@ -545,7 +540,6 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
     
     int is_flux = 0;
     
-    // Check Primitive Types first to restore functionality
     if (col_type.base == TYPE_STRING || (col_type.base == TYPE_CHAR && col_type.ptr_depth == 1) || 
        (col_type.base == TYPE_INT && col_type.array_size == 0 && col_type.ptr_depth == 0)) {
         is_flux = 0;
@@ -575,19 +569,15 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
     
     LLVMValueRef current_val = NULL;
     LLVMValueRef condition = NULL;
-    VarType yield_vt = node->iter_type; // Default to semantic type
+    VarType yield_vt = node->iter_type; 
 
     if (is_flux) {
-        // --- FLUX ITERATION ---
-        
-        // 1. Identify Resume Function Name
         char resume_name[512];
         if (node->collection->type == NODE_CALL) {
             CallNode *cn = (CallNode*)node->collection;
             const char *fname = cn->mangled_name ? cn->mangled_name : cn->name;
             sprintf(resume_name, "%s_Resume", fname);
             
-            // Refine yield type from symbol
             FuncSymbol *fs = find_func_symbol(ctx, fname);
             if (fs && fs->is_flux) {
                 yield_vt = fs->yield_type;
@@ -602,12 +592,8 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
             codegen_error(ctx, (ASTNode*)node, msg);
         }
 
-        // 2. Call Resume(ctx)
         LLVMValueRef void_ctx = LLVMBuildBitCast(ctx->builder, col, LLVMPointerType(LLVMInt8Type(), 0), "ctx_void");
         LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(resume_func), resume_func, &void_ctx, 1, "");
-        
-        // 3. Inspect Status and Value manually (Bypass opaque FluxCtx)
-        // Construct Partial Struct: { i32, i1, YieldType }
         
         LLVMTypeRef llvm_yield_type = get_llvm_type(ctx, yield_vt);
         
@@ -615,18 +601,15 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
         LLVMTypeRef partial_struct = LLVMStructType(struct_elems, 3, false);
         LLVMValueRef typed_ctx = LLVMBuildBitCast(ctx->builder, col, LLVMPointerType(partial_struct, 0), "typed_ctx");
         
-        // Check Finished
         LLVMValueRef fin_addr = LLVMBuildStructGEP2(ctx->builder, partial_struct, typed_ctx, 1, "fin_addr");
         LLVMValueRef finished = LLVMBuildLoad2(ctx->builder, LLVMInt1Type(), fin_addr, "finished");
         
         condition = LLVMBuildNot(ctx->builder, finished, "cont");
         
-        // Load Value (only if continuing, but for CFG simplicity we load here or use phi, assuming safe)
         LLVMValueRef val_addr = LLVMBuildStructGEP2(ctx->builder, partial_struct, typed_ctx, 2, "val_addr");
         current_val = LLVMBuildLoad2(ctx->builder, llvm_yield_type, val_addr, "val");
         
     } else {
-        // --- PRIMITIVE ITERATION ---
         if (col_type.base == TYPE_INT) {
             LLVMValueRef idx = LLVMBuildLoad2(ctx->builder, LLVMInt64Type(), iter_ptr, "idx");
             LLVMValueRef limit = LLVMBuildIntCast(ctx->builder, col, LLVMInt64Type(), "limit");
@@ -644,20 +627,34 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
     
     LLVMPositionBuilderAtEnd(ctx->builder, body_bb);
     
-    // Assign Loop Var
-    // USE REFINED YIELD TYPE FOR ALLOCA TO AVOID STRUCT MISMATCH
+    // --- ASSIGN LOOP VARIABLE ---
+    // If in flux resume, reuse the GEP pointer mapped to struct to avoid stack alloca.
+    LLVMValueRef var_ptr = NULL;
     LLVMTypeRef var_type = get_llvm_type(ctx, yield_vt);
-    LLVMValueRef var_alloca = LLVMBuildAlloca(ctx->builder, var_type, node->var_name);
-    LLVMBuildStore(ctx->builder, current_val, var_alloca);
+
+    if (ctx->in_flux_resume) {
+        Symbol *sym = find_symbol(ctx, node->var_name);
+        if (sym) {
+            var_ptr = sym->value; 
+        }
+    }
+    
+    // Fallback: allocate new if not found or not in flux
+    if (!var_ptr) {
+        var_ptr = LLVMBuildAlloca(ctx->builder, var_type, node->var_name);
+        if (!ctx->in_flux_resume) {
+             add_symbol(ctx, node->var_name, var_ptr, var_type, yield_vt, 0, 0);
+        }
+    }
+    
+    LLVMBuildStore(ctx->builder, current_val, var_ptr);
     
     Symbol *saved_syms = ctx->symbols;
-    add_symbol(ctx, node->var_name, var_alloca, var_type, yield_vt, 0, 0);
     
     push_loop_ctx(ctx, cond_bb, end_bb);
     codegen_node(ctx, node->body);
     pop_loop_ctx(ctx);
     
-    // Step (Primitive Only)
     if (!is_flux) {
         if (col_type.base == TYPE_INT) {
             LLVMValueRef idx = LLVMBuildLoad2(ctx->builder, LLVMInt64Type(), iter_ptr, "idx");
