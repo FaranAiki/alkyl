@@ -107,6 +107,15 @@ SemFunc* resolve_overload(SemCtx *ctx, ASTNode *call_node, const char *name, AST
     return best;
 }
 
+SemFunc* find_sem_func(SemCtx *ctx, const char *name) {
+    SemFunc *f = ctx->functions;
+    while(f) {
+        if (strcmp(f->name, name) == 0) return f;
+        f = f->next;
+    }
+    return NULL;
+}
+
 SemEnum* find_sem_enum(SemCtx *ctx, const char *name) {
     SemEnum *e = ctx->enums;
     while(e) {

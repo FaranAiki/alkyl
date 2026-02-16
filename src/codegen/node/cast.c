@@ -13,6 +13,16 @@ LLVMValueRef gen_var_ref(CodegenCtx *ctx, VarRefNode *node) {
           return LLVMBuildLoad2(ctx->builder, sym->type, sym->value, sym->name);
       }
       
+      // CHECK FOR FUNCTION POINTER DECAY
+      // If the semantic analyzer resolved this to a function, 'mangled_name' will be set.
+      if (node->mangled_name) {
+           LLVMValueRef func = LLVMGetNamedFunction(ctx->module, node->mangled_name);
+           if (func) return func;
+           // Fallback to non-mangled name if mangled not found (e.g. extern C)
+           func = LLVMGetNamedFunction(ctx->module, name);
+           if (func) return func;
+      }
+      
       Symbol *this_sym = find_symbol(ctx, "this");
       if (this_sym && this_sym->vtype.class_name) {
            ClassInfo *ci = find_class(ctx, this_sym->vtype.class_name);

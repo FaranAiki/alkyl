@@ -115,6 +115,8 @@ SemSymbol* find_symbol_semantic(SemCtx *ctx, const char *name);
 // Symbol Table Management (Functions, Classes, Enums)
 void add_func(SemCtx *ctx, const char *name, char *mangled, VarType ret, VarType *params, int pcount, int is_flux);
 SemFunc* resolve_overload(SemCtx *ctx, ASTNode *call_node, const char *name, ASTNode *args_list);
+SemFunc* find_sem_func(SemCtx *ctx, const char *name);
+
 SemEnum* find_sem_enum(SemCtx *ctx, const char *name);
 void add_class(SemCtx *ctx, const char *name, const char *parent, char **traits, int trait_count, int is_union);
 SemClass* find_sem_class(SemCtx *ctx, const char *name);

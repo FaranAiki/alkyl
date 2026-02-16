@@ -8,6 +8,7 @@
 #include <setjmp.h>
 
 // --- SHARED GLOBALS ---
+// TODO: make this non global so threads are easy to maintain
 extern Token current_token;
 extern jmp_buf *parser_env;      // For REPL recovery
 extern jmp_buf *parser_recover_buf; // For file parsing recovery

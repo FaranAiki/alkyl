@@ -270,6 +270,8 @@ typedef struct {
 typedef struct {
   ASTNode base;
   char *name;
+  // Added: Resolved mangled name for function pointers
+  char *mangled_name;
 } VarRefNode;
 
 typedef struct {

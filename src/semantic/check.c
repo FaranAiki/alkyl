@@ -72,6 +72,24 @@ VarType check_expr_internal(SemCtx *ctx, ASTNode *node) {
                     VarType t = {TYPE_CLASS, 1, strdup(ctx->current_class), 0, 0}; 
                     return t;
                 }
+
+                // CHECK FOR FUNCTION POINTER (Function as First Class Citizen)
+                SemFunc *func = find_sem_func(ctx, name);
+                if (func) {
+                     VarType ft = {0};
+                     ft.is_func_ptr = 1;
+                     ft.fp_ret_type = malloc(sizeof(VarType));
+                     *ft.fp_ret_type = func->ret_type;
+                     ft.fp_param_count = func->param_count;
+                     ft.fp_is_varargs = 0; // TODO: store this in SemFunc
+                     if (func->param_count > 0) {
+                         ft.fp_param_types = malloc(sizeof(VarType) * func->param_count);
+                         for(int i=0; i<func->param_count; i++) ft.fp_param_types[i] = func->param_types[i];
+                     }
+                     // Attach resolution to node for Codegen
+                     ((VarRefNode*)node)->mangled_name = strdup(func->mangled_name);
+                     return ft;
+                }
                 
                 // Check for Implicit 'this' member access
                 if (ctx->current_class) {

@@ -22,6 +22,7 @@ typedef enum {
   TOKEN_FLOAT,  
   TOKEN_STRING,
   TOKEN_C_STRING, // Added: c"..."
+                  // TODO: add c[...]
   TOKEN_CHAR_LIT, 
   TOKEN_IDENTIFIER, 
   
