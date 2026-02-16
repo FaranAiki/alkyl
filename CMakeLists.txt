@@ -31,6 +31,7 @@ include_directories(
 set(MUST_LLVM_SOURCES
     src/codegen/stmt.c
     src/codegen/flow.c
+    src/codegen/flux.c
     src/codegen/core.c
     src/codegen/expr.c
     src/codegen/builtin.c
