@@ -323,4 +323,4 @@ void parser_reset(void);
 // CLI Hooks
 void parser_set_recovery(jmp_buf *env);
 
-#endif
+#endif // PARSER_H

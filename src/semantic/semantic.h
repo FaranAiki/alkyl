@@ -8,10 +8,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-/* =========================================================================
-   Data Structure Definitions
-   ========================================================================= */
-
 typedef struct SemSymbol {
     char *name;
     VarType type;
@@ -83,10 +79,6 @@ typedef struct {
     const char *filename;          // For error reporting context
 } SemCtx;
 
-/* =========================================================================
-   Forward Declarations (Internal Functions)
-   ========================================================================= */
-
 // Recursive checkers
 VarType check_expr(SemCtx *ctx, ASTNode *node);
 void check_stmt(SemCtx *ctx, ASTNode *node);
@@ -136,10 +128,6 @@ VarType resolve_typedef(SemCtx *ctx, VarType t);
 // Driver Logic
 void scan_declarations(SemCtx *ctx, ASTNode *node, const char *prefix);
 void check_program(SemCtx *ctx, ASTNode *node);
-
-/* =========================================================================
-   Public Interface
-   ========================================================================= */
 
 int semantic_analysis(ASTNode *root, const char *source, const char *filename);
 

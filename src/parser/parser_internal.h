@@ -72,4 +72,4 @@ ASTNode* parse_typedef(Lexer *l);
 ASTNode* parse_import(Lexer *l);
 ASTNode* parse_link(Lexer *l);
 
-#endif
+#endif // PARSER_INTERNAL_H

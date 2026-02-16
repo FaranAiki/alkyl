@@ -318,8 +318,6 @@ void codegen_if(CodegenCtx *ctx, IfNode *node) {
 
 // --- FLUX (COROUTINE) CODE GENERATION ---
 
-// Refactored using llvm.coro intrinsics (C++20 Style)
-
 void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     int param_count = 0;
     Parameter *p = node->params;
@@ -346,7 +344,6 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
 
     // Basic Blocks
     LLVMBasicBlockRef entry = LLVMAppendBasicBlock(func, "entry");
-    // Removed unused alloc_bb which caused terminator error
     LLVMBasicBlockRef begin_bb = LLVMAppendBasicBlock(func, "begin");
     LLVMBasicBlockRef cleanup_bb = LLVMAppendBasicBlock(func, "cleanup");
     LLVMBasicBlockRef suspend_bb = LLVMAppendBasicBlock(func, "suspend");
@@ -359,25 +356,35 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     LLVMValueRef null_ptr = LLVMConstPointerNull(LLVMPointerType(LLVMInt8Type(), 0));
     LLVMValueRef promise_ptr = LLVMBuildBitCast(ctx->builder, promise, LLVMPointerType(LLVMInt8Type(), 0), "promise_void");
     
-    // llvm.coro.id(align, promise, null, null)
+    // llvm.coro.id(align, promise, null, null) -> token
+    LLVMTypeRef id_arg_types[] = { LLVMInt32Type(), LLVMPointerType(LLVMInt8Type(), 0), LLVMPointerType(LLVMInt8Type(), 0), LLVMPointerType(LLVMInt8Type(), 0) };
+    LLVMTypeRef id_func_type = LLVMFunctionType(LLVMTokenTypeInContext(LLVMGetGlobalContext()), id_arg_types, 4, false);
+    
     LLVMValueRef id_args[] = { 
         LLVMConstInt(LLVMInt32Type(), 0, 0), 
         promise_ptr, 
         null_ptr, 
         null_ptr 
     };
-    LLVMValueRef id = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_id), ctx->coro_id, id_args, 4, "id");
+    LLVMValueRef id = LLVMBuildCall2(ctx->builder, id_func_type, ctx->coro_id, id_args, 4, "id");
     
     // 2. Allocation Logic
-    LLVMValueRef size = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_size), ctx->coro_size, NULL, 0, "size");
+    // llvm.coro.size.i64() -> i64
+    LLVMTypeRef size_func_type = LLVMFunctionType(LLVMInt64Type(), NULL, 0, false);
+    LLVMValueRef size = LLVMBuildCall2(ctx->builder, size_func_type, ctx->coro_size, NULL, 0, "size");
+    
     LLVMValueRef mem = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->malloc_func), ctx->malloc_func, &size, 1, "mem");
     LLVMBuildBr(ctx->builder, begin_bb);
     
     LLVMPositionBuilderAtEnd(ctx->builder, begin_bb);
     
     // 3. Coro Begin
+    // llvm.coro.begin(token, i8*) -> i8*
+    LLVMTypeRef begin_arg_types[] = { LLVMTokenTypeInContext(LLVMGetGlobalContext()), LLVMPointerType(LLVMInt8Type(), 0) };
+    LLVMTypeRef begin_func_type = LLVMFunctionType(LLVMPointerType(LLVMInt8Type(), 0), begin_arg_types, 2, false);
+    
     LLVMValueRef begin_args[] = { id, mem };
-    LLVMValueRef hdl = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_begin), ctx->coro_begin, begin_args, 2, "hdl");
+    LLVMValueRef hdl = LLVMBuildCall2(ctx->builder, begin_func_type, ctx->coro_begin, begin_args, 2, "hdl");
     
     // STORE HDL for emit/return/suspend
     ctx->flux_coro_hdl = hdl;
@@ -394,17 +401,22 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
         p = p->next;
     }
 
-    // 5. Initial Suspend (Generators usually suspend initially or return handle)
-    // suspend -> ret hdl, resume -> body, cleanup -> cleanup_bb
+    // 5. Initial Suspend
     
-    // llvm.coro.save required before suspend
+    // llvm.coro.save(i8*) -> token
+    LLVMTypeRef save_arg_types[] = { LLVMPointerType(LLVMInt8Type(), 0) };
+    LLVMTypeRef save_func_type = LLVMFunctionType(LLVMTokenTypeInContext(LLVMGetGlobalContext()), save_arg_types, 1, false);
+
     LLVMValueRef save_hdl_args[] = { hdl };
-    LLVMValueRef save_tok = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_save), ctx->coro_save, save_hdl_args, 1, "save_tok");
+    LLVMValueRef save_tok = LLVMBuildCall2(ctx->builder, save_func_type, ctx->coro_save, save_hdl_args, 1, "save_tok");
     
+    // llvm.coro.suspend(token, i1) -> i8
+    LLVMTypeRef suspend_arg_types[] = { LLVMTokenTypeInContext(LLVMGetGlobalContext()), LLVMInt1Type() };
+    LLVMTypeRef suspend_func_type = LLVMFunctionType(LLVMInt8Type(), suspend_arg_types, 2, false);
+
     LLVMValueRef suspend_args[] = { save_tok, LLVMConstInt(LLVMInt1Type(), 0, 0) }; // false = final? no
-    LLVMValueRef suspend_res = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_suspend), ctx->coro_suspend, suspend_args, 2, "initial_suspend");
+    LLVMValueRef suspend_res = LLVMBuildCall2(ctx->builder, suspend_func_type, ctx->coro_suspend, suspend_args, 2, "initial_suspend");
     
-    // FIX: Switch on raw i8 result from coro.suspend
     LLVMValueRef sw = LLVMBuildSwitch(ctx->builder, suspend_res, suspend_bb, 2);
     LLVMAddCase(sw, LLVMConstInt(LLVMInt8Type(), 0, 0), body_bb);
     LLVMAddCase(sw, LLVMConstInt(LLVMInt8Type(), 1, 0), cleanup_bb);
@@ -415,25 +427,41 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
     
     // Cleanup Path
     LLVMPositionBuilderAtEnd(ctx->builder, cleanup_bb);
+    
+    // llvm.coro.free(token, i8*) -> i8*
+    LLVMTypeRef free_arg_types[] = { LLVMTokenTypeInContext(LLVMGetGlobalContext()), LLVMPointerType(LLVMInt8Type(), 0) };
+    LLVMTypeRef free_func_type = LLVMFunctionType(LLVMPointerType(LLVMInt8Type(), 0), free_arg_types, 2, false);
+
     LLVMValueRef free_args[] = { id, hdl };
-    LLVMValueRef mem_to_free = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_free), ctx->coro_free, free_args, 2, "mem_free");
+    LLVMValueRef mem_to_free = LLVMBuildCall2(ctx->builder, free_func_type, ctx->coro_free, free_args, 2, "mem_free");
     
     LLVMValueRef free_call_args[] = { mem_to_free };
     LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->free_func), ctx->free_func, free_call_args, 1, "");
-    LLVMBuildRet(ctx->builder, LLVMConstPointerNull(LLVMPointerType(LLVMInt8Type(), 0))); // Should be unreachable logic-wise from caller
+
+    // llvm.coro.end(i8*, i1, token) -> i1
+    // FIX: Match the non-vararg 3-argument signature returning i1 (boolean)
+    LLVMTypeRef end_arg_types[] = { LLVMPointerType(LLVMInt8Type(), 0), LLVMInt1Type(), LLVMTokenTypeInContext(LLVMGetGlobalContext()) };
+    LLVMTypeRef end_func_type = LLVMFunctionType(LLVMInt1Type(), end_arg_types, 3, false);
+    
+    // Create token none using ConstNull which maps to 'none' for tokens in many contexts or is accepted as placeholder
+    LLVMValueRef token_none = LLVMConstNull(LLVMTokenTypeInContext(LLVMGetGlobalContext()));
+
+    LLVMValueRef end_args_call[] = { hdl, LLVMConstInt(LLVMInt1Type(), 0, 0), token_none };
+    LLVMBuildCall2(ctx->builder, end_func_type, ctx->coro_end, end_args_call, 3, "coro_end_val");
+
+    LLVMBuildRet(ctx->builder, LLVMConstPointerNull(LLVMPointerType(LLVMInt8Type(), 0))); 
     
     // Body Path
     LLVMPositionBuilderAtEnd(ctx->builder, body_bb);
     
     // Save Promise context for emit/return
     ctx->flux_promise_val = promise;
-    ctx->flux_promise_type = promise_type; // Store explicitly to avoid opaque ptr issues
-    ctx->flux_return_block = cleanup_bb; // Actually, return means final suspend
+    ctx->flux_promise_type = promise_type; 
+    ctx->flux_return_block = cleanup_bb; 
 
     codegen_node(ctx, node->body);
     
     // Fallthrough: Implicit Return
-    // Set finished = true
     if (!LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(ctx->builder))) {
         LLVMValueRef finished_ptr = LLVMBuildStructGEP2(ctx->builder, promise_type, promise, 0, "finished_ptr");
         LLVMBuildStore(ctx->builder, LLVMConstInt(LLVMInt1Type(), 1, 0), finished_ptr);
@@ -441,12 +469,11 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
         // Final Suspend
         // SAVE TOKEN
         LLVMValueRef final_save_args[] = { hdl };
-        LLVMValueRef final_save = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_save), ctx->coro_save, final_save_args, 1, "final_save");
+        LLVMValueRef final_save = LLVMBuildCall2(ctx->builder, save_func_type, ctx->coro_save, final_save_args, 1, "final_save");
 
         LLVMValueRef final_suspend_args[] = { final_save, LLVMConstInt(LLVMInt1Type(), 1, 0) }; // true = final
-        LLVMValueRef final_res = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_suspend), ctx->coro_suspend, final_suspend_args, 2, "final_suspend");
+        LLVMValueRef final_res = LLVMBuildCall2(ctx->builder, suspend_func_type, ctx->coro_suspend, final_suspend_args, 2, "final_suspend");
         
-        // FIX: Switch on raw i8.
         LLVMBasicBlockRef fin_suspend_bb = LLVMAppendBasicBlock(func, "fin_suspend");
         LLVMValueRef final_sw = LLVMBuildSwitch(ctx->builder, final_res, fin_suspend_bb, 2);
         LLVMAddCase(final_sw, LLVMConstInt(LLVMInt8Type(), 0, 0), cleanup_bb);
@@ -471,7 +498,6 @@ void codegen_emit(CodegenCtx *ctx, EmitNode *node) {
     LLVMValueRef val = codegen_expr(ctx, node->value);
     
     // 1. Store value in promise
-    // Use stored explicit type instead of relying on opaque pointer introspection
     LLVMTypeRef promise_type = ctx->flux_promise_type; 
     LLVMValueRef val_ptr = LLVMBuildStructGEP2(ctx->builder, promise_type, ctx->flux_promise_val, 1, "val_ptr");
     LLVMBuildStore(ctx->builder, val, val_ptr);
@@ -482,29 +508,29 @@ void codegen_emit(CodegenCtx *ctx, EmitNode *node) {
     
     // 3. Suspend
     // SAVE TOKEN from current hdl
+    LLVMTypeRef save_arg_types[] = { LLVMPointerType(LLVMInt8Type(), 0) };
+    LLVMTypeRef save_func_type = LLVMFunctionType(LLVMTokenTypeInContext(LLVMGetGlobalContext()), save_arg_types, 1, false);
+
     LLVMValueRef save_args[] = { ctx->flux_coro_hdl };
-    LLVMValueRef save_tok = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_save), ctx->coro_save, save_args, 1, "emit_save");
+    LLVMValueRef save_tok = LLVMBuildCall2(ctx->builder, save_func_type, ctx->coro_save, save_args, 1, "emit_save");
+
+    LLVMTypeRef suspend_arg_types[] = { LLVMTokenTypeInContext(LLVMGetGlobalContext()), LLVMInt1Type() };
+    LLVMTypeRef suspend_func_type = LLVMFunctionType(LLVMInt8Type(), suspend_arg_types, 2, false);
 
     LLVMValueRef suspend_args[] = { save_tok, LLVMConstInt(LLVMInt1Type(), 0, 0) };
-    LLVMValueRef suspend_res = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_suspend), ctx->coro_suspend, suspend_args, 2, "yield_suspend");
+    LLVMValueRef suspend_res = LLVMBuildCall2(ctx->builder, suspend_func_type, ctx->coro_suspend, suspend_args, 2, "yield_suspend");
     
     LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(ctx->builder));
     LLVMBasicBlockRef resume_bb = LLVMAppendBasicBlock(func, "after_yield");
-    LLVMBasicBlockRef cleanup_bb = LLVMAppendBasicBlock(func, "yield_cleanup"); 
     LLVMBasicBlockRef suspend_ret_bb = LLVMAppendBasicBlock(func, "suspend_ret");
 
-    // FIX: Switch on raw i8.
     LLVMValueRef sw = LLVMBuildSwitch(ctx->builder, suspend_res, suspend_ret_bb, 2);
     LLVMAddCase(sw, LLVMConstInt(LLVMInt8Type(), 0, 0), resume_bb);
-    LLVMAddCase(sw, LLVMConstInt(LLVMInt8Type(), 1, 0), cleanup_bb);
+    LLVMAddCase(sw, LLVMConstInt(LLVMInt8Type(), 1, 0), ctx->flux_return_block);
 
-    // Suspend Path: Return Handle (Crucial Fix)
+    // Suspend Path: Return Handle
     LLVMPositionBuilderAtEnd(ctx->builder, suspend_ret_bb);
     LLVMBuildRet(ctx->builder, ctx->flux_coro_hdl);
-
-    // Cleanup Path
-    LLVMPositionBuilderAtEnd(ctx->builder, cleanup_bb);
-    LLVMBuildRet(ctx->builder, LLVMConstPointerNull(LLVMPointerType(LLVMInt8Type(), 0)));
 
     // Resume Path
     LLVMPositionBuilderAtEnd(ctx->builder, resume_bb);
@@ -562,19 +588,27 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
     
     if (is_flux) {
         // Resume
+        // llvm.coro.resume(i8*) -> void
+        LLVMTypeRef resume_arg_types[] = { LLVMPointerType(LLVMInt8Type(), 0) };
+        LLVMTypeRef resume_func_type = LLVMFunctionType(LLVMVoidType(), resume_arg_types, 1, false);
+
         LLVMValueRef res_args[] = { flux_hdl };
-        LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_resume), ctx->coro_resume, res_args, 1, "");
+        LLVMBuildCall2(ctx->builder, resume_func_type, ctx->coro_resume, res_args, 1, "");
         
         // Access Promise
         LLVMTypeRef val_type = get_llvm_type(ctx, iter_alk_type);
         LLVMTypeRef prom_struct_elems[] = { LLVMInt1Type(), val_type };
         LLVMTypeRef prom_type = LLVMStructType(prom_struct_elems, 2, false);
         
+        // llvm.coro.promise(i8*, i32, i1) -> i8*
+        LLVMTypeRef prom_arg_types[] = { LLVMPointerType(LLVMInt8Type(), 0), LLVMInt32Type(), LLVMInt1Type() };
+        LLVMTypeRef prom_func_type = LLVMFunctionType(LLVMPointerType(LLVMInt8Type(), 0), prom_arg_types, 3, false);
+
         LLVMValueRef align = LLVMConstInt(LLVMInt32Type(), 0, 0); // Alignment
         LLVMValueRef from_hdl = LLVMConstInt(LLVMInt1Type(), 1, 0); // True
         LLVMValueRef prom_args[] = { flux_hdl, align, from_hdl };
         
-        LLVMValueRef prom_void_ptr = LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_promise), ctx->coro_promise, prom_args, 3, "prom_ptr_void");
+        LLVMValueRef prom_void_ptr = LLVMBuildCall2(ctx->builder, prom_func_type, ctx->coro_promise, prom_args, 3, "prom_ptr_void");
         LLVMValueRef prom_ptr = LLVMBuildBitCast(ctx->builder, prom_void_ptr, LLVMPointerType(prom_type, 0), "prom_ptr");
         
         // Check Finished
@@ -640,7 +674,11 @@ void codegen_for_in(CodegenCtx *ctx, ForInNode *node) {
     
     // Cleanup Flux
     if (is_flux) {
+        // llvm.coro.destroy(i8*) -> void
+        LLVMTypeRef destroy_arg_types[] = { LLVMPointerType(LLVMInt8Type(), 0) };
+        LLVMTypeRef destroy_func_type = LLVMFunctionType(LLVMVoidType(), destroy_arg_types, 1, false);
+
         LLVMValueRef des_args[] = { flux_hdl };
-        LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(ctx->coro_destroy), ctx->coro_destroy, des_args, 1, "");
+        LLVMBuildCall2(ctx->builder, destroy_func_type, ctx->coro_destroy, des_args, 1, "");
     }
 }

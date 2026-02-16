@@ -13,12 +13,12 @@
 
 #define DEBUG_FLOW
 #ifdef DEBUG_FLOW 
-  #define debug_flow(msg, ...) printf(DIAG_BLUE "flow: " DIAG_RESET msg, ##__VA_ARGS__); putchar('\n');
+  #define debug_flow(msg, ...) printf(__FILE__ ": " DIAG_BLUE "flow: " DIAG_RESET msg, ##__VA_ARGS__); putchar('\n');
 #else 
   #define debug_flow(msg, ...) 
 #endif
 
-#define DEBUG_STEP 
+#define DEBUG_STEP
 #ifdef DEBUG_STEP 
   #define debug_step(msg, ...) printf(DIAG_CYAN "step: " DIAG_RESET msg, ##__VA_ARGS__); putchar('\n');
 #else 

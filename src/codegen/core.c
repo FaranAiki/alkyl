@@ -94,9 +94,10 @@ void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef buil
     LLVMTypeRef suspend_args[] = { LLVMTokenTypeInContext(LLVMGetGlobalContext()), LLVMInt1Type() };
     ctx->coro_suspend = LLVMAddFunction(module, "llvm.coro.suspend", LLVMFunctionType(LLVMInt8Type(), suspend_args, 2, false));
 
-    // llvm.coro.end
-    LLVMTypeRef end_args[] = { LLVMPointerType(LLVMInt8Type(), 0), LLVMInt1Type() };
-    ctx->coro_end = LLVMAddFunction(module, "llvm.coro.end", LLVMFunctionType(LLVMInt1Type(), end_args, 2, false));
+    // llvm.coro.end - FIX: Correct definition (ptr, i1, token) -> i1
+    // Must return i1 (boolean) for compatibility with most LLVM versions, not void
+    LLVMTypeRef end_args[] = { LLVMPointerType(LLVMInt8Type(), 0), LLVMInt1Type(), LLVMTokenTypeInContext(LLVMGetGlobalContext()) };
+    ctx->coro_end = LLVMAddFunction(module, "llvm.coro.end", LLVMFunctionType(LLVMInt1Type(), end_args, 3, false));
 
     // llvm.coro.free
     LLVMTypeRef cfree_args[] = { LLVMTokenTypeInContext(LLVMGetGlobalContext()), LLVMPointerType(LLVMInt8Type(), 0) };
