@@ -7,9 +7,6 @@
 #include <llvm-c/TargetMachine.h>
 #include <llvm-c/Analysis.h>
 
-// fix this shit I don't want a global variable
-extern int parser_error_count;
-
 #define BASENAME "out"
 
 char* read_file(const char* filename) {
@@ -71,7 +68,7 @@ int main(int argc, char *argv[]) {
 
   ASTNode *root = parse_program(&l);
   
-  if (!root && parser_error_count > 0) {
+  if (!root && l.parser_error_count > 0) {
       free(code);
       return 1;
   }

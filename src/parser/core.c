@@ -6,7 +6,6 @@
 Token current_token = {TOKEN_UNKNOWN, NULL, 0, 0, 0.0};
 jmp_buf *parser_env = NULL;         // REPL
 jmp_buf *parser_recover_buf = NULL; // Compilation
-int parser_error_count = 0;
 
 // Why is the type of this shit looks like this lmaoo
 
@@ -167,11 +166,9 @@ void safe_free_current_token() {
   if (current_token.text) { free(current_token.text); current_token.text = NULL; }
 }
 
-// --- ERROR HANDLING & SYNC ---
-
 void parser_fail_at(Lexer *l, Token t, const char *msg) {
     report_error(l, t, msg);
-    parser_error_count++;
+    l->parser_error_count++;
     safe_free_current_token();
     
     if (parser_recover_buf) {
@@ -197,7 +194,7 @@ void parser_reset(void) {
     current_token.line = 0; current_token.col = 0;
     parser_env = NULL;
     parser_recover_buf = NULL;
-    parser_error_count = 0;
+    // parser_error_count = 0;
 }
 
 // use algo to not automatically crash 

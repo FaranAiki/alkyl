@@ -12,7 +12,6 @@
 extern Token current_token;
 extern jmp_buf *parser_env;      // For REPL recovery
 extern jmp_buf *parser_recover_buf; // For file parsing recovery
-extern int parser_error_count;   // Total errors found
 
 // --- CORE FUNCTIONS (parser_core.c) ---
 // Report error at current token

@@ -152,6 +152,7 @@ typedef struct {
   int pos;
   int line;
   int col;
+  int parser_error_count;
 } Lexer;
 
 void lexer_init(Lexer *l, const char *src);
