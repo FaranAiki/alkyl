@@ -83,7 +83,7 @@ void codegen_func_def(CodegenCtx *ctx, FuncDefNode *node) {
   
   codegen_node(ctx, node->body);
   
-  if (node->ret_type.base == TYPE_VOID) {
+  if (node->ret_type.base == TYPE_VOID && node->ret_type.ptr_depth == 0 && !node->ret_type.is_func_ptr) {
     if (!LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(ctx->builder))) {
       LLVMBuildRetVoid(ctx->builder);
     }

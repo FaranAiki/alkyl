@@ -299,12 +299,49 @@ LLVMValueRef gen_call(CodegenCtx *ctx, CallNode *c) {
         
         curr = c->args; 
         for(int i=0; i<arg_count; i++) { 
-            args[i] = codegen_expr(ctx, curr); 
+            LLVMValueRef val = codegen_expr(ctx, curr); 
+
+            // Casting logic for function pointers (mirroring named function logic)
+            if (i < var_sym->vtype.fp_param_count) {
+                 VarType expected = var_sym->vtype.fp_param_types[i];
+                 LLVMTypeRef llvm_expected = get_llvm_type(ctx, expected);
+                 
+                 if (LLVMGetTypeKind(llvm_expected) == LLVMDoubleTypeKind) {
+                     if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMIntegerTypeKind) {
+                         val = expected.is_unsigned ? LLVMBuildUIToFP(ctx->builder, val, llvm_expected, "cast") : LLVMBuildSIToFP(ctx->builder, val, llvm_expected, "cast");
+                     } else if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMFloatTypeKind) {
+                         val = LLVMBuildFPExt(ctx->builder, val, llvm_expected, "cast");
+                     }
+                 } else if (LLVMGetTypeKind(llvm_expected) == LLVMFloatTypeKind) {
+                     if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMIntegerTypeKind) {
+                         val = expected.is_unsigned ? LLVMBuildUIToFP(ctx->builder, val, llvm_expected, "cast") : LLVMBuildSIToFP(ctx->builder, val, llvm_expected, "cast");
+                     }
+                 } else if (LLVMGetTypeKind(llvm_expected) == LLVMIntegerTypeKind) {
+                     if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMIntegerTypeKind) {
+                         unsigned e_w = LLVMGetIntTypeWidth(llvm_expected);
+                         unsigned v_w = LLVMGetIntTypeWidth(LLVMTypeOf(val));
+                         if (e_w > v_w) val = expected.is_unsigned ? LLVMBuildZExt(ctx->builder, val, llvm_expected, "cast") : LLVMBuildSExt(ctx->builder, val, llvm_expected, "cast");
+                         else if (v_w > e_w) val = LLVMBuildTrunc(ctx->builder, val, llvm_expected, "cast");
+                     }
+                 }
+            }
+
+            args[i] = val;
             curr = curr->next;
         }
         
-        LLVMTypeRef ftype = get_llvm_type(ctx, var_sym->vtype);
-        LLVMTypeRef func_sig = LLVMGetElementType(ftype);
+        // RECONSTRUCT FUNCTION TYPE FOR OPAQUE POINTER COMPATIBILITY
+        VarType vt = var_sym->vtype;
+        LLVMTypeRef ret_t = get_llvm_type(ctx, *vt.fp_ret_type);
+        LLVMTypeRef *param_types = NULL;
+        if (vt.fp_param_count > 0) {
+            param_types = malloc(sizeof(LLVMTypeRef) * vt.fp_param_count);
+            for(int i=0; i<vt.fp_param_count; i++) {
+                param_types[i] = get_llvm_type(ctx, vt.fp_param_types[i]);
+            }
+        }
+        LLVMTypeRef func_sig = LLVMFunctionType(ret_t, param_types, vt.fp_param_count, vt.fp_is_varargs);
+        if (param_types) free(param_types);
 
         LLVMValueRef ret = LLVMBuildCall2(ctx->builder, func_sig, func_ptr, args, arg_count, "");
         free(args);
@@ -445,4 +482,3 @@ LLVMValueRef gen_method_call(CodegenCtx *ctx, MethodCallNode *mc) {
       free(args);
       return ret;
 }
-

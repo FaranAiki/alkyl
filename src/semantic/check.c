@@ -343,6 +343,7 @@ VarType check_expr_internal(SemCtx *ctx, ASTNode *node) {
             if (strcmp(c->name, "setjmp") == 0) return (VarType){TYPE_INT, 0, NULL, 0, 0};
             if (strcmp(c->name, "longjmp") == 0) return (VarType){TYPE_VOID, 0, NULL, 0, 0};
 
+            // 1. Try standard function overload resolution
             SemFunc *match = resolve_overload(ctx, node, c->name, c->args);
             if (match) {
                 c->mangled_name = strdup(match->mangled_name);
@@ -354,6 +355,44 @@ VarType check_expr_internal(SemCtx *ctx, ASTNode *node) {
                     return (VarType){TYPE_CLASS, 1, ctx_name, 0, 0}; 
                 }
                 return match->ret_type;
+            }
+            
+            // 2. Try resolving as a variable (Function Pointer Call)
+            SemSymbol *sym = find_symbol_semantic(ctx, c->name);
+            if (sym && sym->type.is_func_ptr) {
+                // We leave c->mangled_name as NULL (or we can set it to the variable name, 
+                // but CodeGen usually expects mangled_name to be a global function).
+                // If CodeGen sees NULL mangled_name, it should resolve 'name' as a variable load.
+                
+                int expected = sym->type.fp_param_count;
+                int actual = 0;
+                ASTNode *a = c->args;
+                while(a) { actual++; a = a->next; }
+
+                if (actual != expected && !sym->type.fp_is_varargs) {
+                    sem_error(ctx, node, "Function pointer call '%s' expected %d arguments, got %d", c->name, expected, actual);
+                }
+                
+                // Verify arguments
+                a = c->args;
+                int i = 0;
+                while(a && i < expected) {
+                    VarType arg_t = check_expr(ctx, a);
+                    // We can be strict or loose. Let's use get_conversion_cost
+                    if (get_conversion_cost(arg_t, sym->type.fp_param_types[i]) == -1) {
+                         sem_error(ctx, a, "Argument %d type mismatch in function pointer call. Expected '%s', got '%s'", 
+                                   i+1, type_to_str(sym->type.fp_param_types[i]), type_to_str(arg_t));
+                    }
+                    a = a->next;
+                    i++;
+                }
+
+                // Return the return type of the function pointer
+                if (sym->type.fp_ret_type) {
+                    return *sym->type.fp_ret_type;
+                } else {
+                    return (VarType){TYPE_VOID, 0, NULL, 0, 0};
+                }
             }
             
             // Check if class constructor
