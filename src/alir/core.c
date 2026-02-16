@@ -24,6 +24,36 @@ AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, 
     return f;
 }
 
+void alir_func_add_param(AlirFunction *func, const char *name, VarType type) {
+    AlirParam *p = calloc(1, sizeof(AlirParam));
+    p->name = strdup(name ? name : "");
+    p->type = type;
+    
+    if (!func->params) {
+        func->params = p;
+    } else {
+        AlirParam *curr = func->params;
+        while(curr->next) curr = curr->next;
+        curr->next = p;
+    }
+    func->param_count++;
+}
+
+AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, int id_hint) {
+    char label[64];
+    sprintf(label, "str.%d", id_hint);
+    
+    AlirGlobal *g = calloc(1, sizeof(AlirGlobal));
+    g->name = strdup(label);
+    g->string_content = strdup(content);
+    g->type = (VarType){TYPE_STRING, 0, NULL, 0, 0};
+    
+    g->next = mod->globals;
+    mod->globals = g;
+    
+    return alir_val_global(label, g->type);
+}
+
 AlirBlock* alir_add_block(AlirFunction *func, const char *label_hint) {
     AlirBlock *b = calloc(1, sizeof(AlirBlock));
     static int global_id = 0;
@@ -55,6 +85,44 @@ void alir_append_inst(AlirBlock *block, AlirInst *inst) {
         block->tail->next = inst;
         block->tail = inst;
     }
+}
+
+// --- STRUCT REGISTRY ---
+
+void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields) {
+    AlirStruct *st = calloc(1, sizeof(AlirStruct));
+    st->name = strdup(name);
+    st->fields = fields;
+    
+    AlirField *f = fields;
+    while(f) {
+        st->field_count++;
+        f = f->next;
+    }
+    
+    st->next = mod->structs;
+    mod->structs = st;
+}
+
+AlirStruct* alir_find_struct(AlirModule *mod, const char *name) {
+    AlirStruct *curr = mod->structs;
+    while(curr) {
+        if (strcmp(curr->name, name) == 0) return curr;
+        curr = curr->next;
+    }
+    return NULL;
+}
+
+int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *field_name) {
+    AlirStruct *st = alir_find_struct(mod, struct_name);
+    if (!st) return -1;
+    
+    AlirField *f = st->fields;
+    while(f) {
+        if (strcmp(f->name, field_name) == 0) return f->index;
+        f = f->next;
+    }
+    return -1;
 }
 
 // --- VALUE CREATORS ---
@@ -90,10 +158,26 @@ AlirValue* alir_val_var(const char *name) {
     return v;
 }
 
+AlirValue* alir_val_global(const char *name, VarType type) {
+    AlirValue *v = calloc(1, sizeof(AlirValue));
+    v->kind = ALIR_VAL_GLOBAL;
+    v->str_val = strdup(name);
+    v->type = type;
+    return v;
+}
+
 AlirValue* alir_val_label(const char *label) {
     AlirValue *v = calloc(1, sizeof(AlirValue));
     v->kind = ALIR_VAL_LABEL;
     v->str_val = strdup(label);
+    return v;
+}
+
+AlirValue* alir_val_type(const char *type_name) {
+    AlirValue *v = calloc(1, sizeof(AlirValue));
+    v->kind = ALIR_VAL_TYPE;
+    v->str_val = strdup(type_name);
+    v->type = (VarType){TYPE_CLASS, 0, strdup(type_name), 0, 0};
     return v;
 }
 
@@ -104,6 +188,10 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_LOAD: return "load";
         case ALIR_OP_GET_PTR: return "getptr";
         case ALIR_OP_BITCAST: return "bitcast";
+        
+        case ALIR_OP_ALLOC_HEAP: return "alloc_heap";
+        case ALIR_OP_SIZEOF: return "sizeof";
+        case ALIR_OP_FREE: return "free";
         
         case ALIR_OP_ADD: return "add";
         case ALIR_OP_SUB: return "sub";
@@ -142,13 +230,53 @@ const char* alir_op_str(AlirOpcode op) {
     }
 }
 
-// Changed to accept FILE*
+// --- PRINTING UTILITIES ---
+
+static char* escape_string(const char* input) {
+    if (!input) return strdup("");
+    int len = strlen(input);
+    char* out = malloc(len * 2 + 1); // Worst case
+    char* p = out;
+    for (int i = 0; i < len; i++) {
+        if (input[i] == '\n') { *p++ = '\\'; *p++ = 'n'; }
+        else if (input[i] == '\t') { *p++ = '\\'; *p++ = 't'; }
+        else if (input[i] == '\"') { *p++ = '\\'; *p++ = '\"'; }
+        else if (input[i] == '\\') { *p++ = '\\'; *p++ = '\\'; }
+        else *p++ = input[i];
+    }
+    *p = '\0';
+    return out;
+}
+
+static void alir_fprint_type(FILE *f, VarType t) {
+    // Simple type printer for IR legibility
+    switch(t.base) {
+        case TYPE_INT: fprintf(f, "i32"); break;
+        case TYPE_LONG: fprintf(f, "i64"); break;
+        case TYPE_FLOAT: fprintf(f, "float"); break;
+        case TYPE_DOUBLE: fprintf(f, "double"); break;
+        case TYPE_CHAR: fprintf(f, "i8"); break;
+        case TYPE_BOOL: fprintf(f, "i1"); break;
+        case TYPE_VOID: fprintf(f, "void"); break;
+        case TYPE_STRING: fprintf(f, "string"); break;
+        case TYPE_CLASS: fprintf(f, "%%%s", t.class_name ? t.class_name : "obj"); break;
+        default: fprintf(f, "any"); break;
+    }
+    for(int i=0; i<t.ptr_depth; i++) fprintf(f, "*");
+}
+
 static void alir_fprint_val(FILE *f, AlirValue *v) {
     if (!v) { fprintf(f, "void"); return; }
     switch(v->kind) {
         case ALIR_VAL_CONST:
             if (v->type.base == TYPE_FLOAT || v->type.base == TYPE_DOUBLE)
                 fprintf(f, "%.2f", v->float_val);
+            else if (v->type.base == TYPE_STRING) {
+                // Should not happen often if we move to globals, but for fallback:
+                char *esc = escape_string(v->str_val);
+                fprintf(f, "c\"%s\"", esc);
+                free(esc);
+            }
             else
                 fprintf(f, "%ld", v->int_val);
             break;
@@ -158,8 +286,14 @@ static void alir_fprint_val(FILE *f, AlirValue *v) {
         case ALIR_VAL_VAR:
             fprintf(f, "@%s", v->str_val);
             break;
+        case ALIR_VAL_GLOBAL:
+            fprintf(f, "@%s", v->str_val);
+            break;
         case ALIR_VAL_LABEL:
             fprintf(f, "%s", v->str_val);
+            break;
+        case ALIR_VAL_TYPE:
+            fprintf(f, "type(%s)", v->str_val);
             break;
         default: fprintf(f, "?"); break;
     }
@@ -169,57 +303,117 @@ static void alir_fprint_val(FILE *f, AlirValue *v) {
 static void alir_emit_stream(AlirModule *mod, FILE *f) {
     fprintf(f, "; Module: %s\n", mod->name);
     
+    // 1. Print Structs
+    if (mod->structs) {
+        fprintf(f, "\n; Struct Definitions\n");
+        AlirStruct *st = mod->structs;
+        while(st) {
+            fprintf(f, "%%struct.%s = type { ", st->name);
+            AlirField *fd = st->fields;
+            while(fd) {
+                alir_fprint_type(f, fd->type);
+                fprintf(f, ":%s", fd->name);
+                if (fd->next) fprintf(f, ", ");
+                fd = fd->next;
+            }
+            fprintf(f, " }\n");
+            st = st->next;
+        }
+    }
+
+    // 2. Print Globals (Strings)
+    if (mod->globals) {
+        fprintf(f, "\n; Globals\n");
+        AlirGlobal *g = mod->globals;
+        while(g) {
+            char *esc = escape_string(g->string_content);
+            fprintf(f, "@%s = constant string c\"%s\"\n", g->name, esc);
+            free(esc);
+            g = g->next;
+        }
+    }
+    
+    // 3. Print Functions (Declarations vs Definitions)
     AlirFunction *func = mod->functions;
     while(func) {
-        fprintf(f, "\ndefine %s %s() {\n", func->is_flux ? "flux" : "func", func->name);
-        
-        AlirBlock *b = func->blocks;
-        while(b) {
-            fprintf(f, "%s:\n", b->label);
+        if (func->block_count == 0) {
+            // Declaration
+            fprintf(f, "\ndeclare ");
+            alir_fprint_type(f, func->ret_type);
+            fprintf(f, " @%s(", func->name);
             
-            AlirInst *i = b->head;
-            while(i) {
-                fprintf(f, "  ");
-                if (i->dest) {
-                    alir_fprint_val(f, i->dest);
-                    fprintf(f, " = ");
-                }
+            AlirParam *p = func->params;
+            while(p) {
+                alir_fprint_type(f, p->type);
+                if (p->next) fprintf(f, ", ");
+                p = p->next;
+            }
+            fprintf(f, ")\n");
+            
+        } else {
+            // Definition
+            fprintf(f, "\ndefine %s ", func->is_flux ? "flux" : "func");
+            alir_fprint_type(f, func->ret_type);
+            fprintf(f, " @%s(", func->name);
+            
+            AlirParam *p = func->params;
+            int i = 0;
+            while(p) {
+                alir_fprint_type(f, p->type);
+                fprintf(f, " %%p%d", i++);
+                if (p->next) fprintf(f, ", ");
+                p = p->next;
+            }
+            fprintf(f, ") {\n");
+            
+            AlirBlock *b = func->blocks;
+            while(b) {
+                fprintf(f, "%s:\n", b->label);
                 
-                fprintf(f, "%s ", alir_op_str(i->op));
-                
-                if (i->op1) alir_fprint_val(f, i->op1);
-                
-                if (i->op == ALIR_OP_SWITCH) {
-                    fprintf(f, " [");
-                    AlirSwitchCase *c = i->cases;
-                    while(c) {
-                        fprintf(f, " %ld: %s ", c->value, c->label);
-                        c = c->next;
-                    }
-                    fprintf(f, "] else ");
-                    if (i->op2) alir_fprint_val(f, i->op2);
-                } else {
-                    if (i->op2) {
-                        fprintf(f, ", ");
-                        alir_fprint_val(f, i->op2);
+                AlirInst *inst = b->head;
+                while(inst) {
+                    fprintf(f, "  ");
+                    if (inst->dest) {
+                        alir_fprint_val(f, inst->dest);
+                        fprintf(f, " = ");
                     }
                     
-                    if (i->args) {
-                        fprintf(f, " (");
-                        for(int k=0; k<i->arg_count; k++) {
-                            if (k > 0) fprintf(f, ", ");
-                            alir_fprint_val(f, i->args[k]);
+                    fprintf(f, "%s ", alir_op_str(inst->op));
+                    
+                    if (inst->op1) alir_fprint_val(f, inst->op1);
+                    
+                    if (inst->op == ALIR_OP_SWITCH) {
+                        fprintf(f, " [");
+                        AlirSwitchCase *c = inst->cases;
+                        while(c) {
+                            fprintf(f, " %ld: %s ", c->value, c->label);
+                            c = c->next;
                         }
-                        fprintf(f, ")");
+                        fprintf(f, "] else ");
+                        if (inst->op2) alir_fprint_val(f, inst->op2);
+                    } else {
+                        if (inst->op2) {
+                            fprintf(f, ", ");
+                            alir_fprint_val(f, inst->op2);
+                        }
+                        
+                        if (inst->args) {
+                            fprintf(f, " (");
+                            for(int k=0; k<inst->arg_count; k++) {
+                                if (k > 0) fprintf(f, ", ");
+                                alir_fprint_val(f, inst->args[k]);
+                            }
+                            fprintf(f, ")");
+                        }
                     }
+                    
+                    fprintf(f, "\n");
+                    inst = inst->next;
                 }
-                
-                fprintf(f, "\n");
-                i = i->next;
+                b = b->next;
             }
-            b = b->next;
+            fprintf(f, "}\n");
         }
-        fprintf(f, "}\n");
         func = func->next;
     }
 }

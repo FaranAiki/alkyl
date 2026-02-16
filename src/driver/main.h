@@ -7,6 +7,7 @@
 #include "../parser/parser.h"
 #include "../codegen/codegen.h"
 #include "../compiler_debug/compiler_debug.h"
+#include "../alir/alir.h"
 
 char* read_file(const char* filename);
 

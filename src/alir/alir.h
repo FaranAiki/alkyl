@@ -11,10 +11,12 @@ typedef enum {
     ALIR_VAL_INT,
     ALIR_VAL_FLOAT,
     ALIR_VAL_STRING,
-    ALIR_VAL_VAR,       // Represents a variable name / pointer
+    ALIR_VAL_VAR,       // Represents a global/function name (@name)
     ALIR_VAL_TEMP,      // Represents a temporary register (%0, %1)
     ALIR_VAL_LABEL,     // Represents a block label
-    ALIR_VAL_CONST      // Raw constant value
+    ALIR_VAL_CONST,     // Raw constant value
+    ALIR_VAL_TYPE,      // Represents a type (for sizeof)
+    ALIR_VAL_GLOBAL     // Represents a global variable/constant pointer
 } AlirValueKind;
 
 typedef struct AlirValue {
@@ -25,7 +27,7 @@ typedef struct AlirValue {
     union {
         long int_val;
         double float_val;
-        char *str_val;  // For names or string literals
+        char *str_val;  // For names, string literals, or type names
         int temp_id;    // For temporaries
     };
 } AlirValue;
@@ -37,6 +39,11 @@ typedef enum {
     ALIR_OP_LOAD,
     ALIR_OP_GET_PTR,    // Generic GEP (Get Element Ptr) for Arrays/Structs
     ALIR_OP_BITCAST,    // Replaces raw casting logic
+    
+    // New Memory Ops for Lowering
+    ALIR_OP_ALLOC_HEAP, // malloc
+    ALIR_OP_SIZEOF,     // sizeof(T)
+    ALIR_OP_FREE,       // free
 
     // Arithmetic
     ALIR_OP_ADD, ALIR_OP_SUB, ALIR_OP_MUL, ALIR_OP_DIV, ALIR_OP_MOD,
@@ -95,34 +102,55 @@ typedef struct AlirBlock {
     struct AlirBlock *next;
 } AlirBlock;
 
+typedef struct AlirParam {
+    char *name;
+    VarType type;
+    struct AlirParam *next;
+} AlirParam;
+
 typedef struct AlirFunction {
     char *name;
     VarType ret_type;
+    
+    // Params
+    AlirParam *params;
+    int param_count;
+
     AlirBlock *blocks;
     int block_count;
     int is_flux;
     struct AlirFunction *next;
 } AlirFunction;
 
+// --- EXPLICIT STRUCT DEFINITIONS ---
+
+typedef struct AlirField {
+    char *name;
+    VarType type;
+    int index;
+    struct AlirField *next;
+} AlirField;
+
+typedef struct AlirStruct {
+    char *name;
+    AlirField *fields;
+    int field_count;
+    struct AlirStruct *next;
+} AlirStruct;
+
+typedef struct AlirGlobal {
+    char *name;
+    char *string_content; // If string constant
+    VarType type;
+    struct AlirGlobal *next;
+} AlirGlobal;
+
 typedef struct AlirModule {
     char *name;
+    AlirGlobal *globals;    // Global constants (strings)
     AlirFunction *functions;
+    AlirStruct *structs;    // Registry of struct definitions
 } AlirModule;
-
-// --- SEMANTIC INFO FOR ALIR ---
-// We need rudimentary class info to calculate struct indices for GEP
-
-typedef struct AlirMember {
-    char *name;
-    int index;
-    struct AlirMember *next;
-} AlirMember;
-
-typedef struct AlirClass {
-    char *name;
-    AlirMember *members;
-    struct AlirClass *next;
-} AlirClass;
 
 // --- GENERATION CONTEXT ---
 
@@ -139,10 +167,10 @@ typedef struct AlirCtx {
     AlirBlock *current_block;
     
     AlirSymbol *symbols;    // Symbol Table
-    AlirClass *classes;     // Class Table (for member offsets)
     
     int temp_counter;       
-    int label_counter;      
+    int label_counter;
+    int str_counter;        // For naming global strings
     
     // Loop Context
     AlirBlock *loop_continue;
@@ -155,8 +183,16 @@ typedef struct AlirCtx {
 // Core
 AlirModule* alir_create_module(const char *name);
 AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, int is_flux);
+void alir_func_add_param(AlirFunction *func, const char *name, VarType type);
+AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, int id_hint);
+
 AlirBlock* alir_add_block(AlirFunction *func, const char *label_hint);
 void alir_append_inst(AlirBlock *block, AlirInst *inst);
+
+// Struct Registry
+void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields);
+AlirStruct* alir_find_struct(AlirModule *mod, const char *name);
+int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *field_name);
 
 // Value Creators
 AlirValue* alir_const_int(long val);
@@ -164,10 +200,16 @@ AlirValue* alir_const_float(double val);
 AlirValue* alir_val_temp(VarType t, int id);
 AlirValue* alir_val_var(const char *name);
 AlirValue* alir_val_label(const char *label);
+AlirValue* alir_val_type(const char *type_name); // New: for sizeof
+AlirValue* alir_val_global(const char *name, VarType type);
 
 // Generator Entry
 AlirModule* alir_generate(ASTNode *root);
 void alir_print(AlirModule *mod);
 void alir_emit_to_file(AlirModule *mod, const char *filename);
 
-#endif
+// Internal gen prototypes
+AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node);
+void alir_gen_stmt(AlirCtx *ctx, ASTNode *node);
+
+#endif // ALIR_H
