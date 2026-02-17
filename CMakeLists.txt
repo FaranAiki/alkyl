@@ -24,12 +24,11 @@ include_directories(
     include 
     src/lexer 
     src/parser 
-    src/codegen 
     src/driver
-)
-
-set(MUST_LLVM_SOURCES
-
+    src/semantic
+    src/alir
+    src/alick
+    src/llvm_codegen
 )
 
 set(ALIR_SOURCES
@@ -58,6 +57,11 @@ set(DEPRECATED_LLVM_CODEGEN_SOURCES
     src/old/codegen/node/cast.c
 )
 
+set(SEMANTIC_SOURCES
+    src/semantic/check.c
+    src/semantic/table.c
+)
+
 set(FRONTEND_SOURCES 
     src/lexer/lexer.c
     src/lexer/emitter.c    
@@ -76,8 +80,9 @@ set(HELPER_SOURCES
 
 set(COMMON_SOURCES
   ${FRONTEND_SOURCES}
-  ${MUST_LLVM_SOURCES}
+  ${SEMANTIC_SOURCES}
   ${ALIR_SOURCES}
+  ${ALICK_SOURCES}
   ${HELPER_SOURCES}
   ${DEPRECATED_LLVM_CODEGEN_SOURCES}
 )

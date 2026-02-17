@@ -77,7 +77,28 @@ int main(int argc, char *argv[]) {
 
   to_ast_out(root, BASENAME ".ast");
 
-  debug_step("Finished semantic analysis. Start macro-linking.");
+  // --- SEMANTIC ANALYSIS ---
+  debug_step("Start Semantic Analysis.");
+  
+  SemanticCtx sem_ctx;
+  sem_init(&sem_ctx);
+  sem_ctx.current_source = code; // Enable source snippet printing for errors
+  
+  int sem_errors = sem_check_program(&sem_ctx, root);
+  if (sem_errors > 0) {
+      fprintf(stderr, "Semantic analysis failed with %d errors.\n", sem_errors);
+      sem_cleanup(&sem_ctx);
+      free_ast(root);
+      free(code);
+      return 1;
+  }
+  
+  // We keep sem_ctx alive if we want to use the Side Table for Codegen later.
+  // For now, we clean it up as Codegen currently recalculates types (but safely now!)
+  sem_cleanup(&sem_ctx); 
+  
+  debug_step("Finished Semantic Analysis. Start macro-linking.");
+
   ASTNode *curr = root;
   while(curr) {
     if (curr->type == NODE_LINK) {

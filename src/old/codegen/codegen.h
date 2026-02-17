@@ -2,8 +2,10 @@
 #define CODEGEN_H
 
 #include "../parser/parser.h"
-#include "../semantic/semantic.h"
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 #include <llvm-c/Core.h>
 #include <llvm-c/ExecutionEngine.h>
 #include <llvm-c/Analysis.h>

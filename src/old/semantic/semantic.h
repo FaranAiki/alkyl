@@ -1,5 +1,5 @@
-#ifndef SEMANTIC_H
-#define SEMANTIC_H
+#ifndef OLD_SEMANTIC_H
+#define OLD_SEMANTIC_H
 
 #include "../diagnostic/diagnostic.h"
 #include "../parser/parser.h"
@@ -133,4 +133,4 @@ void check_program(SemCtx *ctx, ASTNode *node);
 
 int semantic_analysis(ASTNode *root, const char *source, const char *filename);
 
-#endif // SEMANTIC_INTERNAL_H
+#endif // OLD_SEMANTIC_INTERNAL_H

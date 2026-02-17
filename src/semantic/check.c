@@ -71,20 +71,15 @@ int is_pointer(VarType t) {
     return t.ptr_depth > 0 || t.array_size > 0 || t.base == TYPE_STRING || t.is_func_ptr;
 }
 
-// --- Pass 1: Header Scanning (Register Types & Functions) ---
-
 void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sym) {
-    // Manually create a scope for the class members
     SemScope *class_scope = malloc(sizeof(SemScope));
     class_scope->symbols = NULL;
     class_scope->parent = ctx->current_scope; // Parent is the scope where class is defined
     class_scope->is_function_scope = 0;
     class_scope->expected_ret_type = (VarType){0};
     
-    // Link to symbol
     class_sym->inner_scope = class_scope;
     
-    // Temporarily enter class scope
     SemScope *old_scope = ctx->current_scope;
     ctx->current_scope = class_scope;
     
@@ -572,7 +567,10 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
     // Add parameters to scope
     Parameter *p = node->params;
     while (p) {
-        sem_symbol_add(ctx, p->name, SYM_VAR, p->type);
+        // FIX: Check if parameter has a name (extern declarations might not)
+        if (p->name) {
+            sem_symbol_add(ctx, p->name, SYM_VAR, p->type);
+        }
         p = p->next;
     }
     
@@ -619,6 +617,8 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
         sem_check_stmt(ctx, node);
     }
 }
+
+// --- Main Entry Point ---
 
 int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
     if (!root) return 0;
