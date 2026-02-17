@@ -79,9 +79,9 @@ int main(int argc, char *argv[]) {
       return 1;
   }
  
-  ASTNode *root_debug = parse_program(&l_debug);
+  // ASTNode *root_debug = parse_program(&l_debug);
 
-  to_ast_out(root_debug, BASENAME ".ast");
+  to_ast_out(root, BASENAME ".ast");
 
   debug_step("Finished semantic analysis. Start macro-linking.");
   ASTNode *curr = root;

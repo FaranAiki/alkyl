@@ -1,14 +1,20 @@
 define hydrogen as int main();
 define inta, intaa, intb as int;
+typedef str as string;
+typedef yy as char;
 
 hydrogen {
   inta zero0 = 0;
   intaa zero1 = 1; 
   intb zero2 = 2;
+  yy t = 'c';
+  str a = "Hello";
 
   printf "%s", "Semua di dunia ini adalah objek\n";
   printf "Expected zero0 0, got %d\n", zero0;
   printf "Expected zero1 1, got %d\n", zero1;
   printf "Expected zero2 2, got %d\n", zero2;
+  printf "Expected t c, got %c\n", t;
+  printf "Expected a Hello, got %s\n", a;
   return 0;
 }

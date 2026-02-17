@@ -58,6 +58,24 @@ static void sb_append_fmt(StringBuilder *sb, const char *fmt, ...) {
     va_end(args);
 }
 
+// Helper to escape characters for string literals
+static void sb_append_escaped(StringBuilder *sb, const char *str) {
+    if (!str) return;
+    for (const char *p = str; *p; p++) {
+        switch (*p) {
+            case '\n': sb_append(sb, "\\n"); break;
+            case '\t': sb_append(sb, "\\t"); break;
+            case '\r': sb_append(sb, "\\r"); break;
+            case '\\': sb_append(sb, "\\\\"); break;
+            case '\"': sb_append(sb, "\\\""); break;
+            default: {
+                char tmp[2] = {*p, 0};
+                sb_append(sb, tmp);
+            }
+        }
+    }
+}
+
 static char* sb_free_and_return(StringBuilder *sb) {
     return sb->data; 
 }
@@ -448,11 +466,59 @@ static void emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
         
         case NODE_LITERAL: {
             LiteralNode *ln = (LiteralNode*)node;
-            if (ln->var_type.base == TYPE_INT) sb_append_fmt(sb, "%d", ln->val.int_val);
-            else if (ln->var_type.base == TYPE_FLOAT) sb_append_fmt(sb, "%ff", ln->val.double_val);
-            else if (ln->var_type.base == TYPE_STRING) sb_append_fmt(sb, "\"%s\"", ln->val.str_val);
-            else if (ln->var_type.base == TYPE_BOOL) sb_append(sb, ln->val.int_val ? "true" : "false");
-            else sb_append(sb, "literal");
+            if (ln->var_type.base == TYPE_INT) {
+                if (ln->var_type.is_unsigned) sb_append_fmt(sb, "%u", (unsigned int)ln->val.long_val);
+                else sb_append_fmt(sb, "%d", (int)ln->val.long_val);
+            }
+            else if (ln->var_type.base == TYPE_LONG) {
+                if (ln->var_type.is_unsigned) sb_append_fmt(sb, "%luUL", (unsigned long)ln->val.long_val);
+                else sb_append_fmt(sb, "%ldL", (long)ln->val.long_val);
+            }
+            else if (ln->var_type.base == TYPE_LONG_LONG) {
+                 if (ln->var_type.is_unsigned) sb_append_fmt(sb, "%lluULL", (unsigned long long)ln->val.long_val);
+                 else sb_append_fmt(sb, "%lldLL", (long long)ln->val.long_val);
+            }
+            else if (ln->var_type.base == TYPE_FLOAT) {
+                 sb_append_fmt(sb, "%ff", ln->val.double_val);
+            }
+            else if (ln->var_type.base == TYPE_DOUBLE || ln->var_type.base == TYPE_LONG_DOUBLE) {
+                 sb_append_fmt(sb, "%f", ln->val.double_val);
+            }
+            else if (ln->var_type.base == TYPE_STRING) {
+                sb_append(sb, "\"");
+                sb_append_escaped(sb, ln->val.str_val);
+                sb_append(sb, "\"");
+            }
+            else if (ln->var_type.base == TYPE_CHAR) {
+                if (ln->val.str_val) {
+                    // C-String literal (c"...")
+                    sb_append(sb, "c\"");
+                    sb_append_escaped(sb, ln->val.str_val);
+                    sb_append(sb, "\"");
+                } else {
+                    // Character literal
+                    sb_append(sb, "'");
+                    char c = (char)ln->val.long_val;
+                    if (c == '\n') sb_append(sb, "\\n");
+                    else if (c == '\t') sb_append(sb, "\\t");
+                    else if (c == '\r') sb_append(sb, "\\r");
+                    else if (c == '\\') sb_append(sb, "\\\\");
+                    else if (c == '\'') sb_append(sb, "\\'");
+                    else if (c == '\0') sb_append(sb, "\\0");
+                    else {
+                        char tmp[2] = {c, 0};
+                        sb_append(sb, tmp);
+                    }
+                    sb_append(sb, "'");
+                }
+            }
+            else if (ln->var_type.base == TYPE_BOOL) {
+                sb_append(sb, ln->val.long_val ? "true" : "false");
+            }
+            else {
+                 // Fallback for types that might not have matched specific bases but are treated as int-likes
+                 sb_append_fmt(sb, "%d", (int)ln->val.long_val);
+            }
             break;
         }
 
