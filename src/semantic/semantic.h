@@ -72,6 +72,7 @@ typedef struct {
     // Error tracking
     int error_count;
     const char *current_source; 
+    const char *current_filename; // For error reporting
     
     // Contextual flags
     int in_loop;

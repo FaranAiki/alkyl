@@ -2,6 +2,7 @@
 #define PARSER_EMITTER_H
 
 #include "parser.h"
+#include "../common/common.h"
 
 // Traverses the AST and reconstructs the source code into a string
 char* parser_to_string(ASTNode *root);

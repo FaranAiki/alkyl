@@ -75,8 +75,10 @@ set(FRONTEND_SOURCES
     
 )
 
+# maybe diagnostic should be in common
 set(HELPER_SOURCES
     src/diagnostic/diagnostic.c
+    src/common/common.c
 )
 
 set(COMMON_SOURCES

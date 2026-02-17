@@ -53,6 +53,7 @@ void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     if (ctx->current_source && node) {
         Lexer l;
         lexer_init(&l, ctx->current_source);
+        l.filename = (char*)ctx->current_filename; // Pass filename to lexer for diagnostics
         
         Token t;
         t.line = node->line;
@@ -82,6 +83,7 @@ void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     if (ctx->current_source && node) {
         Lexer l;
         lexer_init(&l, ctx->current_source);
+        l.filename = (char*)ctx->current_filename; // Pass filename to lexer for diagnostics
         
         Token t;
         t.line = node->line;
@@ -753,8 +755,6 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
         sem_check_stmt(ctx, node);
     }
 }
-
-// --- Main Entry Point ---
 
 int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
     if (!root) return 0;
