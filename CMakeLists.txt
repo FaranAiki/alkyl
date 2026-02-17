@@ -31,9 +31,39 @@ include_directories(
     src/llvm_codegen
 )
 
+set(FRONTEND_SOURCES 
+    src/lexer/lexer.c
+    src/lexer/emitter.c    
+    
+    src/parser/core.c 
+    src/parser/expr.c 
+    src/parser/stmt.c 
+    src/parser/top.c 
+    src/parser/emitter.c  
+    
+)
+
+set(SEMANTIC_SOURCES
+    src/semantic/check.c
+    src/semantic/table.c
+    src/semantic/emitter.c
+    src/semantic/type.c
+    src/semantic/core.c
+)
+
 set(ALIR_SOURCES
     src/alir/core.c 
     src/alir/generator.c
+)
+
+set (ALICK_SOURCES
+
+)
+
+# maybe diagnostic should be in common
+set(HELPER_SOURCES
+    src/diagnostic/diagnostic.c
+    src/common/common.c
 )
 
 set(DEPRECATED_SEMANTIC_SOURCES
@@ -57,29 +87,7 @@ set(DEPRECATED_LLVM_CODEGEN_SOURCES
     src/old/codegen/node/cast.c
 )
 
-set(SEMANTIC_SOURCES
-    src/semantic/check.c
-    src/semantic/table.c
-    src/semantic/emitter.c
-)
 
-set(FRONTEND_SOURCES 
-    src/lexer/lexer.c
-    src/lexer/emitter.c    
-    
-    src/parser/core.c 
-    src/parser/expr.c 
-    src/parser/stmt.c 
-    src/parser/top.c 
-    src/parser/emitter.c  
-    
-)
-
-# maybe diagnostic should be in common
-set(HELPER_SOURCES
-    src/diagnostic/diagnostic.c
-    src/common/common.c
-)
 
 set(COMMON_SOURCES
   ${FRONTEND_SOURCES}

@@ -1,3 +1,5 @@
+#include "semantic.h"
+
 int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
     if (!root) return 0;
     

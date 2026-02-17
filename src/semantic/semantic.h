@@ -113,6 +113,9 @@ void sem_check_block(SemanticCtx *ctx, ASTNode *block);
 void sem_check_expr(SemanticCtx *ctx, ASTNode *node);
 void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node);
 
+SemSymbol* lookup_local_symbol(SemanticCtx *ctx, const char *name);
+
 #include "emitter.h"
+#include "type.h"
 
 #endif // SEMANTIC_H
