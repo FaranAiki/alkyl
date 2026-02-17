@@ -90,6 +90,10 @@ void alir_emit_stream(AlirModule *mod, FILE *f) {
         while(g) {
             char *esc = escape_string(g->string_content);
             fprintf(f, "@%s = cstring \"%s\"\n", g->name, esc);
+            // We use free here because escape_string from common.c uses SB without arena, thus mallocs.
+            // If common.c was modified to use arena, we wouldn't free.
+            // Assuming common.c is standard and might be used without arena, checking:
+            // escape_string(str) -> creates SB with NULL arena -> mallocs -> we must free.
             free(esc);
             g = g->next;
         }
@@ -209,64 +213,4 @@ void alir_emit_to_file(AlirModule *mod, const char *filename) {
     }
     alir_emit_stream(mod, f);
     fclose(f);
-}
-
-AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
-    AlirCtx ctx;
-    memset(&ctx, 0, sizeof(AlirCtx));
-    ctx.sem = sem; // Store the Semantic Context
-    ctx.module = alir_create_module("main_module");
-    
-    // 1. SCAN AND REGISTER CLASSES & ENUMS (Flattening included)
-    alir_scan_and_register_classes(&ctx, root);
-    
-    // 2. GEN FUNCTIONS
-    ASTNode *curr = root;
-    while(curr) {
-        if (curr->type == NODE_FUNC_DEF) {
-            FuncDefNode *fn = (FuncDefNode*)curr;
-            
-            if (fn->is_flux) {
-                // Specialized Flux Generation
-                alir_gen_flux_def(&ctx, fn);
-            } else {
-                // Standard Function Generation
-                ctx.current_func = alir_add_function(ctx.module, fn->name, fn->ret_type, 0);
-                
-                // Register parameters
-                Parameter *p = fn->params;
-                while(p) {
-                    alir_func_add_param(ctx.current_func, p->name, p->type);
-                    p = p->next;
-                }
-
-                if (!fn->body) { curr = curr->next; continue; }
-
-                ctx.current_block = alir_add_block(ctx.current_func, "entry");
-                ctx.temp_counter = 0;
-                ctx.symbols = NULL; 
-                
-                // Setup Params allocation
-                p = fn->params;
-                int p_idx = 0;
-                while(p) {
-                    AlirValue *ptr = new_temp(&ctx, p->type);
-                    emit(&ctx, mk_inst(ALIR_OP_ALLOCA, ptr, NULL, NULL));
-                    alir_add_symbol(&ctx, p->name, ptr, p->type);
-                    
-                    // Store param val (assumed implicit registers p0, p1...)
-                    char pname[16]; sprintf(pname, "p%d", p_idx++);
-                    AlirValue *pval = alir_val_var(pname); 
-                    emit(&ctx, mk_inst(ALIR_OP_STORE, NULL, pval, ptr));
-                    
-                    p = p->next;
-                }
-                
-                ASTNode *stmt = fn->body;
-                while(stmt) { alir_gen_stmt(&ctx, stmt); stmt = stmt->next; }
-            }
-        }
-        curr = curr->next;
-    }
-    return ctx.module;
 }

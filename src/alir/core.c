@@ -2,15 +2,41 @@
 #include <stdlib.h>
 #include <string.h>
 
-AlirModule* alir_create_module(const char *name) {
-    AlirModule *m = calloc(1, sizeof(AlirModule));
-    m->name = strdup(name);
+void* alir_alloc(AlirModule *mod, size_t size) {
+    if (mod && mod->compiler_ctx && mod->compiler_ctx->arena) {
+        void *ptr = arena_alloc(mod->compiler_ctx->arena, size);
+        memset(ptr, 0, size);
+        return ptr;
+    }
+    return calloc(1, size);
+}
+
+char* alir_strdup(AlirModule *mod, const char *str) {
+    if (mod && mod->compiler_ctx && mod->compiler_ctx->arena) {
+        return arena_strdup(mod->compiler_ctx->arena, str);
+    }
+    return strdup(str);
+}
+
+AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
+    // Note: We use calloc for the module struct itself if context/arena not yet linked,
+    // but here we are initializing it. If ctx->arena is available, use it.
+    AlirModule *m;
+    if (ctx && ctx->arena) {
+        m = arena_alloc_type(ctx->arena, AlirModule);
+        memset(m, 0, sizeof(AlirModule));
+    } else {
+        m = calloc(1, sizeof(AlirModule));
+    }
+    
+    m->compiler_ctx = ctx;
+    m->name = alir_strdup(m, name);
     return m;
 }
 
 AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, int is_flux) {
-    AlirFunction *f = calloc(1, sizeof(AlirFunction));
-    f->name = strdup(name);
+    AlirFunction *f = alir_alloc(mod, sizeof(AlirFunction));
+    f->name = alir_strdup(mod, name);
     f->ret_type = ret;
     f->is_flux = is_flux;
     
@@ -24,9 +50,9 @@ AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, 
     return f;
 }
 
-void alir_func_add_param(AlirFunction *func, const char *name, VarType type) {
-    AlirParam *p = calloc(1, sizeof(AlirParam));
-    p->name = strdup(name ? name : "");
+void alir_func_add_param(AlirModule *mod, AlirFunction *func, const char *name, VarType type) {
+    AlirParam *p = alir_alloc(mod, sizeof(AlirParam));
+    p->name = alir_strdup(mod, name ? name : "");
     p->type = type;
     
     if (!func->params) {
@@ -44,27 +70,27 @@ AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, 
     char label[64];
     sprintf(label, "str.%d", id_hint);
     
-    AlirGlobal *g = calloc(1, sizeof(AlirGlobal));
-    g->name = strdup(label);
-    g->string_content = strdup(content);
+    AlirGlobal *g = alir_alloc(mod, sizeof(AlirGlobal));
+    g->name = alir_strdup(mod, label);
+    g->string_content = alir_strdup(mod, content);
     g->type = (VarType){TYPE_STRING, 0, NULL, 0, 0};
     
     g->next = mod->globals;
     mod->globals = g;
     
-    return alir_val_global(label, g->type);
+    return alir_val_global(mod, label, g->type);
 }
 
-AlirBlock* alir_add_block(AlirFunction *func, const char *label_hint) {
-    AlirBlock *b = calloc(1, sizeof(AlirBlock));
-    int global_id = 0;
-    b->id = global_id++;
+AlirBlock* alir_add_block(AlirModule *mod, AlirFunction *func, const char *label_hint) {
+    AlirBlock *b = alir_alloc(mod, sizeof(AlirBlock));
+    int global_id = 0; // In a real allocator this would be tracked, using block_count
+    b->id = func->block_count; // Use block count as ID
     
-    if (label_hint) b->label = strdup(label_hint);
+    if (label_hint) b->label = alir_strdup(mod, label_hint);
     else {
         char buf[32];
         sprintf(buf, "L%d", b->id);
-        b->label = strdup(buf);
+        b->label = alir_strdup(mod, buf);
     }
 
     if (!func->blocks) {
@@ -89,8 +115,8 @@ void alir_append_inst(AlirBlock *block, AlirInst *inst) {
 }
 
 void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields) {
-    AlirStruct *st = calloc(1, sizeof(AlirStruct));
-    st->name = strdup(name);
+    AlirStruct *st = alir_alloc(mod, sizeof(AlirStruct));
+    st->name = alir_strdup(mod, name);
     st->fields = fields;
     
     AlirField *f = fields;
@@ -175,7 +201,9 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_SHL: return "shl";
         case ALIR_OP_SHR: return "shr";
         
+        case ALIR_OP_MOV: return "mov";
+        case ALIR_OP_PHI: return "phi";
+        
         default: return "op";
     }
 }
-

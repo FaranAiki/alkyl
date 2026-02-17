@@ -1,7 +1,7 @@
 #include "alir.h"
 
-AlirInst* mk_inst(AlirOpcode op, AlirValue *dest, AlirValue *op1, AlirValue *op2) {
-    AlirInst *i = calloc(1, sizeof(AlirInst));
+AlirInst* mk_inst(AlirModule *mod, AlirOpcode op, AlirValue *dest, AlirValue *op1, AlirValue *op2) {
+    AlirInst *i = alir_alloc(mod, sizeof(AlirInst));
     i->op = op;
     i->dest = dest;
     i->op1 = op1;
@@ -15,7 +15,7 @@ void emit(AlirCtx *ctx, AlirInst *i) {
 }
 
 AlirValue* new_temp(AlirCtx *ctx, VarType t) {
-    return alir_val_temp(t, ctx->temp_counter++);
+    return alir_val_temp(ctx->module, t, ctx->temp_counter++);
 }
 
 AlirValue* promote(AlirCtx *ctx, AlirValue *v, VarType target) {
@@ -23,14 +23,14 @@ AlirValue* promote(AlirCtx *ctx, AlirValue *v, VarType target) {
     if (v->type.base == target.base && v->type.ptr_depth == target.ptr_depth) return v;
     
     AlirValue *dest = new_temp(ctx, target);
-    emit(ctx, mk_inst(ALIR_OP_CAST, dest, v, NULL));
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_CAST, dest, v, NULL));
     return dest;
 }
 
 // Symbol Table (IR Level: Maps names to Allocas/Registers)
 void alir_add_symbol(AlirCtx *ctx, const char *name, AlirValue *ptr, VarType t) {
-    AlirSymbol *s = calloc(1, sizeof(AlirSymbol));
-    s->name = strdup(name);
+    AlirSymbol *s = alir_alloc(ctx->module, sizeof(AlirSymbol));
+    s->name = alir_strdup(ctx->module, name);
     s->ptr = ptr;
     s->type = t;
     s->next = ctx->symbols;

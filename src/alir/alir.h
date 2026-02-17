@@ -171,6 +171,7 @@ typedef struct AlirModule {
     AlirFunction *functions;
     AlirStruct *structs;    // Registry of struct definitions
     AlirEnum *enums;        // Registry of enum definitions
+    CompilerContext *compiler_ctx; // Reference for Arena
 } AlirModule;
 
 // --- GENERATION CONTEXT ---
@@ -219,12 +220,12 @@ typedef struct AlirCtx {
 } AlirCtx;
 
 // Core
-AlirModule* alir_create_module(const char *name);
+AlirModule* alir_create_module(CompilerContext *ctx, const char *name);
 AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, int is_flux);
-void alir_func_add_param(AlirFunction *func, const char *name, VarType type);
+void alir_func_add_param(AlirModule *mod, AlirFunction *func, const char *name, VarType type);
 AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, int id_hint);
 
-AlirBlock* alir_add_block(AlirFunction *func, const char *label_hint);
+AlirBlock* alir_add_block(AlirModule *mod, AlirFunction *func, const char *label_hint);
 void alir_append_inst(AlirBlock *block, AlirInst *inst);
 
 // Struct & Enum Registry
@@ -235,15 +236,6 @@ int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *f
 void alir_register_enum(AlirModule *mod, const char *name, AlirEnumEntry *entries);
 AlirEnum* alir_find_enum(AlirModule *mod, const char *name);
 int alir_get_enum_value(AlirModule *mod, const char *enum_name, const char *entry_name, long *out_val);
-
-// Value Creators
-AlirValue* alir_const_int(long val);
-AlirValue* alir_const_float(double val);
-AlirValue* alir_val_temp(VarType t, int id);
-AlirValue* alir_val_var(const char *name);
-AlirValue* alir_val_label(const char *label);
-AlirValue* alir_val_type(const char *type_name); // New: for sizeof
-AlirValue* alir_val_global(const char *name, VarType type);
 
 // Generator Entry
 // REQUIRES: Semantic Context (populated via sem_check_program)
@@ -258,10 +250,9 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node);
 
 void emit(AlirCtx *ctx, AlirInst *i);
 
-AlirInst* mk_inst(AlirOpcode op, AlirValue *dest, AlirValue *op1, AlirValue *op2);
+AlirInst* mk_inst(AlirModule *mod, AlirOpcode op, AlirValue *dest, AlirValue *op1, AlirValue *op2);
 AlirValue* new_temp(AlirCtx *ctx, VarType t);
 AlirValue* promote(AlirCtx *ctx, AlirValue *v, VarType target);
-AlirInst* mk_inst(AlirOpcode op, AlirValue *dest, AlirValue *op1, AlirValue *op2);
 void alir_add_symbol(AlirCtx *ctx, const char *name, AlirValue *ptr, VarType t);
 AlirSymbol* alir_find_symbol(AlirCtx *ctx, const char *name);
 
@@ -272,18 +263,16 @@ void collect_flux_vars_recursive(AlirCtx *ctx, ASTNode *node, int *idx_ptr);
 // Constant Folding / Eval
 long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node);
 
-// enum
-void alir_register_enum(AlirModule *mod, const char *name, AlirEnumEntry *entries);
-AlirEnum* alir_find_enum(AlirModule *mod, const char *name);
-int alir_get_enum_value(AlirModule *mod, const char *enum_name, const char *entry_name, long *out_val);
-
 AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *args);
 
-// TODO move this
 void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn);
 void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root);
 
-const char* alir_op_str(AlirOpcode op) ;
+const char* alir_op_str(AlirOpcode op);
+
+// Helpers to access arena
+void* alir_alloc(AlirModule *mod, size_t size);
+char* alir_strdup(AlirModule *mod, const char *str);
 
 #include "lvalue.h"
 #include "const.h"
