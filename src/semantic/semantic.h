@@ -101,6 +101,10 @@ VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node);
 int sem_types_are_compatible(VarType dest, VarType src);
 char* sem_type_to_str(VarType t);
 
+// Reporting
+void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...);
+void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...);
+
 void sem_register_builtins(SemanticCtx *ctx);
 
 void sem_check_node(SemanticCtx *ctx, ASTNode *node);

@@ -112,12 +112,15 @@ int main(int argc, char *argv[]) {
     curr = curr->next;
   }
 
-  debug_step("Finished macro-linking. Start Codegen.");
+  debug_step("Finished macro-linking. Start Old Codegen (replace this).");
+  debug_step("Meanwhile.... Start generating Alkyl Intermediate Representation (ALIR).");
 
   // Pass to ALIR 
   AlirModule *alir_module = alir_generate(root); 
   alir_emit_to_file(alir_module, BASENAME ".alir");
   // TODO: THIS NEEDS A FUCKING REFORMAT NOOOOOOOOOOOOOOOOOOOOO 
+
+  debug_step("Finished ALIR. Start ALIR check and analysis.");
 
   LLVMInitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();

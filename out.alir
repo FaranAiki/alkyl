@@ -1,29 +1,11 @@
 ; Module: main_module
 
-; Globals
-@str.4 = constant string "Emit!\n"
-@str.3 = constant string "This will loop integer\n"
-@str.2 = constant string "This will loop hello world!\n"
-@str.1 = constant string "%s\n"
-@str.0 = constant string "%s\n"
-
-define flux i32 @gen(i32 %p0) {
-entry:
-  %0 = alloca i32
-  %1 = alloca i32
-  store 0, %1
-}
-
 define func i32 @main() {
 entry:
   %0 = alloca i32
-  %1 = call @gen (100)
-  store %1, %0
-  %2 = alloca i32*
-  store undef, %2
-  %3 = call @print (@str.0, void)
-  %4 = call @print (@str.1, void)
-  %5 = call @print (@str.2)
-  %6 = call @print (@str.3)
-  %7 = call @print (@str.4)
+  store 0, %0
+  %1 = alloca i32
+  store 0, %1
+  %2 = alloca i32
+  store 0, %2
 }

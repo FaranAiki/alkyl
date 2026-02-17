@@ -145,8 +145,21 @@ int sem_types_are_compatible(VarType dest, VarType src) {
     if (dest_is_num && src_is_num && dest.ptr_depth == 0 && src.ptr_depth == 0) {
         return 1; // Allow implicit numeric casts
     }
+
+    // String <-> Char* / Char[] Implicit Compatibility
+    // Allows implicit cast between 'string' and 'char*' or 'char[]'
+    int dest_is_str = (dest.base == TYPE_STRING && dest.ptr_depth == 0);
+    int src_is_str = (src.base == TYPE_STRING && src.ptr_depth == 0);
+    
+    int dest_is_char_p = (dest.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0));
+    int src_is_char_p = (src.base == TYPE_CHAR && (src.ptr_depth > 0 || src.array_size > 0));
+
+    if ((dest_is_str && src_is_char_p) || (dest_is_char_p && src_is_str)) {
+        return 1;
+    }
     
     // Array decay (int[10] -> int*)
+    // src is array, dest is pointer, base types match, depth matches decay
     if (src.array_size > 0 && dest.ptr_depth == src.ptr_depth + 1 && dest.base == src.base) {
         return 1; 
     }
@@ -158,17 +171,52 @@ int sem_types_are_compatible(VarType dest, VarType src) {
 }
 
 char* sem_type_to_str(VarType t) {
-    static char buf[128];
+    // Robustness Fix: Use a rotating buffer pool so this function can be called 
+    // multiple times in a single printf/error call without overwriting results.
+    static char buffers[4][256];
+    static int idx = 0;
+    char *buf = buffers[idx];
+    idx = (idx + 1) % 4;
+
     const char *base = "unknown";
     switch(t.base) {
         case TYPE_INT: base = "int"; break;
+        case TYPE_SHORT: base = "short"; break;
+        case TYPE_LONG: base = "long"; break;
+        case TYPE_LONG_LONG: base = "long long"; break;
+        case TYPE_CHAR: base = "char"; break;
+        case TYPE_BOOL: base = "bool"; break;
+        case TYPE_FLOAT: base = "single"; break;
+        case TYPE_DOUBLE: base = "double"; break;
+        case TYPE_LONG_DOUBLE: base = "long double"; break;
         case TYPE_VOID: base = "void"; break;
         case TYPE_STRING: base = "string"; break;
-        case TYPE_FLOAT: base = "float"; break;
-        case TYPE_BOOL: base = "bool"; break;
+        case TYPE_AUTO: base = "let"; break;
         case TYPE_CLASS: base = t.class_name ? t.class_name : "class"; break;
-        default: base = "type"; break;
+        default: base = "unknown"; break;
     }
-    snprintf(buf, 128, "%s%s", base, t.ptr_depth ? "*" : "");
+    
+    int pos = 0;
+    if (t.is_unsigned) pos += snprintf(buf + pos, 256 - pos, "unsigned ");
+    pos += snprintf(buf + pos, 256 - pos, "%s", base);
+    
+    // Append pointers
+    for(int i=0; i<t.ptr_depth; i++) {
+        if(pos < 255) buf[pos++] = '*';
+    }
+    buf[pos] = '\0';
+    
+    // Append array size if present
+    if (t.array_size > 0) {
+        char tmp[32];
+        snprintf(tmp, 32, "[%d]", t.array_size);
+        strcat(buf, tmp);
+    }
+    
+    // Simple function pointer notation
+    if (t.is_func_ptr) {
+        strcat(buf, "(*)(...)");
+    }
+
     return buf;
 }

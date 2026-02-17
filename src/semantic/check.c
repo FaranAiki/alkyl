@@ -39,7 +39,8 @@ void sem_register_builtins(SemanticCtx *ctx) {
     sem_symbol_add(ctx, "exit", SYM_FUNC, void_t);
 }
 
-// --- Standardized Error Reporting ---
+// --- Standardized Reporting ---
+
 void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     ctx->error_count++;
     
@@ -68,6 +69,44 @@ void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
         } else {
             fprintf(stderr, "[Semantic Error] %s\n", msg);
         }
+    }
+}
+
+void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
+    char msg[1024];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, args);
+    va_end(args);
+
+    if (ctx->current_source && node) {
+        Lexer l;
+        lexer_init(&l, ctx->current_source);
+        
+        Token t;
+        t.line = node->line;
+        t.col = node->col;
+        t.type = TOKEN_UNKNOWN; 
+        t.text = NULL;
+        
+        report_info(&l, t, msg);
+    } else {
+        fprintf(stderr, "[Semantic Info] %s\n", msg);
+    }
+}
+
+// Helper to check for implicit cast between string and char* and emit info
+void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarType src) {
+    int dest_is_str = (dest.base == TYPE_STRING && dest.ptr_depth == 0);
+    int src_is_char = (src.base == TYPE_CHAR && (src.ptr_depth > 0 || src.array_size > 0));
+    
+    int dest_is_char = (dest.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0));
+    int src_is_str = (src.base == TYPE_STRING && src.ptr_depth == 0);
+    
+    if (dest_is_str && src_is_char) {
+        sem_info(ctx, node, "Implicit cast from 'char%s' to 'string'", (src.array_size > 0) ? "[]" : "*");
+    } else if (dest_is_char && src_is_str) {
+        sem_info(ctx, node, "Implicit cast from 'string' to 'char%s'", (dest.array_size > 0) ? "[]" : "*");
     }
 }
 
@@ -184,9 +223,13 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         // 3. Compatibility Check
         else {
             if (!sem_types_are_compatible(node->var_type, init_type)) {
+                // sem_type_to_str uses a rotating buffer now, so calling it twice is safe
                 char *t1 = sem_type_to_str(node->var_type);
                 char *t2 = sem_type_to_str(init_type);
                 sem_error(ctx, (ASTNode*)node, "Type mismatch in declaration of '%s'. Expected '%s', got '%s'", node->name, t1, t2);
+            } else {
+                // Check for implicit cast info (string <-> char*)
+                sem_check_implicit_cast(ctx, (ASTNode*)node, node->var_type, init_type);
             }
         }
     } else {
@@ -251,6 +294,8 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
              char *t1 = sem_type_to_str(lhs_type);
              char *t2 = sem_type_to_str(rhs_type);
              sem_error(ctx, (ASTNode*)node, "Invalid assignment. Cannot assign '%s' to '%s'", t2, t1);
+        } else {
+             sem_check_implicit_cast(ctx, (ASTNode*)node, lhs_type, rhs_type);
         }
     }
 }
@@ -556,6 +601,8 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 if (ctx->current_scope->is_function_scope) {
                     if (!sem_types_are_compatible(ctx->current_scope->expected_ret_type, val)) {
                         sem_error(ctx, node, "Return type mismatch");
+                    } else {
+                         sem_check_implicit_cast(ctx, node, ctx->current_scope->expected_ret_type, val);
                     }
                 }
             } else {
