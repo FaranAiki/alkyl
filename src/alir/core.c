@@ -124,6 +124,39 @@ int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *f
     return -1;
 }
 
+// --- ENUM SUPPORT ---
+void alir_register_enum(AlirModule *mod, const char *name, AlirEnumEntry *entries) {
+    AlirEnum *e = calloc(1, sizeof(AlirEnum));
+    e->name = strdup(name);
+    e->entries = entries;
+    e->next = mod->enums;
+    mod->enums = e;
+}
+
+AlirEnum* alir_find_enum(AlirModule *mod, const char *name) {
+    AlirEnum *curr = mod->enums;
+    while(curr) {
+        if (strcmp(curr->name, name) == 0) return curr;
+        curr = curr->next;
+    }
+    return NULL;
+}
+
+int alir_get_enum_value(AlirModule *mod, const char *enum_name, const char *entry_name, long *out_val) {
+    AlirEnum *e = alir_find_enum(mod, enum_name);
+    if (!e) return 0;
+    
+    AlirEnumEntry *ent = e->entries;
+    while(ent) {
+        if (strcmp(ent->name, entry_name) == 0) {
+            *out_val = ent->value;
+            return 1;
+        }
+        ent = ent->next;
+    }
+    return 0;
+}
+
 const char* alir_op_str(AlirOpcode op) {
     switch(op) {
         case ALIR_OP_ALLOCA: return "alloca";
@@ -206,6 +239,7 @@ void alir_fprint_type(FILE *f, VarType t) {
         case TYPE_VOID: fprintf(f, "void"); break;
         case TYPE_STRING: fprintf(f, "string"); break;
         case TYPE_CLASS: fprintf(f, "%%%s", t.class_name ? t.class_name : "obj"); break;
+        case TYPE_ENUM: fprintf(f, "i32"); break; // Enums degrade to i32 in IR
         default: fprintf(f, "any"); break;
     }
     for(int i=0; i<t.ptr_depth; i++) fprintf(f, "*");
@@ -243,7 +277,23 @@ void alir_fprint_val(FILE *f, AlirValue *v) {
 void alir_emit_stream(AlirModule *mod, FILE *f) {
     fprintf(f, "; Module: %s\n", mod->name);
     
-    // TODO: make sure that this is modular
+    // 0. Print Enums (as comments or constants?)
+    if (mod->enums) {
+        fprintf(f, "\n; Enum Definitions\n");
+        AlirEnum *e = mod->enums;
+        while(e) {
+            fprintf(f, "; enum %s { ", e->name);
+            AlirEnumEntry *ent = e->entries;
+            while(ent) {
+                fprintf(f, "%s=%ld", ent->name, ent->value);
+                if (ent->next) fprintf(f, ", ");
+                ent = ent->next;
+            }
+            fprintf(f, " }\n");
+            e = e->next;
+        }
+    }
+
     // 1. Print Structs
     if (mod->structs) {
         fprintf(f, "\n; Struct Definitions\n");

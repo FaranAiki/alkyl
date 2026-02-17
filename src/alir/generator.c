@@ -25,7 +25,47 @@ void pop_loop(AlirCtx *ctx) {
     free(node);
 }
 
-// --- LOWERING HELPER: Register Class Layout with Flattening ---
+// --- CONSTANT EVALUATION ---
+// Helper to extract constant integer from AST node (Literals or Enum Members)
+long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
+    if (!node) return 0;
+    
+    if (node->type == NODE_LITERAL) {
+        return ((LiteralNode*)node)->val.int_val;
+    }
+    
+    // Handle Enum.Member Access
+    if (node->type == NODE_MEMBER_ACCESS) {
+        MemberAccessNode *ma = (MemberAccessNode*)node;
+        VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
+        
+        // If the object is an Enum Type or a Variable of Enum type
+        // The Semantic phase should have resolved this type
+        if (obj_t.base == TYPE_ENUM && obj_t.class_name) {
+            long val = 0;
+            if (alir_get_enum_value(ctx->module, obj_t.class_name, ma->member_name, &val)) {
+                return val;
+            }
+        }
+        
+        // If it was a raw class access (e.g. MyEnum.Val), the object might be a VAR_REF
+        // referring to the type name itself. The semantic check handles scope.
+        // We rely on alir_get_enum_value looking up in the module registry.
+    }
+    
+    // Handle Unary Minus on literals
+    if (node->type == NODE_UNARY_OP) {
+        UnaryOpNode *u = (UnaryOpNode*)node;
+        if (u->op == TOKEN_MINUS) {
+            return -alir_eval_constant_int(ctx, u->operand);
+        }
+    }
+    
+    return 0; // Fallback / Error
+}
+
+
+// --- LOWERING HELPER: Register Class & Enum Layout ---
 void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root) {
     ASTNode *curr = root;
     while(curr) {
@@ -71,6 +111,22 @@ void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root) {
             }
             
             alir_register_struct(ctx->module, cn->name, head);
+        } else if (curr->type == NODE_ENUM) {
+            // Register Enum
+            EnumNode *en = (EnumNode*)curr;
+            AlirEnumEntry *head = NULL;
+            AlirEnumEntry **tail = &head;
+            
+            EnumEntry *ent = en->entries;
+            while(ent) {
+                AlirEnumEntry *ae = calloc(1, sizeof(AlirEnumEntry));
+                ae->name = strdup(ent->name);
+                ae->value = ent->value;
+                *tail = ae;
+                tail = &ae->next;
+                ent = ent->next;
+            }
+            alir_register_enum(ctx->module, en->name, head);
         } else if (curr->type == NODE_NAMESPACE) {
              alir_scan_and_register_classes(ctx, ((NamespaceNode*)curr)->body);
         }
@@ -135,12 +191,17 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     
     if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
+        
+        // Check if this is an Enum Access first. Enums are constants, not L-values in memory.
+        VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
+        if (obj_t.base == TYPE_ENUM) {
+             // Cannot get address of an enum constant
+             return NULL; 
+        }
+
         AlirValue *base_ptr = alir_gen_addr(ctx, ma->object);
         if (!base_ptr) base_ptr = alir_gen_expr(ctx, ma->object);
 
-        // Retrieve accurate type from Semantic Context
-        VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
-        
         if (obj_t.class_name) {
             int idx = alir_get_field_index(ctx->module, obj_t.class_name, ma->member_name);
             if (idx != -1) {
@@ -217,6 +278,18 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
 }
 
 AlirValue* alir_gen_access(AlirCtx *ctx, ASTNode *node) {
+    // Special Enum Handling: If member access resolves to an Enum Type
+    if (node->type == NODE_MEMBER_ACCESS) {
+        MemberAccessNode *ma = (MemberAccessNode*)node;
+        VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
+        if (obj_t.base == TYPE_ENUM && obj_t.class_name) {
+            long val = 0;
+            if (alir_get_enum_value(ctx->module, obj_t.class_name, ma->member_name, &val)) {
+                return alir_const_int(val);
+            }
+        }
+    }
+
     AlirValue *ptr = alir_gen_addr(ctx, node);
     
     VarType t = sem_get_node_type(ctx->sem, node);
@@ -356,8 +429,9 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
         
         AlirSwitchCase *sc = calloc(1, sizeof(AlirSwitchCase));
         sc->label = case_bb->label;
-        if (cn->value->type == NODE_LITERAL) 
-            sc->value = ((LiteralNode*)cn->value)->val.int_val;
+        
+        // Evaluate Constant (Handles Literals AND Enums)
+        sc->value = alir_eval_constant_int(ctx, cn->value);
         
         *tail = sc;
         tail = &sc->next;
@@ -660,7 +734,7 @@ AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
     ctx.sem = sem; // Store the Semantic Context
     ctx.module = alir_create_module("main_module");
     
-    // 1. SCAN AND REGISTER CLASSES (Flattening included)
+    // 1. SCAN AND REGISTER CLASSES & ENUMS (Flattening included)
     alir_scan_and_register_classes(&ctx, root);
     
     // 2. GEN FUNCTIONS

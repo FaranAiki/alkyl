@@ -128,7 +128,7 @@ typedef struct AlirFunction {
     struct AlirFunction *next;
 } AlirFunction;
 
-// --- EXPLICIT STRUCT DEFINITIONS ---
+// --- EXPLICIT STRUCT & ENUM DEFINITIONS ---
 
 typedef struct AlirField {
     char *name;
@@ -144,6 +144,18 @@ typedef struct AlirStruct {
     struct AlirStruct *next;
 } AlirStruct;
 
+typedef struct AlirEnumEntry {
+    char *name;
+    long value;
+    struct AlirEnumEntry *next;
+} AlirEnumEntry;
+
+typedef struct AlirEnum {
+    char *name;
+    AlirEnumEntry *entries;
+    struct AlirEnum *next;
+} AlirEnum;
+
 typedef struct AlirGlobal {
     char *name;
     char *string_content; // If string constant
@@ -156,6 +168,7 @@ typedef struct AlirModule {
     AlirGlobal *globals;    // Global constants (strings)
     AlirFunction *functions;
     AlirStruct *structs;    // Registry of struct definitions
+    AlirEnum *enums;        // Registry of enum definitions
 } AlirModule;
 
 // --- GENERATION CONTEXT ---
@@ -214,10 +227,14 @@ AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, 
 AlirBlock* alir_add_block(AlirFunction *func, const char *label_hint);
 void alir_append_inst(AlirBlock *block, AlirInst *inst);
 
-// Struct Registry
+// Struct & Enum Registry
 void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields);
 AlirStruct* alir_find_struct(AlirModule *mod, const char *name);
 int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *field_name);
+
+void alir_register_enum(AlirModule *mod, const char *name, AlirEnumEntry *entries);
+AlirEnum* alir_find_enum(AlirModule *mod, const char *name);
+int alir_get_enum_value(AlirModule *mod, const char *enum_name, const char *entry_name, long *out_val);
 
 // Value Creators
 AlirValue* alir_const_int(long val);
@@ -251,5 +268,8 @@ AlirSymbol* alir_find_symbol(AlirCtx *ctx, const char *name);
 void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn);
 void alir_gen_flux_yield(AlirCtx *ctx, EmitNode *en);
 void collect_flux_vars_recursive(AlirCtx *ctx, ASTNode *node, int *idx_ptr);
+
+// Constant Folding / Eval
+long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node);
 
 #endif // ALIR_H
