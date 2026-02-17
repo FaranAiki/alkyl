@@ -1,7 +1,7 @@
 #ifndef ALIR_H
 #define ALIR_H
 
-#include "../parser/parser.h"
+#include "../semantic/semantic.h"
 #include <stdio.h>
 
 // --- ALIR TYPES ---
@@ -66,6 +66,12 @@ typedef enum {
     // Flux / Coroutines
     ALIR_OP_YIELD,      // High-level yield (lowers to state machine)
     
+    // Iteration (High Level)
+    ALIR_OP_ITER_INIT,  // Initialize iterator from collection
+    ALIR_OP_ITER_VALID, // Check if iterator is valid
+    ALIR_OP_ITER_NEXT,  // Advance iterator
+    ALIR_OP_ITER_GET,   // Get current value from iterator
+
     // Misc
     ALIR_OP_CAST,
     ALIR_OP_PHI,        
@@ -154,6 +160,7 @@ typedef struct AlirModule {
 
 // --- GENERATION CONTEXT ---
 
+// Internal Map: Name -> ALIR Value (Pointer to Alloca)
 typedef struct AlirSymbol {
     char *name;
     AlirValue *ptr; 
@@ -162,11 +169,13 @@ typedef struct AlirSymbol {
 } AlirSymbol;
 
 typedef struct AlirCtx {
+    SemanticCtx *sem;       // Reference to Semantic Context for Type Resolution
+    
     AlirModule *module;
     AlirFunction *current_func;
     AlirBlock *current_block;
     
-    AlirSymbol *symbols;    // Symbol Table
+    AlirSymbol *symbols;    // Local IR Symbol Table (Name -> Register)
     
     int temp_counter;       
     int label_counter;
@@ -204,7 +213,9 @@ AlirValue* alir_val_type(const char *type_name); // New: for sizeof
 AlirValue* alir_val_global(const char *name, VarType type);
 
 // Generator Entry
-AlirModule* alir_generate(ASTNode *root);
+// REQUIRES: Semantic Context (populated via sem_check_program)
+AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root);
+
 void alir_print(AlirModule *mod);
 void alir_emit_to_file(AlirModule *mod, const char *filename);
 

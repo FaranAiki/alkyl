@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
   debug_step("Meanwhile.... Start generating Alkyl Intermediate Representation (ALIR).");
 
   // Pass to ALIR 
-  AlirModule *alir_module = alir_generate(root); 
+  AlirModule *alir_module = alir_generate(&sem_ctx, root); 
   alir_emit_to_file(alir_module, BASENAME ".alir");
   // TODO: THIS NEEDS A FUCKING REFORMAT NOOOOOOOOOOOOOOOOOOOOO 
 

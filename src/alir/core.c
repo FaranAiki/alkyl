@@ -209,7 +209,13 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_SWITCH: return "switch";
         case ALIR_OP_CALL: return "call";
         case ALIR_OP_RET: return "ret";
+        
+        // Added flux/iterator support strings
         case ALIR_OP_YIELD: return "yield";
+        case ALIR_OP_ITER_INIT: return "iter_init";
+        case ALIR_OP_ITER_VALID: return "iter_valid";
+        case ALIR_OP_ITER_NEXT: return "iter_next";
+        case ALIR_OP_ITER_GET: return "iter_get";
         
         case ALIR_OP_CAST: return "cast";
         case ALIR_OP_NOT: return "not";
