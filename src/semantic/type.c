@@ -83,12 +83,17 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             sem_error(ctx, (ASTNode*)node, "Redeclaration of variable '%s' in the same scope", node->name);
         } else {
             // --- SHADOWING CHECK ---
-            SemSymbol *shadow = sem_symbol_lookup(ctx, node->name);
+            SemScope *shadow_scope = NULL;
+            SemSymbol *shadow = sem_symbol_lookup(ctx, node->name, &shadow_scope);
             if (shadow) {
                 // If the shadowed symbol is global, be specific
                 if (shadow->inner_scope == ctx->global_scope) {
                     sem_info(ctx, (ASTNode*)node, "Shadowing global variable '%s'", node->name);
-                } else {
+                } 
+                else if (shadow_scope && shadow_scope->is_class_scope) {
+                    sem_info(ctx, (ASTNode*)node, "Shadowing class member '%s'", node->name);
+                }
+                else {
                     sem_info(ctx, (ASTNode*)node, "Shadowing variable '%s' from outer scope", node->name);
                 }
             }
@@ -124,7 +129,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     }
 
     if (node->name) {
-        SemSymbol *sym = sem_symbol_lookup(ctx, node->name);
+        SemSymbol *sym = sem_symbol_lookup(ctx, node->name, NULL);
         if (!sym) {
             sem_error(ctx, (ASTNode*)node, "Undefined variable '%s'", node->name);
             lhs_type = (VarType){TYPE_UNKNOWN};

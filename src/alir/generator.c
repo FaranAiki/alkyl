@@ -182,6 +182,38 @@ AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *
 AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     if (node->type == NODE_VAR_REF) {
         VarRefNode *vn = (VarRefNode*)node;
+        
+        // Handle Implicit Member Access (this.x)
+        if (vn->is_class_member) {
+            // Get 'this' pointer
+            AlirSymbol *this_sym = alir_find_symbol(ctx, "this");
+            if (!this_sym) return NULL; // Should not happen if sem check passed
+            
+            // Get Class Name from 'this' type
+            char *class_name = this_sym->type.class_name;
+            if (!class_name) return NULL;
+            
+            // Resolve field index
+            int idx = alir_get_field_index(ctx->module, class_name, vn->name);
+            if (idx == -1) return NULL;
+            
+            // Generate GEP
+            // Note: this_sym->ptr is the address where 'this' is stored (e.g. stack param addr).
+            // We need to load 'this' (Class*) first.
+            AlirValue *this_ptr = new_temp(ctx, this_sym->type);
+            emit(ctx, mk_inst(ALIR_OP_LOAD, this_ptr, this_sym->ptr, NULL));
+            
+            // Now get address of member
+            // Result is pointer to member type
+            // Need precise member type from struct registry or sem ctx
+            VarType mem_type = sem_get_node_type(ctx->sem, node);
+            mem_type.ptr_depth++; // return pointer
+            
+            AlirValue *res = new_temp(ctx, mem_type); 
+            emit(ctx, mk_inst(ALIR_OP_GET_PTR, res, this_ptr, alir_const_int(idx)));
+            return res;
+        }
+
         // Check IR local symbols first
         AlirSymbol *sym = alir_find_symbol(ctx, vn->name);
         if (sym) return sym->ptr;
@@ -231,7 +263,6 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     return NULL;
 }
 
-// --- TRAIT ACCESS GEN ---
 AlirValue* alir_gen_trait_access(AlirCtx *ctx, TraitAccessNode *ta) {
     AlirValue *base_ptr = alir_gen_addr(ctx, ta->object);
     if (!base_ptr) base_ptr = alir_gen_expr(ctx, ta->object);
@@ -528,7 +559,9 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                 // Find IR register holding the variable address
                 AlirSymbol *s = alir_find_symbol(ctx, an->name);
                 if (s) ptr = s->ptr;
-                else ptr = alir_val_var(an->name); // Global fallback
+                else ptr = alir_gen_addr(ctx, (ASTNode*)an->target); // Handle implicit 'this' or global
+                // Fallback for global if gen_addr returns global ref or similar logic inside
+                if (!ptr) ptr = alir_val_var(an->name); 
             } else if (an->target) {
                 ptr = alir_gen_addr(ctx, an->target);
             }

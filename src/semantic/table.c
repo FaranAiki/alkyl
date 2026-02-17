@@ -49,8 +49,18 @@ VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
 
 // --- SYMBOL TABLE LOGIC (Scopes) ---
 
+static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
+    SemSymbol *sym = scope->symbols;
+    while (sym) {
+        if (strcmp(sym->name, name) == 0) return sym;
+        sym = sym->next;
+    }
+    return NULL;
+}
+
 void sem_init(SemanticCtx *ctx) {
     ctx->global_scope = calloc(1, sizeof(SemScope));
+    // calloc initializes is_class_scope to 0
     ctx->current_scope = ctx->global_scope;
     ctx->error_count = 0;
     ctx->in_loop = 0;
@@ -72,6 +82,7 @@ void sem_scope_enter(SemanticCtx *ctx, int is_func, VarType ret_type) {
     new_scope->symbols = NULL;
     new_scope->parent = ctx->current_scope;
     new_scope->is_function_scope = is_func;
+    new_scope->is_class_scope = 0; // Default to normal block scope
     new_scope->expected_ret_type = ret_type;
     
     ctx->current_scope = new_scope;
@@ -102,13 +113,23 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     return sym;
 }
 
-SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name) {
+SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_scope) {
     SemScope *scope = ctx->current_scope;
     while (scope) {
-        SemSymbol *sym = scope->symbols;
+
+        SemSymbol *sym = find_in_scope_direct(scope, name);
+        if (sym) {
+            if (out_scope) *out_scope = scope;
+            return sym;
+        }
         // Pass 1: Direct lookup for variables, functions, or the Enum type itself
+        
+        sym = scope->symbols;
         while (sym) {
-            if (strcmp(sym->name, name) == 0) return sym;
+            if (strcmp(sym->name, name) == 0) {
+                if (out_scope) *out_scope = scope;
+                return sym;
+            }
             sym = sym->next;
         }
 
@@ -120,15 +141,70 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name) {
             if (sym->kind == SYM_ENUM && sym->inner_scope) {
                 SemSymbol *mem = sym->inner_scope->symbols;
                 while (mem) {
-                    if (strcmp(mem->name, name) == 0) return mem;
+                    if (strcmp(mem->name, name) == 0) {
+                        // Enum members are constants found via the enum, 
+                        // so the scope is effectively the enum's inner scope
+                        if (out_scope) *out_scope = sym->inner_scope;
+                        return mem;
+                    }
                     mem = mem->next;
                 }
             }
             sym = sym->next;
         }
 
+        if (scope->is_class_scope && scope->class_sym && scope->class_sym->parent_name) {
+            // Find parent class symbol. 
+            // We search from Global scope (or scope->parent which is usually global) to avoid cycles or weirdness,
+            // but normally classes are top-level.
+            SemScope *search_scope = scope->parent; 
+            SemSymbol *parent_class = NULL;
+            
+            // Standard lookup for the parent class name
+            while (search_scope) {
+                parent_class = find_in_scope_direct(search_scope, scope->class_sym->parent_name);
+                if (parent_class && parent_class->kind == SYM_CLASS) break;
+                search_scope = search_scope->parent;
+                parent_class = NULL;
+            }
+
+            if (parent_class && parent_class->inner_scope) {
+                // Check parent class members
+                SemSymbol *inherited = find_in_scope_direct(parent_class->inner_scope, name);
+                if (inherited) {
+                    if (out_scope) *out_scope = parent_class->inner_scope; // Found in parent class scope
+                    return inherited;
+                }
+                
+                // If not in immediate parent, we should ideally recurse up the parent's parent.
+                // But the parent's inner scope should ideally point to ITS parent sym?
+                // The current structure allows one level. To support multi-level, we would need 
+                // recursive logic.
+                
+                // Recursive climb for deeper inheritance:
+                SemSymbol *curr_cls = parent_class;
+                while (curr_cls && curr_cls->parent_name) {
+                    // Find grandparent
+                    SemScope *gp_search = ctx->global_scope; // Assume classes are global
+                    SemSymbol *grandparent = find_in_scope_direct(gp_search, curr_cls->parent_name);
+                    
+                    if (grandparent && grandparent->kind == SYM_CLASS && grandparent->inner_scope) {
+                         inherited = find_in_scope_direct(grandparent->inner_scope, name);
+                         if (inherited) {
+                             if (out_scope) *out_scope = grandparent->inner_scope;
+                             return inherited;
+                         }
+                         curr_cls = grandparent;
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
         scope = scope->parent;
     }
+    if (out_scope) *out_scope = NULL;
     return NULL;
 }
 

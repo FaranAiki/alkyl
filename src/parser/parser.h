@@ -181,47 +181,6 @@ typedef struct {
 
 typedef struct {
     ASTNode base;
-    ASTNode *value;
-} EmitNode;
-
-typedef struct {
-  ASTNode base;
-} BreakNode;
-
-typedef struct {
-  ASTNode base;
-} ContinueNode;
-
-typedef struct {
-  ASTNode base;
-  ASTNode *iterations;
-  ASTNode *body;
-} LoopNode;
-
-typedef struct {
-  ASTNode base;
-  ASTNode *condition;
-  ASTNode *body;
-  int is_do_while; 
-} WhileNode;
-
-typedef struct {
-    ASTNode base;
-    char *var_name;
-    ASTNode *collection;
-    ASTNode *body;
-    VarType iter_type; 
-} ForInNode;
-
-typedef struct {
-  ASTNode base;
-  ASTNode *condition;
-  ASTNode *then_body;
-  ASTNode *else_body;
-} IfNode;
-
-typedef struct {
-    ASTNode base;
     ASTNode *value; 
     ASTNode *body;  
     int is_leak;    
@@ -267,6 +226,7 @@ typedef struct {
   ASTNode base;
   char *name;
   char *mangled_name;
+  int is_class_member; // New: Flags implicit 'this' access
 } VarRefNode;
 
 typedef struct {
@@ -297,6 +257,47 @@ typedef struct {
   int op; 
   ASTNode *operand;
 } UnaryOpNode;
+
+typedef struct {
+    ASTNode base;
+    ASTNode *value;
+} EmitNode;
+
+typedef struct {
+  ASTNode base;
+} BreakNode;
+
+typedef struct {
+  ASTNode base;
+} ContinueNode;
+
+typedef struct {
+  ASTNode base;
+  ASTNode *iterations;
+  ASTNode *body;
+} LoopNode;
+
+typedef struct {
+  ASTNode base;
+  ASTNode *condition;
+  ASTNode *body;
+  int is_do_while; 
+} WhileNode;
+
+typedef struct {
+    ASTNode base;
+    char *var_name;
+    ASTNode *collection;
+    ASTNode *body;
+    VarType iter_type; 
+} ForInNode;
+
+typedef struct {
+  ASTNode base;
+  ASTNode *condition;
+  ASTNode *then_body;
+  ASTNode *else_body;
+} IfNode;
 
 typedef struct {
   ASTNode base;

@@ -44,6 +44,8 @@ typedef struct SemScope {
     SemSymbol *symbols;
     struct SemScope *parent;
     int is_function_scope; 
+    int is_class_scope;    // Identifies if this scope belongs to a class
+    SemSymbol *class_sym;  // Pointer to the Class Symbol this scope belongs to (for inheritance)
     VarType expected_ret_type; 
 } SemScope;
 
@@ -95,7 +97,9 @@ int sem_check_program(SemanticCtx *ctx, ASTNode *root);
 void sem_scope_enter(SemanticCtx *ctx, int is_func, VarType ret_type);
 void sem_scope_exit(SemanticCtx *ctx);
 SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, VarType type);
-SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name);
+
+// Lookup: optionally returns the scope where the symbol was found
+SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_scope);
 
 // Side Table Operations
 void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type);
@@ -116,9 +120,6 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node);
 void sem_check_block(SemanticCtx *ctx, ASTNode *block);
 void sem_check_expr(SemanticCtx *ctx, ASTNode *node);
 void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node);
-
-void sem_check_node(SemanticCtx *ctx, ASTNode *node);
-void sem_check_block(SemanticCtx *ctx, ASTNode *block);
 
 SemSymbol* lookup_local_symbol(SemanticCtx *ctx, const char *name);
 

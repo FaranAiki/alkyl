@@ -65,6 +65,8 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
     class_scope->symbols = NULL;
     class_scope->parent = ctx->current_scope; 
     class_scope->is_function_scope = 0;
+    class_scope->is_class_scope = 1; // Mark as Class Scope
+    class_scope->class_sym = class_sym; // Link back to Symbol for inheritance lookup
     class_scope->expected_ret_type = (VarType){0};
     
     class_sym->inner_scope = class_scope;
@@ -76,11 +78,9 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
     while(mem) {
         if (mem->type == NODE_VAR_DECL) {
             VarDeclNode *vd = (VarDeclNode*)mem;
-            // Class fields are symbols in the class scope
             sem_symbol_add(ctx, vd->name, SYM_VAR, vd->var_type);
         } else if (mem->type == NODE_FUNC_DEF) {
             FuncDefNode *fd = (FuncDefNode*)mem;
-            // Methods are symbols in the class scope
             sem_symbol_add(ctx, fd->name, SYM_FUNC, fd->ret_type);
         }
         mem = mem->next;
@@ -120,6 +120,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             enum_scope->symbols = NULL;
             enum_scope->parent = ctx->current_scope;
             enum_scope->is_function_scope = 0;
+            enum_scope->is_class_scope = 0; // Enums are not class scopes (no 'this')
             sym->inner_scope = enum_scope;
             
             // Populate members in the inner scope
@@ -150,6 +151,8 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             SemScope *ns_scope = malloc(sizeof(SemScope));
             ns_scope->symbols = NULL;
             ns_scope->parent = ctx->current_scope;
+            ns_scope->is_function_scope = 0;
+            ns_scope->is_class_scope = 0;
             sym->inner_scope = ns_scope;
             
             SemScope *old = ctx->current_scope;
@@ -162,7 +165,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
 }
 
 void sem_check_call(SemanticCtx *ctx, CallNode *node) {
-    SemSymbol *sym = sem_symbol_lookup(ctx, node->name);
+    SemSymbol *sym = sem_symbol_lookup(ctx, node->name, NULL);
     
     if (!sym) {
         sem_error(ctx, (ASTNode*)node, "Undefined function or class '%s'", node->name);
@@ -259,7 +262,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
     }
     
     if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
-        SemSymbol *class_sym = sem_symbol_lookup(ctx, obj_type.class_name);
+        SemSymbol *class_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
         if (!class_sym || class_sym->kind != SYM_CLASS) {
             sem_error(ctx, (ASTNode*)node, "Type '%s' is not a class/struct", obj_type.class_name);
             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN});
@@ -282,7 +285,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
                 }
             }
             if (current_class->parent_name) {
-                current_class = sem_symbol_lookup(ctx, current_class->parent_name);
+                current_class = sem_symbol_lookup(ctx, current_class->parent_name, NULL);
             } else {
                 current_class = NULL;
             }
@@ -296,7 +299,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
     }
     else if (obj_type.base == TYPE_ENUM && obj_type.class_name) {
         // Enum Member Access: EnumName.Member
-        SemSymbol *enum_sym = sem_symbol_lookup(ctx, obj_type.class_name);
+        SemSymbol *enum_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
         
         if (!enum_sym || enum_sym->kind != SYM_ENUM) {
             sem_error(ctx, (ASTNode*)node, "'%s' is not an enum", obj_type.class_name);
@@ -336,7 +339,7 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
     }
 
     if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
-        SemSymbol *class_sym = sem_symbol_lookup(ctx, obj_type.class_name);
+        SemSymbol *class_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
         if (!class_sym || class_sym->kind != SYM_CLASS) {
             sem_error(ctx, (ASTNode*)node, "Type '%s' is not a class/struct", obj_type.class_name);
             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN});
@@ -373,7 +376,7 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                 }
             }
             if (current_class->parent_name) {
-                current_class = sem_symbol_lookup(ctx, current_class->parent_name);
+                current_class = sem_symbol_lookup(ctx, current_class->parent_name, NULL);
             } else {
                 current_class = NULL;
             }
@@ -401,13 +404,25 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
         }
         case NODE_VAR_REF: {
             VarRefNode *ref = (VarRefNode*)node;
-            SemSymbol *sym = sem_symbol_lookup(ctx, ref->name);
+            SemScope *found_in_scope = NULL;
+            SemSymbol *sym = sem_symbol_lookup(ctx, ref->name, &found_in_scope);
+            
             if (sym) {
                 sem_set_node_type(ctx, node, sym->type);
+                
                 // --- UNINITIALIZED CHECK ---
                 if (sym->kind == SYM_VAR && !sym->is_initialized) {
                     sem_error(ctx, node, "Use of uninitialized variable '%s'", ref->name);
                 }
+
+                // --- IMPLICIT MEMBER ACCESS CHECK ---
+                // If the symbol was found in a Class Scope, it's an implicit 'this.name'
+                if (found_in_scope && found_in_scope->is_class_scope) {
+                    ref->is_class_member = 1;
+                } else {
+                    ref->is_class_member = 0;
+                }
+
             } else {
                 sem_error(ctx, node, "Undefined variable '%s'", ref->name);
                 sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN});
@@ -610,7 +625,7 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
     if (node->type == NODE_FUNC_DEF) sem_check_func_def(ctx, (FuncDefNode*)node);
     else if (node->type == NODE_CLASS) {
         ClassNode *cn = (ClassNode*)node;
-        SemSymbol *sym = sem_symbol_lookup(ctx, cn->name);
+        SemSymbol *sym = sem_symbol_lookup(ctx, cn->name, NULL);
         if (sym && sym->inner_scope) {
             SemScope *old = ctx->current_scope;
             ctx->current_scope = sym->inner_scope;
@@ -628,7 +643,7 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
     }
     else if (node->type == NODE_NAMESPACE) {
         NamespaceNode *ns = (NamespaceNode*)node;
-        SemSymbol *sym = sem_symbol_lookup(ctx, ns->name);
+        SemSymbol *sym = sem_symbol_lookup(ctx, ns->name, NULL);
         if (sym && sym->inner_scope) {
             SemScope *old = ctx->current_scope;
             ctx->current_scope = sym->inner_scope;
