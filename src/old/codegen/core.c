@@ -77,7 +77,7 @@ void codegen_init_ctx(CodegenCtx *ctx, LLVMModuleRef module, LLVMBuilderRef buil
 void codegen_error(CodegenCtx *ctx, ASTNode *node, const char *msg) {
     if (ctx->source_code && node) {
         Lexer l;
-        lexer_init(&l, ctx->source_code);
+        lexer_init(&l, NULL, "", ctx->source_code);
         Token t;
         t.type = TOKEN_UNKNOWN;
         t.line = node->line;

@@ -87,14 +87,13 @@ int main(int argc, char *argv[]) {
   debug_step("Start Semantic Analysis.");
   
   SemanticCtx sem_ctx;
-  sem_init(&sem_ctx);
+  sem_init(&sem_ctx, &comp_ctx);
   sem_ctx.current_source = code; // Enable source snippet printing for errors
   
   int sem_errors = sem_check_program(&sem_ctx, root);
   if (sem_errors > 0) {
       fprintf(stderr, "Semantic analysis failed with %d errors.\n", sem_errors);
       sem_cleanup(&sem_ctx);
-      free_ast(root);
       free(code);
       return 1;
   }
@@ -119,20 +118,23 @@ int main(int argc, char *argv[]) {
     curr = curr->next;
   }
 
-  debug_step("Finished macro-linking. Start Old Codegen (replace this).");
-  debug_step("Meanwhile.... Start generating Alkyl Intermediate Representation (ALIR).");
+  debug_step("Finished macro linking. Start generating Alkyl Intermediate Representation (alir).");
 
   // Pass to ALIR 
   AlirModule *alir_module = alir_generate(&sem_ctx, root); 
   alir_emit_to_file(alir_module, BASENAME ".alir");
   // TODO: THIS NEEDS A FUCKING REFORMAT NOOOOOOOOOOOOOOOOOOOOO 
 
-  debug_step("Finished ALIR. Start ALIR check and analysis.");
+  debug_step("Finished alir. Start alir check and analysis.");
 
+  // alir check    
+ 
   LLVMInitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
 
+  debug_step("Finished alir check and analysis. Start Old Codegen (replace this).");
+  arena_reset(&arena);
   // Pass source code to codegen for error reporting
   LLVMModuleRef module = codegen_generate(root, "alkyl_llvm", code);
 
@@ -178,7 +180,8 @@ int main(int argc, char *argv[]) {
 
   LLVMDisposeModule(module);
   free(code);
-  free_ast(root);
-  
+ 
+  arena_free(&arena);
+
   return 0;
 }

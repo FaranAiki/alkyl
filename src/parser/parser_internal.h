@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
+#include <string.h>
 
 // --- INTERNAL DATA STRUCTURES ---
 
@@ -46,7 +47,12 @@ void eat(Parser *p, TokenType type);
 VarType parse_type(Parser *p); 
 VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name);
 
-char* read_import_file(const char* filename);
+// Import now takes Parser to access Arena
+char* read_import_file(Parser *p, const char* filename);
+
+// --- ALLOCATION HELPERS ---
+void* parser_alloc(Parser *p, size_t size);
+char* parser_strdup(Parser *p, const char *str);
 
 // Registry Functions (now operate on Parser state)
 void register_macro(Parser *p, const char *name, char **params, int param_count, Token *body, int body_len);

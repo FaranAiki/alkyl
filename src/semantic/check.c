@@ -36,32 +36,12 @@ void sem_register_builtins(SemanticCtx *ctx) {
     sem_symbol_add(ctx, "exit", SYM_FUNC, void_t);
 }
 
-void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
-    char msg[1024];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(msg, sizeof(msg), fmt, args);
-    va_end(args);
-
-    if (ctx->current_source && node) {
-        Lexer l;
-        lexer_init(&l, ctx->current_source);
-        l.filename = (char*)ctx->current_filename; // Pass filename to lexer for diagnostics
-        
-        Token t;
-        t.line = node->line;
-        t.col = node->col;
-        t.type = TOKEN_UNKNOWN; 
-        t.text = NULL;
-        
-        report_info(&l, t, msg);
-    } else {
-        fprintf(stderr, "[Semantic Info] %s\n", msg);
-    }
-}
-
 void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sym) {
-    SemScope *class_scope = malloc(sizeof(SemScope));
+    if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
+
+    SemScope *class_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
+    memset(class_scope, 0, sizeof(SemScope));
+
     class_scope->symbols = NULL;
     class_scope->parent = ctx->current_scope; 
     class_scope->is_function_scope = 0;
@@ -90,6 +70,8 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
 }
 
 void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
+    if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
+
     while (node) {
         if (node->type == NODE_FUNC_DEF) {
             FuncDefNode *fd = (FuncDefNode*)node;
@@ -102,9 +84,10 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
         }
         else if (node->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)node;
-            SemSymbol *sym = sem_symbol_add(ctx, cn->name, SYM_CLASS, (VarType){TYPE_CLASS, 0, strdup(cn->name)});
+            VarType type_class = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, cn->name)};
+            SemSymbol *sym = sem_symbol_add(ctx, cn->name, SYM_CLASS, type_class);
             if (cn->parent_name) {
-                sym->parent_name = strdup(cn->parent_name);
+                sym->parent_name = arena_strdup(ctx->compiler_ctx->arena, cn->parent_name);
             }
             sem_scan_class_members(ctx, cn, sym);
         }
@@ -112,22 +95,26 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             EnumNode *en = (EnumNode*)node;
             
             // Register Enum Type Symbol (TYPE_ENUM)
-            VarType enum_type = {TYPE_ENUM, 0, strdup(en->name)};
+            VarType enum_type = {TYPE_ENUM, 0, arena_strdup(ctx->compiler_ctx->arena, en->name)};
             SemSymbol *sym = sem_symbol_add(ctx, en->name, SYM_ENUM, enum_type);
             
             // Create inner scope for members (Enum.Member access)
-            SemScope *enum_scope = malloc(sizeof(SemScope));
+            SemScope *enum_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
+            memset(enum_scope, 0, sizeof(SemScope));
+
             enum_scope->symbols = NULL;
             enum_scope->parent = ctx->current_scope;
             enum_scope->is_function_scope = 0;
-            enum_scope->is_class_scope = 0; // Enums are not class scopes (no 'this')
+            enum_scope->is_class_scope = 0; 
             sym->inner_scope = enum_scope;
             
             // Populate members in the inner scope
             EnumEntry *entry = en->entries;
             while(entry) {
-                SemSymbol *mem = malloc(sizeof(SemSymbol));
-                mem->name = strdup(entry->name);
+                SemSymbol *mem = arena_alloc_type(ctx->compiler_ctx->arena, SemSymbol);
+                memset(mem, 0, sizeof(SemSymbol));
+
+                mem->name = arena_strdup(ctx->compiler_ctx->arena, entry->name);
                 mem->kind = SYM_VAR; // Acts as a constant variable
                 mem->type = enum_type; // Member type is the Enum type
                 mem->is_mutable = 0;
@@ -148,7 +135,9 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             NamespaceNode *ns = (NamespaceNode*)node;
             SemSymbol *sym = sem_symbol_add(ctx, ns->name, SYM_NAMESPACE, (VarType){TYPE_VOID});
             
-            SemScope *ns_scope = malloc(sizeof(SemScope));
+            SemScope *ns_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
+            memset(ns_scope, 0, sizeof(SemScope));
+
             ns_scope->symbols = NULL;
             ns_scope->parent = ctx->current_scope;
             ns_scope->is_function_scope = 0;
@@ -165,6 +154,8 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
 }
 
 void sem_check_call(SemanticCtx *ctx, CallNode *node) {
+    if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
+
     SemSymbol *sym = sem_symbol_lookup(ctx, node->name, NULL);
     
     if (!sym) {
@@ -182,7 +173,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     }
 
     if (sym->kind == SYM_CLASS) {
-        VarType instance = {TYPE_CLASS, 1, strdup(sym->name), 0, 0}; 
+        VarType instance = {TYPE_CLASS, 1, arena_strdup(ctx->compiler_ctx->arena, sym->name), 0, 0}; 
         sem_set_node_type(ctx, (ASTNode*)node, instance);
     } else {
         sem_set_node_type(ctx, (ASTNode*)node, sym->type);
@@ -463,7 +454,6 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             else if (t.ptr_depth > 0) t.ptr_depth--;
             else if (t.base == TYPE_ENUM) {
                  // Support Enum Reflection via Indexing: EnumName[val] -> String
-                 // This effectively returns a string name of the enum value
                  sem_set_node_type(ctx, node, (VarType){TYPE_STRING});
                  return;
             }
@@ -658,4 +648,27 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
     else {
         sem_check_stmt(ctx, node);
     }
+}
+
+void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
+    if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
+
+    sem_scope_enter(ctx, 1, node->ret_type);
+    
+    if (node->class_name) {
+        VarType this_type = {TYPE_CLASS, 1, arena_strdup(ctx->compiler_ctx->arena, node->class_name), 0, 0}; 
+        sem_symbol_add(ctx, "this", SYM_VAR, this_type);
+    }
+
+    Parameter *p = node->params;
+    while (p) {
+        if (p->name) {
+            SemSymbol *s = sem_symbol_add(ctx, p->name, SYM_VAR, p->type);
+            s->is_initialized = 1;
+        }
+        p = p->next;
+    }
+    
+    sem_check_block(ctx, node->body);
+    sem_scope_exit(ctx);
 }

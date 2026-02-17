@@ -18,7 +18,7 @@ ASTNode* parse_define(Parser *p) {
 
   do {
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected macro name after 'define'");
-      char *macro_name = strdup(p->current_token.text);
+      char *macro_name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
       
       char **params = NULL;
@@ -26,13 +26,19 @@ ASTNode* parse_define(Parser *p) {
       if (p->current_token.type == TOKEN_LPAREN) {
           eat(p, TOKEN_LPAREN);
           int cap = 4;
-          params = malloc(sizeof(char*) * cap);
+          params = parser_alloc(p, sizeof(char*) * cap);
           
           if (p->current_token.type != TOKEN_RPAREN) {
               while(1) {
                   if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected parameter name in define definition");
-                  if (param_count >= cap) { cap *= 2; params = realloc(params, sizeof(char*)*cap); }
-                  params[param_count++] = strdup(p->current_token.text);
+                  if (param_count >= cap) { 
+                      cap *= 2; 
+                      // Simple realloc
+                      char **new_params = parser_alloc(p, sizeof(char*)*cap);
+                      memcpy(new_params, params, sizeof(char*)*param_count);
+                      params = new_params;
+                  }
+                  params[param_count++] = parser_strdup(p, p->current_token.text);
                   eat(p, TOKEN_IDENTIFIER);
                   
                   if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
@@ -45,7 +51,10 @@ ASTNode* parse_define(Parser *p) {
 
       if (sig_count >= sig_cap) {
           sig_cap = (sig_cap == 0) ? 2 : sig_cap * 2;
-          sigs = realloc(sigs, sizeof(MacroSig) * sig_cap);
+          // Simple realloc
+          MacroSig *new_sigs = parser_alloc(p, sizeof(MacroSig) * sig_cap);
+          if (sigs) memcpy(new_sigs, sigs, sizeof(MacroSig) * sig_count);
+          sigs = new_sigs;
       }
       sigs[sig_count].name = macro_name;
       sigs[sig_count].params = params;
@@ -70,48 +79,40 @@ ASTNode* parse_define(Parser *p) {
       char msg[256];
       snprintf(msg, sizeof(msg), "Expected 'as' after macro definition, but found '%s'", found);
       
-      // We manually construct report because parser_fail kills execution
       report_error(p->l, p->current_token, msg);
       
       char hint[256];
       snprintf(hint, sizeof(hint), "Did you mean \"define %s as %s...\"?", sigs[0].name, found);
       report_hint(p->l, p->current_token, hint);
       
-      for(int i=0; i<sig_count; i++) {
-          free(sigs[i].name);
-          if (sigs[i].params) {
-              for(int k=0; k<sigs[i].param_count; k++) free(sigs[i].params[k]);
-              free(sigs[i].params);
-          }
-      }
-      free(sigs);
+      // No free needed with arena
       
       if (p->recover_buf) longjmp(*p->recover_buf, 1);
   }
   eat(p, TOKEN_AS);
   
-  Token *body_tokens = malloc(sizeof(Token) * 32);
+  Token *body_tokens = parser_alloc(p, sizeof(Token) * 32);
   int body_cap = 32;
   int body_len = 0;
   while (p->current_token.type != TOKEN_SEMICOLON && p->current_token.type != TOKEN_EOF) {
-      if (body_len >= body_cap) { body_cap *= 2; body_tokens = realloc(body_tokens, sizeof(Token)*body_cap); }
+      if (body_len >= body_cap) { 
+          body_cap *= 2; 
+          Token *new_toks = parser_alloc(p, sizeof(Token)*body_cap);
+          memcpy(new_toks, body_tokens, sizeof(Token)*body_len);
+          body_tokens = new_toks;
+      }
       Token t = p->current_token;
-      if (t.text) t.text = strdup(t.text);
+      if (t.text) t.text = parser_strdup(p, t.text);
       body_tokens[body_len++] = t;
       eat(p, p->current_token.type);
   }
   
   for(int i=0; i<sig_count; i++) {
       register_macro(p, sigs[i].name, sigs[i].params, sigs[i].param_count, body_tokens, body_len);
-      free(sigs[i].name);
   }
   
-  for(int k=0; k<body_len; k++) {
-      if (body_tokens[k].text) free(body_tokens[k].text);
-  }
-  free(body_tokens);
-  free(sigs);
-
+  // No frees needed
+  
   if (p->current_token.type == TOKEN_SEMICOLON) eat(p, TOKEN_SEMICOLON);
 
   return NULL; 
@@ -141,7 +142,7 @@ ASTNode* parse_typedef(Parser *p) {
           char *cb_name = NULL;
           VarType fp_type = parse_func_ptr_decl(p, target, &cb_name);
           register_alias(p, cb_name, fp_type);
-          free(cb_name);
+          // No free(cb_name)
           eat(p, TOKEN_SEMICOLON);
           return NULL;
       }
@@ -153,7 +154,7 @@ ASTNode* parse_typedef(Parser *p) {
       while(1) {
           if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected new alias name after type in typedef");
           
-          char *new_name = strdup(p->current_token.text);
+          char *new_name = parser_strdup(p, p->current_token.text);
           eat(p, TOKEN_IDENTIFIER);
           
           VarType current_target = target;
@@ -162,14 +163,15 @@ ASTNode* parse_typedef(Parser *p) {
               if (p->current_token.type != TOKEN_RBRACKET) {
                   ASTNode *sz = parse_expression(p);
                   if (sz && sz->type == NODE_LITERAL) current_target.array_size = ((LiteralNode*)sz)->val.int_val;
-                  free_ast(sz);
+                  // No free_ast(sz)
+                  (void)sz;
               }
               eat(p, TOKEN_RBRACKET);
               current_target.ptr_depth++;
           }
           
           register_alias(p, new_name, current_target);
-          free(new_name);
+          // No free(new_name)
           
           if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
           else break;
@@ -178,12 +180,17 @@ ASTNode* parse_typedef(Parser *p) {
       char **names = NULL;
       int name_count = 0;
       int name_cap = 4;
-      names = malloc(sizeof(char*) * name_cap);
+      names = parser_alloc(p, sizeof(char*) * name_cap);
       
       while (1) {
           if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected new type name after 'typedef'");
-          if (name_count >= name_cap) { name_cap *= 2; names = realloc(names, sizeof(char*) * name_cap); }
-          names[name_count++] = strdup(p->current_token.text);
+          if (name_count >= name_cap) { 
+              name_cap *= 2; 
+              char **new_names = parser_alloc(p, sizeof(char*) * name_cap);
+              memcpy(new_names, names, sizeof(char*) * name_count);
+              names = new_names;
+          }
+          names[name_count++] = parser_strdup(p, p->current_token.text);
           eat(p, TOKEN_IDENTIFIER);
           
           if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
@@ -204,7 +211,7 @@ ASTNode* parse_typedef(Parser *p) {
           if (p->current_token.type != TOKEN_RBRACKET) {
               ASTNode *sz = parse_expression(p);
               if (sz && sz->type == NODE_LITERAL) target.array_size = ((LiteralNode*)sz)->val.int_val;
-              free_ast(sz);
+              (void)sz;
           }
           eat(p, TOKEN_RBRACKET);
           target.ptr_depth++;
@@ -212,9 +219,8 @@ ASTNode* parse_typedef(Parser *p) {
       
       for (int i = 0; i < name_count; i++) {
           register_alias(p, names[i], target);
-          free(names[i]);
       }
-      free(names);
+      // No free(names)
   }
   
   eat(p, TOKEN_SEMICOLON);
@@ -227,13 +233,13 @@ ASTNode* parse_extern(Parser *p) {
   if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION) {
       eat(p, p->current_token.type);
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected name for extern class/struct/union");
-      char *name = strdup(p->current_token.text);
+      char *name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
       eat(p, TOKEN_SEMICOLON);
       
       register_typename(p, name, 0); 
       
-      ClassNode *cn = calloc(1, sizeof(ClassNode));
+      ClassNode *cn = parser_alloc(p, sizeof(ClassNode));
       cn->base.type = NODE_CLASS;
       cn->name = name;
       cn->is_extern = 1; 
@@ -244,6 +250,8 @@ ASTNode* parse_extern(Parser *p) {
   if (ret_type.base == TYPE_UNKNOWN) { parser_fail(p, "Expected return type for extern function"); }
   if (p->current_token.type != TOKEN_IDENTIFIER) { parser_fail(p, "Expected extern function name"); }
   char *name = p->current_token.text; p->current_token.text = NULL; eat(p, TOKEN_IDENTIFIER);
+  name = parser_strdup(p, name);
+
   eat(p, TOKEN_LPAREN);
   Parameter *params_head = NULL; Parameter **curr_param = &params_head;
   int is_varargs = 0;
@@ -253,24 +261,24 @@ ASTNode* parse_extern(Parser *p) {
       VarType ptype = parse_type(p);
       if (ptype.base == TYPE_UNKNOWN) { parser_fail(p, "Expected parameter type"); }
       char *pname = NULL;
-      if (p->current_token.type == TOKEN_IDENTIFIER) { pname = p->current_token.text; p->current_token.text = NULL; eat(p, TOKEN_IDENTIFIER); }
+      if (p->current_token.type == TOKEN_IDENTIFIER) { pname = parser_strdup(p, p->current_token.text); p->current_token.text = NULL; eat(p, TOKEN_IDENTIFIER); }
       
       if (p->current_token.type == TOKEN_LBRACKET) {
           eat(p, TOKEN_LBRACKET);
           if (p->current_token.type != TOKEN_RBRACKET) {
               ASTNode *sz = parse_expression(p);
-              free_ast(sz);
+              (void)sz;
           }
           eat(p, TOKEN_RBRACKET);
           ptype.ptr_depth++;
       }
       
-      Parameter *param = calloc(1, sizeof(Parameter)); param->type = ptype; param->name = pname; *curr_param = param; curr_param = &param->next;
+      Parameter *param = parser_alloc(p, sizeof(Parameter)); param->type = ptype; param->name = pname; *curr_param = param; curr_param = &param->next;
       if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
     }
   }
   eat(p, TOKEN_RPAREN); eat(p, TOKEN_SEMICOLON);
-  FuncDefNode *node = calloc(1, sizeof(FuncDefNode));
+  FuncDefNode *node = parser_alloc(p, sizeof(FuncDefNode));
   node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = ret_type;
   node->params = params_head; node->body = NULL; node->is_varargs = is_varargs;
   return (ASTNode*)node;
@@ -279,37 +287,29 @@ ASTNode* parse_extern(Parser *p) {
 ASTNode* parse_import(Parser *p) {
   eat(p, TOKEN_IMPORT);
   if (p->current_token.type != TOKEN_STRING) parser_fail(p, "Expected file path string after 'import'");
-  char* fname = p->current_token.text;
+  char* fname = parser_strdup(p, p->current_token.text);
   p->current_token.text = NULL;
   eat(p, TOKEN_STRING);
   eat(p, TOKEN_SEMICOLON);
   
-  char* src = read_import_file(fname);
+  char* src = read_import_file(p, fname);
   if (!src) { 
       char msg[256];
       snprintf(msg, 256, "Could not open imported file: '%s'", fname);
-      free(fname); 
+      // fname not freed
       parser_fail(p, msg); 
   }
   
-  // Create a new parser context for the imported file
-  // but share the symbol tables? For now, simplistic separate parse.
-  // Ideally, symbols should be shared or returned.
-  // The structure `Parser` now contains symbol heads. 
-  // If we want imports to affect current scope, we should share list pointers?
-  // Or parse into AST and let Semantic Analysis handle symbol merging.
-  
   Lexer import_l; 
-  lexer_init(&import_l, p->ctx, src);
-  import_l.filename = fname;
+  lexer_init(&import_l, p->ctx, fname, src);
+  // import_l.filename = fname; // Already set by init
   
   Parser import_p;
   parser_init(&import_p, &import_l);
   
   ASTNode* imported_root = parse_program(&import_p);
   
-  free(src);
-  free(fname);
+  // No free(src), No free(fname)
   
   return imported_root; 
 }
@@ -318,7 +318,7 @@ ASTNode* parse_link(Parser *p) {
   eat(p, TOKEN_LINK);
   char *lib_name = NULL;
   if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_STRING) {
-    lib_name = p->current_token.text;
+    lib_name = parser_strdup(p, p->current_token.text);
     p->current_token.text = NULL;
     if (p->current_token.type == TOKEN_IDENTIFIER) eat(p, TOKEN_IDENTIFIER);
     else eat(p, TOKEN_STRING);
@@ -326,7 +326,7 @@ ASTNode* parse_link(Parser *p) {
     parser_fail(p, "Expected library name (string or identifier) after 'link'");
   }
   if (p->current_token.type == TOKEN_SEMICOLON) eat(p, TOKEN_SEMICOLON);
-  LinkNode *node = calloc(1, sizeof(LinkNode));
+  LinkNode *node = parser_alloc(p, sizeof(LinkNode));
   node->base.type = NODE_LINK;
   node->lib_name = lib_name;
   return (ASTNode*)node;
@@ -335,7 +335,7 @@ ASTNode* parse_link(Parser *p) {
 ASTNode* parse_enum(Parser *p) {
   eat(p, TOKEN_ENUM);
   if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected enum name");
-  char *enum_name = strdup(p->current_token.text);
+  char *enum_name = parser_strdup(p, p->current_token.text);
   eat(p, TOKEN_IDENTIFIER);
   register_typename(p, enum_name, 1);
 
@@ -347,7 +347,7 @@ ASTNode* parse_enum(Parser *p) {
 
   while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected enum member name");
-      char *member_name = strdup(p->current_token.text);
+      char *member_name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
       
       if (p->current_token.type == TOKEN_ASSIGN) {
@@ -359,7 +359,7 @@ ASTNode* parse_enum(Parser *p) {
           eat(p, TOKEN_NUMBER);
       }
       
-      EnumEntry *entry = malloc(sizeof(EnumEntry));
+      EnumEntry *entry = parser_alloc(p, sizeof(EnumEntry));
       entry->name = member_name;
       entry->value = current_val;
       entry->next = NULL;
@@ -374,7 +374,7 @@ ASTNode* parse_enum(Parser *p) {
   eat(p, TOKEN_RBRACKET);
   eat(p, TOKEN_SEMICOLON);
 
-  EnumNode *en = calloc(1, sizeof(EnumNode));
+  EnumNode *en = parser_alloc(p, sizeof(EnumNode));
   en->base.type = NODE_ENUM;
   en->name = enum_name;
   en->entries = entries_head;
@@ -390,7 +390,7 @@ ASTNode* parse_class(Parser *p) {
       int is_union = (p->current_token.type == TOKEN_UNION);
       eat(p, p->current_token.type);
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected name after 'class', 'struct' or 'union'");
-      char *class_name = strdup(p->current_token.text);
+      char *class_name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
       
       register_typename(p, class_name, 0); 
@@ -399,7 +399,7 @@ ASTNode* parse_class(Parser *p) {
       if (p->current_token.type == TOKEN_IS) {
           eat(p, TOKEN_IS);
           if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected parent class name after 'is'");
-          parent_name = strdup(p->current_token.text);
+          parent_name = parser_strdup(p, p->current_token.text);
           eat(p, TOKEN_IDENTIFIER);
       }
       
@@ -408,11 +408,16 @@ ASTNode* parse_class(Parser *p) {
       if (p->current_token.type == TOKEN_HAS) {
           eat(p, TOKEN_HAS);
           int cap = 4;
-          traits = malloc(sizeof(char*) * cap);
+          traits = parser_alloc(p, sizeof(char*) * cap);
           do {
               if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected trait name after 'has'");
-              if (trait_count >= cap) { cap *= 2; traits = realloc(traits, sizeof(char*)*cap); }
-              traits[trait_count++] = strdup(p->current_token.text);
+              if (trait_count >= cap) { 
+                  cap *= 2; 
+                  char **new_traits = parser_alloc(p, sizeof(char*)*cap);
+                  memcpy(new_traits, traits, sizeof(char*)*trait_count);
+                  traits = new_traits;
+              }
+              traits[trait_count++] = parser_strdup(p, p->current_token.text);
               eat(p, TOKEN_IDENTIFIER);
               if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
               else break;
@@ -439,16 +444,16 @@ ASTNode* parse_class(Parser *p) {
               ASTNode *body = parse_statements(p);
               eat(p, TOKEN_RBRACE);
               
-              FuncDefNode *func = calloc(1, sizeof(FuncDefNode));
+              FuncDefNode *func = parser_alloc(p, sizeof(FuncDefNode));
               func->base.type = NODE_FUNC_DEF;
               func->base.line = line;
               func->base.col = col;
-              func->name = strdup("iterate");
+              func->name = parser_strdup(p, "iterate");
               func->ret_type = vt;
               func->params = NULL;
               func->body = body;
               func->is_open = member_open;
-              func->class_name = strdup(class_name);
+              func->class_name = parser_strdup(p, class_name);
               func->is_flux = 1;
               
               *curr_member = (ASTNode*)func;
@@ -469,7 +474,7 @@ ASTNode* parse_class(Parser *p) {
                   }
                   eat(p, TOKEN_SEMICOLON);
                   
-                  VarDeclNode *var = calloc(1, sizeof(VarDeclNode));
+                  VarDeclNode *var = parser_alloc(p, sizeof(VarDeclNode));
                   var->base.type = NODE_VAR_DECL;
                   var->base.line = line;
                   var->base.col = col;
@@ -485,7 +490,7 @@ ASTNode* parse_class(Parser *p) {
               }
 
               if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected member name in class body");
-              char *mem_name = strdup(p->current_token.text);
+              char *mem_name = parser_strdup(p, p->current_token.text);
               eat(p, TOKEN_IDENTIFIER);
               
               if (p->current_token.type == TOKEN_LPAREN) {
@@ -497,20 +502,20 @@ ASTNode* parse_class(Parser *p) {
                       while(1) {
                           VarType pt = parse_type(p);
                           if(pt.base == TYPE_UNKNOWN) parser_fail(p, "Expected parameter type in method declaration");
-                          char *pname = strdup(p->current_token.text);
+                          char *pname = parser_strdup(p, p->current_token.text);
                           eat(p, TOKEN_IDENTIFIER);
                           
                           if (p->current_token.type == TOKEN_LBRACKET) {
                               eat(p, TOKEN_LBRACKET);
                               if (p->current_token.type != TOKEN_RBRACKET) {
                                   ASTNode *sz = parse_expression(p);
-                                  free_ast(sz);
+                                  (void)sz;
                               }
                               eat(p, TOKEN_RBRACKET);
                               pt.ptr_depth++;
                           }
                           
-                          Parameter *pm = calloc(1, sizeof(Parameter));
+                          Parameter *pm = parser_alloc(p, sizeof(Parameter));
                           pm->type = pt; pm->name = pname;
                           *curr_p = pm; curr_p = &pm->next;
                           if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
@@ -521,7 +526,7 @@ ASTNode* parse_class(Parser *p) {
                   ASTNode *body = parse_statements(p);
                   eat(p, TOKEN_RBRACE);
                   
-                  FuncDefNode *func = calloc(1, sizeof(FuncDefNode));
+                  FuncDefNode *func = parser_alloc(p, sizeof(FuncDefNode));
                   func->base.type = NODE_FUNC_DEF;
                   func->base.line = line;
                   func->base.col = col;
@@ -530,7 +535,7 @@ ASTNode* parse_class(Parser *p) {
                   func->params = params;
                   func->body = body;
                   func->is_open = member_open;
-                  func->class_name = strdup(class_name); 
+                  func->class_name = parser_strdup(p, class_name); 
                   
                   *curr_member = (ASTNode*)func;
                   curr_member = &func->base.next;
@@ -545,7 +550,7 @@ ASTNode* parse_class(Parser *p) {
                       ASTNode *sz = NULL;
                       if (p->current_token.type != TOKEN_RBRACKET) sz = parse_expression(p);
                       else {
-                          LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+                          LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
                           ln->base.type = NODE_LITERAL;
                           ln->var_type.base = TYPE_INT;
                           ln->val.int_val = 0;
@@ -565,7 +570,7 @@ ASTNode* parse_class(Parser *p) {
                   }
                   eat(p, TOKEN_SEMICOLON);
                   
-                  VarDeclNode *var = calloc(1, sizeof(VarDeclNode));
+                  VarDeclNode *var = parser_alloc(p, sizeof(VarDeclNode));
                   var->base.type = NODE_VAR_DECL;
                   var->base.line = line;
                   var->base.col = col;
@@ -586,7 +591,7 @@ ASTNode* parse_class(Parser *p) {
       }
       eat(p, TOKEN_RBRACE);
       
-      ClassNode *cls = calloc(1, sizeof(ClassNode));
+      ClassNode *cls = parser_alloc(p, sizeof(ClassNode));
       cls->base.type = NODE_CLASS;
       cls->name = class_name;
       cls->parent_name = parent_name;
@@ -610,7 +615,7 @@ ASTNode* parse_top_level(Parser *p) {
   if (p->current_token.type == TOKEN_NAMESPACE) {
       eat(p, TOKEN_NAMESPACE);
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected namespace name");
-      char *ns_name = strdup(p->current_token.text);
+      char *ns_name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
 
       eat(p, TOKEN_LBRACE);
@@ -627,7 +632,7 @@ ASTNode* parse_top_level(Parser *p) {
       }
       eat(p, TOKEN_RBRACE);
       
-      NamespaceNode *ns = calloc(1, sizeof(NamespaceNode));
+      NamespaceNode *ns = parser_alloc(p, sizeof(NamespaceNode));
       ns->base.type = NODE_NAMESPACE;
       ns->name = ns_name;
       ns->body = body_head;
@@ -657,8 +662,6 @@ ASTNode* parse_top_level(Parser *p) {
   int line = p->current_token.line;
   int col = p->current_token.col;
 
-  // Typo check omitted for brevity in this fix, can re-add
-
   int is_flux = 0;
   if (p->current_token.type == TOKEN_FLUX) {
       is_flux = 1;
@@ -681,7 +684,7 @@ ASTNode* parse_top_level(Parser *p) {
       }
       eat(p, TOKEN_SEMICOLON);
       
-      VarDeclNode *node = calloc(1, sizeof(VarDeclNode));
+      VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
       node->base.type = NODE_VAR_DECL;
       node->var_type = vtype;
       node->name = name;
@@ -692,7 +695,8 @@ ASTNode* parse_top_level(Parser *p) {
   }
 
   if (p->current_token.type != TOKEN_IDENTIFIER) { parser_fail(p, "Expected identifier definition after type"); }
-  char *name = p->current_token.text; p->current_token.text = NULL; eat(p, TOKEN_IDENTIFIER);
+  char *name = parser_strdup(p, p->current_token.text); 
+  p->current_token.text = NULL; eat(p, TOKEN_IDENTIFIER);
   
   if (p->current_token.type == TOKEN_LPAREN) {
     eat(p, TOKEN_LPAREN);
@@ -701,25 +705,26 @@ ASTNode* parse_top_level(Parser *p) {
       while (1) {
         VarType ptype = parse_type(p);
         if (ptype.base == TYPE_UNKNOWN) parser_fail(p, "Expected parameter type in function definition");
-        char *pname = p->current_token.text; p->current_token.text = NULL; eat(p, TOKEN_IDENTIFIER);
+        char *pname = parser_strdup(p, p->current_token.text); 
+        p->current_token.text = NULL; eat(p, TOKEN_IDENTIFIER);
         
         if (p->current_token.type == TOKEN_LBRACKET) {
             eat(p, TOKEN_LBRACKET);
             if (p->current_token.type != TOKEN_RBRACKET) {
                 ASTNode *sz = parse_expression(p);
-                free_ast(sz);
+                (void)sz;
             }
             eat(p, TOKEN_RBRACKET);
             ptype.ptr_depth++;
         }
         
-        Parameter *pm = calloc(1, sizeof(Parameter)); pm->type = ptype; pm->name = pname; *curr_param = pm; curr_param = &pm->next;
+        Parameter *pm = parser_alloc(p, sizeof(Parameter)); pm->type = ptype; pm->name = pname; *curr_param = pm; curr_param = &pm->next;
         if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
       }
     }
     eat(p, TOKEN_RPAREN); eat(p, TOKEN_LBRACE);
     ASTNode *body = parse_statements(p); eat(p, TOKEN_RBRACE);
-    FuncDefNode *node = calloc(1, sizeof(FuncDefNode));
+    FuncDefNode *node = parser_alloc(p, sizeof(FuncDefNode));
     node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = vtype; node->params = params_head; node->body = body;
     node->is_flux = is_flux; 
     node->base.line = line; node->base.col = col;
@@ -735,7 +740,7 @@ ASTNode* parse_top_level(Parser *p) {
       ASTNode *sz = NULL;
       if (p->current_token.type != TOKEN_RBRACKET) sz = parse_expression(p);
       else {
-          LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+          LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
           ln->base.type = NODE_LITERAL;
           ln->var_type.base = TYPE_INT;
           ln->val.int_val = 0;
@@ -751,7 +756,7 @@ ASTNode* parse_top_level(Parser *p) {
     if (p->current_token.type == TOKEN_ASSIGN) { eat(p, TOKEN_ASSIGN); init = parse_expression(p); } 
     else { if (vtype.base == TYPE_AUTO) { parser_fail(p, "'let' variable declaration must have an initializer"); } }
     eat(p, TOKEN_SEMICOLON);
-    VarDeclNode *node = calloc(1, sizeof(VarDeclNode));
+    VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
     node->base.type = NODE_VAR_DECL; node->var_type = vtype; node->name = name_val;
     node->initializer = init; node->is_mutable = 1; 
     node->is_array = is_array; node->array_size = array_size; 

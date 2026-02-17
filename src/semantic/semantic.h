@@ -4,6 +4,7 @@
 #include "../parser/parser.h"
 #include "../common/common.h"
 #include "../common/diagnostic.h"
+#include "../common/context.h"
 
 // ==========================================
 // PART 1: SYMBOL TABLE (For Scoping)
@@ -67,6 +68,9 @@ typedef struct TypeEntry {
 // ==========================================
 
 typedef struct {
+    // Shared Compiler Context (Arena, Diagnostics)
+    CompilerContext *compiler_ctx;
+
     // 1. Symbol Table State (Scopes)
     SemScope *current_scope;
     SemScope *global_scope;
@@ -74,10 +78,9 @@ typedef struct {
     // 2. Side Table State (Expression Types)
     TypeEntry *type_buckets[TYPE_TABLE_SIZE];
 
-    // Error tracking
-    int error_count;
+    // Contextual information for error reporting
     const char *current_source; 
-    const char *current_filename; // For error reporting
+    const char *current_filename; 
     
     // Contextual flags
     int in_loop;
@@ -87,7 +90,8 @@ typedef struct {
 // --- API ---
 
 // Lifecycle
-void sem_init(SemanticCtx *ctx);
+void sem_init(SemanticCtx *ctx, CompilerContext *compiler_ctx);
+// sem_cleanup is largely unnecessary with Arena, but kept for consistency/resetting non-arena state
 void sem_cleanup(SemanticCtx *ctx);
 
 // Analysis Entry Point

@@ -1,4 +1,20 @@
 #include "semantic.h"
+#include <stdarg.h>
+#include <stdio.h>
+
+// Helper to construct a temporary lexer for reporting
+static void setup_report_lexer(Lexer *l, SemanticCtx *ctx) {
+    if (ctx->compiler_ctx) {
+        // Initialize with the context and source
+        // We assume lexer_init handles basic setup
+        lexer_init(l, ctx->compiler_ctx, ctx->current_filename, ctx->current_source);
+    } else {
+        // Fallback if no compiler context (shouldn't happen in proper flow)
+        l->ctx = NULL;
+        l->src = ctx->current_source;
+        l->filename = (char*)ctx->current_filename;
+    }
+}
 
 void sem_hint(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     char msg[1024];
@@ -9,8 +25,7 @@ void sem_hint(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
 
     if (ctx->current_source && node) {
         Lexer l;
-        lexer_init(&l, ctx->current_source);
-        l.filename = (char*)ctx->current_filename;
+        setup_report_lexer(&l, ctx);
         
         Token t;
         t.line = node->line;
@@ -25,7 +40,10 @@ void sem_hint(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
 }
 
 void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
-    ctx->error_count++;
+    if (ctx->compiler_ctx) {
+        ctx->compiler_ctx->error_count++;
+        ctx->compiler_ctx->semantic_error_count++;
+    }
     
     char msg[1024];
     va_list args;
@@ -35,8 +53,7 @@ void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
 
     if (ctx->current_source && node) {
         Lexer l;
-        lexer_init(&l, ctx->current_source);
-        l.filename = (char*)ctx->current_filename; // Pass filename to lexer for diagnostics
+        setup_report_lexer(&l, ctx);
         
         Token t;
         t.line = node->line;
@@ -56,13 +73,39 @@ void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     }
 }
 
+void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
+    char msg[1024];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, args);
+    va_end(args);
+
+    if (ctx->current_source && node) {
+        Lexer l;
+        setup_report_lexer(&l, ctx);
+        
+        Token t;
+        t.line = node->line;
+        t.col = node->col;
+        t.type = TOKEN_UNKNOWN; 
+        t.text = NULL;
+        
+        report_info(&l, t, msg);
+    } else {
+        fprintf(stderr, "[Semantic Info] %s\n", msg);
+    }
+}
+
 int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
     if (!root) return 0;
     
     sem_register_builtins(ctx);
     sem_scan_top_level(ctx, root);
     
-    if (ctx->error_count > 0) return ctx->error_count;
+    int current_errors = 0;
+    if (ctx->compiler_ctx) current_errors = ctx->compiler_ctx->semantic_error_count;
+
+    if (current_errors > 0) return current_errors;
     
     ASTNode *curr = root;
     while (curr) {
@@ -75,5 +118,6 @@ int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
         curr = curr->next;
     }
     
-    return ctx->error_count;
+    if (ctx->compiler_ctx) return ctx->compiler_ctx->semantic_error_count;
+    return 0;
 }

@@ -27,8 +27,10 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
         curr = curr->next;
     }
     
-    // Insert new
-    TypeEntry *entry = malloc(sizeof(TypeEntry));
+    // Insert new using Arena
+    if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
+
+    TypeEntry *entry = arena_alloc_type(ctx->compiler_ctx->arena, TypeEntry);
     entry->node = node;
     entry->type = type;
     entry->next = ctx->type_buckets[idx];
@@ -58,13 +60,26 @@ static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
     return NULL;
 }
 
-void sem_init(SemanticCtx *ctx) {
-    ctx->global_scope = calloc(1, sizeof(SemScope));
-    // calloc initializes is_class_scope to 0
+void sem_init(SemanticCtx *ctx, CompilerContext *compiler_ctx) {
+    ctx->compiler_ctx = compiler_ctx;
+    
+    if (compiler_ctx && compiler_ctx->arena) {
+        ctx->global_scope = arena_alloc_type(compiler_ctx->arena, SemScope);
+        // Arena alloc does not zero out by default unless using specific calls, 
+        // but arena_alloc generally just gives memory. 
+        // We should manually zero it or assume arena_alloc zeros if implemented that way.
+        // For safety, let's memset.
+        memset(ctx->global_scope, 0, sizeof(SemScope));
+    } else {
+        // Fallback/Error state
+        ctx->global_scope = calloc(1, sizeof(SemScope));
+    }
+    
     ctx->current_scope = ctx->global_scope;
-    ctx->error_count = 0;
     ctx->in_loop = 0;
     ctx->in_switch = 0;
+    ctx->current_source = NULL;
+    ctx->current_filename = NULL;
     
     // Initialize Side Table buckets
     for (int i = 0; i < TYPE_TABLE_SIZE; i++) {
@@ -73,12 +88,22 @@ void sem_init(SemanticCtx *ctx) {
 }
 
 void sem_cleanup(SemanticCtx *ctx) {
-    // TODO: Free scopes and side table entries
-    // For now, rely on OS cleanup or add recursive free logic here
+    // With Arena, we don't need to traverse and free individual nodes.
+    // The arena_free in the driver handles everything.
+    // We just reset pointers to be safe.
+    ctx->current_scope = NULL;
+    ctx->global_scope = NULL;
+    for (int i = 0; i < TYPE_TABLE_SIZE; i++) {
+        ctx->type_buckets[i] = NULL;
+    }
 }
 
 void sem_scope_enter(SemanticCtx *ctx, int is_func, VarType ret_type) {
-    SemScope *new_scope = malloc(sizeof(SemScope));
+    if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
+
+    SemScope *new_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
+    memset(new_scope, 0, sizeof(SemScope));
+
     new_scope->symbols = NULL;
     new_scope->parent = ctx->current_scope;
     new_scope->is_function_scope = is_func;
@@ -90,22 +115,25 @@ void sem_scope_enter(SemanticCtx *ctx, int is_func, VarType ret_type) {
 
 void sem_scope_exit(SemanticCtx *ctx) {
     if (ctx->current_scope->parent) {
-        SemScope *old = ctx->current_scope;
-        ctx->current_scope = old->parent;
-        // Ideally free(old)
+        ctx->current_scope = ctx->current_scope->parent;
+        // No free() needed
     }
 }
 
 SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, VarType type) {
-    SemSymbol *sym = malloc(sizeof(SemSymbol));
-    sym->name = strdup(name);
+    if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return NULL;
+
+    SemSymbol *sym = arena_alloc_type(ctx->compiler_ctx->arena, SemSymbol);
+    memset(sym, 0, sizeof(SemSymbol));
+
+    sym->name = arena_strdup(ctx->compiler_ctx->arena, name);
     sym->kind = kind;
     sym->type = type;
     sym->param_types = NULL;
     sym->param_count = 0;
-    sym->parent_name = NULL; // Initialize parent_name
+    sym->parent_name = NULL; 
     sym->is_mutable = 1; 
-    sym->is_initialized = 1; // Default to true (safe for params/funcs), manual unset for uninit vars
+    sym->is_initialized = 1; 
     sym->inner_scope = NULL;
     
     sym->next = ctx->current_scope->symbols;
@@ -122,28 +150,14 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
             if (out_scope) *out_scope = scope;
             return sym;
         }
-        // Pass 1: Direct lookup for variables, functions, or the Enum type itself
         
-        sym = scope->symbols;
-        while (sym) {
-            if (strcmp(sym->name, name) == 0) {
-                if (out_scope) *out_scope = scope;
-                return sym;
-            }
-            sym = sym->next;
-        }
-
-        // Pass 2: Implicit Enum Member Lookup
-        // If not found directly, check inside any Enums defined in this scope.
-        // This allows 'Daging' to be found if 'Makanan' is in scope.
+        // Implicit Enum Member Lookup
         sym = scope->symbols;
         while (sym) {
             if (sym->kind == SYM_ENUM && sym->inner_scope) {
                 SemSymbol *mem = sym->inner_scope->symbols;
                 while (mem) {
                     if (strcmp(mem->name, name) == 0) {
-                        // Enum members are constants found via the enum, 
-                        // so the scope is effectively the enum's inner scope
                         if (out_scope) *out_scope = sym->inner_scope;
                         return mem;
                     }
@@ -155,12 +169,9 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
 
         if (scope->is_class_scope && scope->class_sym && scope->class_sym->parent_name) {
             // Find parent class symbol. 
-            // We search from Global scope (or scope->parent which is usually global) to avoid cycles or weirdness,
-            // but normally classes are top-level.
             SemScope *search_scope = scope->parent; 
             SemSymbol *parent_class = NULL;
             
-            // Standard lookup for the parent class name
             while (search_scope) {
                 parent_class = find_in_scope_direct(search_scope, scope->class_sym->parent_name);
                 if (parent_class && parent_class->kind == SYM_CLASS) break;
@@ -169,23 +180,16 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
             }
 
             if (parent_class && parent_class->inner_scope) {
-                // Check parent class members
                 SemSymbol *inherited = find_in_scope_direct(parent_class->inner_scope, name);
                 if (inherited) {
-                    if (out_scope) *out_scope = parent_class->inner_scope; // Found in parent class scope
+                    if (out_scope) *out_scope = parent_class->inner_scope;
                     return inherited;
                 }
-                
-                // If not in immediate parent, we should ideally recurse up the parent's parent.
-                // But the parent's inner scope should ideally point to ITS parent sym?
-                // The current structure allows one level. To support multi-level, we would need 
-                // recursive logic.
                 
                 // Recursive climb for deeper inheritance:
                 SemSymbol *curr_cls = parent_class;
                 while (curr_cls && curr_cls->parent_name) {
-                    // Find grandparent
-                    SemScope *gp_search = ctx->global_scope; // Assume classes are global
+                    SemScope *gp_search = ctx->global_scope; 
                     SemSymbol *grandparent = find_in_scope_direct(gp_search, curr_cls->parent_name);
                     
                     if (grandparent && grandparent->kind == SYM_CLASS && grandparent->inner_scope) {
@@ -214,7 +218,6 @@ int sem_types_are_equal(VarType a, VarType b) {
     if (a.base != b.base) return 0;
     if (a.ptr_depth != b.ptr_depth) return 0;
     if (a.array_size != b.array_size) return 0;
-    // Unsigned check can be loose depending on strictness preferences
     if (a.is_unsigned != b.is_unsigned) return 0; 
     
     if (a.base == TYPE_CLASS || a.base == TYPE_ENUM) {
@@ -245,7 +248,6 @@ int sem_types_are_compatible(VarType dest, VarType src) {
     }
 
     // String <-> Char* / Char[] Implicit Compatibility
-    // Allows implicit cast between 'string' and 'char*' or 'char[]'
     int dest_is_str = (dest.base == TYPE_STRING && dest.ptr_depth == 0);
     int src_is_str = (src.base == TYPE_STRING && src.ptr_depth == 0);
     
@@ -257,7 +259,6 @@ int sem_types_are_compatible(VarType dest, VarType src) {
     }
     
     // Array decay (int[10] -> int*)
-    // src is array, dest is pointer, base types match, depth matches decay
     if (src.array_size > 0 && dest.ptr_depth == src.ptr_depth + 1 && dest.base == src.base) {
         return 1; 
     }
@@ -269,8 +270,6 @@ int sem_types_are_compatible(VarType dest, VarType src) {
 }
 
 char* sem_type_to_str(VarType t) {
-    // Robustness Fix: Use a rotating buffer pool so this function can be called 
-    // multiple times in a single printf/error call without overwriting results.
     static char buffers[4][256];
     static int idx = 0;
     char *buf = buffers[idx];
@@ -299,20 +298,17 @@ char* sem_type_to_str(VarType t) {
     if (t.is_unsigned) pos += snprintf(buf + pos, 256 - pos, "unsigned ");
     pos += snprintf(buf + pos, 256 - pos, "%s", base);
     
-    // Append pointers
     for(int i=0; i<t.ptr_depth; i++) {
         if(pos < 255) buf[pos++] = '*';
     }
     buf[pos] = '\0';
     
-    // Append array size if present
     if (t.array_size > 0) {
         char tmp[32];
         snprintf(tmp, 32, "[%d]", t.array_size);
         strcat(buf, tmp);
     }
     
-    // Simple function pointer notation
     if (t.is_func_ptr) {
         strcat(buf, "(*)(...)");
     }

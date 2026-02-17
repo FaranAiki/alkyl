@@ -548,14 +548,13 @@ char* parser_string_to_string(const char *src) {
     context_init(&ctx, &arena);
     
     Lexer l;
-    lexer_init(&l, &ctx, src);
+    lexer_init(&l, &ctx, "", src);
     
     Parser p;
     parser_init(&p, &l);
     
     ASTNode *root = parse_program(&p);
     char *res = parser_to_string(root);
-    free_ast(root);
     
     arena_free(&arena);
     return res;
@@ -569,14 +568,13 @@ void parser_string_to_file(const char *src, const char *filename) {
     context_init(&ctx, &arena);
     
     Lexer l;
-    lexer_init(&l, &ctx, src);
+    lexer_init(&l, &ctx, filename, src);
     
     Parser p;
     parser_init(&p, &l);
     
     ASTNode *root = parse_program(&p);
     parser_to_file(root, filename);
-    free_ast(root);
     
     arena_free(&arena);
 }

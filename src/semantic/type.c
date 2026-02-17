@@ -1,4 +1,5 @@
 #include "semantic.h"
+#include <stdio.h>
 
 // Helper to check for implicit cast between string and char* and emit info
 void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarType src) {
@@ -201,25 +202,4 @@ int is_bool(VarType t) {
 
 int is_pointer(VarType t) {
     return t.ptr_depth > 0 || t.array_size > 0 || t.base == TYPE_STRING || t.is_func_ptr;
-}
-
-void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
-    sem_scope_enter(ctx, 1, node->ret_type);
-    
-    if (node->class_name) {
-        VarType this_type = {TYPE_CLASS, 1, strdup(node->class_name), 0, 0}; 
-        sem_symbol_add(ctx, "this", SYM_VAR, this_type);
-    }
-
-    Parameter *p = node->params;
-    while (p) {
-        if (p->name) {
-            SemSymbol *s = sem_symbol_add(ctx, p->name, SYM_VAR, p->type);
-            s->is_initialized = 1;
-        }
-        p = p->next;
-    }
-    
-    sem_check_block(ctx, node->body);
-    sem_scope_exit(ctx);
 }

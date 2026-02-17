@@ -25,7 +25,7 @@ ASTNode* parse_call(Parser *p, char *name) {
     }
   }
   eat(p, TOKEN_RPAREN);
-  CallNode *node = calloc(1, sizeof(CallNode));
+  CallNode *node = parser_alloc(p, sizeof(CallNode));
   node->base.type = NODE_CALL;
   node->name = name;
   node->args = args_head;
@@ -59,14 +59,14 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                 }
                 eat(p, TOKEN_RPAREN);
                 
-                MethodCallNode *mc = calloc(1, sizeof(MethodCallNode));
+                MethodCallNode *mc = parser_alloc(p, sizeof(MethodCallNode));
                 mc->base.type = NODE_METHOD_CALL;
                 mc->object = node;
                 mc->method_name = member;
                 mc->args = args_head;
                 node = (ASTNode*)mc;
             } else {
-                MemberAccessNode *ma = calloc(1, sizeof(MemberAccessNode));
+                MemberAccessNode *ma = parser_alloc(p, sizeof(MemberAccessNode));
                 ma->base.type = NODE_MEMBER_ACCESS;
                 ma->object = node;
                 ma->member_name = member;
@@ -78,11 +78,11 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             eat(p, TOKEN_LBRACKET);
             
             if (p->current_token.type == TOKEN_IDENTIFIER && is_typename(p, p->current_token.text)) {
-                char *trait_name = strdup(p->current_token.text);
+                char *trait_name = parser_strdup(p, p->current_token.text);
                 eat(p, TOKEN_IDENTIFIER);
                 eat(p, TOKEN_RBRACKET);
                 
-                TraitAccessNode *ta = calloc(1, sizeof(TraitAccessNode));
+                TraitAccessNode *ta = parser_alloc(p, sizeof(TraitAccessNode));
                 ta->base.type = NODE_TRAIT_ACCESS;
                 ta->object = node;
                 ta->trait_name = trait_name;
@@ -91,7 +91,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                 ASTNode *index = parse_expression(p);
                 eat(p, TOKEN_RBRACKET);
                 
-                ArrayAccessNode *aa = calloc(1, sizeof(ArrayAccessNode));
+                ArrayAccessNode *aa = parser_alloc(p, sizeof(ArrayAccessNode));
                 aa->base.type = NODE_ARRAY_ACCESS;
                 aa->target = node; 
                 aa->index = index;
@@ -102,7 +102,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
         else if (p->current_token.type == TOKEN_INCREMENT || p->current_token.type == TOKEN_DECREMENT) {
             int op = p->current_token.type;
             eat(p, op);
-            IncDecNode *id = calloc(1, sizeof(IncDecNode));
+            IncDecNode *id = parser_alloc(p, sizeof(IncDecNode));
             id->base.type = NODE_INC_DEC;
             id->target = node;
             id->is_prefix = 0;
@@ -114,7 +114,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             eat(p, TOKEN_AS);
             VarType t = parse_type(p);
             
-            CastNode *cn = calloc(1, sizeof(CastNode));
+            CastNode *cn = parser_alloc(p, sizeof(CastNode));
             cn->base.type = NODE_CAST;
             cn->operand = node;
             cn->var_type = t;
@@ -143,7 +143,7 @@ ASTNode* parse_factor(Parser *p) {
       } else {
           expr = parse_unary(p); 
       }
-      UnaryOpNode *u = calloc(1, sizeof(UnaryOpNode));
+      UnaryOpNode *u = parser_alloc(p, sizeof(UnaryOpNode));
       u->base.type = NODE_TYPEOF;
       u->operand = expr;
       node = (ASTNode*)u;
@@ -159,7 +159,7 @@ ASTNode* parse_factor(Parser *p) {
       } else {
           expr = parse_unary(p);
       }
-      UnaryOpNode *u = calloc(1, sizeof(UnaryOpNode));
+      UnaryOpNode *u = parser_alloc(p, sizeof(UnaryOpNode));
       u->base.type = NODE_HAS_METHOD;
       u->operand = expr;
       node = (ASTNode*)u;
@@ -175,7 +175,7 @@ ASTNode* parse_factor(Parser *p) {
       } else {
           expr = parse_unary(p);
       }
-      UnaryOpNode *u = calloc(1, sizeof(UnaryOpNode));
+      UnaryOpNode *u = parser_alloc(p, sizeof(UnaryOpNode));
       u->base.type = NODE_HAS_ATTRIBUTE;
       u->operand = expr;
       node = (ASTNode*)u;
@@ -195,7 +195,7 @@ ASTNode* parse_factor(Parser *p) {
       }
     }
     eat(p, TOKEN_RBRACKET);
-    ArrayLitNode *an = calloc(1, sizeof(ArrayLitNode));
+    ArrayLitNode *an = parser_alloc(p, sizeof(ArrayLitNode));
     an->base.type = NODE_ARRAY_LIT;
     an->elements = elems_head;
     node = (ASTNode*)an;
@@ -207,7 +207,7 @@ ASTNode* parse_factor(Parser *p) {
            p->current_token.type == TOKEN_ULONG_LIT ||
            p->current_token.type == TOKEN_LONG_LONG_LIT ||
            p->current_token.type == TOKEN_ULONG_LONG_LIT) {
-    LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;
     
     if (p->current_token.type == TOKEN_UINT_LIT) { ln->var_type.base = TYPE_INT; ln->var_type.is_unsigned = 1; }
@@ -223,7 +223,7 @@ ASTNode* parse_factor(Parser *p) {
     set_loc(node, line, col);
   }
   else if (p->current_token.type == TOKEN_FLOAT || p->current_token.type == TOKEN_LONG_DOUBLE_LIT) {
-    LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;
     if (p->current_token.type == TOKEN_LONG_DOUBLE_LIT) ln->var_type.base = TYPE_LONG_DOUBLE;
     else ln->var_type.base = TYPE_DOUBLE;
@@ -233,7 +233,7 @@ ASTNode* parse_factor(Parser *p) {
     set_loc(node, line, col);
   }
   else if (p->current_token.type == TOKEN_CHAR_LIT) {
-    LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;
     ln->var_type.base = TYPE_CHAR;
     ln->val.long_val = p->current_token.int_val;
@@ -242,28 +242,28 @@ ASTNode* parse_factor(Parser *p) {
     set_loc(node, line, col);
   }
   else if (p->current_token.type == TOKEN_STRING) {
-    LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;
     ln->var_type.base = TYPE_STRING;
-    ln->val.str_val = p->current_token.text;
+    ln->val.str_val = parser_strdup(p, p->current_token.text);
     p->current_token.text = NULL; 
     eat(p, TOKEN_STRING);
     node = (ASTNode*)ln;
     set_loc(node, line, col);
   }
   else if (p->current_token.type == TOKEN_C_STRING) {
-    LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;
     ln->var_type.base = TYPE_CHAR;
     ln->var_type.ptr_depth = 1; 
-    ln->val.str_val = p->current_token.text;
+    ln->val.str_val = parser_strdup(p, p->current_token.text);
     p->current_token.text = NULL; 
     eat(p, TOKEN_C_STRING);
     node = (ASTNode*)ln;
     set_loc(node, line, col);
   }
   else if (p->current_token.type == TOKEN_TRUE || p->current_token.type == TOKEN_FALSE) {
-    LiteralNode *ln = calloc(1, sizeof(LiteralNode));
+    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;
     ln->var_type.base = TYPE_BOOL;
     ln->val.long_val = (p->current_token.type == TOKEN_TRUE) ? 1 : 0;
@@ -272,7 +272,7 @@ ASTNode* parse_factor(Parser *p) {
     set_loc(node, line, col);
   }
   else if (p->current_token.type == TOKEN_IDENTIFIER) {
-    char *name = p->current_token.text;
+    char *name = parser_strdup(p, p->current_token.text);
     p->current_token.text = NULL;
     eat(p, TOKEN_IDENTIFIER);
     
@@ -281,7 +281,7 @@ ASTNode* parse_factor(Parser *p) {
       set_loc(node, line, col);
     } 
     else {
-        VarRefNode *vn = calloc(1, sizeof(VarRefNode));
+        VarRefNode *vn = parser_alloc(p, sizeof(VarRefNode));
         vn->base.type = NODE_VAR_REF;
         vn->name = name;
         node = (ASTNode*)vn;
@@ -307,7 +307,7 @@ ASTNode* parse_unary(Parser *p) {
       int op = p->current_token.type;
       eat(p, op);
       ASTNode *operand = parse_unary(p);
-      IncDecNode *node = calloc(1, sizeof(IncDecNode));
+      IncDecNode *node = parser_alloc(p, sizeof(IncDecNode));
       node->base.type = NODE_INC_DEC;
       node->target = operand;
       node->is_prefix = 1;
@@ -322,7 +322,7 @@ ASTNode* parse_unary(Parser *p) {
     int op = p->current_token.type;
     eat(p, op);
     ASTNode *operand = parse_unary(p);
-    UnaryOpNode *node = calloc(1, sizeof(UnaryOpNode));
+    UnaryOpNode *node = parser_alloc(p, sizeof(UnaryOpNode));
     node->base.type = NODE_UNARY_OP;
     node->op = op;
     node->operand = operand;
@@ -352,7 +352,7 @@ static ASTNode* parse_binary_op(Parser *p, ASTNode* (*sub_parser)(Parser*), Toke
         TokenType op = p->current_token.type;
         eat(p, op);
         ASTNode *right = sub_parser(p);
-        BinaryOpNode *node = calloc(1, sizeof(BinaryOpNode));
+        BinaryOpNode *node = parser_alloc(p, sizeof(BinaryOpNode));
         node->base.type = NODE_BINARY_OP;
         node->op = op;
         node->left = left;
@@ -430,7 +430,7 @@ ASTNode* parse_assignment(Parser *p) {
       
       ASTNode *rhs = parse_assignment(p); 
       
-      AssignNode *node = calloc(1, sizeof(AssignNode));
+      AssignNode *node = parser_alloc(p, sizeof(AssignNode));
       node->base.type = NODE_ASSIGN;
       node->value = rhs;
       node->op = op;
@@ -438,7 +438,7 @@ ASTNode* parse_assignment(Parser *p) {
       if (lhs->type == NODE_VAR_REF) {
           node->name = ((VarRefNode*)lhs)->name; 
           ((VarRefNode*)lhs)->name = NULL; 
-          free(lhs);
+          // No free
       } else {
           node->target = lhs; 
       }
