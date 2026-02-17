@@ -1,7 +1,7 @@
 #ifndef CODEGEN_H
 #define CODEGEN_H
 
-#include "../parser/parser.h"
+#include "../../parser/parser.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -82,13 +82,13 @@ typedef struct LoopContext {
 } LoopContext;
 
 // FLUX STATE MACHINE STRUCTURES
-typedef struct FluxVar {
+typedef struct FluxVarState {
     char *name;
     LLVMTypeRef type;
     VarType vtype;
     int struct_index; // Index in the context struct
-    struct FluxVar *next;
-} FluxVar;
+    struct FluxVarState *next;
+} FluxVarState; // TODO remove this
 
 typedef struct {
   LLVMModuleRef module;
@@ -123,7 +123,7 @@ typedef struct {
 
   // --- FLUX / GENERATOR STATE MACHINE SUPPORT ---
   int in_flux_resume;            // Flag: Are we currently generating the Resume body?
-  FluxVar *flux_vars;            // Linked list of lifted variables for current function
+  FluxVarState *flux_vars;            // Linked list of lifted variables for current function
   LLVMTypeRef flux_struct_type;  // The LLVM Struct Type for the context { state, finished, result, ... }
   LLVMValueRef flux_ctx_ptr;     // Pointer to the context struct instance (this)
   LLVMValueRef flux_resume_switch; // The main switch instruction for dispatching

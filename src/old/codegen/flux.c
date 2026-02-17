@@ -5,7 +5,7 @@ void collect_flux_variables(CodegenCtx *ctx, ASTNode *node, int *struct_idx) {
     
     if (node->type == NODE_VAR_DECL) {
         VarDeclNode *vd = (VarDeclNode*)node;
-        FluxVar *fv = malloc(sizeof(FluxVar));
+        FluxVarState *fv = malloc(sizeof(FluxVarState));
         fv->name = strdup(vd->name);
         fv->vtype = vd->var_type;
         
@@ -45,7 +45,7 @@ void collect_flux_variables(CodegenCtx *ctx, ASTNode *node, int *struct_idx) {
          collect_flux_variables(ctx, ((SwitchNode*)node)->default_case, struct_idx);
     } else if (node->type == NODE_FOR_IN) {
         ForInNode *fin = (ForInNode*)node;
-        FluxVar *fv = malloc(sizeof(FluxVar));
+        FluxVarState *fv = malloc(sizeof(FluxVarState));
         fv->name = strdup(fin->var_name);
         fv->vtype = fin->iter_type;
         fv->type = get_llvm_type(ctx, fin->iter_type);
@@ -94,7 +94,7 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
         p = p->next;
     }
     
-    FluxVar *fv = ctx->flux_vars;
+    FluxVarState *fv = ctx->flux_vars;
     while(fv) {
         elem_types[fv->struct_index] = fv->type;
         fv = fv->next;
@@ -186,7 +186,7 @@ void codegen_flux_def(CodegenCtx *ctx, FuncDefNode *node) {
         p = p->next;
     }
     
-    FluxVar *fv_iter = ctx->flux_vars;
+    FluxVarState *fv_iter = ctx->flux_vars;
     while(fv_iter) {
         LLVMValueRef l_gep = LLVMBuildStructGEP2(ctx->builder, ctx_struct_type, ctx->flux_ctx_ptr, fv_iter->struct_index, fv_iter->name);
         add_symbol(ctx, fv_iter->name, l_gep, fv_iter->type, fv_iter->vtype, fv_iter->vtype.array_size > 0, 1);

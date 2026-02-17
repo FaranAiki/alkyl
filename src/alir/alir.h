@@ -168,6 +168,14 @@ typedef struct AlirSymbol {
     struct AlirSymbol *next;
 } AlirSymbol;
 
+// Flux Variable Tracking
+typedef struct FluxVar {
+    char *name;
+    VarType type;
+    int index; // Index in the context struct
+    struct FluxVar *next;
+} FluxVar;
+
 typedef struct AlirCtx {
     SemanticCtx *sem;       // Reference to Semantic Context for Type Resolution
     
@@ -184,7 +192,15 @@ typedef struct AlirCtx {
     // Loop Context
     AlirBlock *loop_continue;
     AlirBlock *loop_break;
-    struct AlirCtx *loop_parent; 
+    struct AlirCtx *loop_parent;
+
+    // Flux Generation Context
+    int in_flux_resume;
+    FluxVar *flux_vars;
+    AlirValue *flux_ctx_ptr;       // The %ctx pointer in Resume
+    char *flux_struct_name;        // Name of the struct
+    int flux_yield_count;
+    AlirInst *flux_resume_switch;  // The switch instruction being built
 } AlirCtx;
 
 // --- API ---
