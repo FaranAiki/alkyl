@@ -1,0 +1,26 @@
+// sebenarnya ini harusnya trait tapi biarkan namanya masih prototipe, lagi pula ini showcase
+extern int atoi(char*);
+
+class Kecepatan {
+  int kecepatan;
+}
+
+class Waktu {
+  int waktu;
+}
+
+// has-a, compo bukan inheritance
+open class Jarak has Waktu, Kecepatan {
+  void out() {
+    print "%d\n", this[Waktu].waktu * this[Kecepatan].kecepatan;
+  }
+}
+
+int main() {
+  let t = atoi(input());
+  let v = atoi(input());
+  Jarak s;
+  s[Kecepatan].kecepatan = v;
+  s[Waktu].waktu = t;
+  s.out()
+}

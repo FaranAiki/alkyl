@@ -1,0 +1,33 @@
+extern double atof(char*);
+
+class Absis {
+    double x;
+}
+
+class Ordinat {
+    double y;
+}
+
+// Menggunakan pola 'has-a' (composition) sesuai referensi sintaksis
+class Titik has Absis, Ordinat {
+    void tampilkan() {
+        // Mengakses komponen menggunakan sintaks indexing this[Component]
+        print "(%lf,%lf)\n", this[Absis].x, this[Ordinat].y;
+    }
+}
+
+int main() {
+    // Membaca input dan konversi ke double
+    let input_x = atof(input());
+    let input_y = atof(input());
+
+    // Inisialisasi objek Titik
+    Titik P;
+    
+    // Memberikan nilai ke masing-masing komponen
+    P[Absis].x = input_x;
+    P[Ordinat].y = input_y;
+
+    // Memanggil method untuk menampilkan hasil
+    P.tampilkan();
+}

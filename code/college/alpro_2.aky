@@ -1,0 +1,14 @@
+define program as int main();
+
+extern double atof(char*);
+
+program {
+  // anehnya ngga ada konstan di sini aakwoakwo, pake imut tapi belom diimplement
+  let imut pi = 3.14159;
+  let r = atof (input());
+  let jumlah = 0 as double;
+  for i in 2 {
+      jumlah += pi * r;
+  }
+  print "%lf\n", jumlah;
+}

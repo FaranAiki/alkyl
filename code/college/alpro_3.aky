@@ -1,0 +1,18 @@
+define program as int main();
+
+extern int atoi(char*);
+
+program {
+  // maaf, tapi array di commit ini sangat buggy dan nggak konsisten
+  int *mhk = [10 as int, 15 as int, 20 as int];
+  for i in 3 {
+    int p = atoi(input());
+    int t = mhk[i];
+    mhk[i] = p * t;
+  }
+  let sum = 0;
+  for i in 3 {
+    sum += mhk[i];
+  }
+  print "%d\n", sum;
+}
