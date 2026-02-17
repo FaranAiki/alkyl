@@ -8,7 +8,7 @@
 
 char* lexer_to_string(Lexer *l) {
     StringBuilder sb;
-    sb_init(&sb);
+    sb_init(&sb, l->ctx->arena);
     if (!sb.data) return NULL;
 
     Token t = lexer_next(l);
@@ -33,7 +33,7 @@ char* lexer_to_string(Lexer *l) {
         t = lexer_next(l);
     }
     
-    return sb_free_and_return(&sb);
+    return sb.data;
 }
 
 void lexer_to_file(Lexer *l, const char *filename) {

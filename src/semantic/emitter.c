@@ -79,7 +79,7 @@ void semantic_emit_scope(StringBuilder *sb, SemScope *scope, int indent) {
 
 char* semantic_to_string(SemanticCtx *ctx) {
     StringBuilder sb;
-    sb_init(&sb);
+    sb_init(&sb, ctx->compiler_ctx->arena);
     if (!sb.data) return NULL;
     
     sb_append_fmt(&sb, "=== SEMANTIC SYMBOL TABLE ===\n");
@@ -90,7 +90,7 @@ char* semantic_to_string(SemanticCtx *ctx) {
     }
     sb_append_fmt(&sb, "=============================\n");
     
-    return sb_free_and_return(&sb);
+    return sb.data;
 }
 
 void semantic_to_file(SemanticCtx *ctx, const char *filename) {
@@ -101,6 +101,5 @@ void semantic_to_file(SemanticCtx *ctx, const char *filename) {
             fputs(str, f);
             fclose(f);
         }
-        free(str);
     }
 }

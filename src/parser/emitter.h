@@ -5,10 +5,10 @@
 #include "../common/common.h"
 
 // Traverses the AST and reconstructs the source code into a string
-char* parser_to_string(ASTNode *root);
+char* parser_to_string(Parser *parser, ASTNode *root);
 
 // Traverses the AST and writes the reconstructed source code to a file
-void parser_to_file(ASTNode *root, const char *filename);
+void parser_to_file(Parser *parser, ASTNode *root, const char *filename);
 
 // Helper: Parses the source string into AST, converts AST to string, frees AST
 char* parser_string_to_string(const char *src);

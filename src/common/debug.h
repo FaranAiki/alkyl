@@ -36,9 +36,9 @@
 
 #define DEBUG_PARSER_OUT
 #ifdef DEBUG_PARSER_OUT 
-  #define to_ast_out(p, f) parser_to_file(p, f)
+  #define to_ast_out(p, a, f) parser_to_file(p, a, f)
 #else 
-  #define to_ast_out(p, f) 
+  #define to_ast_out(p, a, f) 
 #endif // DEBUG_PARSER_OUT
 
 #define DEBUG_SEMANTIC_OUT

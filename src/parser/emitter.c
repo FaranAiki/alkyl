@@ -512,9 +512,9 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
     }
 }
 
-char* parser_to_string(ASTNode *root) {
+char* parser_to_string(Parser *parser, ASTNode *root) {
     StringBuilder sb;
-    sb_init(&sb);
+    sb_init(&sb, parser->ctx->arena);
     if (!sb.data) return NULL;
     
     ASTNode *curr = root;
@@ -525,18 +525,17 @@ char* parser_to_string(ASTNode *root) {
         curr = curr->next;
     }
     
-    return sb_free_and_return(&sb);
+    return sb.data;
 }
 
-void parser_to_file(ASTNode *root, const char *filename) {
-    char *str = parser_to_string(root);
+void parser_to_file(Parser *parser, ASTNode *root, const char *filename) {
+    char *str = parser_to_string(parser, root);
     if (str) {
         FILE *f = fopen(filename, "w");
         if (f) {
             fputs(str, f);
             fclose(f);
         }
-        free(str);
     }
 }
 
@@ -554,7 +553,7 @@ char* parser_string_to_string(const char *src) {
     parser_init(&p, &l);
     
     ASTNode *root = parse_program(&p);
-    char *res = parser_to_string(root);
+    char *res = parser_to_string(&p, root);
     
     arena_free(&arena);
     return res;
@@ -574,7 +573,7 @@ void parser_string_to_file(const char *src, const char *filename) {
     parser_init(&p, &l);
     
     ASTNode *root = parse_program(&p);
-    parser_to_file(root, filename);
+    parser_to_file(&p, root, filename);
     
     arena_free(&arena);
 }

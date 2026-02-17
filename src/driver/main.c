@@ -9,19 +9,6 @@
 
 #define BASENAME "out"
 
-char* read_file(const char* filename) {
-  FILE* f = fopen(filename, "rb");
-  if (!f) return NULL;
-  fseek(f, 0, SEEK_END);
-  long len = ftell(f);
-  fseek(f, 0, SEEK_SET);
-  char* buf = malloc(len + 1);
-  fread(buf, 1, len, f);
-  buf[len] = '\0';
-  fclose(f);
-  return buf;
-}
-
 int main(int argc, char *argv[]) {
   Arena arena;
   CompilerContext comp_ctx;
@@ -82,7 +69,7 @@ int main(int argc, char *argv[]) {
   
   // ASTNode *root_debug = parse_program(&l_debug);
 
-  to_ast_out(root, BASENAME ".ast");
+  to_ast_out(&p, root, BASENAME ".ast");
 
   debug_step("Start Semantic Analysis.");
   
