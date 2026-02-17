@@ -94,6 +94,7 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     sym->param_count = 0;
     sym->parent_name = NULL; // Initialize parent_name
     sym->is_mutable = 1; 
+    sym->is_initialized = 1; // Default to true (safe for params/funcs), manual unset for uninit vars
     sym->inner_scope = NULL;
     
     sym->next = ctx->current_scope->symbols;

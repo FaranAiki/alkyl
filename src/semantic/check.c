@@ -37,40 +37,6 @@ void sem_register_builtins(SemanticCtx *ctx) {
     sem_symbol_add(ctx, "exit", SYM_FUNC, void_t);
 }
 
-// --- Standardized Reporting ---
-
-void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
-    ctx->error_count++;
-    
-    char msg[1024];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(msg, sizeof(msg), fmt, args);
-    va_end(args);
-
-    if (ctx->current_source && node) {
-        Lexer l;
-        lexer_init(&l, ctx->current_source);
-        l.filename = (char*)ctx->current_filename; // Pass filename to lexer for diagnostics
-        
-        Token t;
-        t.line = node->line;
-        t.col = node->col;
-        t.type = TOKEN_UNKNOWN; 
-        t.text = NULL;
-        t.int_val = 0; 
-        t.double_val = 0.0;
-        
-        report_error(&l, t, msg);
-    } else {
-        if (node) {
-            fprintf(stderr, "[Semantic Error] Line %d, Col %d: %s\n", node->line, node->col, msg);
-        } else {
-            fprintf(stderr, "[Semantic Error] %s\n", msg);
-        }
-    }
-}
-
 void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     char msg[1024];
     va_list args;
@@ -199,6 +165,13 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     VarType r = sem_get_node_type(ctx, node->right);
     
     if (l.base == TYPE_UNKNOWN || r.base == TYPE_UNKNOWN) {
+        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN});
+        return;
+    }
+
+    // VOID CHECK: Binary ops cannot use void operands
+    if ((l.base == TYPE_VOID && l.ptr_depth == 0) || (r.base == TYPE_VOID && r.ptr_depth == 0)) {
+        sem_error(ctx, (ASTNode*)node, "Operand of binary expression cannot be 'void'");
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN});
         return;
     }
@@ -379,6 +352,10 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             SemSymbol *sym = sem_symbol_lookup(ctx, ref->name);
             if (sym) {
                 sem_set_node_type(ctx, node, sym->type);
+                // --- UNINITIALIZED CHECK ---
+                if (sym->kind == SYM_VAR && !sym->is_initialized) {
+                    sem_error(ctx, node, "Use of uninitialized variable '%s'", ref->name);
+                }
             } else {
                 sem_error(ctx, node, "Undefined variable '%s'", ref->name);
                 sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN});
@@ -390,6 +367,11 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             UnaryOpNode *un = (UnaryOpNode*)node;
             sem_check_expr(ctx, un->operand);
             VarType t = sem_get_node_type(ctx, un->operand);
+            
+            // VOID CHECK: Unary ops cannot use void operands (except perhaps sizeof/typeof if implemented later)
+            if (t.base == TYPE_VOID && t.ptr_depth == 0) {
+                 sem_error(ctx, node, "Operand of unary expression cannot be 'void'");
+            }
             
             if (un->op == TOKEN_AND) { 
                 t.ptr_depth++;
@@ -422,6 +404,13 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
         case NODE_CAST: {
             CastNode *cn = (CastNode*)node;
             sem_check_expr(ctx, cn->operand);
+            
+            // VOID CHECK: Cannot cast void to value
+            VarType op_t = sem_get_node_type(ctx, cn->operand);
+            if (op_t.base == TYPE_VOID && op_t.ptr_depth == 0) {
+                sem_error(ctx, node, "Cannot cast 'void' value");
+            }
+
             sem_set_node_type(ctx, node, cn->var_type);
             break;
         }
@@ -449,9 +438,6 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
         default: break;
     }
 }
-
-void sem_check_node(SemanticCtx *ctx, ASTNode *node);
-void sem_check_block(SemanticCtx *ctx, ASTNode *block);
 
 void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
@@ -526,7 +512,8 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             
             sem_scope_enter(ctx, 0, (VarType){0});
             VarType iter_type = {TYPE_AUTO}; 
-            sem_symbol_add(ctx, fn->var_name, SYM_VAR, iter_type);
+            SemSymbol *s = sem_symbol_add(ctx, fn->var_name, SYM_VAR, iter_type);
+            s->is_initialized = 1; // Iterator is init
             
             sem_check_block(ctx, fn->body);
             sem_scope_exit(ctx);
@@ -559,26 +546,6 @@ void sem_check_block(SemanticCtx *ctx, ASTNode *block) {
         sem_check_node(ctx, curr);
         curr = curr->next;
     }
-}
-
-void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
-    sem_scope_enter(ctx, 1, node->ret_type);
-    
-    if (node->class_name) {
-        VarType this_type = {TYPE_CLASS, 1, strdup(node->class_name), 0, 0}; 
-        sem_symbol_add(ctx, "this", SYM_VAR, this_type);
-    }
-
-    Parameter *p = node->params;
-    while (p) {
-        if (p->name) {
-            sem_symbol_add(ctx, p->name, SYM_VAR, p->type);
-        }
-        p = p->next;
-    }
-    
-    sem_check_block(ctx, node->body);
-    sem_scope_exit(ctx);
 }
 
 void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
@@ -619,5 +586,3 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
         sem_check_stmt(ctx, node);
     }
 }
-
-

@@ -12,20 +12,48 @@ void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarT
         sem_info(ctx, node, "Implicit cast from 'char%s' to 'string'", (src.array_size > 0) ? "[]" : "*");
     } else if (dest_is_char && src_is_str) {
         sem_info(ctx, node, "Implicit cast from 'string' to 'char%s'", (dest.array_size > 0) ? "[]" : "*");
+        
+        if (node->type == NODE_LITERAL) {
+            LiteralNode *lit = (LiteralNode*)node;
+            if (lit->var_type.base == TYPE_STRING && lit->val.str_val) {
+                sem_hint(ctx, node, "Use c\"%s\" if intended to be a C-style string", lit->val.str_val);
+                return;
+            }
+        }
+        sem_hint(ctx, node, "Use c\"...\" if intended to be a C-style string");
     }
 }
 
 void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
+    // Parser Fix: Ensure array variables have correct pointer depth.
+    // Top-level parser (and potentially others) might set is_array but not increment ptr_depth on the type itself.
+    if (node->is_array && node->var_type.ptr_depth == 0) {
+        ASTNode *dim = node->array_size;
+        while(dim) {
+            node->var_type.ptr_depth++;
+            dim = dim->next;
+        }
+        // If the first dimension is a literal, we can set array_size for better type info
+        if (node->array_size && node->array_size->type == NODE_LITERAL) {
+             node->var_type.array_size = (int)((LiteralNode*)node->array_size)->val.long_val;
+        }
+    }
+
     // 1. Check Initializer
     if (node->initializer) {
         sem_check_expr(ctx, node->initializer);
         VarType init_type = sem_get_node_type(ctx, node->initializer);
         
+        // VOID CHECK: Cannot initialize with void (unless it's a void pointer)
+        if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0) {
+            sem_error(ctx, (ASTNode*)node, "Cannot use expression of type 'void' to initialize variable '%s'", node->name);
+        }
+
         // 2. Inference (let / auto)
         if (node->var_type.base == TYPE_AUTO) {
             if (init_type.base == TYPE_UNKNOWN) {
                 sem_error(ctx, (ASTNode*)node, "Cannot infer type for variable '%s' (unknown initializer type)", node->name);
-            } else if (init_type.base == TYPE_VOID) {
+            } else if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0) {
                 sem_error(ctx, (ASTNode*)node, "Cannot infer type 'void' for variable '%s'", node->name);
             } else {
                 node->var_type = init_type; 
@@ -54,13 +82,33 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         if (lookup_local_symbol(ctx, node->name)) {
             sem_error(ctx, (ASTNode*)node, "Redeclaration of variable '%s' in the same scope", node->name);
         } else {
-            sem_symbol_add(ctx, node->name, SYM_VAR, node->var_type);
+            // --- SHADOWING CHECK ---
+            SemSymbol *shadow = sem_symbol_lookup(ctx, node->name);
+            if (shadow) {
+                // If the shadowed symbol is global, be specific
+                if (shadow->inner_scope == ctx->global_scope) {
+                    sem_info(ctx, (ASTNode*)node, "Shadowing global variable '%s'", node->name);
+                } else {
+                    sem_info(ctx, (ASTNode*)node, "Shadowing variable '%s' from outer scope", node->name);
+                }
+            }
+
+            SemSymbol *sym = sem_symbol_add(ctx, node->name, SYM_VAR, node->var_type);
+            
+            // --- INITIALIZATION TRACKING ---
+            int is_global = (ctx->current_scope == ctx->global_scope);
+            if (node->initializer || is_global || node->base.type == NODE_VAR_DECL /* extern logic usually implicit */ ) {
+                 sym->is_initialized = 1;
+            } else {
+                 sym->is_initialized = 0;
+            }
         }
     } else {
         // If we are checking a global or member, it exists, but we might need to update TYPE_AUTO resolved type
         SemSymbol *sym = lookup_local_symbol(ctx, node->name);
         if (sym) {
             sym->type = node->var_type;
+            if (node->initializer) sym->is_initialized = 1;
         }
     }
 }
@@ -69,6 +117,11 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     sem_check_expr(ctx, node->value);
     VarType rhs_type = sem_get_node_type(ctx, node->value);
     VarType lhs_type;
+    
+    // VOID CHECK: Cannot assign void
+    if (rhs_type.base == TYPE_VOID && rhs_type.ptr_depth == 0) {
+        sem_error(ctx, (ASTNode*)node, "Cannot assign value of type 'void' to variable");
+    }
 
     if (node->name) {
         SemSymbol *sym = sem_symbol_lookup(ctx, node->name);
@@ -79,6 +132,14 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
             if (!sym->is_mutable) {
                 sem_error(ctx, (ASTNode*)node, "Cannot assign to immutable variable '%s'", node->name);
             }
+            
+            // --- UNINITIALIZED CHECK FOR COMPOUND ASSIGNMENT ---
+            if (node->op != TOKEN_ASSIGN) {
+                if (sym->kind == SYM_VAR && !sym->is_initialized) {
+                    sem_error(ctx, (ASTNode*)node, "Use of uninitialized variable '%s' in compound assignment", node->name);
+                }
+            }
+
             lhs_type = sym->type;
             
             if (node->index) {
@@ -92,6 +153,16 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                 else if (lhs_type.ptr_depth > 0) lhs_type.ptr_depth--;
                 else {
                     sem_error(ctx, (ASTNode*)node, "Cannot index into non-array variable '%s'", node->name);
+                }
+                
+                // If we are assigning to an array index (x[0] = 1), x needs to be initialized first!
+                if (sym->kind == SYM_VAR && !sym->is_initialized) {
+                    sem_error(ctx, (ASTNode*)node, "Use of uninitialized array '%s'", node->name);
+                }
+            } else {
+                // Direct assignment (x = 1) initializes the variable
+                if (node->op == TOKEN_ASSIGN) {
+                    sym->is_initialized = 1;
                 }
             }
         }
@@ -125,4 +196,25 @@ int is_bool(VarType t) {
 
 int is_pointer(VarType t) {
     return t.ptr_depth > 0 || t.array_size > 0 || t.base == TYPE_STRING || t.is_func_ptr;
+}
+
+void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
+    sem_scope_enter(ctx, 1, node->ret_type);
+    
+    if (node->class_name) {
+        VarType this_type = {TYPE_CLASS, 1, strdup(node->class_name), 0, 0}; 
+        sem_symbol_add(ctx, "this", SYM_VAR, this_type);
+    }
+
+    Parameter *p = node->params;
+    while (p) {
+        if (p->name) {
+            SemSymbol *s = sem_symbol_add(ctx, p->name, SYM_VAR, p->type);
+            s->is_initialized = 1;
+        }
+        p = p->next;
+    }
+    
+    sem_check_block(ctx, node->body);
+    sem_scope_exit(ctx);
 }

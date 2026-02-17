@@ -2,6 +2,8 @@
 #define SEMANTIC_H
 
 #include "../parser/parser.h"
+#include "../common/common.h"
+#include "../diagnostic/diagnostic.h"
 
 // ==========================================
 // PART 1: SYMBOL TABLE (For Scoping)
@@ -30,6 +32,7 @@ typedef struct SemSymbol {
 
     // Var specific
     int is_mutable;
+    int is_initialized;   // Track if variable has been assigned a value
     
     // Scope linkage
     struct SemScope *inner_scope; 
@@ -105,6 +108,7 @@ char* sem_type_to_str(VarType t);
 // Reporting
 void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...);
 void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...);
+void sem_hint(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...);
 
 void sem_register_builtins(SemanticCtx *ctx);
 
@@ -113,9 +117,15 @@ void sem_check_block(SemanticCtx *ctx, ASTNode *block);
 void sem_check_expr(SemanticCtx *ctx, ASTNode *node);
 void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node);
 
+void sem_check_node(SemanticCtx *ctx, ASTNode *node);
+void sem_check_block(SemanticCtx *ctx, ASTNode *block);
+
 SemSymbol* lookup_local_symbol(SemanticCtx *ctx, const char *name);
 
-#include "emitter.h"
-#include "type.h"
+void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node);
+
+
+#include "semantic/emitter.h"
+#include "semantic/type.h"
 
 #endif // SEMANTIC_H
