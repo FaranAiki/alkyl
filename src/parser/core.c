@@ -511,8 +511,3 @@ ASTNode* parse_program(Parser *p) {
   return head;
 }
 
-void free_ast(ASTNode *node) {
-  // With Arena Allocator, we don't need to manually free the AST.
-  // The entire arena is freed when the context is destroyed.
-  (void)node;
-}

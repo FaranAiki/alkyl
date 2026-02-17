@@ -337,7 +337,6 @@ void parser_init(Parser *p, Lexer *l);
 // Parse the program using the provided parser instance
 ASTNode* parse_program(Parser *p);
 ASTNode* parse_expression(Parser *p);
-void free_ast(ASTNode *node);
 
 #include "emitter.h"
 

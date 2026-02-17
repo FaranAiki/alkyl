@@ -3,17 +3,6 @@
 ; Struct Definitions
 %struct.FluxCtx_gen = type { i32:state, i1:finished, i32:result, i32:max, i32:t }
 
-; Globals
-@str.8 = cstring "%d\n"
-@str.7 = cstring "Emit!\n"
-@str.6 = cstring "This will loop integer\n"
-@str.5 = cstring "%c:%s\n"
-@str.4 = cstring "Hello, World!"
-@str.3 = cstring "This will loop hello world!\n"
-@str.2 = cstring "%d\n"
-@str.1 = cstring "%s\n"
-@str.0 = cstring "%s\n"
-
 define func i8* @gen(i32 %p0) {
 entry:
   %0 = sizeof type(FluxCtx_gen)
@@ -65,61 +54,4 @@ resume_1:
   ret void
 resume_2:
   jump while_cond
-}
-
-define func i32 @main() {
-entry:
-  %0 = alloca i32
-  %1 = call @gen (100)
-  store %1, %0
-  %2 = alloca i32*
-  store undef, %2
-  %3 = call @print (@str.0, void)
-  %4 = call @print (@str.1, void)
-  %5 = iter_init 50
-  jump for_cond
-for_cond:
-  %6 = iter_valid %5
-  condi %6, for_body (for_end)
-for_body:
-  %7 = iter_get %5
-  %8 = alloca any
-  store %7, %8
-  %9 = load %8
-  %10 = call @print (@str.2, %9)
-  iter_next %5
-  jump for_cond
-for_end:
-  %11 = call @print (@str.3)
-  %12 = iter_init @str.4
-  jump for_cond
-for_cond:
-  %13 = iter_valid %12
-  condi %13, for_body (for_end)
-for_body:
-  %14 = iter_get %12
-  %15 = alloca any
-  store %14, %15
-  %16 = load %15
-  %17 = call @print (@str.5, %16, void)
-  iter_next %12
-  jump for_cond
-for_end:
-  %18 = call @print (@str.6)
-  %19 = call @print (@str.7)
-  %20 = call @gen (10000)
-  %21 = iter_init %20
-  jump for_cond
-for_cond:
-  %22 = iter_valid %21
-  condi %22, for_body (for_end)
-for_body:
-  %23 = iter_get %21
-  %24 = alloca any
-  store %23, %24
-  %25 = load %24
-  %26 = call @print (@str.8, %25)
-  iter_next %21
-  jump for_cond
-for_end:
 }

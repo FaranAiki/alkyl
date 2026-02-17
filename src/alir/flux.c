@@ -144,10 +144,8 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn) {
     int param_offset = 0;
     p_idx = 3;
     if (fn->class_name) {
-        AlirValue *this_arg = alir_val_temp(ctx->module, (VarType){TYPE_CLASS, 1, alir_strdup(ctx->module, fn->class_name)}, param_offset++); // Pseudo arg ref
-        // Note: Real arg ref logic would use dedicated arg op/val, here relying on implicit register numbering for args 0..N
         // For simplicity, assuming args are mapped to %p0, %p1...
-        
+        // TODO fix this
         // Actually, ALIR uses named parameters in function def.
         // We need to resolve param name to a value. 
         // ALIR doesn't have a direct "get param N" op in current definition, 

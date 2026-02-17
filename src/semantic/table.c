@@ -65,14 +65,7 @@ void sem_init(SemanticCtx *ctx, CompilerContext *compiler_ctx) {
     
     if (compiler_ctx && compiler_ctx->arena) {
         ctx->global_scope = arena_alloc_type(compiler_ctx->arena, SemScope);
-        // Arena alloc does not zero out by default unless using specific calls, 
-        // but arena_alloc generally just gives memory. 
-        // We should manually zero it or assume arena_alloc zeros if implemented that way.
-        // For safety, let's memset.
         memset(ctx->global_scope, 0, sizeof(SemScope));
-    } else {
-        // Fallback/Error state
-        ctx->global_scope = calloc(1, sizeof(SemScope));
     }
     
     ctx->current_scope = ctx->global_scope;
