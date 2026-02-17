@@ -54,3 +54,34 @@ AlirValue* alir_val_type(const char *type_name) {
     return v;
 }
 
+void alir_register_enum(AlirModule *mod, const char *name, AlirEnumEntry *entries) {
+    AlirEnum *e = calloc(1, sizeof(AlirEnum));
+    e->name = strdup(name);
+    e->entries = entries;
+    e->next = mod->enums;
+    mod->enums = e;
+}
+
+AlirEnum* alir_find_enum(AlirModule *mod, const char *name) {
+    AlirEnum *curr = mod->enums;
+    while(curr) {
+        if (strcmp(curr->name, name) == 0) return curr;
+        curr = curr->next;
+    }
+    return NULL;
+}
+
+int alir_get_enum_value(AlirModule *mod, const char *enum_name, const char *entry_name, long *out_val) {
+    AlirEnum *e = alir_find_enum(mod, enum_name);
+    if (!e) return 0;
+    
+    AlirEnumEntry *ent = e->entries;
+    while(ent) {
+        if (strcmp(ent->name, entry_name) == 0) {
+            *out_val = ent->value;
+            return 1;
+        }
+        ent = ent->next;
+    }
+    return 0;
+}

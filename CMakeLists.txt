@@ -57,6 +57,8 @@ set(ALIR_SOURCES
     src/alir/const.c
     src/alir/flux.c
     src/alir/utils.c
+    src/alir/lvalue.c
+    src/alir/emitter.c
 )
 
 set (ALICK_SOURCES

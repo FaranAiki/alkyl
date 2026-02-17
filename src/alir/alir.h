@@ -216,8 +216,6 @@ typedef struct AlirCtx {
     AlirInst *flux_resume_switch;  // The switch instruction being built
 } AlirCtx;
 
-// --- API ---
-
 // Core
 AlirModule* alir_create_module(const char *name);
 AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, int is_flux);
@@ -271,5 +269,21 @@ void collect_flux_vars_recursive(AlirCtx *ctx, ASTNode *node, int *idx_ptr);
 
 // Constant Folding / Eval
 long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node);
+
+// enum
+void alir_register_enum(AlirModule *mod, const char *name, AlirEnumEntry *entries);
+AlirEnum* alir_find_enum(AlirModule *mod, const char *name);
+int alir_get_enum_value(AlirModule *mod, const char *enum_name, const char *entry_name, long *out_val);
+
+AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *args);
+
+// TODO move this
+void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn);
+void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root);
+
+const char* alir_op_str(AlirOpcode op) ;
+
+#include "lvalue.h"
+#include "const.h"
 
 #endif // ALIR_H

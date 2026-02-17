@@ -19,4 +19,6 @@ char* sb_free_and_return(StringBuilder *sb);
 void sb_append(StringBuilder *sb, const char *str); 
 void sb_append_escaped(StringBuilder *sb, const char *str);
 
+char* escape_string(const char* input);
+
 #endif // COMMON_H

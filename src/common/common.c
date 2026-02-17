@@ -65,3 +65,19 @@ void sb_append_escaped(StringBuilder *sb, const char *str) {
 char* sb_free_and_return(StringBuilder *sb) {
     return sb->data; 
 }
+
+char* escape_string(const char* input) {
+    if (!input) return strdup("");
+    int len = strlen(input);
+    char* out = malloc(len * 2 + 1); // Worst case
+    char* p = out;
+    for (int i = 0; i < len; i++) {
+        if (input[i] == '\n') { *p++ = '\\'; *p++ = 'n'; }
+        else if (input[i] == '\t') { *p++ = '\\'; *p++ = 't'; }
+        else if (input[i] == '\"') { *p++ = '\\'; *p++ = '\"'; }
+        else if (input[i] == '\\') { *p++ = '\\'; *p++ = '\\'; }
+        else *p++ = input[i];
+    }
+    *p = '\0';
+    return out;
+}
