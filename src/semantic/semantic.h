@@ -25,6 +25,9 @@ typedef struct SemSymbol {
     VarType *param_types;
     int param_count;
     
+    // Class specific
+    char *parent_name;    // For inheritance lookup
+
     // Var specific
     int is_mutable;
     
@@ -98,9 +101,13 @@ VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node);
 int sem_types_are_compatible(VarType dest, VarType src);
 char* sem_type_to_str(VarType t);
 
+void sem_register_builtins(SemanticCtx *ctx);
+
 void sem_check_node(SemanticCtx *ctx, ASTNode *node);
 void sem_check_block(SemanticCtx *ctx, ASTNode *block);
 void sem_check_expr(SemanticCtx *ctx, ASTNode *node);
 void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node);
+
+#include "emitter.h"
 
 #endif // SEMANTIC_H

@@ -41,4 +41,11 @@
   #define to_ast_out(p, f) 
 #endif // DEBUG_PARSER_OUT
 
+#define DEBUG_SEMANTIC_OUT
+#ifdef DEBUG_SEMANTIC_OUT 
+  #define to_sem_out(p, f) semantic_to_file(p, f)
+#else 
+  #define to_sem_out(p, f) 
+#endif // DEBUG_PARSER_OUT
+
 #endif // COMPILER_DEBUG_H

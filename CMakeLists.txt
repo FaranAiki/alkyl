@@ -60,6 +60,7 @@ set(DEPRECATED_LLVM_CODEGEN_SOURCES
 set(SEMANTIC_SOURCES
     src/semantic/check.c
     src/semantic/table.c
+    src/semantic/emitter.c
 )
 
 set(FRONTEND_SOURCES 

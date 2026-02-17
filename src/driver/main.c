@@ -77,7 +77,6 @@ int main(int argc, char *argv[]) {
 
   to_ast_out(root, BASENAME ".ast");
 
-  // --- SEMANTIC ANALYSIS ---
   debug_step("Start Semantic Analysis.");
   
   SemanticCtx sem_ctx;
@@ -92,7 +91,9 @@ int main(int argc, char *argv[]) {
       free(code);
       return 1;
   }
-  
+ 
+  to_sem_out(&sem_ctx, BASENAME ".semc");
+
   // We keep sem_ctx alive if we want to use the Side Table for Codegen later.
   // For now, we clean it up as Codegen currently recalculates types (but safely now!)
   sem_cleanup(&sem_ctx); 
