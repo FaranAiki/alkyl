@@ -96,6 +96,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                       // dest is assumed to be the variable type directly in current gen logic
                       // If logic implies dest is pointer, we should handle that, but for now
                       // we print the type stored in the temp info
+                      // TODO make sure this is handled properly
                       alir_fprint_type(f, inst->dest->type);
                   } 
                   else {
