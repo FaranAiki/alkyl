@@ -151,13 +151,13 @@ int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *f
 
 const char* alir_op_str(AlirOpcode op) {
     switch(op) {
-        case ALIR_OP_ALLOCA: return "alloca";
+        case ALIR_OP_ALLOCA: return "onheap";
         case ALIR_OP_STORE: return "store";
         case ALIR_OP_LOAD: return "load";
         case ALIR_OP_GET_PTR: return "getptr";
         case ALIR_OP_BITCAST: return "bitcast";
         
-        case ALIR_OP_ALLOC_HEAP: return "halloc";
+        case ALIR_OP_ALLOC_HEAP: return "onheap";
         case ALIR_OP_SIZEOF: return "sizeof";
         case ALIR_OP_FREE: return "free";
         
@@ -172,10 +172,10 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_FDIV: return "fdiv";
         
         case ALIR_OP_JUMP: return "jump";
-        case ALIR_OP_CONDI: return "condi";
-        case ALIR_OP_SWITCH: return "switch";
+        case ALIR_OP_CONDI: return "condition";
+        case ALIR_OP_SWITCH: return "jumpint";
         case ALIR_OP_CALL: return "call";
-        case ALIR_OP_RET: return "ret";
+        case ALIR_OP_RET: return "return";
         
         // Added flux/iterator support strings
         case ALIR_OP_YIELD: return "yield";

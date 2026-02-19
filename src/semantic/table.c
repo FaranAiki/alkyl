@@ -227,6 +227,9 @@ int sem_types_are_compatible(VarType dest, VarType src) {
 
     // Auto resolution (allowed target)
     if (dest.base == TYPE_AUTO) return 1; 
+    
+    // This is for string assignment
+    if (dest.base == TYPE_STRING && src.base == TYPE_CHAR) return 1;
 
     // Numeric promotions
     int dest_is_num = (dest.base >= TYPE_INT && dest.base <= TYPE_LONG_DOUBLE);
@@ -280,6 +283,9 @@ char* sem_type_to_str(VarType t) {
         case TYPE_DOUBLE: base = "double"; break;
         case TYPE_LONG_DOUBLE: base = "long double"; break;
         case TYPE_VOID: base = "void"; break;
+        case TYPE_HASHMAP: base = "hashmap"; break;
+        case TYPE_VECTOR: base = "vector"; break;
+        case TYPE_ARRAY: base = "array"; break;
         case TYPE_STRING: base = "string"; break;
         case TYPE_AUTO: base = "let"; break;
         case TYPE_CLASS: base = t.class_name ? t.class_name : "class"; break;

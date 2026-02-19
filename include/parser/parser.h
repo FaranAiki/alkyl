@@ -55,7 +55,10 @@ typedef enum {
   TYPE_FLOAT,
   TYPE_DOUBLE,
   TYPE_LONG_DOUBLE,
+  TYPE_ARRAY, // TODO not resolved
   TYPE_STRING,
+  TYPE_VECTOR, // TODO not resolved
+  TYPE_HASHMAP, // TODO not resolved
   TYPE_AUTO,
   TYPE_CLASS, 
   TYPE_ENUM, 
@@ -74,8 +77,7 @@ typedef enum {
   HAS_A_INERT, // CANNOT be composed
 } HasASemantic; // composition
 
-typedef struct VarType VarType;
-struct VarType {
+typedef struct VarType {
   BaseType base;
   int ptr_depth; 
   char *class_name;
@@ -87,7 +89,7 @@ struct VarType {
   struct VarType *fp_param_types; 
   int fp_param_count;
   int fp_is_varargs;
-};
+} VarType;
 
 typedef struct ASTNode {
   NodeType type;

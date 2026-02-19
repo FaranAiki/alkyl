@@ -132,6 +132,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
     }
 }
 
+// TODO separate this shit
 void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     sem_check_expr(ctx, node->value);
     VarType rhs_type = sem_get_node_type(ctx, node->value);

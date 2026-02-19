@@ -460,13 +460,15 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             VarType t = sem_get_node_type(ctx, aa->target);
             if (t.array_size > 0) t.array_size = 0;
             else if (t.ptr_depth > 0) t.ptr_depth--;
-            else if (t.base == TYPE_ENUM) {
+            // TODO separate this on other
+            else if (t.base == TYPE_ENUM || t.base == TYPE_ARRAY || t.base == TYPE_STRING || t.base == TYPE_VECTOR 
+        || t.base == TYPE_HASHMAP) {
                  // Support Enum Reflection via Indexing: EnumName[val] -> String
                  sem_set_node_type(ctx, node, (VarType){TYPE_STRING});
                  return;
             }
             else {
-                sem_error(ctx, node, "Type is not an array, pointer, or enum");
+                sem_error(ctx, node, "Type is not a pointer, array, string, vector, hashmap, or enum");
                 t = (VarType){TYPE_UNKNOWN};
             }
             sem_set_node_type(ctx, node, t);
@@ -476,7 +478,6 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             CastNode *cn = (CastNode*)node;
             sem_check_expr(ctx, cn->operand);
             
-            // VOID CHECK: Cannot cast void to value
             VarType op_t = sem_get_node_type(ctx, cn->operand);
             if (op_t.base == TYPE_VOID && op_t.ptr_depth == 0) {
                 sem_error(ctx, node, "Cannot cast 'void' value");
