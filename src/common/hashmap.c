@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#define HASHMAP_INIT_SIZE 16 * 16
+
 // FNV-1a hash function
 static uint32_t hash_string(const char *str) {
     uint32_t hash = 2166136261u;
@@ -25,12 +27,15 @@ static void hashmap_resize(HashMap *map) {
     }
 
     // Rehash all existing entries into the new buckets
+    // Using bitwise AND because new_capacity is guaranteed to be a power of 2
     for (int i = 0; i < map->capacity; i++) {
         MapEntry *entry = map->buckets[i];
         while (entry) {
             MapEntry *next = entry->next;
             uint32_t hash = hash_string(entry->key);
-            int index = hash % new_capacity;
+            
+            // Fast modulo using bitwise AND
+            int index = hash & (new_capacity - 1);
             
             entry->next = new_buckets[index];
             new_buckets[index] = entry;
@@ -49,18 +54,26 @@ static void hashmap_resize(HashMap *map) {
 
 void hashmap_init(HashMap *map, Arena *arena, int initial_capacity) {
     if (!map) return;
-    if (initial_capacity <= 0) initial_capacity = 64; // Default
     
-    map->capacity = initial_capacity;
+    // Force capacity to be a power of 2 to allow fast bitwise modulo
+    int cap = HASHMAP_INIT_SIZE; // Default minimum
+    if (initial_capacity > 0) {
+        cap = 1;
+        while (cap < initial_capacity) {
+            cap <<= 1;
+        }
+    }
+    
+    map->capacity = cap;
     map->size = 0;
     map->arena = arena;
     
-    size_t buckets_size = sizeof(MapEntry*) * initial_capacity;
+    size_t buckets_size = sizeof(MapEntry*) * map->capacity;
     if (arena) {
         map->buckets = (MapEntry**)arena_alloc(arena, buckets_size);
         memset(map->buckets, 0, buckets_size);
     } else {
-        map->buckets = (MapEntry**)calloc(initial_capacity, sizeof(MapEntry*));
+        map->buckets = (MapEntry**)calloc(map->capacity, sizeof(MapEntry*));
     }
 }
 
@@ -73,7 +86,8 @@ void hashmap_put(HashMap *map, const char *key, void *value) {
     }
     
     uint32_t hash = hash_string(key);
-    int index = hash % map->capacity;
+    // Fast modulo using bitwise AND
+    int index = hash & (map->capacity - 1);
     
     MapEntry *entry = map->buckets[index];
     while (entry) {
@@ -104,7 +118,8 @@ void* hashmap_get(HashMap *map, const char *key) {
     if (!map || !key) return NULL;
     
     uint32_t hash = hash_string(key);
-    int index = hash % map->capacity;
+    // Fast modulo using bitwise AND
+    int index = hash & (map->capacity - 1);
     
     MapEntry *entry = map->buckets[index];
     while (entry) {
@@ -129,7 +144,8 @@ int hashmap_inc(HashMap *map, const char *key) {
     }
     
     uint32_t hash = hash_string(key);
-    int index = hash % map->capacity;
+    // Fast modulo using bitwise AND
+    int index = hash & (map->capacity - 1);
     
     MapEntry *entry = map->buckets[index];
     while (entry) {
