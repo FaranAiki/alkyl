@@ -400,6 +400,12 @@ static int lex_word(Lexer *l, Token *t) {
   else if (strcmp(word, "has") == 0) t->type = TOKEN_HAS;
   else if (strcmp(word, "open") == 0) t->type = TOKEN_OPEN;
   else if (strcmp(word, "closed") == 0) t->type = TOKEN_CLOSED;
+  else if (strcmp(word, "public") == 0) t->type = TOKEN_PUBLIC;
+  else if (strcmp(word, "private") == 0) t->type = TOKEN_PRIVATE;
+  else if (strcmp(word, "final") == 0) t->type = TOKEN_FINAL;
+  else if (strcmp(word, "naked") == 0) t->type = TOKEN_NAKED;
+  else if (strcmp(word, "reactive") == 0) t->type = TOKEN_REACTIVE;
+  else if (strcmp(word, "inert") == 0) t->type = TOKEN_INERT;
   else if (strcmp(word, "typeof") == 0) t->type = TOKEN_TYPEOF;
   else if (strcmp(word, "hasmethod") == 0) t->type = TOKEN_HASMETHOD;
   else if (strcmp(word, "hasattribute") == 0) t->type = TOKEN_HASATTRIBUTE;
@@ -427,6 +433,7 @@ static int lex_word(Lexer *l, Token *t) {
   else if (strcmp(word, "mutable") == 0) t->type = TOKEN_KW_MUT;
   else if (strcmp(word, "imut") == 0) t->type = TOKEN_KW_IMUT;
   else if (strcmp(word, "immutable") == 0) t->type = TOKEN_KW_IMUT;
+  else if (strcmp(word, "const") == 0) t->type = TOKEN_CONST;
   
   else if (strcmp(word, "import") == 0) t->type = TOKEN_IMPORT;
   else if (strcmp(word, "extern") == 0) t->type = TOKEN_EXTERN;

@@ -323,20 +323,23 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
   
   int line = p->current_token.line, col = p->current_token.col;
 
-  if (p->current_token.type == TOKEN_LOOP) return parse_loop(p);
-  if (p->current_token.type == TOKEN_WHILE) return parse_while(p);
-  if (p->current_token.type == TOKEN_IF) return parse_if(p);
-  if (p->current_token.type == TOKEN_SWITCH) return parse_switch(p);
-  if (p->current_token.type == TOKEN_RETURN) return parse_return(p);
-  if (p->current_token.type == TOKEN_BREAK) return parse_break(p);
-  if (p->current_token.type == TOKEN_CONTINUE) return parse_continue(p);
+  int modifiers = parse_modifiers(p);
+
+  if (p->current_token.type == TOKEN_LOOP) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_loop(p); }
+  if (p->current_token.type == TOKEN_WHILE) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_while(p); }
+  if (p->current_token.type == TOKEN_IF) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_if(p); }
+  if (p->current_token.type == TOKEN_SWITCH) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_switch(p); }
+  if (p->current_token.type == TOKEN_RETURN) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_return(p); }
+  if (p->current_token.type == TOKEN_BREAK) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_break(p); }
+  if (p->current_token.type == TOKEN_CONTINUE) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_continue(p); }
   
-  if (p->current_token.type == TOKEN_EMIT) return parse_emit(p);
-  if (p->current_token.type == TOKEN_FOR) return parse_for_in(p);
+  if (p->current_token.type == TOKEN_EMIT) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_emit(p); }
+  if (p->current_token.type == TOKEN_FOR) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_for_in(p); }
 
   VarType peek_t = parse_type(p); 
   if (peek_t.base != TYPE_UNKNOWN) {
       if (peek_t.base == TYPE_CLASS && p->current_token.type == TOKEN_LPAREN) {
+          if(modifiers) parser_fail(p, "Invalid modifier here");
           ASTNode* call = parse_call(p, peek_t.class_name);
           eat(p, TOKEN_SEMICOLON);
           set_loc(call, line, col);
@@ -361,6 +364,8 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
           node->initializer = init;
           node->is_mutable = 1; 
           set_loc((ASTNode*)node, line, col);
+          
+          apply_var_modifiers(node, modifiers);
           return (ASTNode*)node;
       }
 
@@ -410,12 +415,18 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
       node->is_array = is_array;
       node->array_size = array_size;
       set_loc((ASTNode*)node, line, col);
+      
+      apply_var_modifiers(node, modifiers);
       return (ASTNode*)node;
   }
   
   if (p->current_token.type == TOKEN_KW_MUT || p->current_token.type == TOKEN_KW_IMUT) {
-      return parse_var_decl_internal(p);
+      ASTNode *var = parse_var_decl_internal(p);
+      if (var) apply_var_modifiers((VarDeclNode*)var, modifiers);
+      return var;
   }
+
+  if (modifiers) parser_fail(p, "Invalid modifier on statement");
 
   if (p->current_token.type == TOKEN_IDENTIFIER) return parse_assignment_or_call(p);
   

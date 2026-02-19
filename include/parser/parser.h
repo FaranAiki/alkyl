@@ -224,6 +224,8 @@ typedef struct {
   int is_static;
   int is_const;
   int is_mutable; 
+  int is_is_a;     // uses IsASemantic
+  int is_has_a;    // uses HasASemantic
 } VarDeclNode;
 
 typedef struct {

@@ -86,7 +86,15 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
 
         case NODE_FUNC_DEF: {
             FuncDefNode *fn = (FuncDefNode*)node;
+            if (fn->is_public) sb_append(sb, "public ");
+            if (fn->is_static) sb_append(sb, "static ");
+            if (fn->is_open) sb_append(sb, "open ");
+            if (fn->is_is_a == IS_A_FINAL) sb_append(sb, "final ");
+            if (fn->is_is_a == IS_A_NAKED) sb_append(sb, "naked ");
+            if (fn->is_has_a == HAS_A_INERT) sb_append(sb, "inert ");
+            if (fn->is_has_a == HAS_A_REACTIVE) sb_append(sb, "reactive ");
             if (fn->is_flux) sb_append(sb, "flux ");
+            
             parser_emit_type(sb, fn->ret_type);
             sb_append_fmt(sb, " %s(", fn->name ? fn->name : "anon");
             
@@ -109,7 +117,17 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
 
         case NODE_VAR_DECL: {
             VarDeclNode *vn = (VarDeclNode*)node;
+            if (vn->is_public) sb_append(sb, "public ");
+            if (vn->is_static) sb_append(sb, "static ");
+            if (vn->is_open) sb_append(sb, "open ");
+            if (vn->is_const) sb_append(sb, "const ");
+            if (vn->is_is_a == IS_A_FINAL) sb_append(sb, "final ");
+            if (vn->is_is_a == IS_A_NAKED) sb_append(sb, "naked ");
+            if (vn->is_has_a == HAS_A_INERT) sb_append(sb, "inert ");
+            if (vn->is_has_a == HAS_A_REACTIVE) sb_append(sb, "reactive ");
+            
             if (vn->is_mutable) sb_append(sb, "mut ");
+            else if (!vn->is_const) sb_append(sb, "imut "); // only emit imut if not declared const
             
             parser_emit_type(sb, vn->var_type);
             sb_append_fmt(sb, " %s", vn->name);
@@ -137,7 +155,15 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
 
         case NODE_CLASS: {
             ClassNode *cn = (ClassNode*)node;
+            if (cn->is_public) sb_append(sb, "public ");
+            if (cn->is_static) sb_append(sb, "static ");
+            if (cn->is_open) sb_append(sb, "open ");
+            if (cn->is_is_a == IS_A_FINAL) sb_append(sb, "final ");
+            if (cn->is_is_a == IS_A_NAKED) sb_append(sb, "naked ");
+            if (cn->is_has_a == HAS_A_INERT) sb_append(sb, "inert ");
+            if (cn->is_has_a == HAS_A_REACTIVE) sb_append(sb, "reactive ");
             if (cn->is_extern) sb_append(sb, "extern ");
+            
             sb_append_fmt(sb, "%s %s", cn->is_union ? "union" : "class", cn->name);
             if (cn->parent_name) sb_append_fmt(sb, " is %s", cn->parent_name);
             
@@ -341,7 +367,7 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
                 case TOKEN_LT: op = "<"; break;
                 case TOKEN_GT: op = ">"; break;
                 case TOKEN_LTE: op = "<="; break;
-                case TOKEN_GTE: op = ">="; break;
+                case TOKEN_GTE: op = ">=";
                 case TOKEN_AND: op = "&"; break;
                 case TOKEN_OR: op = "|"; break;
                 case TOKEN_XOR: op = "^"; break;

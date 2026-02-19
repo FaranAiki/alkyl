@@ -8,6 +8,24 @@
 #include <setjmp.h>
 #include <string.h>
 
+// --- MODIFIER DEFINITIONS ---
+#define MODIFIER_PUBLIC    (1 << 0)
+#define MODIFIER_PRIVATE   (1 << 1)
+#define MODIFIER_OPEN      (1 << 2)
+#define MODIFIER_CLOSED    (1 << 3)
+#define MODIFIER_CONST     (1 << 4)
+#define MODIFIER_FINAL     (1 << 5)
+#define MODIFIER_INERT     (1 << 6)
+#define MODIFIER_REACTIVE  (1 << 7)
+#define MODIFIER_NAKED     (1 << 8)
+#define MODIFIER_STATIC    (1 << 9)
+
+int parse_modifiers(Parser* p);
+void apply_class_modifiers(ClassNode* node, int modifiers);
+void apply_func_modifiers(FuncDefNode* node, int modifiers);
+void apply_var_modifiers(VarDeclNode* node, int modifiers);
+
+
 // --- INTERNAL DATA STRUCTURES ---
 
 struct Macro {

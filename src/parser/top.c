@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h> 
 
-ASTNode* parse_extern(Parser *p) {
+ASTNode* parse_extern(Parser *p, int modifiers) {
   eat(p, TOKEN_EXTERN);
   
   if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION) {
@@ -19,6 +19,7 @@ ASTNode* parse_extern(Parser *p) {
       cn->base.type = NODE_CLASS;
       cn->name = name;
       cn->is_extern = 1; 
+      apply_class_modifiers(cn, modifiers);
       return (ASTNode*)cn;
   }
   
@@ -57,6 +58,7 @@ ASTNode* parse_extern(Parser *p) {
   FuncDefNode *node = parser_alloc(p, sizeof(FuncDefNode));
   node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = ret_type;
   node->params = params_head; node->body = NULL; node->is_varargs = is_varargs;
+  apply_func_modifiers(node, modifiers);
   return (ASTNode*)node;
 }
 
@@ -109,9 +111,11 @@ ASTNode* parse_enum(Parser *p) {
   return (ASTNode*)en;
 }
 
-// todo split this into modular
-ASTNode* parse_class(Parser *p) {  
+static ASTNode* parse_class_impl(Parser *p, int modifiers) {  
   int is_open = 0;
+  if (modifiers & MODIFIER_OPEN) is_open = 1;
+  else if (modifiers & MODIFIER_CLOSED) is_open = 0;
+
   if (p->current_token.type == TOKEN_OPEN) { is_open = 1; eat(p, TOKEN_OPEN); }
   else if (p->current_token.type == TOKEN_CLOSED) { is_open = 0; eat(p, TOKEN_CLOSED); }
   
@@ -159,12 +163,17 @@ ASTNode* parse_class(Parser *p) {
       ASTNode **curr_member = &members_head;
       
       while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+          int member_modifiers = parse_modifiers(p);
           int member_open = is_open;
-          int line = p->current_token.line;
-          int col = p->current_token.col;
+          if (member_modifiers & MODIFIER_OPEN) member_open = 1;
+          else if (member_modifiers & MODIFIER_CLOSED) member_open = 0;
+
           if (p->current_token.type == TOKEN_OPEN) { member_open = 1; eat(p, TOKEN_OPEN); }
           else if (p->current_token.type == TOKEN_CLOSED) { member_open = 0; eat(p, TOKEN_CLOSED); }
           
+          int line = p->current_token.line;
+          int col = p->current_token.col;
+
           if (p->current_token.type == TOKEN_FLUX) {
               eat(p, TOKEN_FLUX);
               VarType vt = parse_type(p);
@@ -185,6 +194,8 @@ ASTNode* parse_class(Parser *p) {
               func->class_name = parser_strdup(p, class_name);
               func->is_flux = 1;
               
+              apply_func_modifiers(func, member_modifiers);
+
               *curr_member = (ASTNode*)func;
               curr_member = &func->base.next;
               continue;
@@ -213,6 +224,8 @@ ASTNode* parse_class(Parser *p) {
                   var->is_mutable = 1; 
                   var->is_open = member_open;
                   
+                  apply_var_modifiers(var, member_modifiers);
+
                   *curr_member = (ASTNode*)var;
                   curr_member = &var->base.next;
                   continue;
@@ -266,6 +279,8 @@ ASTNode* parse_class(Parser *p) {
                   func->is_open = member_open;
                   func->class_name = parser_strdup(p, class_name); 
                   
+                  apply_func_modifiers(func, member_modifiers);
+
                   *curr_member = (ASTNode*)func;
                   curr_member = &func->base.next;
               } else {
@@ -311,6 +326,8 @@ ASTNode* parse_class(Parser *p) {
                   var->is_array = is_array;
                   var->array_size = array_size; 
                   
+                  apply_var_modifiers(var, member_modifiers);
+
                   *curr_member = (ASTNode*)var;
                   curr_member = &var->base.next;
               }
@@ -330,9 +347,14 @@ ASTNode* parse_class(Parser *p) {
       cls->is_open = is_open;
       cls->is_union = is_union;
       
+      apply_class_modifiers(cls, modifiers);
       return (ASTNode*)cls;
   }
   return NULL;
+}
+
+ASTNode* parse_class(Parser *p) {
+    return parse_class_impl(p, parse_modifiers(p));
 }
 
 ASTNode* parse_top_level(Parser *p) { 
@@ -341,7 +363,10 @@ ASTNode* parse_top_level(Parser *p) {
       return NULL;
   }
 
+  int modifiers = parse_modifiers(p);
+
   if (p->current_token.type == TOKEN_NAMESPACE) {
+      if (modifiers) parser_fail(p, "Modifiers not allowed on namespace");
       eat(p, TOKEN_NAMESPACE);
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected namespace name");
       char *ns_name = parser_strdup(p, p->current_token.text);
@@ -368,24 +393,26 @@ ASTNode* parse_top_level(Parser *p) {
       return (ASTNode*)ns;
   }
 
-  if (p->current_token.type == TOKEN_DEFINE) return parse_define(p);
-  if (p->current_token.type == TOKEN_TYPEDEF) return parse_typedef(p);
-  if (p->current_token.type == TOKEN_ENUM) return parse_enum(p);
+  if (p->current_token.type == TOKEN_DEFINE) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_define(p); }
+  if (p->current_token.type == TOKEN_TYPEDEF) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_typedef(p); }
+  if (p->current_token.type == TOKEN_ENUM) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_enum(p); }
   
   if (p->current_token.type == TOKEN_CLASS || 
       p->current_token.type == TOKEN_STRUCT || 
       p->current_token.type == TOKEN_UNION || 
       (p->current_token.type == TOKEN_OPEN) || 
       (p->current_token.type == TOKEN_CLOSED)) {
-    return parse_class(p);
+    return parse_class_impl(p, modifiers);
   }
 
-  if (p->current_token.type == TOKEN_LINK) return parse_link(p);
-  if (p->current_token.type == TOKEN_IMPORT) return parse_import(p);
-  if (p->current_token.type == TOKEN_EXTERN) return parse_extern(p);
+  if (p->current_token.type == TOKEN_LINK) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_link(p); }
+  if (p->current_token.type == TOKEN_IMPORT) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_import(p); }
+  if (p->current_token.type == TOKEN_EXTERN) return parse_extern(p, modifiers);
 
   if (p->current_token.type == TOKEN_KW_MUT || p->current_token.type == TOKEN_KW_IMUT) {
-    return parse_var_decl_internal(p);
+    ASTNode *var = parse_var_decl_internal(p);
+    if (var) apply_var_modifiers((VarDeclNode*)var, modifiers);
+    return var;
   }
 
   int line = p->current_token.line;
@@ -399,6 +426,7 @@ ASTNode* parse_top_level(Parser *p) {
 
   VarType vtype = parse_type(p);
   if (vtype.base == TYPE_UNKNOWN) {
+      if (modifiers) parser_fail(p, "Modifiers not allowed on statement");
       return parse_single_statement_or_block(p);
   }
 
@@ -420,6 +448,8 @@ ASTNode* parse_top_level(Parser *p) {
       node->initializer = init;
       node->is_mutable = 1; 
       node->base.line = line; node->base.col = col;
+      
+      apply_var_modifiers(node, modifiers);
       return (ASTNode*)node;
   }
 
@@ -457,6 +487,8 @@ ASTNode* parse_top_level(Parser *p) {
     node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = vtype; node->params = params_head; node->body = body;
     node->is_flux = is_flux; 
     node->base.line = line; node->base.col = col;
+    
+    apply_func_modifiers(node, modifiers);
     return (ASTNode*)node;
   } else {
     char *name_val = name;
@@ -490,6 +522,8 @@ ASTNode* parse_top_level(Parser *p) {
     node->initializer = init; node->is_mutable = 1; 
     node->is_array = is_array; node->array_size = array_size; 
     node->base.line = line; node->base.col = col;
+    
+    apply_var_modifiers(node, modifiers);
     return (ASTNode*)node;
   }
 }
