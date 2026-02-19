@@ -37,4 +37,10 @@ char* escape_string(const char *str);
 char* read_file(const char* path);
 void write_file(const char* path, const char* content);
 
+#include "arena.h"
+#include "context.h"
+#include "debug.h"
+#include "diagnostic.h"
+#include "hashmap.h"
+
 #endif // COMMON_H

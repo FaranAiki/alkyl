@@ -79,6 +79,7 @@ set(HELPER_SOURCES
     src/common/common.c
     src/common/arena.c
     src/common/context.c
+    src/common/hashmap.c
 )
 
 set(DEPRECATED_SEMANTIC_SOURCES

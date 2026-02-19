@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
 
   // alir check    
  
-  // exit(0);
+  exit(0);
 
   LLVMInitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();

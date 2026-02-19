@@ -92,7 +92,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                   
                   // Special handling for ALLOCA to print type
                   if (inst->op == ALIR_OP_ALLOCA && inst->dest) {
-                      fprintf(f, "alloca ");
+                      fprintf(f, "onheap ");
                       // dest is assumed to be the variable type directly in current gen logic
                       // If logic implies dest is pointer, we should handle that, but for now
                       // we print the type stored in the temp info

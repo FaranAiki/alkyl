@@ -1,6 +1,8 @@
 #include "alir.h"
+#include "../common/hashmap.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 void* alir_alloc(AlirModule *mod, size_t size) {
     if (mod && mod->compiler_ctx && mod->compiler_ctx->arena) {
@@ -81,15 +83,36 @@ AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, 
     return alir_val_global(mod, label, g->type);
 }
 
+// Track labels locally per function to prevent collisions (e.g., "while_cond", "while_cond2")
+static HashMap label_map;
+static AlirFunction *current_tracked_func = NULL;
+
 AlirBlock* alir_add_block(AlirModule *mod, AlirFunction *func, const char *label_hint) {
+    // Re-initialize map if starting a new function
+    if (func != current_tracked_func) {
+        if (current_tracked_func && (!mod || !mod->compiler_ctx || !mod->compiler_ctx->arena)) {
+            hashmap_free(&label_map);
+        }
+        hashmap_init(&label_map, (mod && mod->compiler_ctx) ? mod->compiler_ctx->arena : NULL, 64);
+        current_tracked_func = func;
+    }
+
     AlirBlock *b = alir_alloc(mod, sizeof(AlirBlock));
     b->id = func->block_count; // Use block count as ID
     
-    if (label_hint) b->label = alir_strdup(mod, label_hint);
-    else {
+    if (!label_hint) {
         char buf[32];
         sprintf(buf, "L%d", b->id);
         b->label = alir_strdup(mod, buf);
+    } else {
+        int count = hashmap_inc(&label_map, label_hint);
+        if (count == 1) {
+            b->label = alir_strdup(mod, label_hint); // First use gets the plain label
+        } else {
+            char buf[128];
+            snprintf(buf, sizeof(buf), "%s%d", label_hint, count); // Subsequents get enumerated (while_cond2, etc)
+            b->label = alir_strdup(mod, buf);
+        }
     }
 
     if (!func->blocks) {
