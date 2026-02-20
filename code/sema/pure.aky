@@ -5,4 +5,7 @@ tainted int function() {
 int main() {
   let t = function();
 
+  wash t as {
+    print "a";
+  }
 }

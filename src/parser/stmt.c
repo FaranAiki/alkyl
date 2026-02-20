@@ -327,7 +327,8 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
   if (p->current_token.type == TOKEN_WASH || p->current_token.type == TOKEN_CLEAN) {
       int wash_type = (p->current_token.type == TOKEN_CLEAN) ? 1 : 0;
       eat(p, p->current_token.type);
-      ASTNode *expr = parse_expression(p);
+      // expr is not an expression! it is something else 
+      // ASTNode *expr = parse_expression(p);
       return parse_wash_or_clean_tail(p, expr, wash_type); 
   }
 

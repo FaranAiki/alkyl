@@ -338,11 +338,16 @@ const char* token_type_to_string(TokenType type) {
     }
 }
 
+// TODO who the fuck removed this
 const char* get_token_description(TokenType type) {
     switch(type) {
-        case TOKEN_SEMICOLON: return "';'";
-        case TOKEN_RBRACE: return "'}'";
-        case TOKEN_RPAREN: return "')'";
-        default: return "token";
+        case TOKEN_SEMICOLON: return ";";
+        case TOKEN_RBRACE: return "}";
+        case TOKEN_RBRACKET: return "]";
+        case TOKEN_RPAREN: return ")";
+        case TOKEN_LPAREN: return "(";
+        case TOKEN_LBRACE: return "{";
+        case TOKEN_LBRACKET: return "[";
+        default: return token_type_to_string(type);
     }
 }
