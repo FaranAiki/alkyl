@@ -67,6 +67,7 @@ typedef struct SemScope {
 typedef struct TypeEntry {
     ASTNode *node;         // KEY: The pointer to the AST node
     VarType type;          // VALUE: The resolved type
+    int is_tainted;        // VALUE: The evaluated taint status
     struct TypeEntry *next;
 } TypeEntry;
 
@@ -81,6 +82,12 @@ typedef struct {
     // 1. Symbol Table State (Scopes)
     SemScope *current_scope;
     SemScope *global_scope;
+    
+    // Track the current function for `pure` validations
+    SemSymbol *current_func_sym;
+    
+    // Track nested scope for `untaint` validations
+    int in_wash_block;
     
     // 2. Side Table State (Expression Types)
     TypeEntry *type_buckets[TYPE_TABLE_SIZE];
@@ -113,6 +120,9 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
 // Side Table Operations
 void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type);
 VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node);
+
+void sem_set_node_tainted(SemanticCtx *ctx, ASTNode *node, int is_tainted);
+int sem_get_node_tainted(SemanticCtx *ctx, ASTNode *node);
 
 // Helpers
 int sem_types_are_compatible(VarType dest, VarType src);

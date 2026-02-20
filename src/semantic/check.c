@@ -60,11 +60,15 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
             VarDeclNode *vd = (VarDeclNode*)mem;
             SemSymbol *sym = sem_symbol_add(ctx, vd->name, SYM_VAR, vd->var_type);
             sym->is_mutable = vd->is_mutable;
+            sym->is_pure = vd->is_pure;
+            sym->is_pristine = vd->is_pristine;
         } else if (mem->type == NODE_FUNC_DEF) {
             FuncDefNode *fd = (FuncDefNode*)mem;
             SemSymbol *sym = sem_symbol_add(ctx, fd->name, SYM_FUNC, fd->ret_type);
             sym->is_is_a = fd->is_is_a;
             sym->is_has_a = fd->is_has_a;
+            sym->is_pure = fd->is_pure;
+            sym->is_pristine = fd->is_pristine;
         }
         mem = mem->next;
     }
@@ -81,12 +85,16 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             SemSymbol *sym = sem_symbol_add(ctx, fd->name, SYM_FUNC, fd->ret_type);
             sym->is_is_a = fd->is_is_a;
             sym->is_has_a = fd->is_has_a;
+            sym->is_pure = fd->is_pure;
+            sym->is_pristine = fd->is_pristine;
         }
         else if (node->type == NODE_VAR_DECL) {
             // Global variables
             VarDeclNode *vd = (VarDeclNode*)node;
             SemSymbol *sym = sem_symbol_add(ctx, vd->name, SYM_VAR, vd->var_type);
             sym->is_mutable = vd->is_mutable;
+            sym->is_pure = vd->is_pure;
+            sym->is_pristine = vd->is_pristine;
         }
         else if (node->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)node;
@@ -127,6 +135,8 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
                 mem->type = enum_type; // Member type is the Enum type
                 mem->is_mutable = 0;
                 mem->is_initialized = 1;
+                mem->is_pure = 1;
+                mem->is_pristine = 1;
                 mem->param_types = NULL;
                 mem->param_count = 0;
                 mem->parent_name = NULL;
@@ -172,6 +182,18 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         return;
     }
     
+    // PURE FUNCTION VALIDATIONS
+    if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
+        if (sym->kind == SYM_FUNC && !sym->is_pure) {
+            sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot call impure function '%s'", ctx->current_func_sym->name, sym->name);
+        }
+    }
+
+    // TAINT PROPAGATION
+    if (sym->kind == SYM_FUNC && !sym->is_pristine) {
+        sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+    }
+    
     int arg_count = 0;
     ASTNode *arg = node->args;
     while(arg) {
@@ -195,6 +217,11 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     VarType l = sem_get_node_type(ctx, node->left);
     VarType r = sem_get_node_type(ctx, node->right);
     
+    // TAINT PROPAGATION
+    if (sem_get_node_tainted(ctx, node->left) || sem_get_node_tainted(ctx, node->right)) {
+        sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+    }
+
     if (l.base == TYPE_UNKNOWN || r.base == TYPE_UNKNOWN) {
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN});
         return;
@@ -254,6 +281,11 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
 void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
     sem_check_expr(ctx, node->object);
     VarType obj_type = sem_get_node_type(ctx, node->object);
+    
+    // Taint propagation
+    if (sem_get_node_tainted(ctx, node->object)) {
+        sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+    }
     
     if (obj_type.base == TYPE_UNKNOWN) {
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN});
@@ -332,6 +364,11 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
     sem_check_expr(ctx, node->object);
     VarType obj_type = sem_get_node_type(ctx, node->object);
     
+    // Taint propagation
+    if (sem_get_node_tainted(ctx, node->object)) {
+        sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+    }
+    
     if (obj_type.base == TYPE_UNKNOWN) {
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN});
         return;
@@ -353,6 +390,19 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                 SemSymbol *member = current_class->inner_scope->symbols;
                 while (member) {
                     if (strcmp(member->name, node->method_name) == 0) {
+                        
+                        // PURE FUNCTION VALIDATIONS
+                        if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
+                            if (member->kind == SYM_FUNC && !member->is_pure) {
+                                sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot call impure method '%s'", ctx->current_func_sym->name, member->name);
+                            }
+                        }
+
+                        // TAINT PROPAGATION
+                        if (member->kind == SYM_FUNC && !member->is_pristine) {
+                            sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+                        }
+
                         if (member->kind == SYM_FUNC) {
                             sem_set_node_type(ctx, (ASTNode*)node, member->type); 
                             found = 1;
@@ -396,11 +446,6 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
     
     switch(node->type) {
-        case NODE_CLEAN:
-            // TODO    
-        case NODE_WASH:
-            // TODO
-            break;
         case NODE_LITERAL: {
             LiteralNode *lit = (LiteralNode*)node;
             sem_set_node_type(ctx, node, lit->var_type);
@@ -414,6 +459,18 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             if (sym) {
                 sem_set_node_type(ctx, node, sym->type);
                 
+                // --- PURE FUNCTION GLOBAL VAR CHECK ---
+                if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
+                    if (found_in_scope == ctx->global_scope) {
+                        sem_error(ctx, node, "Pure function '%s' cannot read global variable '%s'", ctx->current_func_sym->name, ref->name);
+                    }
+                }
+
+                // --- TAINT TRACKING ---
+                if (!sym->is_pristine) {
+                    sem_set_node_tainted(ctx, node, 1);
+                }
+
                 // --- UNINITIALIZED CHECK ---
                 if (sym->kind == SYM_VAR && !sym->is_initialized) {
                     sem_error(ctx, node, "Use of uninitialized variable '%s'", ref->name);
@@ -439,6 +496,10 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             sem_check_expr(ctx, un->operand);
             VarType t = sem_get_node_type(ctx, un->operand);
             
+            if (sem_get_node_tainted(ctx, un->operand)) {
+                sem_set_node_tainted(ctx, node, 1);
+            }
+            
             // VOID CHECK: Unary ops cannot use void operands (except perhaps sizeof/typeof if implemented later)
             if (t.base == TYPE_VOID && t.ptr_depth == 0) {
                  sem_error(ctx, node, "Operand of unary expression cannot be 'void'");
@@ -462,6 +523,10 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             sem_check_expr(ctx, aa->target);
             sem_check_expr(ctx, aa->index);
             
+            if (sem_get_node_tainted(ctx, aa->target)) {
+                sem_set_node_tainted(ctx, node, 1);
+            }
+            
             VarType t = sem_get_node_type(ctx, aa->target);
             if (t.array_size > 0) t.array_size = 0;
             else if (t.ptr_depth > 0) t.ptr_depth--;
@@ -482,6 +547,10 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
         case NODE_CAST: {
             CastNode *cn = (CastNode*)node;
             sem_check_expr(ctx, cn->operand);
+            
+            if (sem_get_node_tainted(ctx, cn->operand)) {
+                sem_set_node_tainted(ctx, node, 1);
+            }
             
             VarType op_t = sem_get_node_type(ctx, cn->operand);
             if (op_t.base == TYPE_VOID && op_t.ptr_depth == 0) {
@@ -527,6 +596,12 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             if (rn->value) {
                 sem_check_expr(ctx, rn->value);
                 VarType val = sem_get_node_type(ctx, rn->value);
+                
+                // TAINT CHECK -> Cannot return a tainted value from a pristine function
+                if (ctx->current_func_sym && ctx->current_func_sym->is_pristine && sem_get_node_tainted(ctx, rn->value)) {
+                    sem_error(ctx, node, "Pristine function cannot return a tainted value");
+                }
+
                 if (ctx->current_scope->is_function_scope) {
                     if (!sem_types_are_compatible(ctx->current_scope->expected_ret_type, val)) {
                         sem_error(ctx, node, "Return type mismatch");
@@ -538,6 +613,50 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                  if (ctx->current_scope->is_function_scope && ctx->current_scope->expected_ret_type.base != TYPE_VOID) {
                      sem_error(ctx, node, "Function must return a value");
                  }
+            }
+            break;
+        }
+        case NODE_WASH: {
+            WashNode *wn = (WashNode*)node;
+            if (wn->wash_type == 2) { // UNTAINT
+                if (ctx->in_wash_block == 0) {
+                    sem_error(ctx, node, "Cannot untaint inside a non-wash/clean block");
+                } else {
+                    if (wn->expr->type == NODE_VAR_REF) {
+                        VarRefNode *ref = (VarRefNode*)wn->expr;
+                        SemSymbol *sym = sem_symbol_lookup(ctx, ref->name, NULL);
+                        if (sym) {
+                            sym->is_pristine = 1; // Mark as pristine within the scope logically
+                        }
+                    } else {
+                        sem_error(ctx, node, "Can only untaint variables");
+                    }
+                }
+            } else { // WASH or CLEAN
+                sem_check_expr(ctx, wn->expr);
+                
+                // Entering the error handler body block
+                sem_scope_enter(ctx, 0, (VarType){0});
+                VarType err_type = {TYPE_INT}; // Errors are typical ints/codes
+                SemSymbol *err_sym = sem_symbol_add(ctx, wn->err_name, SYM_VAR, err_type);
+                err_sym->is_initialized = 1;
+                sem_check_block(ctx, wn->body);
+                sem_scope_exit(ctx);
+                
+                // Entering the success body block
+                if (wn->else_body) {
+                    ctx->in_wash_block++;
+                    sem_scope_enter(ctx, 0, (VarType){0});
+                    
+                    if (wn->else_body->type == NODE_WASH || wn->else_body->type == NODE_IF) {
+                        sem_check_node(ctx, wn->else_body);
+                    } else {
+                        sem_check_block(ctx, wn->else_body);
+                    }
+                    
+                    sem_scope_exit(ctx);
+                    ctx->in_wash_block--;
+                }
             }
             break;
         }
@@ -553,7 +672,11 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             if (ifn->else_body) {
                 // Enter Block Scope for Else
                 sem_scope_enter(ctx, 0, (VarType){0});
-                sem_check_block(ctx, ifn->else_body);
+                if (ifn->else_body->type == NODE_IF) {
+                    sem_check_node(ctx, ifn->else_body);
+                } else {
+                    sem_check_block(ctx, ifn->else_body);
+                }
                 sem_scope_exit(ctx);
             }
             break;
@@ -669,6 +792,10 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
 
     sem_scope_enter(ctx, 1, node->ret_type);
     
+    // Push the current function we are checking into context
+    SemSymbol *old_func = ctx->current_func_sym;
+    ctx->current_func_sym = sem_symbol_lookup(ctx, node->name, NULL);
+
     if (node->class_name) {
         VarType this_type = {TYPE_CLASS, 1, arena_strdup(ctx->compiler_ctx->arena, node->class_name), 0, 0}; 
         sem_symbol_add(ctx, "this", SYM_VAR, this_type);
@@ -685,4 +812,7 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
     
     sem_check_block(ctx, node->body);
     sem_scope_exit(ctx);
+    
+    // Restore the old function
+    ctx->current_func_sym = old_func;
 }

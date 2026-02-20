@@ -50,6 +50,12 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             sem_error(ctx, (ASTNode*)node, "Cannot use expression of type 'void' to initialize variable '%s'", node->name);
         }
 
+        // Tainted Expression Check
+        int expr_tainted = sem_get_node_tainted(ctx, node->initializer);
+        if (node->is_pristine && expr_tainted) {
+            sem_error(ctx, (ASTNode*)node, "Cannot initialize pristine variable '%s' with a tainted value", node->name);
+        }
+
         // 2. Inference (let / auto)
         if (node->var_type.base == TYPE_AUTO) {
             if (init_type.base == TYPE_UNKNOWN) {
@@ -101,6 +107,8 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
 
             SemSymbol *sym = sem_symbol_add(ctx, node->name, SYM_VAR, node->var_type);
             sym->is_mutable = node->is_mutable; 
+            sym->is_pure = node->is_pure;
+            sym->is_pristine = node->is_pristine;
             
             // --- INITIALIZATION TRACKING ---
             int is_global = (ctx->current_scope == ctx->global_scope);
@@ -116,6 +124,8 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         if (sym) {
             sym->type = node->var_type;
             sym->is_mutable = node->is_mutable;
+            sym->is_pure = node->is_pure;
+            sym->is_pristine = node->is_pristine;
             if (node->initializer) sym->is_initialized = 1;
         }
     }
@@ -137,11 +147,20 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     sem_check_expr(ctx, node->value);
     VarType rhs_type = sem_get_node_type(ctx, node->value);
     VarType lhs_type;
+    int expr_tainted = sem_get_node_tainted(ctx, node->value);
     
     // VOID CHECK: Cannot assign void
-    // TODO: maybe we can
     if (rhs_type.base == TYPE_VOID && rhs_type.ptr_depth == 0) {
         sem_error(ctx, (ASTNode*)node, "Cannot assign value of type 'void' to variable");
+    }
+
+    // PURE FUNCTION CHECK (Cannot mutate globals)
+    if (ctx->current_func_sym && ctx->current_func_sym->is_pure && node->name) {
+        SemScope *scope = NULL;
+        SemSymbol *sym = sem_symbol_lookup(ctx, node->name, &scope);
+        if (sym && scope == ctx->global_scope) {
+            sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot modify global variable '%s'", ctx->current_func_sym->name, sym->name);
+        }
     }
 
     if (node->name) {
@@ -152,6 +171,11 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
         } else {
             if (!sym->is_mutable) {
                 sem_error(ctx, (ASTNode*)node, "Cannot assign to immutable variable '%s'", node->name);
+            }
+            
+            // TAINT CHECK
+            if (sym->is_pristine && expr_tainted) {
+                sem_error(ctx, (ASTNode*)node, "Cannot assign a tainted value to pristine variable '%s'", sym->name);
             }
             
             // --- UNINITIALIZED CHECK FOR COMPOUND ASSIGNMENT ---

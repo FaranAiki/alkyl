@@ -33,6 +33,7 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
     TypeEntry *entry = arena_alloc_type(ctx->compiler_ctx->arena, TypeEntry);
     entry->node = node;
     entry->type = type;
+    entry->is_tainted = 0; // default clean
     entry->next = ctx->type_buckets[idx];
     ctx->type_buckets[idx] = entry;
 }
@@ -47,6 +48,34 @@ VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
         curr = curr->next;
     }
     return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0};
+}
+
+void sem_set_node_tainted(SemanticCtx *ctx, ASTNode *node, int is_tainted) {
+    if (!node) return;
+    unsigned int idx = hash_ptr(node);
+    TypeEntry *curr = ctx->type_buckets[idx];
+    while (curr) {
+        if (curr->node == node) {
+            curr->is_tainted = is_tainted;
+            return;
+        }
+        curr = curr->next;
+    }
+    
+    // If it doesn't exist, create it via set_node_type with unknown type
+    sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0});
+    ctx->type_buckets[idx]->is_tainted = is_tainted;
+}
+
+int sem_get_node_tainted(SemanticCtx *ctx, ASTNode *node) {
+    if (!node) return 0;
+    unsigned int idx = hash_ptr(node);
+    TypeEntry *curr = ctx->type_buckets[idx];
+    while (curr) {
+        if (curr->node == node) return curr->is_tainted;
+        curr = curr->next;
+    }
+    return 0; // Default pristine
 }
 
 // --- SYMBOL TABLE LOGIC (Scopes) ---
@@ -69,6 +98,8 @@ void sem_init(SemanticCtx *ctx, CompilerContext *compiler_ctx) {
     }
     
     ctx->current_scope = ctx->global_scope;
+    ctx->current_func_sym = NULL;
+    ctx->in_wash_block = 0;
     ctx->in_loop = 0;
     ctx->in_switch = 0;
     ctx->current_source = NULL;
@@ -86,6 +117,7 @@ void sem_cleanup(SemanticCtx *ctx) {
     // We just reset pointers to be safe.
     ctx->current_scope = NULL;
     ctx->global_scope = NULL;
+    ctx->current_func_sym = NULL;
     for (int i = 0; i < TYPE_TABLE_SIZE; i++) {
         ctx->type_buckets[i] = NULL;
     }
@@ -127,6 +159,8 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     sym->parent_name = NULL; 
     sym->is_mutable = 1; 
     sym->is_initialized = 1; 
+    sym->is_pure = 1;      // Default Pure
+    sym->is_pristine = 1;  // Default Pristine
     sym->inner_scope = NULL;
     
     sym->next = ctx->current_scope->symbols;
