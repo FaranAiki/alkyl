@@ -45,13 +45,16 @@ typedef enum {
   TOKEN_THEN, 
   TOKEN_ELSE,   
   TOKEN_RETURN,
+  TOKEN_THROW,
   TOKEN_BREAK,
   TOKEN_CONTINUE,
   TOKEN_SWITCH,   
   TOKEN_CASE,     
   TOKEN_DEFAULT,  
   TOKEN_LEAK,     
-  
+  TOKEN_WASH, // error handling first, then run
+  TOKEN_UNTAINT, // run first, then error
+
   TOKEN_DEFINE, 
   TOKEN_AS,     
   TOKEN_TYPEDEF, 
@@ -70,6 +73,12 @@ typedef enum {
   TOKEN_NAKED,
   TOKEN_REACTIVE,
   TOKEN_INERT,
+  TOKEN_PURE,
+  TOKEN_IMPURE,
+  TOKEN_TAINTED,
+  TOKEN_CLEAN,
+  TOKEN_PRISTINE,
+
   TOKEN_TYPEOF,
   TOKEN_HASMETHOD,    
   TOKEN_HASATTRIBUTE, 

@@ -139,6 +139,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     VarType lhs_type;
     
     // VOID CHECK: Cannot assign void
+    // TODO: maybe we can
     if (rhs_type.base == TYPE_VOID && rhs_type.ptr_depth == 0) {
         sem_error(ctx, (ASTNode*)node, "Cannot assign value of type 'void' to variable");
     }

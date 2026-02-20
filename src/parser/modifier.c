@@ -1,7 +1,6 @@
-#include "parser_internal.h"
+#include "parser.h"
 #include <string.h>
 
-// Parses sequential modifier keywords and encodes them into a single bitmask
 int parse_modifiers(Parser* p) {
     int modifiers = 0;
     while (1) {
@@ -32,6 +31,18 @@ int parse_modifiers(Parser* p) {
         } else if (p->current_token.type == TOKEN_NAKED) {
             modifiers |= MODIFIER_NAKED;
             eat(p, TOKEN_NAKED);
+        } else if (p->current_token.type == TOKEN_PURE) {
+            modifiers |= MODIFIER_PURE;
+            eat(p, TOKEN_PURE);
+        } else if (p->current_token.type == TOKEN_IMPURE) {
+            modifiers |= MODIFIER_IMPURE;
+            eat(p, TOKEN_IMPURE);
+        } else if (p->current_token.type == TOKEN_CLEAN) {
+            modifiers |= MODIFIER_CLEAN;
+            eat(p, TOKEN_CLEAN);
+        } else if (p->current_token.type == TOKEN_TAINTED) {
+            modifiers |= MODIFIER_TAINTED;
+            eat(p, TOKEN_TAINTED);
         } else if (p->current_token.type == TOKEN_IDENTIFIER && strcmp(p->current_token.text, "static") == 0) {
             modifiers |= MODIFIER_STATIC;
             eat(p, TOKEN_IDENTIFIER);
@@ -77,6 +88,10 @@ void apply_func_modifiers(FuncDefNode* node, int modifiers) {
     if (modifiers & MODIFIER_CLOSED) node->is_open = 0;
     if (modifiers & MODIFIER_STATIC) node->is_static = 1;
     
+    // By default, pure and clean are true unless overridden
+    node->is_pure = (modifiers & MODIFIER_IMPURE) ? 0 : 1;
+    node->is_clean = (modifiers & MODIFIER_TAINTED) ? 0 : 1;
+
     // Inherited rules for functions (e.g. final overriding rules)
     if (modifiers & MODIFIER_FINAL) {
         node->is_is_a = IS_A_FINAL;
@@ -108,6 +123,10 @@ void apply_var_modifiers(VarDeclNode* node, int modifiers) {
     
     node->is_static = (modifiers & MODIFIER_STATIC) != 0;
     
+    // By default, pure and clean are true unless overridden
+    node->is_pure = (modifiers & MODIFIER_IMPURE) ? 0 : 1;
+    node->is_clean = (modifiers & MODIFIER_TAINTED) ? 0 : 1;
+
     // Variable specific OOP constraints, in case anonymous classes/objects are used
     if (modifiers & MODIFIER_FINAL) {
         node->is_is_a = IS_A_FINAL;
@@ -124,4 +143,33 @@ void apply_var_modifiers(VarDeclNode* node, int modifiers) {
     } else {
         node->is_has_a = HAS_A_NONE;
     }
+}
+
+ASTNode* parse_wash_or_clean_tail(Parser *p, ASTNode *expr, int wash_type) {
+    int line = p->current_token.line, col = p->current_token.col;
+    eat(p, TOKEN_AS);
+    
+    if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected identifier for error variable in wash/clean statement");
+    char *err_name = parser_strdup(p, p->current_token.text);
+    eat(p, TOKEN_IDENTIFIER);
+    
+    ASTNode *body = parse_single_statement_or_block(p);
+    ASTNode *else_body = NULL;
+    
+    if (p->current_token.type == TOKEN_ELSE) {
+        eat(p, TOKEN_ELSE);
+        else_body = parse_single_statement_or_block(p);
+    }
+    
+    WashNode *node = parser_alloc(p, sizeof(WashNode));
+    node->base.type = NODE_WASH;
+    node->base.line = line;
+    node->base.col = col;
+    node->expr = expr;
+    node->err_name = err_name;
+    node->body = body;
+    node->else_body = else_body;
+    node->wash_type = wash_type;
+    
+    return (ASTNode*)node;
 }

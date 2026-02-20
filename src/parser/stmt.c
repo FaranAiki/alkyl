@@ -323,6 +323,14 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
   
   int line = p->current_token.line, col = p->current_token.col;
 
+  // Handle explicit non-modifier WASH and UNTAINT statements
+  if (p->current_token.type == TOKEN_WASH || p->current_token.type == TOKEN_UNTAINT) {
+      int wash_type = (p->current_token.type == TOKEN_UNTAINT) ? 2 : 0;
+      eat(p, p->current_token.type);
+      ASTNode *expr = parse_expression(p);
+      return parse_wash_or_clean_tail(p, expr, wash_type); 
+  }
+
   int modifiers = parse_modifiers(p);
 
   if (p->current_token.type == TOKEN_LOOP) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_loop(p); }
@@ -424,6 +432,15 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
       ASTNode *var = parse_var_decl_internal(p);
       if (var) apply_var_modifiers((VarDeclNode*)var, modifiers);
       return var;
+  }
+
+  // Resolving ambiguity for 'clean' keyword which is both a modifier and a block statement
+  if (modifiers == MODIFIER_CLEAN) {
+      ASTNode *expr = parse_expression(p);
+      if (p->current_token.type == TOKEN_AS) {
+          return parse_wash_or_clean_tail(p, expr, 1); // 1 = clean
+      }
+      parser_fail(p, "Invalid statement: expected 'as' after expression in 'clean' block, or unrecognized type for 'clean' modifier.");
   }
 
   if (modifiers) parser_fail(p, "Invalid modifier on statement");

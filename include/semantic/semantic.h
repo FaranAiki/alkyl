@@ -5,6 +5,7 @@
 #include "../common/common.h"
 #include "../common/diagnostic.h"
 #include "../common/context.h"
+#include <stdbool.h>
 
 // ==========================================
 // PART 1: SYMBOL TABLE (For Scoping)
@@ -30,36 +31,36 @@ typedef struct SemSymbol {
     
     // Class specific
     char *parent_name;    // For inheritance lookup
-
-    // Var specific
-    int is_mutable;
-    int is_initialized;   // Track if variable has been assigned a value
     
     // Semantic Modifiers
     IsASemantic is_is_a;
     HasASemantic is_has_a;
-    int is_used_as_parent;
-    int is_used_as_composition;
     
     // Scope linkage
     struct SemScope *inner_scope; 
-    
     struct SemSymbol *next; // Linked list bucket
+    
+    // Packed bitfields
+    bool is_mutable : 1;
+    bool is_initialized : 1;   // Track if variable has been assigned a value
+    bool is_used_as_parent : 1;
+    bool is_used_as_composition : 1;
+    bool is_pure : 1;
+    bool is_clean : 1;
 } SemSymbol;
 
 typedef struct SemScope {
     SemSymbol *symbols;
     struct SemScope *parent;
-    int is_function_scope; 
-    int is_class_scope;    // Identifies if this scope belongs to a class
     SemSymbol *class_sym;  // Pointer to the Class Symbol this scope belongs to (for inheritance)
     VarType expected_ret_type; 
+
+    // Packed bitfields
+    bool is_function_scope : 1; 
+    bool is_class_scope : 1;    // Identifies if this scope belongs to a class
 } SemScope;
 
-// ==========================================
-// PART 2: SIDE TABLE (For Expressions)
-// Maps "ASTNode Address" -> "Type"
-// ==========================================
+// TODO use hashmap for this
 
 #define TYPE_TABLE_SIZE 1024
 

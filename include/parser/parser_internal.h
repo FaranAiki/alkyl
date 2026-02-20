@@ -19,14 +19,15 @@
 #define MODIFIER_REACTIVE  (1 << 7)
 #define MODIFIER_NAKED     (1 << 8)
 #define MODIFIER_STATIC    (1 << 9)
+#define MODIFIER_PURE      (1 << 10)
+#define MODIFIER_IMPURE    (1 << 11)
+#define MODIFIER_CLEAN     (1 << 12)
+#define MODIFIER_TAINTED   (1 << 13)
 
 int parse_modifiers(Parser* p);
 void apply_class_modifiers(ClassNode* node, int modifiers);
 void apply_func_modifiers(FuncDefNode* node, int modifiers);
 void apply_var_modifiers(VarDeclNode* node, int modifiers);
-
-
-// --- INTERNAL DATA STRUCTURES ---
 
 struct Macro {
     char *name;

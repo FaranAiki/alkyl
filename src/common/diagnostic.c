@@ -96,6 +96,7 @@ const char* find_closest_keyword(const char *ident) {
         "if", "else", "while", "loop", "break", "continue", "class", "struct",
         "namespace", "import", "link", "extern", "define", "has", "is",
         "open", "closed", "public", "private", "final", "naked", "reactive", "inert",
+        "pure", "impure", "tainted", "clean", "wash", "untaint",
         "let", "mut", "imut", "const", "typeof", 
         "switch", "case", "default", "leak", 
         NULL
@@ -238,6 +239,8 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_CASE: return "case";
         case TOKEN_DEFAULT: return "default";
         case TOKEN_LEAK: return "leak";
+        case TOKEN_WASH: return "wash";
+        case TOKEN_UNTAINT: return "untaint";
 
         case TOKEN_DEFINE: return "define";
         case TOKEN_AS: return "as";
@@ -256,6 +259,11 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_NAKED: return "naked";
         case TOKEN_REACTIVE: return "reactive";
         case TOKEN_INERT: return "inert";
+        case TOKEN_PURE: return "pure";
+        case TOKEN_IMPURE: return "impure";
+        case TOKEN_TAINTED: return "tainted";
+        case TOKEN_CLEAN: return "clean";
+
         case TOKEN_TYPEOF: return "typeof";
         case TOKEN_HASMETHOD: return "hasmethod";
         case TOKEN_HASATTRIBUTE: return "hasattribute";

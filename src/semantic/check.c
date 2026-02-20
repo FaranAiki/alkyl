@@ -396,6 +396,11 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
     
     switch(node->type) {
+        case NODE_CLEAN:
+            // TODO    
+        case NODE_WASH:
+            // TODO
+            break;
         case NODE_LITERAL: {
             LiteralNode *lit = (LiteralNode*)node;
             sem_set_node_type(ctx, node, lit->var_type);

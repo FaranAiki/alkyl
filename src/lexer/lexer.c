@@ -381,6 +381,7 @@ static int lex_word(Lexer *l, Token *t) {
   else if (strcmp(word, "then") == 0) t->type = TOKEN_THEN;
   else if (strcmp(word, "else") == 0) t->type = TOKEN_ELSE;
   else if (strcmp(word, "return") == 0) t->type = TOKEN_RETURN;
+  else if (strcmp(word, "throw") == 0) t->type = TOKEN_THROW;
   else if (strcmp(word, "break") == 0) t->type = TOKEN_BREAK;
   else if (strcmp(word, "continue") == 0) t->type = TOKEN_CONTINUE;
   
@@ -388,6 +389,8 @@ static int lex_word(Lexer *l, Token *t) {
   else if (strcmp(word, "case") == 0) t->type = TOKEN_CASE;     
   else if (strcmp(word, "default") == 0) t->type = TOKEN_DEFAULT; 
   else if (strcmp(word, "leak") == 0) t->type = TOKEN_LEAK;     
+  else if (strcmp(word, "wash") == 0) t->type = TOKEN_WASH;
+  else if (strcmp(word, "untaint") == 0) t->type = TOKEN_UNTAINT;
 
   else if (strcmp(word, "define") == 0) t->type = TOKEN_DEFINE;
   else if (strcmp(word, "as") == 0) t->type = TOKEN_AS;
@@ -406,10 +409,18 @@ static int lex_word(Lexer *l, Token *t) {
   else if (strcmp(word, "naked") == 0) t->type = TOKEN_NAKED;
   else if (strcmp(word, "reactive") == 0) t->type = TOKEN_REACTIVE;
   else if (strcmp(word, "inert") == 0) t->type = TOKEN_INERT;
+  
+  else if (strcmp(word, "pure") == 0) t->type = TOKEN_PURE;
+  else if (strcmp(word, "impure") == 0) t->type = TOKEN_IMPURE;
+  else if (strcmp(word, "tainted") == 0) t->type = TOKEN_TAINTED;
+  else if (strcmp(word, "clean") == 0) t->type = TOKEN_CLEAN;
+
+  // compiler macro (?)
   else if (strcmp(word, "typeof") == 0) t->type = TOKEN_TYPEOF;
   else if (strcmp(word, "hasmethod") == 0) t->type = TOKEN_HASMETHOD;
   else if (strcmp(word, "hasattribute") == 0) t->type = TOKEN_HASATTRIBUTE;
   else if (strcmp(word, "namespace") == 0) t->type = TOKEN_NAMESPACE;
+  
   else if (strcmp(word, "enum") == 0) t->type = TOKEN_ENUM; 
 
   else if (strcmp(word, "flux") == 0) t->type = TOKEN_FLUX;

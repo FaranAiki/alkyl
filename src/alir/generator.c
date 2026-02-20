@@ -230,6 +230,11 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
     }
 
     switch(node->type) {
+        case NODE_CLEAN:
+            // TODO
+        case NODE_WASH:
+            // TODO
+            break;
         case NODE_VAR_DECL: {
             VarDeclNode *vn = (VarDeclNode*)node;
             AlirValue *ptr = new_temp(ctx, vn->var_type);

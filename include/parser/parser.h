@@ -5,6 +5,7 @@
 #include "../common/debug.h"
 #include "../common/context.h"
 #include <setjmp.h>
+#include <stdbool.h>
 
 // --- TYPES ---
 
@@ -41,7 +42,9 @@ typedef enum {
   NODE_HAS_ATTRIBUTE,  
   NODE_CAST,
   NODE_EMIT,
-  NODE_FOR_IN
+  NODE_FOR_IN,
+  NODE_WASH, // Added for wash/clean/untaint error handling blocks
+  NODE_CLEAN // Added for wash/clean/untaint error handling blocks
 } NodeType;
 
 typedef enum {
@@ -82,13 +85,15 @@ typedef struct VarType {
   int ptr_depth; 
   char *class_name;
   int array_size; 
-  int is_unsigned; 
   
-  int is_func_ptr;
   struct VarType *fp_ret_type;   
   struct VarType *fp_param_types; 
   int fp_param_count;
-  int fp_is_varargs;
+
+  // Packed bitfields
+  bool is_unsigned : 1; 
+  bool is_func_ptr : 1;
+  bool fp_is_varargs : 1;
 } VarType;
 
 typedef struct ASTNode {
@@ -111,16 +116,21 @@ typedef struct {
   VarType ret_type;
   Parameter *params;
   ASTNode *body; 
-  int is_varargs; 
-  int is_public; // public can be exposed, if false private
-  int is_open; // open can be extensible, if false closed
-  int is_static;
-  int is_virtual; // virtual keyword 
-  int is_abstract; // this is like Java's abstract keyword
-  int is_is_a; // use the IsASemantic
-  int is_has_a; // use the HasASemantic
   char *class_name; 
-  int is_flux;
+  
+  IsASemantic is_is_a;
+  HasASemantic is_has_a;
+
+  // Modifier Bitfields (Packed)
+  bool is_varargs : 1; 
+  bool is_public : 1;
+  bool is_open : 1;
+  bool is_static : 1;
+  bool is_virtual : 1;
+  bool is_abstract : 1;
+  bool is_flux : 1;
+  bool is_pure : 1;
+  bool is_clean : 1;
 } FuncDefNode;
 
 typedef struct {
@@ -132,14 +142,17 @@ typedef struct {
       int count;
   } traits; 
   ASTNode *members; 
-  int is_open; 
-  int is_public; 
-  int is_extern; 
-  int is_union;
-  int is_static; 
-  int is_abstract; // like in C++, C#, Java
-  int is_is_a; // use the IsASemantic
-  int is_has_a; // use the HasASemantic
+  
+  IsASemantic is_is_a;
+  HasASemantic is_has_a;
+
+  // Modifier Bitfields (Packed)
+  bool is_open : 1; 
+  bool is_public : 1; 
+  bool is_extern : 1; 
+  bool is_union : 1;
+  bool is_static : 1; 
+  bool is_abstract : 1;
 } ClassNode;
 
 typedef struct EnumEntry {
@@ -173,7 +186,7 @@ typedef struct {
   ASTNode *args;
   char *mangled_name; 
   char *owner_class;  
-  int is_static;      
+  bool is_static : 1;      
 } MethodCallNode;
 
 typedef struct {
@@ -204,7 +217,7 @@ typedef struct {
     ASTNode base;
     ASTNode *value; 
     ASTNode *body;  
-    int is_leak;    
+    bool is_leak : 1;    
 } CaseNode;
 
 typedef struct {
@@ -214,20 +227,35 @@ typedef struct {
     ASTNode *default_case; 
 } SwitchNode;
 
+// Added for Wash/Clean/Untaint error handling
+typedef struct {
+    ASTNode base;
+    ASTNode *expr;
+    char *err_name;
+    ASTNode *body;
+    ASTNode *else_body;
+    unsigned int wash_type : 2; // 0=wash, 1=clean, 2=untaint
+} WashNode;
+
 typedef struct {
   ASTNode base;
   VarType var_type;
   char *name;
   ASTNode *initializer;
-  int is_array;   
   ASTNode *array_size; 
-  int is_open;
-  int is_public;
-  int is_static;
-  int is_const;
-  int is_mutable; 
-  int is_is_a;     // uses IsASemantic
-  int is_has_a;    // uses HasASemantic
+
+  IsASemantic is_is_a;
+  HasASemantic is_has_a;
+
+  // Modifier Bitfields (Packed)
+  bool is_array : 1;   
+  bool is_open : 1;
+  bool is_public : 1;
+  bool is_static : 1;
+  bool is_const : 1;
+  bool is_mutable : 1; 
+  bool is_pure : 1;
+  bool is_clean : 1;
 } VarDeclNode;
 
 typedef struct {
@@ -243,16 +271,16 @@ typedef struct {
   ASTNode base;
   char *name;
   ASTNode *index; 
-  int is_prefix; 
-  int op;
   ASTNode *target; 
+  int op;
+  bool is_prefix : 1; 
 } IncDecNode;
 
 typedef struct {
   ASTNode base;
   char *name;
   char *mangled_name;
-  int is_class_member; 
+  bool is_class_member : 1; 
 } VarRefNode;
 
 typedef struct {
@@ -307,7 +335,7 @@ typedef struct {
   ASTNode base;
   ASTNode *condition;
   ASTNode *body;
-  int is_do_while; 
+  bool is_do_while : 1; 
 } WhileNode;
 
 typedef struct {
@@ -370,5 +398,6 @@ ASTNode* parse_expression(Parser *p);
 
 #include "emitter.h"
 #include "link.h"
+#include "modifier.h"
 
 #endif // PARSER_H

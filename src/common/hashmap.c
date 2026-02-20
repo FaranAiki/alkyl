@@ -190,7 +190,7 @@ void hashmap_free(HashMap *map) {
             entry = next;
         }
     }
-    free(map->buckets);
     map->buckets = NULL;
     map->size = 0;
+    free(map->buckets);
 }

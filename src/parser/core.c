@@ -298,7 +298,7 @@ void eat(Parser *p, TokenType type) {
 
 // Composite type parsing helper
 VarType parse_type(Parser *p) {
-  VarType t = {TYPE_UNKNOWN, 0, NULL, 0, 0, 0, NULL, NULL, 0, 0}; 
+  VarType t = {TYPE_UNKNOWN, 0}; 
 
   if (p->current_token.type == TOKEN_KW_UNSIGNED) {
       t.is_unsigned = 1;
