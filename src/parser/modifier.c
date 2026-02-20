@@ -37,9 +37,9 @@ int parse_modifiers(Parser* p) {
         } else if (p->current_token.type == TOKEN_IMPURE) {
             modifiers |= MODIFIER_IMPURE;
             eat(p, TOKEN_IMPURE);
-        } else if (p->current_token.type == TOKEN_CLEAN) {
-            modifiers |= MODIFIER_CLEAN;
-            eat(p, TOKEN_CLEAN);
+        } else if (p->current_token.type == TOKEN_PRISTINE) {
+            modifiers |= MODIFIER_PRISTINE;
+            eat(p, TOKEN_PRISTINE);
         } else if (p->current_token.type == TOKEN_TAINTED) {
             modifiers |= MODIFIER_TAINTED;
             eat(p, TOKEN_TAINTED);

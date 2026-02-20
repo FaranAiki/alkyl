@@ -21,7 +21,7 @@
 #define MODIFIER_STATIC    (1 << 9)
 #define MODIFIER_PURE      (1 << 10)
 #define MODIFIER_IMPURE    (1 << 11)
-#define MODIFIER_CLEAN     (1 << 12)
+#define MODIFIER_PRISTINE  (1 << 12)
 #define MODIFIER_TAINTED   (1 << 13)
 
 int parse_modifiers(Parser* p);

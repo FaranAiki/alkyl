@@ -39,11 +39,10 @@ void parser_emit_type(StringBuilder *sb, VarType t) {
     }
 }
 
-void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent);
-
 // Helper to decide if a node needs a semicolon when acting as a statement
-int needs_semicolon(NodeType type) {
-    switch (type) {
+int needs_semicolon(ASTNode *node) {
+    if (!node) return 0;
+    switch (node->type) {
         case NODE_CALL:
         case NODE_METHOD_CALL:
         case NODE_ASSIGN:
@@ -54,7 +53,10 @@ int needs_semicolon(NodeType type) {
         case NODE_ARRAY_ACCESS:
         case NODE_MEMBER_ACCESS:
         case NODE_CAST:
+        case NODE_EMIT:
             return 1;
+        case NODE_WASH:
+            return ((WashNode*)node)->wash_type == 2;
         default:
             return 0;
     }
@@ -66,7 +68,7 @@ void parser_emit_block(StringBuilder *sb, ASTNode *body, int indent) {
     while (curr) {
         parser_emit_indent(sb, indent + 1);
         parser_emit_ast_node(sb, curr, indent + 1);
-        if (needs_semicolon(curr->type)) {
+        if (needs_semicolon(curr)) {
             sb_append(sb, ";");
         }
         sb_append(sb, "\n");
@@ -94,6 +96,8 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
             if (fn->is_has_a == HAS_A_INERT) sb_append(sb, "inert ");
             if (fn->is_has_a == HAS_A_REACTIVE) sb_append(sb, "reactive ");
             if (fn->is_flux) sb_append(sb, "flux ");
+            if (!fn->is_pure) sb_append(sb, "impure ");
+            if (!fn->is_pristine) sb_append(sb, "tainted ");
             
             parser_emit_type(sb, fn->ret_type);
             sb_append_fmt(sb, " %s(", fn->name ? fn->name : "anon");
@@ -126,8 +130,12 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
             if (vn->is_has_a == HAS_A_INERT) sb_append(sb, "inert ");
             if (vn->is_has_a == HAS_A_REACTIVE) sb_append(sb, "reactive ");
             
+            if (!vn->is_pure) sb_append(sb, "impure ");
+            if (!vn->is_pristine) sb_append(sb, "tainted ");
+            
             if (vn->is_mutable) sb_append(sb, "mut ");
             else if (!vn->is_const) sb_append(sb, "imut "); // only emit imut if not declared const
+
             
             parser_emit_type(sb, vn->var_type);
             sb_append_fmt(sb, " %s", vn->name);
@@ -256,9 +264,30 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
 
         case NODE_EMIT: {
             EmitNode *en = (EmitNode*)node;
-            sb_append(sb, "parser_emit ");
+            sb_append(sb, "emit ");
             parser_emit_ast_node(sb, en->value, 0);
-            sb_append(sb, ";");
+            break;
+        }
+
+        case NODE_WASH: {
+            WashNode *wn = (WashNode*)node;
+            if (wn->wash_type == 2) {
+                sb_append(sb, "untaint ");
+                parser_emit_ast_node(sb, wn->expr, 0);
+            } else {
+                sb_append(sb, wn->wash_type == 1 ? "clean " : "wash ");
+                parser_emit_ast_node(sb, wn->expr, 0);
+                sb_append_fmt(sb, " as %s", wn->err_name);
+                parser_emit_block(sb, wn->body, indent);
+                if (wn->else_body) {
+                    sb_append(sb, " else ");
+                    if (wn->else_body->type == NODE_WASH || wn->else_body->type == NODE_IF) {
+                        parser_emit_ast_node(sb, wn->else_body, indent);
+                    } else {
+                        parser_emit_block(sb, wn->else_body, indent);
+                    }
+                }
+            }
             break;
         }
 
@@ -281,7 +310,7 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
                     while (stmt) {
                         parser_emit_indent(sb, indent + 2);
                         parser_emit_ast_node(sb, stmt, indent + 2);
-                        if (needs_semicolon(stmt->type)) sb_append(sb, ";");
+                        if (needs_semicolon(stmt)) sb_append(sb, ";");
                         sb_append(sb, "\n");
                         stmt = stmt->next;
                     }
@@ -297,7 +326,7 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
                 while (stmt) {
                     parser_emit_indent(sb, indent + 2);
                     parser_emit_ast_node(sb, stmt, indent + 2);
-                    if (needs_semicolon(stmt->type)) sb_append(sb, ";");
+                    if (needs_semicolon(stmt)) sb_append(sb, ";");
                     sb_append(sb, "\n");
                     stmt = stmt->next;
                 }
@@ -546,7 +575,7 @@ char* parser_to_string(Parser *parser, ASTNode *root) {
     ASTNode *curr = root;
     while (curr) {
         parser_emit_ast_node(&sb, curr, 0);
-        if (needs_semicolon(curr->type)) sb_append(&sb, ";");
+        if (needs_semicolon(curr)) sb_append(&sb, ";");
         sb_append(&sb, "\n");
         curr = curr->next;
     }

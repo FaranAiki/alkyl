@@ -16,4 +16,6 @@ char* parser_string_to_string(const char *src);
 // Helper: Parses the source string into AST, writes to file, frees AST
 void parser_string_to_file(const char *src, const char *filename);
 
+void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent);
+
 #endif // PARSER_EMITTER_H
