@@ -52,9 +52,8 @@ int main(int argc, char *argv[]) {
   debug_step("Finished lexing. Start parsing.");
 
   // generate for debugging 
-  Lexer l_debug = l;
+  Lexer l_debug;
   lexer_init(&l_debug, &comp_ctx, filename, code);
-  l.filename = filename;
 
   to_token_out(&l_debug, BASENAME ".tok");
 
@@ -67,9 +66,11 @@ int main(int argc, char *argv[]) {
       return 1;
   }
   
-  // ASTNode *root_debug = parse_program(&l_debug);
+  Parser p_debug;
+  parser_init(&p_debug, &l_debug);
+  ASTNode *root_debug = parse_program(&p_debug);
 
-  to_ast_out(&p, root, BASENAME ".ast");
+  to_ast_out(&p, root_debug, BASENAME ".ast");
 
   debug_step("Start Semantic Analysis.");
   

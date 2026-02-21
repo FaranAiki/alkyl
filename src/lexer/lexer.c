@@ -390,6 +390,7 @@ static int lex_word(Lexer *l, Token *t) {
   else if (strcmp(word, "default") == 0) t->type = TOKEN_DEFAULT; 
   else if (strcmp(word, "leak") == 0) t->type = TOKEN_LEAK;     
   else if (strcmp(word, "wash") == 0) t->type = TOKEN_WASH;
+  else if (strcmp(word, "clean") == 0) t->type = TOKEN_CLEAN;
   else if (strcmp(word, "untaint") == 0) t->type = TOKEN_UNTAINT;
 
   else if (strcmp(word, "define") == 0) t->type = TOKEN_DEFINE;
@@ -413,7 +414,7 @@ static int lex_word(Lexer *l, Token *t) {
   else if (strcmp(word, "pure") == 0) t->type = TOKEN_PURE;
   else if (strcmp(word, "impure") == 0) t->type = TOKEN_IMPURE;
   else if (strcmp(word, "tainted") == 0) t->type = TOKEN_TAINTED;
-  else if (strcmp(word, "clean") == 0) t->type = TOKEN_CLEAN;
+  else if (strcmp(word, "pristine") == 0) t->type = TOKEN_PRISTINE;
 
   // compiler macro (?)
   else if (strcmp(word, "typeof") == 0) t->type = TOKEN_TYPEOF;

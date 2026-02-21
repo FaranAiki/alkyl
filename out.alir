@@ -1,3 +1,13 @@
 ; Module: main_module
 
-promise i32 @function()
+define func i32 @function() {
+entry:
+  return 5
+}
+
+define func i32 @main() {
+entry:
+  %0 = onheap i32
+  %1 = call @function
+  store %1, %0
+}

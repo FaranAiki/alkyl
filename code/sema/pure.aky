@@ -1,11 +1,11 @@
 tainted int function() {
-
+  return 5;
 }
 
 int main() {
-  let t = function();
+  pristine int t = function();
 
-  wash t as {
+  wash t as err {
     print "a";
   }
 }

@@ -53,7 +53,9 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         // Tainted Expression Check
         int expr_tainted = sem_get_node_tainted(ctx, node->initializer);
         if (node->is_pristine && expr_tainted) {
-            sem_error(ctx, (ASTNode*)node, "Cannot initialize pristine variable '%s' with a tainted value", node->name);
+            // Instead of error, change the value of it
+            // sem_error(ctx, (ASTNode*)node, "Cannot initialize pristine variable '%s' with a tainted value", node->name);
+            node->is_pristine = false;
         }
 
         // 2. Inference (let / auto)
