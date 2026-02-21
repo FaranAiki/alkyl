@@ -19,4 +19,8 @@ void context_init(CompilerContext *ctx, Arena *arena) {
     
     ctx->last_reported_namespace[0] = '\0';
     ctx->last_reported_filename[0] = '\0';
+
+    // Initialize the global String Interning Pool
+    // 1024 is a good starting capacity for average source files
+    hashmap_init(&ctx->string_pool, arena, 1024);
 }

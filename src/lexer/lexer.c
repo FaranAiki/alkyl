@@ -29,6 +29,37 @@ static char advance(Lexer *l) {
   return c;
 }
 
+static char* intern_string(Lexer *l, const char *str) {
+    if (!str) return NULL;
+    
+    void *existing = hashmap_get(&l->ctx->string_pool, str);
+    if (existing) {
+        return (char*)existing; // Reuse the pointer!
+    }
+    
+    char *new_str = arena_strdup(l->ctx->arena, str);
+    
+    // Both key and value are the same pointer, saving space.
+    hashmap_put(&l->ctx->string_pool, new_str, new_str);
+    return new_str;
+}
+
+static char* intern_strndup(Lexer *l, const char *str, size_t len) {
+    char temp[4096];
+    if (len < sizeof(temp)) {
+        memcpy(temp, str, len);
+        temp[len] = '\0';
+        return intern_string(l, temp);
+    }
+    
+    char *big_temp = malloc(len + 1);
+    memcpy(big_temp, str, len);
+    big_temp[len] = '\0';
+    char* res = intern_string(l, big_temp);
+    free(big_temp);
+    return res;
+}
+
 void skip_whitespace_and_comments(Lexer *l) {
   while (1) {
     char c = peek(l);
@@ -283,7 +314,7 @@ static int lex_char(Lexer *l, Token *t) {
     return 1;
 }
 
-// Uses a temporary stack buffer to parse the string, then copies to Arena
+// Uses a temporary stack buffer to parse the string, then uses the Hashmap intern pool
 static char* consume_string_content(Lexer *l) {
     char buffer[4096]; // Max literal size for now
     size_t length = 0;
@@ -313,12 +344,12 @@ static char* consume_string_content(Lexer *l) {
       }
       buffer[length++] = val;
     }
-    buffer[length] = '\0';
+    buffer[length] = '\0'; // Null terminate
     
     if (peek(l) == '"') advance(l);
     
-    // Allocate final string in arena
-    return arena_strndup(l->ctx->arena, buffer, length);
+    // Check pool/allocate into pool
+    return intern_string(l, buffer);
 }
 
 static int lex_string(Lexer *l, Token *t) {
@@ -356,19 +387,14 @@ static int lex_word(Lexer *l, Token *t) {
       length++;
   }
   
-  // Check keywords using a temporary stack buffer for null-termination check
-  // or simple comparison if we had a length-based keyword checker.
-  // For now, duplicate to arena to perform string checks (slightly inefficient but clean with Arena)
-  // OR use a local stack buffer for comparison.
-  
   char word[256];
   if (length < 256) {
       strncpy(word, start, length);
       word[length] = '\0';
   } else {
-      // Too long for a keyword, treating as identifier
+      // Too long for a keyword, treat as identifier and intern it safely
       t->type = TOKEN_IDENTIFIER;
-      t->text = arena_strndup(l->ctx->arena, start, length);
+      t->text = intern_strndup(l, start, length);
       return 1;
   }
 
@@ -456,7 +482,8 @@ static int lex_word(Lexer *l, Token *t) {
   else if (strcmp(word, "not") == 0) t->type = TOKEN_NOT;
   else {
     t->type = TOKEN_IDENTIFIER;
-    t->text = arena_strndup(l->ctx->arena, start, length);
+    // Uses the intern string pool!
+    t->text = intern_string(l, word);
     return 1;
   }
   

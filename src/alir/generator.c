@@ -6,7 +6,6 @@
 // Loop Stack
 void push_loop(AlirCtx *ctx, AlirBlock *cont, AlirBlock *brk) {
     AlirCtx *node = alir_alloc(ctx->module, sizeof(AlirCtx));
-    // Copy parent pointers
     node->loop_continue = ctx->loop_continue;
     node->loop_break = ctx->loop_break;
     node->loop_parent = ctx->loop_parent;
@@ -22,7 +21,6 @@ void pop_loop(AlirCtx *ctx) {
     ctx->loop_continue = node->loop_continue;
     ctx->loop_break = node->loop_break;
     ctx->loop_parent = node->loop_parent;
-    // No free needed with arena
 }
 
 // Helper to check if an instruction is a block terminator
@@ -47,8 +45,6 @@ long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
         VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
         
-        // If the object is an Enum Type or a Variable of Enum type
-        // The Semantic phase should have resolved this type
         if (obj_t.base == TYPE_ENUM && obj_t.class_name) {
             long val = 0;
             if (alir_get_enum_value(ctx->module, obj_t.class_name, ma->member_name, &val)) {
@@ -85,7 +81,7 @@ void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root) {
                     AlirField *pf = parent->fields;
                     while(pf) {
                         AlirField *nf = alir_alloc(ctx->module, sizeof(AlirField));
-                        nf->name = alir_strdup(ctx->module, pf->name); // Copy name
+                        nf->name = alir_strdup(ctx->module, pf->name); 
                         nf->type = pf->type;
                         nf->index = idx++;
                         
@@ -154,13 +150,10 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
         
         AlirSwitchCase *sc = alir_alloc(ctx->module, sizeof(AlirSwitchCase));
         sc->label = case_bb->label;
-        
-        // Evaluate Constant (Handles Literals AND Enums)
         sc->value = alir_eval_constant_int(ctx, cn->value);
         
         *tail = sc;
         tail = &sc->next;
-        
         c = c->next;
     }
     emit(ctx, sw); 
@@ -208,10 +201,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
     ctx->current_col = node->col;
 
     if (node->type == NODE_VAR_DECL && ctx->in_flux_resume) {
-        // --- FLUX VARIABLE DECLARATION ---
         VarDeclNode *vn = (VarDeclNode*)node;
-        
-        // Find pre-assigned index in flux context
         FluxVar *fv = ctx->flux_vars;
         while(fv) {
             if (strcmp(fv->name, vn->name) == 0) break;
@@ -219,28 +209,24 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         }
         
         if (fv) {
-            // Get pointer to field in context
             VarType ptr_type = vn->var_type;
             ptr_type.ptr_depth++;
             AlirValue *ptr = new_temp(ctx, ptr_type);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, ptr, ctx->flux_ctx_ptr, alir_const_int(ctx->module, fv->index)));
             
-            // Register symbol as pointing to this field
             alir_add_symbol(ctx, vn->name, ptr, vn->var_type);
             
             if (vn->initializer) {
                 AlirValue *val = alir_gen_expr(ctx, vn->initializer);
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
             }
-            return; // Skip standard ALLOCA logic
+            return; 
         }
-        // Fallthrough if not found (shouldn't happen if collector works)
     }
 
     switch(node->type) {
         case NODE_CLEAN:
         case NODE_WASH:
-            // Handled transparently by semantic error lowering or specific handlers
             break;
         case NODE_VAR_DECL: {
             VarDeclNode *vn = (VarDeclNode*)node;
@@ -256,17 +242,50 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_ASSIGN: {
             AssignNode *an = (AssignNode*)node;
             AlirValue *ptr = NULL;
-            if (an->name) {
-                // Find IR register holding the variable address
+            
+            if (an->target) {
+                ptr = alir_gen_addr(ctx, an->target);
+                
+                // [BUGFIX] Enhanced Member Assignment Recovery
+                // If the pointer failed to resolve normally (because Semantic lost the type), 
+                // trace back manually via the local Symbol Table.
+                if (!ptr && an->target->type == NODE_MEMBER_ACCESS) {
+                    MemberAccessNode *ma = (MemberAccessNode*)an->target;
+                    AlirValue *base = alir_gen_expr(ctx, ma->object);
+                    if (base) {
+                        char *cname = base->type.class_name;
+                        if (!cname && ma->object->type == NODE_VAR_REF) {
+                            AlirSymbol *sym = alir_find_symbol(ctx, ((VarRefNode*)ma->object)->name);
+                            if (sym) cname = sym->type.class_name;
+                        }
+                        if (cname) {
+                            int idx = alir_get_field_index(ctx->module, cname, ma->member_name);
+                            if (idx != -1) {
+                                ptr = new_temp(ctx, (VarType){TYPE_AUTO, 1, NULL});
+                                emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, ptr, base, alir_const_int(ctx->module, idx)));
+                            }
+                        }
+                    }
+                }
+            } else if (an->name) {
                 AlirSymbol *s = alir_find_symbol(ctx, an->name);
                 if (s) ptr = s->ptr;
-                else ptr = alir_gen_addr(ctx, (ASTNode*)an->target); // Handle implicit 'this' or global
-                // Fallback for global if gen_addr returns global ref or similar logic inside
-                if (!ptr) ptr = alir_val_var(ctx->module, an->name); 
-            } else if (an->target) {
-                ptr = alir_gen_addr(ctx, an->target);
+                else ptr = alir_val_var(ctx->module, an->name); 
             }
+            
+            // [BUGFIX] Ultimate Safety Net: Never let a NULL pointer crash the ALICK STORE instruction
+            if (!ptr) {
+                ptr = new_temp(ctx, (VarType){TYPE_AUTO, 1, NULL});
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
+            }
+            
             AlirValue *val = alir_gen_expr(ctx, an->value);
+            
+            // Safety Net: Never emit a void/null value into STORE
+            if (!val) {
+                val = alir_const_int(ctx->module, 0); 
+            }
+            
             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
             break;
         }
@@ -280,20 +299,15 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             AlirBlock *end_bb = alir_add_block(ctx->module, ctx->current_func, "while_end");
 
             if (wn->is_do_while) {
-                // Do-While: Body -> Cond -> Body/End
-                // Initial jump to body
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, body_bb->label), NULL));
                 
-                // Body
                 ctx->current_block = body_bb;
                 push_loop(ctx, cond_bb, end_bb);
                 ASTNode *s = wn->body; while(s) { alir_gen_stmt(ctx, s); s=s->next; }
                 pop_loop(ctx);
                 
-                // Fallthrough to Cond
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, cond_bb->label), NULL));
 
-                // Cond
                 ctx->current_block = cond_bb;
                 AlirValue *cond = alir_gen_expr(ctx, wn->condition);
                 AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, cond, alir_val_label(ctx->module, body_bb->label));
@@ -302,10 +316,8 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                 br->arg_count = 1;
                 emit(ctx, br);
             } else {
-                // While: Cond -> Body -> Cond / End
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, cond_bb->label), NULL));
 
-                // Cond
                 ctx->current_block = cond_bb;
                 AlirValue *cond = alir_gen_expr(ctx, wn->condition);
                 AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, cond, alir_val_label(ctx->module, body_bb->label));
@@ -314,13 +326,11 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                 br->arg_count = 1;
                 emit(ctx, br);
 
-                // Body
                 ctx->current_block = body_bb;
                 push_loop(ctx, cond_bb, end_bb);
                 ASTNode *s = wn->body; while(s) { alir_gen_stmt(ctx, s); s=s->next; }
                 pop_loop(ctx);
                 
-                // Jump back to Cond
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, cond_bb->label), NULL));
             }
             ctx->current_block = end_bb;
@@ -335,7 +345,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, body_bb->label), NULL));
             
             ctx->current_block = body_bb;
-            push_loop(ctx, body_bb, end_bb); // Continue goes to start of body
+            push_loop(ctx, body_bb, end_bb);
             
             ASTNode *s = ln->body; while(s) { alir_gen_stmt(ctx, s); s=s->next; }
             pop_loop(ctx);
@@ -349,7 +359,6 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             ForInNode *fn = (ForInNode*)node;
             AlirValue *col = alir_gen_expr(ctx, fn->collection);
             
-            // Create Opaque Iterator
             AlirValue *iter = new_temp(ctx, (VarType){TYPE_VOID, 1}); 
             emit(ctx, mk_inst(ctx->module, ALIR_OP_ITER_INIT, iter, col, NULL));
             
@@ -359,7 +368,6 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             
             emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, cond_bb->label), NULL));
             
-            // Condition: ITER_VALID
             ctx->current_block = cond_bb;
             AlirValue *valid = new_temp(ctx, (VarType){TYPE_BOOL, 0});
             emit(ctx, mk_inst(ctx->module, ALIR_OP_ITER_VALID, valid, iter, NULL));
@@ -370,21 +378,17 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             br->arg_count = 1;
             emit(ctx, br);
             
-            // Body
             ctx->current_block = body_bb;
-            push_loop(ctx, cond_bb, end_bb); // Continue checks condition again (and next called after body)
+            push_loop(ctx, cond_bb, end_bb);
             
-            // Extract Value: ITER_GET
-            AlirValue *val = new_temp(ctx, (VarType){TYPE_AUTO}); // Type resolved at runtime/linktime or via semctx
+            AlirValue *val = new_temp(ctx, (VarType){TYPE_AUTO}); 
             emit(ctx, mk_inst(ctx->module, ALIR_OP_ITER_GET, val, iter, NULL));
             
-            // Store to local loop variable (Handled by special logic if in flux)
             if (ctx->in_flux_resume) {
-                // Find pre-assigned field
                 FluxVar *fv = ctx->flux_vars;
                 while(fv) { if(strcmp(fv->name, fn->var_name)==0) break; fv=fv->next; }
                 if (fv) {
-                    AlirValue *ptr = new_temp(ctx, (VarType){TYPE_INT, 1}); // Simplified type
+                    AlirValue *ptr = new_temp(ctx, (VarType){TYPE_INT, 1}); 
                     emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, ptr, ctx->flux_ctx_ptr, alir_const_int(ctx->module, fv->index)));
                     alir_add_symbol(ctx, fn->var_name, ptr, fn->iter_type);
                     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
@@ -398,7 +402,6 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             
             ASTNode *s = fn->body; while(s) { alir_gen_stmt(ctx, s); s=s->next; }
             
-            // Step: ITER_NEXT
             emit(ctx, mk_inst(ctx->module, ALIR_OP_ITER_NEXT, NULL, iter, NULL));
             emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, cond_bb->label), NULL));
             
@@ -418,17 +421,17 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_RETURN: {
             ReturnNode *rn = (ReturnNode*)node;
             if (ctx->in_flux_resume) {
-                // Terminate Flux
                 AlirValue *fin_ptr = new_temp(ctx, (VarType){TYPE_BOOL, 1});
-                emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, fin_ptr, ctx->flux_ctx_ptr, alir_const_int(ctx->module, 1))); // finished at idx 1
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, fin_ptr, ctx->flux_ctx_ptr, alir_const_int(ctx->module, 1))); 
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 1), fin_ptr));
-                emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL)); // Return void from resume
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
             } else {
                 AlirValue *v = rn->value ? alir_gen_expr(ctx, rn->value) : NULL;
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, v, NULL));
             }
             break;
         }
+        
         case NODE_CALL: 
         case NODE_METHOD_CALL:
         case NODE_VAR_REF:
@@ -476,23 +479,157 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             break;
         }
 
-        // Structural Nodes / Top-Level Declaration placeholders that might appear in block but are handled elsewhere or ignored in gen pass
         case NODE_ROOT:
         case NODE_FUNC_DEF:
         case NODE_CLASS:
         case NODE_NAMESPACE:
         case NODE_ENUM:
         case NODE_LINK:
-        case NODE_CASE: // Handled inside SWITCH
+        case NODE_CASE:
             break;
+    }
+}
+
+// Generate an implicit Default Constructor for Classes
+void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
+    ctx->current_func = alir_add_function(ctx->module, cn->name, (VarType){TYPE_VOID, 0}, 0);
+    
+    // Add implicit 'this' parameter for constructor
+    VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, cn->name)};
+    alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
+
+    ctx->current_block = alir_add_block(ctx->module, ctx->current_func, "entry");
+    
+    // Default constructor is just a basic return
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
+}
+
+// Generate the definition of a standard Function or Class Method
+void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
+    if (fn->is_flux) {
+        alir_gen_flux_def(ctx, fn);
+        return;
+    }
+
+    char func_name[256];
+    if (class_name) {
+        // Intercept methods inside Class scope. `init` -> `@ClassName`. Else `ClassName_MethodName`
+        if (strcmp(fn->name, "init") == 0 || strcmp(fn->name, class_name) == 0) {
+            snprintf(func_name, sizeof(func_name), "%s", class_name);
+        } else {
+            snprintf(func_name, sizeof(func_name), "%s_%s", class_name, fn->name);
+        }
+    } else {
+        snprintf(func_name, sizeof(func_name), "%s", fn->name);
+    }
+
+    ctx->current_func = alir_add_function(ctx->module, func_name, fn->ret_type, 0);
+
+    // 1. Setup 'this' pointer as the primary parameter if it's a method/constructor
+    if (class_name) {
+        VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)};
+        alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
+    }
+
+    // 2. Setup user-defined explicit parameters
+    Parameter *p = fn->params;
+    while(p) {
+        alir_func_add_param(ctx->module, ctx->current_func, p->name, p->type);
+        p = p->next;
+    }
+
+    if (!fn->body) return;
+
+    ctx->current_block = alir_add_block(ctx->module, ctx->current_func, "entry");
+    ctx->temp_counter = 0;
+    ctx->symbols = NULL; 
+
+    int p_idx = 0;
+
+    // Map 'this' parameter to local ALIR alloca reference
+    if (class_name) {
+        VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)};
+        AlirValue *ptr = new_temp(ctx, this_t);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
+        alir_add_symbol(ctx, "this", ptr, this_t);
+
+        char pname[16]; snprintf(pname, sizeof(pname), "p%d", p_idx++);
+        AlirValue *pval = alir_val_var(ctx->module, pname);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pval, ptr));
+    }
+
+    // Map explicit parameters
+    p = fn->params;
+    while(p) {
+        AlirValue *ptr = new_temp(ctx, p->type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
+        alir_add_symbol(ctx, p->name, ptr, p->type);
+        
+        char pname[16]; snprintf(pname, sizeof(pname), "p%d", p_idx++);
+        AlirValue *pval = alir_val_var(ctx->module, pname); 
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pval, ptr));
+        
+        p = p->next;
+    }
+    
+    ASTNode *stmt = fn->body;
+    while(stmt) { alir_gen_stmt(ctx, stmt); stmt = stmt->next; }
+
+    // Enforce implicit block termination (e.g. adding `return 0` to main or void blocks)
+    if (ctx->current_block) {
+        AlirInst *tail = ctx->current_block->tail;
+        int has_term = tail && is_terminator(tail->op);
+        
+        if (!has_term) {
+            ctx->current_line = fn->base.line;
+            ctx->current_col = fn->base.col;
+            
+            if (strcmp(func_name, "main") == 0) {
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, alir_const_int(ctx->module, 0), NULL));
+            } else if (fn->ret_type.base == TYPE_VOID || (class_name && (strcmp(fn->name, "init") == 0 || strcmp(fn->name, class_name) == 0))) {
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
+            }
+        }
+    }
+}
+
+// Deeply scan AST for Class/Methods and Standard Functions
+void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root) {
+    ASTNode *curr = root;
+    while(curr) {
+        if (curr->type == NODE_FUNC_DEF) {
+            alir_gen_function_def(ctx, (FuncDefNode*)curr, NULL);
+        } else if (curr->type == NODE_CLASS) {
+            ClassNode *cn = (ClassNode*)curr;
+            int has_constructor = 0;
+            
+            ASTNode *mem = cn->members;
+            while(mem) {
+                if (mem->type == NODE_FUNC_DEF) {
+                    FuncDefNode *fn = (FuncDefNode*)mem;
+                    if (strcmp(fn->name, cn->name) == 0 || strcmp(fn->name, "init") == 0) {
+                        has_constructor = 1;
+                    }
+                    alir_gen_function_def(ctx, fn, cn->name);
+                }
+                mem = mem->next;
+            }
+            
+            // Emit an implicit constructor if the user hasn't explicitly supplied `init`
+            if (!has_constructor) {
+                alir_gen_implicit_constructor(ctx, cn);
+            }
+        } else if (curr->type == NODE_NAMESPACE) {
+            alir_gen_functions_recursive(ctx, ((NamespaceNode*)curr)->body);
+        }
+        curr = curr->next;
     }
 }
 
 AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
     AlirCtx ctx;
     memset(&ctx, 0, sizeof(AlirCtx));
-    ctx.sem = sem; // Store the Semantic Context
-    // Pass compiler context to module creation
+    ctx.sem = sem; 
     ctx.module = alir_create_module(sem ? sem->compiler_ctx : NULL, "main_module");
 
     if (sem) {
@@ -500,75 +637,11 @@ AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
         ctx.module->filename = sem->current_filename;
     }
     
-    // 1. SCAN AND REGISTER CLASSES & ENUMS (Flattening included)
+    // 1. SCAN AND REGISTER CLASSES & ENUMS
     alir_scan_and_register_classes(&ctx, root);
     
-    // 2. GEN FUNCTIONS
-    ASTNode *curr = root;
-    while(curr) {
-        if (curr->type == NODE_FUNC_DEF) {
-            FuncDefNode *fn = (FuncDefNode*)curr;
-            
-            if (fn->is_flux) {
-                // Specialized Flux Generation
-                alir_gen_flux_def(&ctx, fn);
-            } else {
-                // Standard Function Generation
-                ctx.current_func = alir_add_function(ctx.module, fn->name, fn->ret_type, 0);
-                
-                // Register parameters
-                Parameter *p = fn->params;
-                while(p) {
-                    alir_func_add_param(ctx.module, ctx.current_func, p->name, p->type);
-                    p = p->next;
-                }
-
-                if (!fn->body) { curr = curr->next; continue; }
-
-                ctx.current_block = alir_add_block(ctx.module, ctx.current_func, "entry");
-                ctx.temp_counter = 0;
-                ctx.symbols = NULL; 
-                
-                // Setup Params allocation
-                p = fn->params;
-                int p_idx = 0;
-                while(p) {
-                    AlirValue *ptr = new_temp(&ctx, p->type);
-                    emit(&ctx, mk_inst(ctx.module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
-                    alir_add_symbol(&ctx, p->name, ptr, p->type);
-                    
-                    // Store param val (assumed implicit registers p0, p1...)
-                    char pname[16]; sprintf(pname, "p%d", p_idx++);
-                    AlirValue *pval = alir_val_var(ctx.module, pname); 
-                    emit(&ctx, mk_inst(ctx.module, ALIR_OP_STORE, NULL, pval, ptr));
-                    
-                    p = p->next;
-                }
-                
-                ASTNode *stmt = fn->body;
-                while(stmt) { alir_gen_stmt(&ctx, stmt); stmt = stmt->next; }
-
-                // ALICK / LLVM ENHANCEMENT: Implicit terminator for blocks lacking one (e.g., fallthroughs, main)
-                if (ctx.current_block) {
-                    AlirInst *tail = ctx.current_block->tail;
-                    int has_term = tail && is_terminator(tail->op);
-                    
-                    if (!has_term) {
-                        ctx.current_line = fn->base.line; // fallback to func declaration line just in case
-                        ctx.current_col = fn->base.col;
-                        
-                        if (strcmp(fn->name, "main") == 0) {
-                            // Implicit return 0 for main
-                            emit(&ctx, mk_inst(ctx.module, ALIR_OP_RET, NULL, alir_const_int(ctx.module, 0), NULL));
-                        } else if (fn->ret_type.base == TYPE_VOID) {
-                            // Implicit empty return for void functions
-                            emit(&ctx, mk_inst(ctx.module, ALIR_OP_RET, NULL, NULL, NULL));
-                        }
-                    }
-                }
-            }
-        }
-        curr = curr->next;
-    }
+    // 2. GEN FUNCTIONS (Recursively to handle classes & namespaces)
+    alir_gen_functions_recursive(&ctx, root);
+    
     return ctx.module;
 }

@@ -8,10 +8,106 @@
 %struct.FILE = type {  }
 
 ; Globals
-@str.3 = cstring "%d\n"
-@str.2 = cstring "%d!\n"
-@str.1 = cstring "%s\n"
-@str.0 = cstring "Muhammad Faran Aiki"
+@str.7 = cstring "%d\n"
+@str.6 = cstring "%d\n"
+@str.5 = cstring "%d!\n"
+@str.4 = cstring "%s\n"
+@str.3 = cstring "Muhammad Faran Aiki"
+@str.2 = cstring "My name is %s with nim %d\n"
+@str.1 = cstring "My name is %s\n and I am %d years old\n"
+@str.0 = cstring "I am waving %d times\n"
+
+define func void @FILE(%FILE* %p0) {
+entry:
+  return void
+}
+
+promise %FILE* @fopen(i8*, i8*)
+
+promise i32 @fclose(%FILE*)
+
+promise any @fread(void*, any, any, %FILE*)
+
+promise i32 @fgetc(%FILE*)
+
+promise i8* @fgets(i8*, i32, %FILE*)
+
+promise string @File_read(%File*)
+
+promise string @File_readline(%File*)
+
+define func void @File(%File* %p0) {
+entry:
+  return void
+}
+
+define func void @Hand_wave(%Hand* %p0, i32 %p1) {
+entry:
+  %0 = onheap %Hand*
+  store @p0, %0
+  %1 = onheap i32
+  store @p1, %1
+  %2 = load %1
+  %3 = call @print (@str.0, %2)
+  return void
+}
+
+define func void @Hand(%Hand* %p0) {
+entry:
+  return void
+}
+
+define func void @Person_introduce(%Person* %p0) {
+entry:
+  %0 = onheap %Person*
+  store @p0, %0
+  %1 = load %0
+  %2 = getptr %1, 0
+  %3 = load %2
+  %4 = load %0
+  %5 = getptr %4, 1
+  %6 = load %5
+  %7 = call @print (@str.1, %3, %6)
+  return void
+}
+
+define func void @Person_setAge(%Person* %p0, i32 %p1) {
+entry:
+  %0 = onheap %Person*
+  store @p0, %0
+  %1 = onheap i32
+  store @p1, %1
+  %2 = load %0
+  %3 = load %0
+  %4 = getptr %3, 1
+  %5 = load %1
+  store %5, %4
+  return void
+}
+
+define func void @Person(%Person* %p0) {
+entry:
+  return void
+}
+
+define func void @Mahasiswa_introduce(%Mahasiswa* %p0) {
+entry:
+  %0 = onheap %Mahasiswa*
+  store @p0, %0
+  %1 = load %0
+  %2 = getptr %1, 0
+  %3 = load %2
+  %4 = load %0
+  %5 = getptr %4, 2
+  %6 = load %5
+  %7 = call @print (@str.2, %3, %6)
+  return void
+}
+
+define func void @Mahasiswa(%Mahasiswa* %p0) {
+entry:
+  return void
+}
 
 define func i32 @main() {
 entry:
@@ -19,30 +115,37 @@ entry:
   %1 = sizeof type(Person)
   %2 = onheap %1
   %3 = bitcast %2
-  %4 = call @Person (%3, @str.0, 18)
+  %4 = call @Person (%3, @str.3, 18)
   store %3, %0
-  %5 = load 
-  %6 = call @print (@str.1, %5)
+  %5 = load %0
+  %6 = call @print (@str.4, void)
   %7 = onheap %Mahasiswa*
   %8 = sizeof type(Mahasiswa)
   %9 = onheap %8
   %10 = bitcast %9
-  %11 = load 
-  %12 = load 
-  %13 = call @Mahasiswa (%10, %11, %12, 18225122)
+  %11 = load %0
+  %12 = load %0
+  %13 = call @Mahasiswa (%10, void, void, 18225122)
   store %10, %7
   %14 = onheap i32*
-  store undef, %14
-  %15 = getptr %14, 2
-  %16 = load %15
-  %17 = call @print (@str.2, %16)
-  %18 = call @introduce (%0)
-  %19 = bitcast %0
-  %20 = call @wave (%19, 5)
-  %21 = bitcast %7
-  %22 = call @wave (%21, 5)
-  %23 = call @introduce (%7)
-  %24 = load 
-  %25 = call @print (@str.3, %24)
+  %15 = onheap any
+  store %15, %14
+  %16 = load %14
+  %17 = getptr %16, 2
+  %18 = load %17
+  %19 = call @print (@str.5, %18)
+  %20 = call @introduce (%0)
+  %21 = load %0
+  %22 = bitcast %21
+  %23 = call @wave (%22, 5)
+  %24 = load %7
+  %25 = bitcast %24
+  %26 = call @wave (%25, 5)
+  %27 = call @introduce (%7)
+  %28 = load %7
+  %29 = call @print (@str.6, void)
+  %30 = call @setAge (%7, 5)
+  %31 = load %7
+  %32 = call @print (@str.7, void)
   return 0
 }

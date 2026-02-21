@@ -3,7 +3,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#define HASHMAP_INIT_SIZE 16 * 16
+#define HASHMAP_INIT_SIZE 256
+#define PERTURB_SHIFT 5
+
+typedef struct {
+    uint32_t hash;
+    const char *key;
+    void *value;
+} DictEntry;
 
 // FNV-1a hash function
 static uint32_t hash_string(const char *str) {
@@ -16,49 +23,63 @@ static uint32_t hash_string(const char *str) {
 }
 
 static void hashmap_resize(HashMap *map) {
-    int new_capacity = map->capacity * 2;
-    MapEntry **new_buckets;
+    int old_cap = map->capacity;
+    int new_cap = old_cap * 2;
+    int new_limit = (new_cap * 2) / 3;
+
+    int32_t *old_indices = (int32_t*)map->buckets;
+    DictEntry *old_entries = (DictEntry*)(old_indices + old_cap);
+
+    size_t new_bytes = new_cap * sizeof(int32_t) + new_limit * sizeof(DictEntry);
+    void *new_block;
     
     if (map->arena) {
-        new_buckets = (MapEntry**)arena_alloc(map->arena, sizeof(MapEntry*) * new_capacity);
-        memset(new_buckets, 0, sizeof(MapEntry*) * new_capacity);
+        new_block = arena_alloc(map->arena, new_bytes);
     } else {
-        new_buckets = (MapEntry**)calloc(new_capacity, sizeof(MapEntry*));
+        new_block = malloc(new_bytes);
     }
 
-    // Rehash all existing entries into the new buckets
-    // Using bitwise AND because new_capacity is guaranteed to be a power of 2
-    for (int i = 0; i < map->capacity; i++) {
-        MapEntry *entry = map->buckets[i];
-        while (entry) {
-            MapEntry *next = entry->next;
-            uint32_t hash = hash_string(entry->key);
-            
-            // Fast modulo using bitwise AND
-            int index = hash & (new_capacity - 1);
-            
-            entry->next = new_buckets[index];
-            new_buckets[index] = entry;
-            
-            entry = next;
+    int32_t *new_indices = (int32_t*)new_block;
+    DictEntry *new_entries = (DictEntry*)(new_indices + new_cap);
+
+    // Initialize all new sparse indices to -1 (Empty)
+    for (int i = 0; i < new_cap; i++) {
+        new_indices[i] = -1;
+    }
+
+    // 1. Copy the dense entries array directly (Extremely fast, preserves order)
+    if (map->size > 0) {
+        memcpy(new_entries, old_entries, map->size * sizeof(DictEntry));
+    }
+
+    // 2. Rebuild the sparse hash table using cached hashes
+    size_t mask = new_cap - 1;
+    for (int i = 0; i < map->size; i++) {
+        uint32_t hash = new_entries[i].hash;
+        size_t perturb = hash;
+        size_t j = hash & mask;
+        
+        while (new_indices[j] != -1) {
+            j = (j * 5 + 1 + perturb) & mask;
+            perturb >>= PERTURB_SHIFT;
         }
+        new_indices[j] = i;
     }
 
     if (!map->arena) {
         free(map->buckets);
     }
     
-    map->buckets = new_buckets;
-    map->capacity = new_capacity;
+    map->capacity = new_cap;
+    map->buckets = (MapEntry**)new_block;
 }
 
 void hashmap_init(HashMap *map, Arena *arena, int initial_capacity) {
     if (!map) return;
     
-    // Force capacity to be a power of 2 to allow fast bitwise modulo
-    int cap = HASHMAP_INIT_SIZE; // Default minimum
+    int cap = HASHMAP_INIT_SIZE;
     if (initial_capacity > 0) {
-        cap = 1;
+        cap = 8; // Python dicts minimum
         while (cap < initial_capacity) {
             cap <<= 1;
         }
@@ -68,66 +89,85 @@ void hashmap_init(HashMap *map, Arena *arena, int initial_capacity) {
     map->size = 0;
     map->arena = arena;
     
-    size_t buckets_size = sizeof(MapEntry*) * map->capacity;
+    int limit = (cap * 2) / 3;
+    size_t bytes = cap * sizeof(int32_t) + limit * sizeof(DictEntry);
+    
     if (arena) {
-        map->buckets = (MapEntry**)arena_alloc(arena, buckets_size);
-        memset(map->buckets, 0, buckets_size);
+        map->buckets = (MapEntry**)arena_alloc(arena, bytes);
     } else {
-        map->buckets = (MapEntry**)calloc(map->capacity, sizeof(MapEntry*));
+        map->buckets = (MapEntry**)malloc(bytes);
+    }
+    
+    int32_t *indices = (int32_t*)map->buckets;
+    for (int i = 0; i < cap; i++) {
+        indices[i] = -1;
     }
 }
 
 void hashmap_put(HashMap *map, const char *key, void *value) {
     if (!map || !key) return;
     
-    // Resize if load factor >= 0.75
-    if (map->size * 4 >= map->capacity * 3) {
+    // Resize at 2/3 load factor (Python's threshold)
+    int limit = (map->capacity * 2) / 3;
+    if (map->size >= limit) {
         hashmap_resize(map);
     }
     
     uint32_t hash = hash_string(key);
-    // Fast modulo using bitwise AND
-    int index = hash & (map->capacity - 1);
+    size_t mask = map->capacity - 1;
+    size_t perturb = hash;
+    size_t i = hash & mask;
     
-    MapEntry *entry = map->buckets[index];
-    while (entry) {
-        if (strcmp(entry->key, key) == 0) {
-            entry->value = value;
+    int32_t *indices = (int32_t*)map->buckets;
+    DictEntry *entries = (DictEntry*)(indices + map->capacity);
+    
+    // Probing loop
+    while (indices[i] != -1) {
+        int idx = indices[i];
+        // Pointer equality short-circuit is a huge win for compiler interned strings
+        if (entries[idx].hash == hash && 
+           (entries[idx].key == key || strcmp(entries[idx].key, key) == 0)) {
+            entries[idx].value = value;
             return;
         }
-        entry = entry->next;
+        i = (i * 5 + 1 + perturb) & mask;
+        perturb >>= PERTURB_SHIFT;
     }
     
-    // Add new entry
-    MapEntry *new_entry;
+    // Insert new entry
+    int new_idx = map->size++;
+    indices[i] = new_idx;
+    
+    entries[new_idx].hash = hash;
     if (map->arena) {
-        new_entry = (MapEntry*)arena_alloc(map->arena, sizeof(MapEntry));
-        new_entry->key = arena_strdup(map->arena, key);
+        entries[new_idx].key = arena_strdup(map->arena, key);
     } else {
-        new_entry = (MapEntry*)malloc(sizeof(MapEntry));
-        new_entry->key = strdup(key);
+        entries[new_idx].key = strdup(key);
     }
-    
-    new_entry->value = value;
-    new_entry->next = map->buckets[index];
-    map->buckets[index] = new_entry;
-    map->size++;
+    entries[new_idx].value = value;
 }
 
 void* hashmap_get(HashMap *map, const char *key) {
     if (!map || !key) return NULL;
     
     uint32_t hash = hash_string(key);
-    // Fast modulo using bitwise AND
-    int index = hash & (map->capacity - 1);
+    size_t mask = map->capacity - 1;
+    size_t perturb = hash;
+    size_t i = hash & mask;
     
-    MapEntry *entry = map->buckets[index];
-    while (entry) {
-        if (strcmp(entry->key, key) == 0) {
-            return entry->value;
+    int32_t *indices = (int32_t*)map->buckets;
+    DictEntry *entries = (DictEntry*)(indices + map->capacity);
+    
+    while (indices[i] != -1) {
+        int idx = indices[i];
+        if (entries[idx].hash == hash && 
+           (entries[idx].key == key || strcmp(entries[idx].key, key) == 0)) {
+            return entries[idx].value;
         }
-        entry = entry->next;
+        i = (i * 5 + 1 + perturb) & mask;
+        perturb >>= PERTURB_SHIFT;
     }
+    
     return NULL;
 }
 
@@ -138,59 +178,61 @@ int hashmap_has(HashMap *map, const char *key) {
 int hashmap_inc(HashMap *map, const char *key) {
     if (!map || !key) return 0;
     
-    // Resize if load factor >= 0.75
-    if (map->size * 4 >= map->capacity * 3) {
+    int limit = (map->capacity * 2) / 3;
+    if (map->size >= limit) {
         hashmap_resize(map);
     }
     
     uint32_t hash = hash_string(key);
-    // Fast modulo using bitwise AND
-    int index = hash & (map->capacity - 1);
+    size_t mask = map->capacity - 1;
+    size_t perturb = hash;
+    size_t i = hash & mask;
     
-    MapEntry *entry = map->buckets[index];
-    while (entry) {
-        if (strcmp(entry->key, key) == 0) {
-            // We cast the pointer to intptr_t to use it as a counter 
-            intptr_t count = (intptr_t)entry->value;
+    int32_t *indices = (int32_t*)map->buckets;
+    DictEntry *entries = (DictEntry*)(indices + map->capacity);
+    
+    while (indices[i] != -1) {
+        int idx = indices[i];
+        if (entries[idx].hash == hash && 
+           (entries[idx].key == key || strcmp(entries[idx].key, key) == 0)) {
+            intptr_t count = (intptr_t)entries[idx].value;
             count++;
-            entry->value = (void*)count;
+            entries[idx].value = (void*)count;
             return (int)count;
         }
-        entry = entry->next;
+        i = (i * 5 + 1 + perturb) & mask;
+        perturb >>= PERTURB_SHIFT;
     }
     
-    // Add new entry with count 1
-    MapEntry *new_entry;
+    // Insert new entry with count 1
+    int new_idx = map->size++;
+    indices[i] = new_idx;
+    
+    entries[new_idx].hash = hash;
     if (map->arena) {
-        new_entry = (MapEntry*)arena_alloc(map->arena, sizeof(MapEntry));
-        new_entry->key = arena_strdup(map->arena, key);
+        entries[new_idx].key = arena_strdup(map->arena, key);
     } else {
-        new_entry = (MapEntry*)malloc(sizeof(MapEntry));
-        new_entry->key = strdup(key);
+        entries[new_idx].key = strdup(key);
     }
-    
-    new_entry->value = (void*)(intptr_t)1;
-    new_entry->next = map->buckets[index];
-    map->buckets[index] = new_entry;
-    map->size++;
+    entries[new_idx].value = (void*)(intptr_t)1;
     
     return 1;
 }
 
 void hashmap_free(HashMap *map) {
-    // If we used an arena, the arena handles the teardown.
+    // If we used an arena, the arena handles the teardown entirely.
     if (!map || map->arena) return; 
     
-    for (int i = 0; i < map->capacity; i++) {
-        MapEntry *entry = map->buckets[i];
-        while (entry) {
-            MapEntry *next = entry->next;
-            free(entry->key);
-            free(entry);
-            entry = next;
-        }
+    int32_t *indices = (int32_t*)map->buckets;
+    DictEntry *entries = (DictEntry*)(indices + map->capacity);
+    
+    for (int i = 0; i < map->size; i++) {
+        // Cast away const specifically for deletion
+        free((void*)entries[i].key);
     }
+    
+    free(map->buckets);
     map->buckets = NULL;
     map->size = 0;
-    free(map->buckets);
+    map->capacity = 0;
 }

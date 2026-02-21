@@ -1,7 +1,6 @@
 #ifndef HASHMAP_H
 #define HASHMAP_H
 
-#include "common.h"
 #include "arena.h"
 #include <stddef.h>
 

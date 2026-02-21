@@ -156,6 +156,8 @@ typedef enum {
 typedef struct {
   TokenType type;
   // This string is allocated in the Arena, no need to free individually
+  // Make sure that strings exist as a part of text using hashmap so that
+  // duplicates do not need to be stored differently
   char *text;    
   int int_val;   
   unsigned long long long_val; 

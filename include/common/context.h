@@ -1,6 +1,7 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include "hashmap.h"
 #include "arena.h"
 #include <setjmp.h>
 #include <stddef.h>
@@ -23,6 +24,7 @@ typedef struct {
   char last_reported_namespace[256];
   char last_reported_filename[1024];
 
+  HashMap string_pool;
 } CompilerContext;
 
 // Initialize the context with a provided arena
