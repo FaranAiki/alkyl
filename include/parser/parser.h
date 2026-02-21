@@ -230,8 +230,8 @@ typedef struct {
 // Added for Wash/Clean/Untaint error handling
 typedef struct {
     ASTNode base;
-    ASTNode *expr;
-    char *err_name;
+    char *var_name;
+    char *err_name; // Optional, can be NULL
     ASTNode *body;
     ASTNode *else_body;
     unsigned int wash_type : 2; // 0=wash, 1=clean, 2=untaint

@@ -618,28 +618,30 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         }
         case NODE_WASH: {
             WashNode *wn = (WashNode*)node;
+            SemSymbol *target_sym = sem_symbol_lookup(ctx, wn->var_name, NULL);
+            
+            if (!target_sym) {
+                sem_error(ctx, node, "Undefined variable '%s'", wn->var_name);
+            }
+
             if (wn->wash_type == 2) { // UNTAINT
                 if (ctx->in_wash_block == 0) {
-                    sem_error(ctx, node, "Cannot untaint inside a non-wash/clean block");
+                    sem_error(ctx, node, "Cannot untaint outside a wash/clean block");
                 } else {
-                    if (wn->expr->type == NODE_VAR_REF) {
-                        VarRefNode *ref = (VarRefNode*)wn->expr;
-                        SemSymbol *sym = sem_symbol_lookup(ctx, ref->name, NULL);
-                        if (sym) {
-                            sym->is_pristine = 1; // Mark as pristine within the scope logically
-                        }
-                    } else {
-                        sem_error(ctx, node, "Can only untaint variables");
+                    if (target_sym) {
+                        target_sym->is_pristine = 1; // Mark as pristine within the scope logically
                     }
                 }
             } else { // WASH or CLEAN
-                sem_check_expr(ctx, wn->expr);
-                
                 // Entering the error handler body block
                 sem_scope_enter(ctx, 0, (VarType){0});
-                VarType err_type = {TYPE_INT}; // Errors are typical ints/codes
-                SemSymbol *err_sym = sem_symbol_add(ctx, wn->err_name, SYM_VAR, err_type);
-                err_sym->is_initialized = 1;
+                
+                if (wn->err_name) {
+                    VarType err_type = {TYPE_INT}; // Errors are typical ints/codes
+                    SemSymbol *err_sym = sem_symbol_add(ctx, wn->err_name, SYM_VAR, err_type);
+                    err_sym->is_initialized = 1;
+                }
+                
                 sem_check_block(ctx, wn->body);
                 sem_scope_exit(ctx);
                 

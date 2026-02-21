@@ -145,13 +145,16 @@ void apply_var_modifiers(VarDeclNode* node, int modifiers) {
     }
 }
 
-ASTNode* parse_wash_or_clean_tail(Parser *p, ASTNode *expr, int wash_type) {
+ASTNode* parse_wash_or_clean_tail(Parser *p, char *var_name, int wash_type) {
     int line = p->current_token.line, col = p->current_token.col;
-    eat(p, TOKEN_AS);
+    char *err_name = NULL;
     
-    if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected identifier for error variable in wash/clean statement");
-    char *err_name = parser_strdup(p, p->current_token.text);
-    eat(p, TOKEN_IDENTIFIER);
+    if (p->current_token.type == TOKEN_AS) {
+        eat(p, TOKEN_AS);
+        if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected identifier for error variable in wash/clean statement");
+        err_name = parser_strdup(p, p->current_token.text);
+        eat(p, TOKEN_IDENTIFIER);
+    }
     
     ASTNode *body = parse_single_statement_or_block(p);
     ASTNode *else_body = NULL;
@@ -165,7 +168,7 @@ ASTNode* parse_wash_or_clean_tail(Parser *p, ASTNode *expr, int wash_type) {
     node->base.type = NODE_WASH;
     node->base.line = line;
     node->base.col = col;
-    node->expr = expr;
+    node->var_name = var_name;
     node->err_name = err_name;
     node->body = body;
     node->else_body = else_body;

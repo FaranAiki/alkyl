@@ -327,21 +327,28 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
   if (p->current_token.type == TOKEN_WASH || p->current_token.type == TOKEN_CLEAN) {
       int wash_type = (p->current_token.type == TOKEN_CLEAN) ? 1 : 0;
       eat(p, p->current_token.type);
-      // expr is not an expression! it is something else 
-      // ASTNode *expr = parse_expression(p);
-      return parse_wash_or_clean_tail(p, expr, wash_type); 
+      
+      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected variable name after 'wash' or 'clean'");
+      char *var_name = parser_strdup(p, p->current_token.text);
+      eat(p, TOKEN_IDENTIFIER);
+      
+      return parse_wash_or_clean_tail(p, var_name, wash_type); 
   }
 
   // Handle explicit UNTAINT statement
   if (p->current_token.type == TOKEN_UNTAINT) {
       eat(p, TOKEN_UNTAINT);
-      ASTNode *expr = parse_expression(p);
+      
+      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected variable name after 'untaint'");
+      char *var_name = parser_strdup(p, p->current_token.text);
+      eat(p, TOKEN_IDENTIFIER);
+      
       eat_semi(p);
       WashNode *node = parser_alloc(p, sizeof(WashNode));
       node->base.type = NODE_WASH;
       node->base.line = line;
       node->base.col = col;
-      node->expr = expr;
+      node->var_name = var_name;
       node->wash_type = 2; // 2 = untaint
       return (ASTNode*)node;
   }

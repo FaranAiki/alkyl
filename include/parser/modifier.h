@@ -3,6 +3,6 @@
 
 #include "parser.h"
 
-ASTNode* parse_wash_or_clean_tail(Parser *p, ASTNode *expr, int wash_type);
+ASTNode* parse_wash_or_clean_tail(Parser *p, char *var_name, int wash_type);
 
-#endif // PARSRE_MODIFIER_H
+#endif // PARSER_MODIFIER_H

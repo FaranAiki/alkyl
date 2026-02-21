@@ -272,12 +272,12 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
         case NODE_WASH: {
             WashNode *wn = (WashNode*)node;
             if (wn->wash_type == 2) {
-                sb_append(sb, "untaint ");
-                parser_emit_ast_node(sb, wn->expr, 0);
+                sb_append_fmt(sb, "untaint %s", wn->var_name);
             } else {
-                sb_append(sb, wn->wash_type == 1 ? "clean " : "wash ");
-                parser_emit_ast_node(sb, wn->expr, 0);
-                sb_append_fmt(sb, " as %s", wn->err_name);
+                sb_append_fmt(sb, "%s %s", wn->wash_type == 1 ? "clean" : "wash", wn->var_name);
+                if (wn->err_name) {
+                    sb_append_fmt(sb, " as %s", wn->err_name);
+                }
                 parser_emit_block(sb, wn->body, indent);
                 if (wn->else_body) {
                     sb_append(sb, " else ");
