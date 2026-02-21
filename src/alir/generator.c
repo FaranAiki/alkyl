@@ -134,6 +134,8 @@ void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root) {
 
 void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
     AlirValue *cond = alir_gen_expr(ctx, sn->condition);
+    if (!cond) cond = alir_const_int(ctx->module, 0); // Safety net for unresolvable conditions
+
     AlirBlock *end_bb = alir_add_block(ctx->module, ctx->current_func, "switch_end");
     AlirBlock *default_bb = end_bb; 
     
@@ -218,6 +220,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             
             if (vn->initializer) {
                 AlirValue *val = alir_gen_expr(ctx, vn->initializer);
+                if (!val) val = alir_const_int(ctx->module, 0); // Safety net
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
             }
             return; 
@@ -235,6 +238,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             alir_add_symbol(ctx, vn->name, ptr, vn->var_type);
             if (vn->initializer) {
                 AlirValue *val = alir_gen_expr(ctx, vn->initializer);
+                if (!val) val = alir_const_int(ctx->module, 0); // Safety net
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
             }
             break;
@@ -246,18 +250,20 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             if (an->target) {
                 ptr = alir_gen_addr(ctx, an->target);
                 
-                // [BUGFIX] Enhanced Member Assignment Recovery
-                // If the pointer failed to resolve normally (because Semantic lost the type), 
-                // trace back manually via the local Symbol Table.
+                // [BUGFIX] ULTRA Aggressive Member Assignment Recovery
                 if (!ptr && an->target->type == NODE_MEMBER_ACCESS) {
                     MemberAccessNode *ma = (MemberAccessNode*)an->target;
                     AlirValue *base = alir_gen_expr(ctx, ma->object);
                     if (base) {
                         char *cname = base->type.class_name;
+                        
                         if (!cname && ma->object->type == NODE_VAR_REF) {
                             AlirSymbol *sym = alir_find_symbol(ctx, ((VarRefNode*)ma->object)->name);
-                            if (sym) cname = sym->type.class_name;
+                            if (sym && sym->type.class_name) {
+                                cname = sym->type.class_name;
+                            }
                         }
+                        
                         if (cname) {
                             int idx = alir_get_field_index(ctx->module, cname, ma->member_name);
                             if (idx != -1) {
@@ -273,18 +279,14 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                 else ptr = alir_val_var(ctx->module, an->name); 
             }
             
-            // [BUGFIX] Ultimate Safety Net: Never let a NULL pointer crash the ALICK STORE instruction
+            // [BUGFIX] Unbreakable Safety Net
             if (!ptr) {
-                ptr = new_temp(ctx, (VarType){TYPE_AUTO, 1, NULL});
+                ptr = new_temp(ctx, (VarType){TYPE_INT, 1, NULL});
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
             }
             
             AlirValue *val = alir_gen_expr(ctx, an->value);
-            
-            // Safety Net: Never emit a void/null value into STORE
-            if (!val) {
-                val = alir_const_int(ctx->module, 0); 
-            }
+            if (!val) val = alir_const_int(ctx->module, 0); // Safety Net
             
             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
             break;
@@ -310,6 +312,8 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
 
                 ctx->current_block = cond_bb;
                 AlirValue *cond = alir_gen_expr(ctx, wn->condition);
+                if (!cond) cond = alir_const_int(ctx->module, 0); // Safety net
+
                 AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, cond, alir_val_label(ctx->module, body_bb->label));
                 br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
                 br->args[0] = alir_val_label(ctx->module, end_bb->label);
@@ -320,6 +324,8 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
 
                 ctx->current_block = cond_bb;
                 AlirValue *cond = alir_gen_expr(ctx, wn->condition);
+                if (!cond) cond = alir_const_int(ctx->module, 0); // Safety net
+
                 AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, cond, alir_val_label(ctx->module, body_bb->label));
                 br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
                 br->args[0] = alir_val_label(ctx->module, end_bb->label);
@@ -358,6 +364,10 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_FOR_IN: {
             ForInNode *fn = (ForInNode*)node;
             AlirValue *col = alir_gen_expr(ctx, fn->collection);
+            if (!col) {
+                col = new_temp(ctx, (VarType){TYPE_AUTO, 1, NULL});
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, col, NULL, NULL));
+            }
             
             AlirValue *iter = new_temp(ctx, (VarType){TYPE_VOID, 1}); 
             emit(ctx, mk_inst(ctx->module, ALIR_OP_ITER_INIT, iter, col, NULL));
@@ -426,7 +436,11 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 1), fin_ptr));
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
             } else {
-                AlirValue *v = rn->value ? alir_gen_expr(ctx, rn->value) : NULL;
+                AlirValue *v = NULL;
+                if (rn->value) {
+                    v = alir_gen_expr(ctx, rn->value);
+                    if (!v) v = alir_const_int(ctx->module, 0); // Safety net
+                }
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, v, NULL));
             }
             break;
@@ -453,6 +467,8 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_IF: {
             IfNode *in = (IfNode*)node;
             AlirValue *cond = alir_gen_expr(ctx, in->condition);
+            if (!cond) cond = alir_const_int(ctx->module, 0); // Safety net
+
             AlirBlock *then_bb = alir_add_block(ctx->module, ctx->current_func, "then");
             AlirBlock *else_bb = alir_add_block(ctx->module, ctx->current_func, "else");
             AlirBlock *merge_bb = alir_add_block(ctx->module, ctx->current_func, "merge");

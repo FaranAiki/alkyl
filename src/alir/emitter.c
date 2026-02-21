@@ -14,7 +14,9 @@ void alir_fprint_type(FILE *f, VarType t) {
         case TYPE_ENUM: fprintf(f, "i32"); break; // Enums degrade to i32 in IR
         default: fprintf(f, "any"); break;
     }
-    for(int i=0; i<t.ptr_depth; i++) fprintf(f, "*");
+    // todo maybe use i8 ptr; i8 ptr*; i8 ptr**?
+    if (t.ptr_depth - 1) fprintf(f, " ptr");
+    for(int i=1; i<t.ptr_depth; i++) fprintf(f, "*");
 }
 
 void alir_fprint_val(FILE *f, AlirValue *v) {
