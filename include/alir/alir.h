@@ -94,6 +94,10 @@ typedef struct AlirInst {
     struct AlirSwitchCase *cases; 
     
     struct AlirInst *next;
+
+    // Source mapping context
+    int line;
+    int col;
 } AlirInst;
 
 typedef struct AlirSwitchCase {
@@ -172,6 +176,10 @@ typedef struct AlirModule {
     AlirStruct *structs;    // Registry of struct definitions
     AlirEnum *enums;        // Registry of enum definitions
     CompilerContext *compiler_ctx; // Reference for Arena
+    
+    // Diagnostics tracing
+    const char *src;
+    const char *filename;
 } AlirModule;
 
 // --- GENERATION CONTEXT ---
@@ -217,6 +225,10 @@ typedef struct AlirCtx {
     char *flux_struct_name;        // Name of the struct
     int flux_yield_count;
     AlirInst *flux_resume_switch;  // The switch instruction being built
+
+    // AST Source Tracking 
+    int current_line;
+    int current_col;
 } AlirCtx;
 
 // Core

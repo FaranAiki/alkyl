@@ -1,47 +1,89 @@
 #include "../../include/alick/alick_internal.h"
+#include "../../include/common/diagnostic.h"
 #include <stdarg.h>
 
 void alick_error(AlickCtx *ctx, AlirFunction *func, AlirBlock *block, AlirInst *inst, const char *fmt, ...) {
     ctx->error_count++;
-    
-    // Use ANSI red for error tag
-    fprintf(stderr, "\033[1;31m[Alick Error]\033[0m ");
-    
-    if (func) fprintf(stderr, "in func '@%s' ", func->name);
-    if (block) fprintf(stderr, "block '%s' ", block->label);
-    
-    fprintf(stderr, "-> ");
-    
+    if (ctx->module && ctx->module->compiler_ctx) {
+        ctx->module->compiler_ctx->alir_error_count++;
+    }
+
+    char msg[1024];
     va_list args;
     va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
+    vsnprintf(msg, sizeof(msg), fmt, args);
     va_end(args);
-    
-    fprintf(stderr, "\n");
-    
-    if (inst) {
-        fprintf(stderr, "  Instruction Context: %s\n", alir_op_str(inst->op));
+
+    if (ctx->module->src && inst && inst->line > 0) {
+        // Use the powerful diagnostic error reporter for gorgeous error messages linked to source!
+        Lexer l;
+        lexer_init(&l, ctx->module->compiler_ctx, ctx->module->filename, ctx->module->src);
+        
+        Token t;
+        t.line = inst->line;
+        t.col = inst->col;
+        t.type = TOKEN_UNKNOWN;
+        t.text = NULL;
+
+        // Provide context from the Intermediate Representation
+        char extended_msg[2048];
+        snprintf(extended_msg, sizeof(extended_msg), "[ALIR: @%s -> %s] %s", 
+                 func ? func->name : "global", 
+                 block ? block->label : "entry", 
+                 msg);
+
+        report_error(&l, t, extended_msg);
+    } else {
+        // Fallback print for empty blocks or unlinked AST nodes
+        fprintf(stderr, "\033[1;31m[Alick Error]\033[0m ");
+        
+        if (func) fprintf(stderr, "in func '@%s' ", func->name);
+        if (block) fprintf(stderr, "block '%s' ", block->label);
+        
+        fprintf(stderr, "-> %s\n", msg);
+        
+        if (inst) {
+            fprintf(stderr, "  Instruction Context: %s\n", alir_op_str(inst->op));
+        }
     }
 }
 
 void alick_warning(AlickCtx *ctx, AlirFunction *func, AlirBlock *block, AlirInst *inst, const char *fmt, ...) {
     ctx->warning_count++;
-    if (inst == NULL) inst++; // fuck you
     
-    // Use ANSI magenta/purple for warning tag
-    fprintf(stderr, "\033[1;35m[Alick Warning]\033[0m ");
-    
-    if (func) fprintf(stderr, "in func '@%s' ", func->name);
-    if (block) fprintf(stderr, "block '%s' ", block->label);
-    
-    fprintf(stderr, "-> ");
-    
+    char msg[1024];
     va_list args;
     va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
+    vsnprintf(msg, sizeof(msg), fmt, args);
     va_end(args);
     
-    fprintf(stderr, "\n");
+    if (ctx->module->src && inst && inst->line > 0) {
+        // Propagate ALIR warnings to the source file!
+        Lexer l;
+        lexer_init(&l, ctx->module->compiler_ctx, ctx->module->filename, ctx->module->src);
+        
+        Token t;
+        t.line = inst->line;
+        t.col = inst->col;
+        t.type = TOKEN_UNKNOWN;
+        t.text = NULL;
+
+        char extended_msg[2048];
+        snprintf(extended_msg, sizeof(extended_msg), "[ALIR: @%s -> %s] %s", 
+                 func ? func->name : "global", 
+                 block ? block->label : "entry", 
+                 msg);
+
+        report_warning(&l, t, extended_msg);
+    } else {
+        // Fallback Warning
+        fprintf(stderr, "\033[1;35m[Alick Warning]\033[0m ");
+        
+        if (func) fprintf(stderr, "in func '@%s' ", func->name);
+        if (block) fprintf(stderr, "block '%s' ", block->label);
+        
+        fprintf(stderr, "-> %s\n", msg);
+    }
 }
 
 int alick_check_module(AlirModule *mod) {

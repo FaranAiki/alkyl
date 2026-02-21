@@ -6,11 +6,17 @@ AlirInst* mk_inst(AlirModule *mod, AlirOpcode op, AlirValue *dest, AlirValue *op
     i->dest = dest;
     i->op1 = op1;
     i->op2 = op2;
+    i->line = 0;
+    i->col = 0;
     return i;
 }
 
 void emit(AlirCtx *ctx, AlirInst *i) {
     if (!ctx->current_block) return;
+    if (i) {
+        i->line = ctx->current_line;
+        i->col = ctx->current_col;
+    }
     alir_append_inst(ctx->current_block, i);
 }
 

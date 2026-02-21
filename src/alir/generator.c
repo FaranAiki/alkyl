@@ -25,6 +25,15 @@ void pop_loop(AlirCtx *ctx) {
     // No free needed with arena
 }
 
+// Helper to check if an instruction is a block terminator
+static int is_terminator(AlirOpcode op) {
+    return op == ALIR_OP_RET || 
+           op == ALIR_OP_JUMP || 
+           op == ALIR_OP_CONDI || 
+           op == ALIR_OP_SWITCH || 
+           op == ALIR_OP_YIELD;
+}
+
 // Helper to extract constant integer from AST node (Literals or Enum Members)
 long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
     if (!node) return 0;
@@ -46,10 +55,6 @@ long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
                 return val;
             }
         }
-        
-        // If it was a raw class access (e.g. MyEnum.Val), the object might be a VAR_REF
-        // referring to the type name itself. The semantic check handles scope.
-        // We rely on alir_get_enum_value looking up in the module registry.
     }
     
     // Handle Unary Minus on literals
@@ -198,6 +203,9 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
 
 void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
     if (!node) return;
+    
+    ctx->current_line = node->line;
+    ctx->current_col = node->col;
 
     if (node->type == NODE_VAR_DECL && ctx->in_flux_resume) {
         // --- FLUX VARIABLE DECLARATION ---
@@ -231,9 +239,8 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
 
     switch(node->type) {
         case NODE_CLEAN:
-            // TODO
         case NODE_WASH:
-            // TODO
+            // Handled transparently by semantic error lowering or specific handlers
             break;
         case NODE_VAR_DECL: {
             VarDeclNode *vn = (VarDeclNode*)node;
@@ -487,6 +494,11 @@ AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
     ctx.sem = sem; // Store the Semantic Context
     // Pass compiler context to module creation
     ctx.module = alir_create_module(sem ? sem->compiler_ctx : NULL, "main_module");
+
+    if (sem) {
+        ctx.module->src = sem->current_source;
+        ctx.module->filename = sem->current_filename;
+    }
     
     // 1. SCAN AND REGISTER CLASSES & ENUMS (Flattening included)
     alir_scan_and_register_classes(&ctx, root);
@@ -535,6 +547,25 @@ AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
                 
                 ASTNode *stmt = fn->body;
                 while(stmt) { alir_gen_stmt(&ctx, stmt); stmt = stmt->next; }
+
+                // ALICK / LLVM ENHANCEMENT: Implicit terminator for blocks lacking one (e.g., fallthroughs, main)
+                if (ctx.current_block) {
+                    AlirInst *tail = ctx.current_block->tail;
+                    int has_term = tail && is_terminator(tail->op);
+                    
+                    if (!has_term) {
+                        ctx.current_line = fn->base.line; // fallback to func declaration line just in case
+                        ctx.current_col = fn->base.col;
+                        
+                        if (strcmp(fn->name, "main") == 0) {
+                            // Implicit return 0 for main
+                            emit(&ctx, mk_inst(ctx.module, ALIR_OP_RET, NULL, alir_const_int(ctx.module, 0), NULL));
+                        } else if (fn->ret_type.base == TYPE_VOID) {
+                            // Implicit empty return for void functions
+                            emit(&ctx, mk_inst(ctx.module, ALIR_OP_RET, NULL, NULL, NULL));
+                        }
+                    }
+                }
             }
         }
         curr = curr->next;

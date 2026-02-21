@@ -250,6 +250,10 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
 
 AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
     if (!node) return NULL;
+    
+    ctx->current_line = node->line;
+    ctx->current_col = node->col;
+
     switch(node->type) {
         case NODE_LITERAL: return alir_gen_literal(ctx, (LiteralNode*)node);
         case NODE_VAR_REF: return alir_gen_var_ref(ctx, (VarRefNode*)node);
