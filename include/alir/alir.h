@@ -37,6 +37,7 @@ typedef struct AlirValue {
 typedef enum {
     // Memory & Access
     ALIR_OP_ALLOCA,
+    ALIR_OP_FREE_STACK,
     ALIR_OP_STORE,
     ALIR_OP_LOAD,
     ALIR_OP_GET_PTR,    // Generic GEP (Get Element Ptr) for Arrays/Structs
@@ -45,7 +46,7 @@ typedef enum {
     // New Memory Ops for Lowering
     ALIR_OP_ALLOC_HEAP, // malloc
     ALIR_OP_SIZEOF,     // sizeof(T)
-    ALIR_OP_FREE,       // free
+    ALIR_OP_FREE_HEAP,       // free
 
     // Arithmetic
     ALIR_OP_ADD, ALIR_OP_SUB, ALIR_OP_MUL, ALIR_OP_DIV, ALIR_OP_MOD,

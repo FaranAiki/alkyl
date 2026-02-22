@@ -59,7 +59,7 @@ void alick_check_memory(AlickCtx *ctx, AlirFunction *func) {
             }
 
             // 2. Track FREE instructions
-            if (i->op == ALIR_OP_FREE && key1[0] != '\0') {
+              if (i->op == ALIR_OP_FREE_HEAP && key1[0] != '\0') {
                 if (hashmap_has(&freed_map, key1)) {
                     alick_error(ctx, func, b, i, "Double-Free: Pointer '%s' is freed multiple times.", key1);
                 } else {

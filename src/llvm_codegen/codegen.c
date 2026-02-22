@@ -423,7 +423,7 @@ static void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             }
             break;
         }
-        case ALIR_OP_FREE: {
+        case ALIR_OP_FREE_HEAP: {
             if (op1) LLVMBuildFree(ctx->builder, op1);
             break;
         }

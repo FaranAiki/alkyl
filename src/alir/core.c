@@ -182,14 +182,15 @@ int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *f
 const char* alir_op_str(AlirOpcode op) {
     switch(op) {
         case ALIR_OP_ALLOCA: return "onstack";
+        case ALIR_OP_FREE_STACK: return "unstack"; // this is not needed, i guess
         case ALIR_OP_STORE: return "store";
         case ALIR_OP_LOAD: return "load";
         case ALIR_OP_GET_PTR: return "getptr";
         case ALIR_OP_BITCAST: return "bitcast";
         
         case ALIR_OP_ALLOC_HEAP: return "onheap";
+        case ALIR_OP_FREE_HEAP: return "unheap";
         case ALIR_OP_SIZEOF: return "sizeof";
-        case ALIR_OP_FREE: return "free";
         
         case ALIR_OP_ADD: return "add";
         case ALIR_OP_SUB: return "sub";

@@ -28,7 +28,7 @@ void alick_check_types(AlickCtx *ctx, AlirFunction *func) {
                     if (!i->dest) alick_error(ctx, func, b, i, "Allocation instruction requires a destination pointer.");
                     break;
                     
-                case ALIR_OP_FREE:
+                case ALIR_OP_FREE_HEAP:
                     if (!i->op1) alick_error(ctx, func, b, i, "FREE requires a pointer operand (op1).");
                     break;
 
