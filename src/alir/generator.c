@@ -64,54 +64,73 @@ long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
     return 0; // Fallback / Error
 }
 
-void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root) {
+static ClassNode* find_class_node(ASTNode *root, const char *name) {
     ASTNode *curr = root;
     while(curr) {
-        if (curr->type == NODE_CLASS) {
-            ClassNode *cn = (ClassNode*)curr;
-            
-            AlirField *head = NULL;
-            AlirField **tail = &head;
-            int idx = 0;
+        if (curr->type == NODE_CLASS && strcmp(((ClassNode*)curr)->name, name) == 0) return (ClassNode*)curr;
+        if (curr->type == NODE_NAMESPACE) {
+            ClassNode *cn = find_class_node(((NamespaceNode*)curr)->body, name);
+            if (cn) return cn;
+        }
+        curr = curr->next;
+    }
+    return NULL;
+}
 
-            // 1. FLATTENING: Copy Parent Fields First
-            if (cn->parent_name) {
-                AlirStruct *parent = alir_find_struct(ctx->module, cn->parent_name);
-                if (parent) {
-                    AlirField *pf = parent->fields;
-                    while(pf) {
-                        AlirField *nf = alir_alloc(ctx->module, sizeof(AlirField));
-                        nf->name = alir_strdup(ctx->module, pf->name); 
-                        nf->type = pf->type;
-                        nf->index = idx++;
-                        
-                        *tail = nf;
-                        tail = &nf->next;
-                        pf = pf->next;
-                    }
-                }
+static void build_struct_fields(AlirCtx *ctx, ASTNode *root, ClassNode *cn, AlirStruct *st) {
+    if (st->field_count != -1) return; // Already built
+    
+    int idx = 0;
+    AlirField *head = NULL;
+    AlirField **tail = &head;
+    
+    if (cn->parent_name) {
+        AlirStruct *parent_st = alir_find_struct(ctx->module, cn->parent_name);
+        if (parent_st) {
+            if (parent_st->field_count == -1) {
+                ClassNode *pcn = find_class_node(root, cn->parent_name);
+                if (pcn) build_struct_fields(ctx, root, pcn, parent_st);
             }
+            AlirField *pf = parent_st->fields;
+            while(pf) {
+                AlirField *nf = alir_alloc(ctx->module, sizeof(AlirField));
+                nf->name = alir_strdup(ctx->module, pf->name); 
+                nf->type = pf->type;
+                nf->index = idx++;
+                
+                *tail = nf;
+                tail = &nf->next;
+                pf = pf->next;
+            }
+        }
+    }
 
-            // 2. Add Local Members
-            ASTNode *mem = cn->members;
-            while(mem) {
-                if (mem->type == NODE_VAR_DECL) {
-                    VarDeclNode *vd = (VarDeclNode*)mem;
-                    AlirField *f = alir_alloc(ctx->module, sizeof(AlirField));
-                    f->name = alir_strdup(ctx->module, vd->name);
-                    f->type = vd->var_type;
-                    f->index = idx++;
-                    
-                    *tail = f;
-                    tail = &f->next;
-                }
-                mem = mem->next;
-            }
+    ASTNode *mem = cn->members;
+    while(mem) {
+        if (mem->type == NODE_VAR_DECL) {
+            VarDeclNode *vd = (VarDeclNode*)mem;
+            AlirField *f = alir_alloc(ctx->module, sizeof(AlirField));
+            f->name = alir_strdup(ctx->module, vd->name);
+            f->type = vd->var_type;
+            f->index = idx++;
             
-            alir_register_struct(ctx->module, cn->name, head);
-        } else if (curr->type == NODE_ENUM) {
-            // Register Enum
-            EnumNode *en = (EnumNode*)curr;
+            *tail = f;
+            tail = &f->next;
+        }
+        mem = mem->next;
+    }
+    
+    st->fields = head;
+    st->field_count = idx;
+}
+
+static void pass1_register(AlirCtx *ctx, ASTNode *n) {
+    while(n) {
+        if (n->type == NODE_CLASS) {
+            ClassNode *cn = (ClassNode*)n;
+            alir_register_struct(ctx->module, cn->name, NULL);
+        } else if (n->type == NODE_ENUM) {
+            EnumNode *en = (EnumNode*)n;
             AlirEnumEntry *head = NULL;
             AlirEnumEntry **tail = &head;
             
@@ -125,12 +144,31 @@ void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root) {
                 ent = ent->next;
             }
             alir_register_enum(ctx->module, en->name, head);
-        } else if (curr->type == NODE_NAMESPACE) {
-             alir_scan_and_register_classes(ctx, ((NamespaceNode*)curr)->body);
+        } else if (n->type == NODE_NAMESPACE) {
+            pass1_register(ctx, ((NamespaceNode*)n)->body);
         }
-        curr = curr->next;
+        n = n->next;
     }
 }
+
+static void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n) {
+    while(n) {
+        if (n->type == NODE_CLASS) {
+            ClassNode *cn = (ClassNode*)n;
+            AlirStruct *st = alir_find_struct(ctx->module, cn->name);
+            if (st) build_struct_fields(ctx, root, cn, st);
+        } else if (n->type == NODE_NAMESPACE) {
+            pass2_populate(ctx, root, ((NamespaceNode*)n)->body);
+        }
+        n = n->next;
+    }
+}
+
+void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root) {
+    pass1_register(ctx, root);
+    pass2_populate(ctx, root, root);
+}
+
 
 void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
     AlirValue *cond = alir_gen_expr(ctx, sn->condition);

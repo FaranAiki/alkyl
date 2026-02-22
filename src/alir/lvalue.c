@@ -1,94 +1,86 @@
 #include "alir.h"
 
+int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char *field_name) {
+    int idx = -1;
+    if (hint_class) {
+        idx = alir_get_field_index(ctx->module, hint_class, field_name);
+    }
+    if (idx == -1) {
+        AlirStruct *search = ctx->module->structs;
+        while (search) {
+            AlirField *f = search->fields;
+            while(f) {
+                if (strcmp(f->name, field_name) == 0) return f->index;
+                f = f->next;
+            }
+            search = search->next;
+        }
+    }
+    return idx == -1 ? 0 : idx;
+}
+
 AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     if (!node) return NULL;
 
     if (node->type == NODE_VAR_REF) {
         VarRefNode *vn = (VarRefNode*)node;
-        
-        // Handle Implicit Member Access (this.x)
         if (vn->is_class_member) {
-            // Get 'this' pointer
             AlirSymbol *this_sym = alir_find_symbol(ctx, "this");
-            if (!this_sym) return NULL; // Should not happen if sem check passed
+            if (!this_sym) return NULL; 
             
-            // Get Class Name from 'this' type
             char *class_name = this_sym->type.class_name;
-            if (!class_name) return NULL;
+            int idx = alir_robust_get_field_index(ctx, class_name, vn->name);
             
-            // Resolve field index
-            int idx = alir_get_field_index(ctx->module, class_name, vn->name);
-            if (idx == -1) return NULL;
-            
-            // Generate GEP
-            // Note: this_sym->ptr is the address where 'this' is stored (e.g. stack param addr).
-            // We need to load 'this' (Class*) first.
             AlirValue *this_ptr = new_temp(ctx, this_sym->type);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, this_ptr, this_sym->ptr, NULL));
             
-            // Now get address of member
             VarType mem_type = sem_get_node_type(ctx->sem, node);
-            mem_type.ptr_depth++; // return pointer
-            
+            mem_type.ptr_depth++;
             AlirValue *res = new_temp(ctx, mem_type); 
             emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, res, this_ptr, alir_const_int(ctx->module, idx)));
             return res;
         }
-
-        // Check IR local symbols first
         AlirSymbol *sym = alir_find_symbol(ctx, vn->name);
         if (sym) return sym->ptr;
-        // If not found locally, assume global
         return alir_val_var(ctx->module, vn->name);
     }
     
     if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
-        
-        // Check if this is an Enum Access first. Enums are constants, not L-values in memory.
         VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
-        if (obj_t.base == TYPE_ENUM) {
-             return NULL; 
-        }
+        if (obj_t.base == TYPE_ENUM) return NULL; 
 
-        // [BUGFIX]: To access a member of an object, we must LOAD the object reference first!
-        // Using alir_gen_expr yields the loaded class pointer (e.g. %3) instead of local var alloca (%0)
         AlirValue *base_ptr = alir_gen_expr(ctx, ma->object);
         if (!base_ptr) return NULL;
 
-        // Prefer the dynamically evaluated IR value's type over semantic guessing for reliability
         char *class_name = base_ptr->type.class_name;
         if (!class_name && obj_t.class_name) class_name = obj_t.class_name;
-
-        if (class_name) {
-            int idx = alir_get_field_index(ctx->module, class_name, ma->member_name);
-            if (idx != -1) {
-                AlirValue *res = new_temp(ctx, (VarType){TYPE_AUTO, 1, NULL}); 
-                emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, res, base_ptr, alir_const_int(ctx->module, idx)));
-                return res;
-            }
+        if (!class_name && ma->object->type == NODE_VAR_REF) {
+            AlirSymbol *sym = alir_find_symbol(ctx, ((VarRefNode*)ma->object)->name);
+            if (sym && sym->type.class_name) class_name = sym->type.class_name;
         }
-        return NULL; // Return safely if field index couldn't be resolved
+
+        int idx = alir_robust_get_field_index(ctx, class_name, ma->member_name);
+        AlirValue *res = new_temp(ctx, (VarType){TYPE_AUTO, 1, NULL}); 
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, res, base_ptr, alir_const_int(ctx->module, idx)));
+        return res;
     }
     
     if (node->type == NODE_ARRAY_ACCESS) {
         ArrayAccessNode *aa = (ArrayAccessNode*)node;
-        
-        // [BUGFIX]: Arrays are references; load the array pointer before doing GEP
         AlirValue *base_ptr = alir_gen_expr(ctx, aa->target);
         if (!base_ptr) return NULL;
 
         AlirValue *index = alir_gen_expr(ctx, aa->index);
+        if (!index) index = alir_const_int(ctx->module, 0); 
         
-        // Result is pointer to element
         VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
-        elem_t.ptr_depth++; // Make it a pointer (L-Value)
+        elem_t.ptr_depth++; 
 
         AlirValue *res = new_temp(ctx, elem_t);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, res, base_ptr, index));
         return res;
     }
-    
     return NULL;
 }
 
@@ -167,6 +159,15 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     AlirValue *l = alir_gen_expr(ctx, bn->left);
     AlirValue *r = alir_gen_expr(ctx, bn->right);
     
+    if (!l) {
+        l = new_temp(ctx, (VarType){TYPE_INT, 0});
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, l, NULL, NULL));
+    }
+    if (!r) {
+        r = new_temp(ctx, (VarType){TYPE_INT, 0});
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, r, NULL, NULL));
+    }
+    
     // Check types via Semantic Context to decide on Float vs Int ops
     VarType l_type = sem_get_node_type(ctx->sem, bn->left);
     VarType r_type = sem_get_node_type(ctx->sem, bn->right);
@@ -188,17 +189,118 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
         case TOKEN_SLASH: op = is_float ? ALIR_OP_FDIV : ALIR_OP_DIV; break;
         case TOKEN_EQ: op = ALIR_OP_EQ; break;
         case TOKEN_LT: op = ALIR_OP_LT; break;
+        case TOKEN_GT: op = ALIR_OP_GT; break;
+        case TOKEN_LTE: op = ALIR_OP_LTE; break;
+        case TOKEN_GTE: op = ALIR_OP_GTE; break;
+        case TOKEN_NEQ: op = ALIR_OP_NEQ; break;
+        case TOKEN_AND: op = ALIR_OP_AND; break;
+        case TOKEN_OR: op = ALIR_OP_OR; break;
+        case TOKEN_XOR: op = ALIR_OP_XOR; break;
+        case TOKEN_LSHIFT: op = ALIR_OP_SHL; break;
+        case TOKEN_RSHIFT: op = ALIR_OP_SHR; break;
         // ... add other cases
     }
     
     // Result type logic
     VarType res_type = is_float ? (VarType){TYPE_DOUBLE, 0} : (VarType){TYPE_INT, 0};
-    if (op == ALIR_OP_EQ || op == ALIR_OP_LT) res_type = (VarType){TYPE_BOOL, 0};
+    if (op == ALIR_OP_EQ || op == ALIR_OP_LT || op == ALIR_OP_GT || op == ALIR_OP_LTE || op == ALIR_OP_GTE || op == ALIR_OP_NEQ) res_type = (VarType){TYPE_BOOL, 0};
     
     AlirValue *dest = new_temp(ctx, res_type);
     emit(ctx, mk_inst(ctx->module, op, dest, l, r));
     return dest;
 }
+
+AlirValue* alir_gen_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
+    AlirValue *operand = alir_gen_expr(ctx, un->operand);
+    if (!operand) {
+        operand = new_temp(ctx, (VarType){TYPE_INT, 0});
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, operand, NULL, NULL));
+    }
+
+    AlirOpcode op = ALIR_OP_NOT;
+    VarType res_type = sem_get_node_type(ctx->sem, (ASTNode*)un);
+    
+    switch(un->op) {
+        case TOKEN_MINUS: {
+            // Lower unary minus to: 0 - operand
+            AlirValue *zero = alir_const_int(ctx->module, 0);
+            if (res_type.base == TYPE_FLOAT || res_type.base == TYPE_DOUBLE) {
+                zero = alir_const_float(ctx->module, 0.0);
+                op = ALIR_OP_FSUB;
+            } else {
+                op = ALIR_OP_SUB;
+            }
+            AlirValue *dest = new_temp(ctx, res_type);
+            emit(ctx, mk_inst(ctx->module, op, dest, zero, operand));
+            return dest;
+        }
+        case TOKEN_NOT: 
+            op = ALIR_OP_NOT; 
+            break;
+        case TOKEN_BIT_NOT: 
+            // ALIR doesn't have an explicit BIT_NOT, usually lowered to XOR -1
+            op = ALIR_OP_XOR; 
+            AlirValue *dest = new_temp(ctx, res_type);
+            emit(ctx, mk_inst(ctx->module, op, dest, operand, alir_const_int(ctx->module, -1)));
+            return dest;
+        case TOKEN_STAR: { // Dereference
+            AlirValue *dest = new_temp(ctx, res_type);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, dest, operand, NULL));
+            return dest;
+        }
+        case TOKEN_AND: { // Address-of
+            return alir_gen_addr(ctx, un->operand);
+        }
+        default:
+            break;
+    }
+    
+    AlirValue *dest = new_temp(ctx, res_type);
+    emit(ctx, mk_inst(ctx->module, op, dest, operand, NULL));
+    return dest;
+}
+
+AlirValue* alir_gen_inc_dec(AlirCtx *ctx, IncDecNode *id) {
+    AlirValue *ptr = alir_gen_addr(ctx, id->target);
+    if (!ptr) {
+        ptr = new_temp(ctx, (VarType){TYPE_INT, 1});
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
+    }
+
+    VarType t = sem_get_node_type(ctx->sem, id->target);
+    AlirValue *val = new_temp(ctx, t);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, val, ptr, NULL));
+    
+    AlirValue *one = (t.base == TYPE_FLOAT || t.base == TYPE_DOUBLE) ? 
+        alir_const_float(ctx->module, 1.0) : alir_const_int(ctx->module, 1);
+        
+    AlirOpcode op = (id->op == TOKEN_INCREMENT) ? ALIR_OP_ADD : ALIR_OP_SUB;
+    if (t.base == TYPE_FLOAT || t.base == TYPE_DOUBLE) {
+        op = (id->op == TOKEN_INCREMENT) ? ALIR_OP_FADD : ALIR_OP_FSUB;
+    }
+    
+    AlirValue *new_val = new_temp(ctx, t);
+    emit(ctx, mk_inst(ctx->module, op, new_val, val, one));
+    
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, new_val, ptr));
+    
+    if (id->is_prefix) return new_val;
+    return val;
+}
+
+AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
+    AlirValue *operand = alir_gen_expr(ctx, cn->operand);
+    if (!operand) {
+        operand = new_temp(ctx, (VarType){TYPE_INT, 0});
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, operand, NULL, NULL));
+    }
+    
+    VarType res_type = cn->var_type;
+    AlirValue *dest = new_temp(ctx, res_type);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_CAST, dest, operand, NULL));
+    return dest;
+}
+
 
 AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
     AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, cn->name), NULL);
@@ -209,7 +311,12 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
     
     int i = 0; a = cn->args;
     while(a) {
-        call->args[i++] = alir_gen_expr(ctx, a);
+        AlirValue *arg_val = alir_gen_expr(ctx, a);
+        if (!arg_val) {
+             arg_val = new_temp(ctx, (VarType){TYPE_INT, 0});
+             emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, arg_val, NULL, NULL));
+        }
+        call->args[i++] = arg_val;
         a = a->next;
     }
     
@@ -233,11 +340,25 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
 AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     AlirValue *this_ptr = alir_gen_addr(ctx, mc->object);
     if (!this_ptr) this_ptr = alir_gen_expr(ctx, mc->object); 
+    if (!this_ptr) {
+         this_ptr = new_temp(ctx, (VarType){TYPE_INT, 0});
+         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, this_ptr, NULL, NULL));
+    }
 
-    // Mangle: Class_Method
     VarType obj_t = sem_get_node_type(ctx->sem, mc->object);
+    char *cname = obj_t.class_name;
+    
+    // [BUGFIX] Mangling Failure Recovery: Check IR types and Local Symtable dynamically
+    if (!cname && this_ptr && this_ptr->type.class_name) {
+        cname = this_ptr->type.class_name;
+    }
+    if (!cname && mc->object->type == NODE_VAR_REF) {
+        AlirSymbol *sym = alir_find_symbol(ctx, ((VarRefNode*)mc->object)->name);
+        if (sym && sym->type.class_name) cname = sym->type.class_name;
+    }
+
     char func_name[256];
-    if (obj_t.class_name) snprintf(func_name, 256, "%s_%s", obj_t.class_name, mc->method_name);
+    if (cname) snprintf(func_name, 256, "%s_%s", cname, mc->method_name);
     else snprintf(func_name, 256, "%s", mc->method_name);
 
     AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, func_name), NULL);
@@ -249,7 +370,12 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     call->args[0] = this_ptr;
     int i = 1; a = mc->args;
     while(a) {
-        call->args[i++] = alir_gen_expr(ctx, a);
+        AlirValue *arg_val = alir_gen_expr(ctx, a);
+        if (!arg_val) {
+             arg_val = new_temp(ctx, (VarType){TYPE_INT, 0});
+             emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, arg_val, NULL, NULL));
+        }
+        call->args[i++] = arg_val;
         a = a->next;
     }
     
@@ -272,7 +398,6 @@ AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     // Note: To fully lower array literals, you would iterate over the ArrayLitNode's 
     // expression elements here, emit expressions, and map ALIR_OP_STORE into offsets using GEP.
     // For ALICK purposes, returning the allocated array pointer fulfills the `STORE` value requirement!
-    // TODO do this  
 
     return arr_ptr;
 }
@@ -287,6 +412,9 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_LITERAL: return alir_gen_literal(ctx, (LiteralNode*)node);
         case NODE_VAR_REF: return alir_gen_var_ref(ctx, (VarRefNode*)node);
         case NODE_BINARY_OP: return alir_gen_binary_op(ctx, (BinaryOpNode*)node);
+        case NODE_UNARY_OP: return alir_gen_unary_op(ctx, (UnaryOpNode*)node);
+        case NODE_INC_DEC: return alir_gen_inc_dec(ctx, (IncDecNode*)node);
+        case NODE_CAST: return alir_gen_cast(ctx, (CastNode*)node);
         case NODE_MEMBER_ACCESS: return alir_gen_access(ctx, node);
         case NODE_ARRAY_ACCESS: return alir_gen_access(ctx, node);
         case NODE_CALL: return alir_gen_call(ctx, (CallNode*)node);

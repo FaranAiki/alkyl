@@ -141,10 +141,15 @@ void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields) 
     st->name = alir_strdup(mod, name);
     st->fields = fields;
     
-    AlirField *f = fields;
-    while(f) {
-        st->field_count++;
-        f = f->next;
+    if (fields == NULL) {
+        st->field_count = -1; // Unresolved marker
+    } else {
+        st->field_count = 0;
+        AlirField *f = fields;
+        while(f) {
+            st->field_count++;
+            f = f->next;
+        }
     }
     
     st->next = mod->structs;

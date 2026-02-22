@@ -70,7 +70,7 @@ entry:
   %3 = getptr %2, 2
   %4 = load %3
   %5 = load %1
-  %6 = add %4, %5
+  %6 = gte %4, %5
   condition %6, then (else)
 then:
   %7 = load %0
@@ -171,17 +171,19 @@ while_end:
   %33 = call @printf (@str.14)
   %34 = call @daily_cycle (%5)
   %35 = load %5
-  %36 = lt , 20
-  condition %36, then (else)
+  %36 = getptr %35, 0
+  %37 = load %36
+  %38 = lt %37, 20
+  condition %38, then (else)
 then:
-  %37 = load %5
-  %38 = bitcast %37
-  %39 = call @log (%38, @str.15)
+  %39 = load %5
+  %40 = bitcast %39
+  %41 = call @log (%40, @str.15)
   jump merge
 else:
-  %40 = load %5
-  %41 = bitcast %40
-  %42 = call @log (%41, @str.16)
+  %42 = load %5
+  %43 = bitcast %42
+  %44 = call @log (%43, @str.16)
   jump merge
 merge:
   return 0
