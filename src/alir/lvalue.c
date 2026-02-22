@@ -127,13 +127,17 @@ AlirValue* alir_gen_trait_access(AlirCtx *ctx, TraitAccessNode *ta) {
     return cast_res;
 }
 
+// Replace alir_gen_literal (around line 69) to capture C-Strings
 AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
     if (ln->var_type.base == TYPE_INT) return alir_const_int(ctx->module, ln->val.int_val);
     if (ln->var_type.base == TYPE_FLOAT) return alir_const_float(ctx->module, ln->val.double_val);
-    if (ln->var_type.base == TYPE_STRING) {
-        return alir_module_add_string_literal(ctx->module, ln->val.str_val, ctx->str_counter++);
+    
+    // [FIX] Route both TYPE_STRING and TYPE_CHAR* (c-strings) to the global literal pool
+    if (ln->var_type.base == TYPE_STRING || (ln->var_type.base == TYPE_CHAR && ln->var_type.ptr_depth > 0)) {
+        return alir_module_add_string_literal(ctx->module, ln->val.str_val, ln->var_type, ctx->str_counter++);
     }
-    // Fallback
+    
+    // Fallback for empty/unhandled literals
     return alir_const_int(ctx->module, 0);
 }
 

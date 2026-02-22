@@ -67,15 +67,17 @@ void alir_func_add_param(AlirModule *mod, AlirFunction *func, const char *name, 
     func->param_count++;
 }
 
-// Add string to global pool
-AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, int id_hint) {
+// Update alir_module_add_string_literal (around line 52) to use the passed VarType
+AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, VarType type, int id_hint) {
     char label[64];
     sprintf(label, "str.%d", id_hint);
     
     AlirGlobal *g = alir_alloc(mod, sizeof(AlirGlobal));
     g->name = alir_strdup(mod, label);
     g->string_content = alir_strdup(mod, content);
-    g->type = (VarType){TYPE_STRING, 0, NULL, 0, 0};
+    
+    // [FIX] Accept the specific type (TYPE_STRING vs TYPE_CHAR*)
+    g->type = type; 
     
     g->next = mod->globals;
     mod->globals = g;
