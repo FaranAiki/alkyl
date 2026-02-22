@@ -166,17 +166,13 @@ static void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         }
         case ALIR_OP_STORE: {
             if (op1 && op2) {
-                LLVMValueRef ptr = op1;
-                LLVMValueRef val = op2;
+                // ALIR places the Value in op1 and the Target Pointer in op2
+                LLVMValueRef val = op1;
+                LLVMValueRef ptr = op2;
                 
-                // Swap if ALIR supplied (dest, val) and ensure the pointer operand is structurally sound
+                // Ensure the pointer operand is structurally sound
                 if (LLVMGetTypeKind(LLVMTypeOf(ptr)) != LLVMPointerTypeKind) {
-                    if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMPointerTypeKind) {
-                        ptr = op2; val = op1; // Swapped
-                    } else {
-                        // Desperate cast fallback to protect Builder
-                        ptr = LLVMBuildIntToPtr(ctx->builder, ptr, LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0), "safe_ptr_cast");
-                    }
+                    ptr = LLVMBuildIntToPtr(ctx->builder, ptr, LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0), "safe_ptr_cast");
                 }
                 LLVMBuildStore(ctx->builder, val, ptr);
             }
@@ -480,7 +476,8 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
     AlirGlobal *g = ctx->alir_mod->globals;
     while (g) {
         if (g->string_content) {
-            LLVMValueRef init_str = LLVMConstStringInContext(ctx->llvm_ctx, g->string_content, strlen(g->string_content), 1);
+            // Fix: The '0' appended at the end requests LLVM to null terminate the string!
+            LLVMValueRef init_str = LLVMConstStringInContext(ctx->llvm_ctx, g->string_content, strlen(g->string_content), 0);
             LLVMTypeRef str_ty = LLVMTypeOf(init_str);
             LLVMValueRef global_var = LLVMAddGlobal(ctx->llvm_mod, str_ty, g->name);
             LLVMSetInitializer(global_var, init_str);
