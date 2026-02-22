@@ -11,11 +11,12 @@ void alir_fprint_type(FILE *f, VarType t) {
         case TYPE_VOID: fprintf(f, "void"); break;
         case TYPE_STRING: fprintf(f, "string"); break;
         case TYPE_CLASS: fprintf(f, "%%%s", t.class_name ? t.class_name : "obj"); break;
-        case TYPE_ENUM: fprintf(f, "i32"); break; // Enums degrade to i32 in IR
+        case TYPE_ENUM: fprintf(f, "i32"); break;
         default: fprintf(f, "any"); break;
     }
-    // todo maybe use i8 ptr; i8 ptr*; i8 ptr**?
-    if (t.ptr_depth - 1) fprintf(f, " ptr");
+    // [FIX] Correct pointer depth logic. 
+    // It used to evaluate `if(0 - 1)` which is TRUE, printing 'ptr' for 0 depth.
+    if (t.ptr_depth > 0) fprintf(f, " ptr");
     for(int i=1; i<t.ptr_depth; i++) fprintf(f, "*");
 }
 
@@ -32,7 +33,8 @@ void alir_fprint_val(FILE *f, AlirValue *v) {
             fprintf(f, "%%%d", v->temp_id);
             break;
         case ALIR_VAL_VAR:
-            fprintf(f, "@%s", v->str_val);
+            // [FIX] ALIR_VAL_VAR must map to local parameters/registers, not globals
+            fprintf(f, "%%%s", v->str_val);
             break;
         case ALIR_VAL_GLOBAL:
             fprintf(f, "@%s", v->str_val);
@@ -51,7 +53,6 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
   AlirFunction *func = mod->functions;
   while(func) {
       if (func->block_count == 0) {
-          // Declaration
           fprintf(f, "\npromise ");
           alir_fprint_type(f, func->ret_type);
           fprintf(f, " @%s(", func->name);
@@ -65,7 +66,6 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
           fprintf(f, ")\n");
           
       } else {
-          // Definition
           fprintf(f, "\ndefine %s ", func->is_flux ? "flux" : "func");
           alir_fprint_type(f, func->ret_type);
           fprintf(f, " @%s(", func->name);
@@ -92,22 +92,28 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                       fprintf(f, " = ");
                   }
                   
-                  // Special handling for ALLOCA to print type
                   if (inst->op == ALIR_OP_ALLOCA && inst->dest) {
                       fprintf(f, "onheap ");
-                      // dest is assumed to be the variable type directly in current gen logic
-                      // If logic implies dest is pointer, we should handle that, but for now
-                      // we print the type stored in the temp info
-                      // TODO make sure this is handled properly
                       alir_fprint_type(f, inst->dest->type);
                   } 
                   else {
+                      // [FIX] Add required typing to the instruction output
                       fprintf(f, "%s ", alir_op_str(inst->op));
+                      
+                      if (inst->dest && inst->op != ALIR_OP_STORE && inst->op != ALIR_OP_CALL) {
+                          alir_fprint_type(f, inst->dest->type);
+                          fprintf(f, " ");
+                      } else if (inst->op == ALIR_OP_STORE && inst->op1) {
+                          alir_fprint_type(f, inst->op1->type);
+                          fprintf(f, " ");
+                      } else if (inst->op == ALIR_OP_RET && inst->op1) {
+                          alir_fprint_type(f, inst->op1->type);
+                          fprintf(f, " ");
+                      }
                       
                       if (inst->op1) {
                           alir_fprint_val(f, inst->op1);
                       } else if (inst->op == ALIR_OP_STORE) {
-                           // Handle missing value in store (e.g. uninit var)
                            fprintf(f, "undef"); 
                       } else if (inst->op == ALIR_OP_RET && !inst->op1) {
                           fprintf(f, "void");
@@ -150,7 +156,6 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
 
   }
 }
-
 void alir_emit_stream(AlirModule *mod, FILE *f) {
     fprintf(f, "; Module: %s\n", mod->name);
     

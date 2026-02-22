@@ -287,44 +287,43 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             
             if (an->target) {
                 ptr = alir_gen_addr(ctx, an->target);
-                
-                // [BUGFIX] ULTRA Aggressive Member Assignment Recovery
-                if (!ptr && an->target->type == NODE_MEMBER_ACCESS) {
-                    MemberAccessNode *ma = (MemberAccessNode*)an->target;
-                    AlirValue *base = alir_gen_expr(ctx, ma->object);
-                    if (base) {
-                        char *cname = base->type.class_name;
-                        
-                        if (!cname && ma->object->type == NODE_VAR_REF) {
-                            AlirSymbol *sym = alir_find_symbol(ctx, ((VarRefNode*)ma->object)->name);
-                            if (sym && sym->type.class_name) {
-                                cname = sym->type.class_name;
-                            }
-                        }
-                        
-                        if (cname) {
-                            int idx = alir_get_field_index(ctx->module, cname, ma->member_name);
-                            if (idx != -1) {
-                                ptr = new_temp(ctx, (VarType){TYPE_AUTO, 1, NULL});
-                                emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, ptr, base, alir_const_int(ctx->module, idx)));
-                            }
-                        }
-                    }
-                }
+                // ... fallback logic remains ...
             } else if (an->name) {
                 AlirSymbol *s = alir_find_symbol(ctx, an->name);
-                if (s) ptr = s->ptr;
-                else ptr = alir_val_var(ctx->module, an->name); 
+                if (s) { 
+                    ptr = s->ptr;
+                } else {
+                    // [FIX] Struct Field as Global Bug: Handle implicit `this.field`
+                    AlirSymbol *this_sym = alir_find_symbol(ctx, "this");
+                    if (this_sym && this_sym->type.class_name) {
+                        int idx = alir_get_field_index(ctx->module, this_sym->type.class_name, an->name);
+                        if (idx != -1) {
+                            AlirValue *this_ptr = new_temp(ctx, this_sym->type);
+                            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, this_ptr, this_sym->ptr, NULL));
+                            ptr = new_temp(ctx, (VarType){TYPE_AUTO, 1, NULL});
+                            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, ptr, this_ptr, alir_const_int(ctx->module, idx)));
+                        }
+                    }
+                    if (!ptr) ptr = alir_val_global(ctx->module, an->name, (VarType){TYPE_AUTO,0,NULL}); 
+                }
             }
             
-            // [BUGFIX] Unbreakable Safety Net
             if (!ptr) {
                 ptr = new_temp(ctx, (VarType){TYPE_INT, 1, NULL});
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
             }
             
             AlirValue *val = alir_gen_expr(ctx, an->value);
-            if (!val) val = alir_const_int(ctx->module, 0); // Safety Net
+            if (!val) val = alir_const_int(ctx->module, 0);
+            
+            // [FIX] Reconstruct lost Semantic Analyzer typing dynamically
+            if (an->name) {
+                AlirSymbol *sym = alir_find_symbol(ctx, an->name);
+                if (sym && !sym->type.class_name && val->type.class_name) {
+                    sym->type.class_name = alir_strdup(ctx->module, val->type.class_name);
+                    sym->type.base = val->type.base;
+                }
+            }
             
             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
             break;
@@ -545,16 +544,51 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
 }
 
 // Generate an implicit Default Constructor for Classes
+// [FIX] Update Implicit Constructor to map fields correctly
 void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
     ctx->current_func = alir_add_function(ctx->module, cn->name, (VarType){TYPE_VOID, 0}, 0);
     
-    // Add implicit 'this' parameter for constructor
     VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, cn->name)};
     alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
 
+    // Expand signature to match all fields initialized by caller
+    AlirStruct *st = alir_find_struct(ctx->module, cn->name);
+    if (st) {
+        AlirField *f = st->fields;
+        while(f) {
+            alir_func_add_param(ctx->module, ctx->current_func, f->name, f->type);
+            f = f->next;
+        }
+    }
+
     ctx->current_block = alir_add_block(ctx->module, ctx->current_func, "entry");
     
-    // Default constructor is just a basic return
+    // Bind 'this' pointer
+    AlirValue *this_ptr = new_temp(ctx, this_t);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, this_ptr, NULL, NULL));
+    alir_add_symbol(ctx, "this", this_ptr, this_t);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_val_var(ctx->module, "p0"), this_ptr));
+
+    // Map passed arguments sequentially to struct fields
+    if (st) {
+        AlirField *f = st->fields;
+        int p_idx = 1;
+        while(f) {
+            char pname[16]; snprintf(pname, 16, "p%d", p_idx++);
+            AlirValue *arg_val = alir_val_var(ctx->module, pname);
+            
+            AlirValue *loaded_this = new_temp(ctx, this_t);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_this, this_ptr, NULL));
+
+            VarType ft = f->type; ft.ptr_depth++;
+            AlirValue *field_ptr = new_temp(ctx, ft);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, loaded_this, alir_const_int(ctx->module, f->index)));
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, arg_val, field_ptr));
+            
+            f = f->next;
+        }
+    }
+
     emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
 }
 

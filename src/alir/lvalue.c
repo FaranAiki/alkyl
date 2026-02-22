@@ -42,7 +42,24 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
         }
         AlirSymbol *sym = alir_find_symbol(ctx, vn->name);
         if (sym) return sym->ptr;
-        return alir_val_var(ctx->module, vn->name);
+        
+        // [FIX] Implicit `this` indexing fallback for bare reads (e.g. `oxygen_level` vs `this.oxygen_level`)
+        AlirSymbol *this_sym = alir_find_symbol(ctx, "this");
+        if (this_sym && this_sym->type.class_name) {
+            int idx = alir_get_field_index(ctx->module, this_sym->type.class_name, vn->name);
+            if (idx != -1) {
+                AlirValue *this_ptr = new_temp(ctx, this_sym->type);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, this_ptr, this_sym->ptr, NULL));
+                
+                VarType mem_type = sem_get_node_type(ctx->sem, node);
+                if (mem_type.base == TYPE_UNKNOWN) mem_type = (VarType){TYPE_AUTO, 0, NULL};
+                mem_type.ptr_depth++;
+                
+                AlirValue *res = new_temp(ctx, mem_type); 
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, res, this_ptr, alir_const_int(ctx->module, idx)));
+                return res;
+            }
+        }
     }
     
     if (node->type == NODE_MEMBER_ACCESS) {
