@@ -185,29 +185,32 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
     }
     
-    int arg_count = 0;
-    ASTNode **curr_arg = &node->args;
-    Parameter **curr_para = &sym->params;
-    while(*curr_arg) {
-        sem_check_expr(ctx, *curr_arg);
-        // TODO almost correct!
-        if (sym->kind == SYM_FUNC && sym->params && arg_count < sym->param_count && *curr_para) {
-            if (sem_types_are_compatible(sem_get_node_type(ctx, *curr_arg), (*curr_para)->type)) {
-                sem_insert_implicit_cast(ctx, curr_arg, (*curr_para)->type);
-            } else {
-                sem_error(ctx, *curr_arg, "Type '%s' is not compatible with '%s'", sem_type_to_str(sem_get_node_type(ctx, *curr_arg)), sem_type_to_str((*curr_para)->type));
+    if (sym->kind == SYM_FUNC) {
+        int arg_count = 0;
+        ASTNode **curr_arg = &node->args;
+        Parameter **curr_para = &sym->params;
+        while(*curr_arg) {
+            sem_check_expr(ctx, *curr_arg);
+            // TODO almost correct!
+            if (sym->kind == SYM_FUNC && sym->params && arg_count < sym->param_count && *curr_para) {
+                if (sem_types_are_compatible(sem_get_node_type(ctx, *curr_arg), (*curr_para)->type)) {
+                    sem_insert_implicit_cast(ctx, curr_arg, (*curr_para)->type);
+                } else {
+                    sem_error(ctx, *curr_arg, "Type '%s' is not compatible with '%s'", sem_type_to_str(sem_get_node_type(ctx, *curr_arg)), sem_type_to_str((*curr_para)->type));
+                }
             }
+            
+            curr_arg = &(*curr_arg)->next;
+            if (*curr_para) curr_para = &(*curr_para)->next;
+            arg_count++;
         }
-        
-        curr_arg = &(*curr_arg)->next;
-        if (*curr_para) curr_para = &(*curr_para)->next;
-        arg_count++;
+
+        if (sym->param_count != arg_count && !sym->is_variadic) {
+            sem_error(ctx, node->args, "Expected %d argument(s) for '%s', got %d", sym->param_count, node->name, arg_count);
+        }
     }
 
-    if (sym->param_count != arg_count && !sym->is_variadic) {
-        sem_error(ctx, node->args, "Expected %d argument(s) for '%s', got %d", sym->param_count, node->name, arg_count);
-    }
-
+    // TODO check calling for classes!
     if (sym->kind == SYM_CLASS) {
         VarType instance = {TYPE_CLASS, 1, 0, arena_strdup(ctx->compiler_ctx->arena, sym->name), 0, NULL, NULL, 0, 0, 0, 0}; 
         sem_set_node_type(ctx, (ASTNode*)node, instance);
