@@ -168,9 +168,10 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     sym->name = arena_strdup(ctx->compiler_ctx->arena, name);
     sym->kind = kind;
     sym->type = type;
-    sym->param_types = NULL;
+    sym->params = NULL;
     sym->param_count = 0;
-    sym->parent_name = NULL; 
+    sym->parent_name = NULL;
+    sym->is_variadic = false;
     sym->is_mutable = true; 
     sym->is_initialized = true; 
     sym->is_pure = true; // default to false       
@@ -179,8 +180,6 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     sym->must_pristine = false;  
     sym->inner_scope = NULL;
     
-    printf("symbol_add: %s\n", sym->name);  
-
     sym->next = ctx->current_scope->symbols;
     ctx->current_scope->symbols = sym;
     return sym;
@@ -348,9 +347,10 @@ char* sem_type_to_str(VarType t) {
     }
     
     int pos = 0;
+    /* fix this is buggy
     for (int i=0; i<t.vector_depth; i++) {
         pos += snprintf(buf + pos, 256 - pos, "vector ");
-    }
+    }*/
 
     if (t.is_unsigned) pos += snprintf(buf + pos, 256 - pos, "unsigned ");
     pos += snprintf(buf + pos, 256 - pos, "%s", base);
@@ -359,7 +359,7 @@ char* sem_type_to_str(VarType t) {
         if(pos < 255) buf[pos++] = '*';
     }
     buf[pos] = '\0';
-    
+
     if (t.array_size > 0) {
         char tmp[32];
         snprintf(tmp, 32, "[%d]", t.array_size);

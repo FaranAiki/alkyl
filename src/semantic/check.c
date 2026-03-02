@@ -56,6 +56,8 @@ void sem_register_builtins(SemanticCtx *ctx) {
     sem_symbol_add(ctx, "exit", SYM_FUNC, void_t);
 }
 
+// TODO split this into 
+// multiple functions
 void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
 
@@ -70,6 +72,8 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             sym->is_pristine = !fd->is_extern;
             sym->must_pristine = fd->is_pristine;
             sym->is_flux = fd->is_flux;
+            sym->is_variadic = fd->is_varargs; 
+            sym->params = fd->params; // idk if this is redundant or not but ok
             Parameter *p = fd->params;
             while (p) {
                 sym->param_count++;
@@ -123,7 +127,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
                 mem->is_initialized = 1;
                 mem->is_pure = 0; // todo default to false
                 mem->is_pristine = 0; // todo default to false
-                mem->param_types = NULL;
+                mem->params = NULL;
                 mem->param_count = 0;
                 mem->parent_name = NULL;
                 mem->inner_scope = NULL;
@@ -183,30 +187,26 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     
     int arg_count = 0;
     ASTNode **curr_arg = &node->args;
+    Parameter **curr_para = &sym->params;
     while(*curr_arg) {
         sem_check_expr(ctx, *curr_arg);
-       
-        printf("HEY! %d: %d\n", sym->kind, sym->param_count);
-        // THIS IS WRONG!
-        // TODO fix this
-        if (sym->kind == SYM_FUNC && sym->param_types && arg_count < sym->param_count) {
-            if (sem_types_are_compatible(sem_get_node_type(ctx, *curr_arg), sym->param_types[arg_count])) {
-                sem_insert_implicit_cast(ctx, curr_arg, sym->param_types[arg_count]);
-                printf ("Types are compatible!\n");
+        // TODO almost correct!
+        if (sym->kind == SYM_FUNC && sym->params && arg_count < sym->param_count) {
+            if (sem_types_are_compatible(sem_get_node_type(ctx, *curr_arg), (*curr_para)->type)) {
+                sem_insert_implicit_cast(ctx, curr_arg, (*curr_para)->type);
             } else {
-                printf("How the fuck is this compatible!\n");
-                sem_error(ctx, *curr_arg, "Type '%s' is not compatible with '%s'", "a", "b");
+                sem_error(ctx, *curr_arg, "Type '%s' is not compatible with '%s'", sem_type_to_str(sem_get_node_type(ctx, *curr_arg)), sem_type_to_str((*curr_para)->type));
             }
         }
         
         curr_arg = &(*curr_arg)->next;
+        curr_para = &(*curr_para)->next;
         arg_count++;
     }
 
-    /*
-    if (sym->param_count != arg_count) {
+    if (sym->param_count != arg_count && !sym->is_variadic) {
         sem_error(ctx, node->args, "Expected %d argument(s) for '%s', got %d", sym->param_count, node->name, arg_count);
-    }*/
+    }
 
     if (sym->kind == SYM_CLASS) {
         VarType instance = {TYPE_CLASS, 1, 0, arena_strdup(ctx->compiler_ctx->arena, sym->name), 0, NULL, NULL, 0, 0, 0, 0}; 

@@ -63,8 +63,8 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                         ASTNode **curr_arg = &node->args;
                         while(*curr_arg) {
                             sem_check_expr(ctx, *curr_arg);
-                            if (member->kind == SYM_FUNC && member->param_types && arg_count < member->param_count) {
-                                sem_insert_implicit_cast(ctx, curr_arg, member->param_types[arg_count]);
+                            if (member->kind == SYM_FUNC && member->params && arg_count < member->param_count) {
+                                sem_insert_implicit_cast(ctx, curr_arg, member->params[arg_count].type);
                             }
                             curr_arg = &(*curr_arg)->next;
                             arg_count++;

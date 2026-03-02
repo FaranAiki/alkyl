@@ -1,8 +1,7 @@
 ; Module: main_module
 
 ; Globals
-@str.1 = string "%s\n"
-@str.0 = string "5"
+@str.0 = string "%s\n"
 
 promise int @printf(char*, ...)
 
@@ -21,13 +20,13 @@ entry:
   return long 5
 }
 
-codeblock func void* @my_malloc(int %p0, int %p1) {
+codeblock func void* @my_malloc(int %p0, string %p1) {
 entry:
   %0 = onstack int
   store int %p0, %0
-  %1 = onstack int
-  store int %p1, %1
-  %2 = load int %0
+  %1 = onstack string
+  store string %p1, %1
+  %2 = load string %1
   %3 = cast long %2
   %4 = call %malloc (%3)
   return unknown %4
@@ -35,10 +34,12 @@ entry:
 
 codeblock func int @main() {
 entry:
-  %0 = call %my_malloc (@str.0, 2)
-  %1 = onstack void*
-  store unknown %0, %1
-  %2 = load void* %1
-  %3 = call %printf (@str.1, %2)
+  %0 = cast string 0.00
+  %1 = call %my_malloc (2, %0)
+  %2 = onstack void*
+  store unknown %1, %2
+  %3 = cast char* @str.0
+  %4 = load void* %2
+  %5 = call %printf (%3, %4)
   return int 0
 }

@@ -17,7 +17,7 @@ typedef struct SemSymbol {
     VarType type;         // For VAR, FUNC (return type)
     
     // Function specific
-    VarType *param_types;
+    Parameter *params;
     int param_count;
     
     // Class specific
@@ -26,6 +26,9 @@ typedef struct SemSymbol {
     // Semantic Modifiers
     IsASemantic is_is_a;
     HasASemantic is_has_a;
+    
+    // It does not have to be functions too! maybe classes, .etc
+    bool is_variadic;
     
     // Scope linkage
     struct SemScope *inner_scope; 

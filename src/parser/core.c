@@ -384,6 +384,8 @@ VarType parse_type(Parser *p) {
   return t;
 }
 
+// TODO understand what the fuck is this
+// This is for varshit idk wtf
 VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     VarType vt = {0};
     vt.is_func_ptr = 1;
