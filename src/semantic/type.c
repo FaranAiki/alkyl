@@ -157,7 +157,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                 sem_error(ctx, (ASTNode*)node, "Cannot assign to immutable variable '%s'", node->name);
             }
             
-            if (sym->is_pristine && expr_tainted) {
+            if (sym->must_pristine && expr_tainted) {
                 sem_error(ctx, (ASTNode*)node, "Cannot assign a tainted value to pristine variable '%s'", sym->name);
             }
             

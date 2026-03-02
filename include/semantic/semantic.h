@@ -54,5 +54,7 @@ void sem_insert_implicit_cast(SemanticCtx *ctx, ASTNode **node_ptr, VarType targ
 #include "type.h"
 #include "fragment/lookup.h"
 #include "fragment/switch.h"
+#include "modifier/class.h"
+#include "modifier/func.h"
 
 #endif // SEMANTIC_H

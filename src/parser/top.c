@@ -6,6 +6,8 @@
 ASTNode* parse_extern(Parser *p, int modifiers) {
   eat(p, TOKEN_EXTERN);
   
+  // TODO add more of this 
+  // so that extern can be more
   if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION) {
       eat(p, p->current_token.type);
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected name for extern class/struct/union");
@@ -58,6 +60,7 @@ ASTNode* parse_extern(Parser *p, int modifiers) {
   FuncDefNode *node = parser_alloc(p, sizeof(FuncDefNode));
   node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = ret_type;
   node->params = params_head; node->body = NULL; node->is_varargs = is_varargs;
+  node->is_extern = true;
   apply_func_modifiers(node, modifiers);
   return (ASTNode*)node;
 }

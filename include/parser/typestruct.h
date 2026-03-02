@@ -112,7 +112,7 @@ typedef struct {
   Parameter *params;
   ASTNode *body; 
   char *class_name; 
-  
+
   IsASemantic is_is_a;
   HasASemantic is_has_a;
 
@@ -125,6 +125,7 @@ typedef struct {
   bool is_flux : 1;
   bool is_pure : 1;
   bool is_pristine : 1;
+  bool is_extern : 1;
 } FuncDefNode;
 
 typedef struct {

@@ -89,11 +89,13 @@ void apply_func_modifiers(FuncDefNode* node, int modifiers) {
     if (modifiers & MODIFIER_CLOSED) node->is_open = 0;
     if (modifiers & MODIFIER_STATIC) node->is_static = 1;
     
-    // By default, pure and clean are true unless overridden
-    node->is_pure = modifiers & MODIFIER_PURE;
-    node->is_pristine = modifiers & MODIFIER_PRISTINE;
+    // node is pure is TRUE by default unless proven otherwise 
+    // and node->is_pure is used by sym to make it sym->must_pure = true or not 
+    // TODO maybe separate this shit idk
+    node->is_pure = modifiers & MODIFIER_PURE /* || !(modifiers & MODIFIER_IMPURE) */;
+    node->is_pristine = modifiers & MODIFIER_PRISTINE || !(modifiers & MODIFIER_TAINTED);
 
-    // Inherited rules for functions (e.g. final overriding rules)
+    // oop modifier useless af 
     if (modifiers & MODIFIER_FINAL) {
         node->is_is_a = IS_A_FINAL;
     } else if (modifiers & MODIFIER_NAKED) {
@@ -125,8 +127,8 @@ void apply_var_modifiers(VarDeclNode* node, int modifiers) {
     node->is_static = (modifiers & MODIFIER_STATIC) != 0;
     
     // By default, pure and clean are FALSE unless overridden
-    node->is_pure = modifiers & MODIFIER_IMPURE;
-    node->is_pristine = modifiers & MODIFIER_TAINTED;
+    node->is_pure = modifiers & MODIFIER_PURE;
+    node->is_pristine = modifiers & MODIFIER_PRISTINE || !(modifiers & MODIFIER_TAINTED);
 
     // Variable specific OOP constraints, in case anonymous classes/objects are used
     if (modifiers & MODIFIER_FINAL) {

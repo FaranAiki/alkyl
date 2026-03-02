@@ -27,13 +27,23 @@ llvm_map_components_to_libnames(llvm_libs
 include_directories(
   # src/old/codegen/ # fallback
     include/
+    
     include/lexer
+    
     include/parser
+    
     include/alir
+    
     include/alick
-    include/codegen 
+    
+    include/codegen
+
     include/semantic
+    include/semantic/modifier
+    include/semantic/fragment
+    
     include/driver
+    
     include/common
 
     include/llvm_codegen
@@ -60,6 +70,9 @@ set(SEMANTIC_SOURCES
     src/semantic/emitter.c
     src/semantic/type.c
     src/semantic/core.c
+
+    src/semantic/modifier/func.c
+    src/semantic/modifier/class.c
 
     src/semantic/fragment/lookup.c
     src/semantic/fragment/switch.c

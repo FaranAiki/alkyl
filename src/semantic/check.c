@@ -56,51 +56,6 @@ void sem_register_builtins(SemanticCtx *ctx) {
     sem_symbol_add(ctx, "exit", SYM_FUNC, void_t);
 }
 
-void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sym) {
-    if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
-
-    SemScope *class_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
-    memset(class_scope, 0, sizeof(SemScope));
-
-    class_scope->symbols = NULL;
-    class_scope->parent = ctx->current_scope; 
-    class_scope->is_function_scope = 0;
-    class_scope->is_class_scope = 1; 
-    class_scope->class_sym = class_sym; 
-    class_scope->expected_ret_type = (VarType){0};
-    
-    class_sym->inner_scope = class_scope;
-    
-    SemScope *old_scope = ctx->current_scope;
-    ctx->current_scope = class_scope;
-    
-    ASTNode *mem = cn->members;
-    while(mem) {
-        if (mem->type == NODE_VAR_DECL) {
-            VarDeclNode *vd = (VarDeclNode*)mem;
-            SemSymbol *sym = sem_symbol_add(ctx, vd->name, SYM_VAR, vd->var_type);
-            sym->is_mutable = vd->is_mutable;
-            sym->is_pure = 1;
-            sym->must_pure = vd->is_pure;
-            sym->is_pristine = 1;
-            sym->must_pristine = vd->is_pristine;
-        } else if (mem->type == NODE_FUNC_DEF) {
-            FuncDefNode *fd = (FuncDefNode*)mem;
-            SemSymbol *sym = sem_symbol_add(ctx, fd->name, SYM_FUNC, fd->ret_type);
-            sym->is_is_a = fd->is_is_a;
-            sym->is_has_a = fd->is_has_a;
-            sym->is_pure = 1;
-            sym->must_pure = fd->is_pure;
-            sym->is_pristine = 1;
-            sym->must_pristine = fd->is_pristine;
-            sym->is_flux = fd->is_flux; // Attach coroutine context
-        }
-        mem = mem->next;
-    }
-    
-    ctx->current_scope = old_scope;
-}
-
 void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
 
@@ -110,9 +65,9 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             SemSymbol *sym = sem_symbol_add(ctx, fd->name, SYM_FUNC, fd->ret_type);
             sym->is_is_a = fd->is_is_a;
             sym->is_has_a = fd->is_has_a;
-            sym->is_pure = 1;
+            sym->is_pure = !fd->is_extern;
             sym->must_pure = fd->is_pure;
-            sym->is_pristine = 1;
+            sym->is_pristine = !fd->is_extern;
             sym->must_pristine = fd->is_pristine;
             sym->is_flux = fd->is_flux;
         }
@@ -329,194 +284,6 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     }
 }
 
-void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
-    sem_check_expr(ctx, node->object);
-    VarType obj_type = sem_get_node_type(ctx, node->object);
-    
-    if (sem_get_node_tainted(ctx, node->object)) {
-        sem_set_node_tainted(ctx, (ASTNode*)node, 1);
-    }
-    
-    if (obj_type.base == TYPE_UNKNOWN) {
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-        return;
-    }
-    
-    if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
-        SemSymbol *class_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
-        if (!class_sym || class_sym->kind != SYM_CLASS) {
-            sem_error(ctx, (ASTNode*)node, "Type '%s' is not a class/struct", obj_type.class_name);
-            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-            return;
-        }
-        
-        SemSymbol *current_class = class_sym;
-        int found = 0;
-        
-        while (current_class) {
-            if (current_class->inner_scope) {
-                SemSymbol *member = current_class->inner_scope->symbols;
-                while (member) {
-                    if (strcmp(member->name, node->member_name) == 0) {
-                        sem_set_node_type(ctx, (ASTNode*)node, member->type);
-                        found = 1;
-                        goto done_search;
-                    }
-                    member = member->next;
-                }
-            }
-            if (current_class->parent_name) {
-                current_class = sem_symbol_lookup(ctx, current_class->parent_name, NULL);
-            } else {
-                current_class = NULL;
-            }
-        }
-        
-        done_search:
-        if (!found) {
-            sem_error(ctx, (ASTNode*)node, "Class '%s' has no member named '%s'", obj_type.class_name, node->member_name);
-            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-        }
-    }
-    else if (obj_type.base == TYPE_ENUM && obj_type.class_name) {
-        SemSymbol *enum_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
-        
-        if (!enum_sym || enum_sym->kind != SYM_ENUM) {
-            sem_error(ctx, (ASTNode*)node, "'%s' is not an enum", obj_type.class_name);
-            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-            return;
-        }
-
-        if (enum_sym->inner_scope) {
-             SemSymbol *member = enum_sym->inner_scope->symbols;
-             while (member) {
-                 if (strcmp(member->name, node->member_name) == 0) {
-                     sem_set_node_type(ctx, (ASTNode*)node, member->type);
-                     return;
-                 }
-                 member = member->next;
-             }
-        }
-        sem_error(ctx, (ASTNode*)node, "Enum '%s' has no member '%s'", obj_type.class_name, node->member_name);
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-    }
-    else if (obj_type.base == TYPE_NAMESPACE && obj_type.class_name) {
-        SemSymbol *ns_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
-        if (!ns_sym || ns_sym->kind != SYM_NAMESPACE) {
-            sem_error(ctx, (ASTNode*)node, "'%s' is not a namespace", obj_type.class_name);
-            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-            return;
-        }
-
-        if (ns_sym->inner_scope) {
-             SemSymbol *member = ns_sym->inner_scope->symbols;
-             while (member) {
-                 if (strcmp(member->name, node->member_name) == 0) {
-                     sem_set_node_type(ctx, (ASTNode*)node, member->type);
-                     return;
-                 }
-                 member = member->next;
-             }
-        }
-        sem_error(ctx, (ASTNode*)node, "Namespace '%s' has no member '%s'", obj_type.class_name, node->member_name);
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-    }
-    else if (obj_type.base == TYPE_STRING && strcmp(node->member_name, "length") == 0) {
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_INT, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-    }
-    else {
-        sem_error(ctx, (ASTNode*)node, "Cannot access member on non-class/non-enum/non-namespace type");
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-    }
-}
-
-void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
-    sem_check_expr(ctx, node->object);
-    VarType obj_type = sem_get_node_type(ctx, node->object);
-    
-    if (sem_get_node_tainted(ctx, node->object)) {
-        sem_set_node_tainted(ctx, (ASTNode*)node, 1);
-    }
-    
-    if (obj_type.base == TYPE_UNKNOWN) {
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-        return;
-    }
-
-    if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
-        sem_lookup_class_call(ctx, node);
-    } else if (obj_type.base == TYPE_NAMESPACE && obj_type.class_name) {
-        SemSymbol *ns_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
-        if (!ns_sym || ns_sym->kind != SYM_NAMESPACE) {
-            sem_error(ctx, (ASTNode*)node, "'%s' is not a namespace", obj_type.class_name);
-            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-            return;
-        }
-
-        int found = 0;
-        if (ns_sym->inner_scope) {
-            SemSymbol *member = ns_sym->inner_scope->symbols;
-            while (member) {
-                if (strcmp(member->name, node->method_name) == 0) {
-                    if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
-                        if (member->kind == SYM_FUNC && !member->is_pure) {
-                            sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot call impure method '%s'", ctx->current_func_sym->name, member->name);
-                        }
-                    }
-
-                    if (member->kind == SYM_FUNC && !member->is_pristine) {
-                        sem_set_node_tainted(ctx, (ASTNode*)node, 1);
-                    }
-
-                    if (member->kind == SYM_FUNC) {
-                        if (member->is_flux) {
-                            char buf[256];
-                            snprintf(buf, sizeof(buf), "FluxCtx_%s_%s", ns_sym->name, member->name);
-                            VarType flux_type = {TYPE_CLASS, 1, 0, arena_strdup(ctx->compiler_ctx->arena, buf), 0, NULL, NULL, 0, 0, 0, 0};
-                            flux_type.fp_ret_type = arena_alloc_type(ctx->compiler_ctx->arena, VarType);
-                            *flux_type.fp_ret_type = member->type;
-                            sem_set_node_type(ctx, (ASTNode*)node, flux_type);
-                        } else {
-                            sem_set_node_type(ctx, (ASTNode*)node, member->type);
-                        }
-                        node->owner_class = ns_sym->name; 
-                        node->is_static = 1;
-                        found = 1;
-                    } 
-                    else if (member->kind == SYM_VAR && member->type.is_func_ptr) {
-                        sem_set_node_type(ctx, (ASTNode*)node, *member->type.fp_ret_type);
-                        found = 1;
-                    }
-
-                    if (found) {
-                        int arg_count = 0;
-                        ASTNode **curr_arg = &node->args;
-                        while(*curr_arg) {
-                            sem_check_expr(ctx, *curr_arg);
-                            if (member->kind == SYM_FUNC && member->param_types && arg_count < member->param_count) {
-                                sem_insert_implicit_cast(ctx, curr_arg, member->param_types[arg_count]);
-                            }
-                            curr_arg = &(*curr_arg)->next;
-                            arg_count++;
-                        }
-                        goto done_ns_method_search;
-                    }
-                }
-                member = member->next;
-            }
-        }
-        
-        done_ns_method_search:
-        if (!found) {
-             sem_error(ctx, (ASTNode*)node, "Function '%s' not found in namespace '%s'", node->method_name, obj_type.class_name);
-             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-        }
-    } else {
-        sem_error(ctx, (ASTNode*)node, "Cannot call method on non-class/non-namespace type");
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
-    }
-}
-
 void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
     
@@ -639,8 +406,8 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 sem_check_expr(ctx, rn->value);
                 VarType val = sem_get_node_type(ctx, rn->value);
                 
-                if (ctx->current_func_sym && ctx->current_func_sym->is_pristine && sem_get_node_tainted(ctx, rn->value)) {
-                    sem_error(ctx, node, "Pristine function cannot return a tainted value");
+                if (ctx->current_func_sym && ctx->current_func_sym->must_pristine && sem_get_node_tainted(ctx, rn->value)) {
+                    sem_error(ctx, node, "Pristine function '%s' cannot return a tainted value", ctx->current_func_sym->name);
                 }
 
                 if (ctx->current_scope->is_function_scope) {
@@ -763,6 +530,31 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             sem_check_expr(ctx, en->value);
             break;
         }
+      /*
+        FUNC_DEF
+        SWITCH
+        CASE
+        VAR_REF
+        BINARY_OP
+        UNARY_OP
+        LITERAL
+        ARRAY_LIT
+        ARRAY_ACCESS
+        VECTOR_LIT
+        VECTOR_ACCESS
+        INC_DEC
+        LINK
+        CLASS
+        NAMESPACE
+        ENUM
+        MEMBER_ACCESS
+        TRAIT_ACCESS
+        TYPEOF
+        HAS_METHOD
+        HAS_ATTRIBUTE
+        CAST
+        CLEAN 
+      */
         default: break;
     }
 }
@@ -812,30 +604,4 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
     }
 }
 
-void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
-    if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
 
-    sem_scope_enter(ctx, 1, node->ret_type);
-    
-    SemSymbol *old_func = ctx->current_func_sym;
-    ctx->current_func_sym = sem_symbol_lookup(ctx, node->name, NULL);
-
-    if (node->class_name) {
-        VarType this_type = {TYPE_CLASS, 1, 0, arena_strdup(ctx->compiler_ctx->arena, node->class_name), 0, NULL, NULL, 0, 0, 0, 0}; 
-        sem_symbol_add(ctx, "this", SYM_VAR, this_type);
-    }
-
-    Parameter *p = node->params;
-    while (p) {
-        if (p->name) {
-            SemSymbol *s = sem_symbol_add(ctx, p->name, SYM_VAR, p->type);
-            s->is_initialized = 1;
-        }
-        p = p->next;
-    }
-    
-    sem_check_block(ctx, node->body);
-    sem_scope_exit(ctx);
-    
-    ctx->current_func_sym = old_func;
-}
