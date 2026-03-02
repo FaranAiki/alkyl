@@ -18,7 +18,10 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             AlirSymbol *sym = alir_find_symbol(ctx, vn->name);
             if (sym && vn->initializer) {
                 AlirValue *val = alir_gen_expr(ctx, vn->initializer);
-                if (!val) val = alir_const_int(ctx->module, 0); // Safety net
+                if (!val) {
+                    printf("What is this\n");
+                    val = alir_const_int(ctx->module, 0); // Safety net
+                }
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, sym->ptr));
             }
             return; 

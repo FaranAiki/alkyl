@@ -134,6 +134,7 @@ void alir_stmt_while(AlirCtx *ctx, ASTNode *node) {
     ctx->current_block = end_bb;
 }
 
+// TODO split this
 void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
     ForInNode *fn = (ForInNode*)node;
     AlirValue *col = alir_gen_expr(ctx, fn->collection);

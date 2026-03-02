@@ -369,6 +369,7 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
             VarType ft = f->type; ft.ptr_depth++;
             AlirValue *field_ptr = new_temp(ctx, ft);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, loaded_this, alir_const_int(ctx->module, f->index)));
+            // implicit constructor
             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, arg_val, field_ptr));
             
             f = f->next;
