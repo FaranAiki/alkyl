@@ -90,8 +90,8 @@ void apply_func_modifiers(FuncDefNode* node, int modifiers) {
     if (modifiers & MODIFIER_STATIC) node->is_static = 1;
     
     // By default, pure and clean are true unless overridden
-    node->is_pure = modifiers & MODIFIER_IMPURE;
-    node->is_pristine = modifiers & MODIFIER_TAINTED;
+    node->is_pure = modifiers & MODIFIER_PURE;
+    node->is_pristine = modifiers & MODIFIER_PRISTINE;
 
     // Inherited rules for functions (e.g. final overriding rules)
     if (modifiers & MODIFIER_FINAL) {

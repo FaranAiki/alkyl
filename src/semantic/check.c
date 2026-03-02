@@ -115,7 +115,6 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             sym->is_pristine = 1;
             sym->must_pristine = fd->is_pristine;
             sym->is_flux = fd->is_flux;
-            printf("%d: %s\n", sym->must_pure, fd->name);
         }
         else if (node->type == NODE_VAR_DECL) {
             VarDeclNode *vd = (VarDeclNode*)node;
