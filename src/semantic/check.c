@@ -191,7 +191,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     while(*curr_arg) {
         sem_check_expr(ctx, *curr_arg);
         // TODO almost correct!
-        if (sym->kind == SYM_FUNC && sym->params && arg_count < sym->param_count) {
+        if (sym->kind == SYM_FUNC && sym->params && arg_count < sym->param_count && *curr_para) {
             if (sem_types_are_compatible(sem_get_node_type(ctx, *curr_arg), (*curr_para)->type)) {
                 sem_insert_implicit_cast(ctx, curr_arg, (*curr_para)->type);
             } else {
@@ -200,7 +200,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         }
         
         curr_arg = &(*curr_arg)->next;
-        curr_para = &(*curr_para)->next;
+        if (*curr_para) curr_para = &(*curr_para)->next;
         arg_count++;
     }
 
