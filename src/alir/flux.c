@@ -4,6 +4,7 @@ static int is_terminator_op(AlirOpcode op) {
     return op == ALIR_OP_RET || op == ALIR_OP_JUMP || op == ALIR_OP_CONDI || op == ALIR_OP_SWITCH || op == ALIR_OP_YIELD;
 }
 
+// TODO should this use parser tho?
 void collect_flux_vars_recursive(AlirCtx *ctx, ASTNode *node, int *idx_ptr) {
     if (!node) return;
     

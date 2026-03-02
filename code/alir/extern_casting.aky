@@ -8,12 +8,8 @@ long t() {
   return 5l;
 }
 
-tainted void *my_malloc(int kk, string t) {
-  return malloc(t as long);
-}
-
 int main() {
-  let p = my_malloc(2, 3.0 as string);
+  let p = malloc(100);
 
   printf "%s\n", p;
 

@@ -507,6 +507,7 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_ARRAY_LIT: return alir_gen_array_lit(ctx, node);
         
         default: {
+            return NULL;
             // [ROBUST FALLBACK]: Catch unimplemented expression nodes gracefully
             // By returning a dummy alloca for unrecognized types, we prevent 
             // ALICK's STORE validator from crashing on NULL ops.

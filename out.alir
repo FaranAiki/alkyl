@@ -20,22 +20,10 @@ entry:
   return long 5
 }
 
-codeblock func void* @my_malloc(int %p0, string %p1) {
-entry:
-  %0 = onstack int
-  store int %p0, %0
-  %1 = onstack string
-  store string %p1, %1
-  %2 = load string %1
-  %3 = cast long %2
-  %4 = call %malloc (%3)
-  return unknown %4
-}
-
 codeblock func int @main() {
 entry:
-  %0 = cast string 0.00
-  %1 = call %my_malloc (2, %0)
+  %0 = cast long 100
+  %1 = call %malloc (%0)
   %2 = onstack void*
   store unknown %1, %2
   %3 = cast char* @str.0

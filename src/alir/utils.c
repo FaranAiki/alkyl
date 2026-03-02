@@ -52,6 +52,7 @@ AlirSymbol* alir_find_symbol(AlirCtx *ctx, const char *name) {
     return NULL;
 }
 
+// what is new lower object
 AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *args) {
     // Verify struct exists in IR
     AlirStruct *st = alir_find_struct(ctx->module, class_name);

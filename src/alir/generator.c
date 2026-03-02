@@ -430,6 +430,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
 
     p = fn->params;
     while(p) {
+        printf("This is for what\n");
         AlirValue *ptr = new_temp(ctx, p->type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
         alir_add_symbol(ctx, p->name, ptr, p->type);
