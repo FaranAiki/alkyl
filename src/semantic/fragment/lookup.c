@@ -12,7 +12,8 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
     
     SemSymbol *current_class = class_sym;
     int found = 0;
-    
+   
+    // TODO fix this parsing for current_class!
     while (current_class) {
         if (current_class->inner_scope) {
             SemSymbol *member = current_class->inner_scope->symbols;

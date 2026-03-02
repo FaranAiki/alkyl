@@ -13,6 +13,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             res = LLVMBuildAlloca(ctx->builder, ty, "alloc");
             break;
         }
+        // TODO fix this store
         case ALIR_OP_STORE: {
             if (op1 && op2) {
                 LLVMValueRef val = op1;
@@ -123,6 +124,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             }
             break;
         }
+        // TODO maybe use a type caster (?)
         case ALIR_OP_CALL: {
             LLVMValueRef func = NULL;
             LLVMTypeRef func_ty = NULL;

@@ -120,25 +120,12 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
     ctx->current_scope = class_scope;
     
     ASTNode *mem = cn->members;
+    // DO this is why we should separate the shit out of this
     while(mem) {
         if (mem->type == NODE_VAR_DECL) {
-            VarDeclNode *vd = (VarDeclNode*)mem;
-            SemSymbol *sym = sem_symbol_add(ctx, vd->name, SYM_VAR, vd->var_type);
-            sym->is_mutable = vd->is_mutable;
-            sym->is_pure = true;
-            sym->must_pure = vd->is_pure;
-            sym->is_pristine = true;
-            sym->must_pristine = vd->is_pristine;
+            sem_symbolic_var_decl(ctx, mem);
         } else if (mem->type == NODE_FUNC_DEF) {
-            FuncDefNode *fd = (FuncDefNode*)mem;
-            SemSymbol *sym = sem_symbol_add(ctx, fd->name, SYM_FUNC, fd->ret_type);
-            sym->is_is_a = fd->is_is_a;
-            sym->is_has_a = fd->is_has_a;
-            sym->is_pure = !fd->is_extern;
-            sym->must_pure = fd->is_pure;
-            sym->is_pristine = !fd->is_extern;
-            sym->must_pristine = fd->is_pristine;
-            sym->is_flux = fd->is_flux; // Attach coroutine context
+            sem_symbolic_func_def(ctx, mem);
         }
         mem = mem->next;
     }

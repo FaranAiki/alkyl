@@ -63,31 +63,10 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
 
     while (node) {
         if (node->type == NODE_FUNC_DEF) {
-            FuncDefNode *fd = (FuncDefNode*)node;
-            SemSymbol *sym = sem_symbol_add(ctx, fd->name, SYM_FUNC, fd->ret_type);
-            sym->is_is_a = fd->is_is_a;
-            sym->is_has_a = fd->is_has_a;
-            sym->is_pure = !fd->is_extern;
-            sym->must_pure = fd->is_pure;
-            sym->is_pristine = !fd->is_extern;
-            sym->must_pristine = fd->is_pristine;
-            sym->is_flux = fd->is_flux;
-            sym->is_variadic = fd->is_varargs; 
-            sym->params = fd->params; // idk if this is redundant or not but ok
-            Parameter *p = fd->params;
-            while (p) {
-                sym->param_count++;
-                p = p->next;
-            }
+            sem_symbolic_func_def(ctx, node);
         }
         else if (node->type == NODE_VAR_DECL) {
-            VarDeclNode *vd = (VarDeclNode*)node;
-            SemSymbol *sym = sem_symbol_add(ctx, vd->name, SYM_VAR, vd->var_type);
-            sym->is_mutable = vd->is_mutable;
-            sym->is_pure = 1;
-            sym->must_pure = vd->is_pure;
-            sym->is_pristine = 1;
-            sym->must_pristine = vd->is_pristine;
+            sem_symbolic_var_decl(ctx, node);
         }
         else if (node->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)node;
@@ -101,61 +80,10 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             sem_scan_class_members(ctx, cn, sym);
         }
         else if (node->type == NODE_ENUM) {
-            EnumNode *en = (EnumNode*)node;
-            
-            VarType enum_type = {TYPE_ENUM, 0, 0, arena_strdup(ctx->compiler_ctx->arena, en->name), 0, NULL, NULL, 0, 0, 0, 0};
-            SemSymbol *sym = sem_symbol_add(ctx, en->name, SYM_ENUM, enum_type);
-            
-            SemScope *enum_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
-            memset(enum_scope, 0, sizeof(SemScope));
-
-            enum_scope->symbols = NULL;
-            enum_scope->parent = ctx->current_scope;
-            enum_scope->is_function_scope = 0;
-            enum_scope->is_class_scope = 0; 
-            sym->inner_scope = enum_scope;
-            
-            EnumEntry *entry = en->entries;
-            while(entry) {
-                SemSymbol *mem = arena_alloc_type(ctx->compiler_ctx->arena, SemSymbol);
-                memset(mem, 0, sizeof(SemSymbol));
-
-                mem->name = arena_strdup(ctx->compiler_ctx->arena, entry->name);
-                mem->kind = SYM_VAR; 
-                mem->type = enum_type; 
-                mem->is_mutable = 0;
-                mem->is_initialized = 1;
-                mem->is_pure = 0; // todo default to false
-                mem->is_pristine = 0; // todo default to false
-                mem->params = NULL;
-                mem->param_count = 0;
-                mem->parent_name = NULL;
-                mem->inner_scope = NULL;
-                
-                mem->next = enum_scope->symbols;
-                enum_scope->symbols = mem;
-                
-                entry = entry->next;
-            }
+            sem_symbolic_node_enum(ctx, node);
         }
         else if (node->type == NODE_NAMESPACE) {
-            NamespaceNode *ns = (NamespaceNode*)node;
-            VarType ns_type = {TYPE_NAMESPACE, 0, 0, arena_strdup(ctx->compiler_ctx->arena, ns->name), 0, NULL, NULL, 0, 0, 0, 0};
-            SemSymbol *sym = sem_symbol_add(ctx, ns->name, SYM_NAMESPACE, ns_type);
-            
-            SemScope *ns_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
-            memset(ns_scope, 0, sizeof(SemScope));
-
-            ns_scope->symbols = NULL;
-            ns_scope->parent = ctx->current_scope;
-            ns_scope->is_function_scope = 0;
-            ns_scope->is_class_scope = 0;
-            sym->inner_scope = ns_scope;
-            
-            SemScope *old = ctx->current_scope;
-            ctx->current_scope = ns_scope;
-            sem_scan_top_level(ctx, ns->body);
-            ctx->current_scope = old;
+            sem_symbolic_namespace(ctx, node);
         }
         node = node->next;
     }
@@ -185,7 +113,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
     }
     
-    if (sym->kind == SYM_FUNC) {
+    if (sym->kind == SYM_FUNC && sym->is_flux) {
         int arg_count = 0;
         ASTNode **curr_arg = &node->args;
         Parameter **curr_para = &sym->params;
@@ -208,6 +136,10 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         if (sym->param_count != arg_count && !sym->is_variadic) {
             sem_error(ctx, node->args, "Expected %d argument(s) for '%s', got %d", sym->param_count, node->name, arg_count);
         }
+    }
+
+    if (sym->kind == SYM_CLASS) {
+      // TODO here!
     }
 
     // TODO check calling for classes!

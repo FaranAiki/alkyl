@@ -1,11 +1,11 @@
-import "std";
+import "lib/c";
 
 char *suppose() {
   return c"Supposed!";
 }
 
 tainted impure char *new_malloc() {
-  return malloc(256L);
+  return malloc(256);
 }
 
 int main() {

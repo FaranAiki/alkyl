@@ -36,6 +36,7 @@ int is_terminator(AlirOpcode op) {
 long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
     if (!node) return 0;
     
+    // maybe don't do this (?)
     if (node->type == NODE_LITERAL) {
         return ((LiteralNode*)node)->val.int_val;
     }
@@ -330,6 +331,8 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
     ctx->current_block = end_bb;
 }
 
+// This is for the implicit constructor 
+// TODO learn this
 void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
     ctx->current_func = alir_add_function(ctx->module, cn->name, (VarType){TYPE_VOID, 0}, 0);
     

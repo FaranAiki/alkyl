@@ -76,6 +76,7 @@ set(SEMANTIC_SOURCES
 
     src/semantic/fragment/lookup.c
     src/semantic/fragment/switch.c
+    src/semantic/fragment/symbolic.c
 )
 
 set(ALIR_SOURCES

@@ -277,6 +277,7 @@ bool sem_types_are_compatible(VarType dest, VarType src) {
     
     if (dest.base == TYPE_STRING && src.base == TYPE_CHAR) return true;
     
+    // TODO make this more proper!
     if ((dest.base == TYPE_VOID /*&& dest.ptr_depth > 0*/) || (src.base == TYPE_VOID /*&& src.ptr_depth > 0*/)) return true;
 
     // TODO: fix this 

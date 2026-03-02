@@ -118,6 +118,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             node = (ASTNode*)cn;
             set_loc(node, line, col);
         }
+        // parse other postfix
         else {
             break;
         }
