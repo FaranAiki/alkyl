@@ -90,9 +90,26 @@ AlirValue* alir_gen_trait_access(AlirCtx *ctx, TraitAccessNode *ta) {
     return cast_res;
 }
 
+// TODO add this for literal
 AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
-    if (ln->var_type.base == TYPE_INT) return alir_const_int(ctx->module, ln->val.int_val);
-    if (ln->var_type.base == TYPE_FLOAT) return alir_const_float(ctx->module, ln->val.double_val);
+    switch (ln->var_type.base) {
+        case TYPE_INT:
+            return alir_const_int(ctx->module, ln->val.int_val);
+            break;
+        case TYPE_LONG:
+            return alir_const_long(ctx->module, ln->val.long_val); 
+            break;
+        case TYPE_FLOAT:
+            return alir_const_float(ctx->module, ln->val.float_val);
+            break;
+        case TYPE_DOUBLE:
+            return alir_const_double(ctx->module, ln->val.double_val);
+            break;
+        case TYPE_UNSIGNED_INT:
+            return alir_const_unsigned_int(ctx->module, ln->val.unsigned_int_val);
+            break;
+        default: break; // TODO here
+    }
     
     if (ln->var_type.base == TYPE_STRING || (ln->var_type.base == TYPE_CHAR && ln->var_type.ptr_depth > 0)) {
         return alir_module_add_string_literal(ctx->module, ln->val.str_val, ln->var_type, ctx->str_counter++);
@@ -100,6 +117,7 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
     
     // Fallback for empty/unhandled literals
     // TODO fix this
+    printf("Unknown literal!");
     return alir_const_int(ctx->module, 0);
 }
 
@@ -229,8 +247,11 @@ AlirValue* alir_gen_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
         case TOKEN_MINUS: {
             // Lower unary minus to: 0 - operand
             AlirValue *zero = alir_const_int(ctx->module, 0);
-            if (res_type.base == TYPE_FLOAT || res_type.base == TYPE_DOUBLE) {
+            if (res_type.base == TYPE_FLOAT) {
                 zero = alir_const_float(ctx->module, 0.0);
+                op = ALIR_OP_FSUB;
+            } else if (res_type.base == TYPE_DOUBLE) {
+                zero = alir_const_double(ctx->module, 0.0);
                 op = ALIR_OP_FSUB;
             } else {
                 op = ALIR_OP_SUB;

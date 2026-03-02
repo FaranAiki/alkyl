@@ -9,7 +9,7 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
     }
     
     if (obj_type.base == TYPE_UNKNOWN) {
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+        sem_error(ctx, (ASTNode*)node, "Unknown type");
         return;
     }
 

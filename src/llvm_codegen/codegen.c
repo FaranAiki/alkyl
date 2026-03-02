@@ -63,7 +63,8 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
             break;
         }
         case TYPE_ENUM: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
-        
+        case TYPE_UNSIGNED_INT: break;    
+
         // TODO vector, hashmap, auto, unknown
         default: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break; 
     }

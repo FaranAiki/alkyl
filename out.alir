@@ -1,51 +1,8 @@
 ; Module: main_module
 
-; Struct Definitions
-%struct.File = type { string:filename, string:mode, %FILE*:fd_ptr, int:is_closed }
-%struct.FILE = type {  }
-
 ; Globals
-@str.0 = string "%ld"
-
-codeblock func void @FILE(%FILE* %p0) {
-entry:
-  %0 = onstack %FILE*
-  store void %p0, %0
-  return void
-}
-
-promise %FILE* @fopen(char*, char*)
-
-promise int @fclose(%FILE*)
-
-promise ll @fread(void**, ll, ll, %FILE*)
-
-promise int @fgetc(%FILE*)
-
-promise char* @fgets(char*, int, %FILE*)
-
-promise string @File_read(%File*)
-
-promise string @File_readline(%File*)
-
-codeblock func void @File(%File* %p0, string %p1, string %p2, %FILE* %p3, int %p4) {
-entry:
-  %1 = onstack %File*
-  store void %p0, %1
-  %2 = load %File* %1
-  %3 = getptr string* %2, 0
-  store string %p1, %3
-  %4 = load %File* %1
-  %5 = getptr string* %4, 1
-  store string %p2, %5
-  %6 = load %File* %1
-  %7 = getptr %FILE** %6, 2
-  store %FILE* %p3, %7
-  %8 = load %File* %1
-  %9 = getptr int* %8, 3
-  store int %p4, %9
-  return void
-}
+@str.1 = string "%s\n"
+@str.0 = string "5"
 
 promise int @printf(char*, ...)
 
@@ -59,12 +16,29 @@ entry:
   return double %1
 }
 
+codeblock func long @t() {
+entry:
+  return long 5
+}
+
+codeblock func void* @my_malloc(int %p0, int %p1) {
+entry:
+  %0 = onstack int
+  store int %p0, %0
+  %1 = onstack int
+  store int %p1, %1
+  %2 = load int %0
+  %3 = cast long %2
+  %4 = call %malloc (%3)
+  return unknown %4
+}
+
 codeblock func int @main() {
 entry:
-  %0 = call %ama (5)
-  %1 = onstack char
+  %0 = call %my_malloc (@str.0, 2)
+  %1 = onstack void*
   store unknown %0, %1
-  %2 = load char %1
-  %3 = call %printf (@str.0, %2)
+  %2 = load void* %1
+  %3 = call %printf (@str.1, %2)
   return int 0
 }

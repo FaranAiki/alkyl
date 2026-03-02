@@ -1,16 +1,21 @@
-import "std";
+import "lib/c";
 
 double ama(double t) {
   return t;
 }
 
-string t() {
-  return "a"
+long t() {
+  return 5l;
+}
+
+tainted void *my_malloc(int t, int a) {
+  return malloc(t as long);
 }
 
 int main() {
-  double a = t();
-  printf "%ld", t;
+  let p = my_malloc("5", 2);
+
+  printf "%s\n", p;
 
   return 0;
 }

@@ -65,11 +65,11 @@ int main(int argc, char *argv[]) {
       return 1;
   }
 
-  Parser p_debug;
-  parser_init(&p_debug, &l_debug);
-  ASTNode *root_debug = parse_program(&p_debug);
+  // Parser p_debug;
+  // parser_init(&p_debug, &l_debug);
+  // ASTNode *root_debug = parse_program(&p_debug);
 
-  to_ast_out(&p_debug, root_debug, BASENAME ".ast");
+  to_ast_out(&p, root, BASENAME ".ast");
 
   debug_step("Start Semantic Analysis.");
 

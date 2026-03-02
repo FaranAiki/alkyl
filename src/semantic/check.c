@@ -70,6 +70,11 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             sym->is_pristine = !fd->is_extern;
             sym->must_pristine = fd->is_pristine;
             sym->is_flux = fd->is_flux;
+            Parameter *p = fd->params;
+            while (p) {
+                sym->param_count++;
+                p = p->next;
+            }
         }
         else if (node->type == NODE_VAR_DECL) {
             VarDeclNode *vd = (VarDeclNode*)node;
@@ -180,14 +185,28 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     ASTNode **curr_arg = &node->args;
     while(*curr_arg) {
         sem_check_expr(ctx, *curr_arg);
-        
+       
+        printf("HEY! %d: %d\n", sym->kind, sym->param_count);
+        // THIS IS WRONG!
+        // TODO fix this
         if (sym->kind == SYM_FUNC && sym->param_types && arg_count < sym->param_count) {
-            sem_insert_implicit_cast(ctx, curr_arg, sym->param_types[arg_count]);
+            if (sem_types_are_compatible(sem_get_node_type(ctx, *curr_arg), sym->param_types[arg_count])) {
+                sem_insert_implicit_cast(ctx, curr_arg, sym->param_types[arg_count]);
+                printf ("Types are compatible!\n");
+            } else {
+                printf("How the fuck is this compatible!\n");
+                sem_error(ctx, *curr_arg, "Type '%s' is not compatible with '%s'", "a", "b");
+            }
         }
         
         curr_arg = &(*curr_arg)->next;
         arg_count++;
     }
+
+    /*
+    if (sym->param_count != arg_count) {
+        sem_error(ctx, node->args, "Expected %d argument(s) for '%s', got %d", sym->param_count, node->name, arg_count);
+    }*/
 
     if (sym->kind == SYM_CLASS) {
         VarType instance = {TYPE_CLASS, 1, 0, arena_strdup(ctx->compiler_ctx->arena, sym->name), 0, NULL, NULL, 0, 0, 0, 0}; 
@@ -231,7 +250,8 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_BOOL, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
         return;
     }
-    
+   
+    // todo fix this casting!
     if (node->op == TOKEN_EQ || node->op == TOKEN_NEQ || 
         node->op == TOKEN_LT || node->op == TOKEN_GT || 
         node->op == TOKEN_LTE || node->op == TOKEN_GTE) {
@@ -242,7 +262,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
             else if (l.base == TYPE_DOUBLE || r.base == TYPE_DOUBLE) target_type.base = TYPE_DOUBLE;
             else if (l.base == TYPE_FLOAT || r.base == TYPE_FLOAT) target_type.base = TYPE_FLOAT;
             else if (l.base == TYPE_LONG || r.base == TYPE_LONG) target_type.base = TYPE_LONG;
-            
+            else if (l.base == TYPE_UNSIGNED_INT || r.base == TYPE_UNSIGNED_INT) target_type.base = TYPE_UNSIGNED_INT;
             sem_insert_implicit_cast(ctx, &node->left, target_type);
             sem_insert_implicit_cast(ctx, &node->right, target_type);
         }

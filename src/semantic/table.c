@@ -179,6 +179,8 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     sym->must_pristine = false;  
     sym->inner_scope = NULL;
     
+    printf("symbol_add: %s\n", sym->name);  
+
     sym->next = ctx->current_scope->symbols;
     ctx->current_scope->symbols = sym;
     return sym;
@@ -269,13 +271,15 @@ int sem_types_are_equal(VarType a, VarType b) {
 }
 
 /* TODO fix this for implicit casting */
-int sem_types_are_compatible(VarType dest, VarType src) {
-    if (sem_types_are_equal(dest, src)) return 1;
+bool sem_types_are_compatible(VarType dest, VarType src) {
+    if (sem_types_are_equal(dest, src)) return true;
 
-    if (dest.base == TYPE_AUTO) return 1; 
+    if (dest.base == TYPE_AUTO) return true; 
     
-    if (dest.base == TYPE_STRING && src.base == TYPE_CHAR) return 1;
+    if (dest.base == TYPE_STRING && src.base == TYPE_CHAR) return true;
     
+    if ((dest.base == TYPE_VOID /*&& dest.ptr_depth > 0*/) || (src.base == TYPE_VOID /*&& src.ptr_depth > 0*/)) return true;
+
     // TODO: fix this 
     int dest_is_num = (dest.base >= TYPE_INT && dest.base <= TYPE_LONG_DOUBLE);
     int src_is_num = (src.base >= TYPE_INT && src.base <= TYPE_LONG_DOUBLE);

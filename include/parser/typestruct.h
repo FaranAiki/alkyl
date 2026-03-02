@@ -46,7 +46,7 @@ typedef enum {
 typedef enum {
   TYPE_VOID,
   TYPE_INT,
-  TYPE_UNSIGNED,
+  TYPE_UNSIGNED_INT,
   TYPE_SHORT,
   TYPE_LONG,
   TYPE_LONG_LONG,
