@@ -32,13 +32,16 @@ typedef struct SemSymbol {
     struct SemSymbol *next; // Linked list bucket
     
     // Packed bitfields
+    // TODO add so that it can be 16 bit
     bool is_mutable : 1;
     bool is_initialized : 1;   // Track if variable has been assigned a value
     bool is_used_as_parent : 1;
     bool is_used_as_composition : 1;
     bool is_pure : 1;
     bool is_pristine : 1;
-    bool is_flux : 1;          // Marks a function as a flux generator 
+    bool is_flux : 1;          // Marks a function as a flux generator
+    bool must_pure : 1;
+    bool must_pristine : 1;
 } SemSymbol;
 
 typedef struct SemScope {

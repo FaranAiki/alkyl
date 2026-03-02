@@ -93,14 +93,16 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
 
             SemSymbol *sym = sem_symbol_add(ctx, node->name, SYM_VAR, node->var_type);
             sym->is_mutable = node->is_mutable; 
-            sym->is_pure = node->is_pure;
-            sym->is_pristine = node->is_pristine;
-            
+            sym->is_pure = true;
+            sym->must_pure = node->is_pure;
+            sym->is_pristine = true;
+            sym->must_pristine = node->is_pristine;            
+      
             int is_global = (ctx->current_scope == ctx->global_scope);
             if (node->initializer || is_global || node->base.type == NODE_VAR_DECL) {
-                 sym->is_initialized = 1;
+                 sym->is_initialized = true;
             } else {
-                 sym->is_initialized = 0;
+                 sym->is_initialized = false;
             }
         }
     } else {
@@ -108,9 +110,11 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         if (sym) {
             sym->type = node->var_type;
             sym->is_mutable = node->is_mutable;
-            sym->is_pure = node->is_pure;
-            sym->is_pristine = node->is_pristine;
-            if (node->initializer) sym->is_initialized = 1;
+            sym->is_pure = true;
+            sym->must_pure = node->is_pure;
+            sym->is_pristine = true;
+            sym->must_pristine = node->is_pristine;
+            if (node->initializer) sym->is_initialized = true;
         }
     }
 
@@ -120,7 +124,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             if (type_sym->is_has_a == HAS_A_INERT) {
                 sem_error(ctx, (ASTNode*)node, "Class '%s' is inert, thus cannot be implicitly composed as field '%s'", type_sym->name, node->name);
             }
-            type_sym->is_used_as_composition = 1;
+            type_sym->is_used_as_composition = true;
         }
     }
 }
@@ -184,7 +188,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                 }
             } else {
                 if (node->op == TOKEN_ASSIGN) {
-                    sym->is_initialized = 1;
+                    sym->is_initialized = true;
                 }
             }
         }

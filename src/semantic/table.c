@@ -171,10 +171,12 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     sym->param_types = NULL;
     sym->param_count = 0;
     sym->parent_name = NULL; 
-    sym->is_mutable = 1; 
-    sym->is_initialized = 1; 
-    sym->is_pure = 0; // default to false       
-    sym->is_pristine = 0;  
+    sym->is_mutable = true; 
+    sym->is_initialized = true; 
+    sym->is_pure = true; // default to false       
+    sym->must_pure = false; // default to false       
+    sym->is_pristine = true;  
+    sym->must_pristine = false;  
     sym->inner_scope = NULL;
     
     sym->next = ctx->current_scope->symbols;

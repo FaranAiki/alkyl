@@ -80,15 +80,19 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
             VarDeclNode *vd = (VarDeclNode*)mem;
             SemSymbol *sym = sem_symbol_add(ctx, vd->name, SYM_VAR, vd->var_type);
             sym->is_mutable = vd->is_mutable;
-            sym->is_pure = vd->is_pure;
-            sym->is_pristine = vd->is_pristine;
+            sym->is_pure = 1;
+            sym->must_pure = vd->is_pure;
+            sym->is_pristine = 1;
+            sym->must_pristine = vd->is_pristine;
         } else if (mem->type == NODE_FUNC_DEF) {
             FuncDefNode *fd = (FuncDefNode*)mem;
             SemSymbol *sym = sem_symbol_add(ctx, fd->name, SYM_FUNC, fd->ret_type);
             sym->is_is_a = fd->is_is_a;
             sym->is_has_a = fd->is_has_a;
-            sym->is_pure = fd->is_pure;
-            sym->is_pristine = fd->is_pristine;
+            sym->is_pure = 1;
+            sym->must_pure = fd->is_pure;
+            sym->is_pristine = 1;
+            sym->must_pristine = fd->is_pristine;
             sym->is_flux = fd->is_flux; // Attach coroutine context
         }
         mem = mem->next;
@@ -106,16 +110,21 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             SemSymbol *sym = sem_symbol_add(ctx, fd->name, SYM_FUNC, fd->ret_type);
             sym->is_is_a = fd->is_is_a;
             sym->is_has_a = fd->is_has_a;
-            sym->is_pure = fd->is_pure;
-            sym->is_pristine = fd->is_pristine;
+            sym->is_pure = 1;
+            sym->must_pure = fd->is_pure;
+            sym->is_pristine = 1;
+            sym->must_pristine = fd->is_pristine;
             sym->is_flux = fd->is_flux;
+            printf("%d: %s\n", sym->must_pure, fd->name);
         }
         else if (node->type == NODE_VAR_DECL) {
             VarDeclNode *vd = (VarDeclNode*)node;
             SemSymbol *sym = sem_symbol_add(ctx, vd->name, SYM_VAR, vd->var_type);
             sym->is_mutable = vd->is_mutable;
-            sym->is_pure = vd->is_pure;
-            sym->is_pristine = vd->is_pristine;
+            sym->is_pure = 1;
+            sym->must_pure = vd->is_pure;
+            sym->is_pristine = 1;
+            sym->must_pristine = vd->is_pristine;
         }
         else if (node->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)node;
@@ -202,7 +211,10 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     
     if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
         if (sym->kind == SYM_FUNC && !sym->is_pure) {
+            // TODO add modifier st
+            if (ctx->current_func_sym->must_pure)
             sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot call impure function '%s'", ctx->current_func_sym->name, sym->name);
+            ctx->current_func_sym->is_pure = false;
         }
     }
 
