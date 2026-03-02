@@ -64,6 +64,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
                 char *t2 = sem_type_to_str(init_type);
                 sem_error(ctx, (ASTNode*)node, "Type mismatch in declaration of '%s'. Expected '%s', got '%s'", node->name, t1, t2);
             } else {
+                // TODO assign a proper implicit casting
                 sem_check_implicit_cast(ctx, (ASTNode*)node, node->var_type, init_type);
             }
         }
@@ -221,6 +222,6 @@ int is_bool(VarType t) {
 }
 
 int is_pointer(VarType t) {
-    return t.ptr_depth > 0 || t.array_size > 0 || t.base == TYPE_STRING || t.is_func_ptr;
+    return t.ptr_depth > 0 || t.array_size > 0 || t.base == TYPE_STRING || t.base == TYPE_VECTOR /*??*/ || t.is_func_ptr;
 }
 

@@ -127,12 +127,12 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             LLVMValueRef func = NULL;
             LLVMTypeRef func_ty = NULL;
             
-            if (inst->op1 && inst->op1->str_val) {
+            if (inst->op1 && inst->op1->val.str_val) {
                 func = LLVMGetNamedFunction(ctx->llvm_mod, inst->op1->str_val);
                 if (func) func_ty = LLVMGlobalGetValueType(func);
             }
 
-            if (!func && inst->op1 && inst->op1->str_val) {
+            if (!func && inst->op1 && inst->op1->val.str_val) {
                 func = hashmap_get(&ctx->func_map, inst->op1->str_val);
                 func_ty = hashmap_get(&ctx->func_type_map, inst->op1->str_val);
                 

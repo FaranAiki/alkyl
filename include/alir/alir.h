@@ -22,13 +22,9 @@ typedef enum {
 typedef struct AlirValue {
     AlirValueKind kind;
     VarType type;       // Reuse Parser's VarType for type info
-    
-    union {
-        long int_val;
-        double float_val;
-        char *str_val;  // For names, string literals, or type names
-        int temp_id;    // For temporaries
-    };
+    int temp_id;
+
+    Value val;
 } AlirValue;
 
 typedef enum {

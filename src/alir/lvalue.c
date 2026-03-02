@@ -99,6 +99,7 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
     }
     
     // Fallback for empty/unhandled literals
+    // TODO fix this
     return alir_const_int(ctx->module, 0);
 }
 

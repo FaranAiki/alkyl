@@ -217,6 +217,8 @@ static int lex_symbol(Lexer *l, Token *t) {
     t->type = TOKEN_GT; return 1;
   }
 
+  /* lex_symbol_other */
+
   return 0;
 }
 
@@ -251,11 +253,13 @@ static int lex_number(Lexer *l, Token *t) {
       t->type = TOKEN_FLOAT;
       t->double_val = dval;
       
+      // TODO fix this
       if (tolower(peek(l)) == 'l') {
           advance(l);
           t->type = TOKEN_LONG_DOUBLE_LIT;
       } else if (tolower(peek(l)) == 'f') {
           advance(l);
+          t->type = TOKEN_FLOAT;
       }
       return 1;
     }

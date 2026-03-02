@@ -82,7 +82,7 @@ void set_llvm_value(CodegenCtx *ctx, AlirValue *v, LLVMValueRef llvm_val) {
             ctx->temps[v->temp_id] = llvm_val;
         }
     } else if (v->kind == ALIR_VAL_VAR) {
-        hashmap_put(&ctx->value_map, v->str_val, llvm_val);
+        hashmap_put(&ctx->value_map, v->val.str_val, llvm_val);
     }
 }
 
@@ -93,9 +93,9 @@ LLVMValueRef get_llvm_value(CodegenCtx *ctx, AlirValue *v) {
         case ALIR_VAL_CONST: {
             LLVMTypeRef ty = get_llvm_type(ctx, v->type);
             if (v->type.base == TYPE_FLOAT || v->type.base == TYPE_DOUBLE) {
-                return LLVMConstReal(ty, v->float_val);
+                return LLVMConstReal(ty, v->val.float_val);
             } else {
-                return LLVMConstInt(ty, v->int_val, !v->type.is_unsigned);
+                return LLVMConstInt(ty, v->val.int_val, !v->type.is_unsigned);
             }
         }
         case ALIR_VAL_TEMP:
@@ -103,14 +103,14 @@ LLVMValueRef get_llvm_value(CodegenCtx *ctx, AlirValue *v) {
             return NULL;
             
         case ALIR_VAL_VAR:
-            return hashmap_get(&ctx->value_map, v->str_val);
+            return hashmap_get(&ctx->value_map, v->val.str_val);
             
         case ALIR_VAL_GLOBAL: {
             // First check if it's a global variable
-            LLVMValueRef glob = LLVMGetNamedGlobal(ctx->llvm_mod, v->str_val);
+            LLVMValueRef glob = LLVMGetNamedGlobal(ctx->llvm_mod, v->val.str_val);
             if (!glob) {
                 // If not found, it might be a function masquerading as a global value
-                glob = LLVMGetNamedFunction(ctx->llvm_mod, v->str_val);
+                glob = LLVMGetNamedFunction(ctx->llvm_mod, v->val.str_val);
             }
 
             // Strings decay gracefully to pointers via BitCast

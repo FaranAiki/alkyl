@@ -10,7 +10,7 @@ static void get_val_key(AlirValue *val, char *out_key) {
     if (val->kind == ALIR_VAL_TEMP) {
         sprintf(out_key, "%%t%d", val->temp_id);
     } else if (val->kind == ALIR_VAL_VAR) {
-        sprintf(out_key, "@%s", val->str_val);
+        sprintf(out_key, "@%s", val->val.str_val);
     } else {
         out_key[0] = '\0';
     }

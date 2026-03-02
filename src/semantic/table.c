@@ -268,13 +268,15 @@ int sem_types_are_equal(VarType a, VarType b) {
     return 1;
 }
 
+/* TODO fix this for implicit casting */
 int sem_types_are_compatible(VarType dest, VarType src) {
     if (sem_types_are_equal(dest, src)) return 1;
 
     if (dest.base == TYPE_AUTO) return 1; 
     
     if (dest.base == TYPE_STRING && src.base == TYPE_CHAR) return 1;
-
+    
+    // TODO: fix this 
     int dest_is_num = (dest.base >= TYPE_INT && dest.base <= TYPE_LONG_DOUBLE);
     int src_is_num = (src.base >= TYPE_INT && src.base <= TYPE_LONG_DOUBLE);
 

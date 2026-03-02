@@ -25,7 +25,7 @@ void alir_fprint_type(FILE *f, VarType t) {
     }
     // [FIX] Correct pointer depth logic. 
     // It used to evaluate `if(0 - 1)` which is TRUE, printing 'ptr' for 0 depth.
-    if (t.ptr_depth > 0) fprintf(f, " ptr");
+    if (t.ptr_depth > 0) fprintf(f, "*");
     for(int i=1; i<t.ptr_depth; i++) fprintf(f, "*");
 }
 
@@ -34,25 +34,25 @@ void alir_fprint_val(FILE *f, AlirValue *v) {
     switch(v->kind) {
         case ALIR_VAL_CONST:
             if (v->type.base == TYPE_FLOAT || v->type.base == TYPE_DOUBLE)
-                fprintf(f, "%.2f", v->float_val);
+                fprintf(f, "%.2f", v->val.float_val);
             else
-                fprintf(f, "%ld", v->int_val);
+                fprintf(f, "%ld", v->val.long_val);
             break;
         case ALIR_VAL_TEMP:
             fprintf(f, "%%%d", v->temp_id);
             break;
         case ALIR_VAL_VAR:
             // [FIX] ALIR_VAL_VAR must map to local parameters/registers, not globals
-            fprintf(f, "%%%s", v->str_val);
+            fprintf(f, "%%%s", v->val.str_val);
             break;
         case ALIR_VAL_GLOBAL:
-            fprintf(f, "@%s", v->str_val);
+            fprintf(f, "@%s", v->val.str_val);
             break;
         case ALIR_VAL_LABEL:
-            fprintf(f, "%s", v->str_val);
+            fprintf(f, "%s", v->val.str_val);
             break;
         case ALIR_VAL_TYPE:
-            fprintf(f, "type(%s)", v->str_val);
+            fprintf(f, "type(%s)", v->val.str_val);
             break;
         default: fprintf(f, "?"); break;
     }

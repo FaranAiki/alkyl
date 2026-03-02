@@ -1,6 +1,8 @@
 #ifndef PARSER_TYPESTRUCT_H
 #define PARSER_TYPESTRUCT_H
 
+#include "common/aliases.h"
+
 typedef enum {
   NODE_ROOT,
   NODE_FUNC_DEF,  
@@ -44,9 +46,12 @@ typedef enum {
 typedef enum {
   TYPE_VOID,
   TYPE_INT,
+  TYPE_UNSIGNED,
   TYPE_SHORT,
   TYPE_LONG,
   TYPE_LONG_LONG,
+  TYPE_UNSIGNED_LONG,
+  TYPE_UNSIGNED_LONG_LONG,
   TYPE_CHAR,
   TYPE_BOOL,
   TYPE_FLOAT,
@@ -356,15 +361,12 @@ typedef struct {
   ASTNode *else_body;
 } IfNode;
 
+/* TODO use this correctly */
+// see var_type
 typedef struct {
   ASTNode base;
   VarType var_type;
-  union {
-    int int_val;
-    unsigned long long long_val;
-    double double_val;
-    char *str_val; 
-  } val;
+  Value val; 
 } LiteralNode;
 
 #endif // PARSER_TYPESTRUCT_H

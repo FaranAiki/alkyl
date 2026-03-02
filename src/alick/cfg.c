@@ -31,28 +31,28 @@ void alick_check_cfg(AlickCtx *ctx, AlirFunction *func) {
         if (term->op == ALIR_OP_JUMP) {
             if (!term->op1 || term->op1->kind != ALIR_VAL_LABEL) {
                 alick_error(ctx, func, b, term, "Unconditional JUMP target must be a label.");
-            } else if (!find_block(func, term->op1->str_val)) {
-                alick_error(ctx, func, b, term, "JUMP target label '%s' does not exist in function.", term->op1->str_val);
+            } else if (!find_block(func, term->op1->val.str_val)) {
+                alick_error(ctx, func, b, term, "JUMP target label '%s' does not exist in function.", term->op1->val.str_val);
             }
         } 
         else if (term->op == ALIR_OP_CONDI) {
             if (!term->op2 || term->op2->kind != ALIR_VAL_LABEL) {
                 alick_error(ctx, func, b, term, "CONDI true-branch target must be a label.");
-            } else if (!find_block(func, term->op2->str_val)) {
-                alick_error(ctx, func, b, term, "CONDI true-branch label '%s' does not exist.", term->op2->str_val);
+            } else if (!find_block(func, term->op2->val.str_val)) {
+                alick_error(ctx, func, b, term, "CONDI true-branch label '%s' does not exist.", term->op2->val.str_val);
             }
             
             if (term->arg_count < 1 || !term->args || !term->args[0] || term->args[0]->kind != ALIR_VAL_LABEL) {
                 alick_error(ctx, func, b, term, "CONDI false-branch target must be a label passed in args[0].");
-            } else if (!find_block(func, term->args[0]->str_val)) {
-                alick_error(ctx, func, b, term, "CONDI false-branch label '%s' does not exist.", term->args[0]->str_val);
+            } else if (!find_block(func, term->args[0]->val.str_val)) {
+                alick_error(ctx, func, b, term, "CONDI false-branch label '%s' does not exist.", term->args[0]->val.str_val);
             }
         } 
         else if (term->op == ALIR_OP_SWITCH) {
             if (!term->op2 || term->op2->kind != ALIR_VAL_LABEL) {
                 alick_error(ctx, func, b, term, "SWITCH default-branch target must be a label in op2.");
-            } else if (!find_block(func, term->op2->str_val)) {
-                alick_error(ctx, func, b, term, "SWITCH default-branch label '%s' does not exist.", term->op2->str_val);
+            } else if (!find_block(func, term->op2->val.str_val)) {
+                alick_error(ctx, func, b, term, "SWITCH default-branch label '%s' does not exist.", term->op2->val.str_val);
             }
             
             AlirSwitchCase *c = term->cases;

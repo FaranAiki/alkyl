@@ -4,15 +4,23 @@ AlirValue* alir_const_int(AlirModule *mod, long val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
     v->type = (VarType){TYPE_INT, 0};
-    v->int_val = val;
+    v->val.int_val = val;
     return v;
 }
 
-AlirValue* alir_const_float(AlirModule *mod, double val) {
+AlirValue* alir_const_float(AlirModule *mod, float val) {
+    AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
+    v->kind = ALIR_VAL_CONST;
+    v->type = (VarType){TYPE_FLOAT, 0};
+    v->val.float_val = val;
+    return v;
+}
+
+AlirValue* alir_const_double(AlirModule *mod, double val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
     v->type = (VarType){TYPE_DOUBLE, 0};
-    v->float_val = val;
+    v->val.double_val = val;
     return v;
 }
 
@@ -27,14 +35,14 @@ AlirValue* alir_val_temp(AlirModule *mod, VarType t, int id) {
 AlirValue* alir_val_var(AlirModule *mod, const char *name) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_VAR;
-    v->str_val = alir_strdup(mod, name);
+    v->val.str_val = alir_strdup(mod, name);
     return v;
 }
 
 AlirValue* alir_val_global(AlirModule *mod, const char *name, VarType type) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_GLOBAL;
-    v->str_val = alir_strdup(mod, name);
+    v->val.str_val = alir_strdup(mod, name);
     v->type = type;
     return v;
 }
@@ -42,14 +50,14 @@ AlirValue* alir_val_global(AlirModule *mod, const char *name, VarType type) {
 AlirValue* alir_val_label(AlirModule *mod, const char *label) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_LABEL;
-    v->str_val = alir_strdup(mod, label);
+    v->val.str_val = alir_strdup(mod, label);
     return v;
 }
 
 AlirValue* alir_val_type(AlirModule *mod, const char *type_name) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_TYPE;
-    v->str_val = alir_strdup(mod, type_name);
+    v->val.str_val = alir_strdup(mod, type_name);
     v->type = (VarType){TYPE_CLASS, 0, 0, alir_strdup(mod, type_name), 0, 0};
     return v;
 }
