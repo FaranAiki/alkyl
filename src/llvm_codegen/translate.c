@@ -51,7 +51,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             
             // Differentiate Struct GEP (Constant Index) vs Array GEP
             if (ptr_t.base == TYPE_CLASS && ptr_t.ptr_depth == 0 && inst->op2 && inst->op2->kind == ALIR_VAL_CONST) {
-                res = LLVMBuildStructGEP2(ctx->builder, base_ty, op1, (unsigned)inst->op2->int_val, "struct_gep");
+                res = LLVMBuildStructGEP2(ctx->builder, base_ty, op1, (unsigned)inst->op2->val.int_val, "struct_gep");
             } else {
                 if (inst->op1->type.array_size > 0) {
                     // Proper LLVM GEP indexing for explicit Array types ([N x i32]*)
@@ -98,18 +98,18 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
 
         // Flow Control
         case ALIR_OP_JUMP: {
-            LLVMBasicBlockRef dest_bb = hashmap_get(&ctx->block_map, inst->op1->str_val);
+            LLVMBasicBlockRef dest_bb = hashmap_get(&ctx->block_map, inst->op1->val.str_val);
             if (dest_bb) LLVMBuildBr(ctx->builder, dest_bb);
             break;
         }
         case ALIR_OP_CONDI: {
-            LLVMBasicBlockRef then_bb = hashmap_get(&ctx->block_map, inst->op2->str_val);
-            LLVMBasicBlockRef else_bb = hashmap_get(&ctx->block_map, inst->args[0]->str_val);
+            LLVMBasicBlockRef then_bb = hashmap_get(&ctx->block_map, inst->op2->val.str_val);
+            LLVMBasicBlockRef else_bb = hashmap_get(&ctx->block_map, inst->args[0]->val.str_val);
             if (then_bb && else_bb && op1) LLVMBuildCondBr(ctx->builder, op1, then_bb, else_bb);
             break;
         }
         case ALIR_OP_SWITCH: {
-            LLVMBasicBlockRef default_bb = hashmap_get(&ctx->block_map, inst->op2->str_val);
+            LLVMBasicBlockRef default_bb = hashmap_get(&ctx->block_map, inst->op2->val.str_val);
             int num_cases = 0;
             for(AlirSwitchCase *c = inst->cases; c; c = c->next) num_cases++;
             
@@ -128,18 +128,18 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             LLVMTypeRef func_ty = NULL;
             
             if (inst->op1 && inst->op1->val.str_val) {
-                func = LLVMGetNamedFunction(ctx->llvm_mod, inst->op1->str_val);
+                func = LLVMGetNamedFunction(ctx->llvm_mod, inst->op1->val.str_val);
                 if (func) func_ty = LLVMGlobalGetValueType(func);
             }
 
             if (!func && inst->op1 && inst->op1->val.str_val) {
-                func = hashmap_get(&ctx->func_map, inst->op1->str_val);
-                func_ty = hashmap_get(&ctx->func_type_map, inst->op1->str_val);
+                func = hashmap_get(&ctx->func_map, inst->op1->val.str_val);
+                func_ty = hashmap_get(&ctx->func_type_map, inst->op1->val.str_val);
                 
                 if (!func) {
                     LLVMTypeRef ret_ty = inst->dest ? get_llvm_type(ctx, inst->dest->type) : LLVMVoidTypeInContext(ctx->llvm_ctx);
                     func_ty = LLVMFunctionType(ret_ty, NULL, 0, 1); // Vararg fallback
-                    func = LLVMAddFunction(ctx->llvm_mod, inst->op1->str_val, func_ty);
+                    func = LLVMAddFunction(ctx->llvm_mod, inst->op1->val.str_val, func_ty);
                 }
             }
 
