@@ -113,7 +113,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
     }
     
-    if (sym->kind == SYM_FUNC && sym->is_flux) {
+    if (sym->kind == SYM_FUNC) {
         int arg_count = 0;
         ASTNode **curr_arg = &node->args;
         Parameter **curr_para = &sym->params;
@@ -136,10 +136,6 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         if (sym->param_count != arg_count && !sym->is_variadic) {
             sem_error(ctx, node->args, "Expected %d argument(s) for '%s', got %d", sym->param_count, node->name, arg_count);
         }
-    }
-
-    if (sym->kind == SYM_CLASS) {
-      // TODO here!
     }
 
     // TODO check calling for classes!

@@ -23,12 +23,15 @@ entry:
 
 block func int @main() {
 entry:
-  %0 = call %malloc (100)
-  %1 = onstack void*
-  store unknown %0, %1
-  %2 = onstack int
-  %3 = call %printf (@str.0, %2)
-  %4 = load void* %1
-  %5 = call %printf (@str.1, %4)
+  %0 = cast double 100
+  %1 = call %ama (%0)
+  %2 = onstack double
+  store unknown %1, %2
+  %3 = cast char* @str.0
+  %4 = load double %2
+  %5 = call %printf (%3, %4)
+  %6 = cast char* @str.1
+  %7 = load double %2
+  %8 = call %printf (%6, %7)
   return int 0
 }
