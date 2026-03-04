@@ -4,6 +4,8 @@
 #include "alir.h"
 
 AlirValue* alir_const_int(AlirModule *mod, long val);
+AlirValue* alir_const_char(AlirModule *mod, char val);
+AlirValue* alir_const_unsigned_char(AlirModule *mod, unsigned char val);
 AlirValue* alir_const_unsigned_int(AlirModule *mod, unsigned int val);
 AlirValue* alir_const_float(AlirModule *mod, float val);
 AlirValue* alir_const_double(AlirModule *mod, double val);

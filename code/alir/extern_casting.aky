@@ -1,6 +1,6 @@
 import "lib/c";
 
-double ama(double t) {
+long ama(long t) {
   return t;
 }
 
@@ -9,7 +9,11 @@ long t() {
 }
 
 int main() {
-  let p = ama(100);
+  let pussy = malloc(100) as char*;
+  pussy[0] = 'a';
+  pussy[1] = '\0';
+
+  printf("%s\n", pussy);
 
   return 0;
 }

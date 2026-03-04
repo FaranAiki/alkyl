@@ -95,19 +95,18 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
     switch (ln->var_type.base) {
         case TYPE_INT:
             return alir_const_int(ctx->module, ln->val.int_val);
-            break;
         case TYPE_LONG:
             return alir_const_long(ctx->module, ln->val.long_val); 
-            break;
         case TYPE_FLOAT:
             return alir_const_float(ctx->module, ln->val.float_val);
-            break;
         case TYPE_DOUBLE:
             return alir_const_double(ctx->module, ln->val.double_val);
-            break;
         case TYPE_UNSIGNED_INT:
             return alir_const_unsigned_int(ctx->module, ln->val.unsigned_int_val);
-            break;
+        case TYPE_CHAR:
+            return alir_const_char(ctx->module, ln->val.char_val);
+        case TYPE_UNSIGNED_CHAR:
+            return alir_const_unsigned_char(ctx->module, ln->val.unsigned_char_val);
         default: break; // TODO here
     }
     

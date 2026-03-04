@@ -2,6 +2,8 @@
 #define COMMON_ALIASES_H
 
 typedef union {
+  char char_val;
+  unsigned char unsigned_char_val;
   int int_val;
   unsigned int unsigned_int_val;
   long long_val;

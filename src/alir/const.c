@@ -8,6 +8,22 @@ AlirValue* alir_const_int(AlirModule *mod, long val) {
     return v;
 }
 
+AlirValue* alir_const_char(AlirModule *mod, char val) {
+    AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
+    v->kind = ALIR_VAL_CONST;
+    v->type = (VarType){TYPE_CHAR, 0};
+    v->val.char_val = val;
+    return v;
+}
+
+AlirValue* alir_const_unsigned_char(AlirModule *mod, unsigned char val) {
+    AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
+    v->kind = ALIR_VAL_CONST;
+    v->type = (VarType){TYPE_CHAR, 0};
+    v->val.unsigned_char_val = val;
+    return v;
+}
+
 AlirValue* alir_const_unsigned_int(AlirModule *mod, unsigned int val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;

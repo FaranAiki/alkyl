@@ -1,19 +1,18 @@
 ; Module: main_module
 
 ; Globals
-@str.1 = string "%s\n"
-@str.0 = string "%ld"
+@str.0 = string "%s\n"
 
 promise int @printf(char*, ...)
 
 promise void* @malloc(long)
 
-block func double @ama(double %p0) {
+block func long @ama(long %p0) {
 entry:
-  %0 = onstack double
-  store double %p0, %0
-  %1 = load double %0
-  return double %1
+  %0 = onstack long
+  store long %p0, %0
+  %1 = load long %0
+  return long %1
 }
 
 block func long @t() {
@@ -23,15 +22,17 @@ entry:
 
 block func int @main() {
 entry:
-  %0 = cast double 100
-  %1 = call %ama (%0)
-  %2 = onstack double
-  store unknown %1, %2
-  %3 = cast char* @str.0
-  %4 = load double %2
-  %5 = call %printf (%3, %4)
-  %6 = cast char* @str.1
-  %7 = load double %2
+  %0 = cast long 100
+  %1 = call %malloc (%0)
+  %2 = cast char* %1
+  %3 = onstack char*
+  store char* %2, %3
+  %4 = getptr unknown* %3, 0
+  store char 97, %4
+  %5 = getptr unknown* %3, 1
+  store char 0, %5
+  %6 = cast char* @str.0
+  %7 = load char* %3
   %8 = call %printf (%6, %7)
   return int 0
 }

@@ -53,6 +53,7 @@ typedef enum {
   TYPE_UNSIGNED_LONG,
   TYPE_UNSIGNED_LONG_LONG,
   TYPE_CHAR,
+  TYPE_UNSIGNED_CHAR,
   TYPE_BOOL,
   TYPE_FLOAT,
   TYPE_DOUBLE,
@@ -65,7 +66,7 @@ typedef enum {
   TYPE_CLASS, 
   TYPE_ENUM, 
   TYPE_NAMESPACE,
-  TYPE_UNKNOWN // 21
+  TYPE_UNKNOWN,
 } BaseType;
 
 typedef enum {

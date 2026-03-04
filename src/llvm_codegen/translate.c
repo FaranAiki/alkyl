@@ -36,6 +36,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             }
             break;
         }
+        // TODO load the res first then
         case ALIR_OP_GET_PTR: {
             if (!op1) break;
             
@@ -43,6 +44,9 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             if (LLVMGetTypeKind(LLVMTypeOf(op1)) != LLVMPointerTypeKind) {
                 op1 = LLVMBuildIntToPtr(ctx->builder, op1, LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0), "safe_cast");
             }
+
+            LLVMTypeRef ptr_to_load_ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
+            LLVMValueRef loaded_ptr = LLVMBuildLoad2(ctx->builder, ptr_to_load_ty, op1, "implicit_load");
 
             VarType ptr_t = inst->op1->type;
             if (ptr_t.ptr_depth > 0) ptr_t.ptr_depth--;
@@ -52,20 +56,26 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             
             // Differentiate Struct GEP (Constant Index) vs Array GEP
             if (ptr_t.base == TYPE_CLASS && ptr_t.ptr_depth == 0 && inst->op2 && inst->op2->kind == ALIR_VAL_CONST) {
-                res = LLVMBuildStructGEP2(ctx->builder, base_ty, op1, (unsigned)inst->op2->val.int_val, "struct_gep");
+                res = LLVMBuildStructGEP2(ctx->builder, base_ty, loaded_ptr, (unsigned)inst->op2->val.int_val, "struct_gep");
             } else {
                 if (inst->op1->type.array_size > 0) {
                     // Proper LLVM GEP indexing for explicit Array types ([N x i32]*)
                     LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
                     LLVMValueRef indices[] = { zero, op2 };
                     LLVMTypeRef arr_ty = get_llvm_type(ctx, inst->op1->type);
-                    res = LLVMBuildGEP2(ctx->builder, arr_ty, op1, indices, 2, "array_gep");
+                    
+                    // CRITICAL: Pass 'loaded_ptr' instead of 'op1' here
+                    res = LLVMBuildGEP2(ctx->builder, arr_ty, loaded_ptr, indices, 2, "array_gep");
                 } else {
                     // Standard Pointer iteration (i32*)
                     LLVMValueRef indices[] = { op2 };
-                    res = LLVMBuildGEP2(ctx->builder, base_ty, op1, indices, 1, "ptr_gep");
+                    
+                    // CRITICAL: Pass 'loaded_ptr' instead of 'op1' here
+                    res = LLVMBuildGEP2(ctx->builder, base_ty, loaded_ptr, indices, 1, "ptr_gep");
                 }
             }
+
+            printf("base: %d\n", ptr_t.base);
             break;
         }
         

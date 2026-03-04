@@ -20,7 +20,9 @@ void alick_check_types(AlickCtx *ctx, AlirFunction *func) {
                 case ALIR_OP_GET_PTR:
                     if (!i->dest) alick_error(ctx, func, b, i, "GET_PTR requires a destination operand.");
                     if (!i->op1) alick_error(ctx, func, b, i, "GET_PTR requires a base pointer operand (op1).");
+                    if (i->op1->type.base == TYPE_UNKNOWN) alick_error(ctx, func, b, i, "GET_PTR 1st operand must have type.");
                     if (!i->op2) alick_error(ctx, func, b, i, "GET_PTR requires an index operand (op2).");
+                    if (i->op2->type.base == TYPE_UNKNOWN) alick_error(ctx, func, b, i, "GET_PTR 2nd operand must have type.");
                     break;
                     
                 case ALIR_OP_ALLOC_HEAP:
