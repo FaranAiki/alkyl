@@ -63,7 +63,7 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
             break;
         }
         case TYPE_ENUM: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
-        case TYPE_UNSIGNED_INT: break;    
+        // case TYPE_UNSIGNED_INT: break;    
 
         // TODO vector, hashmap, auto, unknown
         default: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break; 
@@ -95,6 +95,8 @@ LLVMValueRef get_llvm_value(CodegenCtx *ctx, AlirValue *v) {
             LLVMTypeRef ty = get_llvm_type(ctx, v->type);
             if (v->type.base == TYPE_FLOAT || v->type.base == TYPE_DOUBLE) {
                 return LLVMConstReal(ty, v->val.float_val);
+            } else if (v->type.base == TYPE_LONG) {
+                return LLVMConstInt(ty, v->val.long_val, !v->type.is_unsigned);
             } else {
                 return LLVMConstInt(ty, v->val.int_val, !v->type.is_unsigned);
             }
@@ -127,7 +129,8 @@ LLVMValueRef get_llvm_value(CodegenCtx *ctx, AlirValue *v) {
         case ALIR_VAL_LABEL:
             return NULL;
         // TODO alir_val_void, int, float, string
-        default: return NULL;
+        default: 
+          return NULL;
     }
 }
 

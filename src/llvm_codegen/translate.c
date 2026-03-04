@@ -157,6 +157,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
                 
                 // CRITICAL: Prevent truncation for varargs on 64-bit systems.
                 // If the argument is an integer, promote to 64-bit word size if it's potentially a pointer.
+                // TODO fix this shitttttttttttttt
                 LLVMTypeRef arg_ty = LLVMTypeOf(args[i]);
                 if (LLVMGetTypeKind(arg_ty) == LLVMIntegerTypeKind) {
                     if (inst->args[i]->type.base == TYPE_UNKNOWN || inst->args[i]->type.base == TYPE_AUTO) {
@@ -165,8 +166,14 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
                          }
                     } else if (LLVMGetIntTypeWidth(arg_ty) < 32) {
                         args[i] = LLVMBuildSExt(ctx->builder, args[i], LLVMInt32TypeInContext(ctx->llvm_ctx), "prom_i32");
+                    } else if (LLVMGetIntTypeWidth(arg_ty) >= 64) {
+                        // printf("true!\n");
+                        args[i] = LLVMBuildSExt(ctx->builder, args[i], LLVMInt64TypeInContext(ctx->llvm_ctx), "prom_i64");
                     }
+                    // printf("%d\n", (LLVMGetIntTypeWidth(arg_ty)));
+                // Force conversion from integer to double or whatnot
                 }
+
             }
 
             res = LLVMBuildCall2(ctx->builder, func_ty, func, args, inst->arg_count, (LLVMGetReturnType(func_ty) == LLVMVoidTypeInContext(ctx->llvm_ctx)) ? "" : "call");

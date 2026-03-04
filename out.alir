@@ -1,35 +1,34 @@
 ; Module: main_module
 
 ; Globals
-@str.1 = string "%s\n%s\n"
-@str.0 = cstring "Supposed!"
+@str.1 = string "%s\n"
+@str.0 = string "%ld"
 
 promise int @printf(char*, ...)
 
 promise void* @malloc(long)
 
-block func char* @suppose() {
+block func double @ama(double %p0) {
 entry:
-  return char* @str.0
+  %0 = onstack double
+  store double %p0, %0
+  %1 = load double %0
+  return double %1
 }
 
-block func char* @new_malloc() {
+block func long @t() {
 entry:
-  %0 = call %malloc (256)
-  %1 = cast char* %0
-  return char* %1
+  return long 5
 }
 
 block func int @main() {
 entry:
-  %0 = call %new_malloc
-  %1 = onstack char*
+  %0 = call %malloc (100)
+  %1 = onstack void*
   store unknown %0, %1
-  %2 = call %suppose
-  %3 = onstack char*
-  store unknown %2, %3
-  %4 = load char* %3
-  %5 = load char* %1
-  %6 = call %printf (@str.1, %4, %5)
+  %2 = onstack int
+  %3 = call %printf (@str.0, %2)
+  %4 = load void* %1
+  %5 = call %printf (@str.1, %4)
   return int 0
 }

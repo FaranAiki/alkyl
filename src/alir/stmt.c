@@ -19,9 +19,9 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             if (sym && vn->initializer) {
                 AlirValue *val = alir_gen_expr(ctx, vn->initializer);
                 if (!val) {
-                    printf("What is this\n");
                     val = alir_const_int(ctx->module, 0); // Safety net
                 }
+                printf("What is this\n");
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, sym->ptr));
             }
             return; 
@@ -83,7 +83,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             ReturnNode *rn = (ReturnNode*)node;
             if (ctx->in_flux_resume) {
                 AlirValue *fin_ptr = new_temp(ctx, (VarType){TYPE_BOOL, 1});
-                emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, fin_ptr, ctx->flux_ctx_ptr, alir_const_int(ctx->module, 1))); 
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, fin_ptr, ctx->flux_ctx_ptr, alir_const_int(ctx->module, 1)));
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 1), fin_ptr));
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
             } else {
@@ -92,6 +92,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                     v = alir_gen_expr(ctx, rn->value);
                     if (!v) v = alir_const_int(ctx->module, 0); // Safety net
                 }
+                printf("What is this return! %d\n", v->type.base);
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, v, NULL));
             }
             break;

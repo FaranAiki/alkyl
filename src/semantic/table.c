@@ -288,7 +288,7 @@ bool sem_types_are_compatible(VarType dest, VarType src) {
     if (dest.base == TYPE_ENUM && src_is_num) return 1;
     
     if (dest_is_num && src_is_num && dest.ptr_depth == 0 && src.ptr_depth == 0 && dest.vector_depth == 0 && src.vector_depth == 0) {
-        return 1; 
+        return true; 
     }
 
     int dest_is_str = (dest.base == TYPE_STRING && dest.ptr_depth == 0);
@@ -298,11 +298,11 @@ bool sem_types_are_compatible(VarType dest, VarType src) {
     int src_is_char_p = (src.base == TYPE_CHAR && (src.ptr_depth > 0 || src.array_size > 0));
 
     if ((dest_is_str && src_is_char_p) || (dest_is_char_p && src_is_str)) {
-        return 1;
+        return true;
     }
     
     if (src.array_size > 0 && dest.ptr_depth == src.ptr_depth + 1 && dest.base == src.base && dest.vector_depth == src.vector_depth) {
-        return 1; 
+        return true; 
     }
     
     // Array/Pointer literal to Vector assignment compatibility
@@ -313,9 +313,9 @@ bool sem_types_are_compatible(VarType dest, VarType src) {
     }
 
     // casting char*, int* to void* or int* to void*
-    if ((dest.base == TYPE_VOID && dest.ptr_depth > 0 && src.ptr_depth > 0) || (src.base == TYPE_VOID && src.ptr_depth > 0 && dest.ptr_depth > 0)) return 1;
+    if ((dest.base == TYPE_VOID && dest.ptr_depth > 0 && src.ptr_depth > 0) || (src.base == TYPE_VOID && src.ptr_depth > 0 && dest.ptr_depth > 0)) return true;
 
-    return 0;
+    return false;
 }
 
 char* sem_type_to_str(VarType t) {

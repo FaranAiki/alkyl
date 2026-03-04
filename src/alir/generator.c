@@ -432,9 +432,9 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pval, ptr));
     }
 
+    // For checking params
     p = fn->params;
     while(p) {
-        printf("This is for what\n");
         AlirValue *ptr = new_temp(ctx, p->type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
         alir_add_symbol(ctx, p->name, ptr, p->type);
@@ -442,6 +442,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
         char pname[16]; snprintf(pname, sizeof(pname), "p%d", p_idx++);
         AlirValue *pval = alir_val_var(ctx->module, pname); 
         pval->type = p->type;
+        printf("%d\n", pval->type.base);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pval, ptr));
         
         p = p->next;

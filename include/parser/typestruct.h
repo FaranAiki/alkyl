@@ -65,7 +65,7 @@ typedef enum {
   TYPE_CLASS, 
   TYPE_ENUM, 
   TYPE_NAMESPACE,
-  TYPE_UNKNOWN
+  TYPE_UNKNOWN // 21
 } BaseType;
 
 typedef enum {

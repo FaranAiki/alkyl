@@ -307,7 +307,7 @@ AlirValue* alir_gen_inc_dec(AlirCtx *ctx, IncDecNode *id) {
     
     AlirValue *new_val = new_temp(ctx, t);
     emit(ctx, mk_inst(ctx->module, op, new_val, val, one));
-    
+   
     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, new_val, ptr));
     
     if (id->is_prefix) return new_val;

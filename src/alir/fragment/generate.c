@@ -4,6 +4,8 @@ int alir_is_integer_type(VarType t) {
     return t.base == TYPE_INT || t.base == TYPE_CHAR || t.base == TYPE_BOOL;
 }
 
+// THIS IS ALIR STMT VAR DECLARATION
+// TODO fix storing
 void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
     VarDeclNode *vn = (VarDeclNode*)node;
     int is_array_lit = (vn->initializer && vn->initializer->type == NODE_ARRAY_LIT);
@@ -78,6 +80,8 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
     alir_add_symbol(ctx, vn->name, ptr, vn->var_type);
     
     if (vn->initializer) {
+        printf("%d\n", vn->var_type.base);
+        printf("%s\n", vn->name);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val ? val : alir_const_int(ctx->module, 0), ptr));
     }
 }
@@ -288,6 +292,8 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
         AlirValue *var_ptr = new_temp(ctx, fn->iter_type); 
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, var_ptr, NULL, NULL));
         alir_add_symbol(ctx, fn->var_name, var_ptr, fn->iter_type);
+        // not checked
+        printf("!:%d\n", val->type.base);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, var_ptr));
     }
     
