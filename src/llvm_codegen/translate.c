@@ -237,6 +237,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         }
         
         // Low Level Memory Overrides
+        // TODO make sure this is proper
         case ALIR_OP_ALLOC_HEAP: {
             if (op1) {
                 LLVMValueRef size = op1;

@@ -500,14 +500,48 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
 
 // Lowers an array literal (e.g. [1, 2, 3])
 AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
-    // Determine the type of the array from Semantics
-    VarType t = sem_get_node_type(ctx->sem, node);
+    ArrayLitNode *al = (ArrayLitNode*)node;
+    VarType t = sem_get_node_type(ctx->sem, node); // t is now cleanly int*
     
-    // Allocate space for the array to act as the base pointer operand
-    AlirValue *arr_ptr = new_temp(ctx, t);
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, arr_ptr, NULL, NULL));
+    // 1. Manually count the elements here!
+    int count = 0;
+    ASTNode *counter = al->elements;
+    while(counter) { count++; counter = counter->next; }
+  
+    // Calculate byte size (Assuming 4 bytes per int for now)
+    // TODO make this support other non int
+    int byte_size = count > 0 ? count * 4 : 4; 
+    AlirValue *size_val = alir_const_int(ctx->module, byte_size);
 
-    return arr_ptr;
+    // 2. Allocate on the Heap
+    AlirValue *raw_ptr = new_temp(ctx, (VarType){TYPE_CHAR, 1});
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOC_HEAP, raw_ptr, size_val, NULL));
+    
+    // 3. Cast to int*
+    AlirValue *heap_ptr = new_temp(ctx, t);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, heap_ptr, raw_ptr, NULL));
+    
+    // 4. Loop and store
+    ASTNode *elem = al->elements;
+    int idx = 0;
+    while(elem) {
+        AlirValue *eval = alir_gen_expr(ctx, elem);
+        if (!eval) eval = alir_const_int(ctx->module, 0);
+
+        AlirValue *elem_ptr = new_temp(ctx, t); 
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_ptr, heap_ptr, alir_const_int(ctx->module, idx)));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, eval, elem_ptr));
+        
+        elem = elem->next; 
+        idx++;
+    }
+
+    // 5. Create stack var and store the heap pointer
+    AlirValue *stack_var = new_temp(ctx, t);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, stack_var, NULL, NULL));
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, heap_ptr, stack_var));
+
+    return stack_var; 
 }
 
 AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {

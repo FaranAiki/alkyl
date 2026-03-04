@@ -1,7 +1,21 @@
 import "lib/c"
 
 int main() {
-  let t = [1,2,3,4];
-  printf("%d", t[0]);
+  char *buffo = "My buffo";
+  char buffer[100] = "My buffer!";
+
+  // int my_fun[] = [1,2,3,4];
+  let my_fun2[] = [1,2,3,4,5]; // this is different than int
+
+  printf("%c\n", buffer[3]);
+  printf("%c\n", buffo[3]);
+
+  // printf("%d\n", my_fun[1]);
+
+  for i in [1,2,3] {
+    printf("%d\n", i);
+  }
+
+  return 0;
 }
 

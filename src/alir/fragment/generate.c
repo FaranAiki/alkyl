@@ -35,27 +35,48 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         }
         
         // [HOTFIX] Allocate on Heap to prevent backend `onstack` size smash bugs
+        // fucking retarded lol, fix this
         int byte_size = count * 8; // 8 bytes per element safely overestimates i32/pointers
         AlirValue *size_val = alir_const_int(ctx->module, byte_size);
         AlirValue *raw_ptr = new_temp(ctx, (VarType){TYPE_CHAR, 1});
+        
+        // 1. Allocate on the heap
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOC_HEAP, raw_ptr, size_val, NULL));
         
+        // 2. Cast to the correct pointer type (e.g., int*)
         AlirValue *ptr = new_temp(ctx, vn->var_type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, ptr, raw_ptr, NULL));
+        
         alir_add_symbol(ctx, vn->name, ptr, vn->var_type);
         
-        // Store elements sequentially
+        // 3. Store elements sequentially into the heap memory
         elem = al->elements;
         int idx = 0;
         while(elem) {
+            // Evaluate the RHS (the value to store)
             AlirValue *eval = alir_gen_expr(ctx, elem);
-            AlirValue *elem_ptr = new_temp(ctx, vn->var_type); // Pointer to element
-            // printf("Is this true\n");
-            // emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, eval, elem_ptr, NULL));
+            if (!eval) eval = alir_const_int(ctx->module, 0);
+
+            // Create a temp to hold the element's address
+            AlirValue *elem_ptr = new_temp(ctx, vn->var_type); 
+            
+            // NO LOAD NEEDED! 'ptr' is already the direct heap address.
+            // Just offset the heap pointer to get the address of arr[idx]
             emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_ptr, ptr, alir_const_int(ctx->module, idx)));
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, eval ? eval : alir_const_int(ctx->module, 0), elem_ptr));
-            elem = elem->next; idx++;
+            
+            // Store the value into that address
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, eval, elem_ptr));
+            
+            elem = elem->next; 
+            idx++;
         }
+        
+        AlirValue *stack_var = new_temp(ctx, vn->var_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, stack_var, NULL, NULL));
+        
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, ptr, stack_var));
+        
+        alir_add_symbol(ctx, vn->name, stack_var, vn->var_type);
         return;
     } 
 
@@ -141,9 +162,21 @@ void alir_stmt_while(AlirCtx *ctx, ASTNode *node) {
 // TODO split this
 void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
     ForInNode *fn = (ForInNode*)node;
+// 1. Evaluate the collection
     AlirValue *col = alir_gen_expr(ctx, fn->collection);
+    if (!col) return; // (Add your error print here)
+
+    // 3. Setup Index Variable (idx = 0)
+    AlirValue *idx_var = new_temp(ctx, (VarType){TYPE_INT, 0}); 
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, idx_var, NULL, NULL));
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 0), idx_var));
+
+    // 4. Determine the limit (Temporarily hardcode to 5 so you can see it work!)
+    int limit_val = col->type.array_size > 0 ? col->type.array_size : 5; 
+    AlirValue *limit = alir_const_int(ctx->module, limit_val);
     
-    // --- 1. GENERATOR LOOP LOWERING ---
+        printf("Node type of collection: %d\n", fn->collection->type);
+
     if (col && col->type.base == TYPE_CLASS && col->type.class_name && strncmp(col->type.class_name, "FluxCtx_", 8) == 0) {
         char *flux_func_name = col->type.class_name + 8;
         char resume_name[256]; snprintf(resume_name, 256, "%s_Resume", flux_func_name);
@@ -205,7 +238,6 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
         return;
     }
 
-    // --- 2. INTEGER RANGE LOOP LOWERING (for i in 50) ---
     if (col && alir_is_integer_type(col->type) && col->type.ptr_depth == 0) {
         AlirValue *limit = col;
         AlirBlock *cond_bb = alir_add_block(ctx->module, ctx->current_func, "for_cond");
@@ -250,60 +282,75 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
         return;
     }
 
-    // --- 3. NATIVE ITERATOR FALLBACK ---
-    if (!col) {
-        col = new_temp(ctx, (VarType){TYPE_AUTO, 1, 0, NULL, 0, 0});
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, col, NULL, NULL));
-    }
-    
-    AlirValue *iter = new_temp(ctx, (VarType){TYPE_VOID, 1, 0, NULL, 0, 0}); 
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ITER_INIT, iter, col, NULL));
-    
-    AlirBlock *cond_bb = alir_add_block(ctx->module, ctx->current_func, "for_cond");
-    AlirBlock *body_bb = alir_add_block(ctx->module, ctx->current_func, "for_body");
-    AlirBlock *end_bb = alir_add_block(ctx->module, ctx->current_func, "for_end");
-    
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, cond_bb->label), NULL));
-    
-    ctx->current_block = cond_bb;
-    AlirValue *valid = new_temp(ctx, (VarType){TYPE_BOOL, 0, 0, NULL, 0, 0});
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ITER_VALID, valid, iter, NULL));
-    
-    AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, valid, alir_val_label(ctx->module, body_bb->label));
-    br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
-    br->args[0] = alir_val_label(ctx->module, end_bb->label);
-    br->arg_count = 1;
-    emit(ctx, br);
-    
-    ctx->current_block = body_bb;
-    push_loop(ctx, cond_bb, end_bb);
-    
-    if (fn->iter_type.base == TYPE_CLASS && fn->iter_type.ptr_depth == 0) {
-        fn->iter_type.ptr_depth = 1;
-    }
-    
-    AlirValue *val = new_temp(ctx, fn->iter_type); 
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ITER_GET, val, iter, NULL));
-    
-    if (ctx->in_flux_resume) {
-        AlirSymbol *sym = alir_find_symbol(ctx, fn->var_name);
-        if (sym) { emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, sym->ptr)); }
-    } else {
-        AlirValue *var_ptr = new_temp(ctx, fn->iter_type); 
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, var_ptr, NULL, NULL));
-        alir_add_symbol(ctx, fn->var_name, var_ptr, fn->iter_type);
-        // not checked
-        printf("!:%d\n", val->type.base);
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, var_ptr));
-    }
-    
-    ASTNode *s = fn->body; while(s) { alir_gen_stmt(ctx, s); s=s->next; }
-    
-    if (!ctx->current_block->tail || !is_terminator(ctx->current_block->tail->op)) {
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_ITER_NEXT, NULL, iter, NULL));
+    // If the collection successfully generated and is a pointer/array type:
+    if (col && (col->type.ptr_depth > 0 || col->type.array_size > 0)) { 
+        AlirBlock *cond_bb = alir_add_block(ctx->module, ctx->current_func, "for_cond");
+        AlirBlock *body_bb = alir_add_block(ctx->module, ctx->current_func, "for_body");
+        AlirBlock *end_bb  = alir_add_block(ctx->module, ctx->current_func, "for_end");
+        
+        // Setup Index Variable (idx = 0)
+        AlirValue *idx_var = new_temp(ctx, (VarType){TYPE_INT, 0}); 
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, idx_var, NULL, NULL));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 0), idx_var));
+        
+        // Setup Loop Element Variable (e.g. 'i')
+        AlirValue *val_var = new_temp(ctx, fn->iter_type); 
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, val_var, NULL, NULL));
+        alir_add_symbol(ctx, fn->var_name, val_var, fn->iter_type);
+        
         emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, cond_bb->label), NULL));
+        
+        // --- COND BLOCK (idx < limit) ---
+        ctx->current_block = cond_bb;
+        AlirValue *curr_idx = new_temp(ctx, (VarType){TYPE_INT, 0});
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, curr_idx, idx_var, NULL));
+        
+        AlirValue *valid = new_temp(ctx, (VarType){TYPE_BOOL});
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_LT, valid, curr_idx, limit));
+        
+        AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, valid, alir_val_label(ctx->module, body_bb->label));
+        br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
+        br->args[0] = alir_val_label(ctx->module, end_bb->label);
+        br->arg_count = 1;
+        emit(ctx, br);
+        
+        // --- BODY BLOCK ---
+        ctx->current_block = body_bb;
+        push_loop(ctx, cond_bb, end_bb);
+        
+        // 1. Read the heap address directly out of 'col'
+        AlirValue *heap_ptr = new_temp(ctx, col->type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, heap_ptr, col, NULL));
+        
+        // 2. Get the address of arr[idx] using the heap pointer
+        AlirValue *elem_addr = new_temp(ctx, fn->iter_type);
+        elem_addr->type.ptr_depth++; 
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_addr, heap_ptr, curr_idx));
+        
+        // 3. Load the actual value at that array index
+        AlirValue *elem_val = new_temp(ctx, fn->iter_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, elem_val, elem_addr, NULL));
+        
+        // 4. Store the array data into your loop variable
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, elem_val, val_var));
+        
+        // Generate User statements
+        ASTNode *s = fn->body; while(s) { alir_gen_stmt(ctx, s); s=s->next; }
+        
+        // Increment idx
+        if (!ctx->current_block->tail || !is_terminator(ctx->current_block->tail->op)) {
+            AlirValue *next_idx = new_temp(ctx, (VarType){TYPE_INT, 0});
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_ADD, next_idx, curr_idx, alir_const_int(ctx->module, 1)));
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, next_idx, idx_var));
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, cond_bb->label), NULL));
+        }
+        
+        pop_loop(ctx);
+        ctx->current_block = end_bb;
+        return;
     }
-    
-    pop_loop(ctx);
-    ctx->current_block = end_bb;
+
+    // If it makes it here, the collection evaluation completely failed!
+    printf("COMPILER ERROR: Attempted to iterate over an invalid or null collection!\n");
+    return;
 }
