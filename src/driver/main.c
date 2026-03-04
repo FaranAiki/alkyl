@@ -89,7 +89,6 @@ int main(int argc, char *argv[]) {
 
   // We keep sem_ctx alive if we want to use the Side Table for Codegen later.
   // For now, we clean it up as Codegen currently recalculates types (but safely now!)
-  sem_cleanup(&sem_ctx); 
   
   debug_step("Finished Semantic Analysis. Start macro-linking.");
 
@@ -119,6 +118,8 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
+  sem_cleanup(&sem_ctx); 
+  
   LLVMInitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();

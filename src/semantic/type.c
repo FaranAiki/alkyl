@@ -206,7 +206,6 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
         } else {
              sem_check_implicit_cast(ctx, (ASTNode*)node, lhs_type, rhs_type);
              sem_set_node_type(ctx, (ASTNode*)node, lhs_type);
-             printf("Pointer depth: %d\n", rhs_type.ptr_depth);
         }
     }
 }

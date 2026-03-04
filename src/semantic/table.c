@@ -15,7 +15,8 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
     
     TypeEntry *curr = ctx->type_buckets[idx];
     while (curr) {
-        if (curr->node == node || curr->type.base == TYPE_UNKNOWN) {
+        if (curr->node == node && curr->type.base != TYPE_UNKNOWN && type.base != TYPE_UNKNOWN) {
+            if (curr->type.base != TYPE_UNKNOWN) printf("Kalau nimpa pikir Mas, nimpa apaan tuh %p dengan %d!\n", curr->node, type.base);
             curr->type = type;
             return;
         }
@@ -31,9 +32,6 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
     entry->is_impure = 0; 
     entry->next = ctx->type_buckets[idx];
     ctx->type_buckets[idx] = entry;
-
-    printf("Sudah terdefinisi tipe untuk node %p\n", node);
-    if (type.base == TYPE_UNKNOWN) printf ("tapi unknown jir!\n");
 }
 
 VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
@@ -42,7 +40,7 @@ VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
     unsigned int idx = hash_ptr(node);
     TypeEntry *curr = ctx->type_buckets[idx];
     while (curr) {
-        if (curr->node == node) return curr->type;
+        if (curr->node == node && curr->type.base != TYPE_UNKNOWN) return curr->type;
         curr = curr->next;
     }
 
