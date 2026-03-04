@@ -49,8 +49,9 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             LLVMValueRef loaded_ptr = LLVMBuildLoad2(ctx->builder, ptr_to_load_ty, op1, "implicit_load");
 
             VarType ptr_t = inst->op1->type;
-            if (ptr_t.ptr_depth > 0) ptr_t.ptr_depth--;
-            else if (ptr_t.array_size > 0) ptr_t.array_size = 0; // Natural Array decay
+            // TODO what the fuck is this
+            // if (ptr_t.ptr_depth > 0) ptr_t.ptr_depth--;
+            if (ptr_t.array_size > 0) ptr_t.array_size = 0; // Natural Array decay
             
             LLVMTypeRef base_ty = get_llvm_type(ctx, ptr_t);
             
@@ -64,18 +65,14 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
                     LLVMValueRef indices[] = { zero, op2 };
                     LLVMTypeRef arr_ty = get_llvm_type(ctx, inst->op1->type);
                     
-                    // CRITICAL: Pass 'loaded_ptr' instead of 'op1' here
                     res = LLVMBuildGEP2(ctx->builder, arr_ty, loaded_ptr, indices, 2, "array_gep");
                 } else {
-                    // Standard Pointer iteration (i32*)
                     LLVMValueRef indices[] = { op2 };
                     
-                    // CRITICAL: Pass 'loaded_ptr' instead of 'op1' here
                     res = LLVMBuildGEP2(ctx->builder, base_ty, loaded_ptr, indices, 1, "ptr_gep");
                 }
             }
 
-            printf("base: %d\n", ptr_t.base);
             break;
         }
         

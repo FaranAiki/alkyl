@@ -34,6 +34,7 @@ void codegen_dispose(CodegenCtx *ctx) {
 
 LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
     if (t.ptr_depth > 0) {
+        // TODO this is invalid tho
         return LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
     }
 

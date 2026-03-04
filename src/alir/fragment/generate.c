@@ -80,8 +80,6 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
     alir_add_symbol(ctx, vn->name, ptr, vn->var_type);
     
     if (vn->initializer) {
-        printf("%d\n", vn->var_type.base);
-        printf("%s\n", vn->name);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val ? val : alir_const_int(ctx->module, 0), ptr));
     }
 }

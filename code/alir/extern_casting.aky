@@ -9,8 +9,8 @@ long t() {
 }
 
 int main() {
-  let pussy = malloc(100) as char*;
-  pussy[0] = 'a';
+  let pussy = malloc(100) as int*;
+  pussy[0] = 67;
   pussy[1] = '\0';
 
   printf("%s\n", pussy);

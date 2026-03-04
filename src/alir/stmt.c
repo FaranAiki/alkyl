@@ -21,7 +21,6 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                 if (!val) {
                     val = alir_const_int(ctx->module, 0); // Safety net
                 }
-                printf("What is this\n");
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, sym->ptr));
             }
             return; 
@@ -92,7 +91,6 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                     v = alir_gen_expr(ctx, rn->value);
                     if (!v) v = alir_const_int(ctx->module, 0); // Safety net
                 }
-                printf("What is this return! %d\n", v->type.base);
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, v, NULL));
             }
             break;
