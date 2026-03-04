@@ -19,6 +19,58 @@ int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char
     return idx == -1 ? 0 : idx;
 }
 
+// Handles L-Values: Returns the memory address of arr[index]
+AlirValue* alir_gen_addr_array_access(AlirCtx *ctx, ArrayAccessNode *aa) {
+    // 1. Get the address of the array variable itself
+    AlirValue *base_ptr = alir_gen_addr(ctx, aa->target);
+    if (!base_ptr) return NULL;
+
+    VarType tgt_type = sem_get_node_type(ctx->sem, aa->target);
+
+    if (tgt_type.base == TYPE_UNKNOWN) {
+        printf("DEBUG: aa->target %p type is UNKNOWN! The semantic analyzer missed this node.\n", aa->target);
+    }
+
+    // 2. CRITICAL: If target is a dynamic pointer (like from malloc), 
+    // we must load the heap address FROM the stack variable before indexing!
+    // (Adjust this condition based on how your types are represented)
+    if (tgt_type.ptr_depth > 0 && tgt_type.array_size == 0) {
+        AlirValue *loaded_base = new_temp(ctx, tgt_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_base, base_ptr, NULL));
+        base_ptr = loaded_base; // Now base_ptr holds the malloc result
+    }
+
+    // 3. Evaluate the index
+    AlirValue *index = alir_gen_expr(ctx, aa->index);
+    if (!index) index = alir_const_int(ctx->module, 0); 
+    
+    // 4. Calculate the type of the pointer we are creating
+    VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
+    VarType ptr_t = elem_t;
+    ptr_t.ptr_depth++; 
+
+    // 5. Emit GET_PTR (LLVM getelementptr) and RETURN THE POINTER
+    AlirValue *elem_ptr = new_temp(ctx, ptr_t);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_ptr, base_ptr, index));
+    
+    return elem_ptr; 
+}
+
+// Handles R-Values: Returns the actual data inside arr[index]
+AlirValue* alir_gen_expr_array_access(AlirCtx *ctx, ArrayAccessNode *aa) {
+    // 1. Get the memory address of the element
+    AlirValue *elem_ptr = alir_gen_addr_array_access(ctx, aa);
+    if (!elem_ptr) return NULL;
+
+    // 2. Emit a LOAD instruction to read the actual value
+    VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
+    AlirValue *loaded_val = new_temp(ctx, elem_t);
+    
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_val, elem_ptr, NULL));
+    
+    return loaded_val;
+}
+
 AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     if (!node) return NULL;
 
@@ -32,28 +84,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     
     // no need to change
     if (node->type == NODE_ARRAY_ACCESS) {
-        ArrayAccessNode *aa = (ArrayAccessNode*)node;
-        AlirValue *base_ptr = alir_gen_addr(ctx, aa->target);
-        if (!base_ptr) base_ptr = alir_gen_expr(ctx, aa->target);
-        if (!base_ptr) return NULL;
-
-        // Load the pointer if target is a dynamic pointer, not an in-place array alloca
-        VarType tgt_type = sem_get_node_type(ctx->sem, aa->target);
-        if (tgt_type.array_size == 0 && tgt_type.ptr_depth > 0) {
-            AlirValue *loaded = new_temp(ctx, tgt_type);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded, base_ptr, NULL));
-            base_ptr = loaded;
-        }
-
-        AlirValue *index = alir_gen_expr(ctx, aa->index);
-        if (!index) index = alir_const_int(ctx->module, 0); 
-        
-        VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
-        elem_t.ptr_depth++; 
-
-        AlirValue *res = new_temp(ctx, elem_t);
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, res, base_ptr, index));
-        return res;
+        return alir_gen_addr_array_access(ctx, (ArrayAccessNode*)node);
     }
 
     // TODO add vector access

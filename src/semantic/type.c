@@ -135,7 +135,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     VarType rhs_type = sem_get_node_type(ctx, node->value);
     VarType lhs_type;
     int expr_tainted = sem_get_node_tainted(ctx, node->value);
-    
+   
     if (rhs_type.base == TYPE_VOID && rhs_type.ptr_depth == 0) {
         sem_error(ctx, (ASTNode*)node, "Cannot assign value of type 'void' to variable");
     }
@@ -205,6 +205,8 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
              sem_error(ctx, (ASTNode*)node, "Invalid assignment. Cannot assign '%s' to '%s'", t2, t1);
         } else {
              sem_check_implicit_cast(ctx, (ASTNode*)node, lhs_type, rhs_type);
+             sem_set_node_type(ctx, (ASTNode*)node, lhs_type);
+             printf("Pointer depth: %d\n", rhs_type.ptr_depth);
         }
     }
 }

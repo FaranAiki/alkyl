@@ -53,7 +53,7 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
     AlirSymbol *sym = alir_find_symbol(ctx, vn->name);
     if (sym) return sym->ptr;
 
-    // [FIX] Implicit `this` indexing fallback for bare reads (e.g. `oxygen_level` vs `this.oxygen_level`)
+    // Implicit this indexing
     AlirSymbol *this_sym = alir_find_symbol(ctx, "this");
     if (this_sym && this_sym->type.class_name) {
         int idx = -1;
@@ -155,7 +155,8 @@ AlirValue* alir_gen_addr_member_access(AlirCtx *ctx, ASTNode *node) {
     }
     
     field_type.ptr_depth++; // It's a pointer to the field
-    AlirValue *res = new_temp(ctx, field_type); 
+    AlirValue *res = new_temp(ctx, field_type);
+  // TODO I don't think this is true
     emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, res, base_ptr, alir_const_int(ctx->module, idx)));
     return res;
 }

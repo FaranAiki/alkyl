@@ -50,6 +50,8 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         while(elem) {
             AlirValue *eval = alir_gen_expr(ctx, elem);
             AlirValue *elem_ptr = new_temp(ctx, vn->var_type); // Pointer to element
+            // printf("Is this true\n");
+            // emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, eval, elem_ptr, NULL));
             emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_ptr, ptr, alir_const_int(ctx->module, idx)));
             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, eval ? eval : alir_const_int(ctx->module, 0), elem_ptr));
             elem = elem->next; idx++;

@@ -38,24 +38,6 @@ void sem_insert_implicit_cast(SemanticCtx *ctx, ASTNode **node_ptr, VarType targ
     *node_ptr = (ASTNode*)cast;
 }
 
-void sem_register_builtins(SemanticCtx *ctx) {
-    VarType int_t = {TYPE_INT, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
-    sem_symbol_add(ctx, "printf", SYM_FUNC, int_t);
-    sem_symbol_add(ctx, "print", SYM_FUNC, int_t);
-    
-    VarType void_ptr = {TYPE_VOID, 1, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
-    sem_symbol_add(ctx, "malloc", SYM_FUNC, void_ptr);
-    sem_symbol_add(ctx, "alloc", SYM_FUNC, void_ptr);
-    
-    VarType void_t = {TYPE_VOID, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
-    sem_symbol_add(ctx, "free", SYM_FUNC, void_t);
-
-    VarType str_t = {TYPE_STRING, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
-    sem_symbol_add(ctx, "input", SYM_FUNC, str_t);
-    
-    sem_symbol_add(ctx, "exit", SYM_FUNC, void_t);
-}
-
 // TODO split this into 
 // multiple functions
 void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {

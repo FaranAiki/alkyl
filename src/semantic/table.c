@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h> 
 
-static unsigned int hash_ptr(ASTNode *node) {
+unsigned int hash_ptr(ASTNode *node) {
     uintptr_t ptr_val = (uintptr_t)node;
     return (unsigned int)((ptr_val >> 3) % TYPE_TABLE_SIZE);
 }
@@ -15,7 +15,7 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
     
     TypeEntry *curr = ctx->type_buckets[idx];
     while (curr) {
-        if (curr->node == node) {
+        if (curr->node == node || curr->type.base == TYPE_UNKNOWN) {
             curr->type = type;
             return;
         }
@@ -31,6 +31,9 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
     entry->is_impure = 0; 
     entry->next = ctx->type_buckets[idx];
     ctx->type_buckets[idx] = entry;
+
+    printf("Sudah terdefinisi tipe untuk node %p\n", node);
+    if (type.base == TYPE_UNKNOWN) printf ("tapi unknown jir!\n");
 }
 
 VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
@@ -42,6 +45,8 @@ VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
         if (curr->node == node) return curr->type;
         curr = curr->next;
     }
+
+    printf("Kok bisa ga ada untuk %p\n",node);
     return (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
 }
 
