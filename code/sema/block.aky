@@ -1,14 +1,13 @@
+extern int printf(char *fmt, ...);
+
 int k() {
   int p = 5;
+  return 5;
 }
 
 // TODO differentiate this block
 int main() {
   int t = 3;
-  {
-    int t = 5;
-    printf "%d", t;
-  }
 
-  printf "%d", t;
+  printf "%d", z;
 }

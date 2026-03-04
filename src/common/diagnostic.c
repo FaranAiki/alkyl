@@ -95,7 +95,9 @@ const char* find_closest_keyword(const char *ident) {
         "open", "closed", "public", "private", "final", "naked", "reactive", "inert",
         "pure", "impure", "tainted", "clean", "wash", "untaint", "vector",
         "let", "mut", "imut", "const", "typeof", 
-        "switch", "case", "default", "leak", 
+        "switch", "case", "default", "leak",
+        // TODO add more keyword 
+        "accept", "reject", "then",
         NULL
     };
     
@@ -328,9 +330,22 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_LTE: return "<=";
         case TOKEN_GTE: return ">=";
 
+        // TODO format this correctly
+        case TOKEN_THEN: return "then";
+        case TOKEN_ALIR: return "alir";
+        case TOKEN_STOP: return "stop";
+        case TOKEN_LROTATE: return "<<%";
+        case TOKEN_RROTATE: return "%>>";
+        case TOKEN_IMPL: return "impl";
+        case TOKEN_TRAIT: return "trait";
+        case TOKEN_ACCEPT: return "accept";
+        case TOKEN_REJECT: return "reject";
+        case TOKEN_PRISTINE: return "pristine";
+        case TOKEN_THROW: return "throw";
+
         case TOKEN_UNKNOWN: return "unknown";
-        default: return "unknown_token";
     }
+    return "unknown";
 }
 
 const char* get_token_description(TokenType type) {

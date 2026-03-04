@@ -58,6 +58,8 @@ void alir_fprint_val(FILE *f, AlirValue *v) {
     }
 }
 
+// TODO separate this 
+// and make sure unknowns do not exist
 void alir_emit_function(AlirModule *mod, FILE *f) {
   AlirFunction *func = mod->functions;
   while(func) {
@@ -115,6 +117,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                   } 
                   else {
                       // [FIX] Add required typing to the instruction output
+                      // this is the getptr isn't
                       fprintf(f, "%s ", alir_op_str(inst->op));
                       
                       if (inst->dest && inst->op != ALIR_OP_STORE && inst->op != ALIR_OP_CALL) {

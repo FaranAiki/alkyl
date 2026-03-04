@@ -363,12 +363,13 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
             AlirValue *arg_val = alir_val_var(ctx->module, pname);
             arg_val->type = f->type; // [FIX] Attach type to prevent untyped store
             
-            AlirValue *loaded_this = new_temp(ctx, this_t);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_this, this_ptr, NULL));
+            // don't load the value here because getptr is not need to be loaded again
+            // AlirValue *loaded_this = new_temp(ctx, this_t);
+            // emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_this, this_ptr, NULL));
 
             VarType ft = f->type; ft.ptr_depth++;
             AlirValue *field_ptr = new_temp(ctx, ft);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, loaded_this, alir_const_int(ctx->module, f->index)));
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, this_ptr, alir_const_int(ctx->module, f->index)));
             // implicit constructor
             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, arg_val, field_ptr));
             

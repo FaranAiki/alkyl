@@ -28,6 +28,9 @@ typedef enum {
   NODE_INC_DEC, 
   NODE_LINK,
   NODE_CLASS,
+  NODE_STRUCT,
+  NODE_IMPL,
+  NODE_TRAIT,
   NODE_NAMESPACE, 
   NODE_ENUM, 
   NODE_MEMBER_ACCESS,
@@ -40,7 +43,7 @@ typedef enum {
   NODE_EMIT,
   NODE_FOR_IN,
   NODE_WASH, 
-  NODE_CLEAN 
+  NODE_CLEAN
 } NodeType;
 
 typedef enum {
@@ -154,6 +157,69 @@ typedef struct {
   bool is_static : 1; 
   bool is_abstract : 1;
 } ClassNode;
+
+typedef struct {
+  ASTNode base;
+  char *name;
+  char *parent_name; 
+  struct {
+      char **names;
+      int count;
+  } traits; 
+  ASTNode *members; 
+  
+  IsASemantic is_is_a;
+  HasASemantic is_has_a;
+
+  bool is_open : 1; 
+  bool is_public : 1; 
+  bool is_extern : 1; 
+  bool is_union : 1;
+  bool is_static : 1; 
+  bool is_abstract : 1;
+} StructNode;
+
+typedef struct {
+  ASTNode base;
+  char *name;
+  char *parent_name; 
+  struct {
+      char **names;
+      int count;
+  } traits; 
+  ASTNode *members; 
+  
+  IsASemantic is_is_a;
+  HasASemantic is_has_a;
+
+  bool is_open : 1; 
+  bool is_public : 1; 
+  bool is_extern : 1; 
+  bool is_union : 1;
+  bool is_static : 1; 
+  bool is_abstract : 1;
+} TraitNode;
+
+typedef struct {
+  ASTNode base;
+  char *name;
+  char *parent_name; 
+  struct {
+      char **names;
+      int count;
+  } traits; 
+  ASTNode *members; 
+  
+  IsASemantic is_is_a;
+  HasASemantic is_has_a;
+
+  bool is_open : 1; 
+  bool is_public : 1; 
+  bool is_extern : 1; 
+  bool is_union : 1;
+  bool is_static : 1; 
+  bool is_abstract : 1;
+} ImplNode;
 
 typedef struct EnumEntry {
     char *name;

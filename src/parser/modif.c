@@ -112,7 +112,8 @@ ASTNode* parse_typedef(Parser *p) {
   
   if ((ct >= TOKEN_KW_VOID && ct <= TOKEN_KW_LET) || 
       (ct >= TOKEN_KW_SHORT && ct <= TOKEN_KW_UNSIGNED) ||
-      ct == TOKEN_STRUCT || ct == TOKEN_UNION || ct == TOKEN_ENUM || ct == TOKEN_CLASS) {
+      ct == TOKEN_STRUCT || ct == TOKEN_UNION || ct == TOKEN_ENUM || ct == TOKEN_CLASS ||
+      ct == TOKEN_IMPL || ct == TOKEN_TRAIT ) {
       start_is_type = 1;
   }
   else if (ct == TOKEN_IDENTIFIER) {

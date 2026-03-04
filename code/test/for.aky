@@ -1,13 +1,6 @@
-flux int gen(int max) {
-  int t = 0;
-  while ++t <= max {
-    emit 5;
-    emit t * 2;
-  }
-}
+import "lib/c"
 
 int main() {
-  let t = gen(100);
   let my_arr = [1,2,3,4];
   // printf "%s\n", typeof(t);
   // printf "%s\n", typeof(my_arr);
@@ -17,29 +10,5 @@ int main() {
     printf "%d\n", i;
   }
 
-  // character looping
-  /*
-  print "This will loop hello world!\n";
-  for c in "Hello, World!" {
-    printf "%c:%s\n", c, typeof(c);
-  }*/
-
-  // integer array looping 
-  // printf "This will loop integer\n";
-  /*
-  for i in [1,2,3,4] {
-    printf "%d\n:%s", i, typeof(i);
-  }*/
-
-  // string looping
-  /*
-  for s in ["Hey", "My", "Name", "Is", "Faran"] {
-    printf "%s\n", s;
-  }*/
-
   printf "Emit!\n";
-  
-  for emitted in gen(100) {
-    printf "%d\n", emitted;
-  }
 }

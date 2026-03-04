@@ -1,5 +1,7 @@
 // Space Station Module System Simulation
 
+import "lib/c"
+
 open class Logger {
   void log(char msg[100]) {
     printf "[SYSTEM LOG]: %s\n", msg;

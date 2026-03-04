@@ -8,9 +8,9 @@ ASTNode* parse_extern(Parser *p, int modifiers) {
   
   // TODO add more of this 
   // so that extern can be more
-  if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION) {
+  if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION|| p->current_token.type == TOKEN_IMPL || p->current_token.type == TOKEN_TRAIT ) {
       eat(p, p->current_token.type);
-      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected name for extern class/struct/union");
+      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected name for extern keyword");
       char *name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
       eat(p, TOKEN_SEMICOLON);
@@ -122,7 +122,8 @@ static ASTNode* parse_class_impl(Parser *p, int modifiers) {
 
   if (p->current_token.type == TOKEN_OPEN) { is_open = 1; eat(p, TOKEN_OPEN); }
   else if (p->current_token.type == TOKEN_CLOSED) { is_open = 0; eat(p, TOKEN_CLOSED); }
-  
+ 
+  // TODO reformat this
   if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION) {
       int is_union = (p->current_token.type == TOKEN_UNION);
       eat(p, p->current_token.type);
@@ -147,7 +148,7 @@ static ASTNode* parse_class_impl(Parser *p, int modifiers) {
           int cap = 4;
           traits = parser_alloc(p, sizeof(char*) * cap);
           do {
-              if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected trait name after 'has'");
+              if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected trait or struct name after 'has'");
               if (trait_count >= cap) { 
                   cap *= 2; 
                   char **new_traits = parser_alloc(p, sizeof(char*)*cap);
@@ -400,7 +401,8 @@ ASTNode* parse_top_level(Parser *p) {
   if (p->current_token.type == TOKEN_DEFINE) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_define(p); }
   if (p->current_token.type == TOKEN_TYPEDEF) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_typedef(p); }
   if (p->current_token.type == TOKEN_ENUM) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_enum(p); }
-  
+ 
+  // TODO separate this
   if (p->current_token.type == TOKEN_CLASS || 
       p->current_token.type == TOKEN_STRUCT || 
       p->current_token.type == TOKEN_UNION || 

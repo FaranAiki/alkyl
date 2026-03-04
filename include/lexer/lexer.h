@@ -40,6 +40,9 @@ typedef enum {
   TOKEN_LSHIFT_ASSIGN,// <<=
   TOKEN_RSHIFT_ASSIGN,// >>=
   
+  // Assembly type shit
+  TOKEN_ALIR,
+
   TOKEN_IF,     
   TOKEN_ELIF, 
   TOKEN_THEN, 
@@ -61,8 +64,6 @@ typedef enum {
   TOKEN_TYPEDEF, 
 
   // OOP Keywords
-  TOKEN_CLASS,
-  TOKEN_STRUCT, 
   TOKEN_UNION,  
   TOKEN_IS,     
   TOKEN_HAS,    
@@ -79,6 +80,15 @@ typedef enum {
   TOKEN_TAINTED,
   TOKEN_CLEAN,
   TOKEN_PRISTINE,
+
+  // goated compo
+  TOKEN_CLASS,
+  TOKEN_STRUCT,
+  TOKEN_IMPL,
+  TOKEN_TRAIT,
+  
+  TOKEN_ACCEPT,
+  TOKEN_REJECT,
 
   TOKEN_TYPEOF,
   TOKEN_HASMETHOD,    
@@ -154,8 +164,8 @@ typedef enum {
   TOKEN_LT,     
   TOKEN_GT,     
   TOKEN_LTE,    
-  TOKEN_GTE,    
-  
+  TOKEN_GTE,
+
   TOKEN_UNKNOWN
 } TokenType;
 
@@ -186,6 +196,8 @@ typedef struct {
 
 // NOTE: Must be strictly alphabetical for bsearch
 static const KeywordDef keywords[] = {
+    {"accept", TOKEN_ACCEPT},
+    {"alir", TOKEN_ALIR},
     {"as", TOKEN_AS},
     {"bool", TOKEN_KW_BOOL},
     {"break", TOKEN_BREAK},
@@ -213,6 +225,7 @@ static const KeywordDef keywords[] = {
     {"hasmethod", TOKEN_HASMETHOD},
     {"if", TOKEN_IF},
     {"immutable", TOKEN_KW_IMUT},
+    {"impl", TOKEN_IMPL},
     {"import", TOKEN_IMPORT},
     {"impure", TOKEN_IMPURE},
     {"imut", TOKEN_KW_IMUT},
@@ -237,6 +250,7 @@ static const KeywordDef keywords[] = {
     {"public", TOKEN_PUBLIC},
     {"pure", TOKEN_PURE},
     {"reactive", TOKEN_REACTIVE},
+    {"reject", TOKEN_REJECT},
     {"return", TOKEN_RETURN},
     {"short", TOKEN_KW_SHORT},
     {"single", TOKEN_KW_SINGLE},
@@ -246,6 +260,7 @@ static const KeywordDef keywords[] = {
     {"tainted", TOKEN_TAINTED},
     {"then", TOKEN_THEN},
     {"throw", TOKEN_THROW},
+    {"trait", TOKEN_TRAIT},
     {"true", TOKEN_TRUE},
     {"typedef", TOKEN_TYPEDEF},
     {"typeof", TOKEN_TYPEOF},

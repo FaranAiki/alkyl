@@ -79,6 +79,15 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             }
             sem_scan_class_members(ctx, cn, sym);
         }
+        else if (node->type == NODE_TRAIT) {
+            // TODO implement thsi
+        }
+        else if (node->type == NODE_IMPL) {
+      
+        }
+        else if (node->type == NODE_STRUCT) {
+
+        }
         else if (node->type == NODE_ENUM) {
             sem_symbolic_node_enum(ctx, node);
         }

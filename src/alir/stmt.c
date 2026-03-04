@@ -155,6 +155,9 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_ROOT:
         case NODE_FUNC_DEF:
         case NODE_CLASS:
+        case NODE_STRUCT:
+        case NODE_TRAIT:
+        case NODE_IMPL:
         case NODE_NAMESPACE:
         case NODE_ENUM:
         case NODE_LINK:
