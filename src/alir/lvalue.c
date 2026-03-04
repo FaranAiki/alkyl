@@ -27,10 +27,6 @@ AlirValue* alir_gen_addr_array_access(AlirCtx *ctx, ArrayAccessNode *aa) {
 
     VarType tgt_type = sem_get_node_type(ctx->sem, aa->target);
 
-    if (tgt_type.base == TYPE_UNKNOWN) {
-        printf("DEBUG: aa->target %p type is UNKNOWN! The semantic analyzer missed this node.\n", aa->target);
-    }
-
     // 2. CRITICAL: If target is a dynamic pointer (like from malloc), 
     // we must load the heap address FROM the stack variable before indexing!
     // (Adjust this condition based on how your types are represented)

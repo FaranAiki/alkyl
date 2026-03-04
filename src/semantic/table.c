@@ -44,7 +44,6 @@ VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
         curr = curr->next;
     }
 
-    printf("Kok bisa ga ada untuk %p\n",node);
     return (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
 }
 
