@@ -338,8 +338,14 @@ void alir_for_in_flux(AlirCtx *ctx, ASTNode *node, AlirValue *col) {
 // TODO split this
 void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
     ForInNode *fn = (ForInNode*)node;
-// 1. Evaluate the collection
-    AlirValue *col = alir_gen_expr(ctx, fn->collection);
+    // 1. Evaluate the collection
+    AlirValue *col = NULL;
+    if (fn->collection->type == NODE_VAR_REF)
+      // assume exists as it is checked by semantic checker
+      col = alir_find_symbol(ctx, ((VarRefNode*)fn->collection)->name)->ptr;
+    else 
+      col = alir_gen_expr(ctx, fn->collection);
+    
     if (!col) {
         printf("GA ADA COLLECTION!\n");  
     } 

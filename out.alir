@@ -41,30 +41,29 @@ for_body:
   store int %15, %8
   jump for_cond
 for_end:
-  %16 = load int* %6
+  %16 = onstack int
+  store int 0, %16
   %17 = onstack int
   store int 0, %17
   %18 = onstack int
-  store int 0, %18
-  %19 = onstack int
   jump for_cond2
 for_cond2:
-  %20 = load int %18
-  %21 = lt bool %20, 5
-  condition %21, for_body2 (for_end2)
+  %19 = load int %17
+  %20 = lt bool %19, 5
+  condition %20, for_body2 (for_end2)
 for_body2:
-  %22 = load int* %16
-  %23 = getptr int* %22, %20
-  %24 = load int %23
-  store int %24, %19
-  %25 = cast char* @str.1
-  %26 = load int %19
-  %27 = call %printf (%25, %26)
-  %28 = add int %20, 1
-  store int %28, %18
+  %21 = load int* %6
+  %22 = getptr int* %21, %19
+  %23 = load int %22
+  store int %23, %18
+  %24 = cast char* @str.1
+  %25 = load int %18
+  %26 = call %printf (%24, %25)
+  %27 = add int %19, 1
+  store int %27, %17
   jump for_cond2
 for_end2:
-  %29 = cast char* @str.2
-  %30 = call %printf (%29)
+  %28 = cast char* @str.2
+  %29 = call %printf (%28)
   return int 0
 }
