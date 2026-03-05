@@ -27,26 +27,21 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
             }
         }
         
-        printf("HH\n");
         vn->var_type.base = elem_type.base;
-        vn->var_type.ptr_depth = elem_type.ptr_depth + 1; // It becomes a pointer to the element
-        vn->var_type.array_size = 0; // It is NOT an inline stack array anymore
+        vn->var_type.ptr_depth = elem_type.ptr_depth; // It becomes a pointer to the element
+        vn->var_type.array_size = count; // It is NOT an inline stack array anymore
         if (elem_type.class_name) {
             vn->var_type.class_name = alir_strdup(ctx->module, elem_type.class_name);
         }
         
         // [HOTFIX] Allocate on Heap to prevent backend `onstack` size smash bugs
         // fucking retarded lol, fix this
-        int byte_size = count * 8; // 8 bytes per element safely overestimates i32/pointers
+        int byte_size = count; // 8 bytes per element safely overestimates i32/pointers
         AlirValue *size_val = alir_const_int(ctx->module, byte_size);
-        AlirValue *raw_ptr = new_temp(ctx, (VarType){TYPE_CHAR, 1});
+        AlirValue *ptr = new_temp(ctx, elem_type);
         
         // 1. Allocate on the heap
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOC_HEAP, raw_ptr, size_val, NULL));
-        
-        // 2. Cast to the correct pointer type (e.g., int*)
-        AlirValue *ptr = new_temp(ctx, vn->var_type);
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, ptr, raw_ptr, NULL));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, size_val, NULL));
         
         alir_add_symbol(ctx, vn->name, ptr, vn->var_type);
         
@@ -200,6 +195,72 @@ void alir_for_in_int(AlirCtx *ctx, ASTNode  *node, AlirValue *col) {
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, i_next, var_ptr));
         emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, cond_bb->label), NULL));
     }
+    pop_loop(ctx);
+    ctx->current_block = end_bb;
+    return;
+}
+
+void alir_for_in_onheap(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *limit) {
+    ForInNode *fn = (ForInNode*)node;
+    AlirBlock *cond_bb = alir_add_block(ctx->module, ctx->current_func, "for_cond");
+    AlirBlock *body_bb = alir_add_block(ctx->module, ctx->current_func, "for_body");
+    AlirBlock *end_bb  = alir_add_block(ctx->module, ctx->current_func, "for_end");
+    
+    // Setup Index Variable (idx = 0)
+    AlirValue *idx_var = new_temp(ctx, (VarType){TYPE_INT, 0}); 
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, idx_var, NULL, NULL));
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 0), idx_var));
+    
+    // Setup Loop Element Variable (e.g. 'i')
+    AlirValue *curr_idx = new_temp(ctx, fn->iter_type); 
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, curr_idx, NULL, NULL));
+    alir_add_symbol(ctx, fn->var_name, curr_idx, fn->iter_type);
+    
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, cond_bb->label), NULL));
+    
+    // --- COND BLOCK (idx < limit) ---
+    ctx->current_block = cond_bb;
+    
+    AlirValue *valid = new_temp(ctx, (VarType){TYPE_BOOL});
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_LT, valid, curr_idx, limit));
+    
+    AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, valid, alir_val_label(ctx->module, body_bb->label));
+    br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
+    br->args[0] = alir_val_label(ctx->module, end_bb->label);
+    br->arg_count = 1;
+    emit(ctx, br);
+    
+    // --- BODY BLOCK ---
+    ctx->current_block = body_bb;
+    push_loop(ctx, cond_bb, end_bb);
+    
+    // 1. Read the heap address directly out of 'col'
+    AlirValue *heap_ptr = new_temp(ctx, col->type);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, heap_ptr, col, NULL));
+    
+    // 2. Get the address of arr[idx] using the heap pointer
+    AlirValue *elem_addr = new_temp(ctx, fn->iter_type);
+    elem_addr->type.ptr_depth++; 
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_addr, heap_ptr, curr_idx));
+    
+    // 3. Load the actual value at that array index
+    AlirValue *elem_val = new_temp(ctx, fn->iter_type);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, elem_val, elem_addr, NULL));
+    
+    // 4. Store the array data into your loop variable
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, elem_val, curr_idx));
+    
+    // Generate User statements
+    ASTNode *s = fn->body; while(s) { alir_gen_stmt(ctx, s); s=s->next; }
+    
+    // Increment idx
+    if (!ctx->current_block->tail || !is_terminator(ctx->current_block->tail->op)) {
+        AlirValue *next_idx = new_temp(ctx, (VarType){TYPE_INT, 0});
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ADD, next_idx, curr_idx, alir_const_int(ctx->module, 1)));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, next_idx, idx_var));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, cond_bb->label), NULL));
+    }
+    
     pop_loop(ctx);
     ctx->current_block = end_bb;
     return;
@@ -371,8 +432,12 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
         return alir_for_in_int(ctx, node, col);
     }
 
-    if (col && (col->type.ptr_depth > 0 || col->type.array_size > 0)) { 
+    if (col && (col->type.ptr_depth > 0)) { 
         return alir_for_in_ptr(ctx, node, col, limit);
+    }
+
+    if (col && (col->type.array_size > 0)) {
+        return alir_for_in_onheap(ctx, node, col, limit);  
     }
 
     // If it makes it here, the collection evaluation completely failed!

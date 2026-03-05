@@ -519,27 +519,18 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
 }
 
 // Lowers an array literal (e.g. [1, 2, 3])
+// Array lits are not a memory!
 AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     ArrayLitNode *al = (ArrayLitNode*)node;
-    VarType t = sem_get_node_type(ctx->sem, node); // t is now cleanly int*
+    VarType t = sem_get_node_type(ctx->sem, node); 
     
-    // 1. Manually count the elements here!
-    int count = 0;
-    ASTNode *counter = al->elements;
-    while(counter) { count++; counter = counter->next; }
-    
-    // Calculate byte size (Assuming 4 bytes per int for now)
-    // TODO make this support other non int
-    int byte_size = count > 0 ? count * alir_get_type_size(t) : 8; 
+    int byte_size = t.array_size > 0 ? t.array_size * alir_get_type_size(t) : 8; 
     AlirValue *size_val = alir_const_int(ctx->module, byte_size);
 
+    printf("array size: %d\n", t.array_size);
     // 2. Allocate on the Heap
-    AlirValue *raw_ptr = new_temp(ctx, (VarType){TYPE_CHAR, 1});
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOC_HEAP, raw_ptr, size_val, NULL));
-    
-    // 3. Cast to int*
     AlirValue *heap_ptr = new_temp(ctx, t);
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, heap_ptr, raw_ptr, NULL));
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, heap_ptr, size_val, NULL));
     
     // 4. Loop and store
     ASTNode *elem = al->elements;
@@ -571,6 +562,7 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
     ctx->current_col = node->col;
 
     switch(node->type) {
+        case NODE_ARRAY_LIT: return alir_gen_array_lit(ctx, node);
         case NODE_LITERAL: return alir_gen_literal(ctx, (LiteralNode*)node);
         case NODE_VAR_REF: return alir_gen_var_ref(ctx, (VarRefNode*)node);
         case NODE_BINARY_OP: return alir_gen_binary_op(ctx, (BinaryOpNode*)node);
@@ -582,7 +574,6 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_CALL: return alir_gen_call(ctx, (CallNode*)node);
         case NODE_METHOD_CALL: return alir_gen_method_call(ctx, (MethodCallNode*)node);
         case NODE_TRAIT_ACCESS: return alir_gen_trait_access(ctx, (TraitAccessNode*)node);
-        case NODE_ARRAY_LIT: return alir_gen_array_lit(ctx, node);
         
         default: {
             return NULL;

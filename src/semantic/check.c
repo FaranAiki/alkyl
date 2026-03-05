@@ -286,9 +286,9 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
               el = el->next;
                 count++; 
             }
-            // elem_type.ptr_depth++;
+            elem_type.ptr_depth = 0;
             elem_type.array_size = count; 
-            printf("%d\n", count);
+            printf("arr_size: %d\n", count);
             sem_set_node_type(ctx, node, elem_type);
             break;
         }

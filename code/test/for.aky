@@ -1,27 +1,33 @@
 import "lib/c"
 
 int main() {
-  int t[] = [1,2,3,4];
-  let my_arr = [1,2,3,4];
+  int t[] = [1,2,3,4,5,100];
+
+  let p = [[1,2], [2,3], [3,4], [4,5]];
+  // let my_arr = [1,2,3,4];
   // printf "%s\n", typeof(t);
   // printf "%s\n", typeof(my_arr);
 
   // print i to 500
-  for i in 50 {
-    printf "%d\n", i;
-  }
+  // for i in 50 {
+  //   printf "%d\n", i;
+  // }
 
-  for a in my_arr {
-    printf("%d\n", a);
-  }
+  // for a in my_arr {
+  //   printf("%d\n", a);
+  // }
 
-  for t in [1,2,3,4] {
+  // for t in [1,2,3,4] {
+// 
+  // }
 
-  }
+  // for tk in t  {
+  //  printf("%d\n", tk);
+  //  }
 
-  for tk in t  {
-    printf("%d\n", tk);
-  }
+  printf("%d\n", t[3]);
+
+  printf("%d\n", p[1][0]);
 
   printf "Emit!\n";
 }

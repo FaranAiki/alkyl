@@ -114,12 +114,16 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                   if (inst->op == ALIR_OP_ALLOCA && inst->dest) {
                       fprintf(f, "onstack ");
                       alir_fprint_type(f, inst->dest->type);
+                      if (inst->op1) {
+                        fprintf(f, " ");
+                        alir_fprint_val(f, inst->op1);
+                      }
                   } 
                   else {
                       // [FIX] Add required typing to the instruction output
                       // this is the getptr isn't
                       fprintf(f, "%s ", alir_op_str(inst->op));
-                      
+
                       if (inst->dest && inst->op != ALIR_OP_STORE && inst->op != ALIR_OP_CALL) {
                           alir_fprint_type(f, inst->dest->type);
                           fprintf(f, " ");
