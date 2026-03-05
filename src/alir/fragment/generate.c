@@ -173,13 +173,12 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 0), idx_var));
 
     // 4. Determine the limit (Temporarily hardcode to 5 so you can see it work!)
-    int limit_val = 0; 
-    if (fn->collection->type == NODE_ARRAY_LIT ) {
-        limit_val = ((ArrayLitNode*)fn->collection->type)->size;
-    }
+    int limit_val = 5;
+    if (col->type.array_size > 0) limit_val = col->type.array_size;
+    if (fn->collection->type == NODE_ARRAY_LIT) limit_val = ((ArrayLitNode*) fn->collection)->size; 
     AlirValue *limit = alir_const_int(ctx->module, limit_val);
     
-      printf("Node type of collection: %d\n", fn->collection->type);
+        printf("Node type of collection: %d->%d\n", fn->collection->type, limit_val);
 
     if (col && col->type.base == TYPE_CLASS && col->type.class_name && strncmp(col->type.class_name, "FluxCtx_", 8) == 0) {
         char *flux_func_name = col->type.class_name + 8;
