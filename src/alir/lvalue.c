@@ -507,7 +507,8 @@ AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     int count = 0;
     ASTNode *counter = al->elements;
     while(counter) { count++; counter = counter->next; }
-  
+    al->size = count;
+    
     // Calculate byte size (Assuming 4 bytes per int for now)
     // TODO make this support other non int
     int byte_size = count > 0 ? count * 4 : 4; 
@@ -562,8 +563,6 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_CALL: return alir_gen_call(ctx, (CallNode*)node);
         case NODE_METHOD_CALL: return alir_gen_method_call(ctx, (MethodCallNode*)node);
         case NODE_TRAIT_ACCESS: return alir_gen_trait_access(ctx, (TraitAccessNode*)node);
-        
-        // [BUGFIX] Add Array Literal handling to avoid STORE returning NULL
         case NODE_ARRAY_LIT: return alir_gen_array_lit(ctx, node);
         
         default: {

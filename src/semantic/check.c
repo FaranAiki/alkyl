@@ -273,14 +273,15 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             ArrayLitNode *al = (ArrayLitNode*)node;
             ASTNode *el = al->elements;
             VarType elem_type = {TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
-            int count = 0; // <--- 1. ADD THIS
+            int count = 0; 
 
             if (el) {
                 sem_check_expr(ctx, el);
                 elem_type = sem_get_node_type(ctx, el);
                 el = el->next;
-                count++; // <--- 2. ADD THIS
+                count++; 
             }
+            al->size = count;
             while(el) {
               sem_check_expr(ctx, el);
               el = el->next;

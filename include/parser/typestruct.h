@@ -356,6 +356,7 @@ typedef struct {
 typedef struct {
   ASTNode base;
   ASTNode *elements; 
+  int size;
 } ArrayLitNode;
 
 typedef struct {

@@ -246,9 +246,11 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
         
         // Handle multiple cases grouped in an array literal (e.g. case Ayam, Daging:)
         if (cn->value && cn->value->type == NODE_ARRAY_LIT) {
+            int count = 0;
             ArrayLitNode *al = (ArrayLitNode*)cn->value;
             ASTNode *elem = al->elements;
             while(elem) {
+                count++;
                 AlirSwitchCase *sc = alir_alloc(ctx->module, sizeof(AlirSwitchCase));
                 sc->label = case_bb->label;
                 sc->value = alir_eval_constant_int(ctx, elem);
@@ -256,6 +258,7 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
                 tail = &sc->next;
                 elem = elem->next;
             }
+            al->size = count;
         } else {
             AlirSwitchCase *sc = alir_alloc(ctx->module, sizeof(AlirSwitchCase));
             sc->label = case_bb->label;
@@ -290,12 +293,15 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
         // Advance sc_iter correctly depending on if it was an array literal of multiple cases
         AlirSwitchCase *next_sc_iter = sc_iter;
         if (cn->value && cn->value->type == NODE_ARRAY_LIT) {
+            int count = 0;  
             ArrayLitNode *al = (ArrayLitNode*)cn->value;
             ASTNode *elem = al->elements;
             while(elem && next_sc_iter) {
                 next_sc_iter = next_sc_iter->next;
                 elem = elem->next;
+                count++;
             }
+            al->size = count;
         } else {
             if (next_sc_iter) next_sc_iter = next_sc_iter->next;
         }
