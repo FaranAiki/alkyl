@@ -2,7 +2,7 @@
 
 ; Globals
 @str.2 = string "Emit!\n"
-@str.1 = string "%s\n"
+@str.1 = string "%d\n"
 @str.0 = string "%d\n"
 
 promise int @printf(char*, ...)
@@ -26,55 +26,32 @@ entry:
   store int 100, %6
   %7 = onstack int
   store int %0, %7
-  %8 = onstack int 4
-  %9 = onstack int 8
-  %10 = getptr int %9, 0
-  store int 1, %10
-  %11 = getptr int %9, 1
-  store int 2, %11
-  %12 = onstack int
-  store int %9, %12
-  %13 = getptr int %8, 0
-  store int %12, %13
-  %14 = onstack int 8
-  %15 = getptr int %14, 0
-  store int 2, %15
-  %16 = getptr int %14, 1
-  store int 3, %16
-  %17 = onstack int
-  store int %14, %17
-  %18 = getptr int %8, 1
-  store int %17, %18
-  %19 = onstack int 8
-  %20 = getptr int %19, 0
-  store int 3, %20
-  %21 = getptr int %19, 1
-  store int 4, %21
-  %22 = onstack int
-  store int %19, %22
-  %23 = getptr int %8, 2
-  store int %22, %23
-  %24 = onstack int 8
-  %25 = getptr int %24, 0
-  store int 4, %25
-  %26 = getptr int %24, 1
-  store int 5, %26
-  %27 = onstack int
-  store int %24, %27
-  %28 = getptr int %8, 3
-  store int %27, %28
-  %29 = onstack int
-  store int %8, %29
-  %30 = cast char* @str.0
-  %31 = load int* %7
-  %32 = getptr int* %31, 3
-  %33 = load int %32
-  %34 = call %printf (%30, %33)
-  %35 = cast char* @str.1
-  %36 = getptr int* %29, 1
-  %37 = load int %36
-  %38 = call %printf (%35, %37)
-  %39 = cast char* @str.2
-  %40 = call %printf (%39)
+  %8 = onstack int
+  store int 0, %8
+  %9 = onstack int
+  jump for_cond
+for_cond:
+  %10 = load int %8
+  %11 = lt bool %10, 6
+  condition %11, for_body (for_end)
+for_body:
+  %12 = load int %7
+  %13 = getptr int* %12, %10
+  %14 = load int %13
+  store int %14, %9
+  %15 = cast char* @str.0
+  %16 = load int %9
+  %17 = call %printf (%15, %16)
+  %18 = add int %10, 1
+  store int %18, %8
+  jump for_cond
+for_end:
+  %19 = cast char* @str.1
+  %20 = load int* %7
+  %21 = getptr int* %20, 3
+  %22 = load int %21
+  %23 = call %printf (%19, %22)
+  %24 = cast char* @str.2
+  %25 = call %printf (%24)
   return int 0
 }

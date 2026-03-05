@@ -200,6 +200,7 @@ void alir_for_in_int(AlirCtx *ctx, ASTNode  *node, AlirValue *col) {
     return;
 }
 
+
 void alir_for_in_onheap(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *limit) {
     ForInNode *fn = (ForInNode*)node;
     AlirBlock *cond_bb = alir_add_block(ctx->module, ctx->current_func, "for_cond");
@@ -212,14 +213,16 @@ void alir_for_in_onheap(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *
     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 0), idx_var));
     
     // Setup Loop Element Variable (e.g. 'i')
-    AlirValue *curr_idx = new_temp(ctx, fn->iter_type); 
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, curr_idx, NULL, NULL));
-    alir_add_symbol(ctx, fn->var_name, curr_idx, fn->iter_type);
+    AlirValue *val_var = new_temp(ctx, fn->iter_type); 
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, val_var, NULL, NULL));
+    alir_add_symbol(ctx, fn->var_name, val_var, fn->iter_type);
     
     emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, cond_bb->label), NULL));
     
     // --- COND BLOCK (idx < limit) ---
     ctx->current_block = cond_bb;
+    AlirValue *curr_idx = new_temp(ctx, (VarType){TYPE_INT, 0});
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, curr_idx, idx_var, NULL));
     
     AlirValue *valid = new_temp(ctx, (VarType){TYPE_BOOL});
     emit(ctx, mk_inst(ctx->module, ALIR_OP_LT, valid, curr_idx, limit));
@@ -248,7 +251,7 @@ void alir_for_in_onheap(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *
     emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, elem_val, elem_addr, NULL));
     
     // 4. Store the array data into your loop variable
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, elem_val, curr_idx));
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, elem_val, val_var));
     
     // Generate User statements
     ASTNode *s = fn->body; while(s) { alir_gen_stmt(ctx, s); s=s->next; }
@@ -264,6 +267,7 @@ void alir_for_in_onheap(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *
     pop_loop(ctx);
     ctx->current_block = end_bb;
     return;
+
 }
 
 void alir_for_in_ptr(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *limit) {
@@ -411,24 +415,19 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
         printf("GA ADA COLLECTION!\n");  
     } 
 
-    // 3. Setup Index Variable (idx = 0)
-    AlirValue *idx_var = new_temp(ctx, (VarType){TYPE_INT, 0}); 
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, idx_var, NULL, NULL));
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 0), idx_var));
-
     int limit_val = 3;
     if (col->type.array_size > 0) limit_val = col->type.array_size;
     // TODO Optimize This!
     if (fn->collection->type == NODE_VAR_REF) printf("type: %d\n", col->type.base);
     AlirValue *limit = alir_const_int(ctx->module, limit_val);
     
-        printf("Node type of collection: %d->%d\n", fn->collection->type, limit_val);
+        printf("Node type of collection: %d->%d, %d!%d!\n", fn->collection->type, limit_val, col->type.ptr_depth, col->type.array_size);
 
     if (col && col->type.base == TYPE_CLASS && col->type.class_name && strncmp(col->type.class_name, "FluxCtx_", 8) == 0) {
         return alir_for_in_flux(ctx, node, col);
     }
 
-    if (col && alir_is_integer_type(col->type) && col->type.ptr_depth == 0) {
+    if (col && alir_is_integer_type(col->type) && (col->type.ptr_depth + col->type.array_size) == 0) {
         return alir_for_in_int(ctx, node, col);
     }
 

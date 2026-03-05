@@ -3,7 +3,7 @@ import "lib/c"
 int main() {
   int t[] = [1,2,3,4,5,100];
 
-  let p = [[1,2], [2,3], [3,4], [4,5]];
+  // let p = [[1,2], [2,3], [3,4], [4,5]];
   // let my_arr = [1,2,3,4];
   // printf "%s\n", typeof(t);
   // printf "%s\n", typeof(my_arr);
@@ -21,13 +21,13 @@ int main() {
 // 
   // }
 
-  // for tk in t  {
-  //  printf("%d\n", tk);
-  //  }
+  for tk in t  {
+    printf("%d\n", tk);
+  }
 
   printf("%d\n", t[3]);
 
-  printf("%d\n", p[1][0]);
+  // printf("%d\n", p[1][0]);
 
   printf "Emit!\n";
 }

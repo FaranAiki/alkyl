@@ -113,6 +113,7 @@ void sem_check_array_access(SemanticCtx *ctx, ASTNode *node) {
     
     VarType t = sem_get_node_type(ctx, aa->target);
     printf("%d\n", t.base);
+    printf("%d\n", t.array_size);
     if (t.array_size > 0) t.array_size = 0;
     else if (t.ptr_depth > 0) t.ptr_depth--;
     else if (t.vector_depth > 0) t.vector_depth--;
@@ -121,7 +122,7 @@ void sem_check_array_access(SemanticCtx *ctx, ASTNode *node) {
          sem_set_node_type(ctx, node, (VarType){TYPE_STRING, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
          return;
     }
-    else {
+    else { 
         sem_error(ctx, node, "Type is not a pointer, array, string, vector, hashmap, or enum");
         t = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     }
