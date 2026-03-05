@@ -1,7 +1,8 @@
 ; Module: main_module
 
 ; Globals
-@str.2 = string "Emit!\n"
+@str.3 = string "Emit!\n"
+@str.2 = string "%d\n"
 @str.1 = string "%d\n"
 @str.0 = string "%d\n"
 
@@ -23,47 +24,104 @@ entry:
   store int 4, %5
   %6 = onstack int*
   store int* %1, %6
-  %7 = onstack int
-  store int 0, %7
-  %8 = onstack int
-  store int 0, %8
+  %7 = onheap char* 32
+  %8 = bitcast int* %7
+  %9 = getptr int* %8, 0
+  store int 1, %9
+  %10 = getptr int* %8, 1
+  store int 2, %10
+  %11 = getptr int* %8, 2
+  store int 3, %11
+  %12 = getptr int* %8, 3
+  store int 4, %12
+  %13 = onstack int*
+  store int* %8, %13
+  %14 = onstack int
+  store int 0, %14
+  %15 = onstack int
+  store int 0, %15
   jump for_cond
 for_cond:
-  %9 = load int %8
-  %10 = lt bool %9, 50
-  condition %10, for_body (for_end)
+  %16 = load int %15
+  %17 = lt bool %16, 50
+  condition %17, for_body (for_end)
 for_body:
-  %11 = cast char* @str.0
-  %12 = load int %8
-  %13 = call %printf (%11, %12)
-  %14 = load int %8
-  %15 = add int %14, 1
-  store int %15, %8
+  %18 = cast char* @str.0
+  %19 = load int %15
+  %20 = call %printf (%18, %19)
+  %21 = load int %15
+  %22 = add int %21, 1
+  store int %22, %15
   jump for_cond
 for_end:
-  %16 = onstack int
-  store int 0, %16
-  %17 = onstack int
-  store int 0, %17
-  %18 = onstack int
+  %23 = onstack int
+  store int 0, %23
+  %24 = onstack int
+  store int 0, %24
+  %25 = onstack int
   jump for_cond2
 for_cond2:
-  %19 = load int %17
-  %20 = lt bool %19, 5
-  condition %20, for_body2 (for_end2)
+  %26 = load int %24
+  %27 = lt bool %26, 3
+  condition %27, for_body2 (for_end2)
 for_body2:
-  %21 = load int* %6
-  %22 = getptr int* %21, %19
-  %23 = load int %22
-  store int %23, %18
-  %24 = cast char* @str.1
-  %25 = load int %18
-  %26 = call %printf (%24, %25)
-  %27 = add int %19, 1
-  store int %27, %17
+  %28 = load int* %13
+  %29 = getptr int* %28, %26
+  %30 = load int %29
+  store int %30, %25
+  %31 = cast char* @str.1
+  %32 = load int %25
+  %33 = call %printf (%31, %32)
+  %34 = add int %26, 1
+  store int %34, %24
   jump for_cond2
 for_end2:
-  %28 = cast char* @str.2
-  %29 = call %printf (%28)
+  %35 = onheap char* 16
+  %36 = bitcast int %35
+  %37 = getptr int %36, 0
+  store int 1, %37
+  %38 = getptr int %36, 1
+  store int 2, %38
+  %39 = getptr int %36, 2
+  store int 3, %39
+  %40 = getptr int %36, 3
+  store int 4, %40
+  %41 = onstack int
+  store int %36, %41
+  %42 = onstack int
+  store int 0, %42
+  %43 = onstack int
+  store int 0, %43
+  jump for_cond3
+for_cond3:
+  %44 = load int %43
+  %45 = lt bool %44, %41
+  condition %45, for_body3 (for_end3)
+for_body3:
+  %46 = load int %43
+  %47 = add int %46, 1
+  store int %47, %43
+  jump for_cond3
+for_end3:
+  %48 = onstack int
+  store int 0, %48
+  %49 = onstack int
+  store int 0, %49
+  jump for_cond4
+for_cond4:
+  %50 = load int %49
+  %51 = lt bool %50, %43
+  condition %51, for_body4 (for_end4)
+for_body4:
+  %52 = cast char* @str.2
+  %53 = load int %49
+  %54 = call %printf (%52, %53)
+  %55 = load int %49
+  %56 = add int %55, 1
+  store int %56, %49
+  jump for_cond4
+for_end4:
+  %57 = cast char* @str.3
+  %58 = call %printf (%57)
   return int 0
 }

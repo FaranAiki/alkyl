@@ -1,6 +1,7 @@
 import "lib/c"
 
 int main() {
+  int t[] = [1,2,3,4];
   let my_arr = [1,2,3,4];
   // printf "%s\n", typeof(t);
   // printf "%s\n", typeof(my_arr);
@@ -10,8 +11,16 @@ int main() {
     printf "%d\n", i;
   }
 
-  for t in my_arr {
-    printf("%d\n", t);
+  for a in my_arr {
+    printf("%d\n", a);
+  }
+
+  for t in [1,2,3,4] {
+
+  }
+
+  for tk in t  {
+    printf("%d\n", tk);
   }
 
   printf "Emit!\n";

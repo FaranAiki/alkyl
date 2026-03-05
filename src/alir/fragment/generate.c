@@ -15,7 +15,6 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         int count = 0;
         ASTNode *elem = al->elements;
         while(elem) { count++; elem = elem->next; }
-        al->size = count;
         
         // Find base type
         VarType elem_type = {TYPE_INT, 0, 0, NULL}; 
@@ -28,6 +27,7 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
             }
         }
         
+        printf("HH\n");
         vn->var_type.base = elem_type.base;
         vn->var_type.ptr_depth = elem_type.ptr_depth + 1; // It becomes a pointer to the element
         vn->var_type.array_size = 0; // It is NOT an inline stack array anymore
@@ -355,10 +355,9 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
     emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, idx_var, NULL, NULL));
     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 0), idx_var));
 
-    int limit_val = 5;
+    int limit_val = 3;
     if (col->type.array_size > 0) limit_val = col->type.array_size;
     // TODO Optimize This!
-    if (fn->collection->type == NODE_ARRAY_LIT) limit_val = ((ArrayLitNode*) fn->collection)->size; 
     if (fn->collection->type == NODE_VAR_REF) printf("type: %d\n", col->type.base);
     AlirValue *limit = alir_const_int(ctx->module, limit_val);
     

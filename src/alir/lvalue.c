@@ -1,5 +1,25 @@
 #include "alir.h"
 
+// --- NEW HELPER: Dynamically calculate byte sizes for allocations ---
+int alir_get_type_size(VarType t) {
+    // All pointers are 8 bytes on a 64-bit architecture
+    if (t.ptr_depth > 0) return 8; 
+    
+    switch (t.base) {
+        case TYPE_VOID: return 0;
+        case TYPE_BOOL:
+        case TYPE_CHAR:
+        case TYPE_UNSIGNED_CHAR: return 1;
+        case TYPE_INT:
+        case TYPE_UNSIGNED_INT:
+        case TYPE_FLOAT: return 4;
+        case TYPE_LONG:
+        case TYPE_DOUBLE: return 8;
+        // TODO: Struct/Class size calculation goes here later
+        default: return 8; // Safe fallback
+    }
+}
+
 int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char *field_name) {
     int idx = -1;
     if (hint_class) {
@@ -507,11 +527,10 @@ AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     int count = 0;
     ASTNode *counter = al->elements;
     while(counter) { count++; counter = counter->next; }
-    al->size = count;
     
     // Calculate byte size (Assuming 4 bytes per int for now)
     // TODO make this support other non int
-    int byte_size = count > 0 ? count * 4 : 4; 
+    int byte_size = count > 0 ? count * alir_get_type_size(t) : 8; 
     AlirValue *size_val = alir_const_int(ctx->module, byte_size);
 
     // 2. Allocate on the Heap

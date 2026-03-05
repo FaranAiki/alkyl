@@ -258,7 +258,6 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
                 tail = &sc->next;
                 elem = elem->next;
             }
-            al->size = count;
         } else {
             AlirSwitchCase *sc = alir_alloc(ctx->module, sizeof(AlirSwitchCase));
             sc->label = case_bb->label;
@@ -301,7 +300,6 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
                 elem = elem->next;
                 count++;
             }
-            al->size = count;
         } else {
             if (next_sc_iter) next_sc_iter = next_sc_iter->next;
         }

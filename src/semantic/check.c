@@ -269,25 +269,26 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             sem_check_method_call(ctx, (MethodCallNode*)node);
             break;
         }
+        // Fix this shit
         case NODE_ARRAY_LIT: {
             ArrayLitNode *al = (ArrayLitNode*)node;
             ASTNode *el = al->elements;
             VarType elem_type = {TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
-            int count = 0; 
+            int count = 1; 
 
             if (el) {
                 sem_check_expr(ctx, el);
                 elem_type = sem_get_node_type(ctx, el);
                 el = el->next;
-                count++; 
             }
-            al->size = count;
             while(el) {
               sem_check_expr(ctx, el);
               el = el->next;
+                count++; 
             }
-            elem_type.ptr_depth++;
-            elem_type.array_size = 0; // <--- 4. SAVE THE SIZE FOR THE FOR-LOOP!
+            // elem_type.ptr_depth++;
+            elem_type.array_size = count; 
+            printf("%d\n", count);
             sem_set_node_type(ctx, node, elem_type);
             break;
         }
