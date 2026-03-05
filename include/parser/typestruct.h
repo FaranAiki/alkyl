@@ -89,7 +89,8 @@ typedef struct VarType {
   int ptr_depth; 
   int vector_depth; // <--- VECTOR SUPPORT
   char *class_name;
-  int array_size; 
+  int array_size;
+  int array_depth;
   
   struct VarType *fp_ret_type;   
   struct VarType *fp_param_types; 

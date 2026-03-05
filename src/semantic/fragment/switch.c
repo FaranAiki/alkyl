@@ -13,7 +13,7 @@ void sem_check_for_in(SemanticCtx *ctx, ASTNode *node) {
         if (iter_type.fp_ret_type) {
             iter_type = *iter_type.fp_ret_type;
         } else {
-            iter_type = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
+            iter_type = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
         }
     } else if (iter_type.array_size > 0) {
         iter_type.array_size = 0;
@@ -27,7 +27,7 @@ void sem_check_for_in(SemanticCtx *ctx, ASTNode *node) {
         // Allowed: integers act as valid iterators (0 to N-1) 
     } else {
         sem_error(ctx, node, "Cannot iterate over non-iterable type");
-        iter_type = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
+        iter_type = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     }
     
     fn->iter_type = iter_type; 
@@ -61,7 +61,7 @@ void sem_check_unary_op_switch(SemanticCtx *ctx, ASTNode *node) {
         if (t.ptr_depth > 0) t.ptr_depth--;
         else sem_error(ctx, node, "Cannot dereference non-pointer");
     } else if (un->op == TOKEN_NOT) {
-        t = (VarType){TYPE_BOOL, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
+        t = (VarType){TYPE_BOOL, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     }
     sem_set_node_type(ctx, node, t);
 }
@@ -98,7 +98,7 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
 
     } else {
         sem_error(ctx, node, "Undefined variable '%s'", ref->name);
-        sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+        sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     }
 }
 
@@ -112,17 +112,18 @@ void sem_check_array_access(SemanticCtx *ctx, ASTNode *node) {
     }
     
     VarType t = sem_get_node_type(ctx, aa->target);
+    printf("%d\n", t.base);
     if (t.array_size > 0) t.array_size = 0;
     else if (t.ptr_depth > 0) t.ptr_depth--;
     else if (t.vector_depth > 0) t.vector_depth--;
     else if (t.base == TYPE_ENUM || t.base == TYPE_ARRAY || t.base == TYPE_STRING || t.base == TYPE_VECTOR 
 || t.base == TYPE_HASHMAP) {
-         sem_set_node_type(ctx, node, (VarType){TYPE_STRING, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+         sem_set_node_type(ctx, node, (VarType){TYPE_STRING, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
          return;
     }
     else {
         sem_error(ctx, node, "Type is not a pointer, array, string, vector, hashmap, or enum");
-        t = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
+        t = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     }
     sem_set_node_type(ctx, node, t);
 }

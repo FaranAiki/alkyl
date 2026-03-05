@@ -35,7 +35,7 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
 }
 
 VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
-    if (!node) return (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
+    if (!node) return (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     
     unsigned int idx = hash_ptr(node);
     TypeEntry *curr = ctx->type_buckets[idx];
@@ -44,7 +44,7 @@ VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
         curr = curr->next;
     }
 
-    return (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
+    return (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
 }
 
 void sem_set_node_tainted(SemanticCtx *ctx, ASTNode *node, int is_tainted) {
@@ -59,7 +59,7 @@ void sem_set_node_tainted(SemanticCtx *ctx, ASTNode *node, int is_tainted) {
         curr = curr->next;
     }
     
-    sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+    sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     ctx->type_buckets[idx]->is_tainted = is_tainted;
 }
 
@@ -86,7 +86,7 @@ void sem_set_node_impure(SemanticCtx *ctx, ASTNode *node, int is_impure) {
         curr = curr->next;
     }
     
-    sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+    sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     ctx->type_buckets[idx]->is_impure = is_impure;
 }
 

@@ -19,7 +19,7 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
         SemSymbol *ns_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
         if (!ns_sym || ns_sym->kind != SYM_NAMESPACE) {
             sem_error(ctx, (ASTNode*)node, "'%s' is not a namespace", obj_type.class_name);
-            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             return;
         }
 
@@ -42,7 +42,7 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                         if (member->is_flux) {
                             char buf[256];
                             snprintf(buf, sizeof(buf), "FluxCtx_%s_%s", ns_sym->name, member->name);
-                            VarType flux_type = {TYPE_CLASS, 1, 0, arena_strdup(ctx->compiler_ctx->arena, buf), 0, NULL, NULL, 0, 0, 0, 0};
+                            VarType flux_type = {TYPE_CLASS, 1, 0, arena_strdup(ctx->compiler_ctx->arena, buf), 0, 0, NULL, NULL, 0, 0, 0, 0};
                             flux_type.fp_ret_type = arena_alloc_type(ctx->compiler_ctx->arena, VarType);
                             *flux_type.fp_ret_type = member->type;
                             sem_set_node_type(ctx, (ASTNode*)node, flux_type);
@@ -79,11 +79,11 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
         done_ns_method_search:
         if (!found) {
              sem_error(ctx, (ASTNode*)node, "Function '%s' not found in namespace '%s'", node->method_name, obj_type.class_name);
-             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         }
     } else {
         sem_error(ctx, (ASTNode*)node, "Cannot call method on non-class/non-namespace type");
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     }
 }
 
@@ -96,7 +96,7 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
     ctx->current_func_sym = sem_symbol_lookup(ctx, node->name, NULL);
 
     if (node->class_name) {
-        VarType this_type = {TYPE_CLASS, 1, 0, arena_strdup(ctx->compiler_ctx->arena, node->class_name), 0, NULL, NULL, 0, 0, 0, 0}; 
+        VarType this_type = {TYPE_CLASS, 1, 0, arena_strdup(ctx->compiler_ctx->arena, node->class_name), 0, 0, NULL, NULL, 0, 0, 0, 0}; 
         sem_symbol_add(ctx, "this", SYM_VAR, this_type);
     }
 

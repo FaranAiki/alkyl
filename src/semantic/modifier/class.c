@@ -9,7 +9,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
     }
     
     if (obj_type.base == TYPE_UNKNOWN) {
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         return;
     }
     
@@ -17,7 +17,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
         SemSymbol *class_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
         if (!class_sym || class_sym->kind != SYM_CLASS) {
             sem_error(ctx, (ASTNode*)node, "Type '%s' is not a class/struct", obj_type.class_name);
-            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             return;
         }
         
@@ -46,7 +46,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
         done_search:
         if (!found) {
             sem_error(ctx, (ASTNode*)node, "Class '%s' has no member named '%s'", obj_type.class_name, node->member_name);
-            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         }
     }
     else if (obj_type.base == TYPE_ENUM && obj_type.class_name) {
@@ -54,7 +54,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
         
         if (!enum_sym || enum_sym->kind != SYM_ENUM) {
             sem_error(ctx, (ASTNode*)node, "'%s' is not an enum", obj_type.class_name);
-            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             return;
         }
 
@@ -69,13 +69,13 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
              }
         }
         sem_error(ctx, (ASTNode*)node, "Enum '%s' has no member '%s'", obj_type.class_name, node->member_name);
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     }
     else if (obj_type.base == TYPE_NAMESPACE && obj_type.class_name) {
         SemSymbol *ns_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
         if (!ns_sym || ns_sym->kind != SYM_NAMESPACE) {
             sem_error(ctx, (ASTNode*)node, "'%s' is not a namespace", obj_type.class_name);
-            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             return;
         }
 
@@ -90,14 +90,14 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
              }
         }
         sem_error(ctx, (ASTNode*)node, "Namespace '%s' has no member '%s'", obj_type.class_name, node->member_name);
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     }
     else if (obj_type.base == TYPE_STRING && strcmp(node->member_name, "length") == 0) {
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_INT, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_INT, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     }
     else {
         sem_error(ctx, (ASTNode*)node, "Cannot access member on non-class/non-enum/non-namespace type");
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0});
+        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     }
 }
 

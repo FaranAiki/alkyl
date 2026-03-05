@@ -152,7 +152,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
         SemSymbol *sym = sem_symbol_lookup(ctx, node->name, NULL);
         if (!sym) {
             sem_error(ctx, (ASTNode*)node, "Undefined variable '%s'", node->name);
-            lhs_type = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, NULL, NULL, 0, 0, 0, 0};
+            lhs_type = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
         } else {
             if (!sym->is_mutable) {
                 sem_error(ctx, (ASTNode*)node, "Cannot assign to immutable variable '%s'", node->name);

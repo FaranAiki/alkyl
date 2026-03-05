@@ -32,7 +32,7 @@ void sem_symbolic_var_decl(SemanticCtx *ctx, ASTNode *node) {
 void sem_symbolic_node_enum(SemanticCtx *ctx, ASTNode *node) {
     EnumNode *en = (EnumNode*)node;
     
-    VarType enum_type = {TYPE_ENUM, 0, 0, arena_strdup(ctx->compiler_ctx->arena, en->name), 0, NULL, NULL, 0, 0, 0, 0};
+    VarType enum_type = {TYPE_ENUM, 0, 0, arena_strdup(ctx->compiler_ctx->arena, en->name), 0, 0, NULL, NULL, 0, 0, 0, 0};
     SemSymbol *sym = sem_symbol_add(ctx, en->name, SYM_ENUM, enum_type);
     
     SemScope *enum_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
@@ -70,7 +70,7 @@ void sem_symbolic_node_enum(SemanticCtx *ctx, ASTNode *node) {
 
 void sem_symbolic_namespace(SemanticCtx *ctx, ASTNode *node) {
     NamespaceNode *ns = (NamespaceNode*)node;
-    VarType ns_type = {TYPE_NAMESPACE, 0, 0, arena_strdup(ctx->compiler_ctx->arena, ns->name), 0, NULL, NULL, 0, 0, 0, 0};
+    VarType ns_type = {TYPE_NAMESPACE, 0, 0, arena_strdup(ctx->compiler_ctx->arena, ns->name), 0, 0, NULL, NULL, 0, 0, 0, 0};
     SemSymbol *sym = sem_symbol_add(ctx, ns->name, SYM_NAMESPACE, ns_type);
     
     SemScope *ns_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
