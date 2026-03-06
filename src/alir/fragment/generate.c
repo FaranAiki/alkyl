@@ -5,19 +5,19 @@ int alir_is_integer_type(VarType t) {
 }
 
 // THIS IS ALIR STMT VAR DECLARATION
-// TODO fix storing
 void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
     VarDeclNode *vn = (VarDeclNode*)node;
+
     int is_array_lit = (vn->initializer && vn->initializer->type == NODE_ARRAY_LIT);
 
     if (is_array_lit) {
+        // Evaluate the array lit on the heap
         ArrayLitNode *al = (ArrayLitNode*)vn->initializer;
         int count = 0;
         ASTNode *elem = al->elements;
         while(elem) { count++; elem = elem->next; }
-        
-        // Find base type
-        VarType elem_type = {TYPE_INT, 0, 0, NULL}; 
+
+        VarType elem_type = {TYPE_INT, 0, 0, NULL};
         if (al->elements) {
             elem_type = sem_get_node_type(ctx->sem, al->elements);
             if (elem_type.base == TYPE_UNKNOWN || elem_type.base == TYPE_AUTO) {
@@ -26,55 +26,58 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
                 }
             }
         }
-        
-        vn->var_type.base = elem_type.base;
-        vn->var_type.ptr_depth = elem_type.ptr_depth; // It becomes a pointer to the element
-        vn->var_type.array_size = count; // It is NOT an inline stack array anymore
-        if (elem_type.class_name) {
-            vn->var_type.class_name = alir_strdup(ctx->module, elem_type.class_name);
+
+        if (vn->var_type.base == TYPE_CLASS && vn->var_type.ptr_depth == 0) {
+            vn->var_type.ptr_depth = 1;
         }
-        
-        // [HOTFIX] Allocate on Heap to prevent backend `onstack` size smash bugs
-        // fucking retarded lol, fix this
-        int byte_size = count; // 8 bytes per element safely overestimates i32/pointers
+
+        // Always decay array declarations to pointer if initialized with literal
+        if (vn->var_type.base == TYPE_AUTO || vn->var_type.base == TYPE_UNKNOWN) {
+            vn->var_type = elem_type;
+            vn->var_type.ptr_depth++;
+            vn->var_type.array_size = 0;
+        } else if (vn->var_type.array_size > 0) {
+            vn->var_type.array_size = 0;
+            vn->var_type.ptr_depth++;
+        }
+
+        int byte_size = count > 0 ? count * alir_get_type_size(elem_type) : 8;
         AlirValue *size_val = alir_const_int(ctx->module, byte_size);
-        AlirValue *ptr = new_temp(ctx, elem_type);
-        
-        // 1. Allocate on the heap
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, size_val, NULL));
-        
-        alir_add_symbol(ctx, vn->name, ptr, vn->var_type);
-        
-        // 3. Store elements sequentially into the heap memory
+
+        // 1. Allocate on the Heap correctly for array sizes natively
+        AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1, 0, NULL});
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOC_HEAP, raw_mem, size_val, NULL));
+
+        VarType ptr_type = elem_type;
+        ptr_type.ptr_depth++;
+        ptr_type.array_size = 0;
+
+        AlirValue *heap_ptr = new_temp(ctx, ptr_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, heap_ptr, raw_mem, NULL));
+
+        // 2. Loop and store
         elem = al->elements;
         int idx = 0;
         while(elem) {
-            // Evaluate the RHS (the value to store)
             AlirValue *eval = alir_gen_expr(ctx, elem);
             if (!eval) eval = alir_const_int(ctx->module, 0);
 
-            // Create a temp to hold the element's address
-            AlirValue *elem_ptr = new_temp(ctx, vn->var_type); 
-            
-            // NO LOAD NEEDED! 'ptr' is already the direct heap address.
-            // Just offset the heap pointer to get the address of arr[idx]
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_ptr, ptr, alir_const_int(ctx->module, idx)));
-            
-            // Store the value into that address
+            AlirValue *elem_ptr = new_temp(ctx, ptr_type);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_ptr, heap_ptr, alir_const_int(ctx->module, idx)));
             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, eval, elem_ptr));
-            
-            elem = elem->next; 
+
+            elem = elem->next;
             idx++;
         }
-        
-        AlirValue *stack_var = new_temp(ctx, vn->var_type);
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, stack_var, NULL, NULL));
-        
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, ptr, stack_var));
-        
-        alir_add_symbol(ctx, vn->name, stack_var, vn->var_type);
+
+        // Declare stack pointer and save heap address
+        AlirValue *var_ptr = new_temp(ctx, vn->var_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, var_ptr, NULL, NULL));
+        alir_add_symbol(ctx, vn->name, var_ptr, vn->var_type);
+
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, heap_ptr, var_ptr));
         return;
-    } 
+    }
 
     if (vn->var_type.base == TYPE_CLASS && vn->var_type.ptr_depth == 0) {
         vn->var_type.ptr_depth = 1;
@@ -94,6 +97,12 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         }
     }
     
+    // Decay array type to pointer if it is assigned a dynamic array
+    if (vn->var_type.array_size > 0 && val && val->type.array_size == 0 && val->type.ptr_depth > 0) {
+        vn->var_type.array_size = 0;
+        vn->var_type.ptr_depth++;
+    }
+
     AlirValue *ptr = new_temp(ctx, vn->var_type);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
     alir_add_symbol(ctx, vn->name, ptr, vn->var_type);
@@ -237,20 +246,16 @@ void alir_for_in_onheap(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *
     ctx->current_block = body_bb;
     push_loop(ctx, cond_bb, end_bb);
     
-    // 1. Read the heap address directly out of 'col'
-    AlirValue *heap_ptr = new_temp(ctx, col->type);
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, heap_ptr, col, NULL));
-    
-    // 2. Get the address of arr[idx] using the heap pointer
+    // 1. col is already the stack pointer to the array [N x i32]*. Use GEP natively
     AlirValue *elem_addr = new_temp(ctx, fn->iter_type);
     elem_addr->type.ptr_depth++; 
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_addr, heap_ptr, curr_idx));
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_addr, col, curr_idx));
     
-    // 3. Load the actual value at that array index
+    // 2. Load the actual value at that array index
     AlirValue *elem_val = new_temp(ctx, fn->iter_type);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, elem_val, elem_addr, NULL));
     
-    // 4. Store the array data into your loop variable
+    // 3. Store the array data into your loop variable
     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, elem_val, val_var));
     
     // Generate User statements
@@ -267,7 +272,6 @@ void alir_for_in_onheap(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *
     pop_loop(ctx);
     ctx->current_block = end_bb;
     return;
-
 }
 
 void alir_for_in_ptr(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *limit) {
@@ -415,13 +419,17 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
         printf("GA ADA COLLECTION!\n");  
     } 
 
-    int limit_val = 3;
-    if (col->type.array_size > 0) limit_val = col->type.array_size;
-    // TODO Optimize This!
-    if (fn->collection->type == NODE_VAR_REF) printf("type: %d\n", col->type.base);
-    AlirValue *limit = alir_const_int(ctx->module, limit_val);
+    int limit_val = 0;
+    VarType col_t = sem_get_node_type(ctx->sem, fn->collection);
+    if (col_t.array_size > 0) {
+        limit_val = col_t.array_size;
+    } else if (col->type.array_size > 0) {
+        limit_val = col->type.array_size;
+    } else {
+        limit_val = 3; // Fallback
+    }
     
-        printf("Node type of collection: %d->%d, %d!%d!\n", fn->collection->type, limit_val, col->type.ptr_depth, col->type.array_size);
+    AlirValue *limit = alir_const_int(ctx->module, limit_val);
 
     if (col && col->type.base == TYPE_CLASS && col->type.class_name && strncmp(col->type.class_name, "FluxCtx_", 8) == 0) {
         return alir_for_in_flux(ctx, node, col);

@@ -41,6 +41,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             if (!op1) break;
             
             // Validate GEP input strictly
+      
             if (LLVMGetTypeKind(LLVMTypeOf(op1)) != LLVMPointerTypeKind) {
                 op1 = LLVMBuildIntToPtr(ctx->builder, op1, LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0), "safe_cast");
             }

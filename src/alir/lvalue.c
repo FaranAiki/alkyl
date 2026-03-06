@@ -45,13 +45,14 @@ AlirValue* alir_gen_addr_array_access(AlirCtx *ctx, ArrayAccessNode *aa) {
     AlirValue *base_ptr = alir_gen_addr(ctx, aa->target);
     if (!base_ptr) return NULL;
 
-    VarType tgt_type = sem_get_node_type(ctx->sem, aa->target);
+    VarType alir_type = base_ptr->type;
 
     // 2. CRITICAL: If target is a dynamic pointer (like from malloc), 
     // we must load the heap address FROM the stack variable before indexing!
-    // (Adjust this condition based on how your types are represented)
-    if (tgt_type.ptr_depth > 0 && tgt_type.array_size == 0) {
-        AlirValue *loaded_base = new_temp(ctx, tgt_type);
+    // We look at the actual ALIR variable type to determine if it's decayed
+    // to a pointer instead of static inline representation on the stack.
+    if (alir_type.ptr_depth > 0 && alir_type.array_size == 0) {
+        AlirValue *loaded_base = new_temp(ctx, alir_type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_base, base_ptr, NULL));
         base_ptr = loaded_base; // Now base_ptr holds the malloc result
     }
@@ -519,40 +520,51 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
 }
 
 // Lowers an array literal (e.g. [1, 2, 3])
-// Array lits are not a memory!
 AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     ArrayLitNode *al = (ArrayLitNode*)node;
-    VarType t = sem_get_node_type(ctx->sem, node); 
     
-    int byte_size = t.array_size > 0 ? t.array_size * alir_get_type_size(t) : 8; 
-    AlirValue *size_val = alir_const_int(ctx->module, byte_size);
-
-    printf("array size: %d\n", t.array_size);
-    // 2. Allocate on the Heap
-    AlirValue *heap_ptr = new_temp(ctx, t);
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, heap_ptr, size_val, NULL));
-    
-    // 4. Loop and store
+    int count = 0;
     ASTNode *elem = al->elements;
+    while(elem) { count++; elem = elem->next; }
+
+    VarType elem_type = {TYPE_INT, 0, 0, NULL};
+    if (al->elements) {
+        elem_type = sem_get_node_type(ctx->sem, al->elements);
+        if (elem_type.base == TYPE_UNKNOWN || elem_type.base == TYPE_AUTO) {
+            if (al->elements->type == NODE_LITERAL) {
+                elem_type = ((LiteralNode*)al->elements)->var_type;
+            }
+        }
+    }
+
+    VarType arr_type = elem_type;
+    arr_type.ptr_depth = 0;
+    arr_type.array_size = count > 0 ? count : 1; // Safely bound stack array allocations
+
+    VarType ptr_type = elem_type;
+    ptr_type.ptr_depth++; 
+    ptr_type.array_size = 0;
+    
+    // 1. Allocate on the Stack natively
+    AlirValue *stack_ptr = new_temp(ctx, arr_type);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, stack_ptr, NULL, NULL));
+    
+    // 2. Loop and store
+    elem = al->elements;
     int idx = 0;
     while(elem) {
         AlirValue *eval = alir_gen_expr(ctx, elem);
         if (!eval) eval = alir_const_int(ctx->module, 0);
 
-        AlirValue *elem_ptr = new_temp(ctx, t); 
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_ptr, heap_ptr, alir_const_int(ctx->module, idx)));
+        AlirValue *elem_ptr = new_temp(ctx, ptr_type); 
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_ptr, stack_ptr, alir_const_int(ctx->module, idx)));
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, eval, elem_ptr));
         
         elem = elem->next; 
         idx++;
     }
 
-    // 5. Create stack var and store the heap pointer
-    AlirValue *stack_var = new_temp(ctx, t);
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, stack_var, NULL, NULL));
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, heap_ptr, stack_var));
-
-    return stack_var; 
+    return stack_ptr; 
 }
 
 AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
@@ -582,7 +594,8 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
             // ALICK's STORE validator from crashing on NULL ops.
             VarType t = sem_get_node_type(ctx->sem, node);
             if (t.base == TYPE_VOID) return NULL;
-            
+           
+            printf("DUMMY!\n");
             AlirValue *dummy = new_temp(ctx, t);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, dummy, NULL, NULL));
             return dummy;

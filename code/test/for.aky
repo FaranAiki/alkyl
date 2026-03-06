@@ -1,10 +1,15 @@
 import "lib/c"
 
+class pop {
+  int t;
+}
+
 int main() {
+  pop me;
   int t[] = [1,2,3,4,5,100];
 
   // let p = [[1,2], [2,3], [3,4], [4,5]];
-  // let my_arr = [1,2,3,4];
+  let my_arr = [1,2,3,4];
   // printf "%s\n", typeof(t);
   // printf "%s\n", typeof(my_arr);
 
@@ -13,18 +18,17 @@ int main() {
   //   printf "%d\n", i;
   // }
 
-  // for a in my_arr {
-  //   printf("%d\n", a);
-  // }
-
-  // for t in [1,2,3,4] {
-// 
-  // }
-
-  for tk in t  {
-    printf("%d\n", tk);
+  for a in my_arr {
+     printf("arr:%d\n", a);
   }
 
+  for x in [99, 99, 99, 99] {
+    printf("%d::\n", x); 
+  }
+
+
+  printf("%d\n", t[3]);
+  t[3] = 1;
   printf("%d\n", t[3]);
 
   // printf("%d\n", p[1][0]);

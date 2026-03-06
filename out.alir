@@ -1,57 +1,122 @@
 ; Module: main_module
 
+; Struct Definitions
+%struct.pop = type { int:t }
+
 ; Globals
-@str.2 = string "Emit!\n"
-@str.1 = string "%d\n"
-@str.0 = string "%d\n"
+@str.4 = string "Emit!\n"
+@str.3 = string "%d\n"
+@str.2 = string "%d\n"
+@str.1 = string "%d::\n"
+@str.0 = string "arr:%d\n"
 
 promise int @printf(char*, ...)
 
 promise void* @malloc(long)
 
+block func void @pop(%pop* %p0, int %p1) {
+entry:
+  %0 = onstack %pop*
+  store void %p0, %0
+  %1 = load %pop* %0
+  %2 = getptr int* %0, 0
+  store int %p1, %2
+  return void
+}
+
 block func int @main() {
 entry:
-  %0 = onstack int 6
-  %1 = getptr int %0, 0
-  store int 1, %1
-  %2 = getptr int %0, 1
-  store int 2, %2
-  %3 = getptr int %0, 2
-  store int 3, %3
-  %4 = getptr int %0, 3
-  store int 4, %4
-  %5 = getptr int %0, 4
-  store int 5, %5
-  %6 = getptr int %0, 5
-  store int 100, %6
-  %7 = onstack int
-  store int %0, %7
-  %8 = onstack int
-  store int 0, %8
-  %9 = onstack int
+  %0 = onstack %pop*
+  %1 = onheap char* 24
+  %2 = bitcast int* %1
+  %3 = getptr int* %2, 0
+  store int 1, %3
+  %4 = getptr int* %2, 1
+  store int 2, %4
+  %5 = getptr int* %2, 2
+  store int 3, %5
+  %6 = getptr int* %2, 3
+  store int 4, %6
+  %7 = getptr int* %2, 4
+  store int 5, %7
+  %8 = getptr int* %2, 5
+  store int 100, %8
+  %9 = onstack int*
+  store int* %2, %9
+  %10 = onheap char* 16
+  %11 = bitcast int* %10
+  %12 = getptr int* %11, 0
+  store int 1, %12
+  %13 = getptr int* %11, 1
+  store int 2, %13
+  %14 = getptr int* %11, 2
+  store int 3, %14
+  %15 = getptr int* %11, 3
+  store int 4, %15
+  %16 = onstack int*
+  store int* %11, %16
+  %17 = onstack int
+  store int 0, %17
+  %18 = onstack int
   jump for_cond
 for_cond:
-  %10 = load int %8
-  %11 = lt bool %10, 6
-  condition %11, for_body (for_end)
+  %19 = load int %17
+  %20 = lt bool %19, 4
+  condition %20, for_body (for_end)
 for_body:
-  %12 = load int %7
-  %13 = getptr int* %12, %10
-  %14 = load int %13
-  store int %14, %9
-  %15 = cast char* @str.0
-  %16 = load int %9
-  %17 = call %printf (%15, %16)
-  %18 = add int %10, 1
-  store int %18, %8
+  %21 = load int* %16
+  %22 = getptr int* %21, %19
+  %23 = load int %22
+  store int %23, %18
+  %24 = cast char* @str.0
+  %25 = load int %18
+  %26 = call %printf (%24, %25)
+  %27 = add int %19, 1
+  store int %27, %17
   jump for_cond
 for_end:
-  %19 = cast char* @str.1
-  %20 = load int* %7
-  %21 = getptr int* %20, 3
-  %22 = load int %21
-  %23 = call %printf (%19, %22)
-  %24 = cast char* @str.2
-  %25 = call %printf (%24)
+  %28 = onstack int
+  %29 = getptr int* %28, 0
+  store int 99, %29
+  %30 = getptr int* %28, 1
+  store int 99, %30
+  %31 = getptr int* %28, 2
+  store int 99, %31
+  %32 = getptr int* %28, 3
+  store int 99, %32
+  %33 = onstack int
+  store int 0, %33
+  %34 = onstack int
+  jump for_cond2
+for_cond2:
+  %35 = load int %33
+  %36 = lt bool %35, 4
+  condition %36, for_body2 (for_end2)
+for_body2:
+  %37 = getptr int* %28, %35
+  %38 = load int %37
+  store int %38, %34
+  %39 = cast char* @str.1
+  %40 = load int %34
+  %41 = call %printf (%39, %40)
+  %42 = add int %35, 1
+  store int %42, %33
+  jump for_cond2
+for_end2:
+  %43 = cast char* @str.2
+  %44 = load int* %9
+  %45 = getptr int* %44, 3
+  %46 = load int %45
+  %47 = call %printf (%43, %46)
+  %48 = load int* %9
+  %49 = getptr int* %48, 3
+  store int 1, %49
+  %50 = cast char* @str.3
+  %51 = load int* %9
+  %52 = getptr int* %51, 3
+  %53 = load int %52
+  %54 = call %printf (%50, %53)
+  %55 = cast char* @str.4
+  %56 = call %printf (%55)
   return int 0
 }
