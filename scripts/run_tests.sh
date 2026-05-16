@@ -58,19 +58,29 @@ for AKY_FILE in $FILES; do
     ACTUAL_LOG="/tmp/alkyl_actual_comp.log"
     ACTUAL_OUT="/tmp/alkyl_actual_run.out"
     
+    # [NEW] Clean logs (strip ANSI escape codes) for a cleaner diff
+    CLEAN_ACTUAL_LOG="/tmp/alkyl_actual_comp_clean.log"
+    CLEAN_EXPECTED_LOG="/tmp/alkyl_expected_comp_clean.log"
+
     echo -n "Testing [$FEATURE] $NAME ... "
     
     # 1. Compilation
     ./alkyl "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
     COMP_RET=$?
     
+    # Strip colors for diffing
+    sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$ACTUAL_LOG" > "$CLEAN_ACTUAL_LOG"
+
     if [ $UPDATE -eq 1 ]; then
         cp "$ACTUAL_LOG" "$EXPECTED_LOG"
     fi
 
     # Check compilation log if expected exists
     if [ -f "$EXPECTED_LOG" ]; then
-        if ! diff -u "$EXPECTED_LOG" "$ACTUAL_LOG" > "$LOGDIFF"; then
+        sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$EXPECTED_LOG" > "$CLEAN_EXPECTED_LOG"
+        
+        # Use simple diff (no headers) for "no special character" requirement
+        if ! diff "$CLEAN_EXPECTED_LOG" "$CLEAN_ACTUAL_LOG" > "$LOGDIFF"; then
             echo -e "${COLOR_RED}FAILED (Log Mismatch)${COLOR_RESET}"
             FAILED=$((FAILED + 1))
             continue
@@ -81,11 +91,8 @@ for AKY_FILE in $FILES; do
     
     # 2. Execution (if compiled)
     if [ -f "./out" ]; then
-        if [ -f "$INPUT_FILE" ]; then
-            ./out < "$INPUT_FILE" > "$ACTUAL_OUT" 2>&1
-        else
-            ./out > "$ACTUAL_OUT" 2>&1
-        fi
+        # Always use input file (now that they all exist)
+        ./out < "$INPUT_FILE" > "$ACTUAL_OUT" 2>&1
         RUN_RET=$?
         
         if [ $UPDATE -eq 1 ]; then
@@ -94,7 +101,8 @@ for AKY_FILE in $FILES; do
 
         # Check output if expected exists
         if [ -f "$EXPECTED_OUT" ]; then
-            if ! diff -u "$EXPECTED_OUT" "$ACTUAL_OUT" > "$RUN_DIFF"; then
+            # Simple diff for output as well
+            if ! diff "$EXPECTED_OUT" "$ACTUAL_OUT" > "$RUN_DIFF"; then
                 echo -e "${COLOR_RED}FAILED (Output Mismatch)${COLOR_RESET}"
                 FAILED=$((FAILED + 1))
                 rm -f ./out
