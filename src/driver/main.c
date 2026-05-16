@@ -124,6 +124,11 @@ int main(int argc, char *argv[]) {
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
 
+  if (comp_ctx.error_count > 0) {
+      fprintf(stderr, "Compilation aborted due to previous errors.\n");
+      return 1;
+  }
+
   debug_step("Finished alir check and analysis. Start Codegen using LLVM Codegen");
   arena_reset(&arena);
   // Pass source code to codegen for error reporting
@@ -131,7 +136,7 @@ int main(int argc, char *argv[]) {
   LLVMModuleRef module = codegen_generate(cg_ctx);
 
   char *error = NULL;
-  if (LLVMVerifyModule(module, LLVMAbortProcessAction, &error)) {
+  if (LLVMVerifyModule(module, LLVMPrintMessageAction, &error)) {
     fprintf(stderr, "LLVM Verification Error: %s\n", error);
     LLVMDisposeMessage(error);
     return 1;

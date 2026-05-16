@@ -272,7 +272,39 @@ int sem_types_are_equal(VarType a, VarType b) {
 }
 
 /* TODO fix this for implicit casting */
-bool sem_types_are_compatible(VarType dest, VarType src) {
+bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
+    if (dest.base == TYPE_CLASS && src.base == TYPE_CLASS && dest.class_name && src.class_name) {
+        if (dest.ptr_depth == src.ptr_depth) {
+            if (strcmp(dest.class_name, src.class_name) == 0) return true;
+            
+            // Check inheritance
+            SemSymbol *src_sym = sem_symbol_lookup(ctx, src.class_name, NULL);
+            while (src_sym && src_sym->kind == SYM_CLASS && src_sym->parent_name) {
+                if (strcmp(src_sym->parent_name, dest.class_name) == 0) return true;
+                src_sym = sem_symbol_lookup(ctx, src_sym->parent_name, NULL);
+            }
+            
+            // Check traits
+            src_sym = sem_symbol_lookup(ctx, src.class_name, NULL);
+            while (src_sym && src_sym->kind == SYM_CLASS) {
+                for (int i = 0; i < src_sym->trait_count; i++) {
+                    if (strcmp(src_sym->traits[i], dest.class_name) == 0) return true;
+                    
+                    // Recursive trait check (traits can have traits)
+                    SemSymbol *trait_sym = sem_symbol_lookup(ctx, src_sym->traits[i], NULL);
+                    if (trait_sym && trait_sym->kind == SYM_CLASS) {
+                         // TODO: should we check transitively? 
+                    }
+                }
+                if (src_sym->parent_name) {
+                    src_sym = sem_symbol_lookup(ctx, src_sym->parent_name, NULL);
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
     if (sem_types_are_equal(dest, src)) return true;
 
     if (dest.base == TYPE_AUTO) return true; 

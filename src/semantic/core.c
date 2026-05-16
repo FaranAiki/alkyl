@@ -161,6 +161,6 @@ int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
         }
     }
 
-    if (ctx->compiler_ctx) return ctx->compiler_ctx->semantic_error_count;
+    if (ctx->compiler_ctx) return ctx->compiler_ctx->error_count;
     return 0;
 }

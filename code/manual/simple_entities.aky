@@ -40,7 +40,7 @@ class Enemy has Attack, HP {
 }
 
 int main() {
-  let prot = Player("faran");
+  let prot = Player(10, 50);
   let enem = Enemy("basic");
 
   prot[Attack].attack(enem);

@@ -209,31 +209,87 @@ static ASTNode* parse_class_impl(Parser *p, int modifiers) {
           VarType vt = parse_type(p);
           if (vt.base != TYPE_UNKNOWN) {
               if (p->current_token.type == TOKEN_LPAREN) {
-                  char *mem_name = NULL;
-                  vt = parse_func_ptr_decl(p, vt, &mem_name);
-                  
-                  ASTNode *init = NULL;
-                  if (p->current_token.type == TOKEN_ASSIGN) {
-                      eat(p, TOKEN_ASSIGN);
-                      init = parse_expression(p);
-                  }
-                  eat(p, TOKEN_SEMICOLON);
-                  
-                  VarDeclNode *var = parser_alloc(p, sizeof(VarDeclNode));
-                  var->base.type = NODE_VAR_DECL;
-                  var->base.line = line;
-                  var->base.col = col;
-                  var->name = mem_name;
-                  var->var_type = vt;
-                  var->initializer = init;
-                  var->is_mutable = 1; 
-                  var->is_open = member_open;
-                  
-                  apply_var_modifiers(var, member_modifiers);
+                  Token next = parser_peek_token(p);
+                  if (next.type == TOKEN_STAR) {
+                      char *mem_name = NULL;
+                      vt = parse_func_ptr_decl(p, vt, &mem_name);
+                      
+                      ASTNode *init = NULL;
+                      if (p->current_token.type == TOKEN_ASSIGN) {
+                          eat(p, TOKEN_ASSIGN);
+                          init = parse_expression(p);
+                      }
+                      eat(p, TOKEN_SEMICOLON);
+                      
+                      VarDeclNode *var = parser_alloc(p, sizeof(VarDeclNode));
+                      var->base.type = NODE_VAR_DECL;
+                      var->base.line = line;
+                      var->base.col = col;
+                      var->name = mem_name;
+                      var->var_type = vt;
+                      var->initializer = init;
+                      var->is_mutable = 1; 
+                      var->is_open = member_open;
+                      
+                      apply_var_modifiers(var, member_modifiers);
 
-                  *curr_member = (ASTNode*)var;
-                  curr_member = &var->base.next;
-                  continue;
+                      *curr_member = (ASTNode*)var;
+                      curr_member = &var->base.next;
+                      continue;
+                  } else if (vt.base == TYPE_CLASS && strcmp(vt.class_name, class_name) == 0) {
+                      // Constructor detected: ClassName(...)
+                      char *mem_name = parser_strdup(p, vt.class_name);
+                      vt.base = TYPE_VOID; // Constructors implicitly return void or handle specially
+                      
+                      eat(p, TOKEN_LPAREN);
+                      Parameter *params = NULL;
+                      Parameter **curr_p = &params;
+                      
+                      if (p->current_token.type != TOKEN_RPAREN) {
+                          while(1) {
+                              VarType pt = parse_type(p);
+                              if(pt.base == TYPE_UNKNOWN) parser_fail(p, "Expected parameter type in method declaration");
+                              char *pname = parser_strdup(p, p->current_token.text);
+                              eat(p, TOKEN_IDENTIFIER);
+                              
+                              if (p->current_token.type == TOKEN_LBRACKET) {
+                                  eat(p, TOKEN_LBRACKET);
+                                  if (p->current_token.type != TOKEN_RBRACKET) {
+                                      ASTNode *sz = parse_expression(p);
+                                      (void)sz;
+                                  }
+                                  eat(p, TOKEN_RBRACKET);
+                                  pt.ptr_depth++;
+                              }
+                              
+                              Parameter *pm = parser_alloc(p, sizeof(Parameter));
+                              pm->type = pt; pm->name = pname;
+                              *curr_p = pm; curr_p = &pm->next;
+                              if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
+                          }
+                      }
+                      eat(p, TOKEN_RPAREN);
+                      eat(p, TOKEN_LBRACE);
+                      ASTNode *body = parse_statements(p);
+                      eat(p, TOKEN_RBRACE);
+                      
+                      FuncDefNode *func = parser_alloc(p, sizeof(FuncDefNode));
+                      func->base.type = NODE_FUNC_DEF;
+                      func->base.line = line;
+                      func->base.col = col;
+                      func->name = mem_name;
+                      func->ret_type = vt;
+                      func->params = params;
+                      func->body = body;
+                      func->is_open = member_open;
+                      func->class_name = parser_strdup(p, class_name); 
+                      
+                      apply_func_modifiers(func, member_modifiers);
+
+                      *curr_member = (ASTNode*)func;
+                      curr_member = &func->base.next;
+                      continue;
+                  }
               }
 
               if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected member name in class body");

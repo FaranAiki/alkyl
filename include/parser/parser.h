@@ -28,6 +28,9 @@ typedef struct Parser {
 
 void parser_init(Parser *p, Lexer *l);
 
+Token parser_peek_token(Parser *p);
+void parser_prescan(Parser *p);
+
 ASTNode* parse_program(Parser *p);
 ASTNode* parse_expression(Parser *p);
 

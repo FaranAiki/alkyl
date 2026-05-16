@@ -478,7 +478,33 @@ char* read_import_file(Parser *p, const char* filename) {
   return NULL;
 }
 
+Token parser_peek_token(Parser *p) {
+    if (p->expansion_head) {
+        if (p->expansion_head->pos < p->expansion_head->count) {
+            return p->expansion_head->tokens[p->expansion_head->pos];
+        }
+    }
+    Lexer l2 = *p->l;
+    return lexer_next(&l2);
+}
+
+void parser_prescan(Parser *p) {
+    if (!p->l) return;
+    Lexer l2 = *p->l;
+    Token t = lexer_next(&l2);
+    while (t.type != TOKEN_EOF) {
+        if (t.type == TOKEN_CLASS || t.type == TOKEN_STRUCT || t.type == TOKEN_UNION || t.type == TOKEN_ENUM) {
+            Token name = lexer_next(&l2);
+            if (name.type == TOKEN_IDENTIFIER) {
+                register_typename(p, name.text, (t.type == TOKEN_ENUM));
+            }
+        }
+        t = lexer_next(&l2);
+    }
+}
+
 ASTNode* parse_program(Parser *p) {
+  parser_prescan(p);
   p->current_token = lexer_next_raw(p);
   
   ASTNode *head = NULL;

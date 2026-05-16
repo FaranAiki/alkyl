@@ -96,7 +96,60 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     }
     
     if (node->type == NODE_MEMBER_ACCESS) {
-        return alir_gen_addr_member_access(ctx, node);
+        MemberAccessNode *ma = (MemberAccessNode*)node;
+        VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
+        if (obj_t.base == TYPE_ENUM) return NULL; 
+
+        AlirValue *base_ptr = NULL;
+        // CRITICAL FIX: If accessing a field on a flat stack object, get its address directly 
+        // instead of loading it by value. If it's a pointer/heap object, evaluate it normally.
+        if (obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
+            base_ptr = alir_gen_addr(ctx, ma->object);
+        } else {
+            base_ptr = alir_gen_expr(ctx, ma->object);
+        }
+        
+        if (!base_ptr) return NULL;
+
+        char *class_name = base_ptr->type.class_name;
+        if (!class_name && obj_t.class_name) class_name = obj_t.class_name;
+        if (!class_name && ma->object->type == NODE_VAR_REF) {
+            AlirSymbol *sym = alir_find_symbol(ctx, ((VarRefNode*)ma->object)->name);
+            if (sym && sym->type.class_name) class_name = sym->type.class_name;
+        }
+
+        int idx = alir_robust_get_field_index(ctx, class_name, ma->member_name);
+        
+        // Find field type for precise IR typing
+        VarType field_type = {TYPE_AUTO, 0, 0, NULL};
+        if (class_name) {
+            AlirStruct *st = alir_find_struct(ctx->module, class_name);
+            if (st) {
+                AlirField *f = st->fields;
+                while(f) {
+                    if (strcmp(f->name, ma->member_name) == 0) { field_type = f->type; break; }
+                    f = f->next;
+                }
+            }
+        }
+        
+        if (field_type.base == TYPE_AUTO) {
+            AlirStruct *search = ctx->module->structs;
+            while (search) {
+                AlirField *f = search->fields;
+                while(f) {
+                    if (strcmp(f->name, ma->member_name) == 0) { field_type = f->type; break; }
+                    f = f->next;
+                }
+                if (field_type.base != TYPE_AUTO) break;
+                search = search->next;
+            }
+        }
+        
+        field_type.ptr_depth++; // Yields a pointer to the field
+        AlirValue *res = new_temp(ctx, field_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, res, base_ptr, alir_const_int(ctx->module, idx)));
+        return res;
     }
     
     // no need to change
@@ -113,10 +166,17 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
 }
 
 AlirValue* alir_gen_trait_access(AlirCtx *ctx, TraitAccessNode *ta) {
-    AlirValue *base_ptr = alir_gen_expr(ctx, ta->object);
+    VarType obj_t = sem_get_node_type(ctx->sem, ta->object);
+    AlirValue *base_ptr = NULL;
+    
+    if (obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
+        base_ptr = alir_gen_addr(ctx, ta->object);
+    } else {
+        base_ptr = alir_gen_expr(ctx, ta->object);
+    }
+    
     if (!base_ptr) return NULL;
     
-    VarType obj_t = sem_get_node_type(ctx->sem, ta->object);
     char *class_name = base_ptr->type.class_name;
     if (!class_name && obj_t.class_name) class_name = obj_t.class_name;
     
@@ -437,14 +497,22 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
 }
 
 AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
-    // ALWAYS GET THE VALUE (Class* instead of Class**)
-    AlirValue *this_val = alir_gen_expr(ctx, mc->object); 
+    VarType obj_t = sem_get_node_type(ctx->sem, mc->object);
+    AlirValue *this_val = NULL;
+    
+    // CRITICAL FIX: If the object is a flat stack struct, get its address directly.
+    // If it's already a heap pointer, let it be loaded properly.
+    if (obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
+        this_val = alir_gen_addr(ctx, mc->object);
+    } else {
+        this_val = alir_gen_expr(ctx, mc->object); 
+    }
+    
     if (!this_val) {
          this_val = new_temp(ctx, (VarType){TYPE_INT, 0});
          emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, this_val, NULL, NULL));
     }
 
-    VarType obj_t = sem_get_node_type(ctx->sem, mc->object);
     char *cname = obj_t.class_name;
     
     // [BUGFIX] Mangling Failure Recovery: Check IR types and Local Symtable dynamically
@@ -588,14 +656,12 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_TRAIT_ACCESS: return alir_gen_trait_access(ctx, (TraitAccessNode*)node);
         
         default: {
-            return NULL;
             // [ROBUST FALLBACK]: Catch unimplemented expression nodes gracefully
             // By returning a dummy alloca for unrecognized types, we prevent 
             // ALICK's STORE validator from crashing on NULL ops.
             VarType t = sem_get_node_type(ctx->sem, node);
             if (t.base == TYPE_VOID) return NULL;
            
-            printf("DUMMY!\n");
             AlirValue *dummy = new_temp(ctx, t);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, dummy, NULL, NULL));
             return dummy;

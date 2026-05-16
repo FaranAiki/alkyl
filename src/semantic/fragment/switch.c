@@ -112,8 +112,6 @@ void sem_check_array_access(SemanticCtx *ctx, ASTNode *node) {
     }
     
     VarType t = sem_get_node_type(ctx, aa->target);
-    printf("%d\n", t.base);
-    printf("%d\n", t.array_size);
     if (t.array_size > 0) t.array_size = 0;
     else if (t.ptr_depth > 0) t.ptr_depth--;
     else if (t.vector_depth > 0) t.vector_depth--;

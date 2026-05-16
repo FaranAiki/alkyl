@@ -59,7 +59,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             }
         } 
         else {
-            if (!sem_types_are_compatible(node->var_type, init_type)) {
+            if (!sem_types_are_compatible(ctx,node->var_type, init_type)) {
                 char *t1 = sem_type_to_str(node->var_type);
                 char *t2 = sem_type_to_str(init_type);
                 sem_error(ctx, (ASTNode*)node, "Type mismatch in declaration of '%s'. Expected '%s', got '%s'", node->name, t1, t2);
@@ -199,7 +199,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     }
 
     if (lhs_type.base != TYPE_UNKNOWN && rhs_type.base != TYPE_UNKNOWN) {
-        if (!sem_types_are_compatible(lhs_type, rhs_type)) {
+        if (!sem_types_are_compatible(ctx,lhs_type, rhs_type)) {
              char *t1 = sem_type_to_str(lhs_type);
              char *t2 = sem_type_to_str(rhs_type);
              sem_error(ctx, (ASTNode*)node, "Invalid assignment. Cannot assign '%s' to '%s'", t2, t1);

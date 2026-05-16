@@ -122,10 +122,10 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             if (!cond) cond = alir_const_int(ctx->module, 0); // Safety net
 
             AlirBlock *then_bb = alir_add_block(ctx->module, ctx->current_func, "then");
-            AlirBlock *else_bb = alir_add_block(ctx->module, ctx->current_func, "else");
+            AlirBlock *else_bb = in->else_body ? alir_add_block(ctx->module, ctx->current_func, "else") : NULL;
             AlirBlock *merge_bb = alir_add_block(ctx->module, ctx->current_func, "merge");
             
-            AlirBlock *target_else = in->else_body ? else_bb : merge_bb;
+            AlirBlock *target_else = else_bb ? else_bb : merge_bb;
             
             AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, cond, alir_val_label(ctx->module, then_bb->label));
             br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
@@ -140,7 +140,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, merge_bb->label), NULL));
             }
             
-            if (in->else_body) {
+            if (else_bb) {
                 ctx->current_block = else_bb;
                 s = in->else_body; while(s){ alir_gen_stmt(ctx,s); s=s->next; }
                 if (!ctx->current_block->tail || !is_terminator(ctx->current_block->tail->op)) {

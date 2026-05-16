@@ -92,8 +92,23 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         case ALIR_OP_NOT: res = (LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) ? LLVMBuildIsNull(ctx->builder, op1, "isnull") : LLVMBuildNot(ctx->builder, op1, "not"); break;
         
         // Comparisons
-        case ALIR_OP_EQ:  res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealOEQ, op1, op2, "feq") : LLVMBuildICmp(ctx->builder, LLVMIntEQ, op1, op2, "ieq"); break;
-        case ALIR_OP_NEQ: res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealONE, op1, op2, "fne") : LLVMBuildICmp(ctx->builder, LLVMIntNE, op1, op2, "ine"); break;
+        case ALIR_OP_EQ:
+        case ALIR_OP_NEQ: {
+            if (op1 && op2) {
+                LLVMTypeRef t1 = LLVMTypeOf(op1);
+                LLVMTypeRef t2 = LLVMTypeOf(op2);
+                if (LLVMGetTypeKind(t1) != LLVMGetTypeKind(t2)) {
+                    if (LLVMGetTypeKind(t1) == LLVMPointerTypeKind && LLVMGetTypeKind(t2) == LLVMIntegerTypeKind) {
+                        op2 = LLVMBuildIntToPtr(ctx->builder, op2, t1, "ptr_cast");
+                    } else if (LLVMGetTypeKind(t2) == LLVMPointerTypeKind && LLVMGetTypeKind(t1) == LLVMIntegerTypeKind) {
+                        op1 = LLVMBuildIntToPtr(ctx->builder, op1, t2, "ptr_cast");
+                    }
+                }
+                res = is_float ? LLVMBuildFCmp(ctx->builder, (inst->op == ALIR_OP_EQ ? LLVMRealOEQ : LLVMRealONE), op1, op2, "feq") : 
+                                LLVMBuildICmp(ctx->builder, (inst->op == ALIR_OP_EQ ? LLVMIntEQ : LLVMIntNE), op1, op2, "ieq");
+            }
+            break;
+        }
         case ALIR_OP_LT:  res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealOLT, op1, op2, "flt") : LLVMBuildICmp(ctx->builder, LLVMIntSLT, op1, op2, "ilt"); break;
         case ALIR_OP_GT:  res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealOGT, op1, op2, "fgt") : LLVMBuildICmp(ctx->builder, LLVMIntSGT, op1, op2, "igt"); break;
         case ALIR_OP_LTE: res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealOLE, op1, op2, "fle") : LLVMBuildICmp(ctx->builder, LLVMIntSLE, op1, op2, "ile"); break;
@@ -202,25 +217,33 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         case ALIR_OP_BITCAST: {
             if (op1) {
                 LLVMTypeRef dest_ty = get_llvm_type(ctx, inst->dest->type);
-                LLVMTypeKind op1_k = LLVMGetTypeKind(LLVMTypeOf(op1));
+                LLVMTypeRef src_ty = LLVMTypeOf(op1);
+                LLVMTypeKind op1_k = LLVMGetTypeKind(src_ty);
                 LLVMTypeKind dest_k = LLVMGetTypeKind(dest_ty);
-                
-                // Safe bitcasting routines
-                if (op1_k == LLVMIntegerTypeKind && dest_k == LLVMPointerTypeKind) {
+
+                if (op1_k == dest_k) {
+                    res = op1; 
+                } else if (op1_k == LLVMIntegerTypeKind && dest_k == LLVMPointerTypeKind) {
                     res = LLVMBuildIntToPtr(ctx->builder, op1, dest_ty, "inttoptr");
                 } else if (op1_k == LLVMPointerTypeKind && dest_k == LLVMIntegerTypeKind) {
                     res = LLVMBuildPtrToInt(ctx->builder, op1, dest_ty, "ptrtoint");
-                } else if (op1_k == dest_k) {
-                    res = op1; // Opaque pointers handle this directly
+                } else if (op1_k == LLVMPointerTypeKind && dest_k == LLVMPointerTypeKind) {
+                    res = LLVMBuildBitCast(ctx->builder, op1, dest_ty, "ptr_bitcast");
                 } else {
+                    // Last resort, might still fail LLVM verify if types are incompatible sizes
                     res = LLVMBuildBitCast(ctx->builder, op1, dest_ty, "bitcast");
                 }
             }
             break;
         }
+
         case ALIR_OP_CAST: {
             if (!op1) break;
             LLVMTypeRef dest_ty = get_llvm_type(ctx, inst->dest->type);
+            LLVMTypeRef src_ty = LLVMTypeOf(op1);
+            LLVMTypeKind src_k = LLVMGetTypeKind(src_ty);
+            LLVMTypeKind dest_k = LLVMGetTypeKind(dest_ty);
+
             if (is_float) {
                 if (inst->dest->type.base == TYPE_FLOAT || inst->dest->type.base == TYPE_DOUBLE) {
                     res = LLVMBuildFPCast(ctx->builder, op1, dest_ty, "fpcast");
@@ -228,7 +251,21 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
                     res = LLVMBuildFPToSI(ctx->builder, op1, dest_ty, "fptosi");
                 }
             } else {
-                if (inst->dest->type.base == TYPE_FLOAT || inst->dest->type.base == TYPE_DOUBLE) {
+                if (src_k == LLVMPointerTypeKind || dest_k == LLVMPointerTypeKind) {
+                    if (src_k == LLVMPointerTypeKind && dest_k == LLVMPointerTypeKind) {
+                        res = LLVMBuildBitCast(ctx->builder, op1, dest_ty, "ptr_bitcast");
+                    } else if (src_k == LLVMPointerTypeKind && dest_k == LLVMIntegerTypeKind) {
+                        res = LLVMBuildPtrToInt(ctx->builder, op1, dest_ty, "ptrtoint");
+                    } else if (src_k == LLVMIntegerTypeKind && dest_k == LLVMPointerTypeKind) {
+                        res = LLVMBuildIntToPtr(ctx->builder, op1, dest_ty, "inttoptr");
+                    } else if (src_k == LLVMPointerTypeKind && dest_k == LLVMStructTypeKind) {
+                        // Implicitly load from pointer to get struct value
+                        res = LLVMBuildLoad2(ctx->builder, dest_ty, op1, "struct_load");
+                    } else {
+                        // Fallback to BitCast if one side is not pointer/int (e.g. struct)
+                        res = LLVMBuildBitCast(ctx->builder, op1, dest_ty, "cast_bitcast");
+                    }
+                } else if (inst->dest->type.base == TYPE_FLOAT || inst->dest->type.base == TYPE_DOUBLE) {
                     res = LLVMBuildSIToFP(ctx->builder, op1, dest_ty, "sitofp");
                 } else {
                     res = LLVMBuildIntCast(ctx->builder, op1, dest_ty, "intcast");
@@ -236,6 +273,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             }
             break;
         }
+
         
         // Low Level Memory Overrides
         // TODO make sure this is proper

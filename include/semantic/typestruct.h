@@ -22,6 +22,8 @@ typedef struct SemSymbol {
     
     // Class specific
     char *parent_name;    // For inheritance lookup
+    char **traits;
+    int trait_count;
     
     // Semantic Modifiers
     IsASemantic is_is_a;

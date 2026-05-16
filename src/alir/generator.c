@@ -338,12 +338,55 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
 // This is for the implicit constructor 
 // TODO learn this
 void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
-    ctx->current_func = alir_add_function(ctx->module, cn->name, (VarType){TYPE_VOID, 0}, 0);
+    AlirFunction *af = alir_add_function(ctx->module, cn->name, (VarType){TYPE_VOID, 0}, 0);
+    ctx->current_func = af;
     
     VarType this_t = {TYPE_CLASS, 1, 0, alir_strdup(ctx->module, cn->name)};
     alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
 
     AlirStruct *st = alir_find_struct(ctx->module, cn->name);
+    
+    // [FIX] Register the implicit constructor in the class's semantic symbol table
+    // so that call-site validation (sem_check_call) sees the correct parameter count.
+    if (ctx->sem) {
+        SemSymbol *class_sym = sem_symbol_lookup(ctx->sem, cn->name, NULL);
+        if (class_sym && class_sym->kind == SYM_CLASS && class_sym->inner_scope) {
+            SemSymbol *ctor_sym = arena_alloc_type(ctx->sem->compiler_ctx->arena, SemSymbol);
+            memset(ctor_sym, 0, sizeof(SemSymbol));
+            ctor_sym->name = arena_strdup(ctx->sem->compiler_ctx->arena, cn->name);
+            ctor_sym->kind = SYM_FUNC;
+            ctor_sym->type = (VarType){TYPE_VOID, 0};
+            
+            Parameter *p_head = NULL;
+            Parameter **p_tail = &p_head;
+            int p_count = 0;
+
+            // 'this' parameter for constructor
+            Parameter *p_this = arena_alloc_type(ctx->sem->compiler_ctx->arena, Parameter);
+            p_this->name = arena_strdup(ctx->sem->compiler_ctx->arena, "this");
+            p_this->type = this_t;
+            *p_tail = p_this; p_tail = &p_this->next;
+            p_count++;
+
+            if (st) {
+                AlirField *f = st->fields;
+                while(f) {
+                    Parameter *p = arena_alloc_type(ctx->sem->compiler_ctx->arena, Parameter);
+                    p->name = arena_strdup(ctx->sem->compiler_ctx->arena, f->name);
+                    p->type = f->type;
+                    p->next = NULL;
+                    *p_tail = p; p_tail = &p->next;
+                    p_count++;
+                    f = f->next;
+                }
+            }
+            ctor_sym->params = p_head;
+            ctor_sym->param_count = p_count;
+            ctor_sym->next = class_sym->inner_scope->symbols;
+            class_sym->inner_scope->symbols = ctor_sym;
+        }
+    }
+
     if (st) {
         AlirField *f = st->fields;
         while(f) {
@@ -373,7 +416,7 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
 
             VarType ft = f->type; ft.ptr_depth++;
             AlirValue *field_ptr = new_temp(ctx, ft);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, this_ptr, alir_const_int(ctx->module, f->index)));
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, loaded_this, alir_const_int(ctx->module, f->index)));
             // implicit constructor
             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, arg_val, field_ptr));
             
@@ -467,7 +510,16 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, alir_const_int(ctx->module, 0), NULL));
             } else if (fn->ret_type.base == TYPE_VOID || (class_name && (strcmp(fn->name, "init") == 0 || strcmp(fn->name, class_name) == 0))) {
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
-            } 
+            } else {
+                // Fallback for non-void functions that missed a return
+                // Emit a dummy return to keep IR valid
+                AlirValue *dummy = NULL;
+                if (is_integer(fn->ret_type)) dummy = alir_const_int(ctx->module, 0);
+                else if (is_numeric(fn->ret_type)) dummy = alir_const_float(ctx->module, 0.0);
+                else if (is_pointer(fn->ret_type)) dummy = alir_const_int(ctx->module, 0); // null
+                
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, dummy, NULL));
+            }
         }
     }
 }
