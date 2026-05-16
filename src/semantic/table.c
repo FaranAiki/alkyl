@@ -16,7 +16,6 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
     TypeEntry *curr = ctx->type_buckets[idx];
     while (curr) {
         if (curr->node == node && curr->type.base != TYPE_UNKNOWN && type.base != TYPE_UNKNOWN) {
-            if (curr->type.base != TYPE_UNKNOWN) printf("Kalau nimpa pikir Mas, nimpa apaan tuh %p dengan %d!\n", curr->node, type.base);
             curr->type = type;
             return;
         }

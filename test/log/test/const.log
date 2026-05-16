@@ -1,0 +1,12 @@
+/usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crt1.o: in function `_start':
+(.text+0x1b): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+[1;36mstep: [0mFinished lexing. Start parsing.
+[1;36mstep: [0mStart Semantic Analysis.
+[1;36mstep: [0mFinished Semantic Analysis. Start macro-linking.
+[1;36mstep: [0mFinished macro linking. Start generating Alkyl Intermediate Representation (alir).
+[1;36mstep: [0mFinished alir. Start alir check and analysis.
+[1;36mstep: [0mFinished alir check and analysis. Start Codegen using LLVM Codegen
+Compiled to out.o
+Linking: gcc -g -O0 out.o -o out -no-pie 
+Linking failed.

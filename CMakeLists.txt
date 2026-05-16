@@ -151,3 +151,9 @@ if(UNIX)
     target_link_libraries(alkyl PRIVATE m pthread dl z ncurses readline)
     target_link_libraries(alkyl-cli PRIVATE m pthread dl z ncurses readline)
 endif()
+
+add_custom_target(run-tests
+    COMMAND bash ${CMAKE_SOURCE_DIR}/scripts/run_tests.sh
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Running Alkyl tests..."
+)
