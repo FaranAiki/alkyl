@@ -1,0 +1,11 @@
+{
+    "keyword": "leak",
+    "description": "Used in combination with `case` (`leak case`) to explicitly fall through to the next case branch in a switch statement, overriding Alkyl's default behavior of breaking after each case.",
+    "features": [
+        "Provides safe and explicit C-style fallthrough behavior."
+    ],
+    "example": "switch (val) {\n    leak case 1:\n    case 2:\n        print(\"1 or 2\");\n}",
+    "constraints": [
+        "Can only be used as `leak case` within a `switch` block."
+    ]
+}

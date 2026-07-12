@@ -1,0 +1,12 @@
+{
+    "keyword": "case",
+    "description": "Defines a matching branch inside a `switch` statement.",
+    "features": [
+        "Executes its block if the switch expression matches its value.",
+        "In Alkyl, cases do NOT fall through by default (unlike C). You must explicitly use `leak case` to fall through."
+    ],
+    "example": "switch (val) {\n    case 0: return true;\n}",
+    "constraints": [
+        "Must be placed inside a `switch` statement."
+    ]
+}
