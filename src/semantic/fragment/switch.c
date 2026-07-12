@@ -95,11 +95,29 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
         } else {
             ref->is_class_member = 0;
         }
+        return;
+    } 
 
-    } else {
-        sem_error(ctx, node, "Undefined variable '%s'", ref->name);
-        sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+    // [FIX]: Check if we are inside a method scope by looking up "this"
+    SemSymbol *this_sym = sem_symbol_lookup(ctx, "this", NULL);
+    if (this_sym && this_sym->type.base == TYPE_CLASS && this_sym->type.class_name) {
+        SemSymbol *class_sym = sem_symbol_lookup(ctx, this_sym->type.class_name, NULL);
+        if (class_sym && class_sym->inner_scope) {
+            SemScope *old_scope = ctx->current_scope;
+            ctx->current_scope = class_sym->inner_scope;
+            SemSymbol *member_sym = sem_symbol_lookup(ctx, ref->name, NULL);
+            ctx->current_scope = old_scope;
+
+            if (member_sym) {
+                sem_set_node_type(ctx, node, member_sym->type);
+                ref->is_class_member = 1;
+                return;
+            }
+        }
     }
+
+    sem_error(ctx, node, "Undefined variable '%s'", ref->name);
+    sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
 }
 
 void sem_check_array_access(SemanticCtx *ctx, ASTNode *node) {

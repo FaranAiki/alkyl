@@ -1,201 +1,335 @@
 ; Module: main_module
 
 ; Struct Definitions
-%struct.Enemy = type { int:damage, int:mult, int:reduction, double:reduction_persen, int:hp, int:shield, string:name }
-%struct.Player = type { int:damage, int:mult, int:reduction, double:reduction_persen, int:hp, int:shield, string:name }
-%struct.Attack = type { int:damage, int:mult }
-%struct.HP = type { int:reduction, double:reduction_persen, int:hp, int:shield }
-%struct.Defend = type { int:reduction, double:reduction_persen }
+%struct.LifeSupport = type { char**:name, char**:status, int:oxygen_level, int:crew_count }
+%struct.Engine = type { char**:name, char**:status, int:fuel, int:thrust }
+%struct.Module = type { char**:name, char**:status }
+%struct.Logger = type {  }
 
 ; Globals
-@str.0 = string "slime"
+@str.21 = string "Systems Nominal"
+@str.20 = string "CRITICAL ALERT: Low Oxygen"
+@str.19 = string "\n--- Simulation Day 1 ---\n"
+@str.18 = string "Orbit achieved."
+@str.17 = string "LIFTOFF!\n"
+@str.16 = string "T-Minus %d...\n"
+@str.15 = string "\n--- Ignition Sequence ---\n"
+@str.14 = string "Initiating pre-flight checks..."
+@str.13 = string "active"
+@str.12 = string "Habitation Module"
+@str.11 = string "standby"
+@str.10 = string "Thruster Alpha"
+@str.9 = string "Module '%s' is currently: %s\n"
+@str.8 = string "[SYSTEM LOG]: %s\n"
+@str.7 = string ">> Daily cycle complete. Oxygen levels at %d%%\n"
+@str.6 = string "Module '%s' is currently: %s\n"
+@str.5 = string "[SYSTEM LOG]: %s\n"
+@str.4 = string ">> WARNING: Insufficient fuel to burn %d units!\n"
+@str.3 = string ">> Engine burned %d fuel units. Fuel remaining: %d\n"
+@str.2 = string "[SYSTEM LOG]: %s\n"
+@str.1 = string "Module '%s' is currently: %s\n"
+@str.0 = string "[SYSTEM LOG]: %s\n"
 
-promise void @Defend_defend(%Defend*, %Attack)
+promise int @printf(char*, ...)
 
-block func void @Defend(%Defend* %p0, int %p1, double %p2) {
+promise void* @malloc(long)
+
+block func void @Logger_log(%Logger* %p0, char* %p1) {
 entry:
-  %0 = onstack %Defend*
-  store void %p0, %0
-  %1 = load %Defend* %0
-  %2 = getptr int* %1, 0
-  store int %p1, %2
-  %3 = load %Defend* %0
-  %4 = getptr double* %3, 1
-  store double %p2, %4
+  %0 = onstack %Logger*
+  store %Logger* %p0, %0
+  %1 = onstack char*
+  store char* %p1, %1
+  %2 = cast char* @str.0
+  %3 = load char* %1
+  %4 = call %printf (%2, %3)
   return void
 }
 
-promise void @HP_defend(%HP*, %Attack)
-
-block func void @HP(%HP* %p0, int %p1, double %p2, int %p3, int %p4) {
+block func void @Logger(%Logger* %p0) {
 entry:
-  %5 = onstack %HP*
+  %5 = onstack %Logger*
   store void %p0, %5
-  %6 = load %HP* %5
-  %7 = getptr int* %6, 0
-  store int %p1, %7
-  %8 = load %HP* %5
-  %9 = getptr double* %8, 1
-  store double %p2, %9
-  %10 = load %HP* %5
-  %11 = getptr int* %10, 2
-  store int %p3, %11
-  %12 = load %HP* %5
-  %13 = getptr int* %12, 3
-  store int %p4, %13
   return void
 }
 
-block func void @Attack_attack(%Attack* %p0, %HP %p1) {
+block func void @Module_report_status(%Module* %p0) {
 entry:
-  %0 = onstack %Attack*
-  store %Attack* %p0, %0
-  %1 = onstack %HP
-  store %HP %p1, %1
-  %2 = getptr int* %1, 3
-  %3 = load int %2
-  %4 = neq bool %3, 0
-  condition %4, then (else)
-then:
-  %5 = getptr int* %1, 3
-  store int 0, %5
-  jump merge
-else:
-  %6 = getptr int* %1, 2
-  %7 = load int %6
-  %8 = load %Attack* %0
-  %9 = getptr int* %8, 0
-  %10 = load int %9
-  %11 = sub int %7, %10
-  %12 = getptr int* %1, 2
-  store int %11, %12
-  jump merge
-merge:
+  %0 = onstack %Module*
+  store %Module* %p0, %0
+  %1 = cast char* @str.1
+  %2 = load %Module* %0
+  %3 = getptr char*** %2, 0
+  %4 = load char** %3
+  %5 = load %Module* %0
+  %6 = getptr char*** %5, 1
+  %7 = load char** %6
+  %8 = call %printf (%1, %4, %7)
   return void
 }
 
-block func void @Attack(%Attack* %p0, int %p1, int %p2) {
+block func void @Module_log(%Module* %p0, char* %p1) {
 entry:
-  %13 = onstack %Attack*
-  store void %p0, %13
-  %14 = load %Attack* %13
-  %15 = getptr int* %14, 0
-  store int %p1, %15
-  %16 = load %Attack* %13
-  %17 = getptr int* %16, 1
-  store int %p2, %17
+  %0 = onstack %Module*
+  store %Module* %p0, %0
+  %1 = onstack char*
+  store char* %p1, %1
+  %2 = cast char* @str.2
+  %3 = load char* %1
+  %4 = call %printf (%2, %3)
   return void
 }
 
-block func void @Player(%Player* %p0, int %p1, int %p2) {
+block func void @Module(%Module* %p0, char** %p1, char** %p2) {
 entry:
-  %0 = onstack %Player*
-  store %Player* %p0, %0
+  %5 = onstack %Module*
+  store void %p0, %5
+  %6 = load %Module* %5
+  %7 = getptr char*** %6, 0
+  store char** %p1, %7
+  %8 = load %Module* %5
+  %9 = getptr char*** %8, 1
+  store char** %p2, %9
+  return void
+}
+
+block func void @Engine_burn(%Engine* %p0, int %p1) {
+entry:
+  %0 = onstack %Engine*
+  store %Engine* %p0, %0
   %1 = onstack int
   store int %p1, %1
-  %2 = onstack int
-  store int %p2, %2
-  %3 = load int %2
-  %4 = load %Player* %0
-  %5 = getptr int* %4, 0
-  store int %3, %5
-  %6 = load int %1
-  %7 = load %Player* %0
-  %8 = getptr int* %7, 4
-  store int %6, %8
-  return void
-}
-
-block func void @Player_attack(%Player* %p0, %HP %p1) {
-entry:
-  %0 = onstack %Player*
-  store %Player* %p0, %0
-  %1 = onstack %HP
-  store %HP %p1, %1
-  %2 = getptr int* %1, 3
-  %3 = load int %2
-  %4 = neq bool %3, 0
-  condition %4, then (else)
+  %2 = load %Engine* %0
+  %3 = getptr int* %2, 2
+  %4 = load int %3
+  %5 = load int %1
+  %6 = gte bool %4, %5
+  condition %6, then (else)
 then:
-  %5 = getptr int* %1, 3
-  store int 0, %5
+  %7 = load %Engine* %0
+  %8 = getptr int* %7, 2
+  %9 = load int %8
+  %10 = load int %1
+  %11 = sub int %9, %10
+  %12 = load %Engine* %0
+  %13 = getptr int* %12, 2
+  store int %11, %13
+  %14 = cast char* @str.3
+  %15 = load int %1
+  %16 = load %Engine* %0
+  %17 = getptr int* %16, 2
+  %18 = load int %17
+  %19 = call %printf (%14, %15, %18)
   jump merge
 else:
-  %6 = getptr int* %1, 2
-  %7 = load int %6
-  %8 = load %Player* %0
-  %9 = getptr int* %8, 0
-  %10 = load int %9
-  %11 = sub int %7, %10
-  %12 = getptr int* %1, 2
-  store int %11, %12
+  %20 = cast char* @str.4
+  %21 = load int %1
+  %22 = call %printf (%20, %21)
   jump merge
 merge:
   return void
 }
 
-promise void @Player_defend(%Player*, %Attack)
-
-block func void @Enemy(%Enemy* %p0, string %p1) {
+block func void @Engine_log(%Engine* %p0, char* %p1) {
 entry:
-  %0 = onstack %Enemy*
-  store %Enemy* %p0, %0
-  %1 = onstack string
-  store string %p1, %1
-  %2 = load string %1
-  %3 = load %Enemy* %0
-  %4 = getptr string* %3, 6
-  store string %2, %4
+  %0 = onstack %Engine*
+  store %Engine* %p0, %0
+  %1 = onstack char*
+  store char* %p1, %1
+  %2 = cast char* @str.5
+  %3 = load char* %1
+  %4 = call %printf (%2, %3)
   return void
 }
 
-block func void @Enemy_attack(%Enemy* %p0, %HP %p1) {
+block func void @Engine_report_status(%Engine* %p0) {
 entry:
-  %0 = onstack %Enemy*
-  store %Enemy* %p0, %0
-  %1 = onstack %HP
-  store %HP %p1, %1
-  %2 = getptr int* %1, 3
+  %0 = onstack %Engine*
+  store %Engine* %p0, %0
+  %1 = cast char* @str.6
+  %2 = load %Engine* %0
+  %3 = getptr char*** %2, 0
+  %4 = load char** %3
+  %5 = load %Engine* %0
+  %6 = getptr char*** %5, 1
+  %7 = load char** %6
+  %8 = call %printf (%1, %4, %7)
+  return void
+}
+
+block func void @Engine(%Engine* %p0, char** %p1, char** %p2, int %p3, int %p4) {
+entry:
+  %9 = onstack %Engine*
+  store void %p0, %9
+  %10 = load %Engine* %9
+  %11 = getptr char*** %10, 0
+  store char** %p1, %11
+  %12 = load %Engine* %9
+  %13 = getptr char*** %12, 1
+  store char** %p2, %13
+  %14 = load %Engine* %9
+  %15 = getptr int* %14, 2
+  store int %p3, %15
+  %16 = load %Engine* %9
+  %17 = getptr int* %16, 3
+  store int %p4, %17
+  return void
+}
+
+block func void @LifeSupport_daily_cycle(%LifeSupport* %p0) {
+entry:
+  %0 = onstack %LifeSupport*
+  store %LifeSupport* %p0, %0
+  %1 = load %LifeSupport* %0
+  %2 = getptr int* %1, 2
   %3 = load int %2
-  %4 = neq bool %3, 0
-  condition %4, then (else)
-then:
-  %5 = getptr int* %1, 3
-  store int 0, %5
-  jump merge
-else:
-  %6 = getptr int* %1, 2
-  %7 = load int %6
-  %8 = load %Enemy* %0
-  %9 = getptr int* %8, 0
-  %10 = load int %9
-  %11 = sub int %7, %10
-  %12 = getptr int* %1, 2
-  store int %11, %12
-  jump merge
-merge:
+  %4 = load %LifeSupport* %0
+  %5 = getptr int* %4, 3
+  %6 = load int %5
+  %7 = sub int %3, %6
+  %8 = load %LifeSupport* %0
+  %9 = getptr int* %8, 2
+  store int %7, %9
+  %10 = cast char* @str.7
+  %11 = load %LifeSupport* %0
+  %12 = getptr int* %11, 2
+  %13 = load int %12
+  %14 = call %printf (%10, %13)
   return void
 }
 
-promise void @Enemy_defend(%Enemy*, %Attack)
+block func void @LifeSupport_log(%LifeSupport* %p0, char* %p1) {
+entry:
+  %0 = onstack %LifeSupport*
+  store %LifeSupport* %p0, %0
+  %1 = onstack char*
+  store char* %p1, %1
+  %2 = cast char* @str.8
+  %3 = load char* %1
+  %4 = call %printf (%2, %3)
+  return void
+}
+
+block func void @LifeSupport_report_status(%LifeSupport* %p0) {
+entry:
+  %0 = onstack %LifeSupport*
+  store %LifeSupport* %p0, %0
+  %1 = cast char* @str.9
+  %2 = load %LifeSupport* %0
+  %3 = getptr char*** %2, 0
+  %4 = load char** %3
+  %5 = load %LifeSupport* %0
+  %6 = getptr char*** %5, 1
+  %7 = load char** %6
+  %8 = call %printf (%1, %4, %7)
+  return void
+}
+
+block func void @LifeSupport(%LifeSupport* %p0, char** %p1, char** %p2, int %p3, int %p4) {
+entry:
+  %9 = onstack %LifeSupport*
+  store void %p0, %9
+  %10 = load %LifeSupport* %9
+  %11 = getptr char*** %10, 0
+  store char** %p1, %11
+  %12 = load %LifeSupport* %9
+  %13 = getptr char*** %12, 1
+  store char** %p2, %13
+  %14 = load %LifeSupport* %9
+  %15 = getptr int* %14, 2
+  store int %p3, %15
+  %16 = load %LifeSupport* %9
+  %17 = getptr int* %16, 3
+  store int %p4, %17
+  return void
+}
 
 block func int @main() {
 entry:
-  %0 = sizeof int type(Player)
+  %0 = sizeof int type(Engine)
   %1 = onheap char* %0
-  %2 = bitcast %Player* %1
-  %3 = call @Player (%2, 100, 50)
-  %4 = onstack %Player*
-  store %Player* %2, %4
-  %5 = sizeof int type(Enemy)
+  %2 = bitcast %Engine* %1
+  %3 = call @Engine (%2, @str.10, @str.11, 5000, 2000)
+  %4 = onstack %Engine*
+  store %Engine* %2, %4
+  %5 = sizeof int type(LifeSupport)
   %6 = onheap char* %5
-  %7 = bitcast %Enemy* %6
-  %8 = call @Enemy (%7, @str.0)
-  %9 = onstack %Enemy*
-  store %Enemy* %7, %9
-  %10 = load %Player* %4
-  %11 = load %Enemy* %9
-  %12 = cast %HP %11
-  %13 = call %Player_attack (%10, %12)
+  %7 = bitcast %LifeSupport* %6
+  %8 = call @LifeSupport (%7, @str.12, @str.13, 98, 4)
+  %9 = onstack %LifeSupport*
+  store %LifeSupport* %7, %9
+  %10 = load %Engine* %4
+  %11 = bitcast %Logger* %10
+  %12 = cast char* @str.14
+  %13 = call %Logger_log (%11, %12)
+  %14 = load %Engine* %4
+  %15 = call %Engine_report_status (%14)
+  %16 = load %LifeSupport* %9
+  %17 = call %LifeSupport_report_status (%16)
+  %18 = cast char* @str.15
+  %19 = call %printf (%18)
+  %20 = onheap char* 20
+  %21 = bitcast int* %20
+  %22 = getptr int* %21, 0
+  store int 5, %22
+  %23 = getptr int* %21, 1
+  store int 4, %23
+  %24 = getptr int* %21, 2
+  store int 3, %24
+  %25 = getptr int* %21, 3
+  store int 2, %25
+  %26 = getptr int* %21, 4
+  store int 1, %26
+  %27 = onstack int*
+  store int* %21, %27
+  %28 = onstack int
+  store int 0, %28
+  jump while_cond
+while_cond:
+  %29 = load int %28
+  %30 = lt bool %29, 5
+  condition %30, while_body (while_end)
+while_body:
+  %31 = cast char* @str.16
+  %32 = load int* %27
+  %33 = load int %28
+  %34 = getptr int* %32, %33
+  %35 = load int %34
+  %36 = call %printf (%31, %35)
+  %37 = load int %28
+  %38 = add int %37, 1
+  store int %38, %28
+  jump while_cond
+while_end:
+  %39 = cast char* @str.17
+  %40 = call %printf (%39)
+  %41 = load %Engine* %4
+  %42 = call %Engine_burn (%41, 250)
+  %43 = load %Engine* %4
+  %44 = bitcast %Logger* %43
+  %45 = cast char* @str.18
+  %46 = call %Logger_log (%44, %45)
+  %47 = cast char* @str.19
+  %48 = call %printf (%47)
+  %49 = load %LifeSupport* %9
+  %50 = call %LifeSupport_daily_cycle (%49)
+  %51 = load %LifeSupport* %9
+  %52 = getptr int* %51, 2
+  %53 = load int %52
+  %54 = lt bool %53, 20
+  condition %54, then (else)
+then:
+  %55 = load %LifeSupport* %9
+  %56 = bitcast %Logger* %55
+  %57 = cast char* @str.20
+  %58 = call %Logger_log (%56, %57)
+  jump merge
+else:
+  %59 = load %LifeSupport* %9
+  %60 = bitcast %Logger* %59
+  %61 = cast char* @str.21
+  %62 = call %Logger_log (%60, %61)
+  jump merge
+merge:
   return int 0
 }

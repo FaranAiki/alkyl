@@ -149,7 +149,27 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     }
 
     if (node->name) {
-        SemSymbol *sym = sem_symbol_lookup(ctx, node->name, NULL);
+        SemScope *found = NULL;
+        SemSymbol *sym = sem_symbol_lookup(ctx, node->name, &found);
+        int implicit_this = 0;
+        
+        if (sym && found && found->is_class_scope) {
+            implicit_this = 1;
+        } else if (!sym) {
+            SemSymbol *this_sym = sem_symbol_lookup(ctx, "this", NULL);
+            if (this_sym && this_sym->type.base == TYPE_CLASS && this_sym->type.class_name) {
+                SemSymbol *class_sym = sem_symbol_lookup(ctx, this_sym->type.class_name, NULL);
+                if (class_sym && class_sym->inner_scope) {
+                    SemScope *old_scope = ctx->current_scope;
+                    ctx->current_scope = class_sym->inner_scope;
+                    sym = sem_symbol_lookup(ctx, node->name, NULL);
+                    ctx->current_scope = old_scope;
+                    if (sym) implicit_this = 1;
+                }
+            }
+        }
+
+        
         if (!sym) {
             sem_error(ctx, (ASTNode*)node, "Undefined variable '%s'", node->name);
             lhs_type = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
@@ -157,6 +177,18 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
             if (!sym->is_mutable) {
                 sem_error(ctx, (ASTNode*)node, "Cannot assign to immutable variable '%s'", node->name);
             }
+            
+            if (implicit_this) {
+                VarRefNode *vr = arena_alloc_type(ctx->compiler_ctx->arena, VarRefNode);
+                memset(vr, 0, sizeof(VarRefNode));
+                vr->base.type = NODE_VAR_REF;
+                vr->name = node->name;
+                vr->is_class_member = 1;
+                node->target = (ASTNode*)vr;
+                node->name = NULL;
+                lhs_type = sym->type;
+            }
+
             
             if (sym->must_pristine && expr_tainted) {
                 sem_error(ctx, (ASTNode*)node, "Cannot assign a tainted value to pristine variable '%s'", sym->name);
