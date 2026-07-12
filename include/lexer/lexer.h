@@ -115,6 +115,7 @@ typedef enum {
   TOKEN_KW_LET,    
   TOKEN_KW_VECTOR, // NEW VECTOR TOKEN
   TOKEN_KW_SIZEOF,
+  TOKEN_KW_DEFINED,
 
   TOKEN_KW_SHORT,
   TOKEN_KW_LONG,
@@ -182,14 +183,38 @@ typedef struct {
   int col;       
 } Token;
 
+typedef enum {
+    SCOPE_BRACKETS,       // Use { and }
+    SCOPE_INDENTATION     // Use whitespace indentation
+} ScopeStyle;
+
+typedef enum {
+    COMMENT_SLASH,        // Use //
+    COMMENT_HASH          // Use #
+} CommentStyle;
+
+typedef struct {
+    ScopeStyle scope_style;
+    CommentStyle comment_style;
+    int spaces_per_indent;
+    int require_semicolons;  // 1: semicolons are strictly required
+} LexerSettings;
+
 typedef struct {
   CompilerContext *ctx; 
+  LexerSettings settings;
   const char *src;
   const char *filename;
   int lexer_error_count;
   int pos;
   int line;
   int col;
+  
+  int indent_stack[128];
+  int indent_level;
+  
+  Token pending_tokens[16];
+  int pending_count;
 } Lexer;
 
 typedef struct {
@@ -213,6 +238,7 @@ static const KeywordDef keywords[] = {
     {"continue", TOKEN_CONTINUE},
     {"default", TOKEN_DEFAULT},
     {"define", TOKEN_DEFINE},
+    {"defined", TOKEN_KW_DEFINED},
     {"double", TOKEN_KW_DOUBLE},
     {"elif", TOKEN_ELIF},
     {"else", TOKEN_ELSE},
@@ -279,7 +305,7 @@ static const KeywordDef keywords[] = {
     {"while", TOKEN_WHILE}
 };
 
-void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char *src);
+void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char *src, LexerSettings *settings);
 Token lexer_next(Lexer *l);
 void skip_whitespace_and_comments(Lexer *l);
 

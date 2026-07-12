@@ -45,6 +45,7 @@ typedef enum {
   NODE_WASH, 
   NODE_CLEAN,
   NODE_SIZEOF,
+  NODE_DEFINED,
   NODE_META,
   NODE_POSTMETA
 } NodeType;

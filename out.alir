@@ -1,52 +1,6 @@
 ; Module: main_module
 
-; Struct Definitions
-%struct.B = type { %A:a }
-%struct.A = type { %B:b }
-
-block func void @A(%A* %p0, %B %p1) {
-entry:
-  %0 = onstack %A*
-  store void %p0, %0
-  %1 = load %A* %0
-  %2 = getptr %B* %1, 0
-  store %B %p1, %2
-  return void
-}
-
-block func void @B(%B* %p0, %A %p1) {
-entry:
-  %3 = onstack %B*
-  store void %p0, %3
-  %4 = load %B* %3
-  %5 = getptr %A* %4, 0
-  store %A %p1, %5
-  return void
-}
-
 block func int @main() {
 entry:
-  %0 = sizeof int type(A)
-  %1 = onheap char* %0
-  %2 = bitcast %A* %1
-  %3 = sizeof int type(B)
-  %4 = onheap char* %3
-  %5 = bitcast %B* %4
-  %6 = sizeof int type(A)
-  %7 = onheap char* %6
-  %8 = bitcast %A* %7
-  %9 = sizeof int type(B)
-  %10 = onheap char* %9
-  %11 = bitcast %B* %10
-  %12 = sizeof int type(A)
-  %13 = onheap char* %12
-  %14 = bitcast %A* %13
-  %15 = call @A (%14, 0)
-  %16 = call @B (%11, %14)
-  %17 = call @A (%8, %11)
-  %18 = call @B (%5, %8)
-  %19 = call @A (%2, %5)
-  %20 = onstack %A*
-  store %A* %2, %20
   return int 0
 }

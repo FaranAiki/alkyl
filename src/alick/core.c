@@ -17,7 +17,7 @@ void alick_error(AlickCtx *ctx, AlirFunction *func, AlirBlock *block, AlirInst *
     if (ctx->module->src && inst && inst->line > 0) {
         // Use the powerful diagnostic error reporter for gorgeous error messages linked to source!
         Lexer l;
-        lexer_init(&l, ctx->module->compiler_ctx, ctx->module->filename, ctx->module->src);
+        lexer_init(&l, ctx->module->compiler_ctx, ctx->module->filename, ctx->module->src, NULL);
         
         Token t;
         t.line = inst->line;
@@ -60,7 +60,7 @@ void alick_warning(AlickCtx *ctx, AlirFunction *func, AlirBlock *block, AlirInst
     if (ctx->module->src && inst && inst->line > 0) {
         // Propagate ALIR warnings to the source file!
         Lexer l;
-        lexer_init(&l, ctx->module->compiler_ctx, ctx->module->filename, ctx->module->src);
+        lexer_init(&l, ctx->module->compiler_ctx, ctx->module->filename, ctx->module->src, NULL);
         
         Token t;
         t.line = inst->line;

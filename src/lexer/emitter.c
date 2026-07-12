@@ -54,7 +54,7 @@ char* lexer_string_to_string(const char *src) {
     context_init(&ctx, &arena);
 
     Lexer l;
-    lexer_init(&l, &ctx, "", src);
+    lexer_init(&l, &ctx, "", src, NULL);
     
     char* result = lexer_to_string(&l);
     
@@ -71,7 +71,7 @@ void lexer_string_to_file(const char *src, const char *filename) {
     context_init(&ctx, &arena);
 
     Lexer l;
-    lexer_init(&l, &ctx, "", src);
+    lexer_init(&l, &ctx, "", src, NULL);
     
     lexer_to_file(&l, filename);
     

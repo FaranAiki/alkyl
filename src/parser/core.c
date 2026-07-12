@@ -3,16 +3,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void parser_init(Parser *p, Lexer *l) {
-    if (!p) return;
+void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
     p->l = l;
-    p->ctx = l ? l->ctx : NULL;
+    p->ctx = l->ctx;
     p->recover_buf = NULL;
-    
     p->macro_head = NULL;
     p->type_head = NULL;
     p->alias_head = NULL;
     p->expansion_head = NULL;
+    p->disable_macro_expansion = 0;
+    
+    if (settings) {
+        p->settings = *settings;
+    } else {
+        // Defaults
+        p->settings.require_parens_for_conditions = 0;
+        p->settings.allow_implicit_return = 1;
+        p->settings.allow_postfix_types = 0;
+        p->settings.strict_boolean_conditions = 0;
+    }
     
     if (l) {
         p->current_token.type = TOKEN_UNKNOWN;
@@ -104,6 +113,7 @@ void register_macro(Parser *p, const char *name, char **params, int param_count,
     m->body_len = body_len;
     m->next = p->macro_head;
     p->macro_head = m;
+    if (p->ctx) p->ctx->macro_head = m;
 }
 
 static Macro* find_macro(Parser *p, const char *name) {
@@ -184,7 +194,7 @@ void eat(Parser *p, TokenType type) {
   if (p->current_token.type == type) {
     Token t = fetch_safe(p);
     
-    while (t.type == TOKEN_IDENTIFIER) {
+    while (!p->disable_macro_expansion && t.type == TOKEN_IDENTIFIER) {
         Macro *m = find_macro(p, t.text);
         if (!m) break; 
         

@@ -38,6 +38,7 @@ typedef enum {
     // New Memory Ops for Lowering
     ALIR_OP_ALLOC_HEAP, // malloc
     ALIR_OP_SIZEOF,     // sizeof(T)
+    ALIR_OP_DEFINED,    // defined(T)
     ALIR_OP_FREE_HEAP,       // free
 
     // Arithmetic

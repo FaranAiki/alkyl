@@ -1,12 +1,37 @@
 #include "parser_internal.h"
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h> 
+#include <stdio.h>
+
+static void apply_implicit_return(Parser *p, ASTNode **body_ptr) {
+    if (!p->settings.allow_implicit_return || !body_ptr || !*body_ptr) return;
+    ASTNode *last = *body_ptr;
+    ASTNode *prev = NULL;
+    while (last->next) {
+        prev = last;
+        last = last->next;
+    }
+    
+    int is_expr = (last->type == NODE_LITERAL || last->type == NODE_VAR_REF || 
+                   last->type == NODE_BINARY_OP || last->type == NODE_UNARY_OP || 
+                   last->type == NODE_CALL || last->type == NODE_METHOD_CALL || 
+                   last->type == NODE_ARRAY_ACCESS || last->type == NODE_MEMBER_ACCESS || 
+                   last->type == NODE_CAST || last->type == NODE_INC_DEC);
+    if (is_expr) {
+        ReturnNode *ret = parser_alloc(p, sizeof(ReturnNode));
+        ret->base.type = NODE_RETURN;
+        ret->base.line = last->line;
+        ret->base.col = last->col;
+        ret->value = last;
+        ret->base.next = NULL;
+        
+        if (prev) prev->next = (ASTNode*)ret;
+        else *body_ptr = (ASTNode*)ret;
+    }
+}
 
 ASTNode* parse_extern(Parser *p, int modifiers) {
   eat(p, TOKEN_EXTERN);
-  
-  // TODO add more of this 
   // so that extern can be more
   if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION|| p->current_token.type == TOKEN_IMPL || p->current_token.type == TOKEN_TRAIT ) {
       eat(p, p->current_token.type);
@@ -186,6 +211,7 @@ static ASTNode* parse_class_impl(Parser *p, int modifiers) {
               eat(p, TOKEN_LBRACE);
               ASTNode *body = parse_statements(p);
               eat(p, TOKEN_RBRACE);
+              apply_implicit_return(p, &body);
               
               FuncDefNode *func = parser_alloc(p, sizeof(FuncDefNode));
               func->base.type = NODE_FUNC_DEF;
@@ -272,6 +298,7 @@ static ASTNode* parse_class_impl(Parser *p, int modifiers) {
                       eat(p, TOKEN_LBRACE);
                       ASTNode *body = parse_statements(p);
                       eat(p, TOKEN_RBRACE);
+                      apply_implicit_return(p, &body);
                       
                       FuncDefNode *func = parser_alloc(p, sizeof(FuncDefNode));
                       func->base.type = NODE_FUNC_DEF;
@@ -328,6 +355,7 @@ static ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   eat(p, TOKEN_LBRACE);
                   ASTNode *body = parse_statements(p);
                   eat(p, TOKEN_RBRACE);
+                  apply_implicit_return(p, &body);
                   
                   FuncDefNode *func = parser_alloc(p, sizeof(FuncDefNode));
                   func->base.type = NODE_FUNC_DEF;
@@ -542,6 +570,14 @@ ASTNode* parse_top_level(Parser *p) {
   char *name = parser_strdup(p, p->current_token.text); 
   p->current_token.text = NULL; eat(p, TOKEN_IDENTIFIER);
   
+  if (p->settings.allow_postfix_types && p->current_token.type == TOKEN_COLON) {
+      eat(p, TOKEN_COLON);
+      VarType pt = parse_type(p);
+      if (pt.base != TYPE_UNKNOWN) {
+          vtype = pt;
+      }
+  }
+  
   if (p->current_token.type == TOKEN_LPAREN) {
     eat(p, TOKEN_LPAREN);
     Parameter *params_head = NULL; Parameter **curr_param = &params_head;
@@ -568,6 +604,9 @@ ASTNode* parse_top_level(Parser *p) {
     }
     eat(p, TOKEN_RPAREN); eat(p, TOKEN_LBRACE);
     ASTNode *body = parse_statements(p); eat(p, TOKEN_RBRACE);
+    
+    apply_implicit_return(p, &body);
+    
     FuncDefNode *node = parser_alloc(p, sizeof(FuncDefNode));
     node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = vtype; node->params = params_head; node->body = body;
     node->is_flux = is_flux; 

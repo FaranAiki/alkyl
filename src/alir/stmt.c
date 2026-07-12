@@ -1,4 +1,6 @@
 #include "alir.h"
+#include "semantic/semantic.h"
+#include "meta/vm.h"
 
 void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
     if (!node) return;
@@ -32,10 +34,55 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_WASH:
             break;
         case NODE_SIZEOF:
-    case NODE_META:
-    case NODE_POSTMETA:
             alir_gen_expr(ctx, node);
             break;
+        case NODE_META:
+        case NODE_POSTMETA: {
+            // Save current state
+            AlirFunction *old_func = ctx->current_func;
+            AlirBlock *old_block = ctx->current_block;
+            
+            // Create temporary compile-time ALIR function
+            AlirFunction *meta_func = calloc(1, sizeof(AlirFunction));
+            meta_func->name = "meta_compile_time";
+            meta_func->blocks = alir_add_block(ctx->module, meta_func, "entry");
+            
+            ctx->current_func = meta_func;
+            ctx->current_block = meta_func->blocks;
+            
+            // Snapshot globals before meta block
+            AlirGlobal *old_globals = ctx->module->globals;
+
+            MetaNode *mn = (MetaNode*)node;
+            ASTNode *curr = mn->body;
+            while(curr) {
+                alir_gen_stmt(ctx, curr);
+                curr = curr->next;
+            }
+            
+            // Execute the meta block
+            MetaVM *vm = meta_vm_init();
+            int meta_err = meta_vm_execute(vm, ctx->module, meta_func, ctx->sem);
+            
+            if (meta_err) {
+                // The VM already reported the specific error at the exact line via sem_error.
+                // But just in case, we also ensure error_count increases here if not caught:
+                if (ctx->sem && ctx->sem->compiler_ctx) {
+                    // Do not increment if sem_error already did it inside the VM, 
+                    // actually sem_error increments it! So we don't need to do anything else.
+                }
+            }
+            
+            // Clean up the global constants added by the meta block so they don't persist in ALIR
+            ctx->module->globals = old_globals;
+            
+            meta_vm_free(vm);
+            
+            // Restore state
+            ctx->current_func = old_func;
+            ctx->current_block = old_block;
+            break;
+        }
         case NODE_VAR_DECL: {
             alir_stmt_vardecl(ctx, node);
             break;
@@ -114,6 +161,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_MEMBER_ACCESS:
         case NODE_TRAIT_ACCESS:
         case NODE_TYPEOF:
+        case NODE_DEFINED:
         case NODE_HAS_METHOD:
         case NODE_HAS_ATTRIBUTE:
         case NODE_CAST:

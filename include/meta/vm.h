@@ -2,12 +2,21 @@
 #define META_VM_H
 
 #include "alir/alir.h"
-#include "common/context.h"
 
-// Initialize the ALIR Virtual Machine for meta execution.
-void meta_vm_init(CompilerContext *ctx);
+// VM State context
+typedef struct MetaVM {
+    void *registers; // Pointer to VMValue array
+    int status;
+} MetaVM;
+
+// Initialize the ALIR Virtual Machine context
+MetaVM* meta_vm_init();
+
+// Clean up the VM context
+void meta_vm_free(MetaVM *vm);
 
 // Execute an ALIR function at compile-time (used for meta and postmeta blocks).
-void meta_vm_execute(CompilerContext *ctx, AlirFunction *func);
+// Returns 0 on success, non-zero on error.
+int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *sem_ctx);
 
 #endif // META_VM_H

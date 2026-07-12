@@ -127,9 +127,9 @@ set(COMMON_SOURCES
   ${HELPER_SOURCES}
 )
 
-add_executable(alkyl src/meta/eval.c
+add_executable(alkyl src/meta/vm.c
     src/driver/main.c ${COMMON_SOURCES})
-add_executable(alkyl-cli src/meta/eval.c
+add_executable(alkyl-cli src/meta/vm.c
     src/driver/cli.c ${COMMON_SOURCES})
 
 # Headers
@@ -147,6 +147,13 @@ if(READLINE_FOUND)
     target_include_directories(alkyl PRIVATE ${READLINE_INCLUDE_DIRS})
     target_link_libraries(alkyl PRIVATE ${READLINE_LIBRARIES})
     target_compile_definitions(alkyl PRIVATE HAVE_READLINE)
+endif()
+
+pkg_check_modules(LIBFFI libffi)
+if(LIBFFI_FOUND)
+    target_include_directories(alkyl PRIVATE ${LIBFFI_INCLUDE_DIRS})
+    target_link_libraries(alkyl PRIVATE ${LIBFFI_LIBRARIES})
+    target_compile_definitions(alkyl PRIVATE HAVE_LIBFFI)
 endif()
 
 if(UNIX)

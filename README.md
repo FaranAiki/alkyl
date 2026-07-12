@@ -2,19 +2,19 @@
 
 A simple programming language written using LLVM-IR.
 
-Alkyl is named after aikil (aiki language) and alkyl in chemistry which is a highly reactive and foundational. 
+Alkyl is named after aikil (aiki language) and alkyl in chemistry which is a highly reactive and foundational.
 
 # Status
 
-70% written by AI, 30% written by myself. Although it is not purely vibecoded as AI cannot generate LLVM and C instructions perfectly, most of the backend and some frontend code is written by Gemini AI.
+60% written by AI, 40% written by myself. Although it is not purely vibecoded as AI cannot generate LLVM and C instructions perfectly, most of the backend and some frontend code is written by Gemini AI.
 
-# Purpose 
+# Purpose
 
 Creating a programming language that can be automated using Artificial Intelligence. As the world grows, programming may not using languages like Python, C, Rust, Zig, or others. This is why this programming language exist: to make it easy for AI to understand, generate, and check.
 
 Moreover, Alkyl used syntax similar to C "but lazy" so developer can understand had there been a bug that AI missed.
 
-# Core Feature 
+# Core Feature
 
 Core feature is the high-level and simplicity of C, combined with C++'s object oriented programming with is-a has-a feature.
 
@@ -24,9 +24,9 @@ Todo implemented:
 * crazy docs
 * crazy error handling
 
-# Docs 
-For further information, look at 
-* alkyl/docs/usage: How to use this programming language. 
+# Docs
+For further information, look at
+* alkyl/docs/usage: How to use this programming language.
 * alkyl/docs/spec: The specification of this language: what can be done, what cannot be done (use MoSCoW analysis here and check whether it is implemented correctly or not).
 * alkyl/docs/internal
 * alkyl/docs/software-arch: An archictecture containing rigorous definition, formalization, and standardizaton of this project's scope. This includes the Alkyl Programming Language written in C, Alkyl Programming Language written in Alkyl itself, and others.

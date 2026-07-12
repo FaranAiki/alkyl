@@ -25,6 +25,7 @@ typedef struct {
   char last_reported_filename[1024];
 
   HashMap string_pool;
+  void *macro_head;
 } CompilerContext;
 
 // Initialize the context with a provided arena

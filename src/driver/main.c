@@ -45,18 +45,18 @@ int main(int argc, char *argv[]) {
   if (!code) { fprintf(stderr, "Could not read file: %s\n", filename); return 1; }
 
   Lexer l;
-  lexer_init(&l, &comp_ctx, filename, code);
+  lexer_init(&l, &comp_ctx, filename, code, NULL);
 
   debug_step("Finished lexing. Start parsing.");
 
   // generate for debugging 
   Lexer l_debug;
-  lexer_init(&l_debug, &comp_ctx_debug, filename, code);
+  lexer_init(&l_debug, &comp_ctx_debug, filename, code, NULL);
 
   to_token_out(&l_debug, BASENAME ".tok");
 
   Parser p;
-  parser_init(&p, &l);
+  parser_init(&p, &l, NULL);
 
   ASTNode *root = parse_program(&p);
 
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
   }
 
   // Parser p_debug;
-  // parser_init(&p_debug, &l_debug);
+  // parser_init(&p_debug, &l_debug, NULL);
   // ASTNode *root_debug = parse_program(&p_debug);
 
   to_ast_out(&p, root, BASENAME ".ast");

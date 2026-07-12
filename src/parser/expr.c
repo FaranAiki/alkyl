@@ -148,6 +148,26 @@ ASTNode* parse_factor(Parser *p) {
       node = (ASTNode*)u;
       set_loc(node, line, col);
   }
+  else if (p->current_token.type == TOKEN_KW_DEFINED) {
+      p->disable_macro_expansion = 1;
+      eat(p, TOKEN_KW_DEFINED);
+      
+      ASTNode *expr;
+      if (p->current_token.type == TOKEN_LPAREN) {
+          eat(p, TOKEN_LPAREN);
+          expr = parse_expression(p);
+          p->disable_macro_expansion = 0;
+          eat(p, TOKEN_RPAREN);
+      } else {
+          expr = parse_unary(p);
+          p->disable_macro_expansion = 0;
+      }
+      UnaryOpNode *u = parser_alloc(p, sizeof(UnaryOpNode));
+      u->base.type = NODE_DEFINED;
+      u->operand = expr;
+      node = (ASTNode*)u;
+      set_loc(node, line, col);
+  }
   else if (p->current_token.type == TOKEN_HASMETHOD) {
       eat(p, TOKEN_HASMETHOD);
       ASTNode *expr;

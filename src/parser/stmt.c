@@ -11,6 +11,8 @@ static void eat_semi(Parser *p) {
                p->current_token.type == TOKEN_RBRACE || 
                p->current_token.type == TOKEN_EOF) {
         // Implicit
+    } else if (p->l->settings.require_semicolons == 0) {
+        // Optional semicolon
     } else {
         eat(p, TOKEN_SEMICOLON);
     }
@@ -56,6 +58,8 @@ ASTNode* parse_for_in(Parser *p) {
     int line = p->current_token.line, col = p->current_token.col;
     eat(p, TOKEN_FOR);
     
+    if (p->settings.require_parens_for_conditions) eat(p, TOKEN_LPAREN);
+    
     if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected identifier after 'for'");
     char *var_name = parser_strdup(p, p->current_token.text);
     eat(p, TOKEN_IDENTIFIER);
@@ -64,6 +68,8 @@ ASTNode* parse_for_in(Parser *p) {
     eat(p, TOKEN_IN);
     
     ASTNode *collection = parse_expression(p);
+    
+    if (p->settings.require_parens_for_conditions) eat(p, TOKEN_RPAREN);
     ASTNode *body = parse_single_statement_or_block(p);
     
     ForInNode *node = parser_alloc(p, sizeof(ForInNode));
@@ -270,6 +276,14 @@ ASTNode* parse_var_decl_internal(Parser *p) {
   p->current_token.text = NULL;
   eat(p, TOKEN_IDENTIFIER);
   
+  if (p->settings.allow_postfix_types && p->current_token.type == TOKEN_COLON) {
+      eat(p, TOKEN_COLON);
+      VarType pt = parse_type(p);
+      if (pt.base != TYPE_UNKNOWN) {
+          vtype = pt;
+      }
+  }
+  
   int is_array = 0;
   ASTNode *array_size = NULL;
   ASTNode **curr_sz = &array_size;
@@ -365,6 +379,15 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
   
   if (p->current_token.type == TOKEN_EMIT) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_emit(p); }
   if (p->current_token.type == TOKEN_FOR) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_for_in(p); }
+  if (p->current_token.type == TOKEN_DEFINE) { 
+      if(modifiers) parser_fail(p, "Modifiers not allowed"); 
+      extern ASTNode* parse_define(Parser *p);
+      return parse_define(p); 
+  }
+  if (p->current_token.type == TOKEN_EXTERN) {
+      extern ASTNode* parse_extern(Parser *p, int modifiers);
+      return parse_extern(p, modifiers);
+  }
 
   if (p->current_token.type == TOKEN_META || p->current_token.type == TOKEN_POSTMETA) {
       if(modifiers) parser_fail(p, "Modifiers not allowed");
@@ -431,6 +454,14 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
       char *name = p->current_token.text;
       p->current_token.text = NULL;
       eat(p, TOKEN_IDENTIFIER);
+      
+      if (p->settings.allow_postfix_types && p->current_token.type == TOKEN_COLON) {
+          eat(p, TOKEN_COLON);
+          VarType pt = parse_type(p);
+          if (pt.base != TYPE_UNKNOWN) {
+              peek_t = pt;
+          }
+      }
       
       int is_array = 0;
       ASTNode *array_size = NULL;
@@ -509,7 +540,14 @@ ASTNode* parse_while(Parser *p) {
         eat(p, TOKEN_ONCE);
         is_do_while = 1;
     }
-    ASTNode *cond = parse_expression(p);
+    ASTNode *cond = NULL;
+    if (p->settings.require_parens_for_conditions) {
+        eat(p, TOKEN_LPAREN);
+        cond = parse_expression(p);
+        eat(p, TOKEN_RPAREN);
+    } else {
+        cond = parse_expression(p);
+    }
     ASTNode *body = parse_single_statement_or_block(p);
     WhileNode *node = parser_alloc(p, sizeof(WhileNode));
     node->base.type = NODE_WHILE;
@@ -523,7 +561,14 @@ ASTNode* parse_while(Parser *p) {
 ASTNode* parse_if(Parser *p) {
   int line = p->current_token.line, col = p->current_token.col;
   eat(p, TOKEN_IF);
-  ASTNode *cond = parse_expression(p);
+  ASTNode *cond = NULL;
+  if (p->settings.require_parens_for_conditions) {
+      eat(p, TOKEN_LPAREN);
+      cond = parse_expression(p);
+      eat(p, TOKEN_RPAREN);
+  } else {
+      cond = parse_expression(p);
+  }
   
   if (p->current_token.type == TOKEN_THEN) {
       eat(p, TOKEN_THEN);
@@ -569,7 +614,14 @@ ASTNode* parse_switch(Parser *p) {
     int line = p->current_token.line, col = p->current_token.col;
     eat(p, TOKEN_SWITCH);
     
-    ASTNode *cond = parse_expression(p);
+    ASTNode *cond = NULL;
+    if (p->settings.require_parens_for_conditions) {
+        eat(p, TOKEN_LPAREN);
+        cond = parse_expression(p);
+        eat(p, TOKEN_RPAREN);
+    } else {
+        cond = parse_expression(p);
+    }
     
     eat(p, TOKEN_LBRACE);
 

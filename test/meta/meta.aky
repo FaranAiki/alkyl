@@ -1,9 +1,13 @@
 meta {
-    // meta statements
+    print "a";
+    define t as "t";
+    define k as "k";
 }
 
 postmeta {
-    // postmeta statements
+    print "s";
+    if defined(t) then print "ada" else print "loh";
+    if defined(k) then print "ngga ada" else print "loh?";
 }
 
 int main() {

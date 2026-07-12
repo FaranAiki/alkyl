@@ -1,0 +1,31 @@
+
+int main() {
+    meta {
+        print("--- Start Meta Execution ---");
+
+        int a = 10;
+        int b = 25;
+        int c = a + b;
+
+        print "Result of 10 + 25 = ";
+        print(c);
+
+        if (c > 30) {
+            print("Branching works: 35 is greater than 30!");
+        } else {
+            print("Failed.");
+        }
+
+        print("--- End Meta Execution ---");
+    }
+
+    postmeta {
+      if defined(k) {
+        print ("a");
+      } else {
+        print "die";
+      }
+    }
+
+    return 0;
+}

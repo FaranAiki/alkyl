@@ -105,9 +105,11 @@ int run_repl(void) {
             parser_set_recovery(&recovery_env);
             
             Lexer l;
-            lexer_init(&l, buffer);
+            lexer_init(&l, &ctx.compiler_ctx, "REPL", buffer, NULL);
+            Parser p;
+            parser_init(&p, &l, NULL);
             
-            ASTNode *root = parse_program(&l);
+            ASTNode *root = parse_program(&p);
             if (!root) { free(buffer); continue; }
 
             // Update source code context for this REPL line
@@ -115,7 +117,7 @@ int run_repl(void) {
 
             LLVMModuleRef out_mod;
             char *remove_err = NULL;
-            if (LLVMRemoveModule(engine, module, &out_mod, &remove_err) != 0) {
+            if (LLVMRemoveModule(engine, module, &out_mod, &remove_err, NULL) != 0) {
                 // Ignore first run error
             }
             

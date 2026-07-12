@@ -624,6 +624,8 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root) {
             }
         } else if (curr->type == NODE_NAMESPACE) {
             alir_gen_functions_recursive(ctx, ((NamespaceNode*)curr)->body);
+        } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
+            alir_gen_stmt(ctx, curr);
         }
         curr = curr->next;
     }

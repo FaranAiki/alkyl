@@ -7,7 +7,7 @@ static void setup_report_lexer(Lexer *l, SemanticCtx *ctx) {
     if (ctx->compiler_ctx) {
         // Initialize with the context and source
         // We assume lexer_init handles basic setup
-        lexer_init(l, ctx->compiler_ctx, ctx->current_filename, ctx->current_source);
+        lexer_init(l, ctx->compiler_ctx, ctx->current_filename, ctx->current_source, NULL);
     } else {
         // Fallback if no compiler context (shouldn't happen in proper flow)
         l->ctx = NULL;

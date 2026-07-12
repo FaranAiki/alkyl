@@ -598,10 +598,10 @@ char* parser_string_to_string(const char *src) {
     context_init(&ctx, &arena);
     
     Lexer l;
-    lexer_init(&l, &ctx, "", src);
+    lexer_init(&l, &ctx, "", src, NULL);
     
     Parser p;
-    parser_init(&p, &l);
+    parser_init(&p, &l, NULL);
     
     SemanticCtx sem_ctx;
     sem_init(&sem_ctx, &ctx);
@@ -621,10 +621,10 @@ void parser_string_to_file(const char *src, const char *filename) {
     context_init(&ctx, &arena);
     
     Lexer l;
-    lexer_init(&l, &ctx, filename, src);
+    lexer_init(&l, &ctx, filename, src, NULL);
     
     Parser p;
-    parser_init(&p, &l);
+    parser_init(&p, &l, NULL);
   
     SemanticCtx sc;
     sem_init(&sc, &ctx);

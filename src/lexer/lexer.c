@@ -6,13 +6,26 @@
 #include <ctype.h>
 #include <string.h>
 
-void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char* src) {
+void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char* src, LexerSettings *settings) {
   l->src = src;
   l->filename = filename; 
   l->pos = 0;
   l->line = 1;
   l->col = 1;
   l->ctx = ctx;
+  l->indent_level = 0;
+  l->indent_stack[0] = 0;
+  l->pending_count = 0;
+  
+  if (settings) {
+      l->settings = *settings;
+  } else {
+      // Defaults
+      l->settings.scope_style = SCOPE_BRACKETS;
+      l->settings.comment_style = COMMENT_SLASH;
+      l->settings.spaces_per_indent = 4;
+      l->settings.require_semicolons = 1;
+  }
 }
 
 static char peek(Lexer *l) { return l->src[l->pos]; }
@@ -69,7 +82,8 @@ void skip_whitespace_and_comments(Lexer *l) {
     }
 
     // Single line comment
-    if (c == '/' && l->src[l->pos + 1] == '/') {
+    if ((l->settings.comment_style == COMMENT_SLASH && c == '/' && l->src[l->pos + 1] == '/') ||
+        (l->settings.comment_style == COMMENT_HASH && c == '#')) {
       while (peek(l) != '\0' && peek(l) != '\n') {
         advance(l);
       }
@@ -433,24 +447,77 @@ static int lex_word(Lexer *l, Token *t) {
   return 1;
 }
 
+
 Token lexer_next(Lexer *l) {
+  if (l->pending_count > 0) {
+      Token t = l->pending_tokens[0];
+      for (int i = 1; i < l->pending_count; i++) {
+          l->pending_tokens[i-1] = l->pending_tokens[i];
+      }
+      l->pending_count--;
+      return t;
+  }
+
+  int prev_line = l->line;
+  int is_first_token = (l->pos == 0);
+  
   skip_whitespace_and_comments(l);
+
+  int is_eof = (peek(l) == '\0');
+  int is_new_line = (l->line > prev_line) || is_first_token || is_eof;
+
+  if (l->settings.scope_style == SCOPE_INDENTATION && is_new_line) {
+      int spaces = l->col - 1;
+      int new_indent = l->settings.spaces_per_indent > 0 ? (spaces / l->settings.spaces_per_indent) : 0;
+      
+      if (is_eof) {
+          new_indent = 0; // EOF forces indent to 0
+      }
+      
+      if (new_indent > l->indent_level) {
+          Token lbrace = {TOKEN_LBRACE, NULL, 0, 0, 0.0, l->line, 1};
+          l->pending_tokens[l->pending_count++] = lbrace;
+          l->indent_stack[++l->indent_level] = new_indent;
+      } else if (new_indent < l->indent_level) {
+          while (l->indent_level > 0 && l->indent_stack[l->indent_level] > new_indent) {
+              Token rbrace = {TOKEN_RBRACE, NULL, 0, 0, 0.0, l->line, 1};
+              l->pending_tokens[l->pending_count++] = rbrace;
+              l->indent_level--;
+          }
+      }
+  }
 
   Token t = {TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col};
   char c = peek(l);
 
+  int token_parsed = 0;
   if (c == '\0') {
     t.type = TOKEN_EOF;
-    return t;
+    token_parsed = 1;
+  }
+  
+  if (!token_parsed && lex_symbol(l, &t)) token_parsed = 1;
+  if (!token_parsed && lex_number(l, &t)) token_parsed = 1;
+  if (!token_parsed && lex_char(l, &t)) token_parsed = 1;
+  if (!token_parsed && lex_string(l, &t)) token_parsed = 1;
+  if (!token_parsed && lex_word(l, &t)) token_parsed = 1;
+
+  if (!token_parsed) {
+    advance(l);
+    t.type = TOKEN_UNKNOWN;
   }
 
-  if (lex_symbol(l, &t)) return t;
-  if (lex_number(l, &t)) return t;
-  if (lex_char(l, &t)) return t;
-  if (lex_string(l, &t)) return t;
-  if (lex_word(l, &t)) return t;
+  if (l->pending_count > 0) {
+      if (t.type != TOKEN_EOF) {
+          l->pending_tokens[l->pending_count++] = t;
+      }
+      Token first = l->pending_tokens[0];
+      for (int i = 1; i < l->pending_count; i++) {
+          l->pending_tokens[i-1] = l->pending_tokens[i];
+      }
+      l->pending_count--;
+      return first;
+  }
 
-  advance(l);
-  t.type = TOKEN_UNKNOWN;
   return t;
 }

@@ -1,2 +1,2 @@
 " Vim ftdetect file
-au BufRead,BufNewFile *.aky set filetype=alkyl
+au BufRead,BufNewFile *.aky,*.hky set filetype=alkyl
