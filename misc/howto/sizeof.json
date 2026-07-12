@@ -1,0 +1,11 @@
+{
+    "keyword": "sizeof",
+    "description": "Calculates the memory size in bytes of a given type at compile time.",
+    "features": [
+        "Works with basic types (int, float, char*).",
+        "Works with composite types (class, union).",
+        "Calculates correctly for pointer types."
+    ],
+    "example": "let size = sizeof(MethodCallNode);\nlet ptr = malloc(size) as MethodCallNode*;",
+    "constraints": []
+}

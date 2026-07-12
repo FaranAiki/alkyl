@@ -1,0 +1,15 @@
+{
+    "keyword": "class",
+    "description": "Defines an object-oriented struct/class type containing fields and methods. Alkyl classes are reference-types (pointers) by default when instantiated locally.",
+    "features": [
+        "Implicit constructor generation.",
+        "Method definition.",
+        "Trait composition via `has`.",
+        "Inheritance via `is`.",
+        "Allows forward and cyclic dependencies safely."
+    ],
+    "example": "class A is B has C {\n    int x;\n    int method() { return this.x; }\n}",
+    "constraints": [
+        "Cyclic by-value size dependencies trigger a Semantic Error."
+    ]
+}

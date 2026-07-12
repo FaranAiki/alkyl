@@ -1,0 +1,13 @@
+{
+    "keyword": "as",
+    "description": "Performs explicit type casting between compatible types.",
+    "features": [
+        "Primitive casting (e.g., int to float).",
+        "Pointer casting (e.g., void* to Class*).",
+        "Class reference to void* raw pointer casting."
+    ],
+    "example": "let ptr = malloc(sizeof(Registration)) as Registration*;\nptr as void*",
+    "constraints": [
+        "Only valid for compatible bit-casts or primitive conversions."
+    ]
+}

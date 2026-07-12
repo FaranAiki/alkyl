@@ -1,0 +1,12 @@
+{
+    "keyword": "union",
+    "description": "Defines a union type where all fields share the same memory location, meaning its size is equal to its largest member. Unions are essential for memory-efficient structs that only hold one state at a time.",
+    "features": [
+        "Memory sharing across fields.",
+        "Automatic transparent field resolution on assignment (e.g., `my_union = c\"hello\"` automatically resolves to `my_union.str_field = c\"hello\"` if types match)."
+    ],
+    "example": "union Registration {\n    char* str_field;\n    int int_field;\n}\n\nlet mut r = Registration();\nr = c\"string\"; // automatically maps to str_field\nr = 42; // automatically maps to int_field",
+    "constraints": [
+        "Cannot be assigned to types that are not present in the union."
+    ]
+}

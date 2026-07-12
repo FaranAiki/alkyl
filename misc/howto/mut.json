@@ -1,0 +1,12 @@
+{
+    "keyword": "mut",
+    "description": "Marks a variable as mutable. Variables in Alkyl are immutable by default.",
+    "features": [
+        "Enables assignment and reassignment.",
+        "Required for loop variables or state accumulators."
+    ],
+    "example": "let mut i = 0;\ni = i + 1;",
+    "constraints": [
+        "Cannot reassign a variable unless declared with `mut`."
+    ]
+}

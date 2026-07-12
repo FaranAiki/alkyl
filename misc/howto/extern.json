@@ -1,0 +1,12 @@
+{
+    "keyword": "extern",
+    "description": "Declares an external C function or variable, bridging Alkyl to standard C ABI and LLVM.",
+    "features": [
+        "Links C functions into Alkyl.",
+        "Supports variadic arguments (...)."
+    ],
+    "example": "extern int printf(char* format, ...);\nprintf(c\"Hello %d\\n\", 42);",
+    "constraints": [
+        "Extern functions are inherently impure/tainted by default."
+    ]
+}
