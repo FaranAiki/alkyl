@@ -79,9 +79,7 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         return;
     }
 
-    if (vn->var_type.base == TYPE_CLASS && vn->var_type.ptr_depth == 0) {
-        vn->var_type.ptr_depth = 1;
-    }
+    // Allow struct types to remain ptr_depth = 0 so they can be allocated on stack
     
     AlirValue *val = NULL;
     if (vn->initializer) {

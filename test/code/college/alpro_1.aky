@@ -1,5 +1,6 @@
 // sebenarnya ini harusnya trait tapi biarkan namanya masih prototipe, lagi pula ini showcase
-extern int atoi(char*);
+extern int printf(string, ...);
+extern int scanf(string, ...);
 
 class Kecepatan {
   int kecepatan;
@@ -12,15 +13,23 @@ class Waktu {
 // has-a, compo bukan inheritance
 open class Jarak has Waktu, Kecepatan {
   void out() {
-    print "%d\n", this[Waktu].waktu * this[Kecepatan].kecepatan;
+    printf("%d\n", this.waktu * this.kecepatan);
   }
 }
 
 int main() {
-  let t = atoi(input());
-  let v = atoi(input());
+  int t = 0;
+  int v = 0;
+  printf("Masukkan waktu (t): ");
+  scanf("%d", &t);
+  printf("Masukkan kecepatan (v): ");
+  scanf("%d", &v);
+
   Jarak s;
-  s[Kecepatan].kecepatan = v;
-  s[Waktu].waktu = t;
-  s.out()
+  s.kecepatan = v;
+  s.waktu = t;
+  
+  printf("Jarak = ");
+  s.out();
+  return 0;
 }

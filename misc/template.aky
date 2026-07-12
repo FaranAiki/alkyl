@@ -1,0 +1,42 @@
+// Alkyl Language Modular Template
+// Demonstrates how to structure modular, clean code using classes and extern functions.
+
+// Extern functions (linking to standard C libraries like libm and libc)
+link m; 
+
+extern int printf(string, ...);
+extern double sin(double);
+
+// Encapsulate data and behavior in classes
+class Point {
+    double x = 0.0;
+    double y = 0.0;
+
+    // Custom constructor
+    void init(double initialX, double initialY) {
+        this.x = initialX;
+        this.y = initialY;
+    }
+
+    void print_cords() {
+        printf("Point(x: %lf, y: %lf)\n", this.x, this.y);
+    }
+}
+
+// A standard function
+double add_with_sin(int a, double b) {
+    return a + sin(b);
+}
+
+// Main entry point
+int main() {
+    printf("Starting Alkyl Application...\n");
+    
+    let mut result = add_with_sin(10, 3.14);
+    printf("Result: %lf\n", result);
+
+    let p = Point(5.0, 6.5);
+    p.print_cords();
+    
+    return 0;
+}

@@ -69,12 +69,49 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                 member = member->next;
             }
         }
-        if (current_class->parent_name) {
-            current_class = sem_symbol_lookup(ctx, current_class->parent_name, NULL);
-        } else {
-            current_class = NULL;
+            if (current_class->trait_count > 0) {
+                for (int i = 0; i < current_class->trait_count; i++) {
+                    SemSymbol *trait_sym = sem_symbol_lookup(ctx, current_class->traits[i], NULL);
+                    if (trait_sym && trait_sym->inner_scope) {
+                        SemSymbol *member = trait_sym->inner_scope->symbols;
+                        while (member) {
+                            if (strcmp(member->name, node->method_name) == 0) {
+                                if (member->kind == SYM_FUNC) {
+                                    sem_set_node_type(ctx, (ASTNode*)node, member->type); 
+                                    node->owner_class = current_class->name; // or trait_sym->name? Let's use current_class for inheritance flattening
+                                    found = 1;
+                                } else if (member->kind == SYM_VAR && member->type.is_func_ptr) {
+                                    sem_set_node_type(ctx, (ASTNode*)node, *member->type.fp_ret_type);
+                                    found = 1;
+                                }
+                                if (found) {
+                                    int arg_count = 0;
+                                    ASTNode **curr_arg = &node->args;
+                                    while(*curr_arg) {
+                                        sem_check_expr(ctx, *curr_arg);
+                                        
+                                        if (member->kind == SYM_FUNC && member->params && arg_count < member->param_count) {
+                                            sem_insert_implicit_cast(ctx, curr_arg, member->params[arg_count].type);
+                                        }
+                                        
+                                        curr_arg = &(*curr_arg)->next;
+                                        arg_count++;
+                                    }
+                                    goto done_method_search;
+                                }
+                            }
+                            member = member->next;
+                        }
+                    }
+                }
+            }
+            if (current_class->parent_name) {
+                current_class = sem_symbol_lookup(ctx, current_class->parent_name, NULL);
+            } else {
+                current_class = NULL;
+            }
         }
-    }
+
     
     done_method_search:
     if (!found) {

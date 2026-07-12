@@ -36,6 +36,22 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
                     member = member->next;
                 }
             }
+            if (current_class->trait_count > 0) {
+                for (int i = 0; i < current_class->trait_count; i++) {
+                    SemSymbol *trait_sym = sem_symbol_lookup(ctx, current_class->traits[i], NULL);
+                    if (trait_sym && trait_sym->inner_scope) {
+                        SemSymbol *member = trait_sym->inner_scope->symbols;
+                        while (member) {
+                            if (strcmp(member->name, node->member_name) == 0) {
+                                sem_set_node_type(ctx, (ASTNode*)node, member->type);
+                                found = 1;
+                                goto done_search;
+                            }
+                            member = member->next;
+                        }
+                    }
+                }
+            }
             if (current_class->parent_name) {
                 current_class = sem_symbol_lookup(ctx, current_class->parent_name, NULL);
             } else {

@@ -1,0 +1,22 @@
+extern int printf(string, ...);
+
+class Point {
+    double x = 0.0;
+    double y = 0.0;
+
+    void init(double initialX, double initialY) {
+        printf("init called with %lf, %lf\n", initialX, initialY);
+        this.x = initialX;
+        this.y = initialY;
+    }
+
+    void print_cords() {
+        printf("Point(x: %lf, y: %lf)\n", this.x, this.y);
+    }
+}
+
+int main() {
+    let p = Point(5.0, 6.5);
+    p.print_cords();
+    return 0;
+}
