@@ -1,0 +1,13 @@
+{
+    "keyword": "postmeta",
+    "description": "A metaprogramming block evaluated late in the compiler pipeline (after Semantic Analysis, right before ALIR generation). It can inspect the resolved symbol table and inject or modify code based on the actual program state.",
+    "features": [
+        "Evaluated at compile-time (late phase).",
+        "Can check if a variable or function actually exists in the semantic scope.",
+        "Can generate or conditionally compile code based on types and definitions that were analyzed."
+    ],
+    "example": "postmeta {\n    if defined(x) {\n        print(\"Variable x was defined somewhere!\");\n    }\n}\n\nlet mut x = 5;",
+    "constraints": [
+        "Since it runs after semantic analysis, changes made here may skip early semantic checks, so it is often used for ALIR generation rules or late-stage validations."
+    ]
+}

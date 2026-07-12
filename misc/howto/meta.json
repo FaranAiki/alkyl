@@ -1,0 +1,12 @@
+{
+    "keyword": "meta",
+    "description": "A metaprogramming block evaluated early during the parsing/macro stage. Used for conditional compilation, defining constants, or injecting code before semantic analysis begins.",
+    "features": [
+        "Evaluated at compile-time (early phase).",
+        "Perfect for replacing C-style `#ifdef` and `#define`."
+    ],
+    "example": "meta {\n    if defined(LLVM_ENABLE_THREADS) {\n        define MAX_THREADS as 16;\n    } else {\n        define MAX_THREADS as 1;\n    }\n}",
+    "constraints": [
+        "Can only reference symbols and macros known at the parsing stage."
+    ]
+}
