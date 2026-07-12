@@ -184,7 +184,7 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     sym->is_variadic = false;
     sym->is_mutable = true; 
     sym->is_initialized = true; 
-    sym->is_pure = true; // default to false       
+    sym->is_pure = false; // default to false       
     sym->must_pure = false; // default to false       
     sym->is_pristine = true;  
     sym->must_pristine = false;  

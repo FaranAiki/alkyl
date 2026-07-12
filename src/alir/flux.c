@@ -111,7 +111,7 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
         fv = fv->next;
     }
     
-    alir_register_struct(ctx->module, struct_name, fields);
+    alir_register_struct(ctx->module, struct_name, fields, 0);
     
     // 3. Generate INIT Function (The Generator Factory)
     VarType ret_type = {TYPE_CLASS, 1, 0, alir_strdup(ctx->module, struct_name)};

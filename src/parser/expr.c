@@ -270,6 +270,18 @@ ASTNode* parse_factor(Parser *p) {
     node = (ASTNode*)ln;
     set_loc(node, line, col);
   }
+  else if (p->current_token.type == TOKEN_KW_SIZEOF) {
+    eat(p, TOKEN_KW_SIZEOF);
+    eat(p, TOKEN_LPAREN);
+    VarType target_type = parse_type(p);
+    eat(p, TOKEN_RPAREN);
+
+    SizeOfNode *sn = parser_alloc(p, sizeof(SizeOfNode));
+    sn->base.type = NODE_SIZEOF;
+    sn->target_type = target_type;
+    node = (ASTNode*)sn;
+    set_loc(node, line, col);
+  }
   else if (p->current_token.type == TOKEN_IDENTIFIER) {
     char *name = parser_strdup(p, p->current_token.text);
     p->current_token.text = NULL;

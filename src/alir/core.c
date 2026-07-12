@@ -137,8 +137,9 @@ void alir_append_inst(AlirBlock *block, AlirInst *inst) {
     }
 }
 
-void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields) {
+void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields, int is_union) {
     AlirStruct *st = alir_alloc(mod, sizeof(AlirStruct));
+    st->is_union = is_union;
     st->name = alir_strdup(mod, name);
     st->fields = fields;
     

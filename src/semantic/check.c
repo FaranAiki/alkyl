@@ -56,6 +56,9 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             SemSymbol *sym = sem_symbol_add(ctx, cn->name, SYM_CLASS, type_class);
             sym->is_is_a = cn->is_is_a;
             sym->is_has_a = cn->is_has_a;
+            sym->is_pure = cn->is_pure && !cn->is_extern;
+            sym->must_pure = cn->is_pure;
+            sym->is_union = cn->is_union;
             if (cn->parent_name) {
                 sym->parent_name = arena_strdup(ctx->compiler_ctx->arena, cn->parent_name);
             }
@@ -123,10 +126,14 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     }
 
     if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
-        if (sym->kind == SYM_FUNC && !sym->is_pure) {
-            // TODO add modifier st
-            if (ctx->current_func_sym->must_pure)
-            sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot call impure function '%s'", ctx->current_func_sym->name, sym->name);
+        if (!sym->is_pure) {
+            if (ctx->current_func_sym->must_pure) {
+                if (sym->kind == SYM_FUNC) {
+                    sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot call impure function '%s'", ctx->current_func_sym->name, sym->name);
+                } else if (sym->kind == SYM_CLASS) {
+                    sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot use impure class '%s'", ctx->current_func_sym->name, sym->name);
+                }
+            }
             ctx->current_func_sym->is_pure = false;
         }
     }
@@ -271,6 +278,18 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
         case NODE_LITERAL: {
             LiteralNode *lit = (LiteralNode*)node;
             sem_set_node_type(ctx, node, lit->var_type);
+            break;
+        }
+        case NODE_SIZEOF: {
+            SizeOfNode *sn = (SizeOfNode*)node;
+            if (sn->target_type.base == TYPE_CLASS && sn->target_type.ptr_depth == 0) {
+                SemSymbol *sym = sem_symbol_lookup(ctx, sn->target_type.class_name, NULL);
+                if (!sym || sym->kind != SYM_CLASS) {
+                    sem_error(ctx, node, "Unknown class type '%s' in sizeof", sn->target_type.class_name);
+                }
+            }
+            VarType size_type = {TYPE_UNSIGNED_LONG, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+            sem_set_node_type(ctx, node, size_type);
             break;
         }
         case NODE_VAR_REF: {

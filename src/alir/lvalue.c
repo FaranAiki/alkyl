@@ -200,22 +200,24 @@ AlirValue* alir_gen_trait_access(AlirCtx *ctx, TraitAccessNode *ta) {
 
 // TODO add this for literal
 AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
-    switch (ln->var_type.base) {
-        case TYPE_INT:
-            return alir_const_int(ctx->module, ln->val.int_val);
-        case TYPE_LONG:
-            return alir_const_long(ctx->module, ln->val.long_val); 
-        case TYPE_FLOAT:
-            return alir_const_float(ctx->module, ln->val.float_val);
-        case TYPE_DOUBLE:
-            return alir_const_double(ctx->module, ln->val.double_val);
-        case TYPE_UNSIGNED_INT:
-            return alir_const_unsigned_int(ctx->module, ln->val.unsigned_int_val);
-        case TYPE_CHAR:
-            return alir_const_char(ctx->module, ln->val.char_val);
-        case TYPE_UNSIGNED_CHAR:
-            return alir_const_unsigned_char(ctx->module, ln->val.unsigned_char_val);
-        default: break; // TODO here
+    if (ln->var_type.ptr_depth == 0 && ln->var_type.array_size == 0) {
+        switch (ln->var_type.base) {
+            case TYPE_INT:
+                return alir_const_int(ctx->module, ln->val.int_val);
+            case TYPE_LONG:
+                return alir_const_long(ctx->module, ln->val.long_val); 
+            case TYPE_FLOAT:
+                return alir_const_float(ctx->module, ln->val.float_val);
+            case TYPE_DOUBLE:
+                return alir_const_double(ctx->module, ln->val.double_val);
+            case TYPE_UNSIGNED_INT:
+                return alir_const_unsigned_int(ctx->module, ln->val.unsigned_int_val);
+            case TYPE_CHAR:
+                return alir_const_char(ctx->module, ln->val.char_val);
+            case TYPE_UNSIGNED_CHAR:
+                return alir_const_unsigned_char(ctx->module, ln->val.unsigned_char_val);
+            default: break; // TODO here
+        }
     }
     
     if (ln->var_type.base == TYPE_STRING || (ln->var_type.base == TYPE_CHAR && ln->var_type.ptr_depth > 0)) {
@@ -536,19 +538,34 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, func_name), NULL);
     
     int count = 0; ASTNode *a = mc->args; while(a) { count++; a=a->next; }
-    call->arg_count = count + 1;
-    call->args = alir_alloc(ctx->module, sizeof(AlirValue*) * (count + 1));
-    
-    call->args[0] = this_val;
-    int i = 1; a = mc->args;
-    while(a) {
-        AlirValue *arg_val = alir_gen_expr(ctx, a);
-        if (!arg_val) {
-             arg_val = new_temp(ctx, (VarType){TYPE_INT, 0});
-             emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, arg_val, NULL, NULL));
+    if (mc->is_static) {
+        call->arg_count = count;
+        call->args = alir_alloc(ctx->module, sizeof(AlirValue*) * count);
+        int i = 0; a = mc->args;
+        while(a) {
+            AlirValue *arg_val = alir_gen_expr(ctx, a);
+            if (!arg_val) {
+                 arg_val = new_temp(ctx, (VarType){TYPE_INT, 0});
+                 emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, arg_val, NULL, NULL));
+            }
+            call->args[i++] = arg_val;
+            a = a->next;
         }
-        call->args[i++] = arg_val;
-        a = a->next;
+    } else {
+        call->arg_count = count + 1;
+        call->args = alir_alloc(ctx->module, sizeof(AlirValue*) * (count + 1));
+        
+        call->args[0] = this_val;
+        int i = 1; a = mc->args;
+        while(a) {
+            AlirValue *arg_val = alir_gen_expr(ctx, a);
+            if (!arg_val) {
+                 arg_val = new_temp(ctx, (VarType){TYPE_INT, 0});
+                 emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, arg_val, NULL, NULL));
+            }
+            call->args[i++] = arg_val;
+            a = a->next;
+        }
     }
     
     VarType ret_type = sem_get_node_type(ctx->sem, (ASTNode*)mc);
@@ -654,6 +671,15 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_UNARY_OP: return alir_gen_unary_op(ctx, (UnaryOpNode*)node);
         case NODE_INC_DEC: return alir_gen_inc_dec(ctx, (IncDecNode*)node);
         case NODE_CAST: return alir_gen_cast(ctx, (CastNode*)node);
+        case NODE_SIZEOF: {
+            SizeOfNode *sn = (SizeOfNode*)node;
+            AlirValue *dest = new_temp(ctx, sem_get_node_type(ctx->sem, node));
+            AlirValue *type_val = alir_alloc(ctx->module, sizeof(AlirValue));
+            type_val->kind = ALIR_VAL_TYPE; // tell LLVM it's a type 
+            type_val->type = sn->target_type;
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_SIZEOF, dest, type_val, NULL));
+            return dest;
+        }
         case NODE_MEMBER_ACCESS: return alir_gen_access(ctx, node);
         case NODE_ARRAY_ACCESS: return alir_gen_access(ctx, node);
         case NODE_CALL: return alir_gen_call(ctx, (CallNode*)node);

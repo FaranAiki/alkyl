@@ -191,6 +191,7 @@ void report_reason(Lexer *l, Token t, const char *msg) {
 const char* token_type_to_string(TokenType type) {
     switch (type) {
         case TOKEN_EOF: return "EOF";
+        case TOKEN_KW_SIZEOF: return "sizeof";
         case TOKEN_LOOP: return "loop";
         case TOKEN_WHILE: return "while";
         case TOKEN_ONCE: return "once";

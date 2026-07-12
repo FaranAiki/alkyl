@@ -1,0 +1,16 @@
+class A {
+    B* b;
+    int x;
+    int get_b_y() {
+        return b.y; // Is b.y resolved if B is below?
+    }
+}
+
+class B {
+    A* a;
+    int y;
+}
+
+int main() {
+    return 0;
+}

@@ -141,6 +141,7 @@ typedef struct AlirStruct {
     char *name;
     AlirField *fields;
     int field_count;
+    int is_union;
     struct AlirStruct *next;
 } AlirStruct;
 
@@ -219,7 +220,7 @@ typedef struct AlirCtx {
 } AlirCtx;
 
 // Struct & Enum Registry
-void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields);
+void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields, int is_union);
 AlirStruct* alir_find_struct(AlirModule *mod, const char *name);
 int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *field_name);
 

@@ -54,7 +54,12 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             
             // Differentiate Struct GEP (Constant Index) vs Array GEP
             if (ptr_t.base == TYPE_CLASS && ptr_t.ptr_depth == 0 && inst->op2 && inst->op2->kind == ALIR_VAL_CONST) {
-                res = LLVMBuildStructGEP2(ctx->builder, base_ty, op1, (unsigned)inst->op2->val.int_val, "struct_gep");
+                AlirStruct *st = alir_find_struct(ctx->alir_mod, ptr_t.class_name);
+                if (st && st->is_union) {
+                    res = op1;
+                } else {
+                    res = LLVMBuildStructGEP2(ctx->builder, base_ty, op1, (unsigned)inst->op2->val.int_val, "struct_gep");
+                }
             } else {
                 if (inst->op1->type.array_size > 0) {
                     // Proper LLVM GEP indexing for explicit Array types ([N x i32]*)

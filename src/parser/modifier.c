@@ -62,6 +62,8 @@ void apply_class_modifiers(ClassNode* node, int modifiers) {
     if (modifiers & MODIFIER_CLOSED) node->is_open = 0;
     if (modifiers & MODIFIER_STATIC) node->is_static = 1;
     
+    node->is_pure = modifiers & MODIFIER_PURE;
+    
     // IS-A constraints (Inheritance)
     if (modifiers & MODIFIER_FINAL) {
         node->is_is_a = IS_A_FINAL;

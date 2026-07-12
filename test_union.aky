@@ -1,0 +1,19 @@
+extern int printf(string format, ...);
+
+union Value {
+    double d;
+    int i;
+}
+
+int main() {
+    let mut v = Value();
+    v.d = 3.14;
+    printf("d = %f\n", v.d);
+    
+    v.i = 42;
+    printf("i = %d\n", v.i);
+    
+    // Now reading d after writing i (it will be garbage floating point, but the memory works)
+    printf("d after i = %f\n", v.d);
+    return 0;
+}

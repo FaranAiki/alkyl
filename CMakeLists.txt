@@ -10,7 +10,7 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
-add_compile_options(-Wall -Wextra -Werror -g -g0
+add_compile_options(-Wall -Wextra -g -O3 -flto
 -Wno-missing-field-initializers
 )
 

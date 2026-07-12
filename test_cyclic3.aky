@@ -1,0 +1,11 @@
+class A {
+    B b;
+}
+class B {
+    A a;
+}
+
+int main() {
+    let mut a = A(B(A(B(A(0))))); // wait infinite size?
+    return 0;
+}

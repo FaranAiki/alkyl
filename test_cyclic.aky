@@ -1,0 +1,14 @@
+class A {
+    B* b;
+    int x;
+}
+
+class B {
+    A* a;
+    int y;
+}
+
+int main() {
+    let mut a = A(null as B*, 10);
+    return a.x;
+}

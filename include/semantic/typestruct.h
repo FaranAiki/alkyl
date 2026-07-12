@@ -49,6 +49,7 @@ typedef struct SemSymbol {
     bool is_flux : 1;          // Marks a function as a flux generator
     bool must_pure : 1; // Checker to see if it must pure tagged as pure 
     bool must_pristine : 1; // Checker to see if it must pristine tagged as pristine 
+    bool is_union : 1;
 } SemSymbol;
 
 typedef struct SemScope {

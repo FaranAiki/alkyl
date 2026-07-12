@@ -1,0 +1,14 @@
+class A is B {
+    int x;
+}
+
+class B {
+    int y;
+}
+
+int main() {
+    let mut a = A(0, 0); // Implicit constructor args?
+    a.y = 1;
+    a.x = 2;
+    return a.x + a.y;
+}

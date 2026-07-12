@@ -1,0 +1,18 @@
+extern int printf(string format, ...);
+class MyClass {
+    int x;
+}
+
+int main() {
+    let mut c = MyClass(0);
+    c.x = 42;
+    
+    // cast class instance to void*
+    let ptr = c as void*;
+    
+    // cast back
+    let c2 = ptr as MyClass*;
+    
+    printf("c2.x = %d\n", c2.x);
+    return 0;
+}

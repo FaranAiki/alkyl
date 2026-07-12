@@ -43,7 +43,8 @@ typedef enum {
   NODE_EMIT,
   NODE_FOR_IN,
   NODE_WASH, 
-  NODE_CLEAN
+  NODE_CLEAN,
+  NODE_SIZEOF
 } NodeType;
 
 typedef enum {
@@ -157,6 +158,7 @@ typedef struct {
   bool is_union : 1;
   bool is_static : 1; 
   bool is_abstract : 1;
+  bool is_pure : 1;
 } ClassNode;
 
 typedef struct {
@@ -178,6 +180,7 @@ typedef struct {
   bool is_union : 1;
   bool is_static : 1; 
   bool is_abstract : 1;
+  bool is_pure : 1;
 } StructNode;
 
 typedef struct {
@@ -199,6 +202,7 @@ typedef struct {
   bool is_union : 1;
   bool is_static : 1; 
   bool is_abstract : 1;
+  bool is_pure : 1;
 } TraitNode;
 
 typedef struct {
@@ -220,6 +224,7 @@ typedef struct {
   bool is_union : 1;
   bool is_static : 1; 
   bool is_abstract : 1;
+  bool is_pure : 1;
 } ImplNode;
 
 typedef struct EnumEntry {
@@ -436,5 +441,10 @@ typedef struct {
   VarType var_type;
   Value val; 
 } LiteralNode;
+
+typedef struct {
+  ASTNode base;
+  VarType target_type;
+} SizeOfNode;
 
 #endif // PARSER_TYPESTRUCT_H

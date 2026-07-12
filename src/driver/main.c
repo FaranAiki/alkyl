@@ -176,10 +176,14 @@ int main(int argc, char *argv[]) {
   }
 
   codegen_dispose(cg_ctx);
-  // LLVMDisposeModule(module);
+  LLVMDisposeTargetMachine(machine);
+  LLVMContextRef llvm_ctx = LLVMGetModuleContext(module);
+  LLVMDisposeModule(module);
+  LLVMContextDispose(llvm_ctx);
   free(code);
  
   arena_free(&arena);
+  arena_free(&arena_debug);
 
   return 0;
 }

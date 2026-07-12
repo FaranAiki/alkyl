@@ -184,7 +184,7 @@ void pass1_register(AlirCtx *ctx, ASTNode *n) {
     while(n) {
         if (n->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)n;
-            alir_register_struct(ctx->module, cn->name, NULL);
+            alir_register_struct(ctx->module, cn->name, NULL, cn->is_union);
         } else if (n->type == NODE_ENUM) {
             EnumNode *en = (EnumNode*)n;
             AlirEnumEntry *head = NULL;
@@ -364,7 +364,7 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
             *p_tail = p_this; p_tail = &p_this->next;
             p_count++;
 
-            if (st) {
+            if (st && !cn->is_union) {
                 AlirField *f = st->fields;
                 while(f) {
                     Parameter *p = arena_alloc_type(ctx->sem->compiler_ctx->arena, Parameter);
@@ -383,7 +383,7 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
         }
     }
 
-    if (st) {
+    if (st && !cn->is_union) {
         AlirField *f = st->fields;
         while(f) {
             alir_func_add_param(ctx->module, ctx->current_func, f->name, f->type);
@@ -398,7 +398,7 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
     alir_add_symbol(ctx, "this", this_ptr, this_t);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_val_var(ctx->module, "p0"), this_ptr));
 
-    if (st) {
+    if (st && !cn->is_union) {
         AlirField *f = st->fields;
         int p_idx = 1;
         while(f) {

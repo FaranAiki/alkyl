@@ -94,7 +94,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
 
             SemSymbol *sym = sem_symbol_add(ctx, node->name, SYM_VAR, node->var_type);
             sym->is_mutable = node->is_mutable; 
-            sym->is_pure = true;
+            sym->is_pure = node->is_pure;
             sym->must_pure = node->is_pure;
             sym->is_pristine = true;
             sym->must_pristine = node->is_pristine;            
@@ -111,7 +111,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         if (sym) {
             sym->type = node->var_type;
             sym->is_mutable = node->is_mutable;
-            sym->is_pure = true;
+            sym->is_pure = node->is_pure;
             sym->must_pure = node->is_pure;
             sym->is_pristine = true;
             sym->must_pristine = node->is_pristine;

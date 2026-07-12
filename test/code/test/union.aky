@@ -7,16 +7,16 @@ union Registration {
 int main() {
   printf "Testing union!\n";
 
-  Registration jablay;
+  Registration testing;
 
-  jablay.id = 10;
-  printf "10 == %d\n", jablay;
+  testing.id = 10;
+  printf "10 == %d\n", testing;
 
-  jablay = c"bin"; // 4 
-  printf "bin == %s\n", jablay;
-  printf "randm == %d\n", jablay;
+  testing = c"bin"; // 4
+  printf "bin == %s\n", testing;
+  printf "randm == %d\n", testing;
 
-  jablay.idx = 1000000099999000L;
-  printf "what is %ld\n", jablay;
-  printf "what is %d\n", jablay;
+  testing.idx = 1000000099999000L;
+  printf "what is %ld\n", testing;
+  printf "what is %d\n", testing;
 }

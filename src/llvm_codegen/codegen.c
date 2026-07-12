@@ -157,7 +157,58 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                 f = f->next;
             }
             LLVMTypeRef struct_ty = hashmap_get(&ctx->struct_map, st->name);
-            LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
+            
+            if (st->is_union) {
+                LLVMTargetDataRef td = LLVMCreateTargetData("");
+                unsigned long long max_size = 0;
+                unsigned long long max_align = 0;
+                
+                for (int i = 0; i < st->field_count; i++) {
+                    unsigned long long sz = LLVMABISizeOfType(td, field_tys[i]);
+                    unsigned long long al = LLVMABIAlignmentOfType(td, field_tys[i]);
+                    if (sz > max_size) max_size = sz;
+                    if (al > max_align) max_align = al;
+                }
+                
+                LLVMTypeRef best_align_ty = NULL;
+                unsigned long long best_align_sz = 0;
+                for (int i = 0; i < st->field_count; i++) {
+                    unsigned long long sz = LLVMABISizeOfType(td, field_tys[i]);
+                    unsigned long long al = LLVMABIAlignmentOfType(td, field_tys[i]);
+                    if (al == max_align) {
+                        if (sz >= best_align_sz) {
+                            best_align_sz = sz;
+                            best_align_ty = field_tys[i];
+                        }
+                    }
+                }
+                
+                // If there's no struct fields, default to something safe
+                if (!best_align_ty) {
+                    best_align_ty = LLVMInt8TypeInContext(ctx->llvm_ctx);
+                    max_align = 1;
+                    max_size = 1;
+                    best_align_sz = 1;
+                }
+                
+                unsigned long long aligned_max_size = max_align > 0 ? ((max_size + max_align - 1) / max_align * max_align) : max_size;
+                unsigned long long padding = aligned_max_size > best_align_sz ? (aligned_max_size - best_align_sz) : 0;
+                
+                if (padding > 0) {
+                    LLVMTypeRef union_body[2];
+                    union_body[0] = best_align_ty;
+                    union_body[1] = LLVMArrayType(LLVMInt8TypeInContext(ctx->llvm_ctx), padding);
+                    LLVMStructSetBody(struct_ty, union_body, 2, 0);
+                } else {
+                    LLVMTypeRef union_body[1];
+                    union_body[0] = best_align_ty;
+                    LLVMStructSetBody(struct_ty, union_body, 1, 0);
+                }
+                
+                LLVMDisposeTargetData(td);
+            } else {
+                LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
+            }
             free(field_tys);
         }
         st = st->next;

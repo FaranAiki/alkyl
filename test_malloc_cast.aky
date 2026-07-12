@@ -1,0 +1,16 @@
+extern int printf(string format, ...);
+extern void* malloc(int size);
+
+class MethodCallNode {
+    int type;
+    int x;
+}
+
+int main() {
+    let ptr = malloc(sizeof(MethodCallNode)) as MethodCallNode*;
+    ptr.type = 1;
+    ptr.x = 42;
+    
+    printf("ptr.type = %d, ptr.x = %d\n", ptr.type, ptr.x);
+    return 0;
+}

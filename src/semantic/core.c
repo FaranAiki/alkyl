@@ -72,6 +72,43 @@ void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
         }
     }
 }
+// DFS to check for size cycles
+static int check_class_size_cycle(SemanticCtx *ctx, SemSymbol *sym) {
+    if (!sym || sym->kind != SYM_CLASS) return 1;
+    if (sym->must_pure) { // visiting
+        sem_error(ctx, NULL, "Cyclic dependency detected in class '%s' size", sym->name);
+        return 0; // Cycle detected
+    }
+    if (sym->must_pristine) return 1; // already visited
+    
+    sym->must_pure = 1; // mark as visiting
+    
+    // Check parent
+    if (sym->parent_name) {
+        SemSymbol *p = sem_symbol_lookup(ctx, sym->parent_name, NULL);
+        if (p && !check_class_size_cycle(ctx, p)) return 0;
+    }
+    // Check traits
+    for (int i = 0; i < sym->trait_count; i++) {
+        SemSymbol *t = sem_symbol_lookup(ctx, sym->traits[i], NULL);
+        if (t && !check_class_size_cycle(ctx, t)) return 0;
+    }
+    // Check fields
+    if (sym->inner_scope) {
+        SemSymbol *f = sym->inner_scope->symbols;
+        while (f) {
+            if (f->kind == SYM_VAR && f->type.base == TYPE_CLASS && f->type.ptr_depth == 0) {
+                SemSymbol *fsym = sem_symbol_lookup(ctx, f->type.class_name, NULL);
+                if (fsym && !check_class_size_cycle(ctx, fsym)) return 0;
+            }
+            f = f->next;
+        }
+    }
+    
+    sym->must_pure = 0;
+    sym->must_pristine = 1; // marked as fully visited
+    return 1;
+}
 
 void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     char msg[1024];
@@ -143,6 +180,23 @@ int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
             sem_check_node(ctx, curr);
         }
         curr = curr->next;
+    }
+    
+    // Cycle Detection for Class Sizes
+    if (ctx->global_scope) {
+        SemSymbol *gsym = ctx->global_scope->symbols;
+        while (gsym) {
+            if (gsym->kind == SYM_CLASS) {
+                // Clear visit state
+                SemSymbol *r = ctx->global_scope->symbols;
+                while(r) { r->must_pure = 0; r->must_pristine = 0; r = r->next; }
+                if (!check_class_size_cycle(ctx, gsym)) {
+                    // Stop checking further classes if error is hit
+                    break;
+                }
+            }
+            gsym = gsym->next;
+        }
     }
     
     // Final structural validations (naked, reactive) globally

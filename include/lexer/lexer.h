@@ -112,6 +112,7 @@ typedef enum {
   TOKEN_KW_STRING, 
   TOKEN_KW_LET,    
   TOKEN_KW_VECTOR, // NEW VECTOR TOKEN
+  TOKEN_KW_SIZEOF,
 
   TOKEN_KW_SHORT,
   TOKEN_KW_LONG,
@@ -254,6 +255,7 @@ static const KeywordDef keywords[] = {
     {"return", TOKEN_RETURN},
     {"short", TOKEN_KW_SHORT},
     {"single", TOKEN_KW_SINGLE},
+    {"sizeof", TOKEN_KW_SIZEOF},
     {"string", TOKEN_KW_STRING},
     {"struct", TOKEN_STRUCT},
     {"switch", TOKEN_SWITCH},
