@@ -1,0 +1,24 @@
+extern printf;
+
+union Registration {
+  int id;
+  char name[4];
+  long idx;
+};
+
+int main() {
+  printf "Testing union!\n";
+
+  Registration testing;
+
+  testing.id = 10;
+  printf "10 == %d\n", testing;
+
+  testing = c"bin"; // 4
+  printf "bin == %s\n", testing;
+  printf "randm == %d\n", testing;
+
+  testing.idx = 1000000099999000L;
+  printf "what is %ld\n", testing;
+  printf "what is %d\n", testing;
+}
