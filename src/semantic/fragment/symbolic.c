@@ -17,6 +17,13 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
         sym->param_count++;
         p = p->next;
     }
+    
+    char *mangled = fd->name;
+    if (!fd->is_extern && strcmp(fd->name, "main") != 0) {
+        mangled = sem_mangle_func_name(ctx, fd->class_name, fd->name, fd->params);
+    }
+    sym->mangled_name = mangled;
+    fd->mangled_name = mangled;
 }
 
 void sem_symbolic_var_decl(SemanticCtx *ctx, ASTNode *node) {

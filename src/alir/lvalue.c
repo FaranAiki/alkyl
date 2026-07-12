@@ -436,7 +436,8 @@ AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
 
 
 AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
-    AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, cn->name), NULL);
+    const char *func_name = cn->mangled_name ? cn->mangled_name : cn->name;
+    AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, func_name), NULL);
     
     int count = 0; ASTNode *a = cn->args; while(a) { count++; a=a->next; }
     call->arg_count = count;
@@ -525,8 +526,12 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     }
 
     char func_name[256];
-    if (cname) snprintf(func_name, 256, "%s_%s", cname, mc->method_name);
-    else snprintf(func_name, 256, "%s", mc->method_name);
+    if (mc->mangled_name) {
+        snprintf(func_name, 256, "%s", mc->mangled_name);
+    } else {
+        if (cname) snprintf(func_name, 256, "%s_%s", cname, mc->method_name);
+        else snprintf(func_name, 256, "%s", mc->method_name);
+    }
 
     AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, func_name), NULL);
     

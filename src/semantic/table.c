@@ -1,4 +1,5 @@
 #include "semantic.h"
+#include "common/hashmap.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -101,6 +102,10 @@ int sem_get_node_impure(SemanticCtx *ctx, ASTNode *node) {
 }
 
 static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
+    if (scope->symbol_map) {
+        return (SemSymbol*)hashmap_get((HashMap*)scope->symbol_map, name);
+    }
+    // Fallback if hashmap is not initialized
     SemSymbol *sym = scope->symbols;
     while (sym) {
         if (strcmp(sym->name, name) == 0) return sym;
@@ -115,6 +120,8 @@ void sem_init(SemanticCtx *ctx, CompilerContext *compiler_ctx) {
     if (compiler_ctx && compiler_ctx->arena) {
         ctx->global_scope = arena_alloc_type(compiler_ctx->arena, SemScope);
         memset(ctx->global_scope, 0, sizeof(SemScope));
+        ctx->global_scope->symbol_map = arena_alloc_type(compiler_ctx->arena, HashMap);
+        hashmap_init((HashMap*)ctx->global_scope->symbol_map, compiler_ctx->arena, 64);
     }
     
     ctx->current_scope = ctx->global_scope;
@@ -146,6 +153,8 @@ void sem_scope_enter(SemanticCtx *ctx, int is_func, VarType ret_type) {
     memset(new_scope, 0, sizeof(SemScope));
 
     new_scope->symbols = NULL;
+    new_scope->symbol_map = arena_alloc_type(ctx->compiler_ctx->arena, HashMap);
+    hashmap_init((HashMap*)new_scope->symbol_map, ctx->compiler_ctx->arena, 16);
     new_scope->parent = ctx->current_scope;
     new_scope->is_function_scope = is_func;
     new_scope->is_class_scope = 0; 
@@ -183,8 +192,23 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     
     sym->next = ctx->current_scope->symbols;
     ctx->current_scope->symbols = sym;
+    
+    if (ctx->current_scope->symbol_map) {
+        SemSymbol *existing = hashmap_get((HashMap*)ctx->current_scope->symbol_map, sym->name);
+        if (existing && existing->kind == SYM_FUNC && sym->kind == SYM_FUNC) {
+            // printf("Adding overload %s to existing %s\n", sym->mangled_name, existing->mangled_name);
+            SemSymbol *last = existing;
+            while (last->overload_next) last = last->overload_next;
+            last->overload_next = sym;
+        } else {
+            // printf("Adding new symbol %s\n", sym->name);
+            hashmap_put((HashMap*)ctx->current_scope->symbol_map, sym->name, sym);
+        }
+    }
+    
     return sym;
 }
+
 
 SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_scope) {
     SemScope *scope = ctx->current_scope;
@@ -405,4 +429,55 @@ char* sem_type_to_str(VarType t) {
     }
 
     return buf;
+}
+char* sem_mangle_type(VarType t) {
+    const char *base = "unknown";
+    switch(t.base) {
+        case TYPE_INT: base = "i32"; break;
+        case TYPE_SHORT: base = "i16"; break;
+        case TYPE_LONG: base = "i64"; break;
+        case TYPE_LONG_LONG: base = "i64"; break;
+        case TYPE_CHAR: base = "i8"; break;
+        case TYPE_BOOL: base = "bool"; break;
+        case TYPE_FLOAT: base = "f32"; break;
+        case TYPE_DOUBLE: base = "f64"; break;
+        case TYPE_LONG_DOUBLE: base = "f64"; break;
+        case TYPE_VOID: base = "void"; break;
+        case TYPE_STRING: base = "str"; break;
+        case TYPE_CLASS: base = t.class_name ? t.class_name : "class"; break;
+        case TYPE_ENUM: base = t.class_name ? t.class_name : "enum"; break;
+        default: base = "any"; break;
+    }
+    
+    static char buf[256];
+    int pos = snprintf(buf, 256, "%s", base);
+    for (int i = 0; i < t.ptr_depth; i++) {
+        pos += snprintf(buf + pos, 256 - pos, "_p");
+    }
+    for (int i = 0; i < t.array_size; i++) {
+        pos += snprintf(buf + pos, 256 - pos, "_arr"); // Just generic array mangling for now
+    }
+    return buf;
+}
+
+char* sem_mangle_func_name(SemanticCtx *ctx, const char *class_name, const char *base_name, Parameter *params) {
+    char buf[1024];
+    int pos = 0;
+    
+    if (class_name) {
+        pos += snprintf(buf + pos, 1024 - pos, "%s_%s", class_name, base_name);
+    } else {
+        pos += snprintf(buf + pos, 1024 - pos, "%s", base_name);
+    }
+    
+    Parameter *p = params;
+    while (p) {
+        pos += snprintf(buf + pos, 1024 - pos, "_%s", sem_mangle_type(p->type));
+        p = p->next;
+    }
+    
+    if (ctx && ctx->compiler_ctx && ctx->compiler_ctx->arena) {
+        return arena_strdup(ctx->compiler_ctx->arena, buf);
+    }
+    return strdup(buf);
 }

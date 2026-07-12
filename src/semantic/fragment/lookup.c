@@ -16,9 +16,17 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
     // TODO fix this parsing for current_class!
     while (current_class) {
         if (current_class->inner_scope) {
-            SemSymbol *member = current_class->inner_scope->symbols;
-            while (member) {
-                if (strcmp(member->name, node->method_name) == 0) {
+            SemSymbol *member = NULL;
+            if (current_class->inner_scope->symbol_map) {
+                member = hashmap_get((HashMap*)current_class->inner_scope->symbol_map, node->method_name);
+            } else {
+                member = current_class->inner_scope->symbols;
+                while (member && strcmp(member->name, node->method_name) != 0) {
+                    member = member->next;
+                }
+            }
+            if (member) {
+
                     
                     if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
                         if (member->kind == SYM_FUNC && !member->is_pure) {
@@ -51,22 +59,21 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                     }
 
                     if (found) {
-                        int arg_count = 0;
-                        ASTNode **curr_arg = &node->args;
-                        while(*curr_arg) {
-                            sem_check_expr(ctx, *curr_arg);
-                            
-                            if (member->kind == SYM_FUNC && member->params && arg_count < member->param_count) {
-                                sem_insert_implicit_cast(ctx, curr_arg, member->params[arg_count].type);
+                        if (member->kind == SYM_FUNC) {
+                            SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, member, (ASTNode*)node);
+                            if (resolved) {
+                                node->mangled_name = resolved->mangled_name;
                             }
-                            
-                            curr_arg = &(*curr_arg)->next;
-                            arg_count++;
+                        } else {
+                            // Var func ptr call etc
+                            ASTNode **curr_arg = &node->args;
+                            while(*curr_arg) {
+                                sem_check_expr(ctx, *curr_arg);
+                                curr_arg = &(*curr_arg)->next;
+                            }
                         }
                         goto done_method_search;
                     }
-                }
-                member = member->next;
             }
         }
             if (current_class->trait_count > 0) {

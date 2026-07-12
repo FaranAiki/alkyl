@@ -13,6 +13,7 @@ typedef enum {
 
 typedef struct SemSymbol {
     char *name;
+    char *mangled_name;
     SymbolKind kind;
     VarType type;         // For VAR, FUNC (return type)
     
@@ -35,6 +36,7 @@ typedef struct SemSymbol {
     // Scope linkage
     struct SemScope *inner_scope; 
     struct SemSymbol *next; // Linked list bucket
+    struct SemSymbol *overload_next; // Overload chain
     
     // Packed bitfields
     // TODO add so that it can be 16 bit
@@ -51,6 +53,7 @@ typedef struct SemSymbol {
 
 typedef struct SemScope {
     SemSymbol *symbols;
+    void *symbol_map; // Actually HashMap, opaque to avoid include hell
     struct SemScope *parent;
     SemSymbol *class_sym;  // Pointer to the Class Symbol this scope belongs to (for inheritance)
     VarType expected_ret_type; 

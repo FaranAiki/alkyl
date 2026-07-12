@@ -430,14 +430,18 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
     }
 
     char func_name[256];
-    if (class_name) {
-        if (strcmp(fn->name, "init") == 0 || strcmp(fn->name, class_name) == 0) {
-            snprintf(func_name, sizeof(func_name), "%s", class_name);
-        } else {
-            snprintf(func_name, sizeof(func_name), "%s_%s", class_name, fn->name);
-        }
+    if (fn->mangled_name) {
+        snprintf(func_name, sizeof(func_name), "%s", fn->mangled_name);
     } else {
-        snprintf(func_name, sizeof(func_name), "%s", fn->name);
+        if (class_name) {
+            if (strcmp(fn->name, "init") == 0 || strcmp(fn->name, class_name) == 0) {
+                snprintf(func_name, sizeof(func_name), "%s", class_name);
+            } else {
+                snprintf(func_name, sizeof(func_name), "%s_%s", class_name, fn->name);
+            }
+        } else {
+            snprintf(func_name, sizeof(func_name), "%s", fn->name);
+        }
     }
 
     ctx->current_func = alir_add_function(ctx->module, func_name, fn->ret_type, 0);

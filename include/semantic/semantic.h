@@ -19,6 +19,7 @@ void sem_scope_exit(SemanticCtx *ctx);
 SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, VarType type);
 
 SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_scope);
+SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_count, SemSymbol *first_sym, ASTNode *err_node);
 
 void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type);
 VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node);
@@ -30,6 +31,7 @@ int sem_get_node_impure(SemanticCtx *ctx, ASTNode *node);
 
 bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src);
 char* sem_type_to_str(VarType t);
+char* sem_mangle_func_name(SemanticCtx *ctx, const char *class_name, const char *base_name, Parameter *params);
 
 void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...);
 void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...);

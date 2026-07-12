@@ -25,9 +25,16 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
 
         int found = 0;
         if (ns_sym->inner_scope) {
-            SemSymbol *member = ns_sym->inner_scope->symbols;
-            while (member) {
-                if (strcmp(member->name, node->method_name) == 0) {
+            SemSymbol *member = NULL;
+            if (ns_sym->inner_scope->symbol_map) {
+                member = hashmap_get((HashMap*)ns_sym->inner_scope->symbol_map, node->method_name);
+            } else {
+                member = ns_sym->inner_scope->symbols;
+                while (member && strcmp(member->name, node->method_name) != 0) {
+                    member = member->next;
+                }
+            }
+            if (member) {
                     if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
                         if (member->kind == SYM_FUNC && !member->is_pure) {
                             sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot call impure method '%s'", ctx->current_func_sym->name, member->name);
@@ -59,20 +66,21 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                     }
 
                     if (found) {
-                        int arg_count = 0;
-                        ASTNode **curr_arg = &node->args;
-                        while(*curr_arg) {
-                            sem_check_expr(ctx, *curr_arg);
-                            if (member->kind == SYM_FUNC && member->params && arg_count < member->param_count) {
-                                sem_insert_implicit_cast(ctx, curr_arg, member->params[arg_count].type);
+                        if (member->kind == SYM_FUNC) {
+                            SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, member, (ASTNode*)node);
+                            if (resolved) {
+                                node->mangled_name = resolved->mangled_name;
                             }
-                            curr_arg = &(*curr_arg)->next;
-                            arg_count++;
+                        } else {
+                            // Var func ptr call etc
+                            ASTNode **curr_arg = &node->args;
+                            while(*curr_arg) {
+                                sem_check_expr(ctx, *curr_arg);
+                                curr_arg = &(*curr_arg)->next;
+                            }
                         }
                         goto done_ns_method_search;
                     }
-                }
-                member = member->next;
             }
         }
         

@@ -124,6 +124,8 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
     memset(class_scope, 0, sizeof(SemScope));
 
     class_scope->symbols = NULL;
+    class_scope->symbol_map = arena_alloc_type(ctx->compiler_ctx->arena, HashMap);
+    hashmap_init((HashMap*)class_scope->symbol_map, ctx->compiler_ctx->arena, 16);
     class_scope->parent = ctx->current_scope; 
     class_scope->is_function_scope = 0;
     class_scope->is_class_scope = 1; 
