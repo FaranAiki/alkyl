@@ -127,8 +127,10 @@ set(COMMON_SOURCES
   ${HELPER_SOURCES}
 )
 
-add_executable(alkyl src/driver/main.c ${COMMON_SOURCES})
-add_executable(alkyl-cli src/driver/cli.c ${COMMON_SOURCES})
+add_executable(alkyl src/meta/eval.c
+    src/driver/main.c ${COMMON_SOURCES})
+add_executable(alkyl-cli src/meta/eval.c
+    src/driver/cli.c ${COMMON_SOURCES})
 
 # Headers
 target_include_directories(alkyl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${LLVM_INCLUDE_DIRS})
