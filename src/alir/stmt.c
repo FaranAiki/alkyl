@@ -32,6 +32,8 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_WASH:
             break;
         case NODE_SIZEOF:
+    case NODE_META:
+    case NODE_POSTMETA:
             alir_gen_expr(ctx, node);
             break;
         case NODE_VAR_DECL: {

@@ -366,6 +366,21 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
   if (p->current_token.type == TOKEN_EMIT) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_emit(p); }
   if (p->current_token.type == TOKEN_FOR) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_for_in(p); }
 
+  if (p->current_token.type == TOKEN_META || p->current_token.type == TOKEN_POSTMETA) {
+      if(modifiers) parser_fail(p, "Modifiers not allowed");
+      bool is_post = (p->current_token.type == TOKEN_POSTMETA);
+      eat(p, p->current_token.type);
+      eat(p, TOKEN_LBRACE);
+      ASTNode *body_head = parse_statements(p);
+      eat(p, TOKEN_RBRACE);
+      MetaNode *mn = parser_alloc(p, sizeof(MetaNode));
+      mn->base.type = is_post ? NODE_POSTMETA : NODE_META;
+      mn->is_post = is_post;
+      mn->body = body_head;
+      set_loc((ASTNode*)mn, line, col);
+      return (ASTNode*)mn;
+  }
+
   VarType peek_t = parse_type(p); 
   if (peek_t.base != TYPE_UNKNOWN) {
       if (peek_t.base == TYPE_CLASS && p->current_token.type == TOKEN_LPAREN) {

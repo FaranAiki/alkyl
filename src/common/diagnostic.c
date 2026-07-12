@@ -248,8 +248,10 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_UNION: return "union";
         case TOKEN_IS: return "is";
         case TOKEN_HAS: return "has";
-        case TOKEN_OPEN: return "open";
-        case TOKEN_CLOSED: return "closed";
+        case TOKEN_OPEN: return "'open'";
+        case TOKEN_CLOSED: return "'closed'";
+        case TOKEN_META: return "'meta'";
+        case TOKEN_POSTMETA: return "'postmeta'";
         case TOKEN_PUBLIC: return "public";
         case TOKEN_PRIVATE: return "private";
         case TOKEN_FINAL: return "final";

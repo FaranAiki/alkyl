@@ -457,6 +457,20 @@ ASTNode* parse_top_level(Parser *p) {
   if (p->current_token.type == TOKEN_DEFINE) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_define(p); }
   if (p->current_token.type == TOKEN_TYPEDEF) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_typedef(p); }
   if (p->current_token.type == TOKEN_ENUM) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_enum(p); }
+
+  if (p->current_token.type == TOKEN_META || p->current_token.type == TOKEN_POSTMETA) {
+      if(modifiers) parser_fail(p, "Modifiers not allowed");
+      bool is_post = (p->current_token.type == TOKEN_POSTMETA);
+      eat(p, p->current_token.type);
+      eat(p, TOKEN_LBRACE);
+      ASTNode *body_head = parse_statements(p);
+      eat(p, TOKEN_RBRACE);
+      MetaNode *mn = parser_alloc(p, sizeof(MetaNode));
+      mn->base.type = is_post ? NODE_POSTMETA : NODE_META;
+      mn->is_post = is_post;
+      mn->body = body_head;
+      return (ASTNode*)mn;
+  }
  
   // TODO separate this
   if (p->current_token.type == TOKEN_CLASS || 

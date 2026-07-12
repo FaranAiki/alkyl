@@ -280,7 +280,10 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             sem_set_node_type(ctx, node, lit->var_type);
             break;
         }
-        case NODE_SIZEOF: {
+        case NODE_SIZEOF:
+    case NODE_META:
+    case NODE_POSTMETA:
+        break; {
             SizeOfNode *sn = (SizeOfNode*)node;
             if (sn->target_type.base == TYPE_CLASS && sn->target_type.ptr_depth == 0) {
                 SemSymbol *sym = sem_symbol_lookup(ctx, sn->target_type.class_name, NULL);

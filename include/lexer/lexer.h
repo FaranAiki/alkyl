@@ -62,6 +62,8 @@ typedef enum {
   TOKEN_DEFINE, 
   TOKEN_AS,     
   TOKEN_TYPEDEF, 
+  TOKEN_META,
+  TOKEN_POSTMETA,
 
   // OOP Keywords
   TOKEN_UNION,  
@@ -239,6 +241,7 @@ static const KeywordDef keywords[] = {
     {"link", TOKEN_LINK},
     {"long", TOKEN_KW_LONG},
     {"loop", TOKEN_LOOP},
+    {"meta", TOKEN_META},
     {"mut", TOKEN_KW_MUT},
     {"mutable", TOKEN_KW_MUT},
     {"naked", TOKEN_NAKED},
@@ -246,6 +249,7 @@ static const KeywordDef keywords[] = {
     {"not", TOKEN_NOT},
     {"once", TOKEN_ONCE},
     {"open", TOKEN_OPEN},
+    {"postmeta", TOKEN_POSTMETA},
     {"private", TOKEN_PRIVATE},
     {"pristine", TOKEN_PRISTINE},
     {"public", TOKEN_PUBLIC},

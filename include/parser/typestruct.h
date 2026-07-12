@@ -44,7 +44,9 @@ typedef enum {
   NODE_FOR_IN,
   NODE_WASH, 
   NODE_CLEAN,
-  NODE_SIZEOF
+  NODE_SIZEOF,
+  NODE_META,
+  NODE_POSTMETA
 } NodeType;
 
 typedef enum {
@@ -446,5 +448,11 @@ typedef struct {
   ASTNode base;
   VarType target_type;
 } SizeOfNode;
+
+typedef struct {
+  ASTNode base;
+  bool is_post;
+  ASTNode *body;
+} MetaNode;
 
 #endif // PARSER_TYPESTRUCT_H
