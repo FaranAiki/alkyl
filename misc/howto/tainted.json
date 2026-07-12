@@ -1,0 +1,12 @@
+{
+    "keyword": "tainted",
+    "description": "Marks a variable or function as potentially dangerous or originating from an untrusted source.",
+    "features": [
+        "Data flow tracking for security and safety.",
+        "Tainted variables cannot be passed to pure functions."
+    ],
+    "example": "let tainted input = get_user_input();\n// pure_func(input); // Error: cannot pass tainted data to pure function",
+    "constraints": [
+        "Cannot be used where pristine data is strictly required."
+    ]
+}

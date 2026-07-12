@@ -1,0 +1,11 @@
+{
+    "keyword": "void",
+    "description": "Indicates the absence of a type, typically used as the return type for functions that do not return a value, or as a raw memory pointer `void*`.",
+    "features": [
+        "Raw memory manipulation via `void*`."
+    ],
+    "example": "pure void print_hello() { ... }\nlet ptr = malloc(8) as void*;",
+    "constraints": [
+        "Cannot declare variables of type `void` (except as pointers)."
+    ]
+}

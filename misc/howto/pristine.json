@@ -1,0 +1,9 @@
+{
+    "keyword": "pristine",
+    "description": "Marks a variable as strictly clean and trusted. If tainted data is assigned to it, the compiler will trigger an error or automatically downgrade the variable to tainted if not strictly enforced.",
+    "features": [
+        "Safety guarantees for critical variables."
+    ],
+    "example": "let pristine query = c\"SELECT * FROM users\";",
+    "constraints": []
+}
