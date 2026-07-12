@@ -462,9 +462,18 @@ ASTNode* parse_top_level(Parser *p) {
       if(modifiers) parser_fail(p, "Modifiers not allowed");
       bool is_post = (p->current_token.type == TOKEN_POSTMETA);
       eat(p, p->current_token.type);
-      eat(p, TOKEN_LBRACE);
-      ASTNode *body_head = parse_statements(p);
-      eat(p, TOKEN_RBRACE);
+      
+      ASTNode *body_head = NULL;
+      if (p->current_token.type == TOKEN_IF) {
+          body_head = parse_if(p);
+      } else if (p->current_token.type == TOKEN_WHILE) {
+          body_head = parse_while(p);
+      } else {
+          eat(p, TOKEN_LBRACE);
+          body_head = parse_statements(p);
+          eat(p, TOKEN_RBRACE);
+      }
+      
       MetaNode *mn = parser_alloc(p, sizeof(MetaNode));
       mn->base.type = is_post ? NODE_POSTMETA : NODE_META;
       mn->is_post = is_post;
