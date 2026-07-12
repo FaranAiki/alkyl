@@ -232,9 +232,56 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
 
     if (lhs_type.base != TYPE_UNKNOWN && rhs_type.base != TYPE_UNKNOWN) {
         if (!sem_types_are_compatible(ctx,lhs_type, rhs_type)) {
-             char *t1 = sem_type_to_str(lhs_type);
-             char *t2 = sem_type_to_str(rhs_type);
-             sem_error(ctx, (ASTNode*)node, "Invalid assignment. Cannot assign '%s' to '%s'", t2, t1);
+            // Check if lhs_type is a union, and if one of its fields is compatible
+            int union_matched = 0;
+            if (lhs_type.base == TYPE_CLASS && lhs_type.ptr_depth <= 1 && lhs_type.class_name) {
+                SemSymbol *sym = sem_symbol_lookup(ctx, lhs_type.class_name, NULL);
+                if (sym && sym->kind == SYM_CLASS && sym->is_union && sym->inner_scope) {
+                    SemSymbol *f = sym->inner_scope->symbols;
+                    while(f) {
+                        if (f->kind == SYM_VAR && sem_types_are_compatible(ctx, f->type, rhs_type)) {
+                            ASTNode *base_target = node->target;
+                            if (!base_target && node->name) {
+                                VarRefNode *vr = arena_alloc_type(ctx->compiler_ctx->arena, VarRefNode);
+                                memset(vr, 0, sizeof(VarRefNode));
+                                vr->base.type = NODE_VAR_REF;
+                                vr->base.line = node->base.line;
+                                vr->base.col = node->base.col;
+                                vr->name = node->name;
+                                sem_set_node_type(ctx, (ASTNode*)vr, lhs_type);
+                                base_target = (ASTNode*)vr;
+                                node->name = NULL;
+                            }
+                            
+                            if (base_target) {
+                                MemberAccessNode *ma = arena_alloc_type(ctx->compiler_ctx->arena, MemberAccessNode);
+                                memset(ma, 0, sizeof(MemberAccessNode));
+                                ma->base.type = NODE_MEMBER_ACCESS;
+                                ma->base.line = node->base.line;
+                                ma->base.col = node->base.col;
+                                ma->object = base_target;
+                                ma->member_name = arena_strdup(ctx->compiler_ctx->arena, f->name);
+                                
+                                sem_set_node_type(ctx, (ASTNode*)ma, f->type);
+                                node->target = (ASTNode*)ma;
+                                lhs_type = f->type; // Update lhs_type
+                                union_matched = 1;
+                            }
+                            break;
+                        }
+                        f = f->next;
+                    }
+                }
+            }
+            
+            if (!union_matched) {
+                 char *t1 = sem_type_to_str(lhs_type);
+                 char *t2 = sem_type_to_str(rhs_type);
+                 sem_error(ctx, (ASTNode*)node, "Invalid assignment. Cannot assign '%s' to '%s'", t2, t1);
+            } else {
+                 sem_check_implicit_cast(ctx, (ASTNode*)node, lhs_type, rhs_type);
+                 sem_set_node_type(ctx, (ASTNode*)node, lhs_type);
+            }
         } else {
              sem_check_implicit_cast(ctx, (ASTNode*)node, lhs_type, rhs_type);
              sem_set_node_type(ctx, (ASTNode*)node, lhs_type);
