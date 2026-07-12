@@ -333,6 +333,8 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
     if (dest.base == TYPE_AUTO) return true; 
     
     if (dest.base == TYPE_STRING && src.base == TYPE_CHAR) return true;
+    if (src.base == TYPE_STRING && dest.base == TYPE_CHAR) return true; // Adding this just in case
+    if (dest.base == TYPE_CHAR && src.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0) && (src.ptr_depth > 0 || src.array_size > 0)) return true;
     
     // TODO make this more proper!
     if ((dest.base == TYPE_VOID /*&& dest.ptr_depth > 0*/) || (src.base == TYPE_VOID /*&& src.ptr_depth > 0*/)) return true;
