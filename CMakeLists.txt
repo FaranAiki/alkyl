@@ -56,6 +56,10 @@ set(FRONTEND_SOURCES
     src/parser/core.c 
     src/parser/expr.c 
     src/parser/stmt.c 
+    src/parser/fragment/cond.c
+    src/parser/fragment/loop.c
+    src/parser/fragment/decl.c
+    src/parser/fragment/class.c
     src/parser/top.c 
     src/parser/emitter.c  
     src/parser/link.c  

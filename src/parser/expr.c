@@ -2,9 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-static void set_loc(ASTNode *n, int line, int col) {
-    if (n) { n->line = line; n->col = col; }
-}
 
 ASTNode* parse_unary(Parser *p);
 

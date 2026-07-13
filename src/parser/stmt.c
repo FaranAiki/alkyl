@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static void eat_semi(Parser *p) {
+void eat_semi(Parser *p) {
     if (p->current_token.type == TOKEN_SEMICOLON) {
         eat(p, TOKEN_SEMICOLON);
     } else if (p->current_token.type == TOKEN_ELSE || 
@@ -18,7 +18,7 @@ static void eat_semi(Parser *p) {
     }
 }
 
-static void set_loc(ASTNode *n, int line, int col) {
+void set_loc(ASTNode *n, int line, int col) {
     if(n) { n->line = line; n->col = col; }
 }
 
@@ -50,53 +50,6 @@ ASTNode* parse_emit(Parser *p) {
     EmitNode *node = parser_alloc(p, sizeof(EmitNode));
     node->base.type = NODE_EMIT;
     node->value = val;
-    set_loc((ASTNode*)node, line, col);
-    return (ASTNode*)node;
-}
-
-ASTNode* parse_for_in(Parser *p) {
-    int line = p->current_token.line, col = p->current_token.col;
-    eat(p, TOKEN_FOR);
-    
-    if (p->settings.require_parens_for_conditions) eat(p, TOKEN_LPAREN);
-    
-    if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected identifier after 'for'");
-    char *var_name = parser_strdup(p, p->current_token.text);
-    eat(p, TOKEN_IDENTIFIER);
-    
-    if (p->current_token.type != TOKEN_IN) parser_fail(p, "Expected 'in' after variable in for-loop");
-    eat(p, TOKEN_IN);
-    
-    ASTNode *collection = parse_expression(p);
-    
-    if (p->settings.require_parens_for_conditions) eat(p, TOKEN_RPAREN);
-    ASTNode *body = parse_single_statement_or_block(p);
-    
-    ForInNode *node = parser_alloc(p, sizeof(ForInNode));
-    node->base.type = NODE_FOR_IN;
-    node->var_name = var_name;
-    node->collection = collection;
-    node->body = body;
-    set_loc((ASTNode*)node, line, col);
-    return (ASTNode*)node;
-}
-
-ASTNode* parse_break(Parser *p) {
-    int line = p->current_token.line, col = p->current_token.col;
-    eat(p, TOKEN_BREAK);
-    eat_semi(p);
-    BreakNode *node = parser_alloc(p, sizeof(BreakNode));
-    node->base.type = NODE_BREAK;
-    set_loc((ASTNode*)node, line, col);
-    return (ASTNode*)node;
-}
-
-ASTNode* parse_continue(Parser *p) {
-    int line = p->current_token.line, col = p->current_token.col;
-    eat(p, TOKEN_CONTINUE);
-    eat_semi(p);
-    ContinueNode *node = parser_alloc(p, sizeof(ContinueNode));
-    node->base.type = NODE_CONTINUE;
     set_loc((ASTNode*)node, line, col);
     return (ASTNode*)node;
 }
@@ -235,96 +188,6 @@ ASTNode* parse_assignment_or_call(Parser *p) {
   else exit(1);
 
   return NULL;
-}
-
-ASTNode* parse_var_decl_internal(Parser *p) {
-  int line = p->current_token.line, col = p->current_token.col;
-  int is_mut = 1; 
-  if (p->current_token.type == TOKEN_KW_MUT) { is_mut = 1; eat(p, TOKEN_KW_MUT); }
-  else if (p->current_token.type == TOKEN_KW_IMUT) { is_mut = 0; eat(p, TOKEN_KW_IMUT); }
-  
-  VarType vtype = parse_type(p);
-
-  if (p->current_token.type == TOKEN_LPAREN) {
-      char *name = NULL;
-      vtype = parse_func_ptr_decl(p, vtype, &name);
-      
-      ASTNode *init = NULL;
-      if (p->current_token.type == TOKEN_ASSIGN) {
-          eat(p, TOKEN_ASSIGN);
-          init = parse_expression(p);
-      }
-      eat_semi(p);
-      
-      VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
-      node->base.type = NODE_VAR_DECL;
-      node->var_type = vtype;
-      node->name = name;
-      node->initializer = init;
-      node->is_mutable = is_mut;
-      set_loc((ASTNode*)node, line, col);
-      return (ASTNode*)node;
-  }
-
-  if (p->current_token.type == TOKEN_KW_MUT) { is_mut = 1; eat(p, TOKEN_KW_MUT); }
-  else if (p->current_token.type == TOKEN_KW_IMUT) { is_mut = 0; eat(p, TOKEN_KW_IMUT); }
-
-  if (p->current_token.type != TOKEN_IDENTIFIER) { 
-      parser_fail(p, "Expected variable name after type in declaration"); 
-  }
-  char *name = p->current_token.text;
-  p->current_token.text = NULL;
-  eat(p, TOKEN_IDENTIFIER);
-  
-  if (p->settings.allow_postfix_types && p->current_token.type == TOKEN_COLON) {
-      eat(p, TOKEN_COLON);
-      VarType pt = parse_type(p);
-      if (pt.base != TYPE_UNKNOWN) {
-          vtype = pt;
-      }
-  }
-  
-  int is_array = 0;
-  ASTNode *array_size = NULL;
-  ASTNode **curr_sz = &array_size;
-  
-  while (p->current_token.type == TOKEN_LBRACKET) {
-    is_array = 1;
-    vtype.ptr_depth++; 
-    eat(p, TOKEN_LBRACKET);
-    ASTNode *sz = NULL;
-    if (p->current_token.type != TOKEN_RBRACKET) {
-      sz = parse_expression(p);
-    } else {
-        LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
-        ln->base.type = NODE_LITERAL;
-        ln->var_type.base = TYPE_INT;
-        ln->val.int_val = 0;
-        sz = (ASTNode*)ln;
-    }
-    *curr_sz = sz;
-    curr_sz = &sz->next;
-    eat(p, TOKEN_RBRACKET);
-  }
-
-  ASTNode *init = NULL;
-  if (p->current_token.type == TOKEN_ASSIGN) {
-    eat(p, TOKEN_ASSIGN);
-    init = parse_expression(p);
-  }
-
-  eat_semi(p);
-  
-  VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
-  node->base.type = NODE_VAR_DECL;
-  node->var_type = vtype;
-  node->name = name;
-  node->initializer = init;
-  node->is_mutable = is_mut;
-  node->is_array = is_array;
-  node->array_size = array_size;
-  set_loc((ASTNode*)node, line, col);
-  return (ASTNode*)node;
 }
 
 ASTNode* parse_single_statement_or_block(Parser *p) {
@@ -518,179 +381,6 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
   ASTNode *expr = parse_expression(p);
   eat_semi(p); 
   return expr;
-}
-
-ASTNode* parse_loop(Parser *p) {
-  int line = p->current_token.line, col = p->current_token.col;
-  eat(p, TOKEN_LOOP);
-  ASTNode *expr = parse_expression(p);
-  LoopNode *node = parser_alloc(p, sizeof(LoopNode));
-  node->base.type = NODE_LOOP;
-  node->iterations = expr;
-  node->body = parse_single_statement_or_block(p);
-  set_loc((ASTNode*)node, line, col);
-  return (ASTNode*)node;
-}
-
-ASTNode* parse_while(Parser *p) {
-    int line = p->current_token.line, col = p->current_token.col;
-    eat(p, TOKEN_WHILE);
-    int is_do_while = 0;
-    if (p->current_token.type == TOKEN_ONCE) {
-        eat(p, TOKEN_ONCE);
-        is_do_while = 1;
-    }
-    ASTNode *cond = NULL;
-    if (p->settings.require_parens_for_conditions) {
-        eat(p, TOKEN_LPAREN);
-        cond = parse_expression(p);
-        eat(p, TOKEN_RPAREN);
-    } else {
-        cond = parse_expression(p);
-    }
-    ASTNode *body = parse_single_statement_or_block(p);
-    WhileNode *node = parser_alloc(p, sizeof(WhileNode));
-    node->base.type = NODE_WHILE;
-    node->condition = cond;
-    node->body = body;
-    node->is_do_while = is_do_while;
-    set_loc((ASTNode*)node, line, col);
-    return (ASTNode*)node;
-}
-
-ASTNode* parse_if(Parser *p) {
-  int line = p->current_token.line, col = p->current_token.col;
-  eat(p, TOKEN_IF);
-  ASTNode *cond = NULL;
-  if (p->settings.require_parens_for_conditions) {
-      eat(p, TOKEN_LPAREN);
-      cond = parse_expression(p);
-      eat(p, TOKEN_RPAREN);
-  } else {
-      cond = parse_expression(p);
-  }
-  
-  if (p->current_token.type == TOKEN_THEN) {
-      eat(p, TOKEN_THEN);
-  }
-  
-  ASTNode *then_body = parse_single_statement_or_block(p);
-  ASTNode *else_body = NULL;
-  if (p->current_token.type == TOKEN_ELIF) {
-    p->current_token.type = TOKEN_IF; 
-    else_body = parse_if(p);
-  } else if (p->current_token.type == TOKEN_ELSE) {
-    eat(p, TOKEN_ELSE);
-    else_body = parse_single_statement_or_block(p);
-  }
-  IfNode *node = parser_alloc(p, sizeof(IfNode));
-  node->base.type = NODE_IF;
-  node->condition = cond;
-  node->then_body = then_body;
-  node->else_body = else_body;
-  set_loc((ASTNode*)node, line, col);
-  return (ASTNode*)node;
-}
-
-static ASTNode* parse_case_body_stmts(Parser *p) {
-    ASTNode *head = NULL;
-    ASTNode **current = &head;
-    while (p->current_token.type != TOKEN_EOF && 
-           p->current_token.type != TOKEN_RBRACE && 
-           p->current_token.type != TOKEN_CASE && 
-           p->current_token.type != TOKEN_LEAK &&
-           p->current_token.type != TOKEN_DEFAULT) {
-        ASTNode *stmt = parse_single_statement_or_block(p);
-        if (stmt) {
-            *current = stmt;
-            current = &stmt->next;
-        }
-    }
-    // *current = NULL; // don't have to cut off
-    return head;
-}
-
-ASTNode* parse_switch(Parser *p) {
-    int line = p->current_token.line, col = p->current_token.col;
-    eat(p, TOKEN_SWITCH);
-    
-    ASTNode *cond = NULL;
-    if (p->settings.require_parens_for_conditions) {
-        eat(p, TOKEN_LPAREN);
-        cond = parse_expression(p);
-        eat(p, TOKEN_RPAREN);
-    } else {
-        cond = parse_expression(p);
-    }
-    
-    eat(p, TOKEN_LBRACE);
-
-    ASTNode *cases_head = NULL;
-    ASTNode **cases_curr = &cases_head;
-    ASTNode *default_body = NULL;
-
-    while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
-        int is_leak = 0;
-        int case_line = p->current_token.line;
-        int case_col = p->current_token.col;
-
-        if (p->current_token.type == TOKEN_LEAK) {
-            eat(p, TOKEN_LEAK);
-            is_leak = 1;
-        }
-        
-        if (p->current_token.type == TOKEN_CASE) {
-            eat(p, TOKEN_CASE);
-            
-            while(1) {
-                ASTNode *val = parse_expression(p);
-                
-                if (p->current_token.type == TOKEN_COMMA) {
-                    eat(p, TOKEN_COMMA);
-                    CaseNode *cn = parser_alloc(p, sizeof(CaseNode));
-                    cn->base.type = NODE_CASE;
-                    cn->value = val;
-                    cn->body = NULL; 
-                    cn->is_leak = 1; 
-                    set_loc((ASTNode*)cn, case_line, case_col);
-                    
-                    *cases_curr = (ASTNode*)cn;
-                    cases_curr = &cn->base.next;
-                } else {
-                    eat(p, TOKEN_COLON);
-                    ASTNode *body = parse_case_body_stmts(p);
-                    
-                    CaseNode *cn = parser_alloc(p, sizeof(CaseNode));
-                    cn->base.type = NODE_CASE;
-                    cn->value = val;
-                    cn->body = body;
-                    cn->is_leak = is_leak; 
-                    set_loc((ASTNode*)cn, case_line, case_col);
-                    
-                    *cases_curr = (ASTNode*)cn;
-                    cases_curr = &cn->base.next;
-                    break; 
-                }
-            }
-        } 
-        else if (p->current_token.type == TOKEN_DEFAULT) {
-             eat(p, TOKEN_DEFAULT);
-             eat(p, TOKEN_COLON);
-             if (default_body) parser_fail(p, "Duplicate default case");
-             default_body = parse_case_body_stmts(p);
-        } else {
-            parser_fail(p, "Expected 'case', 'leak case', or 'default' inside switch");
-        }
-    }
-    eat(p, TOKEN_RBRACE);
-
-    SwitchNode *node = parser_alloc(p, sizeof(SwitchNode));
-    node->base.type = NODE_SWITCH;
-    node->condition = cond;
-    node->cases = cases_head;
-    node->default_case = default_body;
-    set_loc((ASTNode*)node, line, col);
-    return (ASTNode*)node;
 }
 
 ASTNode* parse_statements(Parser *p) {

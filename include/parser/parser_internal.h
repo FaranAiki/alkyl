@@ -88,4 +88,13 @@ ASTNode* parse_expression(Parser *p);
 #include "top.h"
 #include "semantic.h"
 
+
+void eat_semi(Parser *p);
+void set_loc(ASTNode *n, int line, int col);
+
+#include "parser/fragment/class.h"
+#include "parser/fragment/cond.h"
+#include "parser/fragment/loop.h"
+#include "parser/fragment/decl.h"
+
 #endif // PARSER_INTERNAL_H

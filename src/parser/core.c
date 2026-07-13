@@ -18,7 +18,7 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
     } else {
         // Defaults
         p->settings.require_parens_for_conditions = 0;
-        p->settings.allow_implicit_return = 1;
+        p->settings.allow_implicit_return = 0;
         p->settings.allow_postfix_types = 0;
         p->settings.strict_boolean_conditions = 0;
     }
