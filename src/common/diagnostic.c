@@ -247,7 +247,12 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_TYPEDEF: return "typedef";
 
         case TOKEN_CLASS: return "class";
+        case TOKEN_COMPOUND: return "compound";
         case TOKEN_STRUCT: return "struct";
+        case TOKEN_QUESTION: return "?";
+        case TOKEN_RESIDUE: return "residue";
+        case TOKEN_PREMETA: return "premeta";
+        case TOKEN_REASON: return "reason";
         case TOKEN_UNION: return "union";
         case TOKEN_IS: return "is";
         case TOKEN_HAS: return "has";

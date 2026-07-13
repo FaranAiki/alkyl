@@ -8,7 +8,8 @@ typedef enum {
     SYM_FUNC,
     SYM_CLASS,
     SYM_ENUM,
-    SYM_NAMESPACE
+    SYM_NAMESPACE,
+    SYM_TEMPLATE
 } SymbolKind;
 
 typedef struct SemSymbol {
@@ -25,6 +26,9 @@ typedef struct SemSymbol {
     char *parent_name;    // For inheritance lookup
     char **traits;
     int trait_count;
+    
+    // For Templates
+    CompoundNode *template_node;
     
     // Semantic Modifiers
     IsASemantic is_is_a;
@@ -93,6 +97,8 @@ typedef struct {
     
     int in_loop;
     int in_switch;
+    
+    ASTNode **ast_tail; // For appending instantiated templates
 } SemanticCtx;
 
 #endif // SEMANTIC_TYPESTRUCT_H

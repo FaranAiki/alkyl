@@ -139,7 +139,9 @@ typedef enum {
 
   TOKEN_IMPORT,    
   TOKEN_EXTERN,    
-  TOKEN_LINK,      
+  TOKEN_LINK,
+  TOKEN_REASON,
+  TOKEN_COMPOUND,
 
   TOKEN_TRUE,    
   TOKEN_FALSE,   
@@ -239,6 +241,7 @@ static const KeywordDef keywords[] = {
     {"class", TOKEN_CLASS},
     {"clean", TOKEN_CLEAN},
     {"closed", TOKEN_CLOSED},
+    {"compound", TOKEN_COMPOUND},
     {"const", TOKEN_CONST},
     {"continue", TOKEN_CONTINUE},
     {"default", TOKEN_DEFAULT},
@@ -289,6 +292,7 @@ static const KeywordDef keywords[] = {
     {"pure", TOKEN_PURE},
     {"purge", TOKEN_PURGE},
     {"reactive", TOKEN_REACTIVE},
+    {"reason", TOKEN_REASON},
     {"reject", TOKEN_REJECT},
     {"residue", TOKEN_RESIDUE},
     {"return", TOKEN_RETURN},

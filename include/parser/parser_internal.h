@@ -81,7 +81,7 @@ VarType* get_alias(Parser *p, const char *name);
 Token lexer_next_raw(Parser *p); 
 
 // Expressions (parser/expr.c)
-ASTNode* parse_call(Parser *p, char *name);
+ASTNode* parse_call(Parser *p, ASTNode *target);
 ASTNode* parse_postfix(Parser *p, ASTNode *node); 
 ASTNode* parse_expression(Parser *p);
 

@@ -96,15 +96,95 @@ ASTNode* parse_extern(Parser *p, int modifiers) {
 }
 
 
+ASTNode* parse_compound(Parser *p, int modifiers) {
+  int line = p->current_token.line;
+  int col = p->current_token.col;
+  eat(p, TOKEN_COMPOUND);
+  eat(p, TOKEN_LBRACKET);
+  
+  int max_params = 16;
+  char **type_params = parser_alloc(p, sizeof(char*) * max_params);
+  int num_params = 0;
+  
+  while (p->current_token.type != TOKEN_RBRACKET) {
+      if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text && strcmp(p->current_token.text, "type") == 0) {
+          eat(p, TOKEN_IDENTIFIER);
+      } else {
+          parser_fail(p, "Expected 'type' keyword in compound");
+      }
+      
+      if (p->current_token.type != TOKEN_IDENTIFIER) {
+          parser_fail(p, "Expected type parameter name in compound");
+      }
+      char *type_param = parser_strdup(p, p->current_token.text);
+      type_params[num_params++] = type_param;
+      eat(p, TOKEN_IDENTIFIER);
+      
+      register_typename(p, type_param, 0);
+      
+      if (p->current_token.type == TOKEN_COMMA) {
+          eat(p, TOKEN_COMMA);
+      } else {
+          break;
+      }
+  }
+  
+  eat(p, TOKEN_RBRACKET);
+  
+  ASTNode *body = NULL;
+  if (p->current_token.type == TOKEN_LBRACE) {
+      eat(p, TOKEN_LBRACE);
+      body = parse_top_level(p); 
+      eat(p, TOKEN_RBRACE);
+  } else {
+      body = parse_top_level(p); 
+  }
+  
+  CompoundNode *cn = parser_alloc(p, sizeof(CompoundNode));
+  cn->base.type = NODE_COMPOUND;
+  cn->type_params = type_params;
+  cn->num_type_params = num_params;
+  cn->body = body;
+  set_loc((ASTNode*)cn, line, col);
+  return (ASTNode*)cn;
+}
+
 // MODULATE THIS WTF
 
-ASTNode* parse_top_level(Parser *p) { 
+ASTNode* parse_top_level_internal(Parser *p);
+
+ASTNode* parse_top_level(Parser *p) {
+    char *reason_str = NULL;
+    if (p->current_token.type == TOKEN_REASON) {
+        eat(p, TOKEN_REASON);
+        if (p->current_token.type != TOKEN_STRING) parser_fail(p, "Expected string literal after reason");
+        reason_str = parser_strdup(p, p->current_token.text);
+        eat(p, TOKEN_STRING);
+    }
+    
+    ASTNode *node = parse_top_level_internal(p);
+    
+    if (reason_str && node) {
+        ASTNode *curr = node;
+        while (curr) {
+            curr->reason = reason_str;
+            curr = curr->next;
+        }
+    }
+    return node;
+}
+
+ASTNode* parse_top_level_internal(Parser *p) { 
   if (p->current_token.type == TOKEN_SEMICOLON) {
       eat(p, TOKEN_SEMICOLON);
       return NULL;
   }
 
   int modifiers = parse_modifiers(p);
+  
+  if (p->current_token.type == TOKEN_COMPOUND) {
+      return parse_compound(p, modifiers);
+  }
 
   if (p->current_token.type == TOKEN_NAMESPACE) {
       if (modifiers) parser_fail(p, "Modifiers not allowed on namespace");
@@ -143,6 +223,18 @@ ASTNode* parse_top_level(Parser *p) {
       eat(p, TOKEN_PREMETA);
       eat(p, TOKEN_LBRACE);
       while(p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+          char *reason_str = NULL;
+          if (p->current_token.type == TOKEN_REASON) {
+              eat(p, TOKEN_REASON);
+              if (p->current_token.type != TOKEN_STRING) {
+                  parser_fail(p, "Expected string literal after reason");
+              }
+              reason_str = parser_strdup(p, p->current_token.text);
+              eat(p, TOKEN_STRING);
+          }
+          
+          int line = p->current_token.line;
+          int col = p->current_token.col;
           if (p->current_token.type == TOKEN_IDENTIFIER) {
               char *domain = parser_strdup(p, p->current_token.text);
               eat(p, TOKEN_IDENTIFIER);
@@ -158,11 +250,28 @@ ASTNode* parse_top_level(Parser *p) {
                       eat(p, p->current_token.type);
                   }
                   
-                  if (strcmp(domain, "compiler") == 0 && strcmp(key, "no_purge") == 0 && val) {
-                      p->ctx->settings.no_purge = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
-                  } else if (strcmp(domain, "lexer") == 0 && strcmp(key, "require_semicolons") == 0 && val) {
-                      // wait, parsing lexer after it's lexed? It's fine, we update it in the context anyway.
-                      // Wait! Lexer is already done! It's too late for the lexer.
+                  if (!reason_str) {
+                      p->current_token.line = line;
+                      p->current_token.col = col;
+                      parser_fail(p, "no reason to set setting");
+                  }
+                  
+                  if (strcmp(domain, "compiler") == 0) {
+                      if (strcmp(key, "no_purge") == 0 && val) {
+                          p->ctx->settings.no_purge = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
+                      }
+                  } else if (strcmp(domain, "lexer") == 0) {
+                      if (strcmp(key, "scope_style") == 0 && val) {
+                          if (strcmp(val, "SCOPE_INDENTATION") == 0) {
+                              p->l->settings.scope_style = SCOPE_INDENTATION;
+                          } else if (strcmp(val, "SCOPE_BRACKETS") == 0) {
+                              p->l->settings.scope_style = SCOPE_BRACKETS;
+                          } else {
+                              parser_fail(p, "Unknown scope_style value");
+                          }
+                      } else if (strcmp(key, "require_semicolons") == 0 && val) {
+                          p->l->settings.require_semicolons = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
+                      }
                   }
               } else if (p->current_token.type == TOKEN_ASSIGN) {
                   eat(p, TOKEN_ASSIGN);
@@ -171,6 +280,13 @@ ASTNode* parse_top_level(Parser *p) {
                       val = parser_strdup(p, p->current_token.text);
                       eat(p, p->current_token.type);
                   }
+                  
+                  if (!reason_str) {
+                      p->current_token.line = line;
+                      p->current_token.col = col;
+                      parser_fail(p, "no reason to set setting");
+                  }
+                  
                   if (strcmp(domain, "cconv") == 0 && val) {
                       p->ctx->settings.default_cconv = val;
                   }
@@ -192,12 +308,29 @@ ASTNode* parse_top_level(Parser *p) {
       if (p->current_token.type == TOKEN_LBRACKET) {
           eat(p, TOKEN_LBRACKET);
           while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+              char *reason_str = NULL;
+              if (p->current_token.type == TOKEN_REASON) {
+                  eat(p, TOKEN_REASON);
+                  if (p->current_token.type != TOKEN_STRING) {
+                      parser_fail(p, "Expected string literal after reason");
+                  }
+                  reason_str = parser_strdup(p, p->current_token.text);
+                  eat(p, TOKEN_STRING);
+              }
+              
+              int line = p->current_token.line;
+              int col = p->current_token.col;
               if (p->current_token.type == TOKEN_IDENTIFIER) {
                   char *key = parser_strdup(p, p->current_token.text);
                   eat(p, TOKEN_IDENTIFIER);
                   if (p->current_token.type == TOKEN_ASSIGN) {
                       eat(p, TOKEN_ASSIGN);
                       if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_IDENTIFIER) {
+                          if (!reason_str) {
+                              p->current_token.line = line;
+                              p->current_token.col = col;
+                              parser_fail(p, "no reason to set setting");
+                          }
                           if (strcmp(key, "cconv") == 0) {
                               p->pending_cconv = parser_strdup(p, p->current_token.text);
                           }

@@ -86,6 +86,20 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
         else if (node->type == NODE_NAMESPACE) {
             sem_symbolic_namespace(ctx, node);
         }
+        else if (node->type == NODE_COMPOUND) {
+            CompoundNode *cn = (CompoundNode*)node;
+            char *template_name = NULL;
+            if (cn->body && cn->body->type == NODE_FUNC_DEF) {
+                template_name = ((FuncDefNode*)cn->body)->name;
+            } else if (cn->body && cn->body->type == NODE_CLASS) {
+                template_name = ((ClassNode*)cn->body)->name;
+            }
+            if (template_name) {
+                VarType type_tmpl = {TYPE_UNKNOWN};
+                SemSymbol *sym = sem_symbol_add(ctx, template_name, SYM_TEMPLATE, type_tmpl);
+                sym->template_node = cn;
+            }
+        }
         node = node->next;
     }
 }
@@ -128,8 +142,23 @@ static void sem_check_call_args(SemanticCtx *ctx, CallNode *node, SemSymbol *sym
 void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
 
-    SemSymbol *sym = sem_symbol_lookup(ctx, node->name, NULL);
-
+    SemSymbol *sym = NULL;
+    if (node->target) {
+        sem_check_expr(ctx, node->target);
+        if (node->target->type == NODE_TEMPLATE_INSTANTIATION) {
+            // target->target was updated to VarRef inside sem_check_expr
+            TemplateInstNode *ti = (TemplateInstNode*)node->target;
+            if (ti->target->type == NODE_VAR_REF) {
+                node->name = ((VarRefNode*)ti->target)->name;
+            }
+        } else if (node->target->type == NODE_VAR_REF) {
+            node->name = ((VarRefNode*)node->target)->name;
+        }
+    }
+    
+    if (node->name) {
+        sym = sem_symbol_lookup(ctx, node->name, NULL);
+    }
     if (!sym) {
         sem_error(ctx, (ASTNode*)node, "Undefined function or class '%s'", node->name);
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
@@ -422,6 +451,83 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             sem_set_node_type(ctx, node, (VarType){TYPE_BOOL, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             break;
         }
+        case NODE_TEMPLATE_INSTANTIATION: {
+            TemplateInstNode *ti = (TemplateInstNode*)node;
+            if (ti->target->type != NODE_VAR_REF) {
+                sem_error(ctx, node, "Expected identifier for template instantiation");
+                break;
+            }
+            VarRefNode *vr = (VarRefNode*)ti->target;
+            SemSymbol *sym = sem_symbol_lookup(ctx, vr->name, NULL);
+            if (!sym || sym->kind != SYM_TEMPLATE) {
+                // Fallback to array access / component access!
+                if (ti->num_template_types == 1 && ti->template_types[0].base == TYPE_CLASS) {
+                    VarRefNode *index_vr = arena_alloc(ctx->compiler_ctx->arena, sizeof(VarRefNode));
+                    index_vr->base.type = NODE_VAR_REF;
+                    index_vr->name = arena_strdup(ctx->compiler_ctx->arena, ti->template_types[0].class_name);
+                    index_vr->base.line = node->line;
+                    index_vr->base.col = node->col;
+                    
+                    ArrayAccessNode *aa = (ArrayAccessNode*)node;
+                    aa->base.type = NODE_ARRAY_ACCESS;
+                    // aa->target is already vr, so we don't need to change it
+                    aa->index = (ASTNode*)index_vr;
+                    
+                    sem_check_expr(ctx, node); // Check again as array access
+                    break;
+                }
+                
+                sem_error(ctx, node, "'%s' is not a template", vr->name);
+                break;
+            }
+            CompoundNode *cn = sym->template_node;
+            if (ti->num_template_types != cn->num_type_params) {
+                sem_error(ctx, node, "Template '%s' expects %d types, got %d", vr->name, cn->num_type_params, ti->num_template_types);
+                break;
+            }
+            
+            // Generate mangled name
+            char mangled[1024];
+            snprintf(mangled, sizeof(mangled), "%s", vr->name);
+            for (int i = 0; i < ti->num_template_types; i++) {
+                char *t_str = sem_type_to_str(ti->template_types[i]);
+                strncat(mangled, "_", sizeof(mangled) - strlen(mangled) - 1);
+                strncat(mangled, t_str, sizeof(mangled) - strlen(mangled) - 1);
+            }
+            
+            SemSymbol *inst_sym = sem_symbol_lookup(ctx, mangled, NULL);
+            if (!inst_sym) {
+                // Instantiate it
+                ASTNode *cloned_body = ast_clone(ctx->compiler_ctx, cn->body, cn->type_params, ti->template_types, ti->num_template_types);
+                
+                // Change the name to mangled name
+                if (cloned_body->type == NODE_FUNC_DEF) {
+                    ((FuncDefNode*)cloned_body)->name = arena_strdup(ctx->compiler_ctx->arena, mangled);
+                } else if (cloned_body->type == NODE_CLASS) {
+                    ((ClassNode*)cloned_body)->name = arena_strdup(ctx->compiler_ctx->arena, mangled);
+                }
+                
+                if (ctx->ast_tail) {
+                    *ctx->ast_tail = cloned_body;
+                    ctx->ast_tail = &cloned_body->next;
+                }
+                
+                // Add to global AST? Just scan and check it now!
+                sem_scan_top_level(ctx, cloned_body);
+                sem_check_node(ctx, cloned_body);
+                inst_sym = sem_symbol_lookup(ctx, mangled, NULL);
+            }
+            
+            // Replace the current node with a VarRef to the mangled name, so codegen just calls the instantiated function/class
+            // Wait, this is an expression! A template instantiation `map[int]` resolves to the function name itself.
+            // So its type should be the type of `inst_sym`.
+            if (inst_sym) {
+                sem_set_node_type(ctx, node, inst_sym->type);
+                // Also update the target so Codegen emits the mangled name
+                vr->name = arena_strdup(ctx->compiler_ctx->arena, mangled);
+            }
+            break;
+        }
         default: break;
     }
 }
@@ -663,6 +769,10 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
     }
     else if (node->type == NODE_VAR_DECL) {
         sem_check_var_decl(ctx, (VarDeclNode*)node, 1);
+    }
+    else if (node->type == NODE_COMPOUND) {
+        // Skip checking uninstantiated templates
+        return;
     }
     else {
         sem_check_stmt(ctx, node);

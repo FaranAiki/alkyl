@@ -63,6 +63,9 @@ void semantic_emit_symbol(StringBuilder *sb, SemSymbol *sym, int indent) {
     
     const char *kind_str = "UNK";
     switch (sym->kind) {
+        case SYM_TEMPLATE:
+            kind_str = "TEMPLATE";
+            break;
         case SYM_VAR: kind_str = "VAR"; break;
         case SYM_FUNC: kind_str = "FUNC"; break;
         case SYM_CLASS: kind_str = "CLASS"; break;

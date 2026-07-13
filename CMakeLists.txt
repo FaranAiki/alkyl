@@ -61,6 +61,7 @@ set(FRONTEND_SOURCES
     src/parser/fragment/decl.c
     src/parser/fragment/class.c
     src/parser/top.c 
+    src/parser/ast_clone.c
     src/parser/emitter.c  
     src/parser/link.c  
     src/parser/modif.c  

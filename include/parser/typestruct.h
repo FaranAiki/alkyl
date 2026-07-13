@@ -50,7 +50,9 @@ typedef enum {
   NODE_DEFINED,
   NODE_META,
   NODE_POSTMETA,
-  NODE_PURGE
+  NODE_PURGE,
+  NODE_COMPOUND,
+  NODE_TEMPLATE_INSTANTIATION
 } NodeType;
 
 typedef enum {
@@ -116,6 +118,7 @@ typedef struct ASTNode {
   struct ASTNode *next; 
   int line;
   int col;
+  char *reason;
 } ASTNode;
 
 typedef struct Parameter {
@@ -259,6 +262,22 @@ typedef struct {
     EnumEntry *entries;
 } EnumNode;
 
+
+
+typedef struct {
+  ASTNode base;
+  char **type_params;
+  int num_type_params;
+  ASTNode *body;
+} CompoundNode;
+
+typedef struct {
+  ASTNode base;
+  ASTNode *target;
+  VarType *template_types;
+  int num_template_types;
+} TemplateInstNode;
+
 typedef struct {
   ASTNode base;
   char *name;
@@ -298,6 +317,7 @@ typedef struct {
   char *name;
   char *mangled_name; 
   ASTNode *args; 
+  ASTNode *target; // For complex calls like template instantiations or function pointers
 } CallNode;
 
 typedef struct {

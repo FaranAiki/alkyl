@@ -40,6 +40,12 @@ typedef struct Parser {
 
 void parser_init(Parser *p, Lexer *l, ParserSettings *settings);
 
+Token get_next_token_expanded(Parser *p);
+void report_error(Lexer *l, Token t, const char *msg);
+
+ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarType *replace_with, int num_params);
+VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarType *replace_with, int num_params);
+
 Token parser_peek_token(Parser *p);
 void parser_prescan(Parser *p);
 

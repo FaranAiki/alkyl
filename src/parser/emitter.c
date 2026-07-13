@@ -410,6 +410,8 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
                 case TOKEN_XOR: op = "^"; break;
                 case TOKEN_LSHIFT: op = "<<"; break;
                 case TOKEN_RSHIFT: op = ">>"; break;
+                case TOKEN_LROTATE: op = "<<%"; break;
+                case TOKEN_RROTATE: op = "%>>"; break;
                 case TOKEN_AND_AND: op = "&&"; break;
                 case TOKEN_OR_OR: op = "||"; break;
                 default: op = "?"; break;

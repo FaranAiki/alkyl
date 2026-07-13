@@ -177,6 +177,12 @@ static int lex_symbol(Lexer *l, Token *t) {
 
   if (c == '%') {
     advance(l);
+    if (l->src[l->pos] == '>' && l->src[l->pos + 1] == '>') {
+        advance(l); // consume first >
+        advance(l); // consume second >
+        t->type = TOKEN_RROTATE;
+        return 1;
+    }
     if (peek(l) == '=') { advance(l); t->type = TOKEN_MOD_ASSIGN; return 1; }
     t->type = TOKEN_MOD; return 1;
   }
@@ -217,6 +223,7 @@ static int lex_symbol(Lexer *l, Token *t) {
     advance(l);
     if (peek(l) == '<') { 
         advance(l); 
+        if (peek(l) == '%') { advance(l); t->type = TOKEN_LROTATE; return 1; }
         if (peek(l) == '=') { advance(l); t->type = TOKEN_LSHIFT_ASSIGN; return 1; }
         t->type = TOKEN_LSHIFT; 
         return 1; 

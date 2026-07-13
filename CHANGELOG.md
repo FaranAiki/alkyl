@@ -1,67 +1,66 @@
-## 0.0.1 
+## 0.0.1
 Initial commit
-* ### why the fuck did I named it kampwng awako
 * loop
 * print as printf only-string
 * C-like assignments
 
-## 0.0.2 
-Second git gud commit 
-* primitive print and input/scanf as a function 
-* comments 
+## 0.0.2
+Second git gud commit
+* primitive print and input/scanf as a function
+* comments
 * if elif using brackets
 * binary and unary operations, e.g. !true, (2 == 2)
 
-## 0.0.3  
-Mutable and arrays 
+## 0.0.3
+Mutable and arrays
 * Must use main (idk if this is good or not, maybe not)
 * mutable and immutable
-* arrays 
-* input is good but not advanced 
+* arrays
+* input is good but not advanced
 * print is good but not advanced
 * string comparison
 * line character error
 
-## 0.0.4 
+## 0.0.4
 * Shitty REPL
 
-## 0.0.5 
-* Some C-libs like mathematics and cmath 
+## 0.0.5
+* Some C-libs like mathematics and cmath
 * Restructure the codegen so that it is easier to vibecode and program manually
 * Added while loop
 * Added link and import functionality is good
 
-## 0.0.6 
+## 0.0.6
 * ++xx xx++ good
 * += bad -= bad (infinite loop)
-* structured the parser as it was too big 
+* structured the parser as it was too big
 * added misc folder so that it supports for syntax highlighting
 * some hky (hacky) stuff unimplemented as there is no pointer here
 * REPL not crashing
 
-## 0.0.7 
+## 0.0.7
 * pointer * and &
-* += -= good 
+* += -= good
 * primitive misc folder for tree-sitter
 * VarType opaque pointers
 * primitive define only with type (define name as type)
 
-## 0.0.8 
-* good define 
+## 0.0.8
+* good define
 * classes but still suck anyway because is/has is not that defined
-* proper let 
+* proper let
 * typeof
 
-## 0.1.0 
+## 0.1.0
 * classes but semisuck (because of constructor and .etc), need to revamp this
-* todo fix array a[0] shitt 
+* todo fix array a[0] shitt
 * todo fix inheritance shit (constructor)
 * just code manually at this point (?) but I am too lazy bruhh
 * idk i am partially satisfied
 
-## 0.1.1 
-* fixed inheritance 
+## 0.1.1
+* fixed inheritance
 * fixed array
 
-## 0.1.2 
+## 0.1.2
 * new diagnostic but too shitty and make it does not like C lol

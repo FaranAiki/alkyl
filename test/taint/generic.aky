@@ -1,0 +1,12 @@
+extern int printf(string fmt, ...);
+
+compound[type A, type B]
+class Pair {
+  A first;
+  B second;
+}
+
+int main() {
+  let my_pair = Pair[int, double](10, 3.14);
+  printf(c"Pair: %d, %f\n", my_pair.first, my_pair.second);
+}

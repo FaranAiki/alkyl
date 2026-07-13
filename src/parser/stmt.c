@@ -70,12 +70,7 @@ ASTNode* parse_assignment_or_call(Parser *p) {
   ((VarRefNode*)node)->name = name;
   set_loc(node, line, col);
 
-  if (p->current_token.type == TOKEN_LPAREN) {
-      char *fname = ((VarRefNode*)node)->name;
-      // No free(node) with arena
-      node = parse_call(p, fname);
-      set_loc(node, line, col); 
-  }
+
 
   node = parse_postfix(p, node);
 
@@ -121,7 +116,7 @@ ASTNode* parse_assignment_or_call(Parser *p) {
     return (ASTNode*)an;
   }
   
-  if (node->type == NODE_VAR_REF) {
+  if (node->type == NODE_VAR_REF || node->type == NODE_TEMPLATE_INSTANTIATION) {
       TokenType t = p->current_token.type;
       int is_arg_start = (t == TOKEN_NUMBER || t == TOKEN_FLOAT || t == TOKEN_STRING || 
             t == TOKEN_CHAR_LIT || t == TOKEN_TRUE || t == TOKEN_FALSE || 
@@ -129,8 +124,15 @@ ASTNode* parse_assignment_or_call(Parser *p) {
             t == TOKEN_NOT || t == TOKEN_BIT_NOT || t == TOKEN_MINUS || t == TOKEN_PLUS || t == TOKEN_STAR || t == TOKEN_AND || t == TOKEN_TYPEOF);
 
       if (is_arg_start) {
-          char *fname = ((VarRefNode*)node)->name;
-          // No free(node)
+          char *fname = NULL;
+          if (node->type == NODE_VAR_REF) {
+              fname = ((VarRefNode*)node)->name;
+          } else {
+              TemplateInstNode *ti = (TemplateInstNode*)node;
+              if (ti->target->type == NODE_VAR_REF) {
+                  fname = ((VarRefNode*)ti->target)->name;
+              }
+          }
           
           ASTNode *args_head = NULL;
           ASTNode **curr_arg = &args_head;
@@ -148,13 +150,23 @@ ASTNode* parse_assignment_or_call(Parser *p) {
           CallNode *cn = parser_alloc(p, sizeof(CallNode));
           cn->base.type = NODE_CALL;
           cn->name = fname;
+          cn->target = node; // Store the original node (e.g. VarRef or TemplateInst)
           cn->args = args_head;
+          
+          // If it was a template instantiation, wrap it or handle it!
+          // Wait! Semantic analyzer looks at CallNode's `name` only!
+          // But if it's a template instantiation, `name` is the original template name...
+          // BUT wait! In expr.c (postfix), if it's `map[int]`, `parse_postfix` wraps the VarRef in TemplateInstNode.
+          // In an expression statement, we should probably set `cn->name` to `fname`, BUT `map[int]` is lost?
+          // No! If `cn->name` is just `map`, it won't know `[int]`!
+          
+          // Oh, wait! The Semantic Analyzer currently treats `map[int](...)` as a CallNode with name = `map`. Wait, no, `expr.c` line 80 parse_postfix gives `TemplateInstNode`.
+          // Let's check how `expr.c` parses `map[int]()`!
           set_loc((ASTNode*)cn, line, col);
           // No free
           return (ASTNode*)cn;
       }
   }
-
   if (p->current_token.type == TOKEN_SEMICOLON || 
       p->current_token.type == TOKEN_ELSE || 
       p->current_token.type == TOKEN_ELIF || 
@@ -190,7 +202,30 @@ ASTNode* parse_assignment_or_call(Parser *p) {
   return NULL;
 }
 
+ASTNode* parse_single_statement_or_block_internal(Parser *p);
+
 ASTNode* parse_single_statement_or_block(Parser *p) {
+    char *reason_str = NULL;
+    if (p->current_token.type == TOKEN_REASON) {
+        eat(p, TOKEN_REASON);
+        if (p->current_token.type != TOKEN_STRING) parser_fail(p, "Expected string literal after reason");
+        reason_str = parser_strdup(p, p->current_token.text);
+        eat(p, TOKEN_STRING);
+    }
+    
+    ASTNode *node = parse_single_statement_or_block_internal(p);
+    
+    if (reason_str && node) {
+        ASTNode *curr = node;
+        while (curr) {
+            curr->reason = reason_str;
+            curr = curr->next;
+        }
+    }
+    return node;
+}
+
+ASTNode* parse_single_statement_or_block_internal(Parser *p) {
   if (p->current_token.type == TOKEN_LBRACE) {
     eat(p, TOKEN_LBRACE);
     ASTNode *block = parse_statements(p);
@@ -296,7 +331,10 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
   if (peek_t.base != TYPE_UNKNOWN) {
       if (peek_t.base == TYPE_CLASS && p->current_token.type == TOKEN_LPAREN) {
           if(modifiers) parser_fail(p, "Invalid modifier here");
-          ASTNode* call = parse_call(p, peek_t.class_name);
+          VarRefNode *vn = parser_alloc(p, sizeof(VarRefNode));
+          vn->base.type = NODE_VAR_REF;
+          vn->name = peek_t.class_name;
+          ASTNode* call = parse_call(p, (ASTNode*)vn);
           eat(p, TOKEN_SEMICOLON);
           set_loc(call, line, col);
           return call;
