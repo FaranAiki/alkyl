@@ -306,6 +306,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
             else if (l.base == TYPE_FLOAT || r.base == TYPE_FLOAT) target_type.base = TYPE_FLOAT;
             else if (l.base == TYPE_LONG || r.base == TYPE_LONG) target_type.base = TYPE_LONG;
             else if (l.base == TYPE_UNSIGNED_INT || r.base == TYPE_UNSIGNED_INT) target_type.base = TYPE_UNSIGNED_INT;
+            if (l.is_tainted || r.is_tainted) target_type.is_tainted = 1;
             sem_insert_implicit_cast(ctx, &node->left, target_type);
             sem_insert_implicit_cast(ctx, &node->right, target_type);
         }
@@ -321,6 +322,8 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
         else if (l.base == TYPE_DOUBLE || r.base == TYPE_DOUBLE) target_type.base = TYPE_DOUBLE;
         else if (l.base == TYPE_FLOAT || r.base == TYPE_FLOAT) target_type.base = TYPE_FLOAT;
         else if (l.base == TYPE_LONG || r.base == TYPE_LONG) target_type.base = TYPE_LONG;
+        else if (l.base == TYPE_UNSIGNED_INT || r.base == TYPE_UNSIGNED_INT) target_type.base = TYPE_UNSIGNED_INT;
+        if (l.is_tainted || r.is_tainted) target_type.is_tainted = 1;
         
         sem_insert_implicit_cast(ctx, &node->left, target_type);
         sem_insert_implicit_cast(ctx, &node->right, target_type);

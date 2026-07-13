@@ -142,6 +142,7 @@ int main(int argc, char *argv[]) {
   CodegenCtx *cg_ctx = codegen_init(alir_module);
   LLVMModuleRef module = codegen_generate(cg_ctx);
 
+  LLVMPrintModuleToFile(module, "module.ll", NULL);
   char *error = NULL;
   if (LLVMVerifyModule(module, LLVMPrintMessageAction, &error)) {
     fprintf(stderr, "LLVM Verification Error: %s\n", error);

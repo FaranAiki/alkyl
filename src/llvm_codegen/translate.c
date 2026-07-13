@@ -144,17 +144,33 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         case ALIR_OP_EQ:
         case ALIR_OP_NEQ: {
             if (op1 && op2) {
-                LLVMTypeRef t1 = LLVMTypeOf(op1);
-                LLVMTypeRef t2 = LLVMTypeOf(op2);
+                LLVMValueRef act1 = op1;
+                if (inst->op1->type.is_tainted) act1 = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext1");
+                LLVMValueRef act2 = op2;
+                if (inst->op2->type.is_tainted) act2 = LLVMBuildExtractValue(ctx->builder, op2, 1, "ext2");
+                
+                LLVMTypeRef t1 = LLVMTypeOf(act1);
+                LLVMTypeRef t2 = LLVMTypeOf(act2);
                 if (LLVMGetTypeKind(t1) != LLVMGetTypeKind(t2)) {
                     if (LLVMGetTypeKind(t1) == LLVMPointerTypeKind && LLVMGetTypeKind(t2) == LLVMIntegerTypeKind) {
-                        op2 = LLVMBuildIntToPtr(ctx->builder, op2, t1, "ptr_cast");
+                        act2 = LLVMBuildIntToPtr(ctx->builder, act2, t1, "ptr_cast");
                     } else if (LLVMGetTypeKind(t2) == LLVMPointerTypeKind && LLVMGetTypeKind(t1) == LLVMIntegerTypeKind) {
-                        op1 = LLVMBuildIntToPtr(ctx->builder, op1, t2, "ptr_cast");
+                        act1 = LLVMBuildIntToPtr(ctx->builder, act1, t2, "ptr_cast");
                     }
                 }
-                res = is_float ? LLVMBuildFCmp(ctx->builder, (inst->op == ALIR_OP_EQ ? LLVMRealOEQ : LLVMRealONE), op1, op2, "feq") : 
-                                LLVMBuildICmp(ctx->builder, (inst->op == ALIR_OP_EQ ? LLVMIntEQ : LLVMIntNE), op1, op2, "ieq");
+                res = is_float ? LLVMBuildFCmp(ctx->builder, (inst->op == ALIR_OP_EQ ? LLVMRealOEQ : LLVMRealONE), act1, act2, "feq") : 
+                                LLVMBuildICmp(ctx->builder, (inst->op == ALIR_OP_EQ ? LLVMIntEQ : LLVMIntNE), act1, act2, "ieq");
+                
+                if (inst->dest && inst->dest->type.is_tainted) {
+                    LLVMValueRef err_id = NULL;
+                    if (inst->op1->type.is_tainted) err_id = LLVMBuildExtractValue(ctx->builder, op1, 0, "err1");
+                    else if (inst->op2->type.is_tainted) err_id = LLVMBuildExtractValue(ctx->builder, op2, 0, "err2");
+                    else err_id = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
+                    
+                    LLVMValueRef tainted_res = LLVMGetUndef(get_llvm_type(ctx, inst->dest->type));
+                    tainted_res = LLVMBuildInsertValue(ctx->builder, tainted_res, err_id, 0, "ins_err");
+                    res = LLVMBuildInsertValue(ctx->builder, tainted_res, res, 1, "ins_val");
+                }
             }
             break;
         }
@@ -360,38 +376,67 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
 
         case ALIR_OP_CAST: {
             if (!op1) break;
+            
             LLVMTypeRef dest_ty = get_llvm_type(ctx, inst->dest->type);
             LLVMTypeRef src_ty = LLVMTypeOf(op1);
             LLVMTypeKind src_k = LLVMGetTypeKind(src_ty);
             LLVMTypeKind dest_k = LLVMGetTypeKind(dest_ty);
 
+            LLVMValueRef actual_op1 = op1;
+            LLVMValueRef err_id = NULL;
+            int is_src_tainted = inst->op1->type.is_tainted;
+            int is_dest_tainted = inst->dest->type.is_tainted;
+            
+            if (is_src_tainted) {
+                err_id = LLVMBuildExtractValue(ctx->builder, op1, 0, "ext_err");
+                actual_op1 = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext_val");
+                src_ty = LLVMTypeOf(actual_op1);
+                src_k = LLVMGetTypeKind(src_ty);
+            }
+            
+            LLVMTypeRef inner_dest_ty = dest_ty;
+            if (is_dest_tainted) {
+                VarType inner_t = inst->dest->type;
+                inner_t.is_tainted = 0;
+                inner_dest_ty = get_llvm_type(ctx, inner_t);
+                dest_k = LLVMGetTypeKind(inner_dest_ty);
+            }
+
+            LLVMValueRef cast_res = NULL;
             if (is_float) {
                 if (inst->dest->type.base == TYPE_FLOAT || inst->dest->type.base == TYPE_DOUBLE) {
-                    res = LLVMBuildFPCast(ctx->builder, op1, dest_ty, "fpcast");
+                    cast_res = LLVMBuildFPCast(ctx->builder, actual_op1, inner_dest_ty, "fpcast");
                 } else {
-                    res = LLVMBuildFPToSI(ctx->builder, op1, dest_ty, "fptosi");
+                    cast_res = LLVMBuildFPToSI(ctx->builder, actual_op1, inner_dest_ty, "fptosi");
                 }
             } else {
                 if (src_k == LLVMPointerTypeKind || dest_k == LLVMPointerTypeKind) {
                     if (src_k == LLVMPointerTypeKind && dest_k == LLVMPointerTypeKind) {
-                        res = LLVMBuildBitCast(ctx->builder, op1, dest_ty, "ptr_bitcast");
+                        cast_res = LLVMBuildBitCast(ctx->builder, actual_op1, inner_dest_ty, "ptr_bitcast");
                     } else if (src_k == LLVMPointerTypeKind && dest_k == LLVMIntegerTypeKind) {
-                        res = LLVMBuildPtrToInt(ctx->builder, op1, dest_ty, "ptrtoint");
+                        cast_res = LLVMBuildPtrToInt(ctx->builder, actual_op1, inner_dest_ty, "ptrtoint");
                     } else if (src_k == LLVMIntegerTypeKind && dest_k == LLVMPointerTypeKind) {
-                        res = LLVMBuildIntToPtr(ctx->builder, op1, dest_ty, "inttoptr");
+                        cast_res = LLVMBuildIntToPtr(ctx->builder, actual_op1, inner_dest_ty, "inttoptr");
                     } else if (src_k == LLVMPointerTypeKind && dest_k == LLVMStructTypeKind) {
-                        // Implicitly load from pointer to get struct value
-                        res = LLVMBuildLoad2(ctx->builder, dest_ty, op1, "struct_load");
+                        cast_res = LLVMBuildLoad2(ctx->builder, inner_dest_ty, actual_op1, "struct_load");
                     } else {
-                        // Fallback to BitCast if one side is not pointer/int (e.g. struct)
-                        res = LLVMBuildBitCast(ctx->builder, op1, dest_ty, "cast_bitcast");
+                        cast_res = LLVMBuildBitCast(ctx->builder, actual_op1, inner_dest_ty, "cast_bitcast");
                     }
                 } else if (inst->dest->type.base == TYPE_FLOAT || inst->dest->type.base == TYPE_DOUBLE) {
-                    res = LLVMBuildSIToFP(ctx->builder, op1, dest_ty, "sitofp");
+                    cast_res = LLVMBuildSIToFP(ctx->builder, actual_op1, inner_dest_ty, "sitofp");
                 } else {
-                    res = LLVMBuildIntCast(ctx->builder, op1, dest_ty, "intcast");
+                    cast_res = LLVMBuildIntCast(ctx->builder, actual_op1, inner_dest_ty, "intcast");
                 }
             }
+            
+            if (is_dest_tainted) {
+                res = LLVMGetUndef(dest_ty);
+                res = LLVMBuildInsertValue(ctx->builder, res, err_id ? err_id : LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), 0, "ins_err");
+                res = LLVMBuildInsertValue(ctx->builder, res, cast_res, 1, "ins_val");
+            } else {
+                res = cast_res;
+            }
+
             break;
         }
 
