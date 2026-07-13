@@ -1,0 +1,11 @@
+import "std/hashmap";
+
+int test_hashmap() -> int {
+    let hm = hashmap();
+    hm.init();
+    
+    if (hm.size != 0) {
+        return 1;
+    }
+    return 0;
+}

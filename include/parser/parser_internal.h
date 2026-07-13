@@ -23,6 +23,7 @@
 #define MODIFIER_IMPURE    (1 << 11)
 #define MODIFIER_PRISTINE  (1 << 12)
 #define MODIFIER_TAINTED   (1 << 13)
+#define MODIFIER_COVALENT  (1 << 14)
 
 int parse_modifiers(Parser* p);
 void apply_class_modifiers(ClassNode* node, int modifiers);

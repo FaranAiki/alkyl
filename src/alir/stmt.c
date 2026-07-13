@@ -35,7 +35,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             VarRefNode *vr = (VarRefNode*)pn->msg;
             char buf[512];
             snprintf(buf, sizeof(buf), "purge: %s\n", vr->name);
-            VarType str_type = {TYPE_STRING, 1}; // Or whatever the string type struct expects
+            VarType str_type = { .base = TYPE_CLASS, .class_name = (char*)"string", .ptr_depth = 1 };
             AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, str_type, ctx->str_counter++);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, NULL));
             break;
@@ -184,11 +184,14 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_MEMBER_ACCESS:
         case NODE_TRAIT_ACCESS:
         case NODE_TYPEOF:
+        case NODE_ALIGNOF:
         case NODE_DEFINED:
         case NODE_HAS_METHOD:
         case NODE_HAS_ATTRIBUTE:
         case NODE_CAST:
         case NODE_INC_DEC:
+        case NODE_COMPOUND:
+        case NODE_TEMPLATE_INSTANTIATION:
             alir_gen_expr(ctx, node); 
             break;
 

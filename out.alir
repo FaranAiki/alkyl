@@ -1,41 +1,99 @@
 ; Module: main_module
 
 ; Struct Definitions
-%struct.Pair_int_double = type { int:first, double:second }
+%struct.TestClass = type { int:field1, int:field2 }
+%struct.string = type { int:len, char*:data }
+%struct.vector = type { int:size, int:capacity, void*:data }
 
 ; Globals
-@str.0 = cstring "Pair: %d, %f\n"
+@str.1 = string "method1"
+@str.0 = string "method2"
 
-promise int @printf(string, ...)
-
-block func int @main() {
+block func void @vector_init(%vector* %p0) {
 entry:
-  %0 = sizeof int type(Pair_int_double)
-  %1 = onheap char* %0
-  %2 = bitcast %Pair_int_double* %1
-  %3 = call @Pair_int_double (%2, 10, 126443839488.00)
-  %4 = onstack %Pair_int_double*
-  store %Pair_int_double* %2, %4
-  %5 = cast string @str.0
-  %6 = load %Pair_int_double* %4
-  %7 = getptr int* %6, 0
-  %8 = load int %7
-  %9 = load %Pair_int_double* %4
-  %10 = getptr double* %9, 1
-  %11 = load double %10
-  %12 = call %printf (%5, %8, %11)
-  return int 0
+  %0 = onstack %vector*
+  store %vector* %p0, %0
+  %1 = load %vector* %0
+  %2 = getptr int* %1, 0
+  store int 0, %2
+  %3 = load %vector* %0
+  %4 = getptr int* %3, 1
+  store int 0, %4
+  return void
 }
 
-block func void @Pair_int_double(%Pair_int_double* %p0, int %p1, double %p2) {
+block func void @string_init_i8_p(%string* %p0, char* %p1) {
 entry:
-  %13 = onstack %Pair_int_double*
-  store void %p0, %13
-  %14 = load %Pair_int_double* %13
-  %15 = getptr int* %14, 0
-  store int %p1, %15
-  %16 = load %Pair_int_double* %13
-  %17 = getptr double* %16, 1
-  store double %p2, %17
+  %0 = onstack %string*
+  store %string* %p0, %0
+  %1 = onstack char*
+  store char* %p1, %1
+  %2 = load %string* %0
+  %3 = getptr int* %2, 0
+  store int 0, %3
+  %4 = load char* %1
+  %5 = onstack char*
+  store char* %4, %5
+  jump while_cond
+while_cond:
+  %6 = load char* %5
+  %7 = load char %6
+  %8 = cast int %7
+  %9 = cast int 0
+  %10 = neq bool %8, %9
+  condition %10, while_body (while_end)
+while_body:
+  %11 = load %string* %0
+  %12 = getptr int* %11, 0
+  %13 = load unknown %12
+  %14 = add unknown %13, 1
+  store unknown %14, %12
+  %15 = load unknown %5
+  %16 = add unknown %15, 1
+  store unknown %16, %5
+  jump while_cond
+while_end:
   return void
+}
+
+block func int @string_length(%string* %p0) {
+entry:
+  %0 = onstack %string*
+  store %string* %p0, %0
+  %1 = load %string* %0
+  %2 = getptr int* %1, 0
+  %3 = load int %2
+  return int %3
+}
+
+promise void @TestClass_method1(%TestClass*)
+
+promise void @TestClass_method2(%TestClass*)
+
+block func void @TestClass(%TestClass* %p0, int %p1, int %p2) {
+entry:
+  %4 = onstack %TestClass*
+  store void %p0, %4
+  %5 = load %TestClass* %4
+  %6 = getptr int* %5, 0
+  store int %p1, %6
+  %7 = load %TestClass* %4
+  %8 = getptr int* %7, 1
+  store int %p2, %8
+  return void
+}
+
+block func int @test_reflection() {
+entry:
+  %0 = onheap char* 16
+  %1 = bitcast %string* %0
+  %2 = load %string @str.0
+  %3 = getptr %string* %1, 0
+  store %string %2, %3
+  %4 = load %string @str.1
+  %5 = getptr %string* %1, 1
+  store %string %4, %5
+  %6 = onstack %string**
+  store %string* %1, %6
+  return int 0
 }

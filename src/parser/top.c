@@ -425,9 +425,23 @@ ASTNode* parse_top_level_internal(Parser *p) {
       return (ASTNode*)node;
   }
 
-  if (p->current_token.type != TOKEN_IDENTIFIER) { parser_fail(p, "Expected identifier definition after type"); }
-  char *name = parser_strdup(p, p->current_token.text); 
-  p->current_token.text = NULL; eat(p, TOKEN_IDENTIFIER);
+  char *name = NULL;
+  if (p->current_token.type == TOKEN_PREFOP || p->current_token.type == TOKEN_INFOP || p->current_token.type == TOKEN_SUFFOP ||
+      p->current_token.type == TOKEN_PREMUT || p->current_token.type == TOKEN_INFMUT || p->current_token.type == TOKEN_SUFMUT) {
+      int kind = p->current_token.type;
+      eat(p, kind);
+      eat(p, TOKEN_LBRACKET);
+      TokenType op_type = p->current_token.type;
+      char name_buf[64];
+      snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", kind, op_type);
+      name = parser_strdup(p, name_buf);
+      eat(p, op_type);
+      eat(p, TOKEN_RBRACKET);
+  } else {
+      if (p->current_token.type != TOKEN_IDENTIFIER) { parser_fail(p, "Expected identifier definition after type"); }
+      name = parser_strdup(p, p->current_token.text); 
+      p->current_token.text = NULL; eat(p, TOKEN_IDENTIFIER);
+  }
   
   if (p->settings.allow_postfix_types && p->current_token.type == TOKEN_COLON) {
       eat(p, TOKEN_COLON);

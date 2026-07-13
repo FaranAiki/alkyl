@@ -2,11 +2,11 @@
 #include <stdio.h>
 
 void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarType src) {
-    int dest_is_str = (dest.base == TYPE_STRING && dest.ptr_depth == 0);
+    int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && strcmp(dest.class_name, "string") == 0 && dest.ptr_depth == 0);
     int src_is_char = (src.base == TYPE_CHAR && (src.ptr_depth > 0 || src.array_size > 0));
     
     int dest_is_char = (dest.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0));
-    int src_is_str = (src.base == TYPE_STRING && src.ptr_depth == 0);
+    int src_is_str = (src.base == TYPE_CLASS && src.class_name && strcmp(src.class_name, "string") == 0 && src.ptr_depth == 0);
     
     if (dest_is_str && src_is_char) {
         sem_info(ctx, node, "Implicit cast from 'char%s' to 'string'", (src.array_size > 0) ? "[]" : "*");
@@ -15,7 +15,7 @@ void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarT
         
         if (node->type == NODE_LITERAL) {
             LiteralNode *lit = (LiteralNode*)node;
-            if (lit->var_type.base == TYPE_STRING && lit->val.str_val) {
+            if (lit->var_type.base == TYPE_CLASS && lit->var_type.class_name && strcmp(lit->var_type.class_name, "string") == 0 && lit->val.str_val) {
                 sem_hint(ctx, node, "Use c\"%s\" for a C-style string", lit->val.str_val);
                 return;
             }
@@ -229,6 +229,75 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
         sem_check_expr(ctx, node->target);
         lhs_type = sem_get_node_type(ctx, node->target);
     }
+    
+    if (node->op != TOKEN_ASSIGN) {
+        char name_buf[64];
+        snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", TOKEN_INFMUT, node->op);
+        
+        SemSymbol *sym = NULL;
+        int is_method = 0;
+        if (lhs_type.base == TYPE_CLASS && lhs_type.ptr_depth == 0 && lhs_type.class_name) {
+            SemSymbol *class_sym = sem_symbol_lookup(ctx, lhs_type.class_name, NULL);
+            if (class_sym && class_sym->inner_scope) {
+                SemSymbol *s = class_sym->inner_scope->symbols;
+                while (s) {
+                    if (strcmp(s->name, name_buf) == 0) { sym = s; is_method = 1; break; }
+                    s = s->next;
+                }
+            }
+        }
+        if (!sym) {
+            sym = sem_symbol_lookup(ctx, name_buf, NULL);
+        }
+        
+        if (sym && sym->kind == SYM_FUNC) {
+            if (is_method) {
+                ASTNode *method_args = node->value;
+                ASTNode *old_next = method_args->next;
+                method_args->next = NULL;
+                SemSymbol *resolved = sem_resolve_overload(ctx, &method_args, NULL, sym, NULL);
+                method_args->next = old_next;
+                if (resolved) {
+                    node->overloaded_func_name = arena_strdup(ctx->compiler_ctx->arena, resolved->mangled_name ? resolved->mangled_name : resolved->name);
+                    return;
+                }
+            } else {
+                ASTNode *fake_args = node->target;
+                if (!fake_args && node->name) {
+                    VarRefNode *vr = arena_alloc_type(ctx->compiler_ctx->arena, VarRefNode);
+                    memset(vr, 0, sizeof(VarRefNode));
+                    vr->base.type = NODE_VAR_REF;
+                    vr->name = node->name;
+                    vr->base.line = node->base.line;
+                    vr->base.col = node->base.col;
+                    sem_set_node_type(ctx, (ASTNode*)vr, lhs_type);
+                    fake_args = (ASTNode*)vr;
+                }
+                if (fake_args) {
+                    UnaryOpNode *addr_of = arena_alloc_type(ctx->compiler_ctx->arena, UnaryOpNode);
+                    memset(addr_of, 0, sizeof(UnaryOpNode));
+                    addr_of->base.type = NODE_UNARY_OP;
+                    addr_of->op = TOKEN_AND;
+                    addr_of->operand = fake_args;
+                    addr_of->base.line = node->base.line;
+                    addr_of->base.col = node->base.col;
+                    VarType ptr_type = lhs_type;
+                    ptr_type.ptr_depth++;
+                    sem_set_node_type(ctx, (ASTNode*)addr_of, ptr_type);
+                    
+                    addr_of->base.next = node->value;
+                    node->value->next = NULL;
+                    SemSymbol *resolved = sem_resolve_overload(ctx, (ASTNode**)&addr_of, NULL, sym, NULL);
+                    if (resolved) {
+                        node->overloaded_func_name = arena_strdup(ctx->compiler_ctx->arena, resolved->mangled_name ? resolved->mangled_name : resolved->name);
+                        addr_of->base.next = NULL;
+                        return;
+                    }
+                    addr_of->base.next = NULL;
+                }
+            }
+        }
+    }
 
     if (lhs_type.base != TYPE_UNKNOWN && rhs_type.base != TYPE_UNKNOWN) {
         if (!sem_types_are_compatible(ctx,lhs_type, rhs_type)) {
@@ -302,6 +371,6 @@ int is_bool(VarType t) {
 }
 
 int is_pointer(VarType t) {
-    return t.ptr_depth > 0 || t.array_size > 0 || t.base == TYPE_STRING || t.base == TYPE_VECTOR /*??*/ || t.is_func_ptr;
+    return t.ptr_depth > 0 || t.array_size > 0 || (t.base == TYPE_CLASS && t.class_name && (strcmp(t.class_name, "string") == 0 || strcmp(t.class_name, "vector") == 0)) || t.is_func_ptr;
 }
 

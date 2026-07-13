@@ -27,7 +27,7 @@ void parser_emit_type(StringBuilder *sb, VarType t) {
         case TYPE_LONG_DOUBLE: sb_append(sb, "long double"); break;
         case TYPE_VOID: sb_append(sb, "void"); break;
         case TYPE_ERROR: sb_append(sb, "error"); break;
-        case TYPE_STRING: sb_append(sb, "string"); break;
+
         case TYPE_AUTO: sb_append(sb, "let"); break;
         case TYPE_CLASS: sb_append(sb, t.class_name ? t.class_name : "class"); break;
         case TYPE_NAMESPACE: sb_append(sb, t.class_name ? t.class_name : "namespace"); break;
@@ -472,7 +472,7 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
             else if (ln->var_type.base == TYPE_DOUBLE || ln->var_type.base == TYPE_LONG_DOUBLE) {
                  sb_append_fmt(sb, "%f", ln->val.double_val);
             }
-            else if (ln->var_type.base == TYPE_STRING) {
+            else if (ln->var_type.base == TYPE_CLASS && ln->var_type.class_name && strcmp(ln->var_type.class_name, "string") == 0) {
                 sb_append(sb, "\"");
                 sb_append_escaped(sb, ln->val.str_val);
                 sb_append(sb, "\"");

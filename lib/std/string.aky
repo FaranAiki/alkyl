@@ -1,0 +1,17 @@
+class string {
+    public unsigned int len;
+    public char* data;
+
+    public void init(char* raw) {
+        this.len = 0;
+        let p = raw;
+        while (*p != '\0') {
+            this.len++;
+            p++;
+        }
+    }
+
+    public unsigned int length() {
+        return this.len;
+    }
+}

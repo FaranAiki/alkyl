@@ -25,6 +25,7 @@ typedef enum {
   TOKEN_FLOAT,  
   TOKEN_STRING,
   TOKEN_C_STRING, 
+  TOKEN_BYTE_STRING,
   TOKEN_CHAR_LIT, 
   TOKEN_IDENTIFIER, 
   
@@ -113,9 +114,7 @@ typedef enum {
   TOKEN_KW_BOOL,   
   TOKEN_KW_SINGLE, 
   TOKEN_KW_DOUBLE, 
-  TOKEN_KW_STRING, 
-  TOKEN_KW_LET,    
-  TOKEN_KW_VECTOR, // NEW VECTOR TOKEN
+  TOKEN_KW_LET,
   TOKEN_KW_SIZEOF,
   TOKEN_KW_ALIGNOF,
   TOKEN_KW_DEFINED,
@@ -176,6 +175,13 @@ typedef enum {
   TOKEN_LTE,    
   TOKEN_GTE,
 
+  TOKEN_COVALENT,
+  TOKEN_INFMUT,
+  TOKEN_PREMUT,
+  TOKEN_SUFMUT,
+  TOKEN_INFOP,
+  TOKEN_PREFOP,
+  TOKEN_SUFFOP,
   TOKEN_UNKNOWN
 } TokenType;
 
@@ -244,6 +250,7 @@ static const KeywordDef keywords[] = {
     {"compound", TOKEN_COMPOUND},
     {"const", TOKEN_CONST},
     {"continue", TOKEN_CONTINUE},
+    {"covalent", TOKEN_COVALENT},
     {"default", TOKEN_DEFAULT},
     {"defer", TOKEN_DEFER},
     {"define", TOKEN_DEFINE},
@@ -269,6 +276,7 @@ static const KeywordDef keywords[] = {
     {"imut", TOKEN_KW_IMUT},
     {"in", TOKEN_IN},
     {"inert", TOKEN_INERT},
+    {"infmut", TOKEN_INFMUT},
     {"int", TOKEN_KW_INT},
     {"is", TOKEN_IS},
     {"leak", TOKEN_LEAK},
@@ -286,6 +294,7 @@ static const KeywordDef keywords[] = {
     {"open", TOKEN_OPEN},
     {"postmeta", TOKEN_POSTMETA},
     {"premeta", TOKEN_PREMETA},
+    {"premut", TOKEN_PREMUT},
     {"pristine", TOKEN_PRISTINE},
     {"private", TOKEN_PRIVATE},
     {"public", TOKEN_PUBLIC},
@@ -299,8 +308,9 @@ static const KeywordDef keywords[] = {
     {"short", TOKEN_KW_SHORT},
     {"single", TOKEN_KW_SINGLE},
     {"sizeof", TOKEN_KW_SIZEOF},
-    {"string", TOKEN_KW_STRING},
+
     {"struct", TOKEN_STRUCT},
+    {"sufmut", TOKEN_SUFMUT},
     {"switch", TOKEN_SWITCH},
     {"tainted", TOKEN_TAINTED},
     {"then", TOKEN_THEN},
@@ -311,10 +321,10 @@ static const KeywordDef keywords[] = {
     {"union", TOKEN_UNION},
     {"unsigned", TOKEN_KW_UNSIGNED},
     {"untaint", TOKEN_UNTAINT},
-    {"vector", TOKEN_KW_VECTOR},
+
     {"void", TOKEN_KW_VOID},
     {"wash", TOKEN_WASH},
-    {"while", TOKEN_WHILE}
+    {"while", TOKEN_WHILE},
 };
 
 void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char *src, LexerSettings *settings);

@@ -21,7 +21,7 @@ void sem_check_for_in(SemanticCtx *ctx, ASTNode *node) {
         iter_type.ptr_depth--;
     } else if (iter_type.vector_depth > 0) {
         iter_type.vector_depth--;
-    } else if (iter_type.base == TYPE_STRING) {
+    } else if (iter_type.base == TYPE_CLASS && iter_type.class_name && strcmp(iter_type.class_name, "string") == 0) {
         iter_type.base = TYPE_CHAR;
     } else if (is_integer(iter_type)) {
         // Allowed: integers act as valid iterators (0 to N-1) 
@@ -46,6 +46,24 @@ void sem_check_unary_op_switch(SemanticCtx *ctx, ASTNode *node) {
     UnaryOpNode *un = (UnaryOpNode*)node;
     sem_check_expr(ctx, un->operand);
     VarType t = sem_get_node_type(ctx, un->operand);
+    
+    // Operator Overloading Check
+    char name_buf[64];
+    snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", un->is_suffix ? TOKEN_SUFFOP : TOKEN_PREFOP, un->op);
+    SemSymbol *sym = sem_symbol_lookup(ctx, name_buf, NULL);
+    if (sym && sym->kind == SYM_FUNC) {
+        ASTNode *args = un->operand;
+        args->next = NULL;
+        SemSymbol *resolved = sem_resolve_overload(ctx, &args, NULL, sym, NULL);
+        if (resolved) {
+            un->overloaded_func_name = arena_strdup(ctx->compiler_ctx->arena, resolved->mangled_name ? resolved->mangled_name : resolved->name);
+            sem_set_node_type(ctx, (ASTNode*)node, resolved->type);
+            un->operand = args;
+            un->operand->next = NULL;
+            return;
+        }
+    }
+
     
     if (sem_get_node_tainted(ctx, un->operand)) {
         if (un->op != TOKEN_AND) {
@@ -144,9 +162,9 @@ void sem_check_array_access(SemanticCtx *ctx, ASTNode *node) {
     if (t.array_size > 0) t.array_size = 0;
     else if (t.ptr_depth > 0) t.ptr_depth--;
     else if (t.vector_depth > 0) t.vector_depth--;
-    else if (t.base == TYPE_ENUM || t.base == TYPE_ARRAY || t.base == TYPE_STRING || t.base == TYPE_VECTOR 
-|| t.base == TYPE_HASHMAP) {
-         sem_set_node_type(ctx, node, (VarType){TYPE_STRING, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+    else if (t.base == TYPE_ENUM || t.base == TYPE_ARRAY || (t.base == TYPE_CLASS && t.class_name && (strcmp(t.class_name, "string") == 0 || strcmp(t.class_name, "vector") == 0 || strcmp(t.class_name, "hashmap") == 0))) {
+         // for now wait!
+         sem_set_node_type(ctx, node, (VarType){ .base = TYPE_CLASS, .class_name = (char*)"string" });
          return;
     }
     else { 

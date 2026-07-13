@@ -5,6 +5,8 @@
 
 #define BASENAME "out"
 
+#include "driver/lsp.h"
+
 int main(int argc, char *argv[]) {
   Arena arena, arena_debug;
   CompilerContext comp_ctx, comp_ctx_debug;
@@ -15,8 +17,13 @@ int main(int argc, char *argv[]) {
   context_init(&comp_ctx_debug, &arena_debug);
   
   if (argc < 2) {
-    printf("Usage: %s <file.aky> [-l<lib>]\n", argv[0]);
+    printf("Usage: %s <file.aky> [-l<lib>] | --lsp\n", argv[0]);
     return 1;
+  }
+
+  if (argc == 2 && strcmp(argv[1], "--lsp") == 0) {
+      start_lsp_server();
+      return 0;
   }
 
   char *filename = NULL;

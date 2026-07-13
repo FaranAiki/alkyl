@@ -289,9 +289,9 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_KW_BOOL: return "bool";
         case TOKEN_KW_SINGLE: return "single";
         case TOKEN_KW_DOUBLE: return "double";
-        case TOKEN_KW_STRING: return "string";
+
         case TOKEN_KW_LET: return "let";
-        case TOKEN_KW_VECTOR: return "vector";
+
 
         case TOKEN_KW_SHORT: return "short";
         case TOKEN_KW_LONG: return "long";
@@ -354,7 +354,15 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_PRISTINE: return "pristine";
         case TOKEN_PURGE: return "purge";
 
-        case TOKEN_UNKNOWN: return "unknown";
+        case TOKEN_BYTE_STRING: return "BYTE STRING";
+        case TOKEN_COVALENT: return "'covalent'";
+        case TOKEN_INFMUT: return "infix mutator";
+        case TOKEN_PREMUT: return "prefix mutator";
+        case TOKEN_SUFMUT: return "suffix mutator";
+        case TOKEN_INFOP: return "infix operator";
+        case TOKEN_PREFOP: return "prefix operator";
+        case TOKEN_SUFFOP: return "suffix operator";
+        case TOKEN_UNKNOWN: return "UNKNOWN";
     }
     return "unknown";
 }

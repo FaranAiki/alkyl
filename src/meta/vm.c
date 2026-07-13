@@ -199,7 +199,7 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
                                 AlirValue *arg = inst->args[i];
                                 if (arg->kind == ALIR_VAL_CONST) {
                                     if (arg->type.base == TYPE_INT) printf("%d", arg->val.int_val);
-                                    else if (arg->type.base == TYPE_STRING) printf("%s", arg->val.str_val);
+                                    else if (arg->type.base == TYPE_CLASS && arg->type.class_name && strcmp(arg->type.class_name, "string") == 0) printf("%s", arg->val.str_val);
                                 } else if (arg->kind == ALIR_VAL_TEMP) {
                                     printf("%lld", registers[arg->temp_id].as.int_val);
                                 } else if (arg->kind == ALIR_VAL_GLOBAL && module) {
@@ -232,7 +232,7 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
                                         if (arg->kind == ALIR_VAL_CONST) *val = arg->val.int_val;
                                         else if (arg->kind == ALIR_VAL_TEMP) *val = registers[arg->temp_id].as.int_val;
                                         arg_values[i] = val;
-                                    } else if (arg->type.base == TYPE_STRING || arg->type.base == TYPE_AUTO) {
+                                    } else if ((arg->type.base == TYPE_CLASS && arg->type.class_name && strcmp(arg->type.class_name, "string") == 0) || arg->type.base == TYPE_AUTO) {
                                         arg_types[i] = &ffi_type_pointer;
                                         void **val = malloc(sizeof(void*));
                                         *val = NULL;

@@ -245,10 +245,23 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   }
               }
 
-              if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected member name in class body");
-              char *mem_name = parser_strdup(p, p->current_token.text);
-              eat(p, TOKEN_IDENTIFIER);
-              
+              char *mem_name = NULL;
+              if (p->current_token.type == TOKEN_PREFOP || p->current_token.type == TOKEN_INFOP || p->current_token.type == TOKEN_SUFFOP ||
+                  p->current_token.type == TOKEN_PREMUT || p->current_token.type == TOKEN_INFMUT || p->current_token.type == TOKEN_SUFMUT) {
+                  int kind = p->current_token.type;
+                  eat(p, kind);
+                  eat(p, TOKEN_LBRACKET);
+                  TokenType op_type = p->current_token.type;
+                  char name_buf[64];
+                  snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", kind, op_type);
+                  mem_name = parser_strdup(p, name_buf);
+                  eat(p, op_type);
+                  eat(p, TOKEN_RBRACKET);
+              } else {
+                  if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected member name in class body");
+                  mem_name = parser_strdup(p, p->current_token.text);
+                  eat(p, TOKEN_IDENTIFIER);
+              }
               if (p->current_token.type == TOKEN_LPAREN) {
                   eat(p, TOKEN_LPAREN);
                   Parameter *params = NULL;

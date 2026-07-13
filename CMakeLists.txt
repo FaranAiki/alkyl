@@ -117,6 +117,7 @@ set(HELPER_SOURCES
     src/common/arena.c
     src/common/context.c
     src/common/hashmap.c
+    src/driver/lsp.c
 )
 
 set_source_files_properties(${DEPRECATED_LLVM_CODEGEN_SOURCES} 

@@ -1,0 +1,22 @@
+To make vim/nvim detect classes and variables in Alkyl, you can use the built-in minimal Language Server Protocol (LSP) which provides Semantic Tokens.
+
+Configuration for Neovim (using nvim-lspconfig):
+```lua
+local lspconfig = require('lspconfig')
+local configs = require('lspconfig.configs')
+
+if not configs.alkyl then
+  configs.alkyl = {
+    default_config = {
+      cmd = {'/home/faranaiki/Git/alkyl/alkyl', '--lsp'},
+      filetypes = {'alkyl', 'aky'},
+      root_dir = function(fname)
+        return lspconfig.util.root_pattern('.git')(fname) or lspconfig.util.path.dirname(fname)
+      end,
+      settings = {},
+    },
+  }
+end
+
+lspconfig.alkyl.setup{}
+```

@@ -112,6 +112,28 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
 
 void alir_stmt_assign(AlirCtx *ctx, ASTNode *node) {
     AssignNode *an = (AssignNode*)node;
+    if (an->overloaded_func_name) {
+        AlirValue *lhs_ptr = NULL;
+        if (an->target) lhs_ptr = alir_gen_addr(ctx, an->target);
+        else if (an->name) {
+            AlirSymbol *s = alir_find_symbol(ctx, an->name);
+            if (s) {
+                lhs_ptr = s->ptr;
+            } else {
+                lhs_ptr = alir_val_global(ctx->module, an->name, sem_get_node_type(ctx->sem, node));
+            }
+        }
+        AlirValue *rhs = alir_gen_expr(ctx, an->value);
+        
+        AlirValue **args = arena_alloc(ctx->sem->compiler_ctx->arena, sizeof(AlirValue*) * 2);
+        args[0] = lhs_ptr;
+        args[1] = rhs;
+        AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, an->overloaded_func_name), NULL);
+        call->args = args;
+        call->arg_count = 2;
+        emit(ctx, call);
+        return;
+    }
     AlirValue *val = alir_gen_expr(ctx, an->value);
     if (!val) val = alir_const_int(ctx->module, 0);
 

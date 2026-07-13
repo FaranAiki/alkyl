@@ -51,7 +51,7 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
         case TYPE_FLOAT: base = LLVMFloatTypeInContext(ctx->llvm_ctx); break;
         case TYPE_DOUBLE: 
         case TYPE_LONG_DOUBLE: base = LLVMDoubleTypeInContext(ctx->llvm_ctx); break;
-        case TYPE_STRING: base = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0); break;
+
         case TYPE_CLASS: {
             if (t.class_name) {
                 base = hashmap_get(&ctx->struct_map, t.class_name);
@@ -130,11 +130,9 @@ LLVMValueRef get_llvm_value(CodegenCtx *ctx, AlirValue *v) {
                 glob = LLVMGetNamedFunction(ctx->llvm_mod, v->val.str_val);
             }
 
-            // Strings decay gracefully to pointers via BitCast
-            if (glob && v->type.base == TYPE_STRING) {
-                LLVMTypeRef ptr_ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
-                return LLVMConstBitCast(glob, ptr_ty);
-            }
+            // We do not bitcast here anymore, because glob is already of the correct struct pointer type.
+            // Wait, if it expects the struct by value, maybe we should load it? 
+            // In LLVM, ALIR_VAL_GLOBAL returning a pointer is standard.
             return glob;
         }
         case ALIR_VAL_TYPE:
@@ -229,13 +227,43 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
     AlirGlobal *g = ctx->alir_mod->globals;
     while (g) {
         if (g->string_content) {
-            // Fix: The '0' appended at the end requests LLVM to null terminate the string!
             LLVMValueRef init_str = LLVMConstStringInContext(ctx->llvm_ctx, g->string_content, strlen(g->string_content), 0);
-            LLVMTypeRef str_ty = LLVMTypeOf(init_str);
-            LLVMValueRef global_var = LLVMAddGlobal(ctx->llvm_mod, str_ty, g->name);
-            LLVMSetInitializer(global_var, init_str);
-            LLVMSetLinkage(global_var, LLVMPrivateLinkage);
-            LLVMSetGlobalConstant(global_var, 1);
+            
+            if (g->type.base == TYPE_CLASS && g->type.class_name && strcmp(g->type.class_name, "string") == 0) {
+                LLVMTypeRef str_array_ty = LLVMTypeOf(init_str);
+                char internal_name[256];
+                snprintf(internal_name, sizeof(internal_name), "%s_data", g->name);
+                LLVMValueRef internal_var = LLVMAddGlobal(ctx->llvm_mod, str_array_ty, internal_name);
+                LLVMSetInitializer(internal_var, init_str);
+                LLVMSetLinkage(internal_var, LLVMPrivateLinkage);
+                LLVMSetGlobalConstant(internal_var, 1);
+                
+                LLVMTypeRef ptr_ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
+                LLVMValueRef ptr_val = LLVMConstPointerCast(internal_var, ptr_ty);
+                
+                LLVMValueRef len_val = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), strlen(g->string_content), 0);
+                
+                LLVMTypeRef class_type = get_llvm_type(ctx, g->type);
+                if (!class_type) {
+                    LLVMTypeRef types[] = { LLVMInt32TypeInContext(ctx->llvm_ctx), ptr_ty };
+                    class_type = LLVMStructTypeInContext(ctx->llvm_ctx, types, 2, 0);
+                }
+                
+                LLVMValueRef struct_vals[] = { len_val, ptr_val };
+                LLVMValueRef class_init = LLVMConstNamedStruct(class_type, struct_vals, 2);
+                if (!class_init) class_init = LLVMConstStructInContext(ctx->llvm_ctx, struct_vals, 2, 0);
+                
+                LLVMValueRef global_var = LLVMAddGlobal(ctx->llvm_mod, class_type, g->name);
+                LLVMSetInitializer(global_var, class_init);
+                LLVMSetLinkage(global_var, LLVMPrivateLinkage);
+                LLVMSetGlobalConstant(global_var, 1);
+            } else {
+                LLVMTypeRef str_ty = LLVMTypeOf(init_str);
+                LLVMValueRef global_var = LLVMAddGlobal(ctx->llvm_mod, str_ty, g->name);
+                LLVMSetInitializer(global_var, init_str);
+                LLVMSetLinkage(global_var, LLVMPrivateLinkage);
+                LLVMSetGlobalConstant(global_var, 1);
+            }
         }
         g = g->next;
     }

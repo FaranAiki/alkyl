@@ -5,7 +5,7 @@ if exists("b:current_syntax")
   finish
 endif
 
-syn keyword alkylKeyword accept alignof alir as break case class clean closed const continue default defer define defined elif else emit enum extern final flux for has hasattribute hasmethod if immutable impl import impure imut in inert is leak let link loop meta mut mutable naked namespace not once open postmeta premeta pristine private public pure purge reactive reason reject residue return sizeof struct switch tainted then trait typedef typeof union untaint wash while print
+syn keyword alkylKeyword accept alignof alir as break case class clean closed const continue default defer define defined elif else emit enum extern final flux for has hasattribute hasmethod if immutable impl import impure imut in inert infop is leak let link loop meta mut mutable naked namespace not once open postmeta prefop premeta pristine private public pure purge reactive reason reject residue return sizeof struct suffop switch tainted then trait typedef typeof union untaint wash while print
 
 syn keyword alkylType bool char double int long short single string unsigned vector void
 

@@ -1,0 +1,34 @@
+class Vector {
+    int x;
+    int y;
+}
+
+Vector infop[+](Vector a, int scalar) {
+    mut Vector res;
+    res.x = a.x + scalar;
+    res.y = a.y + scalar;
+    return res;
+}
+
+Vector infop[+](int scalar, Vector a) {
+    mut Vector res;
+    res.x = a.x + scalar;
+    res.y = a.y + scalar;
+    return res;
+}
+
+int main() {
+    mut Vector a;
+    a.x = 10;
+    a.y = 20;
+
+    mut Vector b = a + 5;
+    mut Vector c = 10 + a;
+
+    if (b.x != 15) return 1;
+    if (b.y != 25) return 2;
+    if (c.x != 20) return 3;
+    if (c.y != 30) return 4;
+
+    return 0;
+}

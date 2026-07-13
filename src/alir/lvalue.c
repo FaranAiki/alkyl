@@ -220,8 +220,14 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
         }
     }
     
-    if (ln->var_type.base == TYPE_STRING || (ln->var_type.base == TYPE_CHAR && ln->var_type.ptr_depth > 0)) {
-        return alir_module_add_string_literal(ctx->module, ln->val.str_val, ln->var_type, ctx->str_counter++);
+    if ((ln->var_type.base == TYPE_CLASS && ln->var_type.class_name && strcmp(ln->var_type.class_name, "string") == 0) || (ln->var_type.base == TYPE_CHAR && ln->var_type.ptr_depth > 0)) {
+        AlirValue *glob = alir_module_add_string_literal(ctx->module, ln->val.str_val, ln->var_type, ctx->str_counter++);
+        if (ln->var_type.base == TYPE_CLASS && strcmp(ln->var_type.class_name, "string") == 0) {
+            AlirValue *val = new_temp(ctx, ln->var_type);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, val, glob, NULL));
+            return val;
+        }
+        return glob;
     }
     
     // Fallback for empty/unhandled literals
@@ -288,6 +294,28 @@ AlirValue* alir_gen_access(AlirCtx *ctx, ASTNode *node) {
 }
 
 AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
+    if (bn->overloaded_func_name) {
+        // Emit as function call
+        AlirValue *l = alir_gen_expr(ctx, bn->left);
+        AlirValue *r = alir_gen_expr(ctx, bn->right);
+        
+        AlirValue **args = arena_alloc(ctx->sem->compiler_ctx->arena, 2 * sizeof(AlirValue*));
+        args[0] = l;
+        args[1] = r;
+        
+        VarType res_ty = sem_get_node_type(ctx->sem, (ASTNode*)bn);
+        AlirValue *res = NULL;
+        if (res_ty.base != TYPE_VOID || res_ty.ptr_depth > 0) {
+            res = new_temp(ctx, res_ty);
+        }
+        
+        AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, res, alir_val_var(ctx->module, bn->overloaded_func_name), NULL);
+        call->args = args;
+        call->arg_count = 2;
+        emit(ctx, call);
+        return res;
+    }
+
     AlirValue *l = alir_gen_expr(ctx, bn->left);
     AlirValue *r = alir_gen_expr(ctx, bn->right);
     
@@ -352,6 +380,26 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
 }
 
 AlirValue* alir_gen_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
+    if (un->overloaded_func_name) {
+        // Emit as function call
+        AlirValue *operand = alir_gen_expr(ctx, un->operand);
+        
+        AlirValue **args = arena_alloc(ctx->sem->compiler_ctx->arena, sizeof(AlirValue*));
+        args[0] = operand;
+        
+        VarType res_ty = sem_get_node_type(ctx->sem, (ASTNode*)un);
+        AlirValue *res = NULL;
+        if (res_ty.base != TYPE_VOID || res_ty.ptr_depth > 0) {
+            res = new_temp(ctx, res_ty);
+        }
+        
+        AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, res, alir_val_var(ctx->module, un->overloaded_func_name), NULL);
+        call->args = args;
+        call->arg_count = 1;
+        emit(ctx, call);
+        return res;
+    }
+
     AlirValue *operand = alir_gen_expr(ctx, un->operand);
     if (!operand) {
         operand = new_temp(ctx, (VarType){TYPE_INT, 0});
@@ -405,6 +453,22 @@ AlirValue* alir_gen_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
 }
 
 AlirValue* alir_gen_inc_dec(AlirCtx *ctx, IncDecNode *id) {
+    if (id->overloaded_func_name) {
+        AlirValue *operand = alir_gen_expr(ctx, id->target);
+        AlirValue **args = arena_alloc(ctx->sem->compiler_ctx->arena, sizeof(AlirValue*));
+        args[0] = operand;
+        VarType res_ty = sem_get_node_type(ctx->sem, (ASTNode*)id);
+        AlirValue *res = NULL;
+        if (res_ty.base != TYPE_VOID || res_ty.ptr_depth > 0) {
+            res = new_temp(ctx, res_ty);
+        }
+        AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, res, alir_val_var(ctx->module, id->overloaded_func_name), NULL);
+        call->args = args;
+        call->arg_count = 1;
+        emit(ctx, call);
+        return res;
+    }
+
     AlirValue *ptr = alir_gen_addr(ctx, id->target);
     if (!ptr) {
         ptr = new_temp(ctx, (VarType){TYPE_INT, 1});
@@ -699,7 +763,7 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         }
         case NODE_TYPEOF: {
             SizeOfNode *sn = (SizeOfNode*)node;
-            VarType t = { .base = TYPE_STRING };
+            VarType t = { .base = TYPE_CLASS, .class_name = (char*)"string" };
             AlirValue *dest = new_temp(ctx, t);
             
             AlirValue *operand = alir_alloc(ctx->module, sizeof(AlirValue));
@@ -727,7 +791,8 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
             AlirValue *operand = alir_alloc(ctx->module, sizeof(AlirValue));
             operand->kind = ALIR_VAL_STRING;
             operand->val.str_val = alir_strdup(ctx->module, symbol_name);
-            operand->type.base = TYPE_STRING;
+            operand->type.base = TYPE_CLASS;
+            operand->type.class_name = (char*)"string";
             
             emit(ctx, mk_inst(ctx->module, ALIR_OP_DEFINED, dest, operand, NULL));
             return dest;

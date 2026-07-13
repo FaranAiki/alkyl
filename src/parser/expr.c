@@ -288,7 +288,8 @@ ASTNode* parse_factor(Parser *p) {
   else if (p->current_token.type == TOKEN_STRING) {
     LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;
-    ln->var_type.base = TYPE_STRING;
+    ln->var_type.base = TYPE_CLASS;
+    ln->var_type.class_name = parser_strdup(p, "string");
     ln->val.str_val = parser_strdup(p, p->current_token.text);
     p->current_token.text = NULL; 
     eat(p, TOKEN_STRING);
@@ -303,6 +304,17 @@ ASTNode* parse_factor(Parser *p) {
     ln->val.str_val = parser_strdup(p, p->current_token.text);
     p->current_token.text = NULL; 
     eat(p, TOKEN_C_STRING);
+    node = (ASTNode*)ln;
+    set_loc(node, line, col);
+  }
+  else if (p->current_token.type == TOKEN_BYTE_STRING) {
+    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
+    ln->base.type = NODE_LITERAL;
+    ln->var_type.base = TYPE_CLASS;
+    ln->var_type.class_name = parser_strdup(p, "byte_string");
+    ln->val.str_val = parser_strdup(p, p->current_token.text);
+    p->current_token.text = NULL;
+    eat(p, TOKEN_BYTE_STRING);
     node = (ASTNode*)ln;
     set_loc(node, line, col);
   }

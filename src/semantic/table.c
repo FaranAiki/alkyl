@@ -334,8 +334,8 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
 
     if (dest.base == TYPE_AUTO) return true; 
     
-    if (dest.base == TYPE_STRING && src.base == TYPE_CHAR) return true;
-    if (src.base == TYPE_STRING && dest.base == TYPE_CHAR) return true; // Adding this just in case
+    if (dest.base == TYPE_CLASS && dest.class_name && strcmp(dest.class_name, "string") == 0 && src.base == TYPE_CHAR) return true;
+    if (src.base == TYPE_CLASS && src.class_name && strcmp(src.class_name, "string") == 0 && dest.base == TYPE_CHAR) return true; // Adding this just in case
     if (dest.base == TYPE_CHAR && src.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0) && (src.ptr_depth > 0 || src.array_size > 0)) return true;
     
     // TODO make this more proper!
@@ -352,8 +352,8 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
         return true; 
     }
 
-    int dest_is_str = (dest.base == TYPE_STRING && dest.ptr_depth == 0);
-    int src_is_str = (src.base == TYPE_STRING && src.ptr_depth == 0);
+    int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && strcmp(dest.class_name, "string") == 0 && dest.ptr_depth == 0);
+    int src_is_str = (src.base == TYPE_CLASS && src.class_name && strcmp(src.class_name, "string") == 0 && src.ptr_depth == 0);
     
     int dest_is_char_p = (dest.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0));
     int src_is_char_p = (src.base == TYPE_CHAR && (src.ptr_depth > 0 || src.array_size > 0));
@@ -398,10 +398,7 @@ char* sem_type_to_str(VarType t) {
         case TYPE_LONG_DOUBLE: base = "long double"; break;
         case TYPE_VOID: base = "void"; break;
         case TYPE_ERROR: base = "error"; break;
-        case TYPE_HASHMAP: base = "hashmap"; break;
-        case TYPE_VECTOR: base = "vector"; break;
         case TYPE_ARRAY: base = "array"; break;
-        case TYPE_STRING: base = "string"; break;
         case TYPE_AUTO: base = "let"; break;
         case TYPE_CLASS: base = t.class_name ? t.class_name : "class"; break;
         case TYPE_ENUM: base = t.class_name ? t.class_name : "enum"; break;
@@ -452,7 +449,7 @@ char* sem_mangle_type(VarType t) {
         case TYPE_LONG_DOUBLE: base = "f64"; break;
         case TYPE_VOID: base = "void"; break;
         case TYPE_ERROR: base = "error"; break;
-        case TYPE_STRING: base = "str"; break;
+
         case TYPE_CLASS: base = t.class_name ? t.class_name : "class"; break;
         case TYPE_ENUM: base = t.class_name ? t.class_name : "enum"; break;
         default: base = "any"; break;

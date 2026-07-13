@@ -62,7 +62,7 @@ int is_type_start(Parser *p) {
     TokenType ct = p->current_token.type;
     if (ct == TOKEN_KW_INT || ct == TOKEN_KW_SHORT || ct == TOKEN_KW_LONG || 
         ct == TOKEN_KW_DOUBLE || ct == TOKEN_KW_SINGLE || ct == TOKEN_KW_CHAR || 
-        ct == TOKEN_KW_VOID || ct == TOKEN_KW_BOOL || ct == TOKEN_KW_STRING || ct == TOKEN_KW_VECTOR) {
+        ct == TOKEN_KW_VOID || ct == TOKEN_KW_BOOL) {
         return 1;
     }
     if (ct == TOKEN_IDENTIFIER && is_typename(p, p->current_token.text)) {
@@ -318,10 +318,7 @@ VarType parse_type(Parser *p) {
   VarType t = {0}; 
   t.base = TYPE_UNKNOWN;
 
-  while (p->current_token.type == TOKEN_KW_VECTOR) {
-      t.vector_depth++;
-      eat(p, TOKEN_KW_VECTOR);
-  }
+
 
   if (p->current_token.type == TOKEN_KW_UNSIGNED) {
       t.is_unsigned = 1;
@@ -391,7 +388,7 @@ VarType parse_type(Parser *p) {
       else if (ct == TOKEN_KW_CHAR) { t.base = TYPE_CHAR; eat(p, TOKEN_KW_CHAR); }
       else if (ct == TOKEN_KW_BOOL) { t.base = TYPE_BOOL; eat(p, TOKEN_KW_BOOL); }
       else if (ct == TOKEN_KW_SINGLE) { t.base = TYPE_FLOAT; eat(p, TOKEN_KW_SINGLE); }
-      else if (ct == TOKEN_KW_STRING) { t.base = TYPE_STRING; eat(p, TOKEN_KW_STRING); }
+
       else if (ct == TOKEN_KW_VOID) { t.base = TYPE_VOID; eat(p, TOKEN_KW_VOID); }
       else if (ct == TOKEN_KW_LET) { t.base = TYPE_AUTO; eat(p, TOKEN_KW_LET); }
       else {

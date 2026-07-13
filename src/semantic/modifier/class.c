@@ -108,7 +108,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
         sem_error(ctx, (ASTNode*)node, "Namespace '%s' has no member '%s'", obj_type.class_name, node->member_name);
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     }
-    else if (obj_type.base == TYPE_STRING && strcmp(node->member_name, "length") == 0) {
+    else if (obj_type.base == TYPE_CLASS && obj_type.class_name && strcmp(obj_type.class_name, "string") == 0 && strcmp(node->member_name, "length") == 0) {
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_INT, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     }
     else {

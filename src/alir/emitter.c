@@ -9,14 +9,13 @@ void alir_fprint_type(FILE *f, VarType t) {
         case TYPE_CHAR: fprintf(f, "char"); break;
         case TYPE_BOOL: fprintf(f, "bool"); break;
         case TYPE_VOID: fprintf(f, "void"); break;
-        case TYPE_STRING: fprintf(f, "string"); break;
+
         case TYPE_CLASS: fprintf(f, "%%%s", t.class_name ? t.class_name : "obj"); break;
         case TYPE_ENUM: fprintf(f, "int"); break;
         case TYPE_LONG_LONG: fprintf(f, "ll"); break;
         case TYPE_LONG_DOUBLE: fprintf(f, "ld"); break;
         case TYPE_ARRAY: fprintf(f, "array"); break;
-        case TYPE_VECTOR: fprintf(f, "vec"); break;
-        case TYPE_HASHMAP: fprintf(f, "hashmap"); break;
+
         case TYPE_AUTO: fprintf(f, "any"); break;
         case TYPE_UNKNOWN: fprintf(f, "unknown"); break;
 
@@ -221,7 +220,7 @@ void alir_emit_stream(AlirModule *mod, FILE *f) {
         AlirGlobal *g = mod->globals;
         while(g) {
             char *esc = escape_string(g->string_content);
-            if (g->type.base == TYPE_STRING) {
+            if (g->type.base == TYPE_CLASS && g->type.class_name && strcmp(g->type.class_name, "string") == 0) {
                 fprintf(f, "@%s = string \"%s\"\n", g->name, esc);
             } else {
                 fprintf(f, "@%s = cstring \"%s\"\n", g->name, esc);

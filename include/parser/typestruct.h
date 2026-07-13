@@ -71,9 +71,7 @@ typedef enum {
   TYPE_DOUBLE,
   TYPE_LONG_DOUBLE,
   TYPE_ARRAY,
-  TYPE_STRING,
-  TYPE_VECTOR,
-  TYPE_HASHMAP,
+
   TYPE_AUTO,
   TYPE_CLASS, 
   TYPE_ENUM, 
@@ -157,6 +155,7 @@ typedef struct {
   bool is_pristine : 1;
   bool has_explicit_pristine : 1;
   bool is_extern : 1;
+  bool is_covalent : 1;
   char *cconv;
 } FuncDefNode;
 
@@ -382,6 +381,7 @@ typedef struct {
   ASTNode *index; 
   ASTNode *target; 
   int op; 
+  char *overloaded_func_name;
 } AssignNode; 
 
 typedef struct {
@@ -391,6 +391,7 @@ typedef struct {
   ASTNode *target; 
   int op;
   bool is_prefix : 1; 
+  char *overloaded_func_name;
 } IncDecNode;
 
 typedef struct {
@@ -432,12 +433,15 @@ typedef struct {
   int op; 
   ASTNode *left;
   ASTNode *right;
+  char *overloaded_func_name;
 } BinaryOpNode;
 
 typedef struct {
   ASTNode base;
   int op; 
   ASTNode *operand;
+  int is_suffix;
+  char *overloaded_func_name;
 } UnaryOpNode;
 
 typedef struct {

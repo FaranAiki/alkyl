@@ -240,6 +240,30 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     VarType l = sem_get_node_type(ctx, node->left);
     VarType r = sem_get_node_type(ctx, node->right);
     
+    // Operator Overloading Check
+    char name_buf[64];
+    snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", TOKEN_INFOP, node->op);
+    SemSymbol *sym = sem_symbol_lookup(ctx, name_buf, NULL);
+    if (sym && sym->kind == SYM_FUNC) {
+        ASTNode *args = node->left;
+        args->next = node->right;
+        node->right->next = NULL;
+        SemSymbol *resolved = sem_resolve_overload(ctx, &args, NULL, sym, NULL);
+        if (resolved) {
+            node->overloaded_func_name = arena_strdup(ctx->compiler_ctx->arena, resolved->mangled_name ? resolved->mangled_name : resolved->name);
+            sem_set_node_type(ctx, (ASTNode*)node, resolved->type);
+            node->left = args;
+            node->right = args->next;
+            node->left->next = NULL;
+            if (node->right) node->right->next = NULL;
+            return;
+        }
+        // Restore next pointers if not resolved
+        node->left->next = NULL;
+        node->right->next = NULL;
+    }
+
+    
     if (node->op == TOKEN_QUESTION) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 0); // Result is pristine!
     } else if (sem_get_node_tainted(ctx, node->left) || sem_get_node_tainted(ctx, node->right)) {
@@ -309,9 +333,9 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     else if (is_integer(l) && is_pointer(r)) {
          sem_set_node_type(ctx, (ASTNode*)node, r);
     }
-    else if (l.base == TYPE_STRING || r.base == TYPE_STRING) {
+    else if ((l.base == TYPE_CLASS && l.class_name && strcmp(l.class_name, "string") == 0) || (r.base == TYPE_CLASS && r.class_name && strcmp(r.class_name, "string") == 0)) {
          if (node->op == TOKEN_PLUS) 
-            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_STRING, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            sem_set_node_type(ctx, (ASTNode*)node, (VarType){ .base = TYPE_CLASS, .class_name = (char*)"string" });
          else {
             sem_error(ctx, (ASTNode*)node, "Invalid operation on strings");
             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
@@ -406,6 +430,72 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             IncDecNode *id = (IncDecNode*)node;
             sem_check_expr(ctx, id->target);
             VarType t = sem_get_node_type(ctx, id->target);
+            
+            // Operator Overloading Check
+            char name_buf[64];
+            snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", id->is_prefix ? TOKEN_PREMUT : TOKEN_SUFMUT, id->op);
+            SemSymbol *sym = NULL;
+            int is_method = 0;
+            if (t.base == TYPE_CLASS && t.ptr_depth == 0 && t.class_name) {
+                SemSymbol *class_sym = sem_symbol_lookup(ctx, t.class_name, NULL);
+                if (class_sym && class_sym->inner_scope) {
+                    SemSymbol *s = class_sym->inner_scope->symbols;
+                    while (s) {
+                        if (strcmp(s->name, name_buf) == 0) { sym = s; is_method = 1; break; }
+                        s = s->next;
+                    }
+                    if (!sym) {
+                        snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", id->is_prefix ? TOKEN_PREFOP : TOKEN_SUFFOP, id->op);
+                        s = class_sym->inner_scope->symbols;
+                        while (s) {
+                            if (strcmp(s->name, name_buf) == 0) { sym = s; is_method = 1; break; }
+                            s = s->next;
+                        }
+                    }
+                }
+            }
+            if (!sym) {
+                snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", id->is_prefix ? TOKEN_PREMUT : TOKEN_SUFMUT, id->op);
+                sym = sem_symbol_lookup(ctx, name_buf, NULL);
+                if (!sym) {
+                    snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", id->is_prefix ? TOKEN_PREFOP : TOKEN_SUFFOP, id->op);
+                    sym = sem_symbol_lookup(ctx, name_buf, NULL);
+                }
+            }
+            if (sym && sym->kind == SYM_FUNC) {
+                if (is_method) {
+                    ASTNode *no_args = NULL;
+                    SemSymbol *resolved = sem_resolve_overload(ctx, &no_args, NULL, sym, NULL);
+                    if (resolved) {
+                        id->overloaded_func_name = arena_strdup(ctx->compiler_ctx->arena, resolved->mangled_name ? resolved->mangled_name : resolved->name);
+                        sem_set_node_type(ctx, (ASTNode*)node, resolved->type);
+                        break;
+                    }
+                } else {
+                    UnaryOpNode *addr_of = arena_alloc_type(ctx->compiler_ctx->arena, UnaryOpNode);
+                    memset(addr_of, 0, sizeof(UnaryOpNode));
+                    addr_of->base.type = NODE_UNARY_OP;
+                    addr_of->op = TOKEN_AND;
+                    addr_of->operand = id->target;
+                    addr_of->base.line = node->line;
+                    addr_of->base.col = node->col;
+                    VarType ptr_type = t;
+                    ptr_type.ptr_depth++;
+                    sem_set_node_type(ctx, (ASTNode*)addr_of, ptr_type);
+                    
+                    ASTNode *args = (ASTNode*)addr_of;
+                    args->next = NULL;
+                    SemSymbol *resolved = sem_resolve_overload(ctx, &args, NULL, sym, NULL);
+                    if (resolved) {
+                        id->overloaded_func_name = arena_strdup(ctx->compiler_ctx->arena, resolved->mangled_name ? resolved->mangled_name : resolved->name);
+                        sem_set_node_type(ctx, (ASTNode*)node, resolved->type);
+                        id->target = args;
+                        id->target->next = NULL;
+                        break;
+                    }
+                }
+            }
+
             if (!is_numeric(t) && !is_pointer(t) && t.base != TYPE_UNKNOWN) {
                 sem_error(ctx, node, "Cannot increment/decrement non-numeric/non-pointer type");
             }
@@ -439,16 +529,64 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
                 sem_check_expr(ctx, sn->operand);
             }
-            sem_set_node_type(ctx, node, (VarType){TYPE_STRING, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            sem_set_node_type(ctx, node, (VarType){ .base = TYPE_CLASS, .class_name = (char*)"string" });
             break;
         }
         case NODE_HAS_METHOD:
         case NODE_HAS_ATTRIBUTE: {
             UnaryOpNode *un = (UnaryOpNode*)node;
-            sem_check_expr(ctx, un->operand);
-            if (sem_get_node_tainted(ctx, un->operand)) sem_set_node_tainted(ctx, node, 1);
             
-            sem_set_node_type(ctx, node, (VarType){TYPE_BOOL, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            // Do not check the operand because it might be a trait or class name which fails normally.
+            // But wait, if it's a class name, it resolves to a type.
+            // For now we will manually look it up.
+            char *target_name = NULL;
+            if (un->operand->type == NODE_VAR_REF) {
+                target_name = ((VarRefNode*)un->operand)->name;
+            } else if (un->operand->type == NODE_MEMBER_ACCESS) {
+                MemberAccessNode *ma = (MemberAccessNode*)un->operand;
+                sem_check_expr(ctx, ma->object);
+                VarType obj_t = sem_get_node_type(ctx, ma->object);
+                if (obj_t.base == TYPE_CLASS && obj_t.class_name) target_name = obj_t.class_name;
+            }
+            
+            ASTNode *head = NULL;
+            ASTNode **curr = &head;
+            int count = 0;
+            
+            if (target_name) {
+                SemSymbol *class_sym = sem_symbol_lookup(ctx, target_name, NULL);
+                if (class_sym && class_sym->inner_scope) {
+                    SemSymbol *s = class_sym->inner_scope->symbols;
+                    while (s) {
+                        bool match = false;
+                        if (node->type == NODE_HAS_METHOD && s->kind == SYM_FUNC) match = true;
+                        if (node->type == NODE_HAS_ATTRIBUTE && s->kind == SYM_VAR) match = true;
+                        
+                        if (match) {
+                            LiteralNode *ln = arena_alloc(ctx->compiler_ctx->arena, sizeof(LiteralNode));
+                            ln->base.type = NODE_LITERAL;
+                            ln->var_type.base = TYPE_CLASS;
+                            ln->var_type.class_name = arena_strdup(ctx->compiler_ctx->arena, "string");
+                            ln->var_type.ptr_depth = 0;
+                            ln->var_type.array_size = 0;
+                            ln->val.str_val = arena_strdup(ctx->compiler_ctx->arena, s->name);
+                            *curr = (ASTNode*)ln;
+                            curr = &(*curr)->next;
+                            count++;
+                        }
+                        s = s->next;
+                    }
+                }
+            }
+            
+            // If none found, we still need an empty array, but we can't type check empty array easily.
+            // Well, let's just create an empty array literal.
+            node->type = NODE_ARRAY_LIT;
+            ArrayLitNode *an = (ArrayLitNode*)node;
+            an->elements = head;
+            
+            VarType arr_t = { .base = TYPE_CLASS, .class_name = arena_strdup(ctx->compiler_ctx->arena, "string"), .ptr_depth = 0, .array_size = count };
+            sem_set_node_type(ctx, node, arr_t);
             break;
         }
         case NODE_TEMPLATE_INSTANTIATION: {
@@ -825,7 +963,9 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
     }
     
     if (!best_match) {
-        sem_error(ctx, err_node, "No matching overload found for function '%s'", first_sym->name);
+        if (err_node) {
+            sem_error(ctx, err_node, "No matching overload found for function '%s'", first_sym->name);
+        }
         return NULL;
     }
     

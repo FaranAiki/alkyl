@@ -1,11 +1,3 @@
-tainted int function() {
-  return 5;
-}
-
-int main() {
-  tainted int t = function();
-
-  wash t as err {
-    print "a";
-  }
+impure int main() {
+  return 0;
 }

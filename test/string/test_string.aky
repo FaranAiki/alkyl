@@ -1,0 +1,11 @@
+import "std/string";
+
+int test_string() -> int {
+    let s = string("hello world");
+    
+    // Testing length
+    if (s.length() != 11) {
+        return 1;
+    }
+    return 0;
+}

@@ -1,0 +1,12 @@
+import "std/vector";
+
+int test_vector() -> int {
+    let v = vector();
+    v.init();
+    
+    // Nanti kita akan test insert dkk
+    if (v.size != 0) {
+        return 1;
+    }
+    return 0;
+}

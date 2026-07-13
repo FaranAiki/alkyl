@@ -401,6 +401,16 @@ static int lex_string(Lexer *l, Token *t) {
     return 1;
   }
 
+  // Byte string check: b"..."
+  if (c == 'b' && l->src[l->pos + 1] == '"') {
+    advance(l); // consume 'b'
+    advance(l); // consume '"'
+    
+    t->type = TOKEN_BYTE_STRING;
+    t->text = consume_string_content(l);
+    return 1;
+  }
+
   if (c == '"') {
     advance(l); 
     t->type = TOKEN_STRING;
