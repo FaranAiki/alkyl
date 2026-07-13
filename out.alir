@@ -1,1 +1,40 @@
 ; Module: main_module
+
+; Globals
+@str.7 = string "End of scope\n"
+@str.6 = string "Start of scope\n"
+@str.5 = string "alignof(x): %d\n"
+@str.4 = string "alignof(int): %d\n"
+@str.3 = string "typeof(x): %s\n"
+@str.2 = string "typeof(int): %s\n"
+@str.1 = string "sizeof(x): %d\n"
+@str.0 = string "sizeof(int): %d\n"
+
+promise int @printf(string, ...)
+
+block func int @main() {
+entry:
+  %0 = onstack int
+  store int 10, %0
+  %1 = sizeof unknown type((null))
+  %2 = call %printf (@str.0, %1)
+  %3 = sizeof unknown type((null))
+  %4 = call %printf (@str.1, %3)
+  %5 = typeof string type((null))
+  %6 = onstack string
+  store string %5, %6
+  %7 = typeof string type((null))
+  %8 = onstack string
+  store string %7, %8
+  %9 = load string %6
+  %10 = call %printf (@str.2, %9)
+  %11 = load string %8
+  %12 = call %printf (@str.3, %11)
+  %13 = alignof unknown type((null))
+  %14 = call %printf (@str.4, %13)
+  %15 = alignof unknown type((null))
+  %16 = call %printf (@str.5, %15)
+  %17 = call %printf (@str.6)
+  %18 = call %printf (@str.7)
+  return int 0
+}

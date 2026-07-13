@@ -31,8 +31,30 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
 
     switch(node->type) {
         case NODE_CLEAN:
-        case NODE_WASH:
+        case NODE_WASH: {
+            WashNode *wn = (WashNode*)node;
+            
+            // Execute the main body
+            ASTNode *s = wn->body;
+            while(s) {
+                alir_gen_stmt(ctx, s);
+                s = s->next;
+            }
+            
+            // If there's an else block, execute it afterward
+            if (wn->else_body) {
+                if (wn->else_body->type == NODE_IF || wn->else_body->type == NODE_WASH || wn->else_body->type == NODE_CLEAN) {
+                    alir_gen_stmt(ctx, wn->else_body);
+                } else {
+                    s = wn->else_body;
+                    while(s) {
+                        alir_gen_stmt(ctx, s);
+                        s = s->next;
+                    }
+                }
+            }
             break;
+        }
         case NODE_SIZEOF:
             alir_gen_expr(ctx, node);
             break;
@@ -169,6 +191,9 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             alir_gen_expr(ctx, node); 
             break;
 
+        case NODE_DEFER:
+            // TODO: Implement proper defer queueing for scope exits
+            break;
         case NODE_IF: {
             IfNode *in = (IfNode*)node;
             AlirValue *cond = alir_gen_expr(ctx, in->condition);

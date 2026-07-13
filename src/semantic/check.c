@@ -57,7 +57,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             sym->is_is_a = cn->is_is_a;
             sym->is_has_a = cn->is_has_a;
             sym->is_pure = cn->is_pure && !cn->is_extern;
-            sym->must_pure = cn->is_pure;
+            sym->must_pure = cn->has_explicit_pure;
             sym->is_union = cn->is_union;
             if (cn->parent_name) {
                 sym->parent_name = arena_strdup(ctx->compiler_ctx->arena, cn->parent_name);
@@ -97,6 +97,14 @@ static void sem_check_call_args(SemanticCtx *ctx, CallNode *node, SemSymbol *sym
     while(*curr_arg) {
         sem_check_expr(ctx, *curr_arg);
         if (curr_para) {
+            int arg_is_tainted = sem_get_node_tainted(ctx, *curr_arg);
+            // Default to pristine since Parameter struct doesn't have is_pristine yet
+            int param_is_pristine = 1; 
+
+            if (arg_is_tainted && param_is_pristine) {
+                sem_error(ctx, *curr_arg, "Cannot pass tainted expression to pristine parameter '%s'", curr_para->name);
+            }
+
             if (sem_types_are_compatible(ctx,curr_para->type, sem_get_node_type(ctx, *curr_arg))) {
                 sem_insert_implicit_cast(ctx, curr_arg, curr_para->type);
             } else {
@@ -198,7 +206,9 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     VarType l = sem_get_node_type(ctx, node->left);
     VarType r = sem_get_node_type(ctx, node->right);
     
-    if (sem_get_node_tainted(ctx, node->left) || sem_get_node_tainted(ctx, node->right)) {
+    if (node->op == TOKEN_QUESTION) {
+        sem_set_node_tainted(ctx, (ASTNode*)node, 0); // Result is pristine!
+    } else if (sem_get_node_tainted(ctx, node->left) || sem_get_node_tainted(ctx, node->right)) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
     }
 
@@ -215,6 +225,12 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     
     if (node->op == TOKEN_AND_AND || node->op == TOKEN_OR_OR) {
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_BOOL, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+        return;
+    }
+    
+    if (node->op == TOKEN_QUESTION) {
+        // Fallback uses the type of the left hand side
+        sem_set_node_type(ctx, (ASTNode*)node, l);
         return;
     }
    
@@ -281,11 +297,15 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             break;
         }
         case NODE_SIZEOF:
+        case NODE_ALIGNOF:
     case NODE_META:
     case NODE_POSTMETA:
         break; {
             SizeOfNode *sn = (SizeOfNode*)node;
-            if (sn->target_type.base == TYPE_CLASS && sn->target_type.ptr_depth == 0) {
+            if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
+                sem_check_expr(ctx, sn->operand);
+                if (sem_get_node_tainted(ctx, sn->operand)) sem_set_node_tainted(ctx, node, 1);
+            } else if (sn->target_type.base == TYPE_CLASS && sn->target_type.ptr_depth == 0) {
                 SemSymbol *sym = sem_symbol_lookup(ctx, sn->target_type.class_name, NULL);
                 if (!sym || sym->kind != SYM_CLASS) {
                     sem_error(ctx, node, "Unknown class type '%s' in sizeof", sn->target_type.class_name);
@@ -382,18 +402,22 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             sem_set_node_type(ctx, node, res);
             break;
         }
-        case NODE_TYPEOF:
+        case NODE_TYPEOF: {
+            SizeOfNode *sn = (SizeOfNode*)node;
+            if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
+                sem_check_expr(ctx, sn->operand);
+                if (sem_get_node_tainted(ctx, sn->operand)) sem_set_node_tainted(ctx, node, 1);
+            }
+            sem_set_node_type(ctx, node, (VarType){TYPE_STRING, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            break;
+        }
         case NODE_HAS_METHOD:
         case NODE_HAS_ATTRIBUTE: {
             UnaryOpNode *un = (UnaryOpNode*)node;
             sem_check_expr(ctx, un->operand);
             if (sem_get_node_tainted(ctx, un->operand)) sem_set_node_tainted(ctx, node, 1);
             
-            if (node->type == NODE_TYPEOF) {
-                sem_set_node_type(ctx, node, (VarType){TYPE_STRING, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
-            } else {
-                sem_set_node_type(ctx, node, (VarType){TYPE_BOOL, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
-            }
+            sem_set_node_type(ctx, node, (VarType){TYPE_BOOL, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             break;
         }
         default: break;
@@ -438,15 +462,22 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 sem_error(ctx, node, "Undefined variable '%s'", wn->var_name);
             }
 
-            if (wn->wash_type == 2) { 
-                if (ctx->in_wash_block == 0) {
-                    sem_error(ctx, node, "Cannot untaint outside a wash/clean block");
-                } else {
-                    if (target_sym) {
-                        target_sym->is_pristine = 1; 
-                    }
+            if (wn->wash_type == WASH_TYPE_UNTAINT) { 
+                sem_scope_enter(ctx, 0, (VarType){0});
+                
+                if (wn->err_name) {
+                    VarType err_type = {TYPE_INT, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0}; 
+                    SemSymbol *err_sym = sem_symbol_add(ctx, wn->err_name, SYM_VAR, err_type);
+                    err_sym->is_initialized = 1;
                 }
-            } else { 
+                
+                sem_check_block(ctx, wn->body);
+                sem_scope_exit(ctx);
+                
+                if (target_sym) {
+                    target_sym->is_pristine = 1; 
+                }
+            } else if (wn->wash_type == WASH_TYPE_WASH || wn->wash_type == WASH_TYPE_CLEAN) { 
                 sem_scope_enter(ctx, 0, (VarType){0});
                 
                 if (wn->err_name) {
@@ -462,11 +493,16 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                     ctx->in_wash_block++;
                     sem_scope_enter(ctx, 0, (VarType){0});
                     
+                    int old_pristine = target_sym ? target_sym->is_pristine : 0;
+                    if (target_sym) target_sym->is_pristine = 1;
+                    
                     if (wn->else_body->type == NODE_WASH || wn->else_body->type == NODE_IF) {
                         sem_check_node(ctx, wn->else_body);
                     } else {
                         sem_check_block(ctx, wn->else_body);
                     }
+                    
+                    if (target_sym && wn->wash_type == WASH_TYPE_WASH) target_sym->is_pristine = old_pristine;
                     
                     sem_scope_exit(ctx);
                     ctx->in_wash_block--;
@@ -491,6 +527,13 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 }
                 sem_scope_exit(ctx);
             }
+            break;
+        }
+        case NODE_DEFER: {
+            DeferNode *dn = (DeferNode*)node;
+            sem_scope_enter(ctx, 0, (VarType){0});
+            sem_check_block(ctx, dn->body);
+            sem_scope_exit(ctx);
             break;
         }
         case NODE_WHILE: {
@@ -660,10 +703,37 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
         return NULL;
     }
     
-    // Apply implicit casts
+    // Apply implicit casts and reference downgrades
     ASTNode **p_curr = args;
     Parameter *curr_para = best_match->params;
+    
+    ASTNode *arg_node = *args;
+    while(arg_node) {
+        if (!best_match->is_pristine && arg_node->type == NODE_UNARY_OP) {
+            UnaryOpNode *uop = (UnaryOpNode*)arg_node;
+            if (uop->op == TOKEN_AND && uop->operand->type == NODE_VAR_REF) {
+                VarRefNode *var_ref = (VarRefNode*)uop->operand;
+                SemSymbol *ref_sym = sem_symbol_lookup(ctx, var_ref->name, NULL);
+                if (ref_sym) {
+                    if (ref_sym->must_pristine) {
+                        sem_error(ctx, arg_node, "Cannot pass pristine variable '%s' by reference to tainted function '%s'", var_ref->name, best_match->name);
+                    } else {
+                        ref_sym->is_pristine = 0; // Downgrade to tainted
+                    }
+                }
+            }
+        }
+        arg_node = arg_node->next;
+    }
+    
     while(*p_curr && curr_para) {
+        int arg_is_tainted = sem_get_node_tainted(ctx, *p_curr);
+        int param_is_pristine = 1; // Default to pristine
+
+        if (arg_is_tainted && param_is_pristine) {
+            sem_error(ctx, *p_curr, "Cannot pass tainted expression to pristine parameter '%s'", curr_para->name);
+        }
+
         if (sem_types_are_compatible(ctx, curr_para->type, sem_get_node_type(ctx, *p_curr))) {
             sem_insert_implicit_cast(ctx, p_curr, curr_para->type);
         }

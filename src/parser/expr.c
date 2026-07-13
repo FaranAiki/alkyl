@@ -131,18 +131,24 @@ ASTNode* parse_factor(Parser *p) {
 
   if (p->current_token.type == TOKEN_TYPEOF) {
       eat(p, TOKEN_TYPEOF);
-      ASTNode *expr;
-      if (p->current_token.type == TOKEN_LPAREN) {
-          eat(p, TOKEN_LPAREN);
-          expr = parse_expression(p);
-          eat(p, TOKEN_RPAREN);
+      eat(p, TOKEN_LPAREN);
+      if (is_type_start(p)) {
+          VarType t = parse_type(p);
+          // If typeof takes a type, we wrap it in a CastNode or a new TypeOfNode.
+          // Since TypeOfNode is currently UnaryOpNode, it only takes an operand expression.
+          // For now we'll put a dummy literal here, but a real TypeOfTypeNode would be better.
+          SizeOfNode *sn = parser_alloc(p, sizeof(SizeOfNode));
+          sn->base.type = NODE_TYPEOF;
+          sn->target_type = t;
+          node = (ASTNode*)sn;
       } else {
-          expr = parse_unary(p); 
+          SizeOfNode *sn2 = parser_alloc(p, sizeof(SizeOfNode));
+          sn2->base.type = NODE_TYPEOF;
+          sn2->target_type.base = TYPE_UNKNOWN;
+          sn2->operand = parse_expression(p);
+          node = (ASTNode*)sn2;
       }
-      UnaryOpNode *u = parser_alloc(p, sizeof(UnaryOpNode));
-      u->base.type = NODE_TYPEOF;
-      u->operand = expr;
-      node = (ASTNode*)u;
+      eat(p, TOKEN_RPAREN);
       set_loc(node, line, col);
   }
   else if (p->current_token.type == TOKEN_KW_DEFINED) {
@@ -287,15 +293,21 @@ ASTNode* parse_factor(Parser *p) {
     node = (ASTNode*)ln;
     set_loc(node, line, col);
   }
-  else if (p->current_token.type == TOKEN_KW_SIZEOF) {
-    eat(p, TOKEN_KW_SIZEOF);
+  else if (p->current_token.type == TOKEN_KW_SIZEOF || p->current_token.type == TOKEN_KW_ALIGNOF) {
+    int is_align = (p->current_token.type == TOKEN_KW_ALIGNOF);
+    eat(p, p->current_token.type);
     eat(p, TOKEN_LPAREN);
-    VarType target_type = parse_type(p);
+    SizeOfNode *sn = parser_alloc(p, sizeof(SizeOfNode));
+    sn->base.type = is_align ? NODE_ALIGNOF : NODE_SIZEOF;
+    sn->target_type.base = TYPE_UNKNOWN; 
+    
+    if (is_type_start(p)) {
+        sn->target_type = parse_type(p);
+    } else {
+        sn->operand = parse_expression(p);
+    }
     eat(p, TOKEN_RPAREN);
 
-    SizeOfNode *sn = parser_alloc(p, sizeof(SizeOfNode));
-    sn->base.type = NODE_SIZEOF;
-    sn->target_type = target_type;
     node = (ASTNode*)sn;
     set_loc(node, line, col);
   }
@@ -436,8 +448,13 @@ ASTNode* parse_logic_or(Parser *p) {
   return parse_binary_op(p, parse_logic_and, ops, 1);
 }
 
+ASTNode* parse_fallback(Parser *p) {
+  TokenType ops[] = {TOKEN_QUESTION};
+  return parse_binary_op(p, parse_logic_or, ops, 1);
+}
+
 ASTNode* parse_assignment(Parser *p) {
-  ASTNode *lhs = parse_logic_or(p); 
+  ASTNode *lhs = parse_fallback(p); 
   
   if (p->current_token.type == TOKEN_ASSIGN || 
       p->current_token.type == TOKEN_PLUS_ASSIGN ||

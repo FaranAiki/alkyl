@@ -10,13 +10,17 @@ Alkyl is named after aikil (aiki language) and alkyl in chemistry which is a hig
 
 # Purpose
 
-Creating a programming language that can be automated using Artificial Intelligence. As the world grows, programming may not using languages like Python, C, Rust, Zig, or others. This is why this programming language exist: to make it easy for AI to understand, generate, and check.
+Alkyl is a general multipurpose language that is used for experimenting with lexer, parser, and code generation.
 
 Moreover, Alkyl used syntax similar to C "but lazy" so developer can understand had there been a bug that AI missed.
 
 # Core Feature
 
 Core feature is the high-level and simplicity of C, combined with C++'s object oriented programming with is-a has-a feature.
+
+Alkyl also features a robust, **fully orthogonal** effect and error-handling type system:
+* **`pure` vs `impure`**: Determines if a function has side-effects (state mutation, IO).
+* **`pristine` vs `tainted`**: Determines error-safety. A `tainted` value represents a potential error or failure that must be safely unwrapped (`wash`, `clean`, `untaint`) before it can be used, guaranteeing safety without runtime exceptions.
 
 Todo implemented:
 * threading { }

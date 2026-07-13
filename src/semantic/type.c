@@ -95,9 +95,9 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             SemSymbol *sym = sem_symbol_add(ctx, node->name, SYM_VAR, node->var_type);
             sym->is_mutable = node->is_mutable; 
             sym->is_pure = node->is_pure;
-            sym->must_pure = node->is_pure;
-            sym->is_pristine = true;
-            sym->must_pristine = node->is_pristine;            
+            sym->must_pure = node->has_explicit_pure;
+            sym->is_pristine = node->is_pristine;
+            sym->must_pristine = node->has_explicit_pristine;            
       
             int is_global = (ctx->current_scope == ctx->global_scope);
             if (node->initializer || is_global || node->base.type == NODE_VAR_DECL) {
@@ -112,9 +112,9 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             sym->type = node->var_type;
             sym->is_mutable = node->is_mutable;
             sym->is_pure = node->is_pure;
-            sym->must_pure = node->is_pure;
-            sym->is_pristine = true;
-            sym->must_pristine = node->is_pristine;
+            sym->must_pure = node->has_explicit_pure;
+            sym->is_pristine = node->is_pristine;
+            sym->must_pristine = node->has_explicit_pristine;
             if (node->initializer) sym->is_initialized = true;
         }
     }

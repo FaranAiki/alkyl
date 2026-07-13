@@ -1,0 +1,20 @@
+extern int scanf(string format, ...);
+extern int printf(string format, ...);
+
+int main() {
+    pristine int user_input; // explicitly pristine
+
+    printf("Masukkan angka: ");
+    
+    // ini harus error semantik!
+    wash user_input as err {
+        int status = scanf("%d", &user_input);
+        if (status != 1) {
+            printf("Gagal!\n");
+        }
+    } else {
+        printf("Angka: %d\n", user_input);
+    }
+    
+    return 0;
+}

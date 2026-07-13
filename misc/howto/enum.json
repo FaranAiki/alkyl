@@ -1,0 +1,14 @@
+{
+    "keyword": "enum",
+    "description": "Defines an enumeration type in Alkyl. Enums allow you to define a set of named integer constants.",
+    "features": [
+        "Defines a collection of named values.",
+        "Underlying type is typically integer."
+    ],
+    "example": "enum FileAccess [\n    READ = 1,\n    WRITE = 2,\n    EXECUTE = 4\n];\n\nFileAccess mode = READ | WRITE;",
+    "constraints": [
+        "Must use square brackets `[` and `]` instead of `{` and `}`.",
+        "Values must be known at compile time.",
+        "Anonymous enums (without a name) must still be named or given a dummy name in Alkyl."
+    ]
+}

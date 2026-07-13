@@ -1,4 +1,5 @@
 #include "translate.h"
+#include "../semantic/semantic.h"
 
 void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
     LLVMValueRef op1 = get_llvm_value(ctx, inst->op1);
@@ -298,6 +299,18 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             res = LLVMSizeOf(ty);
             LLVMTypeRef dest_ty = inst->dest ? get_llvm_type(ctx, inst->dest->type) : LLVMInt64TypeInContext(ctx->llvm_ctx);
             res = LLVMBuildIntCast(ctx->builder, res, dest_ty, "sz_cast");
+            break;
+        }
+        case ALIR_OP_ALIGNOF: {
+            LLVMTypeRef ty = get_llvm_type(ctx, inst->op1->type);
+            res = LLVMAlignOf(ty);
+            LLVMTypeRef dest_ty = inst->dest ? get_llvm_type(ctx, inst->dest->type) : LLVMInt64TypeInContext(ctx->llvm_ctx);
+            res = LLVMBuildIntCast(ctx->builder, res, dest_ty, "al_cast");
+            break;
+        }
+        case ALIR_OP_TYPEOF: {
+            char *type_str = sem_type_to_str(inst->op1->type);
+            res = LLVMBuildGlobalStringPtr(ctx->builder, type_str, "typeof_str");
             break;
         }
         case ALIR_OP_FREE_HEAP: {

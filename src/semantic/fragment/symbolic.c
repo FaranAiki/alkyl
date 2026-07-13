@@ -6,9 +6,9 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
     sym->is_is_a = fd->is_is_a;
     sym->is_has_a = fd->is_has_a;
     sym->is_pure = fd->is_pure && !fd->is_extern;
-    sym->must_pure = fd->is_pure;
+    sym->must_pure = fd->has_explicit_pure;
     sym->is_pristine = fd->is_pristine;
-    sym->must_pristine = fd->is_pristine;
+    sym->must_pristine = fd->has_explicit_pristine;
     sym->is_flux = fd->is_flux;
     sym->is_variadic = fd->is_varargs; 
     sym->params = fd->params; // idk if this is redundant or not but ok
@@ -31,9 +31,9 @@ void sem_symbolic_var_decl(SemanticCtx *ctx, ASTNode *node) {
     SemSymbol *sym = sem_symbol_add(ctx, vd->name, SYM_VAR, vd->var_type);
     sym->is_mutable = vd->is_mutable;
     sym->is_pure = vd->is_pure;
-    sym->must_pure = vd->is_pure;
-    sym->is_pristine = 1;
-    sym->must_pristine = vd->is_pristine;
+    sym->must_pure = vd->has_explicit_pure;
+    sym->is_pristine = vd->is_pristine;
+    sym->must_pristine = vd->has_explicit_pristine;
 }
 
 void sem_symbolic_node_enum(SemanticCtx *ctx, ASTNode *node) {

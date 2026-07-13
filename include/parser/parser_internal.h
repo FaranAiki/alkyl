@@ -73,6 +73,7 @@ char* parser_strdup(Parser *p, const char *str);
 void register_macro(Parser *p, const char *name, char **params, int param_count, Token *body, int body_len);
 void register_typename(Parser *p, const char *name, int is_enum);
 int is_typename(Parser *p, const char *name);
+int is_type_start(Parser *p);
 void register_alias(Parser *p, const char *name, VarType target);
 VarType* get_alias(Parser *p, const char *name);
 

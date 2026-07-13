@@ -202,7 +202,7 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
 
   // Handle explicit non-modifier WASH and CLEAN statements
   if (p->current_token.type == TOKEN_WASH || p->current_token.type == TOKEN_CLEAN) {
-      int wash_type = (p->current_token.type == TOKEN_CLEAN) ? 1 : 0;
+      WashType wash_type = (p->current_token.type == TOKEN_CLEAN) ? WASH_TYPE_CLEAN : WASH_TYPE_WASH;
       eat(p, p->current_token.type);
       
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected variable name after 'wash' or 'clean'");
@@ -220,14 +220,7 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
       char *var_name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
       
-      eat_semi(p);
-      WashNode *node = parser_alloc(p, sizeof(WashNode));
-      node->base.type = NODE_WASH;
-      node->base.line = line;
-      node->base.col = col;
-      node->var_name = var_name;
-      node->wash_type = 2; // 2 = untaint
-      return (ASTNode*)node;
+      return parse_wash_or_clean_tail(p, var_name, WASH_TYPE_UNTAINT);
   }
 
   int modifiers = parse_modifiers(p);
@@ -250,6 +243,26 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
   if (p->current_token.type == TOKEN_EXTERN) {
       extern ASTNode* parse_extern(Parser *p, int modifiers);
       return parse_extern(p, modifiers);
+  }
+
+  if (p->current_token.type == TOKEN_DEFER) {
+      if(modifiers) parser_fail(p, "Modifiers not allowed");
+      eat(p, TOKEN_DEFER);
+      
+      ASTNode *body;
+      if (p->current_token.type == TOKEN_LBRACE) {
+          eat(p, TOKEN_LBRACE);
+          body = parse_statements(p);
+          eat(p, TOKEN_RBRACE);
+      } else {
+          body = parse_single_statement_or_block(p);
+      }
+      
+      DeferNode *dn = parser_alloc(p, sizeof(DeferNode));
+      dn->base.type = NODE_DEFER;
+      dn->body = body;
+      set_loc((ASTNode*)dn, line, col);
+      return (ASTNode*)dn;
   }
 
   if (p->current_token.type == TOKEN_META || p->current_token.type == TOKEN_POSTMETA) {

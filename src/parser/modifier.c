@@ -62,7 +62,8 @@ void apply_class_modifiers(ClassNode* node, int modifiers) {
     if (modifiers & MODIFIER_CLOSED) node->is_open = 0;
     if (modifiers & MODIFIER_STATIC) node->is_static = 1;
     
-    node->is_pure = modifiers & MODIFIER_PURE;
+    node->is_pure = !(modifiers & MODIFIER_IMPURE);
+    node->has_explicit_pure = (modifiers & MODIFIER_PURE) != 0;
     
     // IS-A constraints (Inheritance)
     if (modifiers & MODIFIER_FINAL) {
@@ -91,11 +92,17 @@ void apply_func_modifiers(FuncDefNode* node, int modifiers) {
     if (modifiers & MODIFIER_CLOSED) node->is_open = 0;
     if (modifiers & MODIFIER_STATIC) node->is_static = 1;
     
-    // node is pure is TRUE by default unless proven otherwise 
-    // and node->is_pure is used by sym to make it sym->must_pure = true or not 
-    // TODO maybe separate this shit idk
-    node->is_pure = modifiers & MODIFIER_PURE /* || !(modifiers & MODIFIER_IMPURE) */;
-    node->is_pristine = modifiers & MODIFIER_PRISTINE || !(modifiers & MODIFIER_TAINTED);
+    // node is pure is TRUE by default unless proven otherwise (e.g. explicitly impure)
+    node->is_pure = !(modifiers & MODIFIER_IMPURE);
+    node->has_explicit_pure = (modifiers & MODIFIER_PURE) != 0;
+    
+    // Extern functions are tainted by default unless explicitly marked pristine
+    if (node->is_extern) {
+        node->is_pristine = (modifiers & MODIFIER_PRISTINE) != 0;
+    } else {
+        node->is_pristine = !(modifiers & MODIFIER_TAINTED);
+    }
+    node->has_explicit_pristine = (modifiers & MODIFIER_PRISTINE) != 0;
 
     // oop modifier useless af 
     if (modifiers & MODIFIER_FINAL) {
@@ -128,9 +135,11 @@ void apply_var_modifiers(VarDeclNode* node, int modifiers) {
     
     node->is_static = (modifiers & MODIFIER_STATIC) != 0;
     
-    // By default, pure and clean are FALSE unless overridden
-    node->is_pure = modifiers & MODIFIER_PURE;
-    node->is_pristine = modifiers & MODIFIER_PRISTINE || !(modifiers & MODIFIER_TAINTED);
+    // By default, pure and clean are TRUE unless proven otherwise
+    node->is_pure = !(modifiers & MODIFIER_IMPURE);
+    node->has_explicit_pure = (modifiers & MODIFIER_PURE) != 0;
+    node->is_pristine = !(modifiers & MODIFIER_TAINTED);
+    node->has_explicit_pristine = (modifiers & MODIFIER_PRISTINE) != 0;
 
     // Variable specific OOP constraints, in case anonymous classes/objects are used
     if (modifiers & MODIFIER_FINAL) {
@@ -150,7 +159,7 @@ void apply_var_modifiers(VarDeclNode* node, int modifiers) {
     }
 }
 
-ASTNode* parse_wash_or_clean_tail(Parser *p, char *var_name, int wash_type) {
+ASTNode* parse_wash_or_clean_tail(Parser *p, char *var_name, WashType wash_type) {
     int line = p->current_token.line, col = p->current_token.col;
     char *err_name = NULL;
     
@@ -164,8 +173,8 @@ ASTNode* parse_wash_or_clean_tail(Parser *p, char *var_name, int wash_type) {
     ASTNode *body = parse_single_statement_or_block(p);
     ASTNode *else_body = NULL;
     
-    if (p->current_token.type == TOKEN_ELSE) {
-        eat(p, TOKEN_ELSE);
+    if (p->current_token.type == TOKEN_ELSE || p->current_token.type == TOKEN_THEN) {
+        eat(p, p->current_token.type);
         else_body = parse_single_statement_or_block(p);
     }
     

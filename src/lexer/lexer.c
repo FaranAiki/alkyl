@@ -207,6 +207,12 @@ static int lex_symbol(Lexer *l, Token *t) {
     t->type = TOKEN_NOT; return 1;
   }
 
+  if (c == '?') {
+    advance(l);
+    t->type = TOKEN_QUESTION;
+    return 1;
+  }
+
   if (c == '<') {
     advance(l);
     if (peek(l) == '<') { 
@@ -398,12 +404,29 @@ static int lex_string(Lexer *l, Token *t) {
   return 0;
 }
 
-// O(log N) Keyword Definitions mapping 
-// CRITICAL: Array MUST remain sorted alphabetically for bsearch
-static const int num_keywords = sizeof(keywords) / sizeof(keywords[0]);
+// O(1) Hash Table for Keywords
+#define KW_HASH_SIZE 256
+static KeywordDef kw_hash[KW_HASH_SIZE];
+static int kw_hash_init = 0;
 
-static int compare_keywords(const void *a, const void *b) {
-    return strcmp((const char *)a, ((const KeywordDef *)b)->word);
+static unsigned int hash_str(const char *str) {
+    unsigned int hash = 5381;
+    int c;
+    while ((c = *str++)) hash = ((hash << 5) + hash) + c;
+    return hash;
+}
+
+static void init_kw_hash() {
+    if (kw_hash_init) return;
+    int num_keywords = sizeof(keywords) / sizeof(keywords[0]);
+    for (int i = 0; i < num_keywords; i++) {
+        unsigned int h = hash_str(keywords[i].word) % KW_HASH_SIZE;
+        while (kw_hash[h].word != NULL) {
+            h = (h + 1) % KW_HASH_SIZE;
+        }
+        kw_hash[h] = keywords[i];
+    }
+    kw_hash_init = 1;
 }
 
 static int is_ident_start(char c) {
@@ -420,24 +443,26 @@ static int lex_word(Lexer *l, Token *t) {
   char c = peek(l);
   if (!is_ident_start(c)) return 0;
   
-  const char *start = &l->src[l->pos];
-  size_t length = 0;
-
+  const char *start = l->src + l->pos;
+  int length = 0;
   while (is_ident_part(peek(l))) {
       advance(l);
       length++;
   }
-  
+
   char word[256];
   if (length < 256) {
       strncpy(word, start, length);
       word[length] = '\0';
       
-      // O(log N) Keyword Check
-      const KeywordDef *found = bsearch(word, keywords, num_keywords, sizeof(KeywordDef), compare_keywords);
-      if (found) {
-          t->type = found->type;
-          return 1;
+      init_kw_hash();
+      unsigned int h = hash_str(word) % KW_HASH_SIZE;
+      while (kw_hash[h].word != NULL) {
+          if (strcmp(kw_hash[h].word, word) == 0) {
+              t->type = kw_hash[h].type;
+              return 1;
+          }
+          h = (h + 1) % KW_HASH_SIZE;
       }
   }
 

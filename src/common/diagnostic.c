@@ -192,6 +192,8 @@ const char* token_type_to_string(TokenType type) {
     switch (type) {
         case TOKEN_EOF: return "EOF";
         case TOKEN_KW_SIZEOF: return "sizeof";
+        case TOKEN_KW_ALIGNOF: return "alignof";
+        case TOKEN_DEFER: return "defer";
         case TOKEN_KW_DEFINED: return "defined";
         case TOKEN_LOOP: return "loop";
         case TOKEN_WHILE: return "while";

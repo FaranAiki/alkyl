@@ -45,6 +45,8 @@ typedef enum {
   NODE_WASH, 
   NODE_CLEAN,
   NODE_SIZEOF,
+  NODE_ALIGNOF,
+  NODE_DEFER,
   NODE_DEFINED,
   NODE_META,
   NODE_POSTMETA
@@ -138,7 +140,9 @@ typedef struct {
   bool is_abstract : 1;
   bool is_flux : 1;
   bool is_pure : 1;
+  bool has_explicit_pure : 1;
   bool is_pristine : 1;
+  bool has_explicit_pristine : 1;
   bool is_extern : 1;
 } FuncDefNode;
 
@@ -162,6 +166,7 @@ typedef struct {
   bool is_static : 1; 
   bool is_abstract : 1;
   bool is_pure : 1;
+  bool has_explicit_pure : 1;
 } ClassNode;
 
 typedef struct {
@@ -328,7 +333,9 @@ typedef struct {
   bool is_const : 1;
   bool is_mutable : 1; 
   bool is_pure : 1;
+  bool has_explicit_pure : 1;
   bool is_pristine : 1;
+  bool has_explicit_pristine : 1;
 } VarDeclNode;
 
 typedef struct {
@@ -448,7 +455,13 @@ typedef struct {
 typedef struct {
   ASTNode base;
   VarType target_type;
+  ASTNode *operand;
 } SizeOfNode;
+
+typedef struct {
+  ASTNode base;
+  ASTNode *body;
+} DeferNode;
 
 typedef struct {
   ASTNode base;

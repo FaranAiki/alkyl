@@ -58,6 +58,19 @@ int is_typename(Parser *p, const char *name) {
     return 0;
 }
 
+int is_type_start(Parser *p) {
+    TokenType ct = p->current_token.type;
+    if (ct == TOKEN_KW_INT || ct == TOKEN_KW_SHORT || ct == TOKEN_KW_LONG || 
+        ct == TOKEN_KW_DOUBLE || ct == TOKEN_KW_SINGLE || ct == TOKEN_KW_CHAR || 
+        ct == TOKEN_KW_VOID || ct == TOKEN_KW_BOOL || ct == TOKEN_KW_STRING || ct == TOKEN_KW_VECTOR) {
+        return 1;
+    }
+    if (ct == TOKEN_IDENTIFIER && is_typename(p, p->current_token.text)) {
+        return 1;
+    }
+    return 0;
+}
+
 static int get_typename_kind(Parser *p, const char *name) {
     TypeName *cur = p->type_head;
     while(cur) {
@@ -408,17 +421,21 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     *vt.fp_ret_type = ret_type;
     
     eat(p, TOKEN_LPAREN);
-    eat(p, TOKEN_STAR);
-    
-    if (p->current_token.type == TOKEN_IDENTIFIER) {
-        if (out_name) *out_name = parser_strdup(p, p->current_token.text);
-        eat(p, TOKEN_IDENTIFIER);
-    } else if (out_name) {
-        *out_name = NULL;
+    if (p->current_token.type == TOKEN_STAR) {
+        eat(p, TOKEN_STAR);
+        
+        if (p->current_token.type == TOKEN_IDENTIFIER) {
+            if (out_name) *out_name = parser_strdup(p, p->current_token.text);
+            eat(p, TOKEN_IDENTIFIER);
+        } else if (out_name) {
+            *out_name = NULL;
+        }
+        
+        eat(p, TOKEN_RPAREN);
+        eat(p, TOKEN_LPAREN);
+    } else {
+        if (out_name) *out_name = NULL;
     }
-    
-    eat(p, TOKEN_RPAREN);
-    eat(p, TOKEN_LPAREN);
     
     int cap = 4;
     vt.fp_param_types = parser_alloc(p, sizeof(VarType) * cap);

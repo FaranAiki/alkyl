@@ -1,9 +1,12 @@
 {
     "keyword": "pristine",
-    "description": "Marks a variable as strictly clean and trusted. If tainted data is assigned to it, the compiler will trigger an error or automatically downgrade the variable to tainted if not strictly enforced.",
+    "description": "Marks a variable as 'safe to use'. In Alkyl, any variable or function that is NOT `extern` is implicitly `pristine`. However, `pristine` does NOT mean `pure` (pure functions always yield the exact same output for the same input and have no side effects).",
     "features": [
-        "Safety guarantees for critical variables."
+        "Default state for all internal data.",
+        "Guaranteed to not contain untreated hazardous inputs."
     ],
-    "example": "let pristine query = c\"SELECT * FROM users\";",
-    "constraints": []
+    "example": "let pristine query = \"SELECT * FROM users\";\n\n// Non-extern functions are pristine by default\nint get_number() {\n    return 42;\n}",
+    "constraints": [
+        "If a `tainted` value is assigned to a `pristine` variable without washing, the compiler will error."
+    ]
 }

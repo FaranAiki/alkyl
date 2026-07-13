@@ -671,13 +671,37 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_UNARY_OP: return alir_gen_unary_op(ctx, (UnaryOpNode*)node);
         case NODE_INC_DEC: return alir_gen_inc_dec(ctx, (IncDecNode*)node);
         case NODE_CAST: return alir_gen_cast(ctx, (CastNode*)node);
-        case NODE_SIZEOF: {
+        case NODE_SIZEOF:
+        case NODE_ALIGNOF: {
             SizeOfNode *sn = (SizeOfNode*)node;
             AlirValue *dest = new_temp(ctx, sem_get_node_type(ctx->sem, node));
             AlirValue *type_val = alir_alloc(ctx->module, sizeof(AlirValue));
             type_val->kind = ALIR_VAL_TYPE; // tell LLVM it's a type 
-            type_val->type = sn->target_type;
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_SIZEOF, dest, type_val, NULL));
+            
+            if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
+                type_val->type = sem_get_node_type(ctx->sem, sn->operand);
+            } else {
+                type_val->type = sn->target_type;
+            }
+            
+            AlirOpcode op = (node->type == NODE_ALIGNOF) ? ALIR_OP_ALIGNOF : ALIR_OP_SIZEOF;
+            emit(ctx, mk_inst(ctx->module, op, dest, type_val, NULL));
+            return dest;
+        }
+        case NODE_TYPEOF: {
+            SizeOfNode *sn = (SizeOfNode*)node;
+            VarType t = { .base = TYPE_STRING };
+            AlirValue *dest = new_temp(ctx, t);
+            
+            AlirValue *operand = alir_alloc(ctx->module, sizeof(AlirValue));
+            operand->kind = ALIR_VAL_TYPE;
+            if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
+                operand->type = sem_get_node_type(ctx->sem, sn->operand);
+            } else {
+                operand->type = sn->target_type;
+            }
+            
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_TYPEOF, dest, operand, NULL));
             return dest;
         }
         case NODE_DEFINED: {

@@ -1,0 +1,28 @@
+{
+  "design_notes": {
+    "effects": {
+      "pure": "Indicates a function has no side effects. By default, functions, variables, and classes are pure. If an implicitly pure function performs an impure action (e.g., calling an impure function), it is silently downgraded to impure. However, if it is EXPLICITLY declared 'pure', performing an impure action will throw a semantic error.",
+      "impure": "Indicates a function has side effects (e.g., IO, mutation of external state)."
+    },
+    "error_handling": {
+      "pristine": "Indicates a variable, function, or class is in a valid state (no error). By default, variables and internal functions are pristine. If an implicitly pristine variable is passed by reference (&var) to a TAINTED function (not impure), it is silently downgraded to tainted. However, if it is EXPLICITLY declared 'pristine', passing it by reference to a tainted function throws a semantic error.",
+      "tainted": "Indicates a potential error state that must be handled. It is completely ORTHOGONAL to pure/impure. Extern functions (like scanf) are automatically TAINTED by default because they interface with C and can fail.",
+      "mechanics": [
+        "If a pristine function takes a pristine argument `t`, but a tainted variable is passed, it causes a semantic error.",
+        "To pass a tainted variable to a pristine function, use the fallback operator (e.g. `f(t? 1)`). This ignores the error and provides a default value.",
+        "The `untaint t as err` statement unpacks a tainted variable. If `t` is an error, it early-returns. Otherwise, `t` is safe to use as pristine.",
+        "The `wash` and `clean` statements provide scoped unwrapping for tainted variables, converting them to pristine within the block."
+      ]
+    },
+    "builtins": {
+      "typeof": "typeof() is used to get the Type info struct of a variable or type at runtime.",
+      "sizeof": "sizeof() is used to get the size in bytes of a type or variable at compile-time/runtime.",
+      "alignof": "alignof() is used to get the alignment in bytes of a type or variable.",
+      "defer": "defer { ... } executes the block right before exiting the current scope. Good for freeing memory.",
+      "fallback": "The `?` operator (e.g., `a ? 1`) acts as a fallback. If the left side `a` is tainted (in an error state), it evaluates and returns the right side (1). Otherwise, it evaluates to `a`."
+    },
+    "parser": {
+      "wash_type": "The WashType enum is used to distinguish between wash (0), clean (1), and untaint (2) operations in the parser."
+    }
+  }
+}

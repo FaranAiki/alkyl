@@ -1,0 +1,11 @@
+pristine int add(int x) {
+    return x + 1;
+}
+
+int main() {
+    tainted int t = 0;
+    
+    // Should pass semantic check because of fallback operator
+    add(t ? 1); 
+    return 0;
+}

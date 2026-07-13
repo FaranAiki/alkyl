@@ -1,0 +1,9 @@
+pristine int add(int x) {
+    return x + 1;
+}
+
+int main() {
+    tainted int t = 0;
+    add(t); // Should fail semantic check: "Cannot pass tainted expression to pristine parameter"
+    return 0;
+}

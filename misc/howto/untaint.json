@@ -1,0 +1,13 @@
+{
+    "keyword": "untaint",
+    "description": "Used to safely handle a `tainted` variable in a flat control flow. It provides a block to handle the error if the sanitization fails. If the block finishes (which typically should abort or return), the variable becomes `pristine` for the rest of the current scope.",
+    "features": [
+        "Flat control flow for taint validation (similar to 'guard' in other languages).",
+        "The block provided is ONLY executed if an error occurs.",
+        "After the block, the variable is considered pristine."
+    ],
+    "example": "tainted file myfile = io.open(\"test.txt\");\n\nuntaint myfile as err {\n    print(\"Failed to open file:\", err);\n    return; // Must abort control flow here!\n}\n\n// From here on, `myfile` is pristine and safe to use.\nread_data(myfile);",
+    "constraints": [
+        "The error block must typically diverge (return, throw, or break) because if it doesn't, the compiler will assume the variable is safe to use in the subsequent lines."
+    ]
+}

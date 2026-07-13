@@ -1,0 +1,12 @@
+{
+    "keyword": "clean",
+    "description": "An alternative control-flow structure to handle `tainted` variables. It is the logical inverse of `wash`. The primary block contains the code where the variable is `pristine`, and the `else` block handles the error.",
+    "features": [
+        "Provides a safe control-flow structure to validate untrusted data.",
+        "Focuses on the 'happy path' first."
+    ],
+    "example": "let tainted t = get_untrusted_data();\n\nclean t {\n    // Here, `t` is pristine and safe to use!\n    execute_secure_query(t);\n} else as err {\n    // Note: The syntax for the error variable is `else as err` or just `else`\n    print(\"Validation failed! Error:\", err);\n}\n\n// Outside the block, `t` remains tainted",
+    "constraints": [
+        "Must be used on a `tainted` variable."
+    ]
+}

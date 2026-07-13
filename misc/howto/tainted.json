@@ -1,12 +1,12 @@
 {
     "keyword": "tainted",
-    "description": "Marks a variable or function as potentially dangerous or originating from an untrusted source.",
+    "description": "Marks a variable or function as potentially dangerous or originating from an untrusted source. In Alkyl, any function marked as `extern` inherently returns `tainted` and is considered `impure`.",
     "features": [
         "Data flow tracking for security and safety.",
-        "Tainted variables cannot be passed to pure functions."
+        "Must be explicitly handled via `wash` or `clean` before it can be used safely."
     ],
-    "example": "let tainted input = get_user_input();\n// pure_func(input); // Error: cannot pass tainted data to pure function",
+    "example": "extern int get_user_input(); // Inherently returns tainted\n\ntainted int t = get_user_input();\n\nwash t as err {\n    // handle error\n} then {\n    // safely use t\n}",
     "constraints": [
-        "Cannot be used where pristine data is strictly required."
+        "Cannot be passed directly to contexts where `pristine` data is required."
     ]
 }

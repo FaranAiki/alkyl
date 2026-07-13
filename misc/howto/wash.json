@@ -1,0 +1,12 @@
+{
+    "keyword": "wash",
+    "description": "Used to safely handle a `tainted` variable. The primary block handles the error, and the `then` block contains the code where the variable is `pristine`.",
+    "features": [
+        "Provides a safe control-flow structure to validate untrusted data.",
+        "Uses the `then` keyword for the success branch."
+    ],
+    "example": "let tainted t = get_untrusted_data();\n\nwash t as err {\n    print(\"Validation failed! Error:\", err);\n    return;\n} then {\n    // Here, `t` is pristine and safe to use!\n    execute_secure_query(t);\n}\n\n// Outside the block, `t` remains tainted",
+    "constraints": [
+        "Must be used on a `tainted` variable."
+    ]
+}

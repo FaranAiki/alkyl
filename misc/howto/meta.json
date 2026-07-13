@@ -2,11 +2,13 @@
     "keyword": "meta",
     "description": "A metaprogramming block evaluated early during the parsing/macro stage. Used for conditional compilation, defining constants, or injecting code before semantic analysis begins.",
     "features": [
-        "Evaluated at compile-time (early phase).",
-        "Perfect for replacing C-style `#ifdef` and `#define`."
+        "Evaluated at compile-time (early phase, AST generation).",
+        "Perfect for replacing C-style `#ifdef` and `#define`.",
+        "Allows writing scripts that generate code directly during compilation."
     ],
-    "example": "meta {\n    if defined(LLVM_ENABLE_THREADS) {\n        define MAX_THREADS as 16;\n    } else {\n        define MAX_THREADS as 1;\n    }\n}",
+    "example": "meta {\n    if defined(LINUX) {\n        define OS_NAME as \"Linux\";\n    } else {\n        define OS_NAME as \"Unknown\";\n    }\n}\n\nvoid print_os() {\n    printf(\"Running on: %s\\n\", OS_NAME);\n}",
     "constraints": [
-        "Can only reference symbols and macros known at the parsing stage."
+        "Can only reference symbols and macros known at the parsing stage.",
+        "Does not have access to variable types or semantic information (use `postmeta` for that)."
     ]
 }

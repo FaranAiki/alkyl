@@ -1,9 +1,13 @@
 {
     "keyword": "typedef",
-    "description": "Creates an alias for an existing type, making code more readable and easier to maintain. Typically used for simplifying complex pointer types or giving semantic meaning to primitive types.",
+    "description": "Creates an alias for an existing type, making code more readable and easier to maintain. Alkyl supports a modern syntax that makes complex types (like function pointers) clean and readable.",
     "features": [
-        "Type aliasing."
+        "Type aliasing using the `as` keyword.",
+        "Modern and clean function pointer type definitions."
     ],
-    "example": "typedef int LLVMBool;\ntypedef void* LLVMModuleRef;\n\nLLVMModuleRef mod = malloc(8);",
-    "constraints": []
+    "example": "typedef LLVMBool as int;\ntypedef LLVMModuleRef as void*;\n\n// Clean function pointer alias\ntypedef Callback as void(int, float);\n\nCallback my_func = null;",
+    "constraints": [
+        "Use `typedef AliasName as OriginalType;` instead of the legacy C syntax.",
+        "Function pointer types can use the clean `return_type(param_types)` syntax instead of `return_type(*)(param_types)`."
+    ]
 }

@@ -16,6 +16,7 @@ typedef enum {
   TOKEN_RPAREN,   
   TOKEN_SEMICOLON,
   TOKEN_COLON,    
+  TOKEN_QUESTION,
   TOKEN_COMMA,  
   TOKEN_ELLIPSIS, 
   TOKEN_DOT,    
@@ -58,7 +59,6 @@ typedef enum {
   TOKEN_LEAK,     
   TOKEN_WASH, // error handling first, then run
   TOKEN_UNTAINT, // run first, then error
-
   TOKEN_DEFINE, 
   TOKEN_AS,     
   TOKEN_TYPEDEF, 
@@ -115,7 +115,9 @@ typedef enum {
   TOKEN_KW_LET,    
   TOKEN_KW_VECTOR, // NEW VECTOR TOKEN
   TOKEN_KW_SIZEOF,
+  TOKEN_KW_ALIGNOF,
   TOKEN_KW_DEFINED,
+  TOKEN_DEFER,
 
   TOKEN_KW_SHORT,
   TOKEN_KW_LONG,
@@ -225,6 +227,7 @@ typedef struct {
 // NOTE: Must be strictly alphabetical for bsearch
 static const KeywordDef keywords[] = {
     {"accept", TOKEN_ACCEPT},
+    {"alignof", TOKEN_KW_ALIGNOF},
     {"alir", TOKEN_ALIR},
     {"as", TOKEN_AS},
     {"bool", TOKEN_KW_BOOL},
@@ -237,6 +240,7 @@ static const KeywordDef keywords[] = {
     {"const", TOKEN_CONST},
     {"continue", TOKEN_CONTINUE},
     {"default", TOKEN_DEFAULT},
+    {"defer", TOKEN_DEFER},
     {"define", TOKEN_DEFINE},
     {"defined", TOKEN_KW_DEFINED},
     {"double", TOKEN_KW_DOUBLE},
@@ -276,8 +280,8 @@ static const KeywordDef keywords[] = {
     {"once", TOKEN_ONCE},
     {"open", TOKEN_OPEN},
     {"postmeta", TOKEN_POSTMETA},
-    {"private", TOKEN_PRIVATE},
     {"pristine", TOKEN_PRISTINE},
+    {"private", TOKEN_PRIVATE},
     {"public", TOKEN_PUBLIC},
     {"pure", TOKEN_PURE},
     {"reactive", TOKEN_REACTIVE},
