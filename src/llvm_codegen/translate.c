@@ -81,13 +81,56 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         case ALIR_OP_ADD: res = LLVMBuildAdd(ctx->builder, op1, op2, "add"); break;
         case ALIR_OP_SUB: res = LLVMBuildSub(ctx->builder, op1, op2, "sub"); break;
         case ALIR_OP_MUL: res = LLVMBuildMul(ctx->builder, op1, op2, "mul"); break;
-        case ALIR_OP_DIV: res = LLVMBuildSDiv(ctx->builder, op1, op2, "div"); break;
-        case ALIR_OP_MOD: res = LLVMBuildSRem(ctx->builder, op1, op2, "mod"); break;
-        
         case ALIR_OP_FADD: res = LLVMBuildFAdd(ctx->builder, op1, op2, "fadd"); break;
         case ALIR_OP_FSUB: res = LLVMBuildFSub(ctx->builder, op1, op2, "fsub"); break;
         case ALIR_OP_FMUL: res = LLVMBuildFMul(ctx->builder, op1, op2, "fmul"); break;
-        case ALIR_OP_FDIV: res = LLVMBuildFDiv(ctx->builder, op1, op2, "fdiv"); break;
+        case ALIR_OP_DIV:
+        case ALIR_OP_MOD:
+        case ALIR_OP_FDIV: {
+            int is_float = (inst->op == ALIR_OP_FDIV);
+            LLVMBasicBlockRef current_bb = LLVMGetInsertBlock(ctx->builder);
+            LLVMValueRef current_func = LLVMGetBasicBlockParent(current_bb);
+            
+            LLVMBasicBlockRef div_ok_bb = LLVMAppendBasicBlockInContext(ctx->llvm_ctx, current_func, "div_ok");
+            LLVMBasicBlockRef div_zero_bb = LLVMAppendBasicBlockInContext(ctx->llvm_ctx, current_func, "div_zero");
+            
+            LLVMValueRef zero;
+            LLVMValueRef cmp;
+            if (is_float) {
+                zero = LLVMConstReal(LLVMTypeOf(op2), 0.0);
+                cmp = LLVMBuildFCmp(ctx->builder, LLVMRealOEQ, op2, zero, "div_cmp");
+            } else {
+                zero = LLVMConstInt(LLVMTypeOf(op2), 0, 0);
+                cmp = LLVMBuildICmp(ctx->builder, LLVMIntEQ, op2, zero, "div_cmp");
+            }
+            LLVMBuildCondBr(ctx->builder, cmp, div_zero_bb, div_ok_bb);
+            
+            LLVMPositionBuilderAtEnd(ctx->builder, div_zero_bb);
+            LLVMValueRef puts_func = LLVMGetNamedFunction(ctx->llvm_mod, "puts");
+            if (!puts_func) {
+                LLVMTypeRef args[] = { LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0) };
+                LLVMTypeRef puts_ty = LLVMFunctionType(LLVMInt32TypeInContext(ctx->llvm_ctx), args, 1, 0);
+                puts_func = LLVMAddFunction(ctx->llvm_mod, "puts", puts_ty);
+            }
+            LLVMValueRef exit_func = LLVMGetNamedFunction(ctx->llvm_mod, "exit");
+            if (!exit_func) {
+                LLVMTypeRef args[] = { LLVMInt32TypeInContext(ctx->llvm_ctx) };
+                LLVMTypeRef exit_ty = LLVMFunctionType(LLVMVoidTypeInContext(ctx->llvm_ctx), args, 1, 0);
+                exit_func = LLVMAddFunction(ctx->llvm_mod, "exit", exit_ty);
+            }
+            LLVMValueRef msg = LLVMBuildGlobalStringPtr(ctx->builder, "Division by zero", "div_zero_msg");
+            LLVMValueRef args[] = { msg };
+            LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(puts_func), puts_func, args, 1, "");
+            LLVMValueRef args_exit[] = { LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 1, 0) };
+            LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(exit_func), exit_func, args_exit, 1, "");
+            LLVMBuildUnreachable(ctx->builder);
+            
+            LLVMPositionBuilderAtEnd(ctx->builder, div_ok_bb);
+            if (inst->op == ALIR_OP_DIV) res = LLVMBuildSDiv(ctx->builder, op1, op2, "div");
+            else if (inst->op == ALIR_OP_MOD) res = LLVMBuildSRem(ctx->builder, op1, op2, "mod");
+            else res = LLVMBuildFDiv(ctx->builder, op1, op2, "fdiv");
+            break;
+        }
         
         // Logical
         case ALIR_OP_AND: res = LLVMBuildAnd(ctx->builder, op1, op2, "and"); break;
@@ -216,6 +259,29 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             } else {
                 LLVMBuildRetVoid(ctx->builder);
             }
+            break;
+        }
+        case ALIR_OP_PANIC: {
+            LLVMValueRef puts_func = LLVMGetNamedFunction(ctx->llvm_mod, "puts");
+            if (!puts_func) {
+                LLVMTypeRef args[] = { LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0) };
+                LLVMTypeRef puts_ty = LLVMFunctionType(LLVMInt32TypeInContext(ctx->llvm_ctx), args, 1, 0);
+                puts_func = LLVMAddFunction(ctx->llvm_mod, "puts", puts_ty);
+            }
+            LLVMValueRef exit_func = LLVMGetNamedFunction(ctx->llvm_mod, "exit");
+            if (!exit_func) {
+                LLVMTypeRef args[] = { LLVMInt32TypeInContext(ctx->llvm_ctx) };
+                LLVMTypeRef exit_ty = LLVMFunctionType(LLVMVoidTypeInContext(ctx->llvm_ctx), args, 1, 0);
+                exit_func = LLVMAddFunction(ctx->llvm_mod, "exit", exit_ty);
+            }
+            
+            if (op1) {
+                LLVMValueRef args[] = { op1 };
+                LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(puts_func), puts_func, args, 1, "puts_call");
+            }
+            LLVMValueRef args_exit[] = { LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 1, 0) };
+            LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(exit_func), exit_func, args_exit, 1, "");
+            
             break;
         }
         

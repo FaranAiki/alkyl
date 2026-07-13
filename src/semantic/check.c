@@ -440,9 +440,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             sem_check_expr(ctx, pn->msg);
             if (pn->msg->type == NODE_LITERAL) {
                 LiteralNode *lit = (LiteralNode*)pn->msg;
-                if (lit->var_type.base == TYPE_STRING) {
-                    sem_error(ctx, node, "%s", lit->val.str_val);
-                } else {
+                if (lit->var_type.base != TYPE_STRING) {
                     sem_error(ctx, node, "purge requires a string literal");
                 }
             } else {
@@ -507,23 +505,24 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                     err_sym->is_initialized = 1;
                 }
                 
+                int old_pristine = target_sym ? target_sym->is_pristine : 0;
+                if (target_sym) target_sym->is_pristine = 1;
+                
                 sem_check_block(ctx, wn->body);
+                
+                if (target_sym && wn->wash_type == WASH_TYPE_WASH) target_sym->is_pristine = old_pristine;
+                
                 sem_scope_exit(ctx);
                 
                 if (wn->else_body) {
                     ctx->in_wash_block++;
                     sem_scope_enter(ctx, 0, (VarType){0});
                     
-                    int old_pristine = target_sym ? target_sym->is_pristine : 0;
-                    if (target_sym) target_sym->is_pristine = 1;
-                    
                     if (wn->else_body->type == NODE_WASH || wn->else_body->type == NODE_IF) {
                         sem_check_node(ctx, wn->else_body);
                     } else {
                         sem_check_block(ctx, wn->else_body);
                     }
-                    
-                    if (target_sym && wn->wash_type == WASH_TYPE_WASH) target_sym->is_pristine = old_pristine;
                     
                     sem_scope_exit(ctx);
                     ctx->in_wash_block--;

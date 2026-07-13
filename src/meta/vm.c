@@ -292,6 +292,21 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
             }
             // Break inner instruction loop if we jumped
             if (inst->op == ALIR_OP_JUMP || inst->op == ALIR_OP_CONDI) break;
+            if (inst->op == ALIR_OP_PANIC) {
+                // Compile-time panic
+                if (inst->op1) {
+                    if (inst->op1->kind == ALIR_VAL_STRING && inst->op1->val.str_val) {
+                        fprintf(stderr, "Compile-time purge: %s\n", inst->op1->val.str_val);
+                    } else if (inst->op1->kind == ALIR_VAL_TEMP) {
+                        fprintf(stderr, "Compile-time purge: %lld\n", registers[inst->op1->temp_id].as.int_val);
+                    } else {
+                        fprintf(stderr, "Compile-time purge executed.\n");
+                    }
+                } else {
+                    fprintf(stderr, "Compile-time purge executed.\n");
+                }
+                exit(1);
+            }
             
             inst = inst->next;
         }

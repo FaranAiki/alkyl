@@ -304,6 +304,15 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     VarType l_type = sem_get_node_type(ctx->sem, bn->left);
     VarType r_type = sem_get_node_type(ctx->sem, bn->right);
 
+    // Fallback operator
+    if (bn->op == TOKEN_QUESTION) {
+        if (sem_get_node_tainted(ctx->sem, bn->left)) {
+            return r;
+        } else {
+            return l;
+        }
+    }
+
     int is_float = (l_type.base == TYPE_FLOAT || l_type.base == TYPE_DOUBLE ||
                     r_type.base == TYPE_FLOAT || r_type.base == TYPE_DOUBLE);
 

@@ -60,6 +60,7 @@ typedef enum {
     ALIR_OP_SWITCH,     // Switch (Complex Flow)
     ALIR_OP_CALL,
     ALIR_OP_RET,
+    ALIR_OP_PANIC,
     
     // Flux / Coroutines
     ALIR_OP_YIELD,      // High-level yield (lowers to state machine)

@@ -48,7 +48,9 @@ void sem_check_unary_op_switch(SemanticCtx *ctx, ASTNode *node) {
     VarType t = sem_get_node_type(ctx, un->operand);
     
     if (sem_get_node_tainted(ctx, un->operand)) {
-        sem_set_node_tainted(ctx, node, 1);
+        if (un->op != TOKEN_AND) {
+            sem_set_node_tainted(ctx, node, 1);
+        }
     }
     
     if (t.base == TYPE_VOID && t.ptr_depth == 0) {

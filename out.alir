@@ -1,42 +1,39 @@
 ; Module: main_module
 
 ; Globals
-@str.0 = string "%lf\n"
+@str.2 = string "Hasilnya %lf\n"
+@str.1 = string "Pilih dua angka yang ingin dibagi:\n"
+@str.0 = string "%d"
 
-promise int @printf(char*, ...)
+promise int @scanf(string, void*)
 
-promise void* @malloc(long)
+promise int @printf(string, ...)
 
-block func double @divby_f64_f64(double %p0, double %p1) {
-entry:
-  %0 = onstack double
-  store double %p0, %0
-  %1 = onstack double
-  store double %p1, %1
-  %2 = load double %0
-  %3 = load double %1
-  %4 = fdiv double %2, %3
-  return double %4
-}
-
-block func int @divby_i32_i32(int %p0, int %p1) {
+block func int @int_input() {
 entry:
   %0 = onstack int
-  store int %p0, %0
-  %1 = onstack int
-  store int %p1, %1
-  %2 = load int %0
-  %3 = load int %1
-  %4 = div int %2, %3
-  return int %4
+  %1 = load int %0
+  %2 = call %scanf (@str.0, %0)
+  %3 = load int %0
+  return int %3
 }
 
 block func int @main() {
 entry:
-  %0 = cast char* @str.0
-  %1 = call %divby_i32_i32 (2, 0)
-  %2 = call %printf (%0, %1)
-  %3 = onstack int
-  store int %2, %3
+  %0 = call %printf (@str.1)
+  %1 = call %int_input
+  %2 = onstack int
+  store int %1, %2
+  %3 = call %int_input
+  %4 = onstack int
+  store int %3, %4
+  %5 = load int %2
+  %6 = load int %4
+  %7 = div int %5, %6
+  %8 = cast double %7
+  %9 = onstack double
+  store double %8, %9
+  %10 = load double %9
+  %11 = call %printf (@str.2, %10)
   return int 0
 }
