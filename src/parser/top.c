@@ -62,6 +62,7 @@ ASTNode* parse_extern(Parser *p, int modifiers) {
   if (p->current_token.type != TOKEN_RPAREN) {
     while (1) {
       if (p->current_token.type == TOKEN_ELLIPSIS) { eat(p, TOKEN_ELLIPSIS); is_varargs = 1; break; }
+      int pmods = parse_modifiers(p);
       VarType ptype = parse_type(p);
       if (ptype.base == TYPE_UNKNOWN) { parser_fail(p, "Expected parameter type"); }
       char *pname = NULL;
@@ -77,7 +78,9 @@ ASTNode* parse_extern(Parser *p, int modifiers) {
           ptype.ptr_depth++;
       }
       
-      Parameter *param = parser_alloc(p, sizeof(Parameter)); param->type = ptype; param->name = pname; *curr_param = param; curr_param = &param->next;
+      Parameter *param = parser_alloc(p, sizeof(Parameter)); 
+      apply_param_modifiers(param, pmods);
+      param->type = ptype; param->name = pname; *curr_param = param; curr_param = &param->next;
       if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
     }
   }
@@ -230,6 +233,7 @@ ASTNode* parse_top_level(Parser *p) {
     Parameter *params_head = NULL; Parameter **curr_param = &params_head;
     if (p->current_token.type != TOKEN_RPAREN) {
       while (1) {
+        int pmods = parse_modifiers(p);
         VarType ptype = parse_type(p);
         if (ptype.base == TYPE_UNKNOWN) parser_fail(p, "Expected parameter type in function definition");
         char *pname = parser_strdup(p, p->current_token.text); 
@@ -245,7 +249,9 @@ ASTNode* parse_top_level(Parser *p) {
             ptype.ptr_depth++;
         }
         
-        Parameter *pm = parser_alloc(p, sizeof(Parameter)); pm->type = ptype; pm->name = pname; *curr_param = pm; curr_param = &pm->next;
+        Parameter *pm = parser_alloc(p, sizeof(Parameter)); 
+        apply_param_modifiers(pm, pmods);
+        pm->type = ptype; pm->name = pname; *curr_param = pm; curr_param = &pm->next;
         if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
       }
     }

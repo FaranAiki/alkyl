@@ -98,8 +98,7 @@ static void sem_check_call_args(SemanticCtx *ctx, CallNode *node, SemSymbol *sym
         sem_check_expr(ctx, *curr_arg);
         if (curr_para) {
             int arg_is_tainted = sem_get_node_tainted(ctx, *curr_arg);
-            // Default to pristine since Parameter struct doesn't have is_pristine yet
-            int param_is_pristine = 1; 
+            int param_is_pristine = curr_para->is_pristine; 
 
             if (arg_is_tainted && param_is_pristine) {
                 sem_error(ctx, *curr_arg, "Cannot pass tainted expression to pristine parameter '%s'", curr_para->name);
@@ -111,6 +110,10 @@ static void sem_check_call_args(SemanticCtx *ctx, CallNode *node, SemSymbol *sym
                 sem_error(ctx, *curr_arg, "Type '%s' is not compatible with '%s'", sem_type_to_str(sem_get_node_type(ctx, *curr_arg)), sem_type_to_str(curr_para->type));
             }
             curr_para = curr_para->next;
+        } else if (sym->is_variadic) { 
+            if (sem_get_node_tainted(ctx, *curr_arg)) {
+                sem_error(ctx, *curr_arg, "Cannot pass tainted expression to varargs (...) of function '%s'", sym->name);
+            }
         }
 
         curr_arg = &(*curr_arg)->next;
@@ -146,8 +149,10 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         }
     }
 
-    if (sym->kind == SYM_FUNC && !sym->is_pristine) {
-        sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+    if (sym->kind == SYM_FUNC) {
+        if (!sym->is_pristine) {
+            sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+        }
     }
 
     if (sym->kind == SYM_FUNC) {
@@ -209,6 +214,8 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     if (node->op == TOKEN_QUESTION) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 0); // Result is pristine!
     } else if (sem_get_node_tainted(ctx, node->left) || sem_get_node_tainted(ctx, node->right)) {
+        sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+    } else if (node->op == TOKEN_SLASH) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
     }
 
@@ -428,6 +435,21 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
     
     switch (node->type) {
+        case NODE_PURGE: {
+            PurgeNode *pn = (PurgeNode*)node;
+            sem_check_expr(ctx, pn->msg);
+            if (pn->msg->type == NODE_LITERAL) {
+                LiteralNode *lit = (LiteralNode*)pn->msg;
+                if (lit->var_type.base == TYPE_STRING) {
+                    sem_error(ctx, node, "%s", lit->val.str_val);
+                } else {
+                    sem_error(ctx, node, "purge requires a string literal");
+                }
+            } else {
+                sem_error(ctx, node, "purge requires a string literal");
+            }
+            break;
+        }
         case NODE_VAR_DECL: sem_check_var_decl(ctx, (VarDeclNode*)node, 1); break;
         case NODE_ASSIGN: sem_check_assign(ctx, (AssignNode*)node); break;
         case NODE_RETURN: {
@@ -456,12 +478,11 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         }
         case NODE_WASH: {
             WashNode *wn = (WashNode*)node;
-            SemSymbol *target_sym = sem_symbol_lookup(ctx, wn->var_name, NULL);
-            
-            if (!target_sym) {
-                sem_error(ctx, node, "Undefined variable '%s'", wn->var_name);
+            sem_check_expr(ctx, wn->target);
+            SemSymbol *target_sym = NULL;
+            if (wn->target->type == NODE_VAR_REF) {
+                target_sym = sem_symbol_lookup(ctx, ((VarRefNode*)wn->target)->name, NULL);
             }
-
             if (wn->wash_type == WASH_TYPE_UNTAINT) { 
                 sem_scope_enter(ctx, 0, (VarType){0});
                 
@@ -728,7 +749,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
     
     while(*p_curr && curr_para) {
         int arg_is_tainted = sem_get_node_tainted(ctx, *p_curr);
-        int param_is_pristine = 1; // Default to pristine
+        int param_is_pristine = curr_para->is_pristine;
 
         if (arg_is_tainted && param_is_pristine) {
             sem_error(ctx, *p_curr, "Cannot pass tainted expression to pristine parameter '%s'", curr_para->name);
@@ -739,6 +760,15 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
         }
         p_curr = &(*p_curr)->next;
         curr_para = curr_para->next;
+    }
+    
+    if (best_match->is_variadic) {
+        while (*p_curr) {
+            if (sem_get_node_tainted(ctx, *p_curr)) {
+                sem_error(ctx, *p_curr, "Cannot pass tainted expression to varargs (...) of function '%s'", best_match->name);
+            }
+            p_curr = &(*p_curr)->next;
+        }
     }
     
     return best_match;

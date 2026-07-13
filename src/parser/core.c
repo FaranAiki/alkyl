@@ -449,6 +449,8 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
                 break;
             }
             
+            int pmods = parse_modifiers(p);
+            (void)pmods; // unused in func ptr types for now
             VarType pt = parse_type(p);
             if (pt.base == TYPE_UNKNOWN) parser_fail(p, "Expected type in function pointer params");
             

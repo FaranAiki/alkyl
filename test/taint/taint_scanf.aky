@@ -2,7 +2,7 @@ extern int printf(string format, ...);
 extern int scanf(string format, ...);
 
 int main() {
-    pristine int user_input;
+    tainted int user_input;
 
     printf("Masukkan angka: ");
 
@@ -13,7 +13,7 @@ int main() {
             printf("Gagal membaca input!\n");
             // lempar error atau fallback
         }
-    } else {
+    } residue {
         // Di sini user_input sudah pristine!
         printf("Kamu memasukkan angka: %d\n", user_input);
 

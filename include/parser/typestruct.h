@@ -49,7 +49,8 @@ typedef enum {
   NODE_DEFER,
   NODE_DEFINED,
   NODE_META,
-  NODE_POSTMETA
+  NODE_POSTMETA,
+  NODE_PURGE
 } NodeType;
 
 typedef enum {
@@ -116,7 +117,13 @@ typedef struct ASTNode {
 
 typedef struct Parameter {
   VarType type;
-  char *name; 
+  char *name;
+  
+  bool is_pure : 1;
+  bool has_explicit_pure : 1;
+  bool is_pristine : 1;
+  bool has_explicit_pristine : 1;
+
   struct Parameter *next;
 } Parameter;
 
@@ -290,6 +297,11 @@ typedef struct {
 
 typedef struct {
   ASTNode base;
+  ASTNode *msg;
+} PurgeNode;
+
+typedef struct {
+  ASTNode base;
   ASTNode *value;
 } ReturnNode;
 
@@ -309,7 +321,7 @@ typedef struct {
 
 typedef struct {
     ASTNode base;
-    char *var_name;
+    ASTNode *target;
     char *err_name; 
     ASTNode *body;
     ASTNode *else_body;

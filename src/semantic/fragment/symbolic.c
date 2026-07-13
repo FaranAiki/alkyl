@@ -14,6 +14,7 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
     sym->params = fd->params; // idk if this is redundant or not but ok
     Parameter *p = fd->params;
     while (p) {
+        if (fd->is_extern) p->is_pristine = 1;
         sym->param_count++;
         p = p->next;
     }

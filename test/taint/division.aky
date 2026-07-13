@@ -1,0 +1,17 @@
+import "lib/c";
+
+tainted double divby(double a, double b) {
+  return a / b;
+}
+
+tainted int divby(int a, int b) {
+  return a / b;
+  // dongonya belom bisa throw error!
+}
+
+int main() {
+  // kok masih belom error y
+  int k = printf("%lf\n", divby(2, 0));
+
+  return 0;
+}

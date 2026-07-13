@@ -113,6 +113,10 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
         if (p->name) {
             SemSymbol *s = sem_symbol_add(ctx, p->name, SYM_VAR, p->type);
             s->is_initialized = 1;
+            s->is_pure = p->is_pure;
+            s->must_pure = p->has_explicit_pure;
+            s->is_pristine = p->is_pristine;
+            s->must_pristine = p->has_explicit_pristine;
         }
         p = p->next;
     }

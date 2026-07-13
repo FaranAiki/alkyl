@@ -30,6 +30,8 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
     }
 
     switch(node->type) {
+        case NODE_PURGE:
+            break;
         case NODE_CLEAN:
         case NODE_WASH: {
             WashNode *wn = (WashNode*)node;

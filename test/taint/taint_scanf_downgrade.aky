@@ -5,16 +5,16 @@ int main() {
     int user_input; // not explicitly pristine, so it downgrades!
 
     printf("Masukkan angka: ");
-    
+
     // wash to use it!
     wash user_input as err {
         int status = scanf("%d", &user_input);
         if (status != 1) {
             printf("Gagal!\n");
         }
-    } else {
+    } residue {
         printf("Angka: %d\n", user_input);
     }
-    
+
     return 0;
 }

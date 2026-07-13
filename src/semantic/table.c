@@ -16,8 +16,10 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
     
     TypeEntry *curr = ctx->type_buckets[idx];
     while (curr) {
-        if (curr->node == node && curr->type.base != TYPE_UNKNOWN && type.base != TYPE_UNKNOWN) {
-            curr->type = type;
+        if (curr->node == node) {
+            if (type.base != TYPE_UNKNOWN) {
+                curr->type = type;
+            }
             return;
         }
         curr = curr->next;

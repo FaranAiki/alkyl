@@ -347,7 +347,7 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_ACCEPT: return "accept";
         case TOKEN_REJECT: return "reject";
         case TOKEN_PRISTINE: return "pristine";
-        case TOKEN_THROW: return "throw";
+        case TOKEN_PURGE: return "purge";
 
         case TOKEN_UNKNOWN: return "unknown";
     }

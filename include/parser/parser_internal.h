@@ -28,6 +28,7 @@ int parse_modifiers(Parser* p);
 void apply_class_modifiers(ClassNode* node, int modifiers);
 void apply_func_modifiers(FuncDefNode* node, int modifiers);
 void apply_var_modifiers(VarDeclNode* node, int modifiers);
+void apply_param_modifiers(Parameter* param, int modifiers);
 
 struct Macro {
     char *name;

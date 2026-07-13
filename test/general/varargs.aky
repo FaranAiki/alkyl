@@ -1,0 +1,6 @@
+extern int printf(string fmt, ...);
+int main() {
+    tainted int t = 10;
+    printf("%d\n", t);
+    return 0;
+}

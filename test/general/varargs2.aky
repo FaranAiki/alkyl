@@ -1,0 +1,6 @@
+tainted int test(tainted int x) { return x; }
+int main() {
+    tainted int t = 10;
+    test(t);
+    return 0;
+}

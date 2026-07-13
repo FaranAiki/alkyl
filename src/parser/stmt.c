@@ -204,23 +204,15 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
   if (p->current_token.type == TOKEN_WASH || p->current_token.type == TOKEN_CLEAN) {
       WashType wash_type = (p->current_token.type == TOKEN_CLEAN) ? WASH_TYPE_CLEAN : WASH_TYPE_WASH;
       eat(p, p->current_token.type);
-      
-      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected variable name after 'wash' or 'clean'");
-      char *var_name = parser_strdup(p, p->current_token.text);
-      eat(p, TOKEN_IDENTIFIER);
-      
-      return parse_wash_or_clean_tail(p, var_name, wash_type); 
+      ASTNode *target = parse_expression(p);
+      return parse_wash_or_clean_tail(p, target, wash_type); 
   }
 
   // Handle explicit UNTAINT statement
   if (p->current_token.type == TOKEN_UNTAINT) {
       eat(p, TOKEN_UNTAINT);
-      
-      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected variable name after 'untaint'");
-      char *var_name = parser_strdup(p, p->current_token.text);
-      eat(p, TOKEN_IDENTIFIER);
-      
-      return parse_wash_or_clean_tail(p, var_name, WASH_TYPE_UNTAINT);
+      ASTNode *target = parse_expression(p);
+      return parse_wash_or_clean_tail(p, target, WASH_TYPE_UNTAINT);
   }
 
   int modifiers = parse_modifiers(p);
@@ -234,6 +226,17 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
   if (p->current_token.type == TOKEN_CONTINUE) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_continue(p); }
   
   if (p->current_token.type == TOKEN_EMIT) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_emit(p); }
+  if (p->current_token.type == TOKEN_PURGE) { 
+      if(modifiers) parser_fail(p, "Invalid modifier here"); 
+      eat(p, TOKEN_PURGE);
+      PurgeNode *n = parser_alloc(p, sizeof(PurgeNode));
+      n->base.type = NODE_PURGE;
+      n->base.line = line;
+      n->base.col = col;
+      n->msg = parse_expression(p);
+      eat_semi(p);
+      return (ASTNode*)n;
+  }
   if (p->current_token.type == TOKEN_FOR) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_for_in(p); }
   if (p->current_token.type == TOKEN_DEFINE) { 
       if(modifiers) parser_fail(p, "Modifiers not allowed"); 

@@ -159,30 +159,62 @@ void apply_var_modifiers(VarDeclNode* node, int modifiers) {
     }
 }
 
-ASTNode* parse_wash_or_clean_tail(Parser *p, char *var_name, WashType wash_type) {
+void apply_param_modifiers(Parameter* param, int modifiers) {
+    param->is_pure = !(modifiers & MODIFIER_IMPURE);
+    param->has_explicit_pure = (modifiers & MODIFIER_PURE) != 0;
+    param->is_pristine = !(modifiers & MODIFIER_TAINTED);
+    param->has_explicit_pristine = (modifiers & MODIFIER_PRISTINE) != 0;
+}
+
+ASTNode* parse_wash_or_clean_tail(Parser *p, ASTNode *target, WashType wash_type) {
     int line = p->current_token.line, col = p->current_token.col;
+    
     char *err_name = NULL;
-    
-    if (p->current_token.type == TOKEN_AS) {
-        eat(p, TOKEN_AS);
-        if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected identifier for error variable in wash/clean statement");
-        err_name = parser_strdup(p, p->current_token.text);
-        eat(p, TOKEN_IDENTIFIER);
-    }
-    
-    ASTNode *body = parse_single_statement_or_block(p);
+    ASTNode *body = NULL;
     ASTNode *else_body = NULL;
     
-    if (p->current_token.type == TOKEN_ELSE || p->current_token.type == TOKEN_THEN) {
-        eat(p, p->current_token.type);
-        else_body = parse_single_statement_or_block(p);
+    if (wash_type == WASH_TYPE_UNTAINT) {
+        if (p->current_token.type == TOKEN_RESIDUE) {
+            eat(p, TOKEN_RESIDUE);
+            if (p->current_token.type == TOKEN_LPAREN) {
+                eat(p, TOKEN_LPAREN);
+                if (p->current_token.type == TOKEN_IDENTIFIER) {
+                    err_name = parser_strdup(p, p->current_token.text);
+                    eat(p, TOKEN_IDENTIFIER);
+                }
+                eat(p, TOKEN_RPAREN);
+            }
+        }
+        if (!err_name) {
+            err_name = parser_strdup(p, "err");
+        }
+        body = parse_single_statement_or_block(p);
+    } else {
+        body = parse_single_statement_or_block(p);
+        
+        if (p->current_token.type == TOKEN_RESIDUE) {
+            eat(p, TOKEN_RESIDUE);
+            if (p->current_token.type == TOKEN_LPAREN) {
+                eat(p, TOKEN_LPAREN);
+                if (p->current_token.type == TOKEN_IDENTIFIER) {
+                    err_name = parser_strdup(p, p->current_token.text);
+                    eat(p, TOKEN_IDENTIFIER);
+                }
+                eat(p, TOKEN_RPAREN);
+            }
+            if (!err_name) {
+                err_name = parser_strdup(p, "err");
+            }
+            
+            else_body = parse_single_statement_or_block(p);
+        }
     }
     
     WashNode *node = parser_alloc(p, sizeof(WashNode));
     node->base.type = NODE_WASH;
     node->base.line = line;
     node->base.col = col;
-    node->var_name = var_name;
+    node->target = target;
     node->err_name = err_name;
     node->body = body;
     node->else_body = else_body;

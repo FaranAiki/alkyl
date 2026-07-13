@@ -9,6 +9,6 @@ typedef enum {
     WASH_TYPE_UNTAINT = 2
 } WashType;
 
-ASTNode* parse_wash_or_clean_tail(Parser *p, char *var_name, WashType wash_type);
+ASTNode* parse_wash_or_clean_tail(Parser *p, ASTNode *target, WashType wash_type);
 
 #endif // PARSER_MODIFIER_H
