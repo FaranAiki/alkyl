@@ -110,7 +110,7 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
                                     sem_error(sem_ctx, &fake_node, "Division by zero during compile-time meta execution");
                                 }
                                 vm->status = 1; // Division by zero
-                                goto vm_end;
+                                return vm->status;
                             }
                         }
                         else if (inst->op == ALIR_OP_LT) res = v1 < v2;
@@ -279,7 +279,7 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
                                     sem_error(sem_ctx, &fake_node, "Extern C function '%s' not found during compile-time execution", inst->op1->val.str_val);
                                 }
                                 vm->status = 1;
-                                goto vm_end;
+                                return vm->status;
                             }
                         }
 #endif
@@ -297,7 +297,5 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
         }
         curr_block = next_block;
     }
-    
-vm_end:
     return vm->status;
 }

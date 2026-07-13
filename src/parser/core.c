@@ -337,6 +337,7 @@ VarType parse_type(Parser *p) {
               }
               eat(p, TOKEN_IDENTIFIER);
           } else {
+              if (t.is_unsigned) t.base = TYPE_INT;
               return t; 
           }
       }
@@ -391,6 +392,10 @@ VarType parse_type(Parser *p) {
     eat(p, TOKEN_STAR);
   }
   
+  if (p->current_token.type == TOKEN_LPAREN) {
+      return parse_func_ptr_decl(p, t, NULL);
+  }
+  
   return t;
 }
 
@@ -405,12 +410,12 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     eat(p, TOKEN_LPAREN);
     eat(p, TOKEN_STAR);
     
-    if (p->current_token.type != TOKEN_IDENTIFIER) {
-        parser_fail(p, "Expected identifier in function pointer declaration");
+    if (p->current_token.type == TOKEN_IDENTIFIER) {
+        if (out_name) *out_name = parser_strdup(p, p->current_token.text);
+        eat(p, TOKEN_IDENTIFIER);
+    } else if (out_name) {
+        *out_name = NULL;
     }
-    
-    if (out_name) *out_name = parser_strdup(p, p->current_token.text);
-    eat(p, TOKEN_IDENTIFIER);
     
     eat(p, TOKEN_RPAREN);
     eat(p, TOKEN_LPAREN);
