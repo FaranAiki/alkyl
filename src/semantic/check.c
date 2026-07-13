@@ -52,7 +52,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
         }
         else if (node->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)node;
-            VarType type_class = {TYPE_CLASS, 0, 0, arena_strdup(ctx->compiler_ctx->arena, cn->name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+            VarType type_class = {TYPE_CLASS, 0, 0, arena_strdup(ctx->compiler_ctx->arena, cn->name), 0, 0, NULL, NULL, 0, 0, 0, cn->is_tainted, 0};
             SemSymbol *sym = sem_symbol_add(ctx, cn->name, SYM_CLASS, type_class);
             sym->is_is_a = cn->is_is_a;
             sym->is_has_a = cn->is_has_a;
@@ -304,14 +304,10 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             break;
         }
         case NODE_SIZEOF:
-        case NODE_ALIGNOF:
-    case NODE_META:
-    case NODE_POSTMETA:
-        break; {
+        case NODE_ALIGNOF: {
             SizeOfNode *sn = (SizeOfNode*)node;
             if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
                 sem_check_expr(ctx, sn->operand);
-                if (sem_get_node_tainted(ctx, sn->operand)) sem_set_node_tainted(ctx, node, 1);
             } else if (sn->target_type.base == TYPE_CLASS && sn->target_type.ptr_depth == 0) {
                 SemSymbol *sym = sem_symbol_lookup(ctx, sn->target_type.class_name, NULL);
                 if (!sym || sym->kind != SYM_CLASS) {
@@ -413,7 +409,6 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             SizeOfNode *sn = (SizeOfNode*)node;
             if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
                 sem_check_expr(ctx, sn->operand);
-                if (sem_get_node_tainted(ctx, sn->operand)) sem_set_node_tainted(ctx, node, 1);
             }
             sem_set_node_type(ctx, node, (VarType){TYPE_STRING, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             break;
@@ -437,14 +432,15 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
     switch (node->type) {
         case NODE_PURGE: {
             PurgeNode *pn = (PurgeNode*)node;
-            sem_check_expr(ctx, pn->msg);
-            if (pn->msg->type == NODE_LITERAL) {
-                LiteralNode *lit = (LiteralNode*)pn->msg;
-                if (lit->var_type.base != TYPE_STRING) {
-                    sem_error(ctx, node, "purge requires a string literal");
+            if (pn->msg->type == NODE_VAR_REF) {
+                VarRefNode *var = (VarRefNode*)pn->msg;
+                // It's an error identifier!
+                if (!hashmap_get(&ctx->compiler_ctx->error_table, var->name)) {
+                    hashmap_put(&ctx->compiler_ctx->error_table, strdup(var->name), (void*)1);
                 }
+                // No further type check on var because it's just an error identifier
             } else {
-                sem_error(ctx, node, "purge requires a string literal");
+                sem_error(ctx, node, "purge requires an error identifier (e.g., ErrDivisionByZero)");
             }
             break;
         }

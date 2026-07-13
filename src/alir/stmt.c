@@ -32,7 +32,11 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
     switch(node->type) {
         case NODE_PURGE: {
             PurgeNode *pn = (PurgeNode*)node;
-            AlirValue *msg_val = alir_gen_expr(ctx, pn->msg);
+            VarRefNode *vr = (VarRefNode*)pn->msg;
+            char buf[512];
+            snprintf(buf, sizeof(buf), "purge: %s\n", vr->name);
+            VarType str_type = {TYPE_STRING, 1}; // Or whatever the string type struct expects
+            AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, str_type, ctx->str_counter++);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, NULL));
             break;
         }

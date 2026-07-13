@@ -5,6 +5,12 @@
 #include "arena.h"
 #include <setjmp.h>
 #include <stddef.h>
+#include <stdbool.h>
+
+typedef struct {
+  bool no_purge;
+  char *default_cconv;
+} CompilerSettings;
 
 // Holds the global state for a single compilation session
 typedef struct {
@@ -25,7 +31,9 @@ typedef struct {
   char last_reported_filename[1024];
 
   HashMap string_pool;
+  HashMap error_table;
   void *macro_head;
+  CompilerSettings settings;
 } CompilerContext;
 
 // Initialize the context with a provided arena

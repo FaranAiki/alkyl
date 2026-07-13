@@ -102,6 +102,12 @@ void apply_func_modifiers(FuncDefNode* node, int modifiers) {
     } else {
         node->is_pristine = !(modifiers & MODIFIER_TAINTED);
     }
+    
+    if (!node->is_pristine) {
+        node->ret_type.is_tainted = 1;
+    } else if (node->ret_type.is_tainted) {
+        node->is_pristine = 0;
+    }
     node->has_explicit_pristine = (modifiers & MODIFIER_PRISTINE) != 0;
 
     // oop modifier useless af 
@@ -139,6 +145,11 @@ void apply_var_modifiers(VarDeclNode* node, int modifiers) {
     node->is_pure = !(modifiers & MODIFIER_IMPURE);
     node->has_explicit_pure = (modifiers & MODIFIER_PURE) != 0;
     node->is_pristine = !(modifiers & MODIFIER_TAINTED);
+    if (!node->is_pristine) {
+        node->var_type.is_tainted = 1;
+    } else if (node->var_type.is_tainted) {
+        node->is_pristine = 0;
+    }
     node->has_explicit_pristine = (modifiers & MODIFIER_PRISTINE) != 0;
 
     // Variable specific OOP constraints, in case anonymous classes/objects are used
@@ -163,6 +174,11 @@ void apply_param_modifiers(Parameter* param, int modifiers) {
     param->is_pure = !(modifiers & MODIFIER_IMPURE);
     param->has_explicit_pure = (modifiers & MODIFIER_PURE) != 0;
     param->is_pristine = !(modifiers & MODIFIER_TAINTED);
+    if (!param->is_pristine) {
+        param->type.is_tainted = 1;
+    } else if (param->type.is_tainted) {
+        param->is_pristine = 0;
+    }
     param->has_explicit_pristine = (modifiers & MODIFIER_PRISTINE) != 0;
 }
 

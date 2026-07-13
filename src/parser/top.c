@@ -89,6 +89,8 @@ ASTNode* parse_extern(Parser *p, int modifiers) {
   node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = ret_type;
   node->params = params_head; node->body = NULL; node->is_varargs = is_varargs;
   node->is_extern = true;
+  node->cconv = p->pending_cconv ? p->pending_cconv : p->ctx->settings.default_cconv;
+  p->pending_cconv = NULL;
   apply_func_modifiers(node, modifiers);
   return (ASTNode*)node;
 }
@@ -136,10 +138,80 @@ ASTNode* parse_top_level(Parser *p) {
   if (p->current_token.type == TOKEN_TYPEDEF) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_typedef(p); }
   if (p->current_token.type == TOKEN_ENUM) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_enum(p); }
 
+  if (p->current_token.type == TOKEN_PREMETA) {
+      if(modifiers) parser_fail(p, "Modifiers not allowed");
+      eat(p, TOKEN_PREMETA);
+      eat(p, TOKEN_LBRACE);
+      while(p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+          if (p->current_token.type == TOKEN_IDENTIFIER) {
+              char *domain = parser_strdup(p, p->current_token.text);
+              eat(p, TOKEN_IDENTIFIER);
+              if (p->current_token.type == TOKEN_DOT) {
+                  eat(p, TOKEN_DOT);
+                  char *key = parser_strdup(p, p->current_token.text);
+                  eat(p, TOKEN_IDENTIFIER);
+                  eat(p, TOKEN_ASSIGN);
+                  // parse value
+                  char *val = NULL;
+                  if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_NUMBER || p->current_token.type == TOKEN_STRING) {
+                      val = parser_strdup(p, p->current_token.text);
+                      eat(p, p->current_token.type);
+                  }
+                  
+                  if (strcmp(domain, "compiler") == 0 && strcmp(key, "no_purge") == 0 && val) {
+                      p->ctx->settings.no_purge = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
+                  } else if (strcmp(domain, "lexer") == 0 && strcmp(key, "require_semicolons") == 0 && val) {
+                      // wait, parsing lexer after it's lexed? It's fine, we update it in the context anyway.
+                      // Wait! Lexer is already done! It's too late for the lexer.
+                  }
+              } else if (p->current_token.type == TOKEN_ASSIGN) {
+                  eat(p, TOKEN_ASSIGN);
+                  char *val = NULL;
+                  if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_NUMBER || p->current_token.type == TOKEN_STRING) {
+                      val = parser_strdup(p, p->current_token.text);
+                      eat(p, p->current_token.type);
+                  }
+                  if (strcmp(domain, "cconv") == 0 && val) {
+                      p->ctx->settings.default_cconv = val;
+                  }
+              }
+          } else {
+              eat(p, p->current_token.type); // skip unhandled
+          }
+          if (p->current_token.type == TOKEN_SEMICOLON) eat(p, TOKEN_SEMICOLON);
+      }
+      eat(p, TOKEN_RBRACE);
+      return parse_top_level(p);
+  }
+
   if (p->current_token.type == TOKEN_META || p->current_token.type == TOKEN_POSTMETA) {
       if(modifiers) parser_fail(p, "Modifiers not allowed");
       bool is_post = (p->current_token.type == TOKEN_POSTMETA);
       eat(p, p->current_token.type);
+      
+      if (p->current_token.type == TOKEN_LBRACKET) {
+          eat(p, TOKEN_LBRACKET);
+          while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+              if (p->current_token.type == TOKEN_IDENTIFIER) {
+                  char *key = parser_strdup(p, p->current_token.text);
+                  eat(p, TOKEN_IDENTIFIER);
+                  if (p->current_token.type == TOKEN_ASSIGN) {
+                      eat(p, TOKEN_ASSIGN);
+                      if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_IDENTIFIER) {
+                          if (strcmp(key, "cconv") == 0) {
+                              p->pending_cconv = parser_strdup(p, p->current_token.text);
+                          }
+                          eat(p, p->current_token.type);
+                      }
+                  }
+              } else {
+                  eat(p, p->current_token.type);
+              }
+              if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
+          }
+          eat(p, TOKEN_RBRACKET);
+          return parse_top_level(p); // parse the decorated element
+      }
       
       ASTNode *body_head = NULL;
       if (p->current_token.type == TOKEN_IF) {
@@ -174,7 +246,11 @@ ASTNode* parse_top_level(Parser *p) {
 
   if (p->current_token.type == TOKEN_KW_MUT || p->current_token.type == TOKEN_KW_IMUT) {
     ASTNode *var = parse_var_decl_internal(p);
-    if (var) apply_var_modifiers((VarDeclNode*)var, modifiers);
+    ASTNode *curr = var;
+    while (curr) {
+        apply_var_modifiers((VarDeclNode*)curr, modifiers);
+        curr = curr->next;
+    }
     return var;
   }
 
@@ -227,6 +303,13 @@ ASTNode* parse_top_level(Parser *p) {
           vtype = pt;
       }
   }
+  if (p->current_token.type == TOKEN_QUESTION) {
+      Token next = parser_peek_token(p);
+      if (next.type == TOKEN_LPAREN) {
+          vtype.is_tainted = 1;
+          eat(p, TOKEN_QUESTION);
+      }
+  }
   
   if (p->current_token.type == TOKEN_LPAREN) {
     eat(p, TOKEN_LPAREN);
@@ -264,43 +347,84 @@ ASTNode* parse_top_level(Parser *p) {
     node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = vtype; node->params = params_head; node->body = body;
     node->is_flux = is_flux; 
     node->base.line = line; node->base.col = col;
+    node->cconv = p->pending_cconv ? p->pending_cconv : p->ctx->settings.default_cconv;
+    p->pending_cconv = NULL; // Consume it
     
     apply_func_modifiers(node, modifiers);
     return (ASTNode*)node;
   } else {
+    ASTNode *head = NULL;
+    ASTNode **curr = &head;
+    
     char *name_val = name;
-    int is_array = 0;
-    ASTNode *array_size = NULL;
-    ASTNode **curr_sz = &array_size;
     
-    while (p->current_token.type == TOKEN_LBRACKET) {
-      is_array = 1; eat(p, TOKEN_LBRACKET);
-      ASTNode *sz = NULL;
-      if (p->current_token.type != TOKEN_RBRACKET) sz = parse_expression(p);
-      else {
-          LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
-          ln->base.type = NODE_LITERAL;
-          ln->var_type.base = TYPE_INT;
-          ln->val.int_val = 0;
-          sz = (ASTNode*)ln;
-      }
-      *curr_sz = sz;
-      curr_sz = &sz->next;
-      
-      eat(p, TOKEN_RBRACKET);
-    }
+    // Initial extra_ptrs for the first variable is 0
+    int next_extra_ptrs = 0;
+    
+    while (1) {
+        VarType current_vtype = vtype;
+        current_vtype.ptr_depth += next_extra_ptrs;
+        
+        if (p->current_token.type == TOKEN_QUESTION) {
+            current_vtype.is_tainted = 1;
+            eat(p, TOKEN_QUESTION);
+        }
+        
+        int is_array = 0;
+        ASTNode *array_size = NULL;
+        ASTNode **curr_sz = &array_size;
+        
+        while (p->current_token.type == TOKEN_LBRACKET) {
+            is_array = 1;
+            current_vtype.ptr_depth++; 
+            eat(p, TOKEN_LBRACKET);
+            ASTNode *sz = NULL;
+            if (p->current_token.type != TOKEN_RBRACKET) sz = parse_expression(p);
+            else {
+                LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
+                ln->base.type = NODE_LITERAL;
+                ln->var_type.base = TYPE_INT;
+                ln->val.int_val = 0;
+                sz = (ASTNode*)ln;
+            }
+            *curr_sz = sz;
+            curr_sz = &sz->next;
+            eat(p, TOKEN_RBRACKET);
+        }
 
-    ASTNode *init = NULL;
-    if (p->current_token.type == TOKEN_ASSIGN) { eat(p, TOKEN_ASSIGN); init = parse_expression(p); } 
-    else { if (vtype.base == TYPE_AUTO) { parser_fail(p, "'let' variable declaration must have an initializer"); } }
+        ASTNode *init = NULL;
+        if (p->current_token.type == TOKEN_ASSIGN) { eat(p, TOKEN_ASSIGN); init = parse_expression(p); } 
+        else { if (current_vtype.base == TYPE_AUTO) { parser_fail(p, "'let' variable declaration must have an initializer"); } }
+        
+        VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
+        node->base.type = NODE_VAR_DECL; node->var_type = current_vtype; node->name = name_val;
+        node->initializer = init; node->is_mutable = 1; 
+        node->is_array = is_array; node->array_size = array_size; 
+        node->base.line = line; node->base.col = col;
+        
+        apply_var_modifiers(node, modifiers);
+        *curr = (ASTNode*)node;
+        curr = &node->base.next;
+        
+        if (p->current_token.type == TOKEN_COMMA) {
+            eat(p, TOKEN_COMMA);
+            
+            // Allow pointer asterisks like *y
+            next_extra_ptrs = 0;
+              while (p->current_token.type == TOKEN_STAR) {
+                  next_extra_ptrs++;
+                  eat(p, TOKEN_STAR);
+              }
+            
+            if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected identifier after comma");
+            name_val = parser_strdup(p, p->current_token.text);
+            p->current_token.text = NULL;
+            eat(p, TOKEN_IDENTIFIER);
+        } else {
+            break;
+        }
+    }
     eat(p, TOKEN_SEMICOLON);
-    VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
-    node->base.type = NODE_VAR_DECL; node->var_type = vtype; node->name = name_val;
-    node->initializer = init; node->is_mutable = 1; 
-    node->is_array = is_array; node->array_size = array_size; 
-    node->base.line = line; node->base.col = col;
-    
-    apply_var_modifiers(node, modifiers);
-    return (ASTNode*)node;
+    return head;
   }
 }

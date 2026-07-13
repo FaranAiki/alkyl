@@ -21,8 +21,9 @@
       "alignof": "alignof() is used to get the alignment in bytes of a type or variable.",
       "defer": "defer { ... } executes the block right before exiting the current scope. Good for freeing memory.",
       "fallback": "The `?` operator (e.g., `a ? 1`) acts as a fallback. If the left side `a` is tainted (in an error state), it evaluates and returns the right side (1). Otherwise, it evaluates to `a`. It has lower precedence than most operators, so `1 / 0 ? 1` parses as `(1 / 0) ? 1`.",
-      "purge": "The `purge` keyword acts like a compile-time throw. It halts compilation and prints the provided string as a semantic error (e.g. `purge \"Error Message\"`).",
-      "division": "The division operator `/` automatically marks the result as TAINTED if the denominator is a variable (since it could be zero at runtime). If the denominator is a literal `0`, it triggers a compile-time error, UNLESS it's handled by a fallback."
+      "purge": "The `purge` keyword acts like a runtime error throw. It takes an error identifier (e.g., `purge ErrDivisionByZero`), which is automatically registered in a global hash table as an `ErrorEntry` type. At runtime, an unhandled purge prints `purge: ErrName`. In freestanding environments, `CompilerSettings.no_purge = true` can be set to omit these.",
+      "division": "The division operator `/` automatically checks for zero and emits `purge ErrDivisionByZero` if `b == 0` at runtime (unless `no_purge` is true). It also marks the result as TAINTED if the denominator is a variable.",
+      "arx_operators": "The ARX (Add-Rotate-Xor) operators are fully supported: `^` for XOR, `<<%` for left rotation, and `%>>` for right rotation."
     },
     "parser": {
       "wash_type": "The WashType enum is used to distinguish between wash (0), clean (1), and untaint (2) operations in the parser."

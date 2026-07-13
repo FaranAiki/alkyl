@@ -1,0 +1,16 @@
+extern int printf(char* fmt);
+
+double divby?(double a, double b) {
+  return a / b;
+}
+
+int divby?(int a, int b) {
+  if (b == 0) { return 0; }
+  return a / b;
+}
+
+int main() {
+    int t = 1;
+    printf ("%s\n", typeof(t) ? "a" : "b");
+    return 0;
+}

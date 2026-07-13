@@ -118,7 +118,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
                 LLVMTypeRef exit_ty = LLVMFunctionType(LLVMVoidTypeInContext(ctx->llvm_ctx), args, 1, 0);
                 exit_func = LLVMAddFunction(ctx->llvm_mod, "exit", exit_ty);
             }
-            LLVMValueRef msg = LLVMBuildGlobalStringPtr(ctx->builder, "Division by zero", "div_zero_msg");
+            LLVMValueRef msg = LLVMBuildGlobalStringPtr(ctx->builder, "purge: ErrDivisionByZero", "div_zero_msg");
             LLVMValueRef args[] = { msg };
             LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(puts_func), puts_func, args, 1, "");
             LLVMValueRef args_exit[] = { LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 1, 0) };
@@ -165,11 +165,13 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
 
         // Flow Control
         case ALIR_OP_JUMP: {
+            if (LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(ctx->builder)) != NULL) break;
             LLVMBasicBlockRef dest_bb = hashmap_get(&ctx->block_map, inst->op1->val.str_val);
             if (dest_bb) LLVMBuildBr(ctx->builder, dest_bb);
             break;
         }
         case ALIR_OP_CONDI: {
+            if (LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(ctx->builder)) != NULL) break;
             LLVMBasicBlockRef then_bb = hashmap_get(&ctx->block_map, inst->op2->val.str_val);
             LLVMBasicBlockRef else_bb = hashmap_get(&ctx->block_map, inst->args[0]->val.str_val);
             if (then_bb && else_bb && op1) LLVMBuildCondBr(ctx->builder, op1, then_bb, else_bb);
@@ -243,30 +245,76 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             }
 
             res = LLVMBuildCall2(ctx->builder, func_ty, func, args, inst->arg_count, (LLVMGetReturnType(func_ty) == LLVMVoidTypeInContext(ctx->llvm_ctx)) ? "" : "call");
+            LLVMSetInstructionCallConv(res, LLVMGetFunctionCallConv(func));
             free(args);
             break;
         }
         case ALIR_OP_RET: {
+            LLVMBasicBlockRef current_bb = LLVMGetInsertBlock(ctx->builder);
+            if (LLVMGetBasicBlockTerminator(current_bb) != NULL) break;
+            LLVMValueRef current_func = LLVMGetBasicBlockParent(current_bb);
+            LLVMTypeRef ret_ty = LLVMGetReturnType(LLVMGlobalGetValueType(current_func));
+            
             if (op1) {
-                LLVMBasicBlockRef current_bb = LLVMGetInsertBlock(ctx->builder);
-                LLVMValueRef current_func = LLVMGetBasicBlockParent(current_bb);
-                LLVMTypeRef current_func_ty = LLVMGlobalGetValueType(current_func);
-                if (LLVMGetReturnType(current_func_ty) == LLVMVoidTypeInContext(ctx->llvm_ctx)) {
+                if (LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind && LLVMGetTypeKind(LLVMTypeOf(op1)) != LLVMStructTypeKind) {
+                    LLVMValueRef ret_struct = LLVMGetUndef(ret_ty);
+                    ret_struct = LLVMBuildInsertValue(ctx->builder, ret_struct, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), 0, "");
+                    ret_struct = LLVMBuildInsertValue(ctx->builder, ret_struct, op1, 1, "");
+                    LLVMBuildRet(ctx->builder, ret_struct);
+                } else if (ret_ty == LLVMVoidTypeInContext(ctx->llvm_ctx)) {
                     LLVMBuildRetVoid(ctx->builder);
                 } else {
                     LLVMBuildRet(ctx->builder, op1);
                 }
             } else {
-                LLVMBuildRetVoid(ctx->builder);
+                if (LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind) {
+                    LLVMValueRef ret_struct = LLVMGetUndef(ret_ty);
+                    ret_struct = LLVMBuildInsertValue(ctx->builder, ret_struct, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), 0, "");
+                    LLVMBuildRet(ctx->builder, ret_struct);
+                } else {
+                    LLVMBuildRetVoid(ctx->builder);
+                }
             }
             break;
         }
+        case ALIR_OP_FALLBACK: {
+            // op1 is the tainted struct { i32 err_id, base }, op2 is the fallback value
+            
+            if (LLVMGetTypeKind(LLVMTypeOf(op1)) != LLVMStructTypeKind) {
+                // op1 is already pristine, no error can exist. Ignore fallback.
+                res = op1;
+                break;
+            }
+            
+            LLVMValueRef err_id = LLVMBuildExtractValue(ctx->builder, op1, 0, "err_id");
+            LLVMValueRef val = LLVMBuildExtractValue(ctx->builder, op1, 1, "val");
+            
+            LLVMValueRef has_err = LLVMBuildICmp(ctx->builder, LLVMIntNE, err_id, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), "has_err");
+            
+            // Branch to select op2 if has_err, else val
+            // We can just use a select instruction instead of branches!
+            // Wait, op2 might have side effects, but ALIR generates them sequentially, so op2 is already evaluated here!
+            res = LLVMBuildSelect(ctx->builder, has_err, op2, val, "fallback_res");
+            break;
+        }
         case ALIR_OP_PANIC: {
-            LLVMValueRef puts_func = LLVMGetNamedFunction(ctx->llvm_mod, "puts");
-            if (!puts_func) {
+            LLVMBasicBlockRef current_bb = LLVMGetInsertBlock(ctx->builder);
+            if (LLVMGetBasicBlockTerminator(current_bb) != NULL) break;
+            LLVMValueRef current_func = LLVMGetBasicBlockParent(current_bb);
+            LLVMTypeRef ret_ty = LLVMGetReturnType(LLVMGlobalGetValueType(current_func));
+            
+            if (LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind) {
+                LLVMValueRef ret_struct = LLVMGetUndef(ret_ty);
+                ret_struct = LLVMBuildInsertValue(ctx->builder, ret_struct, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 1, 0), 0, "");
+                LLVMBuildRet(ctx->builder, ret_struct);
+                break;
+            }
+
+            LLVMValueRef printf_func = LLVMGetNamedFunction(ctx->llvm_mod, "printf");
+            if (!printf_func) {
                 LLVMTypeRef args[] = { LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0) };
-                LLVMTypeRef puts_ty = LLVMFunctionType(LLVMInt32TypeInContext(ctx->llvm_ctx), args, 1, 0);
-                puts_func = LLVMAddFunction(ctx->llvm_mod, "puts", puts_ty);
+                LLVMTypeRef printf_ty = LLVMFunctionType(LLVMInt32TypeInContext(ctx->llvm_ctx), args, 1, 1);
+                printf_func = LLVMAddFunction(ctx->llvm_mod, "printf", printf_ty);
             }
             LLVMValueRef exit_func = LLVMGetNamedFunction(ctx->llvm_mod, "exit");
             if (!exit_func) {
@@ -276,8 +324,9 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             }
             
             if (op1) {
-                LLVMValueRef args[] = { op1 };
-                LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(puts_func), puts_func, args, 1, "puts_call");
+                LLVMValueRef fmt = LLVMBuildGlobalStringPtr(ctx->builder, "purge: %s\n", "purge_fmt");
+                LLVMValueRef args[] = { fmt, op1 };
+                LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(printf_func), printf_func, args, 2, "printf_call");
             }
             LLVMValueRef args_exit[] = { LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 1, 0) };
             LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(exit_func), exit_func, args_exit, 1, "");

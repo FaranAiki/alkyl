@@ -74,6 +74,12 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
     SemSymbol *sym = sem_symbol_lookup(ctx, ref->name, &found_in_scope);
     
     if (sym) {
+        if (!sym->is_pristine) {
+            sym->type.is_tainted = 1;
+        } else if (sym->must_pristine) {
+            sym->type.is_pristine = 1;
+        }
+
         sem_set_node_type(ctx, node, sym->type);
         
         if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
@@ -82,7 +88,6 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
                 ctx->current_func_sym->is_pure = false;
             }
             if (found_in_scope == ctx->global_scope) {
-                // instead of throwing error, just set it to impure
                 if (ctx->current_func_sym->must_pure) sem_error(ctx, node, "Pure function '%s' cannot read global variable '%s'", ctx->current_func_sym->name, ref->name);
                 ctx->current_func_sym->is_pure = false;
             }

@@ -1,0 +1,1 @@
+sed -i 's/AlirValue \*msg_val = alir_gen_expr(ctx, pn->msg);/VarRefNode \*vr = (VarRefNode\*)pn->msg;\n            char buf[512];\n            snprintf(buf, sizeof(buf), "purge: %s\\n", vr->name);\n            AlirValue \*msg_val = alir_const_string(ctx->module, buf);/g' src/alir/stmt.c

@@ -66,9 +66,21 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
   if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION) {
       int is_union = (p->current_token.type == TOKEN_UNION);
       eat(p, p->current_token.type);
+      
+      int is_tainted_class = 0;
+      if (p->current_token.type == TOKEN_QUESTION) {
+          is_tainted_class = 1;
+          eat(p, TOKEN_QUESTION);
+      }
+      
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected name after 'class', 'struct' or 'union'");
       char *class_name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
+      
+      if (p->current_token.type == TOKEN_QUESTION) {
+          is_tainted_class = 1;
+          eat(p, TOKEN_QUESTION);
+      }
       
       register_typename(p, class_name, 0); 
       
@@ -349,6 +361,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
       cls->members = members_head;
       cls->is_open = is_open;
       cls->is_union = is_union;
+      cls->is_tainted = is_tainted_class;
       
       apply_class_modifiers(cls, modifiers);
       return (ASTNode*)cls;

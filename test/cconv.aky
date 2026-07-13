@@ -1,0 +1,12 @@
+premeta {
+    cconv = "fastcall";
+}
+
+extern void fast_func();
+
+meta [cconv = "stdcall"]
+extern void std_func();
+
+int main() {
+    return 0;
+}

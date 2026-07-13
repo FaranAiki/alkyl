@@ -1,17 +1,21 @@
 import "lib/c";
 
-tainted double divby(double a, double b) {
+double divby?(double a, double b) {
   return a / b;
 }
 
-tainted int divby(int a, int b) {
+int divby?(int a, int b) {
+  if (b == 0) {
+    purge ErrDivisionByZero;
+  }
   return a / b;
-  // dongonya belom bisa throw error!
 }
 
 int main() {
-  // kok masih belom error y
-  int k = printf("%lf\n", divby(2, 0));
+  // Should fallback to 1.0
+  printf("%d\n", divby(2, 0) ? 1);
+  pristine let t = divby(2, 0);
+  printf ("%s\n", typeof t ? "a");
 
   return 0;
 }

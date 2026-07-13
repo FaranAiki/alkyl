@@ -23,4 +23,6 @@ void context_init(CompilerContext *ctx, Arena *arena) {
     // Initialize the global String Interning Pool
     // 1024 is a good starting capacity for average source files
     hashmap_init(&ctx->string_pool, arena, 1024);
+    hashmap_init(&ctx->error_table, arena, 64);
+    ctx->settings.no_purge = false;
 }

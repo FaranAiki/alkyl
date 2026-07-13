@@ -35,6 +35,7 @@ typedef struct Parser {
     TypeAlias *alias_head;
     struct Expansion *expansion_head;
     int disable_macro_expansion;
+    char *pending_cconv;
 } Parser;
 
 void parser_init(Parser *p, Lexer *l, ParserSettings *settings);

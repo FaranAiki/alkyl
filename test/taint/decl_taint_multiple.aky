@@ -1,0 +1,11 @@
+extern int printf(char* fmt);
+
+int main() {
+    tainted mut int x = 10, *y = 0 as int*;
+    mut int a? = 20, *b = 0 as int*, *c? = 0 as int*;
+
+    if (x == 10) {
+        printf("x is tainted\n");
+    }
+    return 0;
+}

@@ -76,6 +76,7 @@ typedef enum {
   TYPE_CLASS, 
   TYPE_ENUM, 
   TYPE_NAMESPACE,
+  TYPE_ERROR,
   TYPE_UNKNOWN,
 } BaseType;
 
@@ -106,6 +107,8 @@ typedef struct VarType {
   bool is_unsigned : 1; 
   bool is_func_ptr : 1;
   bool fp_is_varargs : 1;
+  bool is_tainted : 1;
+  bool is_pristine : 1;
 } VarType;
 
 typedef struct ASTNode {
@@ -151,6 +154,7 @@ typedef struct {
   bool is_pristine : 1;
   bool has_explicit_pristine : 1;
   bool is_extern : 1;
+  char *cconv;
 } FuncDefNode;
 
 typedef struct {
@@ -174,6 +178,7 @@ typedef struct {
   bool is_abstract : 1;
   bool is_pure : 1;
   bool has_explicit_pure : 1;
+  bool is_tainted : 1;
 } ClassNode;
 
 typedef struct {

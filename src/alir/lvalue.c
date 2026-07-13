@@ -306,11 +306,11 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
 
     // Fallback operator
     if (bn->op == TOKEN_QUESTION) {
-        if (sem_get_node_tainted(ctx->sem, bn->left)) {
-            return r;
-        } else {
-            return l;
-        }
+        VarType res_ty = l->type;
+        res_ty.is_tainted = 0;
+        AlirValue *res = new_temp(ctx, res_ty);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_FALLBACK, res, l, r));
+        return res;
     }
 
     int is_float = (l_type.base == TYPE_FLOAT || l_type.base == TYPE_DOUBLE ||

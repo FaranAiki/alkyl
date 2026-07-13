@@ -65,6 +65,7 @@ typedef enum {
   TOKEN_TYPEDEF, 
   TOKEN_META,
   TOKEN_POSTMETA,
+  TOKEN_PREMETA,
 
   // OOP Keywords
   TOKEN_UNION,  
@@ -281,6 +282,7 @@ static const KeywordDef keywords[] = {
     {"once", TOKEN_ONCE},
     {"open", TOKEN_OPEN},
     {"postmeta", TOKEN_POSTMETA},
+    {"premeta", TOKEN_PREMETA},
     {"pristine", TOKEN_PRISTINE},
     {"private", TOKEN_PRIVATE},
     {"public", TOKEN_PUBLIC},

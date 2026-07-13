@@ -446,6 +446,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
 
     ctx->current_func = alir_add_function(ctx->module, func_name, fn->ret_type, 0);
     ctx->current_func->is_varargs = fn->is_varargs;
+    if (fn->cconv) ctx->current_func->cconv = alir_strdup(ctx->module, fn->cconv);
 
     if (class_name) {
         VarType this_t = {TYPE_CLASS, 1, 0, alir_strdup(ctx->module, class_name)};

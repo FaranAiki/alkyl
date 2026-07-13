@@ -61,6 +61,7 @@ typedef enum {
     ALIR_OP_CALL,
     ALIR_OP_RET,
     ALIR_OP_PANIC,
+    ALIR_OP_FALLBACK,
     
     // Flux / Coroutines
     ALIR_OP_YIELD,      // High-level yield (lowers to state machine)
@@ -129,6 +130,7 @@ typedef struct AlirFunction {
     int block_count;
     int is_flux;
     int is_varargs;
+    char *cconv;
     struct AlirFunction *next;
 } AlirFunction;
 

@@ -41,6 +41,7 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
     LLVMTypeRef base = NULL;
     switch (t.base) {
         case TYPE_VOID: base = LLVMVoidTypeInContext(ctx->llvm_ctx); break;
+        case TYPE_ERROR: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
         case TYPE_INT: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
         case TYPE_SHORT: base = LLVMInt16TypeInContext(ctx->llvm_ctx); break;
         case TYPE_LONG: 
@@ -59,12 +60,11 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
                     hashmap_put(&ctx->struct_map, t.class_name, base);
                 }
             } else {
-                base = LLVMInt8TypeInContext(ctx->llvm_ctx); 
+                base = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
             }
             break;
         }
         case TYPE_ENUM: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
-        // case TYPE_UNSIGNED_INT: break;    
 
         // TODO vector, hashmap, auto, unknown
         default: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break; 
@@ -74,6 +74,17 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
         base = LLVMArrayType(base, t.array_size);
     }
     
+    if (t.is_tainted) {
+        LLVMTypeRef elements[] = {
+            LLVMInt32TypeInContext(ctx->llvm_ctx),  // i32 error_id
+            base                                    // actual value
+        };
+        if (t.base == TYPE_VOID) {
+            return LLVMStructTypeInContext(ctx->llvm_ctx, elements, 1, 0);
+        }
+        return LLVMStructTypeInContext(ctx->llvm_ctx, elements, 2, 0);
+    }
+
     return base;
 }
 
@@ -249,6 +260,16 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
         
         LLVMTypeRef func_ty = LLVMFunctionType(ret_ty, param_tys, func->param_count, func->is_varargs);
         LLVMValueRef llvm_func = LLVMAddFunction(ctx->llvm_mod, func->name, func_ty);
+        
+        if (func->cconv) {
+            if (strcmp(func->cconv, "stdcall") == 0 || strcmp(func->cconv, "\"stdcall\"") == 0) {
+                LLVMSetFunctionCallConv(llvm_func, 64); // LLVMX86StdcallCallConv
+            } else if (strcmp(func->cconv, "fastcall") == 0 || strcmp(func->cconv, "\"fastcall\"") == 0) {
+                LLVMSetFunctionCallConv(llvm_func, 65); // LLVMX86FastcallCallConv
+            } else if (strcmp(func->cconv, "cdecl") == 0 || strcmp(func->cconv, "\"cdecl\"") == 0) {
+                LLVMSetFunctionCallConv(llvm_func, 0); // LLVMCCallConv
+            }
+        }
         
         hashmap_put(&ctx->func_map, func->name, llvm_func);
         hashmap_put(&ctx->func_type_map, func->name, func_ty);

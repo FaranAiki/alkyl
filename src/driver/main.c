@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 
   ASTNode *root = parse_program(&p);
 
-  if (!root && comp_ctx.parser_error_count > 0) {
+  if (comp_ctx.error_count > 0) {
       free(code);
       return 1;
   }

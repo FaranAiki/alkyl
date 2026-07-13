@@ -35,6 +35,7 @@ void semantic_emit_type_str(StringBuilder *sb, VarType t) {
         case TYPE_DOUBLE: sb_append_fmt(sb, "double"); break;
         case TYPE_LONG_DOUBLE: sb_append_fmt(sb, "long double"); break;
         case TYPE_VOID: sb_append_fmt(sb, "void"); break;
+        case TYPE_ERROR: sb_append_fmt(sb, "error"); break;
         case TYPE_STRING: sb_append_fmt(sb, "string"); break; // Native String
         case TYPE_AUTO: sb_append_fmt(sb, "let"); break;
         case TYPE_CLASS: sb_append_fmt(sb, "%s", t.class_name ? t.class_name : "class"); break;

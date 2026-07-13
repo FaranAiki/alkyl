@@ -409,6 +409,11 @@ VarType parse_type(Parser *p) {
       return parse_func_ptr_decl(p, t, NULL);
   }
   
+  if (p->current_token.type == TOKEN_QUESTION) {
+      t.is_tainted = 1;
+      eat(p, TOKEN_QUESTION);
+  }
+
   return t;
 }
 

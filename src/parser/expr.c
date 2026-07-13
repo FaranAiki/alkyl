@@ -131,7 +131,8 @@ ASTNode* parse_factor(Parser *p) {
 
   if (p->current_token.type == TOKEN_TYPEOF) {
       eat(p, TOKEN_TYPEOF);
-      eat(p, TOKEN_LPAREN);
+      int has_paren = (p->current_token.type == TOKEN_LPAREN);
+      if (has_paren) eat(p, TOKEN_LPAREN);
       if (is_type_start(p)) {
           VarType t = parse_type(p);
           // If typeof takes a type, we wrap it in a CastNode or a new TypeOfNode.
@@ -148,7 +149,7 @@ ASTNode* parse_factor(Parser *p) {
           sn2->operand = parse_expression(p);
           node = (ASTNode*)sn2;
       }
-      eat(p, TOKEN_RPAREN);
+      if (has_paren) eat(p, TOKEN_RPAREN);
       set_loc(node, line, col);
   }
   else if (p->current_token.type == TOKEN_KW_DEFINED) {
@@ -296,7 +297,10 @@ ASTNode* parse_factor(Parser *p) {
   else if (p->current_token.type == TOKEN_KW_SIZEOF || p->current_token.type == TOKEN_KW_ALIGNOF) {
     int is_align = (p->current_token.type == TOKEN_KW_ALIGNOF);
     eat(p, p->current_token.type);
-    eat(p, TOKEN_LPAREN);
+    
+    int has_paren = (p->current_token.type == TOKEN_LPAREN);
+    if (has_paren) eat(p, TOKEN_LPAREN);
+    
     SizeOfNode *sn = parser_alloc(p, sizeof(SizeOfNode));
     sn->base.type = is_align ? NODE_ALIGNOF : NODE_SIZEOF;
     sn->target_type.base = TYPE_UNKNOWN; 
@@ -306,7 +310,8 @@ ASTNode* parse_factor(Parser *p) {
     } else {
         sn->operand = parse_expression(p);
     }
-    eat(p, TOKEN_RPAREN);
+    
+    if (has_paren) eat(p, TOKEN_RPAREN);
 
     node = (ASTNode*)sn;
     set_loc(node, line, col);

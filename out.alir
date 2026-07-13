@@ -1,39 +1,32 @@
 ; Module: main_module
 
 ; Globals
-@str.2 = string "Hasilnya %lf\n"
-@str.1 = string "Pilih dua angka yang ingin dibagi:\n"
-@str.0 = string "%d"
+@str.0 = string "x is tainted\n"
 
-promise int @scanf(string, void*)
-
-promise int @printf(string, ...)
-
-block func int @int_input() {
-entry:
-  %0 = onstack int
-  %1 = load int %0
-  %2 = call %scanf (@str.0, %0)
-  %3 = load int %0
-  return int %3
-}
+promise int @printf(char*)
 
 block func int @main() {
 entry:
-  %0 = call %printf (@str.1)
-  %1 = call %int_input
-  %2 = onstack int
-  store int %1, %2
-  %3 = call %int_input
-  %4 = onstack int
-  store int %3, %4
-  %5 = load int %2
-  %6 = load int %4
-  %7 = div int %5, %6
-  %8 = cast double %7
-  %9 = onstack double
-  store double %8, %9
-  %10 = load double %9
-  %11 = call %printf (@str.2, %10)
+  %0 = onstack int
+  store int 10, %0
+  %1 = cast int* 0
+  %2 = onstack int*
+  store int* %1, %2
+  %3 = onstack int
+  store int 20, %3
+  %4 = cast int* 0
+  %5 = onstack int*
+  store int* %4, %5
+  %6 = cast int* 0
+  %7 = onstack int*
+  store int* %6, %7
+  %8 = load int %0
+  %9 = eq bool %8, 10
+  condition %9, then (merge)
+then:
+  %10 = cast char* @str.0
+  %11 = call %printf (%10)
+  jump merge
+merge:
   return int 0
 }

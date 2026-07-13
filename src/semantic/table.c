@@ -397,6 +397,7 @@ char* sem_type_to_str(VarType t) {
         case TYPE_DOUBLE: base = "double"; break;
         case TYPE_LONG_DOUBLE: base = "long double"; break;
         case TYPE_VOID: base = "void"; break;
+        case TYPE_ERROR: base = "error"; break;
         case TYPE_HASHMAP: base = "hashmap"; break;
         case TYPE_VECTOR: base = "vector"; break;
         case TYPE_ARRAY: base = "array"; break;
@@ -414,6 +415,9 @@ char* sem_type_to_str(VarType t) {
         pos += snprintf(buf + pos, 256 - pos, "vector ");
     }*/
 
+    if (t.is_tainted) pos += snprintf(buf + pos, 256 - pos, "tainted ");
+    else if (t.is_pristine) pos += snprintf(buf + pos, 256 - pos, "pristine ");
+    
     if (t.is_unsigned) pos += snprintf(buf + pos, 256 - pos, "unsigned ");
     pos += snprintf(buf + pos, 256 - pos, "%s", base);
     
@@ -447,6 +451,7 @@ char* sem_mangle_type(VarType t) {
         case TYPE_DOUBLE: base = "f64"; break;
         case TYPE_LONG_DOUBLE: base = "f64"; break;
         case TYPE_VOID: base = "void"; break;
+        case TYPE_ERROR: base = "error"; break;
         case TYPE_STRING: base = "str"; break;
         case TYPE_CLASS: base = t.class_name ? t.class_name : "class"; break;
         case TYPE_ENUM: base = t.class_name ? t.class_name : "enum"; break;

@@ -386,7 +386,11 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
   
   if (p->current_token.type == TOKEN_KW_MUT || p->current_token.type == TOKEN_KW_IMUT) {
       ASTNode *var = parse_var_decl_internal(p);
-      if (var) apply_var_modifiers((VarDeclNode*)var, modifiers);
+      ASTNode *curr = var;
+      while (curr) {
+          apply_var_modifiers((VarDeclNode*)curr, modifiers);
+          curr = curr->next;
+      }
       return var;
   }
 
@@ -406,7 +410,9 @@ ASTNode* parse_statements(Parser *p) {
     ASTNode *stmt = parse_single_statement_or_block(p);
     if (stmt) {
       *current = stmt;
-      current = &stmt->next;
+      while (*current) {
+          current = &(*current)->next;
+      }
     }
   }
   return head;

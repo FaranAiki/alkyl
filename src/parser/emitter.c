@@ -26,6 +26,7 @@ void parser_emit_type(StringBuilder *sb, VarType t) {
         case TYPE_DOUBLE: sb_append(sb, "double"); break;
         case TYPE_LONG_DOUBLE: sb_append(sb, "long double"); break;
         case TYPE_VOID: sb_append(sb, "void"); break;
+        case TYPE_ERROR: sb_append(sb, "error"); break;
         case TYPE_STRING: sb_append(sb, "string"); break;
         case TYPE_AUTO: sb_append(sb, "let"); break;
         case TYPE_CLASS: sb_append(sb, t.class_name ? t.class_name : "class"); break;
