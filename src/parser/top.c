@@ -80,7 +80,16 @@ ASTNode* parse_extern(Parser *p, int modifiers) {
       
       Parameter *param = parser_alloc(p, sizeof(Parameter)); 
       apply_param_modifiers(param, pmods);
-      param->type = ptype; param->name = pname; *curr_param = param; curr_param = &param->next;
+      param->type = ptype; param->name = pname; 
+      
+      if (p->current_token.type == TOKEN_ASSIGN) {
+          eat(p, TOKEN_ASSIGN);
+          param->default_value = parse_expression(p);
+      } else {
+          param->default_value = NULL;
+      }
+      
+      *curr_param = param; curr_param = &param->next;
       if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
     }
   }
@@ -283,6 +292,8 @@ ASTNode* parse_top_level_internal(Parser *p) {
                           }
                       } else if (strcmp(key, "require_semicolons") == 0 && val) {
                           p->l->settings.require_semicolons = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
+                      } else if (strcmp(key, "double_quote_as_string") == 0 && val) {
+                          p->l->settings.double_quote_as_string = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
                       }
                   }
               } else if (p->current_token.type == TOKEN_ASSIGN) {
@@ -493,7 +504,16 @@ ASTNode* parse_top_level_internal(Parser *p) {
         
         Parameter *pm = parser_alloc(p, sizeof(Parameter)); 
         apply_param_modifiers(pm, pmods);
-        pm->type = ptype; pm->name = pname; *curr_param = pm; curr_param = &pm->next;
+        pm->type = ptype; pm->name = pname; 
+        
+        if (p->current_token.type == TOKEN_ASSIGN) {
+            eat(p, TOKEN_ASSIGN);
+            pm->default_value = parse_expression(p);
+        } else {
+            pm->default_value = NULL;
+        }
+
+        *curr_param = pm; curr_param = &pm->next;
         if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
       }
     }

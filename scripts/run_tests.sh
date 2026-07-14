@@ -65,21 +65,44 @@ for AKY_FILE in $FILES; do
     echo -n "Testing [$FEATURE] $NAME ... "
     
     # 1. Compilation
-    ./alkyl "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
+    # Extract flags if specified on the first line of the file (e.g. // FLAGS: --some-flag)
+    FIRST_LINE=$(head -n 1 "$AKY_FILE")
+    FLAGS=()
+    if [[ "$FIRST_LINE" == "// FLAGS: "* ]]; then
+        FLAGS_STR="${FIRST_LINE#// FLAGS: }"
+        FLAGS_STR=$(echo "$FLAGS_STR" | tr -d '\r')
+        read -r -a FLAGS <<< "$FLAGS_STR"
+    fi
+
+    ./alkyl "${FLAGS[@]}" "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
     COMP_RET=$?
     
     # Strip colors for diffing
     sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$ACTUAL_LOG" > "$CLEAN_ACTUAL_LOG"
 
     if [ $UPDATE -eq 1 ]; then
-        cp "$ACTUAL_LOG" "$EXPECTED_LOG"
+        if [ $COMP_RET -ne 0 ]; then
+            sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$ACTUAL_LOG" > "$EXPECTED_LOG"
+        else
+            if [ -f "$EXPECTED_LOG" ] || [ ! -f "$EXPECTED_OUT" ]; then
+                sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$ACTUAL_LOG" > "$EXPECTED_LOG"
+            fi
+        fi
     fi
 
-    # Check compilation log if expected exists
-    if [ -f "$EXPECTED_LOG" ]; then
-        sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$EXPECTED_LOG" > "$CLEAN_EXPECTED_LOG"
+    # Check compilation success/failure
+    if [ $COMP_RET -ne 0 ]; then
+        # Compilation failed (non-zero exit code)
+        rm -f ./out
         
-        # Use simple diff (no headers) for "no special character" requirement
+        if [ ! -f "$EXPECTED_LOG" ]; then
+            echo -e "${COLOR_RED}FAILED (Compilation failed with exit code $COMP_RET but no expected log exists)${COLOR_RESET}"
+            FAILED=$((FAILED + 1))
+            continue
+        fi
+        
+        # Check compilation log against expected
+        sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$EXPECTED_LOG" > "$CLEAN_EXPECTED_LOG"
         if ! diff "$CLEAN_EXPECTED_LOG" "$CLEAN_ACTUAL_LOG" > "$LOGDIFF"; then
             echo -e "${COLOR_RED}FAILED (Log Mismatch)${COLOR_RESET}"
             FAILED=$((FAILED + 1))
@@ -87,9 +110,14 @@ for AKY_FILE in $FILES; do
         else
             rm -f "$LOGDIFF"
         fi
+        
+        # If it matched expected log, negative test passes
+        echo -e "${COLOR_GREEN}PASSED${COLOR_RESET}"
+        PASSED=$((PASSED + 1))
+        continue
     fi
     
-    # 2. Execution (if compiled)
+    # 2. Execution (if compiled successfully)
     if [ -f "./out" ]; then
         # Always use input file (now that they all exist)
         ./out < "$INPUT_FILE" > "$ACTUAL_OUT" 2>&1
@@ -111,15 +139,26 @@ for AKY_FILE in $FILES; do
                 rm -f "$RUN_DIFF"
             fi
         fi
+
+        # Check compilation log if expected exists for positive tests
+        if [ -f "$EXPECTED_LOG" ]; then
+            sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$EXPECTED_LOG" > "$CLEAN_EXPECTED_LOG"
+            if ! diff "$CLEAN_EXPECTED_LOG" "$CLEAN_ACTUAL_LOG" > "$LOGDIFF"; then
+                echo -e "${COLOR_RED}FAILED (Log Mismatch)${COLOR_RESET}"
+                FAILED=$((FAILED + 1))
+                rm -f ./out
+                continue
+            else
+                rm -f "$LOGDIFF"
+            fi
+        fi
         
         rm -f ./out
     else
-        # If no ./out, check if it was supposed to fail
-        if [ $COMP_RET -eq 0 ] && [ ! -f "$EXPECTED_LOG" ]; then
-             echo -e "${COLOR_RED}FAILED (No executable produced)${COLOR_RESET}"
-             FAILED=$((FAILED + 1))
-             continue
-        fi
+        # If no ./out but compilation exit code was 0
+        echo -e "${COLOR_RED}FAILED (No executable produced but compilation succeeded)${COLOR_RESET}"
+        FAILED=$((FAILED + 1))
+        continue
     fi
     
     echo -e "${COLOR_GREEN}PASSED${COLOR_RESET}"

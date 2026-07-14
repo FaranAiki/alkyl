@@ -150,8 +150,16 @@ void start_lsp_server(void) {
             id_ptr += 5;
             while (isspace(*id_ptr)) id_ptr++;
             int i = 0;
-            while (isdigit(*id_ptr) && i < sizeof(id_buf) - 1) {
+            if (*id_ptr == '"') {
                 id_buf[i++] = *id_ptr++;
+                while (*id_ptr && *id_ptr != '"' && (size_t)i < sizeof(id_buf) - 2) {
+                    id_buf[i++] = *id_ptr++;
+                }
+                if (*id_ptr == '"') id_buf[i++] = *id_ptr++;
+            } else {
+                while (isdigit(*id_ptr) && (size_t)i < sizeof(id_buf) - 1) {
+                    id_buf[i++] = *id_ptr++;
+                }
             }
             id_buf[i] = '\0';
         }

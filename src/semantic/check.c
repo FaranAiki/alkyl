@@ -383,6 +383,13 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             sem_check_unary_op_switch(ctx, node);
             break;
         case NODE_CALL: sem_check_call(ctx, (CallNode*)node); break;
+        case NODE_NAMED_ARG: {
+            NamedArgNode *narg = (NamedArgNode*)node;
+            sem_check_expr(ctx, narg->value);
+            sem_set_node_type(ctx, node, sem_get_node_type(ctx, narg->value));
+            if (sem_get_node_tainted(ctx, narg->value)) sem_set_node_tainted(ctx, node, 1);
+            break;
+        }
         case NODE_MEMBER_ACCESS: sem_check_member_access(ctx, (MemberAccessNode*)node); break;
         case NODE_ARRAY_ACCESS: {
             sem_check_array_access(ctx, node);
@@ -935,30 +942,73 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
     SemSymbol *best_match = NULL;
     int best_score = -1;
     
+    ASTNode **best_matched_args = NULL;
+    ASTNode *best_varargs_head = NULL;
+
     // Find matching overload (exact types or compatible implicit cast)
     while (sym) {
-        if (sym->param_count == arg_count || sym->is_variadic) {
+        if (sym->param_count <= arg_count || sym->is_variadic || 1) { // 1 because of default args
             int match = 1;
             int exact_matches = 0;
+            
+            ASTNode **matched_args = arena_alloc(ctx->compiler_ctx->arena, sizeof(ASTNode*) * (sym->param_count > 0 ? sym->param_count : 1));
+            for (int i=0; i<sym->param_count; i++) matched_args[i] = NULL;
+            
+            ASTNode *varargs_head = NULL;
+            ASTNode **curr_vararg = &varargs_head;
+            
+            int pos_idx = 0;
             curr_arg = *args;
-            Parameter *curr_para = sym->params;
-            while(curr_arg && curr_para) {
-                VarType arg_t = sem_get_node_type(ctx, curr_arg);
-                if (!sem_types_are_compatible(ctx, curr_para->type, arg_t)) {
-                    match = 0;
-                    break;
-                }
-                if (curr_para->type.base == arg_t.base && curr_para->type.ptr_depth == arg_t.ptr_depth) {
-                    exact_matches++;
+            while(curr_arg) {
+                if (curr_arg->type == NODE_NAMED_ARG) {
+                    NamedArgNode *narg = (NamedArgNode*)curr_arg;
+                    int found = -1;
+                    Parameter *p = sym->params;
+                    for (int i=0; p; i++, p=p->next) {
+                        if (p->name && strcmp(p->name, narg->name) == 0) { found = i; break; }
+                    }
+                    if (found == -1 || matched_args[found] != NULL) { match = 0; break; }
+                    matched_args[found] = narg->value;
+                } else {
+                    if (pos_idx < sym->param_count) {
+                        if (matched_args[pos_idx] != NULL) { match = 0; break; }
+                        matched_args[pos_idx] = curr_arg;
+                        pos_idx++;
+                    } else if (sym->is_variadic) {
+                        *curr_vararg = curr_arg;
+                        curr_vararg = &(*curr_vararg)->next;
+                    } else {
+                        match = 0; break;
+                    }
                 }
                 curr_arg = curr_arg->next;
-                curr_para = curr_para->next;
             }
+            
+            if (match) {
+                Parameter *p = sym->params;
+                for (int i=0; i<sym->param_count; i++, p=p->next) {
+                    if (matched_args[i] == NULL) {
+                        if (p->default_value) {
+                            matched_args[i] = p->default_value;
+                        } else {
+                            match = 0; break;
+                        }
+                    }
+                    sem_check_expr(ctx, matched_args[i]);
+                    VarType arg_t = sem_get_node_type(ctx, matched_args[i]);
+                    if (!sem_types_are_compatible(ctx, p->type, arg_t)) { match = 0; break; }
+                    if (p->type.base == arg_t.base && p->type.ptr_depth == arg_t.ptr_depth) exact_matches++;
+                }
+            }
+            
             if (match) {
                 int score = exact_matches;
                 if (score > best_score) {
                     best_score = score;
                     best_match = sym;
+                    best_matched_args = matched_args;
+                    if (*curr_vararg) *curr_vararg = NULL; // terminate varargs list safely
+                    best_varargs_head = varargs_head;
                 }
             }
         }
@@ -972,6 +1022,22 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
         return NULL;
     }
     
+    // Rebuild arguments list
+    if (best_matched_args) {
+        ASTNode *new_args_head = NULL;
+        ASTNode **curr_new = &new_args_head;
+        for (int i=0; i<best_match->param_count; i++) {
+            *curr_new = best_matched_args[i];
+            curr_new = &(*curr_new)->next;
+        }
+        if (best_varargs_head) {
+            *curr_new = best_varargs_head;
+        } else {
+            *curr_new = NULL;
+        }
+        *args = new_args_head;
+    }
+
     // Apply implicit casts and reference downgrades
     ASTNode **p_curr = args;
     Parameter *curr_para = best_match->params;

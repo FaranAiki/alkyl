@@ -15,11 +15,29 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
   ASTNode *args_head = NULL;
   ASTNode **curr_arg = &args_head;
   if (p->current_token.type != TOKEN_RPAREN) {
-    *curr_arg = parse_expression(p);
+    ASTNode *expr = parse_expression(p);
+    if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
+        NamedArgNode *narg = parser_alloc(p, sizeof(NamedArgNode));
+        narg->base.type = NODE_NAMED_ARG;
+        narg->name = ((AssignNode*)expr)->name;
+        narg->value = ((AssignNode*)expr)->value;
+        narg->base.line = expr->line; narg->base.col = expr->col;
+        expr = (ASTNode*)narg;
+    }
+    *curr_arg = expr;
     curr_arg = &(*curr_arg)->next;
     while (p->current_token.type == TOKEN_COMMA) {
       eat(p, TOKEN_COMMA);
-      *curr_arg = parse_expression(p);
+      expr = parse_expression(p);
+      if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
+          NamedArgNode *narg = parser_alloc(p, sizeof(NamedArgNode));
+          narg->base.type = NODE_NAMED_ARG;
+          narg->name = ((AssignNode*)expr)->name;
+          narg->value = ((AssignNode*)expr)->value;
+          narg->base.line = expr->line; narg->base.col = expr->col;
+          expr = (ASTNode*)narg;
+      }
+      *curr_arg = expr;
       curr_arg = &(*curr_arg)->next;
     }
   }
@@ -49,11 +67,29 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                 ASTNode *args_head = NULL;
                 ASTNode **curr_arg = &args_head;
                 if (p->current_token.type != TOKEN_RPAREN) {
-                    *curr_arg = parse_expression(p);
+                    ASTNode *expr = parse_expression(p);
+                    if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
+                        NamedArgNode *narg = parser_alloc(p, sizeof(NamedArgNode));
+                        narg->base.type = NODE_NAMED_ARG;
+                        narg->name = ((AssignNode*)expr)->name;
+                        narg->value = ((AssignNode*)expr)->value;
+                        narg->base.line = expr->line; narg->base.col = expr->col;
+                        expr = (ASTNode*)narg;
+                    }
+                    *curr_arg = expr;
                     curr_arg = &(*curr_arg)->next;
                     while (p->current_token.type == TOKEN_COMMA) {
                         eat(p, TOKEN_COMMA);
-                        *curr_arg = parse_expression(p);
+                        expr = parse_expression(p);
+                        if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
+                            NamedArgNode *narg = parser_alloc(p, sizeof(NamedArgNode));
+                            narg->base.type = NODE_NAMED_ARG;
+                            narg->name = ((AssignNode*)expr)->name;
+                            narg->value = ((AssignNode*)expr)->value;
+                            narg->base.line = expr->line; narg->base.col = expr->col;
+                            expr = (ASTNode*)narg;
+                        }
+                        *curr_arg = expr;
                         curr_arg = &(*curr_arg)->next;
                     }
                 }
@@ -286,15 +322,47 @@ ASTNode* parse_factor(Parser *p) {
     set_loc(node, line, col);
   }
   else if (p->current_token.type == TOKEN_STRING) {
-    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
-    ln->base.type = NODE_LITERAL;
-    ln->var_type.base = TYPE_CLASS;
-    ln->var_type.class_name = parser_strdup(p, "string");
-    ln->val.str_val = parser_strdup(p, p->current_token.text);
-    p->current_token.text = NULL; 
-    eat(p, TOKEN_STRING);
-    node = (ASTNode*)ln;
-    set_loc(node, line, col);
+    if (p->l->settings.double_quote_as_string) {
+      // Treat as string(c"...")
+      
+      // 1. Create argument C-string literal node: c"..."
+      LiteralNode *arg_ln = parser_alloc(p, sizeof(LiteralNode));
+      arg_ln->base.type = NODE_LITERAL;
+      arg_ln->var_type.base = TYPE_CHAR;
+      arg_ln->var_type.ptr_depth = 1;
+      arg_ln->val.str_val = parser_strdup(p, p->current_token.text);
+      arg_ln->base.next = NULL;
+      set_loc((ASTNode*)arg_ln, line, col);
+      
+      // 2. Create target class/function variable reference: string
+      VarRefNode *target_vn = parser_alloc(p, sizeof(VarRefNode));
+      target_vn->base.type = NODE_VAR_REF;
+      target_vn->name = parser_strdup(p, "string");
+      set_loc((ASTNode*)target_vn, line, col);
+      
+      // 3. Create CallNode: string(c"...")
+      CallNode *call_node = parser_alloc(p, sizeof(CallNode));
+      call_node->base.type = NODE_CALL;
+      call_node->name = parser_strdup(p, "string");
+      call_node->target = (ASTNode*)target_vn;
+      call_node->args = (ASTNode*)arg_ln;
+      set_loc((ASTNode*)call_node, line, col);
+      
+      p->current_token.text = NULL;
+      eat(p, TOKEN_STRING);
+      node = (ASTNode*)call_node;
+    } else {
+      // Treat as C-string: c"..."
+      LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
+      ln->base.type = NODE_LITERAL;
+      ln->var_type.base = TYPE_CHAR;
+      ln->var_type.ptr_depth = 1;
+      ln->val.str_val = parser_strdup(p, p->current_token.text);
+      p->current_token.text = NULL;
+      eat(p, TOKEN_STRING);
+      node = (ASTNode*)ln;
+      set_loc(node, line, col);
+    }
   }
   else if (p->current_token.type == TOKEN_C_STRING) {
     LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));

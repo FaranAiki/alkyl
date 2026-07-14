@@ -52,7 +52,8 @@ typedef enum {
   NODE_POSTMETA,
   NODE_PURGE,
   NODE_COMPOUND,
-  NODE_TEMPLATE_INSTANTIATION
+  NODE_TEMPLATE_INSTANTIATION,
+  NODE_NAMED_ARG
 } NodeType;
 
 typedef enum {
@@ -129,6 +130,7 @@ typedef struct Parameter {
   bool has_explicit_pristine : 1;
 
   struct Parameter *next;
+  ASTNode *default_value;
 } Parameter;
 
 typedef struct {
@@ -510,5 +512,11 @@ typedef struct {
   bool is_post;
   ASTNode *body;
 } MetaNode;
+
+typedef struct {
+  ASTNode base;
+  char *name;
+  ASTNode *value;
+} NamedArgNode;
 
 #endif // PARSER_TYPESTRUCT_H

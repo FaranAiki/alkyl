@@ -1,0 +1,12 @@
+extern int printf(char* fmt, ...);
+
+premeta {
+    lexer.double_quote_as_string = false
+    reason "Testing fallback behavior"
+}
+
+int main() {
+    char* raw = "Hello Raw C-string!";
+    printf(c"Message: %s\n", raw);
+    return 0;
+}

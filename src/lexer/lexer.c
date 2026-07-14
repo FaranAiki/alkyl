@@ -25,6 +25,7 @@ void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char
       l->settings.comment_style = COMMENT_SLASH;
       l->settings.spaces_per_indent = 4;
       l->settings.require_semicolons = 1;
+      l->settings.double_quote_as_string = 1;
   }
 }
 
@@ -413,7 +414,7 @@ static int lex_string(Lexer *l, Token *t) {
 
   if (c == '"') {
     advance(l); 
-    t->type = TOKEN_STRING;
+    t->type = l->settings.double_quote_as_string ? TOKEN_STRING : TOKEN_C_STRING;
     t->text = consume_string_content(l);
     return 1;
   }
