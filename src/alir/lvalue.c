@@ -238,8 +238,24 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
 
 AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
     AlirValue *ptr = alir_gen_addr(ctx, (ASTNode*)vn);
-    if (!ptr) return NULL; // Safety guard against unresolved allocas
-    
+    if (!ptr) {
+        // If it's a global function or global variable
+        SemSymbol *sym = sem_symbol_lookup(ctx->sem, vn->name, NULL);
+        if (sym && sym->kind == SYM_FUNC) {
+            VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
+            // Function pointer type needs to be treated as a pointer
+            if (!t.is_func_ptr) {
+                VarType ptr_type = t;
+                ptr_type.is_func_ptr = 1;
+                ptr_type.fp_ret_type = alir_alloc(ctx->module, sizeof(VarType));
+                *ptr_type.fp_ret_type = t;
+                t = ptr_type;
+            }
+            return alir_val_global(ctx->module, sym->mangled_name ? sym->mangled_name : vn->name, t);
+        }
+        return NULL; // Safety guard against unresolved allocas
+    }
+
     // Get precise type from Semantics
     VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
     
@@ -511,8 +527,14 @@ AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
 
 
 AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
-    const char *func_name = cn->mangled_name ? cn->mangled_name : cn->name;
-    AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, func_name), NULL);
+    AlirValue *func_val = NULL;
+    if (cn->target && cn->target->type != NODE_TEMPLATE_INSTANTIATION) {
+        func_val = alir_gen_expr(ctx, cn->target);
+    }
+    if (!func_val) {
+        func_val = alir_val_var(ctx->module, cn->mangled_name ? cn->mangled_name : cn->name);
+    }
+    AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, func_val, NULL);
     
     int count = 0; ASTNode *a = cn->args; while(a) { count++; a=a->next; }
     call->arg_count = count;

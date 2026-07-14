@@ -9,7 +9,7 @@
 
 #include "typestruct.h"
 
-void sem_init(SemanticCtx *ctx, CompilerContext *compiler_ctx);
+void sem_init(SemanticCtx *ctx, CompilerContext *compiler_ctx, SemanticSettings *settings);
 void sem_cleanup(SemanticCtx *ctx);
 
 int sem_check_program(SemanticCtx *ctx, ASTNode *root);

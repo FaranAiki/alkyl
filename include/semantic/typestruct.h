@@ -81,7 +81,13 @@ typedef struct TypeEntry {
 } TypeEntry;
 
 typedef struct {
+    bool implicit_let;
+    bool replace_variable;
+} SemanticSettings;
+
+typedef struct {
     CompilerContext *compiler_ctx;
+    SemanticSettings settings;
 
     SemScope *current_scope;
     SemScope *global_scope;

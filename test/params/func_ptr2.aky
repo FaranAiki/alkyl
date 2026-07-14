@@ -1,0 +1,15 @@
+extern int printf(char *s, ...) as print;
+
+int my_fun(int x) {
+    return x * 2;
+}
+
+int(int) get_fun() {
+    return my_fun;
+}
+
+int main() {
+    int(int) f = get_fun();
+    print(c"%d\n", f(10));
+    return 0;
+}

@@ -49,14 +49,19 @@ static void generate_semantic_tokens(const char *filepath, int **out_data, int *
     int prev_col = 1;
     
     TokenType last_type = TOKEN_EOF;
+    int last_was_type_keyword = 0;
     
     while (1) {
         Token t = lexer_next(&l);
         if (t.type == TOKEN_EOF || t.type == TOKEN_UNKNOWN) break;
         
         int token_type = -1; // -1 means don't highlight
+        int current_is_type_keyword = 0;
         
-        if (t.type == TOKEN_KW_LET || t.type == TOKEN_KW_MUT || t.type == TOKEN_CLASS || t.type == TOKEN_STRUCT || t.type == TOKEN_IF || t.type == TOKEN_ELSE || t.type == TOKEN_WHILE || t.type == TOKEN_FOR || t.type == TOKEN_RETURN || t.type == TOKEN_BREAK || t.type == TOKEN_CONTINUE || t.type == TOKEN_TYPEDEF || t.type == TOKEN_AS || t.type == TOKEN_INFOP || t.type == TOKEN_PREFOP || t.type == TOKEN_SUFFOP || t.type == TOKEN_INFMUT || t.type == TOKEN_PREMUT || t.type == TOKEN_SUFMUT) {
+        if (t.type == TOKEN_IDENTIFIER && t.text && strcmp(t.text, "type") == 0) {
+            token_type = 4; // keyword
+            current_is_type_keyword = 1;
+        } else if (t.type == TOKEN_KW_LET || t.type == TOKEN_KW_MUT || t.type == TOKEN_CLASS || t.type == TOKEN_STRUCT || t.type == TOKEN_IF || t.type == TOKEN_ELSE || t.type == TOKEN_WHILE || t.type == TOKEN_FOR || t.type == TOKEN_RETURN || t.type == TOKEN_BREAK || t.type == TOKEN_CONTINUE || t.type == TOKEN_TYPEDEF || t.type == TOKEN_AS || t.type == TOKEN_INFOP || t.type == TOKEN_PREFOP || t.type == TOKEN_SUFFOP || t.type == TOKEN_INFMUT || t.type == TOKEN_PREMUT || t.type == TOKEN_SUFMUT || t.type == TOKEN_DEFINE || t.type == TOKEN_PURGE || t.type == TOKEN_COMPOUND) {
             token_type = 4; // keyword
         } else if (t.type == TOKEN_KW_INT || t.type == TOKEN_KW_VOID || t.type == TOKEN_KW_CHAR || t.type == TOKEN_KW_BOOL || t.type == TOKEN_KW_SINGLE || t.type == TOKEN_KW_DOUBLE || t.type == TOKEN_KW_SHORT || t.type == TOKEN_KW_LONG || t.type == TOKEN_KW_UNSIGNED) {
             token_type = 0; // type (previously class)
@@ -67,16 +72,16 @@ static void generate_semantic_tokens(const char *filepath, int **out_data, int *
         } else if (t.type >= TOKEN_ASSIGN && t.type <= TOKEN_RSHIFT_ASSIGN) {
             token_type = 7; // operator
         } else if (t.type == TOKEN_IDENTIFIER) {
-            if (last_type == TOKEN_CLASS || last_type == TOKEN_STRUCT || last_type == TOKEN_IMPL || last_type == TOKEN_TRAIT || last_type == TOKEN_NAMESPACE || last_type == TOKEN_TYPEDEF || last_type == TOKEN_AS) {
+            if (last_type == TOKEN_CLASS || last_type == TOKEN_STRUCT || last_type == TOKEN_IMPL || last_type == TOKEN_TRAIT || last_type == TOKEN_NAMESPACE || last_type == TOKEN_TYPEDEF || last_type == TOKEN_AS || last_type == TOKEN_PURGE || last_type == TOKEN_DEFINE || last_was_type_keyword) {
                 token_type = 0; // type (previously class)
             } else if (last_type == TOKEN_KW_LET || last_type == TOKEN_KW_MUT) {
                 token_type = 1; // variable
             } else {
-                // Peek next to see if it's a function call
-                // Since this is a simple lexer pass, we just guess it's a variable if not followed by '('
-                // We'll peek using a hack or just default to variable.
-                // Wait, peek_token modifies state? No, let's just default to variable for now.
-                token_type = 1; // variable
+                if (t.text && t.text[0] >= 'A' && t.text[0] <= 'Z') {
+                    token_type = 0; // type (heuristic: PascalCase is a type)
+                } else {
+                    token_type = 1; // variable
+                }
             }
         }
         
@@ -100,12 +105,16 @@ static void generate_semantic_tokens(const char *filepath, int **out_data, int *
             prev_col = t.col;
         }
         
-        last_type = t.type;
+        if (t.type != TOKEN_COMMA) {
+            last_type = t.type;
+        }
+        if (t.type != TOKEN_COMMA) {
+            last_was_type_keyword = current_is_type_keyword;
+        }
     }
     
     free(code);
-    // memory leak arena... wait arena doesn't have destroy?
-    // Actually arena_init uses malloc for pages, we should free them but for LSP it's okay for now
+    arena_free(&arena);
     
     *out_data = data;
     *out_len = count;
@@ -173,14 +182,7 @@ void start_lsp_server(void) {
             snprintf(reply, sizeof(reply),
                 "{\"jsonrpc\":\"2.0\",\"id\":%s,\"result\":{"
                 "\"capabilities\":{"
-                "\"textDocumentSync\":1,"
-                "\"semanticTokensProvider\":{"
-                "\"legend\":{"
-                "\"tokenTypes\":[\"type\",\"variable\",\"function\",\"method\",\"keyword\",\"number\",\"string\",\"operator\"],"
-                "\"tokenModifiers\":[]"
-                "},"
-                "\"full\":true"
-                "}"
+                "\"textDocumentSync\":1"
                 "}}}", id_buf[0] ? id_buf : "1");
             send_response(reply);
         } 

@@ -116,8 +116,14 @@ static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
     return NULL;
 }
 
-void sem_init(SemanticCtx *ctx, CompilerContext *compiler_ctx) {
+void sem_init(SemanticCtx *ctx, CompilerContext *compiler_ctx, SemanticSettings *settings) {
     ctx->compiler_ctx = compiler_ctx;
+    if (settings) {
+        ctx->settings = *settings;
+    } else {
+        ctx->settings.implicit_let = false;
+        ctx->settings.replace_variable = false;
+    }
     
     if (compiler_ctx && compiler_ctx->arena) {
         ctx->global_scope = arena_alloc_type(compiler_ctx->arena, SemScope);

@@ -1,37 +1,42 @@
 ; Module: main_module
 
 ; Globals
-@str.1 = cstring "%d"
-@str.0 = string "purge: DivByError\n"
+@str.0 = cstring "%d\n"
 
 promise int @printf(char*, ...)
 
-block func int @divbytwo_i32_i32(int %p0, int %p1) {
+block func int @add_one_i32(int %p0) {
 entry:
   %0 = onstack int
   store int %p0, %0
-  %1 = onstack int
-  store int %p1, %1
-  %2 = load int %1
-  %3 = eq bool %2, 0
-  condition %3, then (merge)
-then:
-  panic @str.0
-  jump merge
-merge:
-  %4 = load int %0
-  %5 = load int %1
-  %6 = div int %4, %5
-  return int %6
+  %1 = load int %0
+  %2 = add int %1, 1
+  return int %2
 }
 
 block func int @main() {
 entry:
-  %0 = call %divbytwo_i32_i32 (100, 2)
+  %0 = call %adder_int_void_i32 (@add_one_i32, 5)
   %1 = onstack int
   store int %0, %1
   %2 = load int %1
-  %3 = op int %2, 1
-  %4 = call %printf (@str.1, %3)
+  %3 = call @printf (@str.0, %2)
   return int 0
+}
+
+block func int @adder_int_void_i32(void %p0, int %p1) {
+entry:
+  %0 = onstack void
+  store void %p0, %0
+  %1 = onstack int
+  store int %p1, %1
+  %2 = load void %0
+  %3 = load int %1
+  %4 = call %2 (%3)
+  %5 = onstack int
+  store int %4, %5
+  %6 = load int %5
+  %7 = load int %1
+  %8 = add int %6, %7
+  return int %8
 }

@@ -40,7 +40,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         sem_check_expr(ctx, node->initializer);
         VarType init_type = sem_get_node_type(ctx, node->initializer);
         
-        if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0) {
+        if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0 && !init_type.is_func_ptr) {
             sem_error(ctx, (ASTNode*)node, "Cannot use expression of type 'void' to initialize variable '%s'", node->name);
         }
 
@@ -52,7 +52,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         if (node->var_type.base == TYPE_AUTO) {
             if (init_type.base == TYPE_UNKNOWN) {
                 sem_error(ctx, (ASTNode*)node, "Cannot infer type for variable '%s' (unknown initializer type)", node->name);
-            } else if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0) {
+            } else if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0 && !init_type.is_func_ptr) {
                 sem_error(ctx, (ASTNode*)node, "Cannot infer type 'void' for variable '%s'", node->name);
             } else {
                 node->var_type = init_type; 
@@ -76,7 +76,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
     }
 
     if (register_sym) {
-        if (lookup_local_symbol(ctx, node->name)) {
+        if (!ctx->settings.replace_variable && lookup_local_symbol(ctx, node->name)) {
             sem_error(ctx, (ASTNode*)node, "Redeclaration of variable '%s' in the same scope", node->name);
         } else {
             SemScope *shadow_scope = NULL;
@@ -172,8 +172,16 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
 
         
         if (!sym) {
-            sem_error(ctx, (ASTNode*)node, "Undefined variable '%s'", node->name);
-            lhs_type = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+            if (ctx->settings.implicit_let) {
+                node->is_implicit_let = true;
+                sym = sem_symbol_add(ctx, node->name, SYM_VAR, rhs_type);
+                sym->is_mutable = true;
+                sym->is_initialized = true;
+                lhs_type = rhs_type;
+            } else {
+                sem_error(ctx, (ASTNode*)node, "Undefined variable '%s'", node->name);
+                lhs_type = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+            }
         } else {
             if (!sym->is_mutable) {
                 sem_error(ctx, (ASTNode*)node, "Cannot assign to immutable variable '%s'", node->name);

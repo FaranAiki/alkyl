@@ -179,7 +179,20 @@ void alir_stmt_assign(AlirCtx *ctx, ASTNode *node) {
         ptr = alir_gen_addr(ctx, an->target);
     } else if (an->name) {
         AlirSymbol *s = alir_find_symbol(ctx, an->name);
-        if (s) { ptr = s->ptr; } else { ptr = alir_val_global(ctx->module, an->name, val->type); }
+        if (s) { 
+            ptr = s->ptr; 
+        } else if (an->is_implicit_let) {
+            ptr = new_temp(ctx, val->type);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
+            
+            s = arena_alloc(ctx->sem->compiler_ctx->arena, sizeof(AlirSymbol));
+            s->name = an->name;
+            s->ptr = ptr;
+            s->next = ctx->symbols;
+            ctx->symbols = s;
+        } else { 
+            ptr = alir_val_global(ctx->module, an->name, val->type); 
+        }
     }
     
     if (!ptr) {

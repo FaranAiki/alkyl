@@ -228,6 +228,12 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         flux_type.fp_ret_type = arena_alloc_type(ctx->compiler_ctx->arena, VarType);
         *flux_type.fp_ret_type = sym->type; // Save underlying yield type
         sem_set_node_type(ctx, (ASTNode*)node, flux_type);
+    } else if (sym->kind == SYM_VAR && sym->type.is_func_ptr) {
+        if (sym->type.fp_ret_type) {
+            sem_set_node_type(ctx, (ASTNode*)node, *sym->type.fp_ret_type);
+        } else {
+            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+        }
     } else {
         sem_set_node_type(ctx, (ASTNode*)node, sym->type);
     }

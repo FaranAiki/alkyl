@@ -1,0 +1,14 @@
+extern int printf(char*, ...);
+
+compound[type Type]
+Type adder(Type(Type) fun, Type var) {
+  let p = fun(var);
+  return p + var;
+}
+
+int add_one(int x) { return x + 1; }
+
+int main() {
+  let k = adder[int](add_one, 5);
+  printf(c"%d\n", k);
+}

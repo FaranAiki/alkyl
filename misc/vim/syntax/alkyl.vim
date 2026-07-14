@@ -1,35 +1,57 @@
 " Vim syntax file
-" Language: Alkyl (.aky)
+" Language: Alkyl
+" Latest Revision: 14 July 2026
 
 if exists("b:current_syntax")
   finish
 endif
 
-syn keyword alkylKeyword accept alignof alir as break case class clean closed const continue default defer define defined elif else emit enum extern final flux for has hasattribute hasmethod if immutable impl import impure imut in inert infop is leak let link loop meta mut mutable naked namespace not once open postmeta prefop premeta pristine private public pure purge reactive reason reject residue return sizeof struct suffop switch tainted then trait typedef typeof union untaint wash while print
-
-syn keyword alkylType bool char double int long short single string unsigned vector void
-
+" Keywords
+syn keyword alkylStatement return break continue defer emit purge link import as is in has meta premeta postmeta
+syn keyword alkylConditional if else elif then switch case default
+syn keyword alkylRepeat while for loop
+syn keyword alkylKeyword let mut const final pristine reactive covalent inert wash
+syn keyword alkylModifier public private open closed extern naked
+syn keyword alkylTypeKeyword class struct enum union trait impl namespace typedef compound type
+syn keyword alkylBuiltinType int void char bool single double short long unsigned typeof sizeof alignof
 syn keyword alkylBoolean true false
+syn keyword alkylOperatorKeyword infop prefop suffop infmut premut sufmut
 
-syn region alkylString start='"' end='"'
-syn region alkylChar start="'" end="'"
+" Numbers
 syn match alkylNumber "\<\d\+\>"
 syn match alkylFloat "\<\d\+\.\d\+\>"
 
+" Strings and Chars
+syn region alkylString start=/"/ skip=/\\"/ end=/"/
+syn region alkylCString start=/c"/ skip=/\\"/ end=/"/
+syn match alkylChar /'.'|'\\.'/
+
+" Comments
 syn match alkylComment "//.*$"
 syn region alkylBlockComment start="/\*" end="\*/"
 
-syn match alkylOperator "?"
+" Types/Classes (PascalCase)
+syn match alkylClass "\<[A-Z][a-zA-Z0-9_]*\>"
 
-hi def link alkylKeyword Statement
-hi def link alkylType Type
+" Highlighting Links
+hi def link alkylStatement Statement
+hi def link alkylConditional Conditional
+hi def link alkylRepeat Repeat
+hi def link alkylKeyword Keyword
+hi def link alkylModifier StorageClass
+hi def link alkylTypeKeyword Structure
+hi def link alkylBuiltinType Type
+hi def link alkylClass Type
 hi def link alkylBoolean Boolean
-hi def link alkylString String
-hi def link alkylChar Character
+hi def link alkylOperatorKeyword Keyword
+
 hi def link alkylNumber Number
 hi def link alkylFloat Float
+hi def link alkylString String
+hi def link alkylCString String
+hi def link alkylChar Character
+
 hi def link alkylComment Comment
 hi def link alkylBlockComment Comment
-hi def link alkylOperator Operator
 
 let b:current_syntax = "alkyl"

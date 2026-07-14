@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
   debug_step("Start Semantic Analysis.");
 
   SemanticCtx sem_ctx;
-  sem_init(&sem_ctx, &comp_ctx);
+  sem_init(&sem_ctx, &comp_ctx, NULL);
   sem_ctx.current_source = code; // Enable source snippet printing for errors
 
   int sem_errors = sem_check_program(&sem_ctx, root);

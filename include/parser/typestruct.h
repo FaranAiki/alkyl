@@ -384,6 +384,7 @@ typedef struct {
   ASTNode *index; 
   ASTNode *target; 
   int op; 
+  bool is_implicit_let : 1;
   char *overloaded_func_name;
 } AssignNode; 
 

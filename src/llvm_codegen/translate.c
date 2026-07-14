@@ -210,15 +210,27 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         }
         // TODO maybe use a type caster (?)
         case ALIR_OP_CALL: {
-            LLVMValueRef func = NULL;
+            LLVMValueRef func = get_llvm_value(ctx, inst->op1);
             LLVMTypeRef func_ty = NULL;
-            
-            if (inst->op1 && inst->op1->val.str_val) {
-                func = LLVMGetNamedFunction(ctx->llvm_mod, inst->op1->val.str_val);
-                if (func) func_ty = LLVMGlobalGetValueType(func);
+
+            if (func && LLVMGetValueKind(func) == LLVMFunctionValueKind) {
+                func_ty = LLVMGlobalGetValueType(func);
+            } else if (func) {
+                LLVMTypeRef ret_ty = inst->dest ? get_llvm_type(ctx, inst->dest->type) : LLVMVoidTypeInContext(ctx->llvm_ctx);
+                int param_count = inst->arg_count;
+                LLVMTypeRef *param_types = malloc(sizeof(LLVMTypeRef) * param_count);
+                for (int i=0; i<param_count; i++) {
+                    if (inst->args[i]) {
+                        param_types[i] = get_llvm_type(ctx, inst->args[i]->type);
+                    } else {
+                        param_types[i] = LLVMInt64TypeInContext(ctx->llvm_ctx);
+                    }
+                }
+                func_ty = LLVMFunctionType(ret_ty, param_types, param_count, inst->op1->type.fp_is_varargs);
+                free(param_types);
             }
 
-            if (!func && inst->op1 && inst->op1->val.str_val) {
+            if (!func && inst->op1 && (inst->op1->kind == ALIR_VAL_VAR || inst->op1->kind == ALIR_VAL_GLOBAL) && inst->op1->val.str_val) {
                 func = hashmap_get(&ctx->func_map, inst->op1->val.str_val);
                 func_ty = hashmap_get(&ctx->func_type_map, inst->op1->val.str_val);
                 

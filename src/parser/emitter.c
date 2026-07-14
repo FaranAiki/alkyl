@@ -617,7 +617,7 @@ char* parser_string_to_string(const char *src) {
     parser_init(&p, &l, NULL);
     
     SemanticCtx sem_ctx;
-    sem_init(&sem_ctx, &ctx);
+    sem_init(&sem_ctx, &ctx, NULL);
 
     ASTNode *root = parse_program(&p);
     char *res = parser_to_string(&p, root);
@@ -640,7 +640,7 @@ void parser_string_to_file(const char *src, const char *filename) {
     parser_init(&p, &l, NULL);
   
     SemanticCtx sc;
-    sem_init(&sc, &ctx);
+    sem_init(&sc, &ctx, NULL);
 
     ASTNode *root = parse_program(&p);
     parser_to_file(&p, root, filename);
