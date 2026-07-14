@@ -82,6 +82,40 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
     // Allow struct types to remain ptr_depth = 0 so they can be allocated on stack
     
     AlirValue *val = NULL;
+    int is_stack_ctor = 0;
+    if (vn->initializer && vn->initializer->type == NODE_CALL) {
+        CallNode *cn = (CallNode*)vn->initializer;
+        if (vn->var_type.base == TYPE_CLASS && vn->var_type.ptr_depth == 0) {
+            if (alir_find_struct(ctx->module, cn->name) && strcmp(vn->var_type.class_name, cn->name) == 0) {
+                is_stack_ctor = 1;
+            }
+        }
+    }
+
+    if (is_stack_ctor) {
+        // Allocate on stack
+        AlirValue *ptr = new_temp(ctx, vn->var_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
+        alir_add_symbol(ctx, vn->name, ptr, vn->var_type);
+
+        CallNode *cn = (CallNode*)vn->initializer;
+        AlirInst *call_init = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_global(ctx->module, cn->name, (VarType){TYPE_VOID, 0, 0, NULL}), NULL);
+        
+        int arg_count = 0; ASTNode *a = cn->args; while(a) { arg_count++; a=a->next; }
+        call_init->arg_count = arg_count + 1;
+        call_init->args = alir_alloc(ctx->module, sizeof(AlirValue*) * (arg_count + 1));
+        
+        call_init->args[0] = ptr; // THIS pointer
+        
+        int i = 1; a = cn->args;
+        while(a) {
+            call_init->args[i++] = alir_gen_expr(ctx, a);
+            a = a->next;
+        }
+        emit(ctx, call_init);
+        return;
+    }
+
     if (vn->initializer) {
         val = alir_gen_expr(ctx, vn->initializer);
         if (val) {
@@ -91,6 +125,9 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
                 vn->var_type = val->type;
             } else if (vn->var_type.base == TYPE_CLASS && val->type.base == TYPE_CLASS) {
                 vn->var_type.ptr_depth = val->type.ptr_depth;
+            }
+            if (val->type.is_tainted) {
+                vn->var_type.is_tainted = 1;
             }
         }
     }

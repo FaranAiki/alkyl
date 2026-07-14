@@ -59,7 +59,8 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             }
         } 
         else {
-            if (!sem_types_are_compatible(ctx,node->var_type, init_type)) {
+            int is_stack_ctor = (node->var_type.base == TYPE_CLASS && node->var_type.ptr_depth == 0 && init_type.base == TYPE_CLASS && init_type.ptr_depth == 1 && node->var_type.class_name && init_type.class_name && strcmp(node->var_type.class_name, init_type.class_name) == 0);
+            if (!sem_types_are_compatible(ctx,node->var_type, init_type) && !is_stack_ctor) {
                 char *t1 = sem_type_to_str(node->var_type);
                 char *t2 = sem_type_to_str(init_type);
                 sem_error(ctx, (ASTNode*)node, "Type mismatch in declaration of '%s'. Expected '%s', got '%s'", node->name, t1, t2);

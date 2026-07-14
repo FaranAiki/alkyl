@@ -531,6 +531,7 @@ Token lexer_next(Lexer *l) {
   }
 
   Token t = {TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col};
+  int start_pos = l->pos;
   char c = peek(l);
 
   int token_parsed = 0;
@@ -549,6 +550,8 @@ Token lexer_next(Lexer *l) {
     advance(l);
     t.type = TOKEN_UNKNOWN;
   }
+
+  t.length = l->pos - start_pos;
 
   if (l->pending_count > 0) {
       if (t.type != TOKEN_EOF) {

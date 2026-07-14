@@ -11,13 +11,9 @@ Vector infop[+](Vector a, Vector b) {
 }
 
 int main() {
-    mut Vector a;
-    a.x = 10;
-    a.y = 20;
+    mut Vector a(10, 20);
 
-    mut Vector b;
-    b.x = 30;
-    b.y = 40;
+    mut Vector b(30, 40);
 
     mut Vector c = a + b;
     if (c.x != 40) return 1;

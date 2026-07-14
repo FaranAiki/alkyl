@@ -244,16 +244,16 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                 LLVMValueRef len_val = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), strlen(g->string_content), 0);
                 
                 LLVMTypeRef class_type = get_llvm_type(ctx, g->type);
-                if (!class_type) {
+                if (class_type && LLVMIsOpaqueStruct(class_type)) {
                     LLVMTypeRef types[] = { LLVMInt32TypeInContext(ctx->llvm_ctx), ptr_ty };
-                    class_type = LLVMStructTypeInContext(ctx->llvm_ctx, types, 2, 0);
+                    LLVMStructSetBody(class_type, types, 2, 0);
                 }
                 
                 LLVMValueRef struct_vals[] = { len_val, ptr_val };
                 LLVMValueRef class_init = LLVMConstNamedStruct(class_type, struct_vals, 2);
                 if (!class_init) class_init = LLVMConstStructInContext(ctx->llvm_ctx, struct_vals, 2, 0);
                 
-                LLVMValueRef global_var = LLVMAddGlobal(ctx->llvm_mod, class_type, g->name);
+                LLVMValueRef global_var = LLVMAddGlobal(ctx->llvm_mod, LLVMTypeOf(class_init), g->name);
                 LLVMSetInitializer(global_var, class_init);
                 LLVMSetLinkage(global_var, LLVMPrivateLinkage);
                 LLVMSetGlobalConstant(global_var, 1);

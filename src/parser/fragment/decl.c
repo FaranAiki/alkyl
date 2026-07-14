@@ -87,16 +87,10 @@ ASTNode* parse_var_decl_internal(Parser *p) {
         eat(p, TOKEN_RBRACKET);
       }
 
-      ASTNode *init = NULL;
-      if (p->current_token.type == TOKEN_ASSIGN) {
-        eat(p, TOKEN_ASSIGN);
-        init = parse_expression(p);
-      } else {
-        if (current_vtype.base == TYPE_AUTO) {
-            parser_fail(p, "'let' variable declaration must have an initializer");
-        }
+      ASTNode *init = parse_initializer(p, current_vtype);
+      if (!init && current_vtype.base == TYPE_AUTO) {
+          parser_fail(p, "'let' variable declaration must have an initializer");
       }
-
       VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
       node->base.type = NODE_VAR_DECL;
       node->var_type = current_vtype;

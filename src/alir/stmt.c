@@ -35,7 +35,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             VarRefNode *vr = (VarRefNode*)pn->msg;
             char buf[512];
             snprintf(buf, sizeof(buf), "purge: %s\n", vr->name);
-            VarType str_type = { .base = TYPE_CLASS, .class_name = (char*)"string", .ptr_depth = 1 };
+            VarType str_type = { .base = TYPE_CLASS, .class_name = (char*)"string", .ptr_depth = 0 };
             AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, str_type, ctx->str_counter++);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, NULL));
             break;

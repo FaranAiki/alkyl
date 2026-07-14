@@ -193,6 +193,7 @@ typedef struct {
   double double_val; 
   int line;      
   int col;       
+  int length;
 } Token;
 
 typedef enum {
@@ -278,6 +279,7 @@ static const KeywordDef keywords[] = {
     {"in", TOKEN_IN},
     {"inert", TOKEN_INERT},
     {"infmut", TOKEN_INFMUT},
+    {"infop", TOKEN_INFOP},
     {"int", TOKEN_KW_INT},
     {"is", TOKEN_IS},
     {"leak", TOKEN_LEAK},
@@ -294,6 +296,7 @@ static const KeywordDef keywords[] = {
     {"once", TOKEN_ONCE},
     {"open", TOKEN_OPEN},
     {"postmeta", TOKEN_POSTMETA},
+    {"prefop", TOKEN_PREFOP},
     {"premeta", TOKEN_PREMETA},
     {"premut", TOKEN_PREMUT},
     {"pristine", TOKEN_PRISTINE},
@@ -311,6 +314,7 @@ static const KeywordDef keywords[] = {
     {"sizeof", TOKEN_KW_SIZEOF},
 
     {"struct", TOKEN_STRUCT},
+    {"suffop", TOKEN_SUFFOP},
     {"sufmut", TOKEN_SUFMUT},
     {"switch", TOKEN_SWITCH},
     {"tainted", TOKEN_TAINTED},

@@ -344,11 +344,7 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
           char *name = NULL;
           VarType fp_type = parse_func_ptr_decl(p, peek_t, &name);
           
-          ASTNode *init = NULL;
-          if (p->current_token.type == TOKEN_ASSIGN) {
-              eat(p, TOKEN_ASSIGN);
-              init = parse_expression(p);
-          }
+          ASTNode *init = parse_initializer(p, fp_type);
           eat_semi(p);
           
           VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
@@ -402,11 +398,7 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
         eat(p, TOKEN_RBRACKET);
       }
 
-      ASTNode *init = NULL;
-      if (p->current_token.type == TOKEN_ASSIGN) {
-        eat(p, TOKEN_ASSIGN);
-        init = parse_expression(p);
-      }
+      ASTNode *init = parse_initializer(p, peek_t);
       eat_semi(p);
       VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
       node->base.type = NODE_VAR_DECL;

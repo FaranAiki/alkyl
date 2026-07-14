@@ -56,8 +56,10 @@ static void generate_semantic_tokens(const char *filepath, int **out_data, int *
         
         int token_type = -1; // -1 means don't highlight
         
-        if (t.type == TOKEN_KW_LET || t.type == TOKEN_KW_MUT || t.type == TOKEN_CLASS || t.type == TOKEN_STRUCT || t.type == TOKEN_IF || t.type == TOKEN_ELSE || t.type == TOKEN_WHILE || t.type == TOKEN_FOR || t.type == TOKEN_RETURN || t.type == TOKEN_BREAK || t.type == TOKEN_CONTINUE) {
+        if (t.type == TOKEN_KW_LET || t.type == TOKEN_KW_MUT || t.type == TOKEN_CLASS || t.type == TOKEN_STRUCT || t.type == TOKEN_IF || t.type == TOKEN_ELSE || t.type == TOKEN_WHILE || t.type == TOKEN_FOR || t.type == TOKEN_RETURN || t.type == TOKEN_BREAK || t.type == TOKEN_CONTINUE || t.type == TOKEN_TYPEDEF || t.type == TOKEN_AS || t.type == TOKEN_INFOP || t.type == TOKEN_PREFOP || t.type == TOKEN_SUFFOP || t.type == TOKEN_INFMUT || t.type == TOKEN_PREMUT || t.type == TOKEN_SUFMUT) {
             token_type = 4; // keyword
+        } else if (t.type == TOKEN_KW_INT || t.type == TOKEN_KW_VOID || t.type == TOKEN_KW_CHAR || t.type == TOKEN_KW_BOOL || t.type == TOKEN_KW_SINGLE || t.type == TOKEN_KW_DOUBLE || t.type == TOKEN_KW_SHORT || t.type == TOKEN_KW_LONG || t.type == TOKEN_KW_UNSIGNED) {
+            token_type = 0; // type (previously class)
         } else if (t.type >= TOKEN_NUMBER && t.type <= TOKEN_FLOAT) {
             token_type = 5; // number
         } else if (t.type == TOKEN_STRING || t.type == TOKEN_BYTE_STRING || t.type == TOKEN_CHAR_LIT) {
@@ -65,8 +67,8 @@ static void generate_semantic_tokens(const char *filepath, int **out_data, int *
         } else if (t.type >= TOKEN_ASSIGN && t.type <= TOKEN_RSHIFT_ASSIGN) {
             token_type = 7; // operator
         } else if (t.type == TOKEN_IDENTIFIER) {
-            if (last_type == TOKEN_CLASS || last_type == TOKEN_STRUCT || last_type == TOKEN_IMPL || last_type == TOKEN_TRAIT || last_type == TOKEN_NAMESPACE) {
-                token_type = 0; // class
+            if (last_type == TOKEN_CLASS || last_type == TOKEN_STRUCT || last_type == TOKEN_IMPL || last_type == TOKEN_TRAIT || last_type == TOKEN_NAMESPACE || last_type == TOKEN_TYPEDEF || last_type == TOKEN_AS) {
+                token_type = 0; // type (previously class)
             } else if (last_type == TOKEN_KW_LET || last_type == TOKEN_KW_MUT) {
                 token_type = 1; // variable
             } else {
@@ -86,7 +88,7 @@ static void generate_semantic_tokens(const char *filepath, int **out_data, int *
             
             int deltaLine = t.line - prev_line;
             int deltaStart = (deltaLine == 0) ? (t.col - prev_col) : (t.col - 1);
-            int length = strlen(t.text);
+            int length = t.length;
             
             data[count++] = deltaLine;
             data[count++] = deltaStart;
@@ -129,6 +131,7 @@ static void send_response(const char *json_response) {
 }
 
 void start_lsp_server(void) {
+    fprintf(stderr, "Starting Alkyl LSP server...\n");
     while (1) {
         int length = 0;
         read_content_length(&length);
@@ -173,7 +176,7 @@ void start_lsp_server(void) {
                 "\"textDocumentSync\":1,"
                 "\"semanticTokensProvider\":{"
                 "\"legend\":{"
-                "\"tokenTypes\":[\"class\",\"variable\",\"function\",\"method\",\"keyword\",\"number\",\"string\",\"operator\"],"
+                "\"tokenTypes\":[\"type\",\"variable\",\"function\",\"method\",\"keyword\",\"number\",\"string\",\"operator\"],"
                 "\"tokenModifiers\":[]"
                 "},"
                 "\"full\":true"

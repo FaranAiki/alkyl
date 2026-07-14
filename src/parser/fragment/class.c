@@ -166,11 +166,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                       char *mem_name = NULL;
                       vt = parse_func_ptr_decl(p, vt, &mem_name);
                       
-                      ASTNode *init = NULL;
-                      if (p->current_token.type == TOKEN_ASSIGN) {
-                          eat(p, TOKEN_ASSIGN);
-                          init = parse_expression(p);
-                      }
+                      ASTNode *init = parse_initializer(p, vt);
                       eat(p, TOKEN_SEMICOLON);
                       
                       VarDeclNode *var = parser_alloc(p, sizeof(VarDeclNode));
@@ -335,11 +331,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                       eat(p, TOKEN_RBRACKET);
                   }
 
-                  ASTNode *init = NULL;
-                  if (p->current_token.type == TOKEN_ASSIGN) {
-                      eat(p, TOKEN_ASSIGN);
-                      init = parse_expression(p);
-                  }
+                  ASTNode *init = parse_initializer(p, vt);
                   eat(p, TOKEN_SEMICOLON);
                   
                   VarDeclNode *var = parser_alloc(p, sizeof(VarDeclNode));

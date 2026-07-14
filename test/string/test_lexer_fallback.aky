@@ -1,8 +1,9 @@
 extern int printf(char* fmt, ...);
 
+// TODO masih error di sini!
 premeta {
-    lexer.double_quote_as_string = false
     reason "Testing fallback behavior"
+    lexer.double_quote_as_string = false;
 }
 
 int main() {
