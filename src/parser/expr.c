@@ -628,6 +628,8 @@ ASTNode* parse_initializer(Parser *p, VarType vtype) {
         eat(p, TOKEN_RPAREN);
         CallNode *cnode = parser_alloc(p, sizeof(CallNode));
         cnode->base.type = NODE_CALL;
+        cnode->base.line = p->current_token.line;
+        cnode->base.col = p->current_token.col;
         cnode->name = vtype.class_name ? parser_strdup(p, vtype.class_name) : NULL;
         cnode->target = NULL;
         cnode->args = args_head;

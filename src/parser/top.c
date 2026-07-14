@@ -130,6 +130,15 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
   while (p->current_token.type != TOKEN_RBRACKET) {
       if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text && strcmp(p->current_token.text, "type") == 0) {
           eat(p, TOKEN_IDENTIFIER);
+          if (p->current_token.type == TOKEN_LBRACKET) {
+              int bracket_depth = 1;
+              eat(p, TOKEN_LBRACKET);
+              while (bracket_depth > 0 && p->current_token.type != TOKEN_EOF) {
+                  if (p->current_token.type == TOKEN_LBRACKET) bracket_depth++;
+                  else if (p->current_token.type == TOKEN_RBRACKET) bracket_depth--;
+                  eat(p, p->current_token.type);
+              }
+          }
       } else {
           parser_fail(p, "Expected 'type' keyword in compound");
       }
@@ -155,7 +164,16 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
   ASTNode *body = NULL;
   if (p->current_token.type == TOKEN_LBRACE) {
       eat(p, TOKEN_LBRACE);
-      body = parse_top_level(p); 
+      ASTNode **curr_body = &body;
+      while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+          ASTNode *stmt = parse_top_level(p);
+          if (stmt) {
+              *curr_body = stmt;
+              while (*curr_body) {
+                  curr_body = &(*curr_body)->next;
+              }
+          }
+      }
       eat(p, TOKEN_RBRACE);
   } else {
       body = parse_top_level(p); 

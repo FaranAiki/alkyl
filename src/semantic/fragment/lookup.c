@@ -5,7 +5,17 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
 
     SemSymbol *class_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
     if (!class_sym || class_sym->kind != SYM_CLASS) {
-        sem_error(ctx, (ASTNode*)node, "Type '%s' is not a class/struct", obj_type.class_name);
+        if (class_sym && class_sym->kind == SYM_TEMPLATE) {
+            CompoundNode *cn = class_sym->template_node;
+            char expected_types[256] = "";
+            for (int i=0; i<cn->num_type_params; i++) {
+                strcat(expected_types, cn->type_params[i]);
+                if (i < cn->num_type_params - 1) strcat(expected_types, ", ");
+            }
+            sem_error(ctx, (ASTNode*)node, "'%s' needs types [%s]", obj_type.class_name, expected_types);
+        } else {
+            sem_error(ctx, (ASTNode*)node, "Type '%s' is not a class/struct", obj_type.class_name);
+        }
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         return;
     }

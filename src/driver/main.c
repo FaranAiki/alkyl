@@ -67,6 +67,20 @@ int main(int argc, char *argv[]) {
 
   ASTNode *root = parse_program(&p);
 
+  ASTNode *r = root;
+  while (r) {
+      printf("AST Node Type: %d\n", r->type);
+      if (r->type == NODE_COMPOUND) {
+          printf("  Compound body:\n");
+          ASTNode *cb = ((CompoundNode*)r)->body;
+          while (cb) {
+              printf("    Inner AST Node Type: %d\n", cb->type);
+              cb = cb->next;
+          }
+      }
+      r = r->next;
+  }
+
   if (comp_ctx.error_count > 0) {
       free(code);
       return 1;

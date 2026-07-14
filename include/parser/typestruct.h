@@ -312,6 +312,7 @@ typedef struct {
     ASTNode base;
     VarType var_type;
     ASTNode *operand;
+    char *custom_cast_method;
 } CastNode;
 
 typedef struct {

@@ -105,13 +105,23 @@ int sem_get_node_impure(SemanticCtx *ctx, ASTNode *node) {
 
 static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
     if (scope->symbol_map) {
-        return (SemSymbol*)hashmap_get((HashMap*)scope->symbol_map, name);
+        SemSymbol *res = (SemSymbol*)hashmap_get((HashMap*)scope->symbol_map, name);
+        if (strcmp(name, "Vector_int") == 0) {
+            printf("DEBUG: find_in_scope_direct (map) for 'Vector_int', res=%p\n", res);
+        }
+        return res;
     }
     // Fallback if hashmap is not initialized
     SemSymbol *sym = scope->symbols;
     while (sym) {
+        if (strcmp(name, "Vector_int") == 0 && strcmp(sym->name, "Vector_int") == 0) {
+            printf("DEBUG: find_in_scope_direct (fallback) found 'Vector_int'\n");
+        }
         if (strcmp(sym->name, name) == 0) return sym;
         sym = sym->next;
+    }
+    if (strcmp(name, "Vector_int") == 0) {
+        printf("DEBUG: find_in_scope_direct (fallback) didn't find 'Vector_int'\n");
     }
     return NULL;
 }
@@ -198,19 +208,39 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     sym->must_pristine = false;  
     sym->inner_scope = NULL;
     
-    sym->next = ctx->current_scope->symbols;
-    ctx->current_scope->symbols = sym;
-    
-    if (ctx->current_scope->symbol_map) {
-        SemSymbol *existing = hashmap_get((HashMap*)ctx->current_scope->symbol_map, sym->name);
-        if (existing && existing->kind == SYM_FUNC && sym->kind == SYM_FUNC) {
-            // printf("Adding overload %s to existing %s\n", sym->mangled_name, existing->mangled_name);
-            SemSymbol *last = existing;
-            while (last->overload_next) last = last->overload_next;
-            last->overload_next = sym;
-        } else {
-            // printf("Adding new symbol %s\n", sym->name);
-            hashmap_put((HashMap*)ctx->current_scope->symbol_map, sym->name, sym);
+    if (ctx->current_scope) {
+        printf("DEBUG: sem_symbol_add: Adding '%s' to local scope (is_func=%d)\n", name, ctx->current_scope->is_function_scope);
+        sym->next = ctx->current_scope->symbols;
+        ctx->current_scope->symbols = sym;
+        
+        if (ctx->current_scope->symbol_map) {
+            SemSymbol *existing = hashmap_get((HashMap*)ctx->current_scope->symbol_map, sym->name);
+            if (existing && existing->kind == SYM_FUNC && sym->kind == SYM_FUNC) {
+                // printf("Adding overload %s to existing %s\n", sym->mangled_name, existing->mangled_name);
+                SemSymbol *last = existing;
+                while (last->overload_next) last = last->overload_next;
+                last->overload_next = sym;
+            } else {
+                // printf("Adding new symbol %s\n", sym->name);
+                hashmap_put((HashMap*)ctx->current_scope->symbol_map, sym->name, sym);
+            }
+        }
+    } else {
+        printf("DEBUG: sem_symbol_add: Adding '%s' to global scope\n", name);
+        sym->next = ctx->global_scope->symbols;
+        ctx->global_scope->symbols = sym;
+        
+        if (ctx->global_scope->symbol_map) {
+            SemSymbol *existing = hashmap_get((HashMap*)ctx->global_scope->symbol_map, sym->name);
+            if (existing && existing->kind == SYM_FUNC && sym->kind == SYM_FUNC) {
+                // printf("Adding overload %s to existing %s\n", sym->mangled_name, existing->mangled_name);
+                SemSymbol *last = existing;
+                while (last->overload_next) last = last->overload_next;
+                last->overload_next = sym;
+            } else {
+                // printf("Adding new symbol %s\n", sym->name);
+                hashmap_put((HashMap*)ctx->global_scope->symbol_map, sym->name, sym);
+            }
         }
     }
     
@@ -219,8 +249,14 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
 
 
 SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_scope) {
+    if (strcmp(name, "Vector_int") == 0) {
+        printf("DEBUG: Looking up 'Vector_int'...\n");
+    }
     SemScope *scope = ctx->current_scope;
     while (scope) {
+        if (strcmp(name, "Vector_int") == 0) {
+            printf("DEBUG: Checking scope (is_func=%d)\n", scope->is_function_scope);
+        }
 
         SemSymbol *sym = find_in_scope_direct(scope, name);
         if (sym) {

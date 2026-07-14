@@ -158,8 +158,50 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
               continue;
           }
 
+          if (p->current_token.type == TOKEN_AS) {
+              eat(p, TOKEN_AS);
+              VarType target_type = parse_type(p);
+              
+              // No parameters
+              eat(p, TOKEN_LBRACE);
+              ASTNode *body = parse_statements(p);
+              eat(p, TOKEN_RBRACE);
+              apply_implicit_return(p, &body);
+              
+              FuncDefNode *func = parser_alloc(p, sizeof(FuncDefNode));
+              func->base.type = NODE_FUNC_DEF;
+              func->base.line = line;
+              func->base.col = col;
+              
+              // Create name: "as_<type_str>"
+              // To do this simply, we can use the class_name if TYPE_CLASS, or a basic map
+              char as_name[256];
+              if (target_type.base == TYPE_CLASS || target_type.base == TYPE_UNKNOWN) {
+                  snprintf(as_name, sizeof(as_name), "as_%s", target_type.class_name);
+              } else if (target_type.base == TYPE_INT) {
+                  snprintf(as_name, sizeof(as_name), "as_int");
+              } else if (target_type.base == TYPE_FLOAT) {
+                  snprintf(as_name, sizeof(as_name), "as_float");
+              } else {
+                  snprintf(as_name, sizeof(as_name), "as_type%d", target_type.base);
+              }
+              
+              func->name = parser_strdup(p, as_name);
+              func->ret_type = target_type;
+              func->params = NULL;
+              func->body = body;
+              func->is_open = member_open;
+              func->class_name = parser_strdup(p, class_name); 
+              
+              apply_func_modifiers(func, member_modifiers);
+
+              *curr_member = (ASTNode*)func;
+              curr_member = &func->base.next;
+              continue;
+          }
+
           VarType vt = parse_type(p);
-          if (vt.base != TYPE_UNKNOWN) {
+          if (vt.base != TYPE_UNKNOWN || (vt.base == TYPE_UNKNOWN && vt.class_name != NULL)) {
               if (p->current_token.type == TOKEN_LPAREN) {
                   Token next = parser_peek_token(p);
                   if (next.type == TOKEN_STAR) {
@@ -308,48 +350,71 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   *curr_member = (ASTNode*)func;
                   curr_member = &func->base.next;
               } else {
-                  int is_array = 0;
-                  ASTNode *array_size = NULL;
-                  ASTNode **curr_sz = &array_size;
+                  int next_extra_ptrs = 0;
+                  while(1) {
+                      VarType current_vtype = vt;
+                      current_vtype.ptr_depth += next_extra_ptrs;
 
-                  while (p->current_token.type == TOKEN_LBRACKET) {
-                      is_array = 1;
-                      eat(p, TOKEN_LBRACKET);
-                      ASTNode *sz = NULL;
-                      if (p->current_token.type != TOKEN_RBRACKET) sz = parse_expression(p);
-                      else {
-                          LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
-                          ln->base.type = NODE_LITERAL;
-                          ln->var_type.base = TYPE_INT;
-                          ln->val.int_val = 0;
-                          sz = (ASTNode*)ln;
+                      int is_array = 0;
+                      ASTNode *array_size = NULL;
+                      ASTNode **curr_sz = &array_size;
+
+                      while (p->current_token.type == TOKEN_LBRACKET) {
+                          is_array = 1;
+                          eat(p, TOKEN_LBRACKET);
+                          ASTNode *sz = NULL;
+                          if (p->current_token.type != TOKEN_RBRACKET) sz = parse_expression(p);
+                          else {
+                              LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
+                              ln->base.type = NODE_LITERAL;
+                              ln->var_type.base = TYPE_INT;
+                              ln->val.int_val = 0;
+                              sz = (ASTNode*)ln;
+                          }
+                          
+                          *curr_sz = sz;
+                          curr_sz = &sz->next;
+                          
+                          eat(p, TOKEN_RBRACKET);
                       }
+
+                      ASTNode *init = parse_initializer(p, current_vtype);
                       
-                      *curr_sz = sz;
-                      curr_sz = &sz->next;
+                      VarDeclNode *var = parser_alloc(p, sizeof(VarDeclNode));
+                      var->base.type = NODE_VAR_DECL;
+                      var->base.line = line;
+                      var->base.col = col;
+                      var->name = mem_name;
+                      var->var_type = current_vtype;
+                      var->initializer = init;
+                      var->is_mutable = 1; 
+                      var->is_open = member_open;
+                      var->is_array = is_array;
+                      var->array_size = array_size; 
                       
-                      eat(p, TOKEN_RBRACKET);
+                      apply_var_modifiers(var, member_modifiers);
+
+                      *curr_member = (ASTNode*)var;
+                      curr_member = &var->base.next;
+
+                      if (p->current_token.type == TOKEN_COMMA) {
+                          eat(p, TOKEN_COMMA);
+                          
+                          next_extra_ptrs = 0;
+                          while (p->current_token.type == TOKEN_STAR) {
+                              next_extra_ptrs++;
+                              eat(p, TOKEN_STAR);
+                          }
+                          
+                          if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected identifier after comma");
+                          mem_name = parser_strdup(p, p->current_token.text);
+                          p->current_token.text = NULL;
+                          eat(p, TOKEN_IDENTIFIER);
+                      } else {
+                          break;
+                      }
                   }
-
-                  ASTNode *init = parse_initializer(p, vt);
                   eat(p, TOKEN_SEMICOLON);
-                  
-                  VarDeclNode *var = parser_alloc(p, sizeof(VarDeclNode));
-                  var->base.type = NODE_VAR_DECL;
-                  var->base.line = line;
-                  var->base.col = col;
-                  var->name = mem_name;
-                  var->var_type = vt;
-                  var->initializer = init;
-                  var->is_mutable = 1; 
-                  var->is_open = member_open;
-                  var->is_array = is_array;
-                  var->array_size = array_size; 
-                  
-                  apply_var_modifiers(var, member_modifiers);
-
-                  *curr_member = (ASTNode*)var;
-                  curr_member = &var->base.next;
               }
           } else {
               parser_fail(p, "Unexpected token in class body. Expected member declaration or '}'.");

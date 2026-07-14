@@ -96,7 +96,23 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
 }
 
 void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
-    if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
+    if (!node) return;
+
+    printf("sem_check_func_def for: %s\n", node->name);
+
+    if (node->ret_type.base == TYPE_CLASS && node->ret_type.class_name) {
+        SemSymbol *sym = sem_symbol_lookup(ctx, node->ret_type.class_name, NULL);
+        if (sym && sym->kind == SYM_TEMPLATE) {
+            CompoundNode *cn = sym->template_node;
+            char expected_types[256] = "";
+            for (int i=0; i<cn->num_type_params; i++) {
+                strcat(expected_types, cn->type_params[i]);
+                if (i < cn->num_type_params - 1) strcat(expected_types, ", ");
+            }
+            sem_error(ctx, (ASTNode*)node, "'%s' needs types [%s]", node->ret_type.class_name, expected_types);
+            node->ret_type.base = TYPE_UNKNOWN;
+        }
+    }
 
     sem_scope_enter(ctx, 1, node->ret_type);
     
@@ -110,6 +126,19 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
 
     Parameter *p = node->params;
     while (p) {
+        if (p->type.base == TYPE_CLASS && p->type.class_name) {
+            SemSymbol *sym = sem_symbol_lookup(ctx, p->type.class_name, NULL);
+            if (sym && sym->kind == SYM_TEMPLATE) {
+                CompoundNode *cn = sym->template_node;
+                char expected_types[256] = "";
+                for (int i=0; i<cn->num_type_params; i++) {
+                    strcat(expected_types, cn->type_params[i]);
+                    if (i < cn->num_type_params - 1) strcat(expected_types, ", ");
+                }
+                sem_error(ctx, (ASTNode*)node, "'%s' needs types [%s]", p->type.class_name, expected_types);
+                p->type.base = TYPE_UNKNOWN;
+            }
+        }
         if (p->name) {
             SemSymbol *s = sem_symbol_add(ctx, p->name, SYM_VAR, p->type);
             s->is_initialized = 1;

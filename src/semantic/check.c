@@ -88,16 +88,22 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
         }
         else if (node->type == NODE_COMPOUND) {
             CompoundNode *cn = (CompoundNode*)node;
-            char *template_name = NULL;
-            if (cn->body && cn->body->type == NODE_FUNC_DEF) {
-                template_name = ((FuncDefNode*)cn->body)->name;
-            } else if (cn->body && cn->body->type == NODE_CLASS) {
-                template_name = ((ClassNode*)cn->body)->name;
-            }
-            if (template_name) {
-                VarType type_tmpl = {TYPE_UNKNOWN};
-                SemSymbol *sym = sem_symbol_add(ctx, template_name, SYM_TEMPLATE, type_tmpl);
-                sym->template_node = cn;
+            ASTNode *curr_body = cn->body;
+            while (curr_body) {
+                char *template_name = NULL;
+                if (curr_body->type == NODE_FUNC_DEF) {
+                    template_name = ((FuncDefNode*)curr_body)->name;
+                } else if (curr_body->type == NODE_CLASS) {
+                    template_name = ((ClassNode*)curr_body)->name;
+                }
+                if (template_name) {
+                    VarType type_tmpl = {TYPE_UNKNOWN};
+                    SemSymbol *sym = sem_symbol_add(ctx, template_name, SYM_TEMPLATE, type_tmpl);
+                    sym->template_node = cn; // Should we create a new CompoundNode for each? Actually they all share the same cn, but wait...
+                    // In instantiation, if it instantiates cn->body, it will instantiate EVERYTHING inside!
+                    // This is actually what C++ does (for class templates with out-of-line methods, etc). Wait, if we instantiate the whole block, it will duplicate everything.
+                }
+                curr_body = curr_body->next;
             }
         }
         node = node->next;
@@ -190,6 +196,18 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
             node->mangled_name = resolved->mangled_name;
             sym = resolved; // Update sym to the resolved one
         }
+    }
+
+    if (sym->kind == SYM_TEMPLATE) {
+        CompoundNode *cn = sym->template_node;
+        char expected_types[256] = "";
+        for (int i=0; i<cn->num_type_params; i++) {
+            strcat(expected_types, cn->type_params[i]);
+            if (i < cn->num_type_params - 1) strcat(expected_types, ", ");
+        }
+        sem_error(ctx, (ASTNode*)node, "'%s' needs types [%s]", sym->name, expected_types);
+        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+        return;
     }
 
     if (sym->kind == SYM_CLASS) {
@@ -403,6 +421,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
         }
         case NODE_CAST: {
             CastNode *cn = (CastNode*)node;
+            cn->custom_cast_method = NULL;
             sem_check_expr(ctx, cn->operand);
             
             if (sem_get_node_tainted(ctx, cn->operand)) {
@@ -412,6 +431,35 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             VarType op_t = sem_get_node_type(ctx, cn->operand);
             if (op_t.base == TYPE_VOID && op_t.ptr_depth == 0) {
                 sem_error(ctx, node, "Cannot cast 'void' value");
+            }
+            
+            // Check for custom cast overload
+            if (op_t.base == TYPE_CLASS && op_t.class_name) {
+                char as_name[256];
+                if (cn->var_type.base == TYPE_CLASS || cn->var_type.base == TYPE_UNKNOWN) {
+                    snprintf(as_name, sizeof(as_name), "as_%s", cn->var_type.class_name ? cn->var_type.class_name : "");
+                } else if (cn->var_type.base == TYPE_INT) {
+                    snprintf(as_name, sizeof(as_name), "as_int");
+                } else if (cn->var_type.base == TYPE_FLOAT) {
+                    snprintf(as_name, sizeof(as_name), "as_float");
+                } else {
+                    snprintf(as_name, sizeof(as_name), "as_type%d", cn->var_type.base);
+                }
+                
+                SemSymbol *class_sym = sem_symbol_lookup(ctx, op_t.class_name, NULL);
+                if (class_sym && class_sym->inner_scope) {
+                    SemSymbol *member = class_sym->inner_scope->symbols;
+                    while (member) {
+                        if (member->kind == SYM_FUNC && strcmp(member->name, as_name) == 0) {
+                            // Found custom cast operator!
+                            char mangled[512];
+                            snprintf(mangled, sizeof(mangled), "%s_%s", op_t.class_name, as_name);
+                            cn->custom_cast_method = arena_strdup(ctx->compiler_ctx->arena, mangled);
+                            break;
+                        }
+                        member = member->next;
+                    }
+                }
             }
 
             sem_set_node_type(ctx, node, cn->var_type);
@@ -651,24 +699,56 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             
             SemSymbol *inst_sym = sem_symbol_lookup(ctx, mangled, NULL);
             if (!inst_sym) {
-                // Instantiate it
-                ASTNode *cloned_body = ast_clone(ctx->compiler_ctx, cn->body, cn->type_params, ti->template_types, ti->num_template_types);
-                
-                // Change the name to mangled name
-                if (cloned_body->type == NODE_FUNC_DEF) {
-                    ((FuncDefNode*)cloned_body)->name = arena_strdup(ctx->compiler_ctx->arena, mangled);
-                } else if (cloned_body->type == NODE_CLASS) {
-                    ((ClassNode*)cloned_body)->name = arena_strdup(ctx->compiler_ctx->arena, mangled);
+                // 1. Collect all top-level names in the block and their mangled names
+                int num_renames = 0;
+                char *rename_from[32];
+                char *rename_to[32];
+                ASTNode *cn_curr = cn->body;
+                while (cn_curr) {
+                    char *base_name = NULL;
+                    if (cn_curr->type == NODE_FUNC_DEF) base_name = ((FuncDefNode*)cn_curr)->name;
+                    else if (cn_curr->type == NODE_CLASS) base_name = ((ClassNode*)cn_curr)->name;
+                    
+                    if (base_name) {
+                        rename_from[num_renames] = base_name;
+                        char node_mangled[1024];
+                        snprintf(node_mangled, sizeof(node_mangled), "%s", base_name);
+                        for (int i = 0; i < ti->num_template_types; i++) {
+                            char *t_str = sem_type_to_str(ti->template_types[i]);
+                            strncat(node_mangled, "_", sizeof(node_mangled) - strlen(node_mangled) - 1);
+                            strncat(node_mangled, t_str, sizeof(node_mangled) - strlen(node_mangled) - 1);
+                        }
+                        rename_to[num_renames] = arena_strdup(ctx->compiler_ctx->arena, node_mangled);
+                        num_renames++;
+                    }
+                    cn_curr = cn_curr->next;
                 }
+                
+                for (int i = 0; i < num_renames; i++) {
+                    printf("Rename: %s -> %s\n", rename_from[i], rename_to[i]);
+                }
+                
+                // 2. Clone the body with replacements AND renames
+                ASTNode *cloned_body = ast_clone(ctx->compiler_ctx, cn->body, cn->type_params, ti->template_types, ti->num_template_types, rename_from, rename_to, num_renames);
                 
                 if (ctx->ast_tail) {
                     *ctx->ast_tail = cloned_body;
-                    ctx->ast_tail = &cloned_body->next;
+                    while (*ctx->ast_tail) {
+                        ctx->ast_tail = &(*ctx->ast_tail)->next;
+                    }
                 }
                 
                 // Add to global AST? Just scan and check it now!
+                SemScope *old_scope = ctx->current_scope;
+                ctx->current_scope = ctx->global_scope;
                 sem_scan_top_level(ctx, cloned_body);
-                sem_check_node(ctx, cloned_body);
+                // Also check it now, but for all nodes in the cloned body!
+                ASTNode *curr = cloned_body;
+                while (curr) {
+                    sem_check_node(ctx, curr);
+                    curr = curr->next;
+                }
+                ctx->current_scope = old_scope;
                 inst_sym = sem_symbol_lookup(ctx, mangled, NULL);
             }
             

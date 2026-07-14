@@ -98,6 +98,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
         VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
+        printf("DEBUG: alir_gen_addr ma->object obj_t.base=%d, class_name=%s\n", obj_t.base, obj_t.class_name ? obj_t.class_name : "NULL");
         if (obj_t.base == TYPE_ENUM) return NULL; 
 
         AlirValue *base_ptr = NULL;
@@ -513,6 +514,29 @@ AlirValue* alir_gen_inc_dec(AlirCtx *ctx, IncDecNode *id) {
 }
 
 AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
+    if (cn->custom_cast_method) {
+        VarType obj_t = sem_get_node_type(ctx->sem, cn->operand);
+        AlirValue *this_val = NULL;
+        if (obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
+            this_val = alir_gen_addr(ctx, cn->operand);
+        } else {
+            this_val = alir_gen_expr(ctx, cn->operand); 
+        }
+        if (!this_val) {
+             this_val = new_temp(ctx, (VarType){TYPE_INT, 0});
+             emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, this_val, NULL, NULL));
+        }
+        
+        AlirValue *func_val = alir_val_var(ctx->module, cn->custom_cast_method);
+        AlirValue *dest = new_temp(ctx, cn->var_type);
+        AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, dest, func_val, NULL);
+        call->arg_count = 1;
+        call->args = alir_alloc(ctx->module, sizeof(AlirValue*));
+        call->args[0] = this_val;
+        emit(ctx, call);
+        return dest;
+    }
+
     AlirValue *operand = alir_gen_expr(ctx, cn->operand);
     if (!operand) {
         operand = new_temp(ctx, (VarType){TYPE_INT, 0});

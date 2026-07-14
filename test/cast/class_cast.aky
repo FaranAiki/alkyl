@@ -1,0 +1,27 @@
+extern int printf(char*, ...) as cprintf;
+
+// this means the generics only supports those who has single and int
+compound[type[single, int] Type] {
+
+class Vector {
+  Type x, y;
+  as Type {
+    return x * x + y * y;
+  }
+}
+
+Vector infop[+](Vector a, Vector b) {
+  mut Vector total(a.x, a.y);
+  total.x = a.x + b.x;
+  total.y = a.y + b.y;
+  return total;
+}
+
+}
+
+int main() {
+  let gg = Vector[int](1, 2);
+  cprintf(c"%d\n", gg as int); // expect 1 * 1 + 2 * 2 = 5
+  cprintf(c"%d\n", gg); // the same, expect 1 * 1 + 2 * 2 = 5 because of implicit conversion
+  cprintf(c"%d, %d\n", gg.x, gg.y); // print 1, 2
+}

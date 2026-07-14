@@ -341,11 +341,35 @@ VarType parse_type(Parser *p) {
               if (kind == 2) { 
                   t.base = TYPE_ENUM;
                   t.class_name = parser_strdup(p, p->current_token.text);
+                  eat(p, TOKEN_IDENTIFIER);
               } else {
                   t.base = TYPE_CLASS;
-                  t.class_name = parser_strdup(p, p->current_token.text);
+                  char base_name[512];
+                  snprintf(base_name, sizeof(base_name), "%s", p->current_token.text);
+                  eat(p, TOKEN_IDENTIFIER);
+                  
+                  if (p->current_token.type == TOKEN_LBRACKET) {
+                      char full_name[1024];
+                      snprintf(full_name, sizeof(full_name), "%s", base_name);
+                      
+                      eat(p, TOKEN_LBRACKET);
+                      strcat(full_name, "[");
+                      
+                      while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+                          if (p->current_token.text) {
+                              strcat(full_name, p->current_token.text);
+                          } else {
+                              strcat(full_name, token_type_to_string(p->current_token.type));
+                          }
+                          eat(p, p->current_token.type);
+                      }
+                      eat(p, TOKEN_RBRACKET);
+                      strcat(full_name, "]");
+                      t.class_name = parser_strdup(p, full_name);
+                  } else {
+                      t.class_name = parser_strdup(p, base_name);
+                  }
               }
-              eat(p, TOKEN_IDENTIFIER);
           } else {
               if (t.is_unsigned) t.base = TYPE_INT;
               return t; 

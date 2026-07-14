@@ -36,6 +36,20 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         }
     }
 
+    if (node->var_type.base == TYPE_CLASS && node->var_type.class_name) {
+        SemSymbol *sym = sem_symbol_lookup(ctx, node->var_type.class_name, NULL);
+        if (sym && sym->kind == SYM_TEMPLATE) {
+            CompoundNode *cn = sym->template_node;
+            char expected_types[256] = "";
+            for (int i=0; i<cn->num_type_params; i++) {
+                strcat(expected_types, cn->type_params[i]);
+                if (i < cn->num_type_params - 1) strcat(expected_types, ", ");
+            }
+            sem_error(ctx, (ASTNode*)node, "'%s' needs types [%s]", node->var_type.class_name, expected_types);
+            node->var_type.base = TYPE_UNKNOWN;
+        }
+    }
+
     if (node->initializer) {
         sem_check_expr(ctx, node->initializer);
         VarType init_type = sem_get_node_type(ctx, node->initializer);
