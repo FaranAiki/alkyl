@@ -157,6 +157,7 @@ typedef struct {
   bool is_extern : 1;
   bool is_covalent : 1;
   char *cconv;
+  char *extern_name;
 } FuncDefNode;
 
 typedef struct {

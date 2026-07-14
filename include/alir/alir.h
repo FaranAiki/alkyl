@@ -10,7 +10,6 @@ typedef enum {
     ALIR_VAL_VOID,
     ALIR_VAL_INT,
     ALIR_VAL_FLOAT,
-    ALIR_VAL_STRING,
     ALIR_VAL_VAR,       // Represents a global/function name (@name)
     ALIR_VAL_TEMP,      // Represents a temporary register (%0, %1)
     ALIR_VAL_LABEL,     // Represents a block label

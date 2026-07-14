@@ -143,7 +143,7 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
                 }
                 case ALIR_OP_DEFINED: {
                     int is_defined = 0;
-                    if (inst->op1 && inst->op1->kind == ALIR_VAL_STRING) {
+                    if (inst->op1 && inst->op1->kind == ALIR_VAL_VAR) {
                         const char *sym_name = inst->op1->val.str_val;
                         
                         // Check globals
@@ -295,8 +295,15 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
             if (inst->op == ALIR_OP_PANIC) {
                 // Compile-time panic
                 if (inst->op1) {
-                    if (inst->op1->kind == ALIR_VAL_STRING && inst->op1->val.str_val) {
-                        fprintf(stderr, "Compile-time purge: %s\n", inst->op1->val.str_val);
+                    if (inst->op1->kind == ALIR_VAL_GLOBAL && inst->op1->val.str_val && module) {
+                        AlirGlobal *g = module->globals;
+                        while(g) {
+                            if (strcmp(g->name, inst->op1->val.str_val) == 0) {
+                                fprintf(stderr, "Compile-time purge: %s\n", g->string_content);
+                                break;
+                            }
+                            g = g->next;
+                        }
                     } else if (inst->op1->kind == ALIR_VAL_TEMP) {
                         fprintf(stderr, "Compile-time purge: %lld\n", registers[inst->op1->temp_id].as.int_val);
                     } else {

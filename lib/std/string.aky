@@ -9,9 +9,30 @@ class string {
             this.len++;
             p++;
         }
+        this.data = raw;
     }
 
     public unsigned int length() {
         return this.len;
+    }
+
+    public void tolower() {
+        let i = 0;
+        while (i < this.len) {
+            if (this.data[i] >= 'A' && this.data[i] <= 'Z') {
+                this.data[i] = this.data[i] + 32;
+            }
+            i++;
+        }
+    }
+
+    public void toupper() {
+        let i = 0;
+        while (i < this.len) {
+            if (this.data[i] >= 'a' && this.data[i] <= 'z') {
+                this.data[i] = this.data[i] - 32;
+            }
+            i++;
+        }
     }
 }

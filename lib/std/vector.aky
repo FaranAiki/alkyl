@@ -1,10 +1,36 @@
+compound[type T]
 class vector {
     public unsigned int size;
     public unsigned int capacity;
-    public void* data;
+    public T* data;
 
     public void init() {
         this.size = 0;
         this.capacity = 0;
+        this.data = null;
+    }
+
+    public void push_back(T val) {
+        if (this.size == this.capacity) {
+            let new_capacity = this.capacity == 0 ? 4 : this.capacity * 2;
+            let new_data = malloc(new_capacity * sizeof(T)) as T*;
+            let i = 0;
+            while (i < this.size) {
+                new_data[i] = this.data[i];
+                i++;
+            }
+            if (this.data != null) {
+                free(this.data);
+            }
+            this.data = new_data;
+            this.capacity = new_capacity;
+        }
+        this.data[this.size] = val;
+        this.size++;
+    }
+
+    public T pop_back() {
+        this.size--;
+        return this.data[this.size];
     }
 }

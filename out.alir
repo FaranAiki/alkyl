@@ -1,37 +1,11 @@
 ; Module: main_module
 
-; Struct Definitions
-%struct.hashmap = type { int:size, int:capacity, void*:buckets }
+promise void* @malloc(int)
 
-block func void @hashmap_init(%hashmap* %p0) {
+block func void @main() {
 entry:
-  %0 = onstack %hashmap*
-  store %hashmap* %p0, %0
-  %1 = load %hashmap* %0
-  %2 = getptr int* %1, 0
-  store int 0, %2
-  %3 = load %hashmap* %0
-  %4 = getptr int* %3, 1
-  store int 16, %4
-  return void
-}
-
-block func int @test_hashmap() {
-entry:
-  %0 = onstack %hashmap
-  %1 = call %hashmap_init (%0)
-  %2 = getptr int* %0, 0
-  %3 = load int %2
-  %4 = neq bool %3, 0
-  condition %4, then (merge)
-then:
-  return int 1
-merge:
+  %0 = call %malloc (10)
+  %1 = onstack void*
+  store void* %0, %1
   return int 0
-}
-
-block func int @main() {
-entry:
-  %0 = call %test_hashmap
-  return int %0
 }

@@ -20,7 +20,9 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
     }
     
     char *mangled = fd->name;
-    if (!fd->is_extern && strcmp(fd->name, "main") != 0) {
+    if (fd->is_extern) {
+        if (fd->extern_name) mangled = fd->extern_name;
+    } else if (strcmp(fd->name, "main") != 0) {
         mangled = sem_mangle_func_name(ctx, fd->class_name, fd->name, fd->params);
     }
     sym->mangled_name = mangled;

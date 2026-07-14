@@ -84,11 +84,23 @@ ASTNode* parse_extern(Parser *p, int modifiers) {
       if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
     }
   }
-  eat(p, TOKEN_RPAREN); eat(p, TOKEN_SEMICOLON);
+  eat(p, TOKEN_RPAREN); 
+  
+  char *extern_name = NULL;
+  if (p->current_token.type == TOKEN_AS) {
+      eat(p, TOKEN_AS);
+      if (p->current_token.type != TOKEN_IDENTIFIER) { parser_fail(p, "Expected identifier after 'as'"); }
+      extern_name = name;
+      name = parser_strdup(p, p->current_token.text);
+      eat(p, TOKEN_IDENTIFIER);
+  }
+  
+  eat(p, TOKEN_SEMICOLON);
   FuncDefNode *node = parser_alloc(p, sizeof(FuncDefNode));
   node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = ret_type;
   node->params = params_head; node->body = NULL; node->is_varargs = is_varargs;
   node->is_extern = true;
+  node->extern_name = extern_name;
   node->cconv = p->pending_cconv ? p->pending_cconv : p->ctx->settings.default_cconv;
   p->pending_cconv = NULL;
   apply_func_modifiers(node, modifiers);

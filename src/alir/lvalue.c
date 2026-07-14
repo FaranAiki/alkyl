@@ -789,10 +789,9 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
             }
             
             AlirValue *operand = alir_alloc(ctx->module, sizeof(AlirValue));
-            operand->kind = ALIR_VAL_STRING;
+            operand->kind = ALIR_VAL_VAR;
             operand->val.str_val = alir_strdup(ctx->module, symbol_name);
-            operand->type.base = TYPE_CLASS;
-            operand->type.class_name = (char*)"string";
+            operand->type.base = TYPE_UNKNOWN;
             
             emit(ctx, mk_inst(ctx->module, ALIR_OP_DEFINED, dest, operand, NULL));
             return dest;

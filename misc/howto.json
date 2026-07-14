@@ -8,6 +8,7 @@
     "error_handling": {
       "pristine": "Indicates a variable, function, or class is in a valid state (no error). By default, variables and internal functions are pristine. If an implicitly pristine variable is passed by reference (&var) to a TAINTED function (not impure), it is silently downgraded to tainted. However, if it is EXPLICITLY declared 'pristine', passing it by reference to a tainted function throws a semantic error.",
       "tainted": "Indicates a potential error state that must be handled. It is completely ORTHOGONAL to pure/impure. Extern functions (like scanf) are automatically TAINTED by default because they interface with C and can fail.",
+      "untaint": "The 'untaint' keyword is used for unpacking a tainted variable. Syntax: `untaint (expr) residue (err) { ... }`. If `expr` is an error, it executes the residue block. Otherwise, the variable is marked as pristine.",
       "mechanics": [
         "If a pristine function takes a pristine argument `t`, but a tainted variable is passed, it causes a semantic error.",
         "To pass a tainted variable to a pristine function, use the fallback operator (e.g. `f(t? 1)`). This ignores the error and provides a default value.",
@@ -27,6 +28,12 @@
     },
     "parser": {
       "wash_type": "The WashType enum is used to distinguish between wash (0), clean (1), and untaint (2) operations in the parser."
+    },
+    "oop": {
+      "class": "Classes are the primary object-oriented construct, declared using 'class' (e.g. 'open class Vector { ... }'). They can contain fields and methods, and can be modified with visibility modifiers like 'open' (public) or 'closed' (private).",
+      "compound": "Compound types encompass any user-defined structured types, primarily classes and potentially structs/enums. They aggregate multiple data fields and methods into a single type definition.",
+      "is-a": "The 'is' keyword is used for single inheritance, establishing an 'is-a' relationship (e.g., 'class Player is Entity'). The subclass inherits fields and methods from the base class.",
+      "has-a": "The 'has' keyword is used to include traits or mixins, establishing a 'has-a' relationship (e.g., 'class User has Printable'). This allows the class to incorporate the methods and properties defined in the trait."
     }
   }
 }
