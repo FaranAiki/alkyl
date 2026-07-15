@@ -1,0 +1,11 @@
+compound[type[single, int] Type] {
+  class Vector {
+    Type x, y;
+  }
+}
+
+int main() {
+  let a = Vector[int](1, 2);
+  let b = Vector[int](a);
+  return 0;
+}

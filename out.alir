@@ -4,9 +4,10 @@
 %struct.Vector_int = type { int:x, int:y }
 
 ; Globals
+@str.3 = cstring "inside as_int: x=%d, y=%d\n"
 @str.2 = cstring "%d, %d\n"
 @str.1 = cstring "%d\n"
-@str.0 = cstring "%d\n"
+@str.0 = cstring "%s\n"
 
 promise int @printf(char*, ...)
 
@@ -15,25 +16,24 @@ entry:
   %0 = sizeof int type(Vector_int)
   %1 = onheap char* %0
   %2 = bitcast %Vector_int* %1
-  %3 = call @Vector_int (%2, 1, 2)
+  %3 = call @Vector_int (%2, 1, 3)
   %4 = onstack %Vector_int*
   store %Vector_int* %2, %4
-  %5 = load %Vector_int* %4
-  %6 = cast int %5
-  %7 = call @printf (@str.0, %6)
-  %8 = load %Vector_int* %4
-  %9 = call @printf (@str.1, %8)
-  %10 = load %Vector_int* %4
-  %11 = getptr int* %10, 0
-  %12 = load int %11
-  %13 = load %Vector_int* %4
-  %14 = getptr int* %13, 1
-  %15 = load int %14
-  %16 = call @printf (@str.2, %12, %15)
+  %5 = typeof %string type((null))
+  %6 = call @printf (@str.0, %5)
+  %7 = load %Vector_int* %4
+  %8 = call @printf (@str.1, %7)
+  %9 = load %Vector_int* %4
+  %10 = getptr int* %9, 0
+  %11 = load int %10
+  %12 = load %Vector_int* %4
+  %13 = getptr int* %12, 1
+  %14 = load int %13
+  %15 = call @printf (@str.2, %11, %14)
   return int 0
 }
 
-block func int @Vector_int_as_Type(%Vector_int* %p0) {
+block func int @Vector_int_as_int(%Vector_int* %p0) {
 entry:
   %0 = onstack %Vector_int*
   store %Vector_int* %p0, %0
@@ -41,30 +41,37 @@ entry:
   %2 = getptr int* %1, 0
   %3 = load int %2
   %4 = load %Vector_int* %0
-  %5 = getptr int* %4, 0
+  %5 = getptr int* %4, 1
   %6 = load int %5
-  %7 = mul int %3, %6
+  %7 = call @printf (@str.3, %3, %6)
   %8 = load %Vector_int* %0
-  %9 = getptr int* %8, 1
+  %9 = getptr int* %8, 0
   %10 = load int %9
   %11 = load %Vector_int* %0
-  %12 = getptr int* %11, 1
+  %12 = getptr int* %11, 0
   %13 = load int %12
   %14 = mul int %10, %13
-  %15 = add int %7, %14
-  return int %15
+  %15 = load %Vector_int* %0
+  %16 = getptr int* %15, 1
+  %17 = load int %16
+  %18 = load %Vector_int* %0
+  %19 = getptr int* %18, 1
+  %20 = load int %19
+  %21 = mul int %17, %20
+  %22 = add int %14, %21
+  return int %22
 }
 
 block func void @Vector_int(%Vector_int* %p0, int %p1, int %p2) {
 entry:
-  %16 = onstack %Vector_int*
-  store void %p0, %16
-  %17 = load %Vector_int* %16
-  %18 = getptr int* %17, 0
-  store int %p1, %18
-  %19 = load %Vector_int* %16
-  %20 = getptr int* %19, 1
-  store int %p2, %20
+  %23 = onstack %Vector_int*
+  store void %p0, %23
+  %24 = load %Vector_int* %23
+  %25 = getptr int* %24, 0
+  store int %p1, %25
+  %26 = load %Vector_int* %23
+  %27 = getptr int* %26, 1
+  store int %p2, %27
   return void
 }
 
@@ -75,27 +82,17 @@ entry:
   %1 = onstack %Vector_int
   store %Vector_int %p1, %1
   %2 = onstack %Vector_int
-  %3 = load %Vector_int %0
-  %4 = getptr int* %3, 0
-  %5 = load int %4
-  %6 = load %Vector_int %0
-  %7 = getptr int* %6, 1
-  %8 = load int %7
-  call @Vector_int (%2, %5, %8)
-  %9 = getptr int* %0, 0
-  %10 = load int %9
-  %11 = getptr int* %1, 0
-  %12 = load int %11
-  %13 = add int %10, %12
-  %14 = getptr int* %2, 0
-  store int %13, %14
-  %15 = getptr int* %0, 1
-  %16 = load int %15
-  %17 = getptr int* %1, 1
-  %18 = load int %17
-  %19 = add int %16, %18
-  %20 = getptr int* %2, 1
-  store int %19, %20
-  %21 = load %Vector_int %2
-  return %Vector_int %21
+  %3 = getptr int* %0, 0
+  %4 = load int %3
+  %5 = getptr int* %1, 0
+  %6 = load int %5
+  %7 = add int %4, %6
+  %8 = getptr int* %0, 1
+  %9 = load int %8
+  %10 = getptr int* %1, 1
+  %11 = load int %10
+  %12 = add int %9, %11
+  call @Vector_int (%2, %7, %12)
+  %13 = load %Vector_int %2
+  return %Vector_int %13
 }

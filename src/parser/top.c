@@ -125,19 +125,27 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
   
   int max_params = 16;
   char **type_params = parser_alloc(p, sizeof(char*) * max_params);
+  VarType **allowed_types = parser_alloc(p, sizeof(VarType*) * max_params);
+  int *num_allowed = parser_alloc(p, sizeof(int) * max_params);
   int num_params = 0;
   
   while (p->current_token.type != TOKEN_RBRACKET) {
+      VarType *curr_allowed = NULL;
+      int curr_num = 0;
       if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text && strcmp(p->current_token.text, "type") == 0) {
           eat(p, TOKEN_IDENTIFIER);
           if (p->current_token.type == TOKEN_LBRACKET) {
-              int bracket_depth = 1;
               eat(p, TOKEN_LBRACKET);
-              while (bracket_depth > 0 && p->current_token.type != TOKEN_EOF) {
-                  if (p->current_token.type == TOKEN_LBRACKET) bracket_depth++;
-                  else if (p->current_token.type == TOKEN_RBRACKET) bracket_depth--;
-                  eat(p, p->current_token.type);
+              curr_allowed = parser_alloc(p, sizeof(VarType) * 16);
+              while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+                  curr_allowed[curr_num++] = parse_type(p);
+                  if (p->current_token.type == TOKEN_COMMA) {
+                      eat(p, TOKEN_COMMA);
+                  } else {
+                      break;
+                  }
               }
+              eat(p, TOKEN_RBRACKET);
           }
       } else {
           parser_fail(p, "Expected 'type' keyword in compound");
@@ -147,7 +155,10 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
           parser_fail(p, "Expected type parameter name in compound");
       }
       char *type_param = parser_strdup(p, p->current_token.text);
-      type_params[num_params++] = type_param;
+      type_params[num_params] = type_param;
+      allowed_types[num_params] = curr_allowed;
+      num_allowed[num_params] = curr_num;
+      num_params++;
       eat(p, TOKEN_IDENTIFIER);
       
       register_typename(p, type_param, 0);
@@ -182,6 +193,8 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
   CompoundNode *cn = parser_alloc(p, sizeof(CompoundNode));
   cn->base.type = NODE_COMPOUND;
   cn->type_params = type_params;
+  cn->allowed_types = allowed_types;
+  cn->num_allowed = num_allowed;
   cn->num_type_params = num_params;
   cn->body = body;
   set_loc((ASTNode*)cn, line, col);

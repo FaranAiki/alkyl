@@ -1,0 +1,17 @@
+compound[type[single, int] Type] {
+  class Vector {
+    Type x, y;
+  }
+}
+
+Vector something() {
+  return Vector_int(1, 2);
+}
+
+void other(Vector x) {
+}
+
+int main() {
+  Vector y;
+  return 0;
+}

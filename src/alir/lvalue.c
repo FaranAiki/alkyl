@@ -98,7 +98,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
         VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
-        printf("DEBUG: alir_gen_addr ma->object obj_t.base=%d, class_name=%s\n", obj_t.base, obj_t.class_name ? obj_t.class_name : "NULL");
+        printf("DEBUG: alir_gen_addr ma->object obj_t.base=%d, class_name=%s, ptr_depth=%d\n", obj_t.base, obj_t.class_name ? obj_t.class_name : "NULL", obj_t.ptr_depth);
         if (obj_t.base == TYPE_ENUM) return NULL; 
 
         AlirValue *base_ptr = NULL;
@@ -516,6 +516,7 @@ AlirValue* alir_gen_inc_dec(AlirCtx *ctx, IncDecNode *id) {
 AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
     if (cn->custom_cast_method) {
         VarType obj_t = sem_get_node_type(ctx->sem, cn->operand);
+        printf("DEBUG: alir_gen_cast cn->operand obj_t.base=%d, ptr_depth=%d, class_name=%s\n", obj_t.base, obj_t.ptr_depth, obj_t.class_name ? obj_t.class_name : "NULL");
         AlirValue *this_val = NULL;
         if (obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
             this_val = alir_gen_addr(ctx, cn->operand);
@@ -561,6 +562,24 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
     AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, func_val, NULL);
     
     int count = 0; ASTNode *a = cn->args; while(a) { count++; a=a->next; }
+    
+    const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
+    if (count == 1 && ctx->sem && target_name) {
+        SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, NULL);
+        if (sym && sym->kind == SYM_CLASS) {
+            VarType arg_t = sem_get_node_type(ctx->sem, cn->args);
+            if (arg_t.base == TYPE_CLASS && arg_t.class_name && strcmp(arg_t.class_name, target_name) == 0) {
+                AlirValue *arg_val = alir_gen_expr(ctx, cn->args);
+                AlirValue *ptr = new_temp(ctx, arg_t);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
+                AlirValue *loaded = new_temp(ctx, arg_t);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded, arg_val, NULL));
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, loaded, ptr));
+                return ptr;
+            }
+        }
+    }
+
     call->arg_count = count;
     call->args = alir_alloc(ctx->module, sizeof(AlirValue*) * count);
     
@@ -611,9 +630,17 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
 }
 
 AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
+    const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
     // Check if it's a constructor call via Struct Registry
-    if (alir_find_struct(ctx->module, cn->name)) {
-        return alir_lower_new_object(ctx, cn->name, cn->args);
+    if (alir_find_struct(ctx->module, target_name)) {
+        int count = 0; ASTNode *a = cn->args; while(a) { count++; a=a->next; }
+        if (count == 1 && ctx->sem) {
+            VarType arg_t = sem_get_node_type(ctx->sem, cn->args);
+            if (arg_t.base == TYPE_CLASS && arg_t.class_name && strcmp(arg_t.class_name, target_name) == 0) {
+                return alir_gen_expr(ctx, cn->args);
+            }
+        }
+        return alir_lower_new_object(ctx, target_name, cn->args);
     }
     return alir_gen_call_std(ctx, cn);
 }

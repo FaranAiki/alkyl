@@ -83,20 +83,49 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
     
     AlirValue *val = NULL;
     int is_stack_ctor = 0;
+    VarType actual_type = vn->var_type;
+    if (ctx->sem) {
+        VarType inferred = sem_get_node_type(ctx->sem, (ASTNode*)vn);
+        if (inferred.base != TYPE_UNKNOWN && (actual_type.base == TYPE_AUTO || actual_type.base == TYPE_UNKNOWN)) {
+            actual_type.base = inferred.base;
+            actual_type.class_name = inferred.class_name;
+            // keep ptr_depth from vn->var_type since that reflects 'let' or explicitly written types
+        }
+    }
+
     if (vn->initializer && vn->initializer->type == NODE_CALL) {
         CallNode *cn = (CallNode*)vn->initializer;
-        if (vn->var_type.base == TYPE_CLASS && vn->var_type.ptr_depth == 0) {
-            if (alir_find_struct(ctx->module, cn->name) && strcmp(vn->var_type.class_name, cn->name) == 0) {
-                is_stack_ctor = 1;
+        if (actual_type.base == TYPE_CLASS && vn->var_type.ptr_depth == 0) {
+            if (alir_find_struct(ctx->module, cn->name) && actual_type.class_name && strcmp(actual_type.class_name, cn->name) == 0) {
+                int arg_count = 0; ASTNode *a = cn->args; while(a) { arg_count++; a=a->next; }
+                if (arg_count == 1 && ctx->sem) {
+                    VarType arg_t = sem_get_node_type(ctx->sem, cn->args);
+                    if (arg_t.base == TYPE_CLASS && arg_t.class_name && strcmp(arg_t.class_name, cn->name) == 0) {
+                        is_stack_ctor = 2; // Copy constructor
+                    } else { is_stack_ctor = 1; }
+                } else {
+                    is_stack_ctor = 1;
+                }
             }
         }
     }
 
-    if (is_stack_ctor) {
-        // Allocate on stack
-        AlirValue *ptr = new_temp(ctx, vn->var_type);
+    if (is_stack_ctor == 2) {
+        // Copy constructor
+        AlirValue *ptr = new_temp(ctx, actual_type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
-        alir_add_symbol(ctx, vn->name, ptr, vn->var_type);
+        alir_add_symbol(ctx, vn->name, ptr, actual_type);
+        CallNode *cn = (CallNode*)vn->initializer;
+        AlirValue *arg_val = alir_gen_expr(ctx, cn->args);
+        AlirValue *loaded = new_temp(ctx, actual_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded, arg_val, NULL));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, loaded, ptr));
+        return;
+    } else if (is_stack_ctor == 1) {
+        // Allocate on stack
+        AlirValue *ptr = new_temp(ctx, actual_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
+        alir_add_symbol(ctx, vn->name, ptr, actual_type);
 
         CallNode *cn = (CallNode*)vn->initializer;
         AlirInst *call_init = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_global(ctx->module, cn->name, (VarType){TYPE_VOID, 0, 0, NULL}), NULL);

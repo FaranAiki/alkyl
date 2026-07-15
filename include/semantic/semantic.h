@@ -30,6 +30,7 @@ int sem_get_node_tainted(SemanticCtx *ctx, ASTNode *node);
 int sem_get_node_impure(SemanticCtx *ctx, ASTNode *node);
 
 bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src);
+int sem_types_are_equal(VarType a, VarType b);
 char* sem_type_to_str(VarType t);
 char* sem_mangle_func_name(SemanticCtx *ctx, const char *class_name, const char *base_name, Parameter *params);
 

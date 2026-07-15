@@ -5,6 +5,27 @@
 
 VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarType *replace_with, int num_params, char **rename_from, char **rename_to, int num_renames) {
     if (t.base == TYPE_CLASS && t.class_name) {
+        char *bracket = strchr(t.class_name, '[');
+        if (bracket) {
+            char base_name[256];
+            int len = bracket - t.class_name;
+            strncpy(base_name, t.class_name, len);
+            base_name[len] = '\0';
+            
+            char mangled[1024];
+            strcpy(mangled, base_name);
+            for (int i = 0; i < num_renames; i++) {
+                if (strcmp(base_name, rename_from[i]) == 0) {
+                    strcpy(mangled, rename_to[i]);
+                    break;
+                }
+            }
+            
+            VarType new_t = t;
+            new_t.class_name = arena_strdup(ctx->arena, mangled);
+            return new_t;
+        }
+
         for (int i = 0; i < num_params; i++) {
             if (strcmp(t.class_name, type_params[i]) == 0) {
                 VarType new_t = replace_with[i];
@@ -81,6 +102,21 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
                         break;
                     }
                 }
+                if (strncmp(orig->name, "as_", 3) == 0) {
+                    for (int i = 0; i < num_params; i++) {
+                        if (strcmp(orig->name + 3, type_params[i]) == 0) {
+                            char buf[256];
+                            const char *repl = replace_with[i].base == TYPE_INT ? "int" :
+                                               replace_with[i].base == TYPE_FLOAT ? "float" :
+                                               replace_with[i].base == TYPE_DOUBLE ? "double" :
+                                               replace_with[i].base == TYPE_BOOL ? "bool" :
+                                               replace_with[i].class_name ? replace_with[i].class_name : "unknown";
+                            snprintf(buf, sizeof(buf), "as_%s", repl);
+                            n->name = arena_strdup(ctx->arena, buf);
+                            break;
+                        }
+                    }
+                }
             }
             if (orig->class_name) {
                 n->class_name = arena_strdup(ctx->arena, orig->class_name);
@@ -122,6 +158,42 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             clone = (ASTNode*)n;
             break;
         }
+        case NODE_CALL: {
+            CallNode *orig = (CallNode*)node;
+            CallNode *n = arena_alloc(ctx->arena, sizeof(CallNode));
+            *n = *orig;
+            if (orig->name) {
+                char *bracket = strchr(orig->name, '[');
+                if (bracket) {
+                    char base_name[256];
+                    int len = bracket - orig->name;
+                    strncpy(base_name, orig->name, len);
+                    base_name[len] = '\0';
+                    
+                    char mangled[1024];
+                    strcpy(mangled, base_name);
+                    for (int i = 0; i < num_renames; i++) {
+                        if (strcmp(base_name, rename_from[i]) == 0) {
+                            strcpy(mangled, rename_to[i]);
+                            break;
+                        }
+                    }
+                    n->name = arena_strdup(ctx->arena, mangled);
+                } else {
+                    n->name = arena_strdup(ctx->arena, orig->name);
+                    for (int i = 0; i < num_renames; i++) {
+                        if (strcmp(orig->name, rename_from[i]) == 0) {
+                            n->name = arena_strdup(ctx->arena, rename_to[i]);
+                            break;
+                        }
+                    }
+                }
+            }
+            n->target = ast_clone(ctx, orig->target, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            n->args = ast_clone(ctx, orig->args, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            clone = (ASTNode*)n;
+            break;
+        }
         case NODE_CLASS: {
             ClassNode *orig = (ClassNode*)node;
             ClassNode *n = arena_alloc(ctx->arena, sizeof(ClassNode));
@@ -158,25 +230,7 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             clone = (ASTNode*)n;
             break;
         }
-        case NODE_CALL: {
-            CallNode *orig = (CallNode*)node;
-            CallNode *n = arena_alloc(ctx->arena, sizeof(CallNode));
-            *n = *orig;
-            if (orig->name) {
-                n->name = arena_strdup(ctx->arena, orig->name);
-                for (int i = 0; i < num_renames; i++) {
-                    if (strcmp(orig->name, rename_from[i]) == 0) {
-                        n->name = arena_strdup(ctx->arena, rename_to[i]);
-                        printf("Cloned CallNode name: %s -> %s\n", orig->name, n->name);
-                        break;
-                    }
-                }
-            }
-            n->target = ast_clone(ctx, orig->target, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
-            n->args = ast_clone(ctx, orig->args, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
-            clone = (ASTNode*)n;
-            break;
-        }
+
         case NODE_RETURN: {
             ReturnNode *orig = (ReturnNode*)node;
             ReturnNode *n = arena_alloc(ctx->arena, sizeof(ReturnNode));

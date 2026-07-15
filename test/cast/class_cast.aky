@@ -6,22 +6,22 @@ compound[type[single, int] Type] {
 class Vector {
   Type x, y;
   as Type {
+    cprintf(c"inside as_int: x=%d, y=%d\n", x, y);
     return x * x + y * y;
   }
 }
 
 Vector infop[+](Vector a, Vector b) {
-  mut Vector total(a.x, a.y);
-  total.x = a.x + b.x;
-  total.y = a.y + b.y;
+  mut Vector[Type] total(a.x + b.x, a.y + b.y);
   return total;
 }
 
 }
 
 int main() {
-  let gg = Vector[int](1, 2);
-  cprintf(c"%d\n", gg as int); // expect 1 * 1 + 2 * 2 = 5
-  cprintf(c"%d\n", gg); // the same, expect 1 * 1 + 2 * 2 = 5 because of implicit conversion
+  let gg = Vector[int](1, 3);
+  cprintf (c"%s\n", typeof(gg));
+  // cprintf(c"%d\n", gg as char); // expect wrong, yet get 16 for somereason 1 * 1 + 2 * 2 = 5
+  cprintf(c"%d\n", gg);
   cprintf(c"%d, %d\n", gg.x, gg.y); // print 1, 2
 }

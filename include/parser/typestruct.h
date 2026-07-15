@@ -269,6 +269,8 @@ typedef struct {
 typedef struct {
   ASTNode base;
   char **type_params;
+  VarType **allowed_types;
+  int *num_allowed;
   int num_type_params;
   ASTNode *body;
 } CompoundNode;

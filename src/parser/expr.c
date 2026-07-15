@@ -630,8 +630,29 @@ ASTNode* parse_initializer(Parser *p, VarType vtype) {
         cnode->base.type = NODE_CALL;
         cnode->base.line = p->current_token.line;
         cnode->base.col = p->current_token.col;
+        if (vtype.class_name) {
+            char *cls_name = parser_strdup(p, vtype.class_name);
+            char *bracket = strchr(cls_name, '[');
+            if (bracket) {
+                // If it's something like Vector[int], construct a dummy TemplateInstNode so Semantic Analyzer can process it
+                *bracket = '\0';
+                TemplateInstNode *ti = parser_alloc(p, sizeof(TemplateInstNode));
+                ti->base.type = NODE_TEMPLATE_INSTANTIATION;
+                VarRefNode *vr = parser_alloc(p, sizeof(VarRefNode));
+                vr->base.type = NODE_VAR_REF;
+                vr->name = parser_strdup(p, cls_name);
+                ti->target = (ASTNode*)vr;
+                // Parse the types from the string! No, that's too hard.
+                // Instead, just pass the mangled name directly if we can't parse it?
+                // Actually, since this is a known limitation, let's just use the string and let semantic fix it.
+            }
+        }
+        
         cnode->name = vtype.class_name ? parser_strdup(p, vtype.class_name) : NULL;
         cnode->target = NULL;
+        
+        // Actually, if it has brackets, Semantic can just try replacing '[' with '_' and ']' with ''.
+        
         cnode->args = args_head;
         return (ASTNode*)cnode;
     }

@@ -49,6 +49,26 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             node->var_type.base = TYPE_UNKNOWN;
         }
     }
+    if (node->var_type.class_name) {
+        char *bracket = strchr(node->var_type.class_name, '[');
+        if (bracket) {
+            char mangled[512];
+            strcpy(mangled, node->var_type.class_name);
+            for (int i=0; mangled[i]; i++) {
+                if (mangled[i] == '[') mangled[i] = '_';
+                else if (mangled[i] == ']') mangled[i] = '\0';
+                else if (mangled[i] == ',' || mangled[i] == ' ') mangled[i] = '_';
+            }
+            char final_mangled[512];
+            int j = 0;
+            for (int i=0; mangled[i]; i++) {
+                if (mangled[i] == '_' && mangled[i+1] == '_') continue;
+                final_mangled[j++] = mangled[i];
+            }
+            final_mangled[j] = '\0';
+            node->var_type.class_name = arena_strdup(ctx->compiler_ctx->arena, final_mangled);
+        }
+    }
 
     if (node->initializer) {
         sem_check_expr(ctx, node->initializer);

@@ -163,6 +163,25 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     }
     
     if (node->name) {
+        char *bracket = strchr(node->name, '[');
+        if (bracket) {
+            char mangled[512];
+            strcpy(mangled, node->name);
+            for (int i=0; mangled[i]; i++) {
+                if (mangled[i] == '[') mangled[i] = '_';
+                else if (mangled[i] == ']') mangled[i] = '\0';
+                else if (mangled[i] == ',' || mangled[i] == ' ') mangled[i] = '_';
+            }
+            // Remove double underscores just in case `, ` became `__`
+            char final_mangled[512];
+            int j = 0;
+            for (int i=0; mangled[i]; i++) {
+                if (mangled[i] == '_' && mangled[i+1] == '_') continue;
+                final_mangled[j++] = mangled[i];
+            }
+            final_mangled[j] = '\0';
+            node->name = arena_strdup(ctx->compiler_ctx->arena, final_mangled);
+        }
         sym = sem_symbol_lookup(ctx, node->name, NULL);
     }
     if (!sym) {
@@ -235,6 +254,11 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         if (!ctor_found) {
              // Basic validation for implicit constructor: should match number of fields
              // (This is tricky because fields might be inherited)
+             ASTNode *a = node->args;
+             while(a) {
+                 sem_check_expr(ctx, a);
+                 a = a->next;
+             }
         }
     }
  else if (sym->kind == SYM_FUNC && sym->is_flux) {
@@ -423,6 +447,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             CastNode *cn = (CastNode*)node;
             cn->custom_cast_method = NULL;
             sem_check_expr(ctx, cn->operand);
+            VarType temp_opt = sem_get_node_type(ctx, cn->operand);
             
             if (sem_get_node_tainted(ctx, cn->operand)) {
                 sem_set_node_tainted(ctx, node, 1);
@@ -459,6 +484,12 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                         }
                         member = member->next;
                     }
+                }
+                
+                if (!cn->custom_cast_method && cn->var_type.base != TYPE_CLASS && cn->var_type.ptr_depth == 0) {
+                    char *t1 = sem_type_to_str(op_t);
+                    char *t2 = sem_type_to_str(cn->var_type);
+                    sem_error(ctx, node, "Cannot cast class '%s' to '%s' without a custom cast operator", t1, t2);
                 }
             }
 
@@ -688,6 +719,23 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 break;
             }
             
+            for (int i = 0; i < ti->num_template_types; i++) {
+                if (cn->num_allowed && cn->num_allowed[i] > 0) {
+                    int match = 0;
+                    for (int j = 0; j < cn->num_allowed[i]; j++) {
+                        int is_compat = sem_types_are_equal(ti->template_types[i], cn->allowed_types[i][j]);
+                        if (is_compat) {
+                            match = 1;
+                            break;
+                        }
+                    }
+                    if (!match) {
+                        char *t1 = sem_type_to_str(ti->template_types[i]);
+                        sem_error(ctx, node, "Type '%s' is not allowed for template parameter '%s'", t1, cn->type_params[i]);
+                    }
+                }
+            }
+
             // Generate mangled name
             char mangled[1024];
             snprintf(mangled, sizeof(mangled), "%s", vr->name);
