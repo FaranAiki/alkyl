@@ -974,6 +974,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_CONTINUE:
             if (ctx->in_loop == 0) sem_error(ctx, node, "'continue' outside loop");
             break;
+        case NODE_INC_DEC:
         case NODE_CALL:
         case NODE_METHOD_CALL:
             sem_check_expr(ctx, node); 

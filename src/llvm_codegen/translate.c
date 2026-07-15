@@ -399,7 +399,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             int is_src_tainted = inst->op1->type.is_tainted;
             int is_dest_tainted = inst->dest->type.is_tainted;
             
-            if (is_src_tainted) {
+            if (is_src_tainted && src_k == LLVMStructTypeKind) {
                 err_id = LLVMBuildExtractValue(ctx->builder, op1, 0, "ext_err");
                 actual_op1 = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext_val");
                 src_ty = LLVMTypeOf(actual_op1);
@@ -407,12 +407,11 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             }
             
             LLVMTypeRef inner_dest_ty = dest_ty;
-            if (is_dest_tainted) {
-                VarType inner_t = inst->dest->type;
-                inner_t.is_tainted = 0;
-                inner_dest_ty = get_llvm_type(ctx, inner_t);
-                dest_k = LLVMGetTypeKind(inner_dest_ty);
+            if (is_dest_tainted && dest_k == LLVMStructTypeKind) {
+                inner_dest_ty = LLVMStructGetTypeAtIndex(dest_ty, 1);
             }
+            
+            LLVMTypeKind inner_dest_k = LLVMGetTypeKind(inner_dest_ty);
 
             LLVMValueRef cast_res = NULL;
             if (is_float) {

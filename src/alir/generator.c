@@ -364,30 +364,10 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
             *p_tail = p_this; p_tail = &p_this->next;
             p_count++;
 
-            if (st && !cn->is_union) {
-                AlirField *f = st->fields;
-                while(f) {
-                    Parameter *p = arena_alloc_type(ctx->sem->compiler_ctx->arena, Parameter);
-                    p->name = arena_strdup(ctx->sem->compiler_ctx->arena, f->name);
-                    p->type = f->type;
-                    p->next = NULL;
-                    *p_tail = p; p_tail = &p->next;
-                    p_count++;
-                    f = f->next;
-                }
-            }
             ctor_sym->params = p_head;
             ctor_sym->param_count = p_count;
             ctor_sym->next = class_sym->inner_scope->symbols;
             class_sym->inner_scope->symbols = ctor_sym;
-        }
-    }
-
-    if (st && !cn->is_union) {
-        AlirField *f = st->fields;
-        while(f) {
-            alir_func_add_param(ctx->module, ctx->current_func, f->name, f->type);
-            f = f->next;
         }
     }
 
@@ -399,24 +379,31 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_val_var(ctx->module, "p0"), this_ptr));
 
     if (st && !cn->is_union) {
-        AlirField *f = st->fields;
-        int p_idx = 1;
-        while(f) {
-            char pname[16]; snprintf(pname, 16, "p%d", p_idx++);
-            AlirValue *arg_val = alir_val_var(ctx->module, pname);
-            arg_val->type = f->type; // [FIX] Attach type to prevent untyped store
-            
-            // don't load the value here because getptr is not need to be loaded again
-            AlirValue *loaded_this = new_temp(ctx, this_t);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_this, this_ptr, NULL));
+        ASTNode *mem = cn->members;
+        while(mem) {
+            if (mem->type == NODE_VAR_DECL) {
+                VarDeclNode *vd = (VarDeclNode*)mem;
+                if (vd->initializer) {
+                    AlirField *f = st->fields;
+                    while(f) {
+                        if (strcmp(f->name, vd->name) == 0) break;
+                        f = f->next;
+                    }
+                    if (f) {
+                        AlirValue *arg_val = alir_gen_expr(ctx, vd->initializer);
+                        if (!arg_val) arg_val = alir_const_int(ctx->module, 0); // fallback
+                        
+                        AlirValue *loaded_this = new_temp(ctx, this_t);
+                        emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_this, this_ptr, NULL));
 
-            VarType ft = f->type; ft.ptr_depth++;
-            AlirValue *field_ptr = new_temp(ctx, ft);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, loaded_this, alir_const_int(ctx->module, f->index)));
-            // implicit constructor
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, arg_val, field_ptr));
-            
-            f = f->next;
+                        VarType ft = f->type; ft.ptr_depth++;
+                        AlirValue *field_ptr = new_temp(ctx, ft);
+                        emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, loaded_this, alir_const_int(ctx->module, f->index)));
+                        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, arg_val, field_ptr));
+                    }
+                }
+            }
+            mem = mem->next;
         }
     }
 

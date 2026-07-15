@@ -1,19 +1,20 @@
+extern int printf(char*, ...);
 
-char a[] = "previous a";
+char a[] = c"previous a";
 
 class Person {
   int a = 3;
 
   void print() {
     a = 5;
-    printf "%d", a;
+    printf c"%d", a;
   }
 }
 
 int main() {
-  let a = "new a";
-  printf "%s\n", a;
+  let a = c"new a";
+  printf c"%s\n", a;
   let me = Person();
-  print "%s\n", typeof(me);
+  printf c"%s\n", typeof(me);
   me.print();
 }

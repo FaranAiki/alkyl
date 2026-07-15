@@ -41,6 +41,11 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
                     if (strcmp(member->name, node->member_name) == 0) {
                         sem_set_node_type(ctx, (ASTNode*)node, member->type);
                         found = 1;
+                        if (sem_get_node_tainted(ctx, node->object) && !member->is_pristine) {
+                            sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+                        } else if (member->is_pristine) {
+                            sem_set_node_tainted(ctx, (ASTNode*)node, 0);
+                        }
                         goto done_search;
                     }
                     member = member->next;

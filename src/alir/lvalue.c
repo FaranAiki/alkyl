@@ -98,7 +98,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
         VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
-        printf("DEBUG: alir_gen_addr ma->object obj_t.base=%d, class_name=%s, ptr_depth=%d\n", obj_t.base, obj_t.class_name ? obj_t.class_name : "NULL", obj_t.ptr_depth);
+        printf("DEBUG: alir_gen_addr ma->object obj_t.base=%d, class_name=%s, ptr_depth=%d, line=%d\n", obj_t.base, obj_t.class_name ? obj_t.class_name : "NULL", obj_t.ptr_depth, ma->object->line);
         if (obj_t.base == TYPE_ENUM) return NULL; 
 
         AlirValue *base_ptr = NULL;

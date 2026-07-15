@@ -257,6 +257,43 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             clone = (ASTNode*)n;
             break;
         }
+        case NODE_INC_DEC: {
+            IncDecNode *orig = (IncDecNode*)node;
+            IncDecNode *n = arena_alloc(ctx->arena, sizeof(IncDecNode));
+            *n = *orig;
+            n->target = ast_clone(ctx, orig->target, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            if (orig->overloaded_func_name) n->overloaded_func_name = arena_strdup(ctx->arena, orig->overloaded_func_name);
+            clone = (ASTNode*)n;
+            break;
+        }
+        case NODE_ARRAY_ACCESS: {
+            ArrayAccessNode *orig = (ArrayAccessNode*)node;
+            ArrayAccessNode *n = arena_alloc(ctx->arena, sizeof(ArrayAccessNode));
+            *n = *orig;
+            n->target = ast_clone(ctx, orig->target, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            n->index = ast_clone(ctx, orig->index, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            clone = (ASTNode*)n;
+            break;
+        }
+        case NODE_IF: {
+            IfNode *orig = (IfNode*)node;
+            IfNode *n = arena_alloc(ctx->arena, sizeof(IfNode));
+            *n = *orig;
+            n->condition = ast_clone(ctx, orig->condition, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            n->then_body = ast_clone(ctx, orig->then_body, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            n->else_body = ast_clone(ctx, orig->else_body, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            clone = (ASTNode*)n;
+            break;
+        }
+        case NODE_WHILE: {
+            WhileNode *orig = (WhileNode*)node;
+            WhileNode *n = arena_alloc(ctx->arena, sizeof(WhileNode));
+            *n = *orig;
+            n->condition = ast_clone(ctx, orig->condition, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            n->body = ast_clone(ctx, orig->body, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            clone = (ASTNode*)n;
+            break;
+        }
         case NODE_ASSIGN: {
             AssignNode *orig = (AssignNode*)node;
             AssignNode *n = arena_alloc(ctx->arena, sizeof(AssignNode));
@@ -266,6 +303,18 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             n->target = ast_clone(ctx, orig->target, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
             n->index = ast_clone(ctx, orig->index, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
             if (orig->overloaded_func_name) n->overloaded_func_name = arena_strdup(ctx->arena, orig->overloaded_func_name);
+            clone = (ASTNode*)n;
+            break;
+        }
+        case NODE_SIZEOF:
+        case NODE_ALIGNOF: {
+            SizeOfNode *orig = (SizeOfNode*)node;
+            SizeOfNode *n = arena_alloc(ctx->arena, sizeof(SizeOfNode));
+            *n = *orig;
+            n->target_type = clone_var_type(ctx, orig->target_type, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            if (orig->operand) {
+                n->operand = ast_clone(ctx, orig->operand, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            }
             clone = (ASTNode*)n;
             break;
         }
