@@ -9,6 +9,7 @@
 
 typedef struct {
   bool no_purge;
+  bool allocator_arc;
   char *default_cconv;
 } CompilerSettings;
 

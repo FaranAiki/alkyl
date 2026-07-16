@@ -1,0 +1,18 @@
+Could not read file: -print-alir
+
+=================================================================
+==396443==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 65560 byte(s) in 1 object(s) allocated from:
+    #0 0x7f1a47f2c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+    #1 0x5612028de32a in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:29
+    #2 0x5612028de32a in arena_alloc /home/faranaiki/Git/alkyl/src/common/arena.c:65
+
+Direct leak of 65560 byte(s) in 1 object(s) allocated from:
+    #0 0x7f1a47f2c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+    #1 0x5612028de32a in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:29
+    #2 0x5612028de32a in arena_alloc /home/faranaiki/Git/alkyl/src/common/arena.c:65
+    #3 0x7f1a3d427878 in __libc_start_main (/usr/lib/libc.so.6+0x27878) (BuildId: d8ceb52a8c6e1fefece4ca75f7396d1d5bffc565)
+    #4 0x56120284e534 in _start (/home/faranaiki/Git/alkyl/alkyl+0x22534) (BuildId: 053dd499c6b151445640e6786ac268da4f63a834)
+
+SUMMARY: AddressSanitizer: 131120 byte(s) leaked in 2 allocation(s).

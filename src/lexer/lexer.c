@@ -8,7 +8,7 @@
 
 void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char* src, LexerSettings *settings) {
   l->src = src;
-  l->filename = filename; 
+  l->filename = filename;
   l->pos = 0;
   l->line = 1;
   l->col = 1;
@@ -16,7 +16,7 @@ void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char
   l->indent_level = 0;
   l->indent_stack[0] = 0;
   l->pending_count = 0;
-  
+
   if (settings) {
       l->settings = *settings;
   } else {
@@ -25,7 +25,7 @@ void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char
       l->settings.comment_style = COMMENT_SLASH;
       l->settings.spaces_per_indent = 4;
       l->settings.require_semicolons = 1;
-      l->settings.double_quote_as_string = 1;
+      l->settings.double_quote_as_string = 1; // default to 1, user can override in premeta string
   }
 }
 
@@ -34,7 +34,7 @@ static char peek(Lexer *l) { return l->src[l->pos]; }
 static char advance(Lexer *l) {
   char c = l->src[l->pos];
   if (c == '\0') return c;
-  
+
   l->pos++;
   if (c == '\n') {
     l->line++;
@@ -47,14 +47,14 @@ static char advance(Lexer *l) {
 
 static char* intern_string(Lexer *l, const char *str) {
     if (!str) return NULL;
-    
+
     void *existing = hashmap_get(&l->ctx->string_pool, str);
     if (existing) {
         return (char*)existing; // Reuse the pointer!
     }
-    
+
     char *new_str = arena_strdup(l->ctx->arena, str);
-    
+
     // Both key and value are the same pointer, saving space.
     hashmap_put(&l->ctx->string_pool, new_str, new_str);
     return new_str;
@@ -63,11 +63,11 @@ static char* intern_string(Lexer *l, const char *str) {
 static char* intern_strndup(Lexer *l, const char *str, size_t len) {
     char *temp = malloc(len + 1);
     if (!temp) return NULL;
-    
+
     memcpy(temp, str, len);
     temp[len] = '\0';
     char* res = intern_string(l, temp);
-    
+
     free(temp);
     return res;
 }
@@ -88,28 +88,28 @@ void skip_whitespace_and_comments(Lexer *l) {
       while (peek(l) != '\0' && peek(l) != '\n') {
         advance(l);
       }
-      continue; 
+      continue;
     }
 
     // Block comment
     if (c == '/' && l->src[l->pos + 1] == '*') {
       advance(l); // consume '/'
       advance(l); // consume '*'
-      
+
       while (1) {
           char next = peek(l);
           if (next == '\0') {
               Token dummy = {TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col};
               report_error(l, dummy, "Unclosed block comment");
-              return; 
+              return;
           }
-          
+
           if (next == '*' && l->src[l->pos + 1] == '/') {
               advance(l); // consume '*'
               advance(l); // consume '/'
               break;
           }
-          
+
           advance(l);
       }
       continue;
@@ -144,10 +144,10 @@ static int lex_symbol(Lexer *l, Token *t) {
       case '~': advance(l); t->type = TOKEN_BIT_NOT; return 1;
   }
 
-  if (c == '=') { 
-    advance(l); 
+  if (c == '=') {
+    advance(l);
     if (peek(l) == '=') { advance(l); t->type = TOKEN_EQ; return 1; }
-    t->type = TOKEN_ASSIGN; return 1; 
+    t->type = TOKEN_ASSIGN; return 1;
   }
 
   if (c == '+') {
@@ -222,12 +222,12 @@ static int lex_symbol(Lexer *l, Token *t) {
 
   if (c == '<') {
     advance(l);
-    if (peek(l) == '<') { 
-        advance(l); 
+    if (peek(l) == '<') {
+        advance(l);
         if (peek(l) == '%') { advance(l); t->type = TOKEN_LROTATE; return 1; }
         if (peek(l) == '=') { advance(l); t->type = TOKEN_LSHIFT_ASSIGN; return 1; }
-        t->type = TOKEN_LSHIFT; 
-        return 1; 
+        t->type = TOKEN_LSHIFT;
+        return 1;
     }
     if (peek(l) == '=') { advance(l); t->type = TOKEN_LTE; return 1; }
     t->type = TOKEN_LT; return 1;
@@ -235,11 +235,11 @@ static int lex_symbol(Lexer *l, Token *t) {
 
   if (c == '>') {
     advance(l);
-    if (peek(l) == '>') { 
-        advance(l); 
+    if (peek(l) == '>') {
+        advance(l);
         if (peek(l) == '=') { advance(l); t->type = TOKEN_RSHIFT_ASSIGN; return 1; }
-        t->type = TOKEN_RSHIFT; 
-        return 1; 
+        t->type = TOKEN_RSHIFT;
+        return 1;
     }
     if (peek(l) == '=') { advance(l); t->type = TOKEN_GTE; return 1; }
     t->type = TOKEN_GT; return 1;
@@ -252,11 +252,11 @@ static int lex_symbol(Lexer *l, Token *t) {
 
 static int lex_number(Lexer *l, Token *t) {
     if (!isdigit(peek(l))) return 0;
-    
+
     const char *start = &l->src[l->pos];
     int length = 0;
     unsigned long long val = 0;
-    
+
     while (isdigit(peek(l))) {
       val = val * 10 + (peek(l) - '0');
       advance(l);
@@ -266,21 +266,21 @@ static int lex_number(Lexer *l, Token *t) {
     if (peek(l) == '.') {
       advance(l);
       length++;
-      
+
       while (isdigit(peek(l))) {
         advance(l);
         length++;
       }
-      
+
       char *buf = malloc(length + 1);
       memcpy(buf, start, length);
       buf[length] = '\0';
       double dval = strtod(buf, NULL);
       free(buf);
-      
+
       t->type = TOKEN_FLOAT;
       t->double_val = dval;
-      
+
       // TODO fix this
       if (tolower(peek(l)) == 'l') {
           advance(l);
@@ -314,8 +314,8 @@ static int lex_number(Lexer *l, Token *t) {
     else if (is_l && is_u) t->type = TOKEN_ULONG_LIT;
     else if (is_l) t->type = TOKEN_LONG_LIT;
     else if (is_u) t->type = TOKEN_UINT_LIT;
-    
-    t->double_val = (double)val; 
+
+    t->double_val = (double)val;
     t->int_val = (int)val;
     t->long_val = val;
     return 1;
@@ -323,10 +323,10 @@ static int lex_number(Lexer *l, Token *t) {
 
 static int lex_char(Lexer *l, Token *t) {
     if (peek(l) != '\'') return 0;
-    
-    advance(l); 
+
+    advance(l);
     char val = advance(l);
-    
+
     if (val == '\\') {
         char next = advance(l);
         switch(next) {
@@ -336,17 +336,17 @@ static int lex_char(Lexer *l, Token *t) {
             case '0': val = '\0'; break;
             case '\'': val = '\''; break;
             case '\\': val = '\\'; break;
-            default: val = next; break; 
+            default: val = next; break;
         }
     }
-    
+
     if (peek(l) == '\'') {
-        advance(l); 
+        advance(l);
     } else {
         Token dummy = {TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col};
         report_error(l, dummy, "Unclosed character literal");
     }
-    
+
     t->type = TOKEN_CHAR_LIT;
     t->int_val = (int)val;
     t->long_val = (unsigned long long)val;
@@ -361,8 +361,8 @@ static char* consume_string_content(Lexer *l) {
     while (peek(l) != '"' && peek(l) != '\0') {
       char val = peek(l);
       if (val == '\\') {
-        advance(l); 
-        if (peek(l) == '\0') break; 
+        advance(l);
+        if (peek(l) == '\0') break;
         char escaped = peek(l);
         switch (escaped) {
           case 'n': val = '\n'; break;
@@ -372,18 +372,18 @@ static char* consume_string_content(Lexer *l) {
           case '\\': val = '\\'; break;
           case '"': val = '"'; break;
           case '\'': val = '\''; break;
-          default: val = escaped; break; 
+          default: val = escaped; break;
         }
-        advance(l); 
+        advance(l);
       } else {
-        advance(l); 
+        advance(l);
       }
       sb_append_c(&sb, val);
     }
-    
+
     if (peek(l) == '"') advance(l);
-    
-    // Check pool/allocate into pool safely 
+
+    // Check pool/allocate into pool safely
     char *final_str = intern_string(l, sb.data ? sb.data : "");
     sb_free(&sb);
     return final_str;
@@ -391,12 +391,12 @@ static char* consume_string_content(Lexer *l) {
 
 static int lex_string(Lexer *l, Token *t) {
   char c = peek(l);
-  
+
   // C-String check: c"..."
   if (c == 'c' && l->src[l->pos + 1] == '"') {
     advance(l); // consume 'c'
     advance(l); // consume '"'
-    
+
     t->type = TOKEN_C_STRING;
     t->text = consume_string_content(l);
     return 1;
@@ -406,19 +406,19 @@ static int lex_string(Lexer *l, Token *t) {
   if (c == 'b' && l->src[l->pos + 1] == '"') {
     advance(l); // consume 'b'
     advance(l); // consume '"'
-    
+
     t->type = TOKEN_BYTE_STRING;
     t->text = consume_string_content(l);
     return 1;
   }
 
   if (c == '"') {
-    advance(l); 
+    advance(l);
     t->type = l->settings.double_quote_as_string ? TOKEN_STRING : TOKEN_C_STRING;
     t->text = consume_string_content(l);
     return 1;
   }
-  
+
   return 0;
 }
 
@@ -460,7 +460,7 @@ static int is_ident_part(char c) {
 static int lex_word(Lexer *l, Token *t) {
   char c = peek(l);
   if (!is_ident_start(c)) return 0;
-  
+
   const char *start = l->src + l->pos;
   int length = 0;
   while (is_ident_part(peek(l))) {
@@ -472,7 +472,7 @@ static int lex_word(Lexer *l, Token *t) {
   if (length < 256) {
       strncpy(word, start, length);
       word[length] = '\0';
-      
+
       init_kw_hash();
       unsigned int h = hash_str(word) % KW_HASH_SIZE;
       while (kw_hash[h].word != NULL) {
@@ -503,7 +503,7 @@ Token lexer_next(Lexer *l) {
 
   int prev_line = l->line;
   int is_first_token = (l->pos == 0);
-  
+
   skip_whitespace_and_comments(l);
 
   int is_eof = (peek(l) == '\0');
@@ -512,11 +512,11 @@ Token lexer_next(Lexer *l) {
   if (l->settings.scope_style == SCOPE_INDENTATION && is_new_line) {
       int spaces = l->col - 1;
       int new_indent = l->settings.spaces_per_indent > 0 ? (spaces / l->settings.spaces_per_indent) : 0;
-      
+
       if (is_eof) {
           new_indent = 0; // EOF forces indent to 0
       }
-      
+
       if (new_indent > l->indent_level) {
           Token lbrace = {TOKEN_LBRACE, NULL, 0, 0, 0.0, l->line, 1};
           l->pending_tokens[l->pending_count++] = lbrace;
@@ -539,7 +539,7 @@ Token lexer_next(Lexer *l) {
     t.type = TOKEN_EOF;
     token_parsed = 1;
   }
-  
+
   if (!token_parsed && lex_symbol(l, &t)) token_parsed = 1;
   if (!token_parsed && lex_number(l, &t)) token_parsed = 1;
   if (!token_parsed && lex_char(l, &t)) token_parsed = 1;

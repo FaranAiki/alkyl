@@ -257,6 +257,18 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             clone = (ASTNode*)n;
             break;
         }
+        case NODE_METHOD_CALL: {
+            MethodCallNode *orig = (MethodCallNode*)node;
+            MethodCallNode *n = arena_alloc(ctx->arena, sizeof(MethodCallNode));
+            *n = *orig;
+            n->object = ast_clone(ctx, orig->object, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            if (orig->method_name) n->method_name = arena_strdup(ctx->arena, orig->method_name);
+            n->args = ast_clone(ctx, orig->args, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            if (orig->mangled_name) n->mangled_name = arena_strdup(ctx->arena, orig->mangled_name);
+            if (orig->owner_class) n->owner_class = arena_strdup(ctx->arena, orig->owner_class);
+            clone = (ASTNode*)n;
+            break;
+        }
         case NODE_INC_DEC: {
             IncDecNode *orig = (IncDecNode*)node;
             IncDecNode *n = arena_alloc(ctx->arena, sizeof(IncDecNode));
@@ -315,6 +327,17 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             if (orig->operand) {
                 n->operand = ast_clone(ctx, orig->operand, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
             }
+            clone = (ASTNode*)n;
+            break;
+        }
+        case NODE_WASH: {
+            WashNode *orig = (WashNode*)node;
+            WashNode *n = arena_alloc(ctx->arena, sizeof(WashNode));
+            *n = *orig;
+            n->target = ast_clone(ctx, orig->target, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            if (orig->err_name) n->err_name = arena_strdup(ctx->arena, orig->err_name);
+            n->body = ast_clone(ctx, orig->body, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            n->else_body = ast_clone(ctx, orig->else_body, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
             clone = (ASTNode*)n;
             break;
         }

@@ -33,14 +33,12 @@ void codegen_dispose(CodegenCtx *ctx) {
 }
 
 LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
-    if (t.ptr_depth > 0 || t.is_func_ptr) {
-        // TODO this is invalid tho
-        return LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
-    }
-
     LLVMTypeRef base = NULL;
-    switch (t.base) {
-        case TYPE_VOID: base = LLVMVoidTypeInContext(ctx->llvm_ctx); break;
+    if (t.ptr_depth > 0 || t.is_func_ptr) {
+        base = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
+    } else {
+        switch (t.base) {
+            case TYPE_VOID: base = LLVMVoidTypeInContext(ctx->llvm_ctx); break;
         case TYPE_ERROR: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
         case TYPE_INT: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
         case TYPE_SHORT: base = LLVMInt16TypeInContext(ctx->llvm_ctx); break;
@@ -68,6 +66,7 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
 
         // TODO vector, hashmap, auto, unknown
         default: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break; 
+        }
     }
 
     if (t.array_size > 0) {
@@ -79,7 +78,7 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
             LLVMInt32TypeInContext(ctx->llvm_ctx),  // i32 error_id
             base                                    // actual value
         };
-        if (t.base == TYPE_VOID) {
+        if (t.base == TYPE_VOID && t.ptr_depth == 0) {
             return LLVMStructTypeInContext(ctx->llvm_ctx, elements, 1, 0);
         }
         return LLVMStructTypeInContext(ctx->llvm_ctx, elements, 2, 0);

@@ -181,6 +181,11 @@ typedef struct {
   bool is_union : 1;
   bool is_static : 1; 
   bool is_abstract : 1;
+  bool is_exact : 1;
+  bool is_pragma : 1;
+  bool is_method_class : 1;
+  bool is_container : 1;
+  bool is_frame : 1;
   bool is_pure : 1;
   bool has_explicit_pure : 1;
   bool is_tainted : 1;

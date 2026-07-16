@@ -25,4 +25,5 @@ void context_init(CompilerContext *ctx, Arena *arena) {
     hashmap_init(&ctx->string_pool, arena, 1024);
     hashmap_init(&ctx->error_table, arena, 64);
     ctx->settings.no_purge = false;
+    ctx->settings.allocator_arc = false;
 }

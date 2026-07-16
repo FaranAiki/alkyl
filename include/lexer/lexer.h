@@ -108,6 +108,13 @@ typedef enum {
   TOKEN_FOR,
   TOKEN_IN,
 
+  TOKEN_ABSTRACT,
+  TOKEN_CONTAINER,
+  TOKEN_EXACT,
+  TOKEN_FRAME,
+  TOKEN_METHOD,
+  TOKEN_PRAGMA,
+
   TOKEN_KW_VOID,   
   TOKEN_KW_INT,  
   TOKEN_KW_CHAR,   
@@ -143,7 +150,8 @@ typedef enum {
   TOKEN_COMPOUND,
 
   TOKEN_TRUE,    
-  TOKEN_FALSE,   
+  TOKEN_FALSE,
+  TOKEN_NULL,   
 
   TOKEN_NOT,     // !
   TOKEN_BIT_NOT, // ~
@@ -238,6 +246,7 @@ typedef struct {
 
 // NOTE: Must be strictly alphabetical for bsearch
 static const KeywordDef keywords[] = {
+    {"abstract", TOKEN_ABSTRACT},
     {"accept", TOKEN_ACCEPT},
     {"alignof", TOKEN_KW_ALIGNOF},
     {"alir", TOKEN_ALIR},
@@ -251,6 +260,7 @@ static const KeywordDef keywords[] = {
     {"closed", TOKEN_CLOSED},
     {"compound", TOKEN_COMPOUND},
     {"const", TOKEN_CONST},
+    {"container", TOKEN_CONTAINER},
     {"continue", TOKEN_CONTINUE},
     {"covalent", TOKEN_COVALENT},
     {"default", TOKEN_DEFAULT},
@@ -262,11 +272,13 @@ static const KeywordDef keywords[] = {
     {"else", TOKEN_ELSE},
     {"emit", TOKEN_EMIT},
     {"enum", TOKEN_ENUM},
+    {"exact", TOKEN_EXACT},
     {"extern", TOKEN_EXTERN},
     {"false", TOKEN_FALSE},
     {"final", TOKEN_FINAL},
     {"flux", TOKEN_FLUX},
     {"for", TOKEN_FOR},
+    {"frame", TOKEN_FRAME},
     {"has", TOKEN_HAS},
     {"hasattribute", TOKEN_HASATTRIBUTE},
     {"hasmethod", TOKEN_HASMETHOD},
@@ -288,14 +300,17 @@ static const KeywordDef keywords[] = {
     {"long", TOKEN_KW_LONG},
     {"loop", TOKEN_LOOP},
     {"meta", TOKEN_META},
+    {"method", TOKEN_METHOD},
     {"mut", TOKEN_KW_MUT},
     {"mutable", TOKEN_KW_MUT},
     {"naked", TOKEN_NAKED},
     {"namespace", TOKEN_NAMESPACE},
     {"not", TOKEN_NOT},
+    {"null", TOKEN_NULL},
     {"once", TOKEN_ONCE},
     {"open", TOKEN_OPEN},
     {"postmeta", TOKEN_POSTMETA},
+    {"pragma", TOKEN_PRAGMA},
     {"prefop", TOKEN_PREFOP},
     {"premeta", TOKEN_PREMETA},
     {"premut", TOKEN_PREMUT},

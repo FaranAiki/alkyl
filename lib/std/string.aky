@@ -1,24 +1,32 @@
-class string {
-    public unsigned int len;
-    public char* data;
+premeta {
+  reason "String Standard Library"
+  lexer.double_quote_as_string = true;
+}
 
-    public void init(char* raw) {
+// TODO implement this
+class string {
+public:
+    unsigned int len;
+    char* data;
+
+    string(char* raw) {
         this.len = 0;
         let p = raw;
-        while (*p != '\0') {
+        while *p != '\0' {
             this.len++;
             p++;
         }
         this.data = raw;
     }
 
-    public unsigned int length() {
+    unsigned int length() {
         return this.len;
     }
 
-    public void tolower() {
+    // TODO: this SHOULD return a new string, not modify it!
+    void tolower() {
         let i = 0;
-        while (i < this.len) {
+        while i < this.len {
             if (this.data[i] >= 'A' && this.data[i] <= 'Z') {
                 this.data[i] = this.data[i] + 32;
             }
@@ -26,9 +34,9 @@ class string {
         }
     }
 
-    public void toupper() {
+    void toupper() {
         let i = 0;
-        while (i < this.len) {
+        while i < this.len {
             if (this.data[i] >= 'a' && this.data[i] <= 'z') {
                 this.data[i] = this.data[i] - 32;
             }

@@ -1,19 +1,16 @@
 ; Module: main_module
 
 ; Struct Definitions
-%struct.vector_int = type { int:size, int:capacity, int*:data }
+%struct.ArenaAllocator = type { %ArenaBlock*:head, long:default_block_size }
+%struct.ArenaBlock = type { void*:data, long:capacity, long:used, %ArenaBlock*:next }
+%struct.CAllocator = type {  }
+%struct.Allocator = type {  }
 
 ; Globals
-@str.9 = cstring "All tests passed!\n"
-@str.8 = cstring "Error: vector should be empty after clear\n"
-@str.7 = cstring "Error: vector should not be empty\n"
-@str.6 = cstring "Error: remove failed\n"
-@str.5 = cstring "Error: insert failed\n"
-@str.4 = cstring "Error: size should be 2 after pop\n"
-@str.3 = cstring "Error: popped should be 30\n"
-@str.2 = cstring "Error: v[1] should be 99\n"
-@str.1 = cstring "Error: v[1] should be 20\n"
-@str.0 = cstring "Error: size should be 3\n"
+@str.3 = cstring "P4: %p\n"
+@str.2 = string "purge: ErrOutOfMemory\n"
+@str.1 = string "purge: ErrOutOfMemory\n"
+@str.0 = string "purge: ErrOutOfMemory\n"
 
 promise int @printf(char*, ...)
 
@@ -21,528 +18,443 @@ promise void* @malloc(long)
 
 promise void @free(void*)
 
+promise void* @Allocator_alloc_i64(%Allocator*, long)
+
+promise void @Allocator_free_void_p(%Allocator*, void*)
+
+block func void @Allocator(%Allocator* %p0) {
+entry:
+  %0 = onstack %Allocator*
+  store void %p0, %0
+  return void
+}
+
+promise void @CAllocator_CAllocator(%CAllocator*)
+
+block func void* @CAllocator_alloc_i64(%CAllocator* %p0, long %p1) {
+entry:
+  %0 = onstack %CAllocator*
+  store %CAllocator* %p0, %0
+  %1 = onstack long
+  store long %p1, %1
+  %2 = load long %1
+  %3 = cast long 0
+  %4 = lt bool %2, %3
+  condition %4, then (merge)
+then:
+  panic @str.0
+  jump merge
+merge:
+  %5 = load long %1
+  %6 = call @malloc (%5)
+  return void* %6
+}
+
+block func void @CAllocator_free_void_p(%CAllocator* %p0, void* %p1) {
+entry:
+  %0 = onstack %CAllocator*
+  store %CAllocator* %p0, %0
+  %1 = onstack void*
+  store void* %p1, %1
+  %2 = load %CAllocator* %0
+  %3 = load void* %1
+  %4 = call %CAllocator_free_void_p (%2, %3)
+  return void
+}
+
+block func void* @alloc_i64(long %p0) {
+entry:
+  %0 = onstack long
+  store long %p0, %0
+  %1 = onstack int
+  %2 = load long %0
+  %3 = call %CAllocator_alloc_i64 (%1, %2)
+  return void* %3
+}
+
+block func void @free_void_p(void* %p0) {
+entry:
+  %0 = onstack void*
+  store void* %p0, %0
+  %1 = onstack int
+  %2 = load void* %0
+  %3 = call %CAllocator_free_void_p (%1, %2)
+  return void
+}
+
+block func void @ArenaBlock(%ArenaBlock* %p0) {
+entry:
+  %4 = onstack %ArenaBlock*
+  store void %p0, %4
+  %5 = load %ArenaBlock* %4
+  %6 = getptr void** %5, 0
+  store int 0, %6
+  %7 = load %ArenaBlock* %4
+  %8 = getptr long* %7, 1
+  store int 0, %8
+  %9 = load %ArenaBlock* %4
+  %10 = getptr long* %9, 2
+  store int 0, %10
+  %11 = load %ArenaBlock* %4
+  %12 = getptr %ArenaBlock** %11, 3
+  store int 0, %12
+  return void
+}
+
+block func void @ArenaAllocator_ArenaAllocator(%ArenaAllocator* %p0) {
+entry:
+  %0 = onstack %ArenaAllocator*
+  store %ArenaAllocator* %p0, %0
+  %1 = load %ArenaAllocator* %0
+  %2 = getptr %ArenaBlock** %1, 0
+  store int 0, %2
+  %3 = load %ArenaAllocator* %0
+  %4 = getptr long* %3, 1
+  store int 65536, %4
+  return void
+}
+
+block func void* @ArenaAllocator_alloc_i64(%ArenaAllocator* %p0, long %p1) {
+entry:
+  %0 = onstack %ArenaAllocator*
+  store %ArenaAllocator* %p0, %0
+  %1 = onstack long
+  store long %p1, %1
+  %2 = load %ArenaAllocator* %0
+  %3 = load long %1
+  %4 = cast long 8
+  %5 = call %ArenaAllocator_alloc_aligned_i64_i64 (%2, %3, %4)
+  return void* %5
+}
+
+block func void* @ArenaAllocator_alloc_aligned_i64_i64(%ArenaAllocator* %p0, long %p1, long %p2) {
+entry:
+  %0 = onstack %ArenaAllocator*
+  store %ArenaAllocator* %p0, %0
+  %1 = onstack long
+  store long %p1, %1
+  %2 = onstack long
+  store long %p2, %2
+  %3 = load long %1
+  %4 = cast long 0
+  %5 = lt bool %3, %4
+  %6 = load long %2
+  %7 = cast long 0
+  %8 = lte bool %6, %7
+  %9 = add int %5, %8
+  condition %9, then (merge)
+then:
+  return int 0
+merge:
+  %10 = load %ArenaAllocator* %0
+  %11 = getptr %ArenaBlock** %10, 0
+  %12 = load %ArenaBlock* %11
+  %13 = eq bool %12, 0
+  condition %13, then2 (merge2)
+then2:
+  %14 = load %ArenaAllocator* %0
+  %15 = load long %1
+  %16 = load long %2
+  %17 = call %ArenaAllocator_new_block_and_alloc_i64_i64 (%14, %15, %16)
+  return void* %17
+merge2:
+  %18 = load %ArenaAllocator* %0
+  %19 = getptr %ArenaBlock** %18, 0
+  %20 = load %ArenaBlock* %19
+  %21 = getptr long* %20, 2
+  %22 = load long %21
+  %23 = onstack long
+  store long %22, %23
+  %24 = load long %23
+  %25 = load long %2
+  %26 = add int %24, %25
+  %27 = onstack long
+  store int %26, %27
+  %28 = load long %27
+  %29 = cast long 0
+  %30 = neq bool %28, %29
+  condition %30, then3 (merge3)
+then3:
+  %31 = load long %23
+  %32 = load long %2
+  %33 = load long %27
+  %34 = sub int %32, %33
+  %35 = add int %31, %34
+  store int %35, %23
+  jump merge3
+merge3:
+  %36 = load long %23
+  %37 = load long %1
+  %38 = add int %36, %37
+  %39 = onstack long
+  store int %38, %39
+  %40 = load long %39
+  %41 = load long %23
+  %42 = lt bool %40, %41
+  %43 = load long %39
+  %44 = load %ArenaAllocator* %0
+  %45 = getptr %ArenaBlock** %44, 0
+  %46 = load %ArenaBlock* %45
+  %47 = getptr long* %46, 1
+  %48 = load long %47
+  %49 = gt bool %43, %48
+  %50 = add int %42, %49
+  condition %50, then4 (merge4)
+then4:
+  %51 = load %ArenaAllocator* %0
+  %52 = load long %1
+  %53 = load long %2
+  %54 = call %ArenaAllocator_new_block_and_alloc_i64_i64 (%51, %52, %53)
+  return void* %54
+merge4:
+  %55 = load %ArenaAllocator* %0
+  %56 = getptr %ArenaBlock** %55, 0
+  %57 = load %ArenaBlock* %56
+  %58 = getptr void** %57, 0
+  %59 = load void* %58
+  %60 = cast char* %59
+  %61 = onstack char*
+  store char* %60, %61
+  %62 = load char* %61
+  %63 = load long %23
+  %64 = add int %62, %63
+  %65 = cast void* %64
+  %66 = onstack void*
+  store void* %65, %66
+  %67 = load long %39
+  %68 = load %ArenaAllocator* %0
+  %69 = getptr %ArenaBlock** %68, 0
+  %70 = load %ArenaBlock* %69
+  %71 = getptr long* %70, 2
+  store long %67, %71
+  %72 = load void* %66
+  return void* %72
+}
+
+block func void* @ArenaAllocator_new_block_and_alloc_i64_i64(%ArenaAllocator* %p0, long %p1, long %p2) {
+entry:
+  %0 = onstack %ArenaAllocator*
+  store %ArenaAllocator* %p0, %0
+  %1 = onstack long
+  store long %p1, %1
+  %2 = onstack long
+  store long %p2, %2
+  %3 = load %ArenaAllocator* %0
+  %4 = getptr long* %3, 1
+  %5 = load long %4
+  %6 = onstack long
+  store long %5, %6
+  %7 = load long %1
+  %8 = load long %2
+  %9 = add int %7, %8
+  %10 = load long %6
+  %11 = gt bool %9, %10
+  condition %11, then (merge)
+then:
+  %12 = load long %1
+  %13 = load long %2
+  %14 = add int %12, %13
+  store int %14, %6
+  jump merge
+merge:
+  %15 = onstack int
+  %16 = sizeof def type((null))
+  %17 = cast long %16
+  %18 = call %CAllocator_alloc_i64 (%15, %17)
+  %19 = cast %ArenaBlock* %18
+  %20 = onstack %ArenaBlock*
+  store %ArenaBlock* %19, %20
+  %21 = load %ArenaBlock* %20
+  %22 = eq bool %21, 0
+  condition %22, then2 (merge2)
+then2:
+  panic @str.1
+  jump merge2
+merge2:
+  %23 = onstack int
+  %24 = load long %6
+  %25 = call %CAllocator_alloc_i64 (%23, %24)
+  %26 = onstack void*
+  store void* %25, %26
+  %27 = load void* %26
+  %28 = eq bool %27, 0
+  condition %28, then3 (merge3)
+then3:
+  %29 = onstack int
+  %30 = load %ArenaBlock* %20
+  %31 = cast void* %30
+  %32 = call %CAllocator_free_void_p (%29, %31)
+  panic @str.2
+  jump merge3
+merge3:
+  %33 = load void* %26
+  %34 = cast long %33
+  %35 = onstack long
+  store long %34, %35
+  %36 = load long %35
+  %37 = load long %2
+  %38 = add int %36, %37
+  %39 = onstack long
+  store int %38, %39
+  %40 = onstack long
+  store int 0, %40
+  %41 = load long %39
+  %42 = cast long 0
+  %43 = neq bool %41, %42
+  condition %43, then4 (merge4)
+then4:
+  %44 = load long %2
+  %45 = load long %39
+  %46 = sub int %44, %45
+  store int %46, %40
+  jump merge4
+merge4:
+  %47 = load void* %26
+  %48 = load %ArenaBlock* %20
+  %49 = getptr void** %48, 0
+  store void* %47, %49
+  %50 = load long %6
+  %51 = load %ArenaBlock* %20
+  %52 = getptr long* %51, 1
+  store long %50, %52
+  %53 = load long %40
+  %54 = load long %1
+  %55 = add int %53, %54
+  %56 = load %ArenaBlock* %20
+  %57 = getptr long* %56, 2
+  store int %55, %57
+  %58 = load %ArenaAllocator* %0
+  %59 = getptr %ArenaBlock** %58, 0
+  %60 = load %ArenaBlock* %59
+  %61 = load %ArenaBlock* %20
+  %62 = getptr %ArenaBlock** %61, 3
+  store %ArenaBlock* %60, %62
+  %63 = load %ArenaBlock* %20
+  %64 = load %ArenaAllocator* %0
+  %65 = getptr %ArenaBlock** %64, 0
+  store %ArenaBlock* %63, %65
+  %66 = load void* %26
+  %67 = cast char* %66
+  %68 = onstack char*
+  store char* %67, %68
+  %69 = load char* %68
+  %70 = load long %40
+  %71 = add int %69, %70
+  %72 = cast void* %71
+  return void* %72
+}
+
+block func void @ArenaAllocator_free(%ArenaAllocator* %p0) {
+entry:
+  %0 = onstack %ArenaAllocator*
+  store %ArenaAllocator* %p0, %0
+  %1 = load %ArenaAllocator* %0
+  %2 = getptr %ArenaBlock** %1, 0
+  %3 = load %ArenaBlock* %2
+  %4 = onstack %ArenaBlock*
+  store %ArenaBlock* %3, %4
+  jump while_cond
+while_cond:
+  %5 = load %ArenaBlock* %4
+  %6 = neq bool %5, 0
+  condition %6, while_body (while_end)
+while_body:
+  %7 = load %ArenaBlock* %4
+  %8 = getptr %ArenaBlock** %7, 3
+  %9 = load %ArenaBlock* %8
+  %10 = onstack %ArenaBlock*
+  store %ArenaBlock* %9, %10
+  %11 = onstack int
+  %12 = load %ArenaBlock* %4
+  %13 = getptr void** %12, 0
+  %14 = load void* %13
+  %15 = call %CAllocator_free_void_p (%11, %14)
+  %16 = onstack int
+  %17 = load %ArenaBlock* %4
+  %18 = cast void* %17
+  %19 = call %CAllocator_free_void_p (%16, %18)
+  %20 = load %ArenaBlock* %10
+  store %ArenaBlock* %20, %4
+  jump while_cond
+while_end:
+  %21 = load %ArenaAllocator* %0
+  %22 = getptr %ArenaBlock** %21, 0
+  store int 0, %22
+  return void
+}
+
+block func void @ArenaAllocator_reset(%ArenaAllocator* %p0) {
+entry:
+  %0 = onstack %ArenaAllocator*
+  store %ArenaAllocator* %p0, %0
+  %1 = load %ArenaAllocator* %0
+  %2 = getptr %ArenaBlock** %1, 0
+  %3 = load %ArenaBlock* %2
+  %4 = onstack %ArenaBlock*
+  store %ArenaBlock* %3, %4
+  jump while_cond
+while_cond:
+  %5 = load %ArenaBlock* %4
+  %6 = neq bool %5, 0
+  condition %6, while_body (while_end)
+while_body:
+  %7 = load %ArenaBlock* %4
+  %8 = getptr long* %7, 2
+  store int 0, %8
+  %9 = load %ArenaBlock* %4
+  %10 = getptr %ArenaBlock** %9, 3
+  %11 = load %ArenaBlock* %10
+  store %ArenaBlock* %11, %4
+  jump while_cond
+while_end:
+  return void
+}
+
 promise int @printf(char*, ...)
 
-block func int @test_vector() {
-entry:
-  %0 = sizeof int type(vector_int)
-  %1 = onheap char* %0
-  %2 = bitcast %vector_int* %1
-  %3 = call @vector_int (%2)
-  %4 = onstack %vector_int*
-  store %vector_int* %2, %4
-  %5 = load %vector_int* %4
-  %6 = call %vector_int_push_back_i32 (%5, 10)
-  %7 = load %vector_int* %4
-  %8 = call %vector_int_push_back_i32 (%7, 20)
-  %9 = load %vector_int* %4
-  %10 = call %vector_int_push_back_i32 (%9, 30)
-  %11 = load %vector_int* %4
-  %12 = getptr int* %11, 0
-  %13 = load int %12
-  %14 = neq bool %13, 3
-  condition %14, then (merge)
-then:
-  %15 = call @printf (@str.0)
-  return int 1
-merge:
-  %16 = load %vector_int* %4
-  %17 = call %vector_int_get_i32 (%16, 1)
-  %18 = neq bool %17, 20
-  condition %18, then2 (merge2)
-then2:
-  %19 = call @printf (@str.1)
-  return int 1
-merge2:
-  %20 = load %vector_int* %4
-  %21 = call %vector_int_set_i32_i32 (%20, 1, 99)
-  %22 = load %vector_int* %4
-  %23 = call %vector_int_get_i32 (%22, 1)
-  %24 = neq bool %23, 99
-  condition %24, then3 (merge3)
-then3:
-  %25 = call @printf (@str.2)
-  return int 1
-merge3:
-  %26 = load %vector_int* %4
-  %27 = call %vector_int_pop_back (%26)
-  %28 = onstack int
-  store int %27, %28
-  %29 = load int %28
-  %30 = neq bool %29, 30
-  condition %30, then4 (merge4)
-then4:
-  %31 = call @printf (@str.3)
-  return int 1
-merge4:
-  %32 = load %vector_int* %4
-  %33 = getptr int* %32, 0
-  %34 = load int %33
-  %35 = neq bool %34, 2
-  condition %35, then5 (merge5)
-then5:
-  %36 = call @printf (@str.4)
-  return int 1
-merge5:
-  %37 = load %vector_int* %4
-  %38 = call %vector_int_insert_i32_i32 (%37, 1, 44)
-  %39 = load %vector_int* %4
-  %40 = getptr int* %39, 0
-  %41 = load int %40
-  %42 = neq bool %41, 3
-  %43 = load %vector_int* %4
-  %44 = call %vector_int_get_i32 (%43, 1)
-  %45 = neq bool %44, 44
-  %46 = add int %42, %45
-  %47 = load %vector_int* %4
-  %48 = call %vector_int_get_i32 (%47, 2)
-  %49 = neq bool %48, 99
-  %50 = add int %46, %49
-  condition %50, then6 (merge6)
-then6:
-  %51 = call @printf (@str.5)
-  return int 1
-merge6:
-  %52 = load %vector_int* %4
-  %53 = call %vector_int_remove_i32 (%52, 1)
-  %54 = onstack int
-  store int %53, %54
-  %55 = load int %54
-  %56 = neq bool %55, 44
-  %57 = load %vector_int* %4
-  %58 = getptr int* %57, 0
-  %59 = load int %58
-  %60 = neq bool %59, 2
-  %61 = add int %56, %60
-  %62 = load %vector_int* %4
-  %63 = call %vector_int_get_i32 (%62, 1)
-  %64 = neq bool %63, 99
-  %65 = add int %61, %64
-  condition %65, then7 (merge7)
-then7:
-  %66 = call @printf (@str.6)
-  return int 1
-merge7:
-  %67 = load %vector_int* %4
-  %68 = call %vector_int_is_empty (%67)
-  condition %68, then8 (merge8)
-then8:
-  %69 = call @printf (@str.7)
-  return int 1
-merge8:
-  %70 = load %vector_int* %4
-  %71 = call %vector_int_clear (%70)
-  %72 = load %vector_int* %4
-  %73 = call %vector_int_is_empty (%72)
-  %74 = not bool %73
-  condition %74, then9 (merge9)
-then9:
-  %75 = call @printf (@str.8)
-  return int 1
-merge9:
-  %76 = call @printf (@str.9)
-  return int 0
-}
+promise void* @malloc(long)
+
+promise void @free(void*)
 
 block func int @main() {
 entry:
-  %0 = call @test_vector
-  return int %0
-}
-
-block func void @vector_int_push_back_i32(%vector_int* %p0, int %p1) {
-entry:
-  %0 = onstack %vector_int*
-  store %vector_int* %p0, %0
-  %1 = onstack int
-  store int %p1, %1
-  %2 = load %vector_int* %0
-  %3 = getptr int* %2, 0
-  %4 = load int %3
-  %5 = load %vector_int* %0
-  %6 = getptr int* %5, 1
-  %7 = load int %6
-  %8 = eq bool %4, %7
-  condition %8, then (merge)
-then:
-  %9 = onstack int
-  store int 4, %9
-  %10 = load %vector_int* %0
-  %11 = getptr int* %10, 1
-  %12 = load int %11
-  %13 = neq bool %12, 0
-  condition %13, then2 (merge2)
-merge:
-  %58 = load int %1
-  %59 = load %vector_int* %0
-  %60 = getptr int** %59, 2
-  %61 = load int** %60
-  %62 = load %vector_int* %0
-  %63 = getptr int* %62, 0
-  %64 = load int %63
-  %65 = getptr int* %61, %64
-  store int %58, %65
-  %66 = load %vector_int* %0
-  %67 = getptr int* %66, 0
-  %68 = load int %67
-  %69 = add int %68, 1
-  store int %69, %67
-  return void
-then2:
-  %14 = load %vector_int* %0
-  %15 = getptr int* %14, 1
-  %16 = load int %15
-  %17 = mul int %16, 2
-  store int %17, %9
-  jump merge2
-merge2:
-  %18 = load int %9
-  %19 = sizeof def type((null))
-  %20 = cast int %19
-  %21 = mul int %18, %20
-  %22 = cast long %21
-  %23 = call @malloc (%22)
-  %24 = cast int* %23
-  %25 = onstack int*
-  store int* %24, %25
-  %26 = onstack int
-  store int 0, %26
-  jump while_cond
-while_cond:
-  %27 = load int %26
-  %28 = load %vector_int* %0
-  %29 = getptr int* %28, 0
-  %30 = load int %29
-  %31 = lt bool %27, %30
-  condition %31, while_body (while_end)
-while_body:
-  %32 = load %vector_int* %0
-  %33 = getptr int** %32, 2
-  %34 = load int** %33
-  %35 = load int %26
-  %36 = getptr int* %34, %35
-  %37 = load int %36
-  %38 = load int* %25
-  %39 = load int %26
-  %40 = getptr int* %38, %39
-  store int %37, %40
-  %41 = load int %26
-  %42 = add int %41, 1
-  store int %42, %26
-  jump while_cond
-while_end:
-  %43 = load %vector_int* %0
-  %44 = getptr int** %43, 2
-  %45 = load int* %44
-  %46 = cast int* 0
-  %47 = neq bool %45, %46
-  condition %47, then3 (merge3)
-then3:
-  %48 = load %vector_int* %0
-  %49 = getptr int** %48, 2
-  %50 = load int* %49
-  %51 = call @free (%50)
-  jump merge3
-merge3:
-  %52 = load int* %25
-  %53 = load %vector_int* %0
-  %54 = getptr int** %53, 2
-  store int* %52, %54
-  %55 = load int %9
-  %56 = load %vector_int* %0
-  %57 = getptr int* %56, 1
-  store int %55, %57
-  jump merge
-}
-
-block func int @vector_int_pop_back(%vector_int* %p0) {
-entry:
-  %0 = onstack %vector_int*
-  store %vector_int* %p0, %0
-  %1 = load %vector_int* %0
-  %2 = getptr int* %1, 0
-  %3 = load int %2
-  %4 = sub int %3, 1
-  store int %4, %2
-  %5 = load %vector_int* %0
-  %6 = getptr int** %5, 2
-  %7 = load int** %6
-  %8 = load %vector_int* %0
-  %9 = getptr int* %8, 0
-  %10 = load int %9
-  %11 = getptr int* %7, %10
-  %12 = load int %11
-  return int %12
-}
-
-block func int @vector_int_get_i32(%vector_int* %p0, int %p1) {
-entry:
-  %0 = onstack %vector_int*
-  store %vector_int* %p0, %0
-  %1 = onstack int
-  store int %p1, %1
-  %2 = load %vector_int* %0
-  %3 = getptr int** %2, 2
-  %4 = load int** %3
-  %5 = load int %1
-  %6 = getptr int* %4, %5
-  %7 = load int %6
-  return int %7
-}
-
-block func void @vector_int_set_i32_i32(%vector_int* %p0, int %p1, int %p2) {
-entry:
-  %0 = onstack %vector_int*
-  store %vector_int* %p0, %0
-  %1 = onstack int
-  store int %p1, %1
-  %2 = onstack int
-  store int %p2, %2
-  %3 = load int %2
-  %4 = load %vector_int* %0
-  %5 = getptr int** %4, 2
-  %6 = load int** %5
-  %7 = load int %1
-  %8 = getptr int* %6, %7
-  store int %3, %8
-  return void
-}
-
-block func void @vector_int_insert_i32_i32(%vector_int* %p0, int %p1, int %p2) {
-entry:
-  %0 = onstack %vector_int*
-  store %vector_int* %p0, %0
-  %1 = onstack int
-  store int %p1, %1
-  %2 = onstack int
-  store int %p2, %2
-  %3 = load int %1
-  %4 = load %vector_int* %0
-  %5 = getptr int* %4, 0
-  %6 = load int %5
-  %7 = gt bool %3, %6
-  condition %7, then (merge)
-then:
-  return void
-merge:
-  %8 = load %vector_int* %0
-  %9 = getptr int* %8, 0
-  %10 = load int %9
-  %11 = load %vector_int* %0
-  %12 = getptr int* %11, 1
-  %13 = load int %12
-  %14 = eq bool %10, %13
-  condition %14, then2 (merge2)
-then2:
-  %15 = onstack int
-  store int 0, %15
-  %16 = load %vector_int* %0
-  %17 = getptr int* %16, 1
-  %18 = load int %17
-  %19 = eq bool %18, 0
-  condition %19, then3 (else)
-merge2:
-  %64 = load %vector_int* %0
-  %65 = getptr int* %64, 0
-  %66 = load int %65
-  %67 = onstack int
-  store int %66, %67
-  jump while_cond2
-then3:
-  store int 1, %15
-  jump merge3
-else:
-  %20 = load %vector_int* %0
-  %21 = getptr int* %20, 1
-  %22 = load int %21
-  %23 = mul int %22, 2
-  store int %23, %15
-  jump merge3
-merge3:
-  %24 = load int %15
-  %25 = sizeof def type((null))
-  %26 = cast int %25
-  %27 = mul int %24, %26
-  %28 = cast long %27
-  %29 = call @malloc (%28)
-  %30 = cast int* %29
-  %31 = onstack int*
-  store int* %30, %31
-  %32 = load %vector_int* %0
-  %33 = getptr int** %32, 2
-  %34 = load int* %33
-  %35 = cast int* 0
-  %36 = neq bool %34, %35
-  condition %36, then4 (merge4)
-then4:
-  %37 = onstack int
-  store int 0, %37
-  jump while_cond
-merge4:
-  %58 = load int* %31
-  %59 = load %vector_int* %0
-  %60 = getptr int** %59, 2
-  store int* %58, %60
-  %61 = load int %15
-  %62 = load %vector_int* %0
-  %63 = getptr int* %62, 1
-  store int %61, %63
-  jump merge2
-while_cond:
-  %38 = load int %37
-  %39 = load %vector_int* %0
-  %40 = getptr int* %39, 0
-  %41 = load int %40
-  %42 = lt bool %38, %41
-  condition %42, while_body (while_end)
-while_body:
-  %43 = load %vector_int* %0
-  %44 = getptr int** %43, 2
-  %45 = load int** %44
-  %46 = load int %37
-  %47 = getptr int* %45, %46
-  %48 = load int %47
-  %49 = load int* %31
-  %50 = load int %37
-  %51 = getptr int* %49, %50
-  store int %48, %51
-  %52 = load int %37
-  %53 = add int %52, 1
-  store int %53, %37
-  jump while_cond
-while_end:
-  %54 = load %vector_int* %0
-  %55 = getptr int** %54, 2
-  %56 = load int* %55
-  %57 = call @free (%56)
-  jump merge4
-while_cond2:
-  %68 = load int %67
-  %69 = load int %1
-  %70 = gt bool %68, %69
-  condition %70, while_body2 (while_end2)
-while_body2:
-  %71 = load %vector_int* %0
-  %72 = getptr int** %71, 2
-  %73 = load int** %72
-  %74 = load int %67
-  %75 = sub int %74, 1
-  %76 = getptr int* %73, %75
-  %77 = load int %76
-  %78 = load %vector_int* %0
-  %79 = getptr int** %78, 2
-  %80 = load int** %79
-  %81 = load int %67
-  %82 = getptr int* %80, %81
-  store int %77, %82
-  %83 = load int %67
-  %84 = sub int %83, 1
-  store int %84, %67
-  jump while_cond2
-while_end2:
-  %85 = load int %2
-  %86 = load %vector_int* %0
-  %87 = getptr int** %86, 2
-  %88 = load int** %87
-  %89 = load int %1
-  %90 = getptr int* %88, %89
-  store int %85, %90
-  %91 = load %vector_int* %0
-  %92 = getptr int* %91, 0
-  %93 = load int %92
-  %94 = add int %93, 1
-  store int %94, %92
-  return void
-}
-
-block func int @vector_int_remove_i32(%vector_int* %p0, int %p1) {
-entry:
-  %0 = onstack %vector_int*
-  store %vector_int* %p0, %0
-  %1 = onstack int
-  store int %p1, %1
-  %2 = load %vector_int* %0
-  %3 = getptr int** %2, 2
-  %4 = load int** %3
-  %5 = load int %1
-  %6 = getptr int* %4, %5
-  %7 = load int %6
-  %8 = onstack int
-  store int %7, %8
-  %9 = load int %1
-  %10 = onstack int
-  store int %9, %10
-  jump while_cond
-while_cond:
-  %11 = load int %10
-  %12 = load %vector_int* %0
-  %13 = getptr int* %12, 0
-  %14 = load int %13
-  %15 = sub int %14, 1
-  %16 = lt bool %11, %15
-  condition %16, while_body (while_end)
-while_body:
-  %17 = load %vector_int* %0
-  %18 = getptr int** %17, 2
-  %19 = load int** %18
-  %20 = load int %10
-  %21 = add int %20, 1
-  %22 = getptr int* %19, %21
-  %23 = load int %22
-  %24 = load %vector_int* %0
-  %25 = getptr int** %24, 2
-  %26 = load int** %25
-  %27 = load int %10
-  %28 = getptr int* %26, %27
-  store int %23, %28
-  %29 = load int %10
-  %30 = add int %29, 1
-  store int %30, %10
-  jump while_cond
-while_end:
-  %31 = load %vector_int* %0
-  %32 = getptr int* %31, 0
-  %33 = load int %32
-  %34 = sub int %33, 1
-  store int %34, %32
-  %35 = load int %8
-  return int %35
-}
-
-block func void @vector_int_clear(%vector_int* %p0) {
-entry:
-  %0 = onstack %vector_int*
-  store %vector_int* %p0, %0
-  %1 = load %vector_int* %0
-  %2 = getptr int* %1, 0
-  store int 0, %2
-  return void
-}
-
-block func bool @vector_int_is_empty(%vector_int* %p0) {
-entry:
-  %0 = onstack %vector_int*
-  store %vector_int* %p0, %0
-  %1 = load %vector_int* %0
-  %2 = getptr int* %1, 0
-  %3 = load int %2
-  %4 = eq bool %3, 0
-  return bool %4
-}
-
-block func void @vector_int(%vector_int* %p0) {
-entry:
-  %5 = onstack %vector_int*
-  store void %p0, %5
-  %6 = load %vector_int* %5
-  %7 = getptr int* %6, 0
-  store int 0, %7
-  %8 = load %vector_int* %5
-  %9 = getptr int* %8, 1
-  store int 0, %9
-  %10 = cast int* 0
-  %11 = load %vector_int* %5
-  %12 = getptr int** %11, 2
-  store int* %10, %12
-  return void
+  %0 = onstack int
+  %1 = sizeof def type((null))
+  %2 = cast long %1
+  %3 = call %alloc_i64 (%2)
+  %4 = cast %heap.ArenaAllocator* %3
+  %5 = onstack %heap.ArenaAllocator*
+  store %heap.ArenaAllocator* %4, %5
+  %6 = load %heap.ArenaAllocator* %5
+  %7 = call %ArenaAllocator_ArenaAllocator (%6)
+  %8 = load %heap.ArenaAllocator* %5
+  %9 = cast long 10
+  %10 = call %ArenaAllocator_alloc_i64 (%8, %9)
+  %11 = onstack void*
+  store void* %10, %11
+  %12 = load %heap.ArenaAllocator* %5
+  %13 = cast long 100
+  %14 = call %ArenaAllocator_alloc_i64 (%12, %13)
+  %15 = onstack void*
+  store void* %14, %15
+  %16 = load %heap.ArenaAllocator* %5
+  %17 = cast long 70000
+  %18 = call %ArenaAllocator_alloc_i64 (%16, %17)
+  %19 = onstack void*
+  store void* %18, %19
+  %20 = load %heap.ArenaAllocator* %5
+  %21 = call %ArenaAllocator_reset (%20)
+  %22 = load %heap.ArenaAllocator* %5
+  %23 = sizeof def type((null))
+  %24 = cast long %23
+  %25 = call %ArenaAllocator_alloc_i64 (%22, %24)
+  %26 = cast int* %25
+  %27 = onstack int*
+  store int* %26, %27
+  %28 = load int* %27
+  %29 = cast void* %28
+  %30 = call @printf (@str.3, %29)
+  %31 = load %heap.ArenaAllocator* %5
+  %32 = call %ArenaAllocator_free (%31)
+  return int 0
 }

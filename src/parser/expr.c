@@ -302,6 +302,16 @@ ASTNode* parse_factor(Parser *p) {
     node = (ASTNode*)ln;
     set_loc(node, line, col);
   }
+  else if (p->current_token.type == TOKEN_NULL) {
+    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
+    ln->base.type = NODE_LITERAL;
+    ln->var_type.base = TYPE_VOID;
+    ln->var_type.ptr_depth = 1;
+    ln->val.long_val = 0;
+    eat(p, TOKEN_NULL);
+    node = (ASTNode*)ln;
+    set_loc(node, line, col);
+  }
   else if (p->current_token.type == TOKEN_FLOAT || p->current_token.type == TOKEN_LONG_DOUBLE_LIT) {
     LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;

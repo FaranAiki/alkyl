@@ -24,6 +24,12 @@
 #define MODIFIER_PRISTINE  (1 << 12)
 #define MODIFIER_TAINTED   (1 << 13)
 #define MODIFIER_COVALENT  (1 << 14)
+#define MODIFIER_ABSTRACT  (1 << 15)
+#define MODIFIER_EXACT     (1 << 16)
+#define MODIFIER_PRAGMA    (1 << 17)
+#define MODIFIER_METHOD    (1 << 18)
+#define MODIFIER_CONTAINER (1 << 19)
+#define MODIFIER_FRAME     (1 << 20)
 
 int parse_modifiers(Parser* p);
 void apply_class_modifiers(ClassNode* node, int modifiers);

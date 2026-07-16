@@ -245,6 +245,9 @@ ASTNode* parse_top_level_internal(Parser *p) {
       char *ns_name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
 
+      const char *old_ns = diag_get_namespace(p->ctx);
+      diag_set_namespace(p->ctx, ns_name);
+
       eat(p, TOKEN_LBRACE);
       
       ASTNode *body_head = NULL;
@@ -259,6 +262,8 @@ ASTNode* parse_top_level_internal(Parser *p) {
       }
       eat(p, TOKEN_RBRACE);
       
+      diag_set_namespace(p->ctx, old_ns);
+
       NamespaceNode *ns = parser_alloc(p, sizeof(NamespaceNode));
       ns->base.type = NODE_NAMESPACE;
       ns->name = ns_name;
@@ -311,6 +316,8 @@ ASTNode* parse_top_level_internal(Parser *p) {
                   if (strcmp(domain, "compiler") == 0) {
                       if (strcmp(key, "no_purge") == 0 && val) {
                           p->ctx->settings.no_purge = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
+                      } else if (strcmp(key, "allocator_arc") == 0 && val) {
+                          p->ctx->settings.allocator_arc = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
                       }
                   } else if (strcmp(domain, "lexer") == 0) {
                       if (strcmp(key, "scope_style") == 0 && val) {
@@ -422,6 +429,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
   if (p->current_token.type == TOKEN_CLASS || 
       p->current_token.type == TOKEN_STRUCT || 
       p->current_token.type == TOKEN_UNION || 
+      p->current_token.type == TOKEN_TRAIT || 
       (p->current_token.type == TOKEN_OPEN) || 
       (p->current_token.type == TOKEN_CLOSED)) {
     return parse_class_impl(p, modifiers);

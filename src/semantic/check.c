@@ -686,12 +686,24 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
         }
         case NODE_TEMPLATE_INSTANTIATION: {
             TemplateInstNode *ti = (TemplateInstNode*)node;
-            if (ti->target->type != NODE_VAR_REF) {
+            char target_name[256] = "";
+            if (ti->target->type == NODE_VAR_REF) {
+                strcpy(target_name, ((VarRefNode*)ti->target)->name);
+            } else if (ti->target->type == NODE_MEMBER_ACCESS) {
+                MemberAccessNode *ma = (MemberAccessNode*)ti->target;
+                if (ma->object->type == NODE_VAR_REF) {
+                    snprintf(target_name, sizeof(target_name), "%s.%s", ((VarRefNode*)ma->object)->name, ma->member_name);
+                } else {
+                    sem_error(ctx, node, "Unsupported member access in template instantiation");
+                    break;
+                }
+            } else {
                 sem_error(ctx, node, "Expected identifier for template instantiation");
                 break;
             }
-            VarRefNode *vr = (VarRefNode*)ti->target;
-            SemSymbol *sym = sem_symbol_lookup(ctx, vr->name, NULL);
+            SemScope *found_in_scope = NULL;
+            SemSymbol *sym = sem_symbol_lookup(ctx, target_name, &found_in_scope);
+            printf("Looking up '%s', found sym: %p, kind: %d\n", target_name, sym, sym ? sym->kind : -1);
             if (!sym || sym->kind != SYM_TEMPLATE) {
                 // Fallback to array access / component access!
                 if (ti->num_template_types == 1 && ti->template_types[0].base == TYPE_CLASS) {
@@ -703,19 +715,20 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     
                     ArrayAccessNode *aa = (ArrayAccessNode*)node;
                     aa->base.type = NODE_ARRAY_ACCESS;
-                    // aa->target is already vr, so we don't need to change it
+                    // aa->target is already ti->target, so we don't need to change it
+                    aa->target = ti->target;
                     aa->index = (ASTNode*)index_vr;
                     
                     sem_check_expr(ctx, node); // Check again as array access
                     break;
                 }
                 
-                sem_error(ctx, node, "'%s' is not a template", vr->name);
+                sem_error(ctx, node, "'%s' is not a template", target_name);
                 break;
             }
             CompoundNode *cn = sym->template_node;
             if (ti->num_template_types != cn->num_type_params) {
-                sem_error(ctx, node, "Template '%s' expects %d types, got %d", vr->name, cn->num_type_params, ti->num_template_types);
+                sem_error(ctx, node, "Template '%s' expects %d types, got %d", target_name, cn->num_type_params, ti->num_template_types);
                 break;
             }
             
@@ -738,7 +751,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
 
             // Generate mangled name
             char mangled[1024];
-            snprintf(mangled, sizeof(mangled), "%s", vr->name);
+            snprintf(mangled, sizeof(mangled), "%s", target_name);
             for (int i = 0; i < ti->num_template_types; i++) {
                 char *t_str = sem_type_to_str(ti->template_types[i]);
                 strncat(mangled, "_", sizeof(mangled) - strlen(mangled) - 1);
@@ -788,7 +801,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 
                 // Add to global AST? Just scan and check it now!
                 SemScope *old_scope = ctx->current_scope;
-                ctx->current_scope = ctx->global_scope;
+                ctx->current_scope = found_in_scope ? found_in_scope : ctx->global_scope;
                 sem_scan_top_level(ctx, cloned_body);
                 // Also check it now, but for all nodes in the cloned body!
                 ASTNode *curr = cloned_body;
@@ -806,7 +819,12 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             if (inst_sym) {
                 sem_set_node_type(ctx, node, inst_sym->type);
                 // Also update the target so Codegen emits the mangled name
-                vr->name = arena_strdup(ctx->compiler_ctx->arena, mangled);
+                VarRefNode *new_vr = arena_alloc(ctx->compiler_ctx->arena, sizeof(VarRefNode));
+                new_vr->base.type = NODE_VAR_REF;
+                new_vr->name = arena_strdup(ctx->compiler_ctx->arena, mangled);
+                new_vr->base.line = node->line;
+                new_vr->base.col = node->col;
+                ti->target = (ASTNode*)new_vr;
             }
             break;
         }
@@ -1025,6 +1043,8 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
     if (node->type == NODE_FUNC_DEF) sem_check_func_def(ctx, (FuncDefNode*)node);
     else if (node->type == NODE_CLASS) {
         ClassNode *cn = (ClassNode*)node;
+        if (cn->is_abstract && cn->is_exact) sem_error(ctx, node, "Class cannot be both abstract and exact");
+        if (cn->is_method_class && cn->is_container) sem_error(ctx, node, "Class cannot be both method and container");
         SemSymbol *sym = sem_symbol_lookup(ctx, cn->name, NULL);
         if (sym && sym->inner_scope) {
             SemScope *old = ctx->current_scope;
@@ -1032,8 +1052,38 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
             
             ASTNode *mem = cn->members;
             while(mem) {
-                if (mem->type == NODE_FUNC_DEF) sem_check_func_def(ctx, (FuncDefNode*)mem);
-                else if (mem->type == NODE_VAR_DECL) sem_check_var_decl(ctx, (VarDeclNode*)mem, 0); 
+                if (mem->type == NODE_FUNC_DEF) {
+                    FuncDefNode *f = (FuncDefNode*)mem;
+                    if (cn->is_container) {
+                        char buf[256]; snprintf(buf, sizeof(buf), "Functions are not allowed in container class '%s'", cn->name);
+                        sem_error(ctx, mem, buf);
+                    }
+                    if (cn->is_abstract && f->body != NULL) {
+                        char buf[256]; snprintf(buf, sizeof(buf), "Function '%s' cannot be implemented in abstract class '%s'", f->name, cn->name);
+                        sem_error(ctx, mem, buf);
+                    }
+                    if (cn->is_exact && f->body == NULL) {
+                        char buf[256]; snprintf(buf, sizeof(buf), "Function '%s' must be implemented in exact class '%s'", f->name, cn->name);
+                        sem_error(ctx, mem, buf);
+                    }
+                    sem_check_func_def(ctx, f);
+                }
+                else if (mem->type == NODE_VAR_DECL) {
+                    VarDeclNode *v = (VarDeclNode*)mem;
+                    if (cn->is_method_class) {
+                        char buf[256]; snprintf(buf, sizeof(buf), "Variables are not allowed in method class '%s'", cn->name);
+                        sem_error(ctx, mem, buf);
+                    }
+                    if (cn->is_abstract && v->initializer != NULL) {
+                        char buf[256]; snprintf(buf, sizeof(buf), "Variable '%s' cannot have default value in abstract class '%s'", v->name, cn->name);
+                        sem_error(ctx, mem, buf);
+                    }
+                    if (cn->is_exact && v->initializer == NULL) {
+                        char buf[256]; snprintf(buf, sizeof(buf), "Variable '%s' must have default value in exact class '%s'", v->name, cn->name);
+                        sem_error(ctx, mem, buf);
+                    }
+                    sem_check_var_decl(ctx, v, 0); 
+                }
                 mem = mem->next;
             }
             
@@ -1051,7 +1101,19 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
         }
     }
     else if (node->type == NODE_VAR_DECL) {
-        sem_check_var_decl(ctx, (VarDeclNode*)node, 1);
+        int register_sym = 1;
+        SemScope *s = ctx->current_scope;
+        int in_func = 0;
+        int in_class = 0;
+        while (s) {
+            if (s->is_function_scope) in_func = 1;
+            if (s->is_class_scope) in_class = 1;
+            s = s->parent;
+        }
+        if (!in_func) {
+            register_sym = 0;
+        }
+        sem_check_var_decl(ctx, (VarDeclNode*)node, register_sym);
     }
     else if (node->type == NODE_COMPOUND) {
         // Skip checking uninstantiated templates

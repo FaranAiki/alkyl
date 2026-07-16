@@ -231,9 +231,21 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
         return glob;
     }
     
+    if (ln->var_type.base == TYPE_BOOL) {
+        return alir_const_int(ctx->module, ln->val.long_val);
+    }
+    
+    if (ln->var_type.base == TYPE_UNKNOWN && ln->var_type.ptr_depth == 1) {
+        AlirValue *v = alir_alloc(ctx->module, sizeof(AlirValue));
+        v->kind = ALIR_VAL_CONST;
+        v->type = ln->var_type;
+        v->val.int_val = 0;
+        return v;
+    }
+
     // Fallback for empty/unhandled literals
     // TODO fix this
-    printf("Unknown literal!");
+    printf("Unknown literal!\n");
     return alir_const_int(ctx->module, 0);
 }
 
@@ -552,18 +564,76 @@ AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
 
 
 AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
+    const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
+
+    if (cn->target && (cn->target->type == NODE_MEMBER_ACCESS || cn->target->type == NODE_VAR_REF) && ctx->sem && cn->name) {
+        ASTNode *object_node = NULL;
+        VarType obj_t = {TYPE_UNKNOWN, 0};
+        
+        if (cn->target->type == NODE_MEMBER_ACCESS) {
+            MemberAccessNode *ma = (MemberAccessNode*)cn->target;
+            object_node = ma->object;
+            obj_t = sem_get_node_type(ctx->sem, ma->object);
+        } else if (cn->target->type == NODE_VAR_REF) {
+            VarRefNode *vn = (VarRefNode*)cn->target;
+            if (vn->is_class_member) {
+                AlirSymbol *this_sym = alir_find_symbol(ctx, "this");
+                if (this_sym && this_sym->type.base == TYPE_CLASS) {
+                    obj_t = this_sym->type;
+                    
+                    // Create a fake object node for 'this'
+                    VarRefNode *fake_this = alir_alloc(ctx->module, sizeof(VarRefNode));
+                    fake_this->base.type = NODE_VAR_REF;
+                    fake_this->name = "this";
+                    object_node = (ASTNode*)fake_this;
+                }
+            }
+        }
+        
+        if (object_node && obj_t.base == TYPE_CLASS && obj_t.class_name) {
+            SemSymbol *sym = NULL;
+            SemSymbol *class_sym = sem_symbol_lookup(ctx->sem, obj_t.class_name, NULL);
+            if (class_sym && class_sym->inner_scope) {
+                SemSymbol *s = class_sym->inner_scope->symbols;
+                while (s) {
+                    if (strcmp(s->name, cn->name) == 0) {
+                        sym = s;
+                        break;
+                    }
+                    s = s->next;
+                }
+            }
+            
+            if (!sym) {
+                sym = sem_symbol_lookup(ctx->sem, cn->name, NULL);
+            }
+            
+            if (sym && sym->kind == SYM_FUNC) {
+                MethodCallNode mc;
+                memset(&mc, 0, sizeof(MethodCallNode));
+                mc.base.type = NODE_METHOD_CALL;
+                mc.base.line = cn->base.line;
+                mc.base.col = cn->base.col;
+                mc.object = object_node;
+                mc.method_name = cn->name;
+                mc.mangled_name = cn->mangled_name;
+                mc.args = cn->args;
+                mc.owner_class = obj_t.class_name;
+                return alir_gen_method_call(ctx, &mc);
+            }
+        }
+    }
+
     AlirValue *func_val = NULL;
     if (cn->target && cn->target->type != NODE_TEMPLATE_INSTANTIATION) {
         func_val = alir_gen_expr(ctx, cn->target);
     }
     if (!func_val) {
-        func_val = alir_val_var(ctx->module, cn->mangled_name ? cn->mangled_name : cn->name);
+        func_val = alir_val_var(ctx->module, target_name);
     }
     AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, func_val, NULL);
     
     int count = 0; ASTNode *a = cn->args; while(a) { count++; a=a->next; }
-    
-    const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
     if (count == 1 && ctx->sem && target_name) {
         SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, NULL);
         if (sym && sym->kind == SYM_CLASS) {

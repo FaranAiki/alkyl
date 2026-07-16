@@ -78,12 +78,38 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         }
         
         // Math Ops
-        case ALIR_OP_ADD: res = LLVMBuildAdd(ctx->builder, op1, op2, "add"); break;
-        case ALIR_OP_SUB: res = LLVMBuildSub(ctx->builder, op1, op2, "sub"); break;
-        case ALIR_OP_MUL: res = LLVMBuildMul(ctx->builder, op1, op2, "mul"); break;
-        case ALIR_OP_FADD: res = LLVMBuildFAdd(ctx->builder, op1, op2, "fadd"); break;
-        case ALIR_OP_FSUB: res = LLVMBuildFSub(ctx->builder, op1, op2, "fsub"); break;
-        case ALIR_OP_FMUL: res = LLVMBuildFMul(ctx->builder, op1, op2, "fmul"); break;
+        case ALIR_OP_ADD:
+        case ALIR_OP_SUB:
+        case ALIR_OP_MUL:
+        case ALIR_OP_FADD:
+        case ALIR_OP_FSUB:
+        case ALIR_OP_FMUL: {
+            LLVMValueRef act1 = op1;
+            if (inst->op1 && inst->op1->type.is_tainted && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMStructTypeKind && LLVMCountStructElementTypes(LLVMTypeOf(op1)) > 1) act1 = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext1");
+            LLVMValueRef act2 = op2;
+            if (inst->op2 && inst->op2->type.is_tainted && LLVMGetTypeKind(LLVMTypeOf(op2)) == LLVMStructTypeKind && LLVMCountStructElementTypes(LLVMTypeOf(op2)) > 1) act2 = LLVMBuildExtractValue(ctx->builder, op2, 1, "ext2");
+            
+            // Fix ptr + int
+            if (inst->op == ALIR_OP_ADD || inst->op == ALIR_OP_SUB) {
+                if (LLVMGetTypeKind(LLVMTypeOf(act1)) == LLVMPointerTypeKind && LLVMGetTypeKind(LLVMTypeOf(act2)) == LLVMIntegerTypeKind) {
+                    LLVMValueRef ptr_as_int = LLVMBuildPtrToInt(ctx->builder, act1, LLVMTypeOf(act2), "ptr2int");
+                    LLVMValueRef math_res = inst->op == ALIR_OP_ADD ? LLVMBuildAdd(ctx->builder, ptr_as_int, act2, "ptr_add") : LLVMBuildSub(ctx->builder, ptr_as_int, act2, "ptr_sub");
+                    res = LLVMBuildIntToPtr(ctx->builder, math_res, LLVMTypeOf(act1), "int2ptr");
+                    break;
+                }
+            }
+
+            switch(inst->op) {
+                case ALIR_OP_ADD: res = LLVMBuildAdd(ctx->builder, act1, act2, "add"); break;
+                case ALIR_OP_SUB: res = LLVMBuildSub(ctx->builder, act1, act2, "sub"); break;
+                case ALIR_OP_MUL: res = LLVMBuildMul(ctx->builder, act1, act2, "mul"); break;
+                case ALIR_OP_FADD: res = LLVMBuildFAdd(ctx->builder, act1, act2, "fadd"); break;
+                case ALIR_OP_FSUB: res = LLVMBuildFSub(ctx->builder, act1, act2, "fsub"); break;
+                case ALIR_OP_FMUL: res = LLVMBuildFMul(ctx->builder, act1, act2, "fmul"); break;
+                default: break;
+            }
+            break;
+        }
         case ALIR_OP_DIV:
         case ALIR_OP_MOD:
         case ALIR_OP_FDIV: {
@@ -145,9 +171,10 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         case ALIR_OP_NEQ: {
             if (op1 && op2) {
                 LLVMValueRef act1 = op1;
-                if (inst->op1->type.is_tainted) act1 = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext1");
+                if (inst->op1->type.is_tainted && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMStructTypeKind && LLVMCountStructElementTypes(LLVMTypeOf(op1)) > 1) act1 = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext1");
                 LLVMValueRef act2 = op2;
-                if (inst->op2->type.is_tainted) act2 = LLVMBuildExtractValue(ctx->builder, op2, 1, "ext2");
+                if (inst->op2->type.is_tainted && LLVMGetTypeKind(LLVMTypeOf(op2)) == LLVMStructTypeKind && LLVMCountStructElementTypes(LLVMTypeOf(op2)) > 1) act2 = LLVMBuildExtractValue(ctx->builder, op2, 1, "ext2");
+
                 
                 LLVMTypeRef t1 = LLVMTypeOf(act1);
                 LLVMTypeRef t2 = LLVMTypeOf(act2);
@@ -174,10 +201,24 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             }
             break;
         }
-        case ALIR_OP_LT:  res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealOLT, op1, op2, "flt") : LLVMBuildICmp(ctx->builder, LLVMIntSLT, op1, op2, "ilt"); break;
-        case ALIR_OP_GT:  res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealOGT, op1, op2, "fgt") : LLVMBuildICmp(ctx->builder, LLVMIntSGT, op1, op2, "igt"); break;
-        case ALIR_OP_LTE: res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealOLE, op1, op2, "fle") : LLVMBuildICmp(ctx->builder, LLVMIntSLE, op1, op2, "ile"); break;
-        case ALIR_OP_GTE: res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealOGE, op1, op2, "fge") : LLVMBuildICmp(ctx->builder, LLVMIntSGE, op1, op2, "ige"); break;
+        case ALIR_OP_LT:  
+        case ALIR_OP_GT:  
+        case ALIR_OP_LTE: 
+        case ALIR_OP_GTE: {
+            LLVMValueRef act1 = op1;
+            if (inst->op1 && inst->op1->type.is_tainted && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMStructTypeKind && LLVMCountStructElementTypes(LLVMTypeOf(op1)) > 1) act1 = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext1");
+            LLVMValueRef act2 = op2;
+            if (inst->op2 && inst->op2->type.is_tainted && LLVMGetTypeKind(LLVMTypeOf(op2)) == LLVMStructTypeKind && LLVMCountStructElementTypes(LLVMTypeOf(op2)) > 1) act2 = LLVMBuildExtractValue(ctx->builder, op2, 1, "ext2");
+            
+            switch (inst->op) {
+                case ALIR_OP_LT:  res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealOLT, act1, act2, "flt") : LLVMBuildICmp(ctx->builder, LLVMIntSLT, act1, act2, "ilt"); break;
+                case ALIR_OP_GT:  res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealOGT, act1, act2, "fgt") : LLVMBuildICmp(ctx->builder, LLVMIntSGT, act1, act2, "igt"); break;
+                case ALIR_OP_LTE: res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealOLE, act1, act2, "fle") : LLVMBuildICmp(ctx->builder, LLVMIntSLE, act1, act2, "ile"); break;
+                case ALIR_OP_GTE: res = is_float ? LLVMBuildFCmp(ctx->builder, LLVMRealOGE, act1, act2, "fge") : LLVMBuildICmp(ctx->builder, LLVMIntSGE, act1, act2, "ige"); break;
+                default: break;
+            }
+            break;
+        }
 
         // Flow Control
         case ALIR_OP_JUMP: {
@@ -315,7 +356,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             }
             
             LLVMValueRef err_id = LLVMBuildExtractValue(ctx->builder, op1, 0, "err_id");
-            LLVMValueRef val = LLVMBuildExtractValue(ctx->builder, op1, 1, "val");
+            LLVMValueRef val = LLVMCountStructElementTypes(LLVMTypeOf(op1)) > 1 ? LLVMBuildExtractValue(ctx->builder, op1, 1, "val") : LLVMConstNull(LLVMInt32TypeInContext(ctx->llvm_ctx));
             
             LLVMValueRef has_err = LLVMBuildICmp(ctx->builder, LLVMIntNE, err_id, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), "has_err");
             
@@ -401,7 +442,9 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             
             if (is_src_tainted && src_k == LLVMStructTypeKind) {
                 err_id = LLVMBuildExtractValue(ctx->builder, op1, 0, "ext_err");
-                actual_op1 = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext_val");
+                if (LLVMCountStructElementTypes(src_ty) > 1) {
+                    actual_op1 = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext_val");
+                }
                 src_ty = LLVMTypeOf(actual_op1);
                 src_k = LLVMGetTypeKind(src_ty);
             }

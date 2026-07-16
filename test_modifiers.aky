@@ -1,0 +1,36 @@
+abstract class AbstractClass {
+    int x;
+    int fun();
+}
+
+exact class ExactClass {
+    int x = 5;
+    int fun() { return x; }
+}
+
+method class MethodClass {
+    int fun() {}
+}
+
+container class ContainerClass {
+    int x = 5;
+    int y;
+}
+
+pragma class PragmaClass {
+    int x = 5;
+    int y;
+    int fun() {}
+    int fun2();
+}
+
+frame class FrameClass {
+    int x = 5;
+    int y;
+    int fun() {}
+    int fun2();
+}
+
+int main() {
+    return 0;
+}

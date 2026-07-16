@@ -109,6 +109,9 @@ static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
         if (strcmp(name, "Vector_int") == 0) {
             printf("DEBUG: find_in_scope_direct (map) for 'Vector_int', res=%p\n", res);
         }
+        if (res && res->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && strcmp(res->name, scope->class_sym->name) == 0) {
+            return NULL; // Do not return the constructor here to avoid shadowing the class name
+        }
         return res;
     }
     // Fallback if hashmap is not initialized
@@ -117,7 +120,13 @@ static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
         if (strcmp(name, "Vector_int") == 0 && strcmp(sym->name, "Vector_int") == 0) {
             printf("DEBUG: find_in_scope_direct (fallback) found 'Vector_int'\n");
         }
-        if (strcmp(sym->name, name) == 0) return sym;
+        if (strcmp(sym->name, name) == 0) {
+            if (sym->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && strcmp(sym->name, scope->class_sym->name) == 0) {
+                // skip constructor
+            } else {
+                return sym;
+            }
+        }
         sym = sym->next;
     }
     if (strcmp(name, "Vector_int") == 0) {
@@ -249,17 +258,38 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
 
 
 SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_scope) {
-    if (strcmp(name, "Vector_int") == 0) {
-        printf("DEBUG: Looking up 'Vector_int'...\n");
+    if (!name) return NULL;
+    const char *dot = strchr(name, '.');
+    if (dot) {
+        char base_name[256];
+        int len = dot - name;
+        if (len >= sizeof(base_name)) len = sizeof(base_name) - 1;
+        strncpy(base_name, name, len);
+        base_name[len] = '\0';
+        
+        SemScope *found_scope = NULL;
+        SemSymbol *base_sym = sem_symbol_lookup(ctx, base_name, &found_scope);
+        if (base_sym && base_sym->inner_scope) {
+            SemScope *old = ctx->current_scope;
+            ctx->current_scope = base_sym->inner_scope;
+            SemSymbol *res = sem_symbol_lookup(ctx, dot + 1, out_scope);
+            ctx->current_scope = old;
+            return res;
+        }
+        return NULL;
+    }
+    if (strcmp(name, "ArenaAllocator") == 0) {
+        printf("DEBUG: Looking up 'ArenaAllocator'...\n");
     }
     SemScope *scope = ctx->current_scope;
     while (scope) {
-        if (strcmp(name, "Vector_int") == 0) {
-            printf("DEBUG: Checking scope (is_func=%d)\n", scope->is_function_scope);
+        if (strcmp(name, "ArenaAllocator") == 0) {
+            printf("DEBUG: Checking scope (is_func=%d, is_class=%d)\n", scope->is_function_scope, scope->is_class_scope);
         }
 
         SemSymbol *sym = find_in_scope_direct(scope, name);
         if (sym) {
+            if (strcmp(name, "ArenaAllocator") == 0) printf("DEBUG: Found 'ArenaAllocator'!\n");
             if (out_scope) *out_scope = scope;
             return sym;
         }
@@ -331,7 +361,12 @@ int sem_types_are_equal(VarType a, VarType b) {
     
     if (a.base == TYPE_CLASS || a.base == TYPE_ENUM || a.base == TYPE_NAMESPACE) {
         if (a.class_name && b.class_name) {
-            return strcmp(a.class_name, b.class_name) == 0;
+            if (strcmp(a.class_name, b.class_name) == 0) return 1;
+            const char *dot_a = strrchr(a.class_name, '.');
+            const char *dot_b = strrchr(b.class_name, '.');
+            const char *base_a = dot_a ? dot_a + 1 : a.class_name;
+            const char *base_b = dot_b ? dot_b + 1 : b.class_name;
+            return strcmp(base_a, base_b) == 0;
         }
         return 0;
     }

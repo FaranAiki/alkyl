@@ -47,6 +47,24 @@ int parse_modifiers(Parser* p) {
         } else if (p->current_token.type == TOKEN_COVALENT) {
             modifiers |= MODIFIER_COVALENT;
             eat(p, TOKEN_COVALENT);
+        } else if (p->current_token.type == TOKEN_ABSTRACT) {
+            modifiers |= MODIFIER_ABSTRACT;
+            eat(p, TOKEN_ABSTRACT);
+        } else if (p->current_token.type == TOKEN_EXACT) {
+            modifiers |= MODIFIER_EXACT;
+            eat(p, TOKEN_EXACT);
+        } else if (p->current_token.type == TOKEN_PRAGMA) {
+            modifiers |= MODIFIER_PRAGMA;
+            eat(p, TOKEN_PRAGMA);
+        } else if (p->current_token.type == TOKEN_METHOD) {
+            modifiers |= MODIFIER_METHOD;
+            eat(p, TOKEN_METHOD);
+        } else if (p->current_token.type == TOKEN_CONTAINER) {
+            modifiers |= MODIFIER_CONTAINER;
+            eat(p, TOKEN_CONTAINER);
+        } else if (p->current_token.type == TOKEN_FRAME) {
+            modifiers |= MODIFIER_FRAME;
+            eat(p, TOKEN_FRAME);
         } else if (p->current_token.type == TOKEN_IDENTIFIER && strcmp(p->current_token.text, "static") == 0) {
             modifiers |= MODIFIER_STATIC;
             eat(p, TOKEN_IDENTIFIER);
@@ -65,6 +83,16 @@ void apply_class_modifiers(ClassNode* node, int modifiers) {
     if (modifiers & MODIFIER_CLOSED) node->is_open = 0;
     if (modifiers & MODIFIER_STATIC) node->is_static = 1;
     
+    if (modifiers & MODIFIER_ABSTRACT) node->is_abstract = 1;
+    if (modifiers & MODIFIER_EXACT) node->is_exact = 1;
+    if (modifiers & MODIFIER_PRAGMA) node->is_pragma = 1;
+    if (!node->is_abstract && !node->is_exact) node->is_pragma = 1; // default
+    
+    if (modifiers & MODIFIER_METHOD) node->is_method_class = 1;
+    if (modifiers & MODIFIER_CONTAINER) node->is_container = 1;
+    if (modifiers & MODIFIER_FRAME) node->is_frame = 1;
+    if (!node->is_method_class && !node->is_container) node->is_frame = 1; // default
+
     node->is_pure = !(modifiers & MODIFIER_IMPURE);
     node->has_explicit_pure = (modifiers & MODIFIER_PURE) != 0;
     

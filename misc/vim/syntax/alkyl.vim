@@ -10,8 +10,8 @@ endif
 syn keyword alkylStatement return break continue defer emit purge link import as is in has meta premeta postmeta
 syn keyword alkylConditional if else elif then switch case default
 syn keyword alkylRepeat while for loop
-syn keyword alkylKeyword let mut const final pristine reactive covalent inert wash
-syn keyword alkylModifier public private open closed extern naked
+syn keyword alkylKeyword let mut const final pristine reactive covalent inert wash pure impure tainted untaint residue clean
+syn keyword alkylModifier public private open closed extern naked abstract exact method container frame pragma
 syn keyword alkylTypeKeyword class struct enum union trait impl namespace typedef compound type
 syn keyword alkylBuiltinType int void char bool single double short long unsigned typeof sizeof alignof
 syn keyword alkylBoolean true false

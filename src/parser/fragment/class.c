@@ -63,7 +63,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
   else if (p->current_token.type == TOKEN_CLOSED) { is_open = 0; eat(p, TOKEN_CLOSED); }
  
   // TODO reformat this
-  if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION) {
+  if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION || p->current_token.type == TOKEN_TRAIT) {
       int is_union = (p->current_token.type == TOKEN_UNION);
       eat(p, p->current_token.type);
       
@@ -118,8 +118,19 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
       ASTNode *members_head = NULL;
       ASTNode **curr_member = &members_head;
       
+      int current_label_modifiers = 0; // Tracks active label modifiers like `public:`
+      
       while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
           int member_modifiers = parse_modifiers(p);
+          
+          if (p->current_token.type == TOKEN_COLON) {
+              eat(p, TOKEN_COLON);
+              current_label_modifiers = member_modifiers;
+              continue;
+          }
+          
+          member_modifiers |= current_label_modifiers;
+          
           int member_open = is_open;
           if (member_modifiers & MODIFIER_OPEN) member_open = 1;
           else if (member_modifiers & MODIFIER_CLOSED) member_open = 0;
@@ -201,6 +212,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
           }
 
           VarType vt = parse_type(p);
+          printf("DEBUG: after parse_type, vt.base=%d, token.type=%d\n", vt.base, p->current_token.type);
           if (vt.base != TYPE_UNKNOWN || (vt.base == TYPE_UNKNOWN && vt.class_name != NULL)) {
               if (p->current_token.type == TOKEN_LPAREN) {
                   Token next = parser_peek_token(p);
@@ -226,7 +238,13 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                       *curr_member = (ASTNode*)var;
                       curr_member = &var->base.next;
                       continue;
-                  } else if (vt.base == TYPE_CLASS && strcmp(vt.class_name, class_name) == 0) {
+                  } else {
+                      if (vt.class_name != NULL) {
+                          printf("DEBUG: constructor check: vt.class_name='%s', class_name='%s'\n", vt.class_name, class_name);
+                      }
+                      if ((vt.base == TYPE_CLASS || vt.base == TYPE_UNKNOWN) && vt.class_name != NULL && 
+                             (strcmp(vt.class_name, class_name) == 0 || 
+                              (strlen(vt.class_name) > strlen(class_name) && strcmp(vt.class_name + strlen(vt.class_name) - strlen(class_name), class_name) == 0))) {
                       // Constructor detected: ClassName(...)
                       char *mem_name = parser_strdup(p, vt.class_name);
                       vt.base = TYPE_VOID; // Constructors implicitly return void or handle specially
@@ -281,6 +299,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                       curr_member = &func->base.next;
                       continue;
                   }
+                  }
               }
 
               char *mem_name = NULL;
@@ -307,6 +326,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   
                   if (p->current_token.type != TOKEN_RPAREN) {
                       while(1) {
+                          int pmods = parse_modifiers(p);
                           VarType pt = parse_type(p);
                           if(pt.base == TYPE_UNKNOWN) parser_fail(p, "Expected parameter type in method declaration");
                           char *pname = parser_strdup(p, p->current_token.text);
@@ -323,16 +343,22 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                           }
                           
                           Parameter *pm = parser_alloc(p, sizeof(Parameter));
+                          apply_param_modifiers(pm, pmods);
                           pm->type = pt; pm->name = pname;
                           *curr_p = pm; curr_p = &pm->next;
                           if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
                       }
                   }
                   eat(p, TOKEN_RPAREN);
-                  eat(p, TOKEN_LBRACE);
-                  ASTNode *body = parse_statements(p);
-                  eat(p, TOKEN_RBRACE);
-                  apply_implicit_return(p, &body);
+                  ASTNode *body = NULL;
+                  if (p->current_token.type == TOKEN_SEMICOLON) {
+                      eat(p, TOKEN_SEMICOLON);
+                  } else {
+                      eat(p, TOKEN_LBRACE);
+                      body = parse_statements(p);
+                      eat(p, TOKEN_RBRACE);
+                      apply_implicit_return(p, &body);
+                  }
                   
                   FuncDefNode *func = parser_alloc(p, sizeof(FuncDefNode));
                   func->base.type = NODE_FUNC_DEF;

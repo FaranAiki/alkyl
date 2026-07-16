@@ -1,0 +1,140 @@
+import "lib/c";
+
+namespace heap {
+    abstract method class Allocator {
+    public tainted:
+        void* alloc(long size);
+        void free(tainted void* ptr);
+    }
+
+    open class CAllocator is Allocator {
+    public:
+        CAllocator() {}
+
+    public tainted:
+        void* alloc(long size) {
+            if size < 0 { purge ErrOutOfMemory; }
+            return malloc(size);
+        }
+
+        void free(tainted void* ptr) {
+            free(ptr); // from lib/c
+        }
+    }
+
+    // Initialize a global allocator instance
+    public CAllocator default_allocator;
+
+    // Global helper functions
+    public tainted void* alloc(long size) {
+        return default_allocator.alloc(size);
+    }
+
+    public tainted void free(tainted void* ptr) {
+        default_allocator.free(ptr);
+    }
+
+    open class ArenaBlock {
+    public:
+        void* data = null;
+        long capacity = 0;
+        long used = 0;
+        ArenaBlock* next = null;
+    }
+
+    open class ArenaAllocator {
+    public:
+        ArenaBlock* head = null;
+        long default_block_size = 65536;
+
+        ArenaAllocator() {
+            this.head = null;
+            this.default_block_size = 65536;
+        }
+
+    public tainted:
+        void* alloc(long size) {
+            return this.alloc_aligned(size, 8); // Default 8-byte alignment
+        }
+
+        void* alloc_aligned(long size, long align) {
+            if size < 0 || align <= 0 then return null;
+
+            if this.head == null {
+                return this.new_block_and_alloc(size, align);
+            }
+
+            long current_used = this.head.used;
+            long remainder = current_used % align;
+            if remainder != 0 {
+                current_used = current_used + (align - remainder);
+            }
+
+            long end_index = current_used + size;
+
+            // Check for integer overflow and capacity
+            if end_index < current_used || end_index > this.head.capacity {
+                return this.new_block_and_alloc(size, align);
+            }
+
+            char* base = this.head.data as char*;
+            void* ptr = (base + current_used) as void*;
+            this.head.used = end_index;
+            return ptr;
+        }
+
+    private tainted:
+        void* new_block_and_alloc(long size, long align) {
+            long cap = this.default_block_size;
+            if size + align > cap then cap = size + align;
+
+            ArenaBlock* new_block = default_allocator.alloc(sizeof(ArenaBlock)) as ArenaBlock*;
+            if new_block == null purge ErrOutOfMemory;
+
+            void* raw_data = default_allocator.alloc(cap);
+            if raw_data == null {
+                default_allocator.free(new_block as void*);
+                purge ErrOutOfMemory;
+            }
+
+            long base_addr = raw_data as long;
+            long remainder = base_addr % align;
+            long offset = 0;
+            if remainder != 0 {
+                offset = align - remainder;
+            }
+
+            new_block.data = raw_data;
+            new_block.capacity = cap;
+            new_block.used = offset + size;
+            new_block.next = this.head;
+            this.head = new_block;
+
+            char* base = raw_data as char*;
+            return (base + offset) as void*;
+        }
+
+    public tainted:
+        // free() returns all memory back to the OS/default allocator
+        void free() {
+            ArenaBlock* curr = this.head;
+            while curr != null {
+                ArenaBlock* next = curr.next;
+                default_allocator.free(curr.data);
+                default_allocator.free(curr as void*);
+                curr = next;
+            }
+            this.head = null;
+        }
+
+        // reset() keeps the allocated memory blocks but marks them as completely empty,
+        // allowing extremely fast O(1) bulk deallocation and reuse across loop iterations.
+        void reset() {
+            ArenaBlock* curr = this.head;
+            while curr != null {
+                curr.used = 0;
+                curr = curr.next;
+            }
+        }
+    }
+}

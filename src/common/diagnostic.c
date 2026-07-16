@@ -5,6 +5,7 @@
 
 void diag_set_namespace(CompilerContext *ctx, const char *ns) {
     if (!ctx) return;
+    if (ns == ctx->current_namespace) return;
     if (ns && strlen(ns) > 0) {
         strncpy(ctx->current_namespace, ns, 255);
         ctx->current_namespace[255] = '\0';

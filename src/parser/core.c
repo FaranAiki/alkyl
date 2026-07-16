@@ -47,6 +47,17 @@ void register_typename(Parser *p, const char *name, int is_enum) {
     t->is_enum = is_enum;
     t->next = p->type_head;
     p->type_head = t;
+
+    const char *current_ns = diag_get_namespace(p->ctx);
+    if (current_ns && strlen(current_ns) > 0 && strcmp(current_ns, "main") != 0) {
+        char full_name[512];
+        snprintf(full_name, sizeof(full_name), "%s.%s", current_ns, name);
+        TypeName *t2 = parser_alloc(p, sizeof(TypeName));
+        t2->name = parser_strdup(p, full_name);
+        t2->is_enum = is_enum;
+        t2->next = p->type_head;
+        p->type_head = t2;
+    }
 }
 
 int is_typename(Parser *p, const char *name) {
@@ -73,7 +84,9 @@ int is_type_start(Parser *p) {
 
 static int get_typename_kind(Parser *p, const char *name) {
     TypeName *cur = p->type_head;
+    if (strcmp(name, "CAllocator") == 0) printf("DEBUG: get_typename_kind searching for %s\n", name);
     while(cur) {
+        if (strcmp(name, "CAllocator") == 0) printf("  checking against %s\n", cur->name);
         if (strcmp(cur->name, name) == 0) return cur->is_enum ? 2 : 1;
         cur = cur->next;
     }
@@ -336,17 +349,33 @@ VarType parse_type(Parser *p) {
           eat(p, TOKEN_IDENTIFIER);
       }
       else {
-          int kind = get_typename_kind(p, p->current_token.text);
+          Lexer saved_l = *(p->l);
+          Token saved_tok = p->current_token;
+
+          char full_type_name[512];
+          snprintf(full_type_name, sizeof(full_type_name), "%s", p->current_token.text);
+          eat(p, TOKEN_IDENTIFIER);
+          
+          while (p->current_token.type == TOKEN_DOT) {
+              eat(p, TOKEN_DOT);
+              strcat(full_type_name, ".");
+              if (p->current_token.type == TOKEN_IDENTIFIER) {
+                  strcat(full_type_name, p->current_token.text);
+                  eat(p, TOKEN_IDENTIFIER);
+              } else {
+                  break;
+              }
+          }
+
+          int kind = get_typename_kind(p, full_type_name);
           if (kind != 0) {
               if (kind == 2) { 
                   t.base = TYPE_ENUM;
-                  t.class_name = parser_strdup(p, p->current_token.text);
-                  eat(p, TOKEN_IDENTIFIER);
+                  t.class_name = parser_strdup(p, full_type_name);
               } else {
                   t.base = TYPE_CLASS;
                   char base_name[512];
-                  snprintf(base_name, sizeof(base_name), "%s", p->current_token.text);
-                  eat(p, TOKEN_IDENTIFIER);
+                  snprintf(base_name, sizeof(base_name), "%s", full_type_name);
                   
                   if (p->current_token.type == TOKEN_LBRACKET) {
                       char full_name[1024];
@@ -371,6 +400,8 @@ VarType parse_type(Parser *p) {
                   }
               }
           } else {
+              *(p->l) = saved_l;
+              p->current_token = saved_tok;
               if (t.is_unsigned) t.base = TYPE_INT;
               return t; 
           }
@@ -427,7 +458,10 @@ VarType parse_type(Parser *p) {
   }
   
   if (p->current_token.type == TOKEN_LPAREN) {
-      return parse_func_ptr_decl(p, t, NULL);
+      Token next = parser_peek_token(p);
+      if (next.type == TOKEN_STAR) {
+          return parse_func_ptr_decl(p, t, NULL);
+      }
   }
   
   if (p->current_token.type == TOKEN_QUESTION) {

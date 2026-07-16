@@ -2,10 +2,10 @@
 
 ASTNode* parse_import(Parser *p) {
   eat(p, TOKEN_IMPORT);
-  if (p->current_token.type != TOKEN_STRING) parser_fail(p, "Expected file path string after 'import'");
+  if (p->current_token.type != TOKEN_STRING && p->current_token.type != TOKEN_C_STRING) parser_fail(p, "Expected file path string after 'import'");
   char* fname = parser_strdup(p, p->current_token.text);
   p->current_token.text = NULL;
-  eat(p, TOKEN_STRING);
+  eat(p, p->current_token.type);
   
   // optional semicolon
   if (p->current_token.type == TOKEN_SEMICOLON) {

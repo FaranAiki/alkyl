@@ -1,0 +1,25 @@
+import "lib/std/heap.aky";
+import "lib/c";
+
+int main() {
+    heap.ArenaAllocator* arena = heap.alloc(sizeof(heap.ArenaAllocator)) as heap.ArenaAllocator*;
+    untaint (arena) residue (err) {}
+    printf(c"Arena pointer: %p\n", arena as void*);
+    arena.ArenaAllocator();
+    
+    tainted void* p1 = arena.alloc(10);
+    tainted void* p2 = arena.alloc(100);
+    tainted void* p3 = arena.alloc(70000); // Trigger new block allocation
+    
+    untaint (p1) residue (err) {}
+    untaint (p2) residue (err) {}
+    untaint (p3) residue (err) {}
+    arena.reset();
+    let p4 = arena.alloc(sizeof(int)) as int*;
+    untaint (p4) residue (err) {}
+    
+    printf(c"P4: %p\n", p4 as void*);
+    
+    arena.free();
+    return 0;
+}
