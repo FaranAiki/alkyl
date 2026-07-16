@@ -25,7 +25,7 @@ void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char
       l->settings.comment_style = COMMENT_SLASH;
       l->settings.spaces_per_indent = 4;
       l->settings.require_semicolons = 1;
-      l->settings.double_quote_as_string = 1; // default to 1, user can override in premeta string
+      l->settings.double_quote_as_string = 0; // default to 0, user can override in premeta string
   }
 }
 

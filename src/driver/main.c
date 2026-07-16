@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
   arena_init(&arena_debug);
   context_init(&comp_ctx, &arena);
   context_init(&comp_ctx_debug, &arena_debug);
-  
+
   if (argc < 2) {
     printf("Usage: %s <file.aky> [-l<lib>] | --lsp\n", argv[0]);
     return 1;
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 
   debug_step("Finished lexing. Start parsing.");
 
-  // generate for debugging 
+  // generate for debugging
   Lexer l_debug;
   lexer_init(&l_debug, &comp_ctx_debug, filename, code, NULL);
 
@@ -105,12 +105,12 @@ int main(int argc, char *argv[]) {
       free(code);
       return 1;
   }
- 
+
   to_sem_out(&sem_ctx, BASENAME ".semc");
 
   // We keep sem_ctx alive if we want to use the Side Table for Codegen later.
   // For now, we clean it up as Codegen currently recalculates types (but safely now!)
-  
+
   debug_step("Finished Semantic Analysis. Start macro-linking.");
 
   ASTNode *curr = root;
@@ -127,20 +127,20 @@ int main(int argc, char *argv[]) {
 
   debug_step("Finished macro linking. Start generating Alkyl Intermediate Representation (alir).");
 
-  // Pass to ALIR 
-  AlirModule *alir_module = alir_generate(&sem_ctx, root); 
+  // Pass to ALIR
+  AlirModule *alir_module = alir_generate(&sem_ctx, root);
   alir_emit_to_file(alir_module, BASENAME ".alir");
 
   debug_step("Finished alir. Start alir check and analysis.");
 
-  int alick_error = alick_check_module(alir_module);    
+  int alick_error = alick_check_module(alir_module);
   if (alick_error > 0) {
     printf("Error occured in alick.\n");
     exit(1);
   }
 
-  sem_cleanup(&sem_ctx); 
-  
+  sem_cleanup(&sem_ctx);
+
   LLVMInitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
@@ -153,6 +153,8 @@ int main(int argc, char *argv[]) {
   debug_step("Finished alir check and analysis. Start Codegen using LLVM Codegen");
   arena_reset(&arena);
   // Pass source code to codegen for error reporting
+  // TODO make this modular so that we do not need to always bind to LLVM
+  // Separate this!
   CodegenCtx *cg_ctx = codegen_init(alir_module);
   LLVMModuleRef module = codegen_generate(cg_ctx);
 
@@ -170,7 +172,7 @@ int main(int argc, char *argv[]) {
   LLVMGetTargetFromTriple(triple, &target, &err_msg);
 
   LLVMTargetMachineRef machine = LLVMCreateTargetMachine(
-    target, triple, "generic", "", 
+    target, triple, "generic", "",
     LLVMCodeGenLevelAggressive, LLVMRelocPIC, LLVMCodeModelDefault
   );
 
@@ -185,10 +187,11 @@ int main(int argc, char *argv[]) {
   }
 
   printf("Compiled to "BASENAME".o\n");
-  
+
+  // TODO, maybe we do not need gcc and implement ourselves
   char cmd[2048];
   snprintf(cmd, sizeof(cmd), "gcc -g -O0 "BASENAME".o -o "BASENAME" -no-pie %s", link_flags);
-  
+
   printf("Linking: %s\n", cmd);
   int res = system(cmd);
   if (res == 0) {
@@ -197,13 +200,13 @@ int main(int argc, char *argv[]) {
     printf("Linking failed.\n");
   }
 
-  codegen_dispose(cg_ctx);
+  // codegen_dispose(cg_ctx);
   LLVMDisposeTargetMachine(machine);
   LLVMContextRef llvm_ctx = LLVMGetModuleContext(module);
   LLVMDisposeModule(module);
   LLVMContextDispose(llvm_ctx);
   free(code);
- 
+
   arena_free(&arena);
   arena_free(&arena_debug);
 

@@ -1,12 +1,14 @@
 // sebenarnya ini harusnya trait tapi biarkan namanya masih prototipe, lagi pula ini showcase
-extern int printf(string, ...);
-extern int scanf(string, ...);
+extern int printf(char*, ...);
+extern int scanf(char*, ...);
 
-class Kecepatan {
-  int kecepatan;
+import "std/string";
+
+trait Kecepatan {
+  int kecepatan = 3;
 }
 
-class Waktu {
+trait Waktu {
   int waktu;
 }
 
@@ -28,7 +30,7 @@ int main() {
   Jarak s;
   s.kecepatan = v;
   s.waktu = t;
-  
+
   printf("Jarak = ");
   s.out();
   return 0;

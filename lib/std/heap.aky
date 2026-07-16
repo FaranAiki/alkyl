@@ -34,7 +34,7 @@ namespace heap {
         default_allocator.free(ptr);
     }
 
-    open class ArenaBlock {
+    exact container class ArenaBlock {
     public:
         void* data = null;
         long capacity = 0;
