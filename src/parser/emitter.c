@@ -563,13 +563,6 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
             sb_append(sb, ")");
             break;
         }
-
-        case NODE_TRAIT_ACCESS: {
-            TraitAccessNode *ta = (TraitAccessNode*)node;
-            parser_emit_ast_node(sb, ta->object, 0);
-            sb_append_fmt(sb, "[%s]", ta->trait_name);
-            break;
-        }
         
         default:
             sb_append_fmt(sb, "/* Unhandled Node Type: %d */", node->type);

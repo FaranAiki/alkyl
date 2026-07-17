@@ -1,0 +1,34 @@
+import "std/alias";
+
+extern int printf(char*, ...) as cprintf;
+
+// abstract container = struct, defined in std/alias
+abstract container class Identity {
+  char *name;
+  int age;
+}
+
+// abstract method = trait, defined in std/alias
+abstract method class Communication {
+  void wave();
+  void introduce();
+}
+
+// exact method = impl Person, defined in std/alias
+exact method class Person has Identity, Hand {
+  void wave() {
+    cprintf "I am waving!\n";
+  }
+
+  void introduce() {
+    cprintf "Greetings, my name is %s and I am %d years old\n", this.name, this.age;
+  }
+}
+
+int main(int argc, char **argv) {
+  let imut Faran = Person("Faran Aiki", 19);
+  Faran.wave();
+  Faran.introduce();
+  Faran.age = 12;
+  Faran.introduce();
+}

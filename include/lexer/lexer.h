@@ -89,8 +89,6 @@ typedef enum {
   // goated compo
   TOKEN_CLASS,
   TOKEN_STRUCT,
-  TOKEN_IMPL,
-  TOKEN_TRAIT,
   
   TOKEN_ACCEPT,
   TOKEN_REJECT,
@@ -284,7 +282,6 @@ static const KeywordDef keywords[] = {
     {"hasmethod", TOKEN_HASMETHOD},
     {"if", TOKEN_IF},
     {"immutable", TOKEN_KW_IMUT},
-    {"impl", TOKEN_IMPL},
     {"import", TOKEN_IMPORT},
     {"impure", TOKEN_IMPURE},
     {"imut", TOKEN_KW_IMUT},
@@ -334,7 +331,6 @@ static const KeywordDef keywords[] = {
     {"switch", TOKEN_SWITCH},
     {"tainted", TOKEN_TAINTED},
     {"then", TOKEN_THEN},
-    {"trait", TOKEN_TRAIT},
     {"true", TOKEN_TRUE},
     {"typedef", TOKEN_TYPEDEF},
     {"typeof", TOKEN_TYPEOF},

@@ -166,38 +166,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     return NULL;
 }
 
-AlirValue* alir_gen_trait_access(AlirCtx *ctx, TraitAccessNode *ta) {
-    VarType obj_t = sem_get_node_type(ctx->sem, ta->object);
-    AlirValue *base_ptr = NULL;
-    
-    if (obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
-        base_ptr = alir_gen_addr(ctx, ta->object);
-    } else {
-        base_ptr = alir_gen_expr(ctx, ta->object);
-    }
-    
-    if (!base_ptr) return NULL;
-    
-    char *class_name = base_ptr->type.class_name;
-    if (!class_name && obj_t.class_name) class_name = obj_t.class_name;
-    
-    // 1. Try to find a field named after the Trait (Mixin strategy)
-    if (class_name) {
-        int idx = alir_get_field_index(ctx->module, class_name, ta->trait_name);
-        if (idx != -1) {
-            // Found explicit field for trait
-            AlirValue *res = new_temp(ctx, (VarType){TYPE_CLASS, 1, 0, alir_strdup(ctx->module, ta->trait_name)});
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, res, base_ptr, alir_const_int(ctx->module, idx)));
-            return res;
-        }
-    }
-    
-    // 2. Fallback: Bitcast (Unsafe/Direct Cast)
-    VarType trait_ptr_t = {TYPE_CLASS, 1, 0, alir_strdup(ctx->module, ta->trait_name)};
-    AlirValue *cast_res = new_temp(ctx, trait_ptr_t);
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, cast_res, base_ptr, NULL));
-    return cast_res;
-}
+
 
 // TODO add this for literal
 AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
@@ -1015,7 +984,7 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         }
         case NODE_CALL: return alir_gen_call(ctx, (CallNode*)node);
         case NODE_METHOD_CALL: return alir_gen_method_call(ctx, (MethodCallNode*)node);
-        case NODE_TRAIT_ACCESS: return alir_gen_trait_access(ctx, (TraitAccessNode*)node);
+
         
         default: {
             // [ROBUST FALLBACK]: Catch unimplemented expression nodes gracefully

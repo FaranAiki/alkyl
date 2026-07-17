@@ -72,7 +72,7 @@ static void generate_semantic_tokens(const char *filepath, int **out_data, int *
         } else if (t.type >= TOKEN_ASSIGN && t.type <= TOKEN_RSHIFT_ASSIGN) {
             token_type = 7; // operator
         } else if (t.type == TOKEN_IDENTIFIER) {
-            if (last_type == TOKEN_CLASS || last_type == TOKEN_STRUCT || last_type == TOKEN_IMPL || last_type == TOKEN_TRAIT || last_type == TOKEN_NAMESPACE || last_type == TOKEN_TYPEDEF || last_type == TOKEN_AS || last_type == TOKEN_PURGE || last_type == TOKEN_DEFINE || last_was_type_keyword) {
+            if (last_type == TOKEN_CLASS || last_type == TOKEN_STRUCT || last_type == TOKEN_NAMESPACE || last_type == TOKEN_TYPEDEF || last_type == TOKEN_AS || last_type == TOKEN_PURGE || last_type == TOKEN_DEFINE || last_was_type_keyword) {
                 token_type = 0; // type (previously class)
             } else if (last_type == TOKEN_KW_LET || last_type == TOKEN_KW_MUT) {
                 token_type = 1; // variable

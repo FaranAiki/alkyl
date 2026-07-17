@@ -183,7 +183,6 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_VECTOR_LIT:
         case NODE_VECTOR_ACCESS:
         case NODE_MEMBER_ACCESS:
-        case NODE_TRAIT_ACCESS:
         case NODE_TYPEOF:
         case NODE_ALIGNOF:
         case NODE_DEFINED:
@@ -239,8 +238,6 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_FUNC_DEF:
         case NODE_CLASS:
         case NODE_STRUCT:
-        case NODE_TRAIT:
-        case NODE_IMPL:
         case NODE_NAMESPACE:
         case NODE_ENUM:
         case NODE_LINK:

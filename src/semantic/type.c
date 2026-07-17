@@ -165,6 +165,26 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
     }
 }
 
+static bool sem_is_lvalue_mutable(SemanticCtx *ctx, ASTNode *node) {
+    if (!node) return true;
+    if (node->type == NODE_VAR_REF) {
+        VarRefNode *vr = (VarRefNode*)node;
+        SemSymbol *sym = sem_symbol_lookup(ctx, vr->name, NULL);
+        if (sym && !sym->is_mutable) return false;
+        return true;
+    } else if (node->type == NODE_MEMBER_ACCESS) {
+        MemberAccessNode *ma = (MemberAccessNode*)node;
+        return sem_is_lvalue_mutable(ctx, ma->object);
+    } else if (node->type == NODE_ARRAY_ACCESS) {
+        ArrayAccessNode *aa = (ArrayAccessNode*)node;
+        return sem_is_lvalue_mutable(ctx, aa->target);
+    } else if (node->type == NODE_UNARY_OP) {
+        // e.g. pointer dereference `*ptr`
+        return true; 
+    }
+    return true;
+}
+
 void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     sem_check_expr(ctx, node->value);
     VarType rhs_type = sem_get_node_type(ctx, node->value);
@@ -271,6 +291,10 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     } else {
         sem_check_expr(ctx, node->target);
         lhs_type = sem_get_node_type(ctx, node->target);
+        
+        if (!sem_is_lvalue_mutable(ctx, node->target)) {
+            sem_error(ctx, (ASTNode*)node, "Cannot assign to immutable variable/member");
+        }
     }
     
     if (node->op != TOKEN_ASSIGN) {

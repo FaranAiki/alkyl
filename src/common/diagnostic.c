@@ -348,8 +348,7 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_STOP: return "stop";
         case TOKEN_LROTATE: return "<<%";
         case TOKEN_RROTATE: return "%>>";
-        case TOKEN_IMPL: return "impl";
-        case TOKEN_TRAIT: return "trait";
+
         case TOKEN_ACCEPT: return "accept";
         case TOKEN_REJECT: return "reject";
         case TOKEN_PRISTINE: return "pristine";

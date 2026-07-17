@@ -63,7 +63,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
   else if (p->current_token.type == TOKEN_CLOSED) { is_open = 0; eat(p, TOKEN_CLOSED); }
  
   // TODO reformat this
-  if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION || p->current_token.type == TOKEN_TRAIT) {
+  if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION) {
       int is_union = (p->current_token.type == TOKEN_UNION);
       eat(p, p->current_token.type);
       

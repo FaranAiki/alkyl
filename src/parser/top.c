@@ -31,7 +31,7 @@ void apply_implicit_return(Parser *p, ASTNode **body_ptr) {
 }
 
 static ASTNode* parse_single_extern(Parser *p, int modifiers) {
-  if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION|| p->current_token.type == TOKEN_IMPL || p->current_token.type == TOKEN_TRAIT ) {
+  if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION) {
       eat(p, p->current_token.type);
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected name for extern keyword");
       char *name = parser_strdup(p, p->current_token.text);
@@ -456,7 +456,6 @@ ASTNode* parse_top_level_internal(Parser *p) {
   if (p->current_token.type == TOKEN_CLASS || 
       p->current_token.type == TOKEN_STRUCT || 
       p->current_token.type == TOKEN_UNION || 
-      p->current_token.type == TOKEN_TRAIT || 
       (p->current_token.type == TOKEN_OPEN) || 
       (p->current_token.type == TOKEN_CLOSED)) {
     return parse_class_impl(p, modifiers);

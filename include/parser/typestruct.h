@@ -29,13 +29,10 @@ typedef enum {
   NODE_LINK,
   NODE_CLASS,
   NODE_STRUCT,
-  NODE_IMPL,
-  NODE_TRAIT,
   NODE_NAMESPACE, 
   NODE_ENUM, 
   NODE_MEMBER_ACCESS,
   NODE_METHOD_CALL, 
-  NODE_TRAIT_ACCESS, 
   NODE_TYPEOF,
   NODE_HAS_METHOD,    
   NODE_HAS_ATTRIBUTE,  
@@ -213,49 +210,6 @@ typedef struct {
   bool is_pure : 1;
 } StructNode;
 
-typedef struct {
-  ASTNode base;
-  char *name;
-  char *parent_name; 
-  struct {
-      char **names;
-      int count;
-  } traits; 
-  ASTNode *members; 
-  
-  IsASemantic is_is_a;
-  HasASemantic is_has_a;
-
-  bool is_open : 1; 
-  bool is_public : 1; 
-  bool is_extern : 1; 
-  bool is_union : 1;
-  bool is_static : 1; 
-  bool is_abstract : 1;
-  bool is_pure : 1;
-} TraitNode;
-
-typedef struct {
-  ASTNode base;
-  char *name;
-  char *parent_name; 
-  struct {
-      char **names;
-      int count;
-  } traits; 
-  ASTNode *members; 
-  
-  IsASemantic is_is_a;
-  HasASemantic is_has_a;
-
-  bool is_open : 1; 
-  bool is_public : 1; 
-  bool is_extern : 1; 
-  bool is_union : 1;
-  bool is_static : 1; 
-  bool is_abstract : 1;
-  bool is_pure : 1;
-} ImplNode;
 
 typedef struct EnumEntry {
     char *name;
@@ -308,12 +262,6 @@ typedef struct {
   char *owner_class;  
   bool is_static : 1;      
 } MethodCallNode;
-
-typedef struct {
-  ASTNode base;
-  ASTNode *object;
-  char *trait_name;
-} TraitAccessNode;
 
 typedef struct {
     ASTNode base;

@@ -71,12 +71,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             }
             sem_scan_class_members(ctx, cn, sym);
         }
-        else if (node->type == NODE_TRAIT) {
-            // TODO implement thsi
-        }
-        else if (node->type == NODE_IMPL) {
-      
-        }
+
         else if (node->type == NODE_STRUCT) {
 
         }
@@ -611,14 +606,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             sem_set_node_type(ctx, node, t);
             break;
         }
-        case NODE_TRAIT_ACCESS: {
-            TraitAccessNode *ta = (TraitAccessNode*)node;
-            sem_check_expr(ctx, ta->object);
-            if (sem_get_node_tainted(ctx, ta->object)) sem_set_node_tainted(ctx, node, 1);
-            VarType res = {TYPE_CLASS, 1, 0, arena_strdup(ctx->compiler_ctx->arena, ta->trait_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
-            sem_set_node_type(ctx, node, res);
-            break;
-        }
+
         case NODE_TYPEOF: {
             SizeOfNode *sn = (SizeOfNode*)node;
             if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
@@ -1046,6 +1034,19 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
         if (cn->is_abstract && cn->is_exact) sem_error(ctx, node, "Class cannot be both abstract and exact");
         if (cn->is_method_class && cn->is_container) sem_error(ctx, node, "Class cannot be both method and container");
         SemSymbol *sym = sem_symbol_lookup(ctx, cn->name, NULL);
+        if (cn->parent_name) {
+            SemSymbol *ps = sem_symbol_lookup(ctx, cn->parent_name, NULL);
+            if (!ps || ps->kind != SYM_CLASS) {
+                sem_error(ctx, node, "Undefined parent class '%s'", cn->parent_name);
+            }
+        }
+        for (int i = 0; i < cn->traits.count; i++) {
+            SemSymbol *ts = sem_symbol_lookup(ctx, cn->traits.names[i], NULL);
+            if (!ts || ts->kind != SYM_CLASS) {
+                sem_error(ctx, node, "Undefined composition class '%s'", cn->traits.names[i]);
+            }
+        }
+        
         if (sym && sym->inner_scope) {
             SemScope *old = ctx->current_scope;
             ctx->current_scope = sym->inner_scope;
