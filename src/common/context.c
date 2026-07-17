@@ -26,4 +26,6 @@ void context_init(CompilerContext *ctx, Arena *arena) {
     hashmap_init(&ctx->error_table, arena, 64);
     ctx->settings.no_purge = false;
     ctx->settings.allocator_arc = false;
+    ctx->settings.inject_enum_as_cstring = true;
+    ctx->settings.default_cconv = NULL;
 }

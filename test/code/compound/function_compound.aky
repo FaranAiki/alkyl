@@ -1,0 +1,17 @@
+import "lib/c";
+
+compound [type[int, double] Type]
+Type square(Type number) {
+  return number * number;
+}
+
+int main() {
+  int my_num = 13;
+  printf "%d squared is %d\n", my_num, square[int](my_num);
+
+  // fix, using double my_dnum = 14 gives 14
+  double my_dnum = 14;
+  printf "%lf squared is %lf\n", my_dnum, square[double](my_dnum);
+
+  return 0;
+}

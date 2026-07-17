@@ -1,0 +1,23 @@
+// premeta is run before the compiler tries to read the "toplevel" of the scripts
+// TODO premeta is not mature, it cannot execute anything
+premeta {
+    print "ohohoh";
+}
+
+// meta is run when the compiler read this line!
+meta {
+    print "a";
+    define t as "t";
+    define k as "k";
+}
+
+// postmeta is run when the compiler is ready to generate alir!
+postmeta {
+    print "s";
+    if defined(t) then print "ada" else print "loh";
+    if defined(k) then print "ngga ada" else print "loh?";
+}
+
+int main() {
+    return 0;
+}

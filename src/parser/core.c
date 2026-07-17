@@ -12,6 +12,7 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
     p->alias_head = NULL;
     p->expansion_head = NULL;
     p->disable_macro_expansion = 0;
+    p->pending_cconv = NULL;
     
     if (settings) {
         p->settings = *settings;

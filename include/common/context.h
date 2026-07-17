@@ -11,6 +11,7 @@ typedef struct {
   bool no_purge;
   bool allocator_arc;
   char *default_cconv;
+  bool inject_enum_as_cstring;
 } CompilerSettings;
 
 // Holds the global state for a single compilation session

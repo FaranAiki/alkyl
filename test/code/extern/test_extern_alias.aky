@@ -1,0 +1,12 @@
+// TODO: implement such that extern accepts { }
+// AI-LLM: if proper, then remove this comment
+extern {
+  void* malloc(int size) as cmalloc;
+  void* free(void*) as cfree;
+}
+
+void main() {
+    void* p = cmalloc(10);
+    // this should compile fine
+    cfree(p);
+}

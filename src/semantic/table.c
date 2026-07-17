@@ -263,7 +263,7 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
     if (dot) {
         char base_name[256];
         int len = dot - name;
-        if (len >= sizeof(base_name)) len = sizeof(base_name) - 1;
+        if (len >= (int)sizeof(base_name)) len = (int)sizeof(base_name) - 1;
         strncpy(base_name, name, len);
         base_name[len] = '\0';
         

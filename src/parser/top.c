@@ -30,9 +30,7 @@ void apply_implicit_return(Parser *p, ASTNode **body_ptr) {
     }
 }
 
-ASTNode* parse_extern(Parser *p, int modifiers) {
-  eat(p, TOKEN_EXTERN);
-  // so that extern can be more
+static ASTNode* parse_single_extern(Parser *p, int modifiers) {
   if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION|| p->current_token.type == TOKEN_IMPL || p->current_token.type == TOKEN_TRAIT ) {
       eat(p, p->current_token.type);
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected name for extern keyword");
@@ -116,10 +114,39 @@ ASTNode* parse_extern(Parser *p, int modifiers) {
   return (ASTNode*)node;
 }
 
+ASTNode* parse_extern(Parser *p, int modifiers) {
+  eat(p, TOKEN_EXTERN);
+  
+  if (p->current_token.type == TOKEN_LBRACE) {
+      eat(p, TOKEN_LBRACE);
+      ASTNode *head = NULL;
+      ASTNode **curr = &head;
+      
+      while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+          ASTNode *decl = parse_single_extern(p, modifiers);
+          if (decl) {
+              if (!head) {
+                  head = decl;
+                  curr = &decl->next;
+              } else {
+                  *curr = decl;
+                  curr = &decl->next;
+              }
+              while (*curr) curr = &(*curr)->next;
+          }
+      }
+      eat(p, TOKEN_RBRACE);
+      return head;
+  }
+  
+  return parse_single_extern(p, modifiers);
+}
+
 
 ASTNode* parse_compound(Parser *p, int modifiers) {
   int line = p->current_token.line;
   int col = p->current_token.col;
+  (void)modifiers;
   eat(p, TOKEN_COMPOUND);
   eat(p, TOKEN_LBRACKET);
   

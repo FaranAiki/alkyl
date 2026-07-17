@@ -940,7 +940,79 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
             return dest;
         }
         case NODE_MEMBER_ACCESS: return alir_gen_access(ctx, node);
-        case NODE_ARRAY_ACCESS: return alir_gen_access(ctx, node);
+        case NODE_ARRAY_ACCESS: {
+            ArrayAccessNode *aa = (ArrayAccessNode*)node;
+            VarType t = sem_get_node_type(ctx->sem, aa->target);
+            if (t.base == TYPE_ENUM && ctx->sem->compiler_ctx->settings.inject_enum_as_cstring) {
+                char *enum_name = NULL;
+                if (aa->target->type == NODE_VAR_REF) enum_name = ((VarRefNode*)aa->target)->name;
+                
+                if (enum_name) {
+                    SemSymbol *enum_sym = sem_symbol_lookup(ctx->sem, enum_name, NULL);
+                    if (enum_sym && enum_sym->inner_scope) {
+                        VarType str_type = (VarType){TYPE_CHAR, 1, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+                        AlirValue *dest = new_temp(ctx, str_type);
+                        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, dest, NULL, NULL));
+                        
+                        AlirValue *cond = alir_gen_expr(ctx, aa->index);
+                        if (!cond) cond = alir_const_int(ctx->module, 0);
+                        
+                        AlirBlock *end_bb = alir_add_block(ctx->module, ctx->current_func, "enum_str_end");
+                        AlirBlock *default_bb = alir_add_block(ctx->module, ctx->current_func, "enum_str_def");
+                        
+                        AlirInst *sw = mk_inst(ctx->module, ALIR_OP_SWITCH, NULL, cond, alir_val_label(ctx->module, default_bb->label));
+                        sw->cases = NULL;
+                        AlirSwitchCase **tail = &sw->cases;
+                        
+                        SemSymbol *item = enum_sym->inner_scope->symbols;
+                        while(item) {
+                            AlirBlock *case_bb = alir_add_block(ctx->module, ctx->current_func, "enum_str_case");
+                            AlirSwitchCase *sc = alir_alloc(ctx->module, sizeof(AlirSwitchCase));
+                            sc->label = case_bb->label;
+                            long val = 0;
+                            alir_get_enum_value(ctx->module, enum_name, item->name, &val);
+                            sc->value = val;
+                            
+                            *tail = sc;
+                            tail = &sc->next;
+                            item = item->next;
+                        }
+                        emit(ctx, sw);
+                        
+                        AlirBlock *orig_bb = ctx->current_block;
+                        item = enum_sym->inner_scope->symbols;
+                        AlirSwitchCase *sc_iter = sw->cases;
+                        while(item && sc_iter) {
+                            AlirBlock *case_bb = NULL;
+                            AlirBlock *search = ctx->current_func->blocks;
+                            while(search) { 
+                                if (strcmp(search->label, sc_iter->label) == 0) { case_bb = search; break; }
+                                search = search->next;
+                            }
+                            
+                            ctx->current_block = case_bb;
+                            AlirValue *glob = alir_module_add_string_literal(ctx->module, item->name, str_type, ctx->str_counter++);
+                            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, glob, dest));
+                            emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, end_bb->label), NULL));
+                            
+                            item = item->next;
+                            sc_iter = sc_iter->next;
+                        }
+                        
+                        ctx->current_block = default_bb;
+                        AlirValue *glob_def = alir_module_add_string_literal(ctx->module, "Unknown", str_type, ctx->str_counter++);
+                        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, glob_def, dest));
+                        emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, end_bb->label), NULL));
+                        
+                        ctx->current_block = end_bb;
+                        AlirValue *res = new_temp(ctx, str_type);
+                        emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, res, dest, NULL));
+                        return res;
+                    }
+                }
+            }
+            return alir_gen_access(ctx, node);
+        }
         case NODE_CALL: return alir_gen_call(ctx, (CallNode*)node);
         case NODE_METHOD_CALL: return alir_gen_method_call(ctx, (MethodCallNode*)node);
         case NODE_TRAIT_ACCESS: return alir_gen_trait_access(ctx, (TraitAccessNode*)node);

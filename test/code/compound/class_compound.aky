@@ -1,0 +1,20 @@
+import "lib/c";
+
+compound [type Type] {
+  class Vector {
+    public:
+      Type x, y;
+
+    Type distance_square() {
+      return this.x * this.x + this.y * this.y;
+    }
+  }
+}
+
+int main() {
+  Vector[int] my_vector = Vector[int](10, 10);
+  printf "x & y: %d, %d\n", my_vector.x, my_vector.y;
+  printf "distance: %d\n", my_vector.distance_square();
+
+  return 0;
+}

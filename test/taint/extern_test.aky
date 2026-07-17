@@ -1,8 +1,0 @@
-extern int foo(int a);
-
-tainted int get_taint() { return 0; }
-
-int main() {
-    foo(get_taint());
-    return 0;
-}

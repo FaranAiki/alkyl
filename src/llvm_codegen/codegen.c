@@ -240,7 +240,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                 LLVMTypeRef ptr_ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
                 LLVMValueRef ptr_val = LLVMConstPointerCast(internal_var, ptr_ty);
                 
-                LLVMValueRef len_val = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), strlen(g->string_content), 0);
+                LLVMValueRef len_val = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), g->string_content ? strlen(g->string_content) : 0, 0);
                 
                 LLVMTypeRef class_type = get_llvm_type(ctx, g->type);
                 if (class_type && LLVMIsOpaqueStruct(class_type)) {

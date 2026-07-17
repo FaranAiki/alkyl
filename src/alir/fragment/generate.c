@@ -158,6 +158,7 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
             if (val->type.is_tainted) {
                 vn->var_type.is_tainted = 1;
             }
+            val = promote(ctx, val, vn->var_type);
         }
     }
     
@@ -227,6 +228,11 @@ void alir_stmt_assign(AlirCtx *ctx, ASTNode *node) {
     if (!ptr) {
         ptr = new_temp(ctx, val->type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
+    }
+    if (ptr && ptr->type.ptr_depth > 0) {
+        VarType target_type = ptr->type;
+        target_type.ptr_depth--;
+        val = promote(ctx, val, target_type);
     }
     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
 }

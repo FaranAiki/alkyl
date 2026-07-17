@@ -1,9 +1,0 @@
-import "std/heap";
-import "lib/c";
-
-int main() {
-  ArenaAllocator al;
-  void *s = al.alloc(2);
-  printf "Hello!\n";
-  return 0;
-}

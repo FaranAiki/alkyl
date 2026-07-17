@@ -447,7 +447,6 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             CastNode *cn = (CastNode*)node;
             cn->custom_cast_method = NULL;
             sem_check_expr(ctx, cn->operand);
-            VarType temp_opt = sem_get_node_type(ctx, cn->operand);
             
             if (sem_get_node_tainted(ctx, cn->operand)) {
                 sem_set_node_tainted(ctx, node, 1);
@@ -458,7 +457,6 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 sem_error(ctx, node, "Cannot cast 'void' value");
             }
             
-            // Check for custom cast overload
             if (op_t.base == TYPE_CLASS && op_t.class_name) {
                 char as_name[256];
                 if (cn->var_type.base == TYPE_CLASS || cn->var_type.base == TYPE_UNKNOWN) {
@@ -485,11 +483,13 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                         member = member->next;
                     }
                 }
-                
-                if (!cn->custom_cast_method && cn->var_type.base != TYPE_CLASS && cn->var_type.ptr_depth == 0) {
+            }
+            
+            if (!cn->custom_cast_method) {
+                if (!sem_types_are_compatible(ctx, cn->var_type, op_t)) {
                     char *t1 = sem_type_to_str(op_t);
                     char *t2 = sem_type_to_str(cn->var_type);
-                    sem_error(ctx, node, "Cannot cast class '%s' to '%s' without a custom cast operator", t1, t2);
+                    sem_error(ctx, node, "Cannot cast '%s' to '%s' (types are not compatible)", t1, t2);
                 }
             }
 
@@ -703,7 +703,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             }
             SemScope *found_in_scope = NULL;
             SemSymbol *sym = sem_symbol_lookup(ctx, target_name, &found_in_scope);
-            printf("Looking up '%s', found sym: %p, kind: %d\n", target_name, sym, sym ? sym->kind : -1);
+            printf("Looking up '%s', found sym: %p, kind: %d\n", target_name, sym, sym ? (int)sym->kind : -1);
             if (!sym || sym->kind != SYM_TEMPLATE) {
                 // Fallback to array access / component access!
                 if (ti->num_template_types == 1 && ti->template_types[0].base == TYPE_CLASS) {
@@ -1104,10 +1104,8 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
         int register_sym = 1;
         SemScope *s = ctx->current_scope;
         int in_func = 0;
-        int in_class = 0;
         while (s) {
             if (s->is_function_scope) in_func = 1;
-            if (s->is_class_scope) in_class = 1;
             s = s->parent;
         }
         if (!in_func) {
