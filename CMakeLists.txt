@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(alkyl C)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g -fsanitize=address")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -fsanitize=address")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
 
 set(CMAKE_C_STANDARD 11)
 
@@ -17,12 +19,12 @@ add_compile_options(-Wall -Wextra -g -O3 -flto
 -Wno-missing-field-initializers
 )
 
-llvm_map_components_to_libnames(llvm_libs 
-    core 
-    executionengine 
-    mcjit 
-    interpreter 
-    native 
+llvm_map_components_to_libnames(llvm_libs
+    core
+    executionengine
+    mcjit
+    interpreter
+    native
     support
     analysis
 )
@@ -30,46 +32,46 @@ llvm_map_components_to_libnames(llvm_libs
 include_directories(
   # src/old/codegen/ # fallback
     include/
-    
+
     include/lexer
-    
+
     include/parser
-    
+
     include/alir
-    
+
     include/alick
-    
+
     include/codegen
 
     include/semantic
     include/semantic/modifier
     include/semantic/fragment
-    
+
     include/driver
-    
+
     include/common
 
     include/llvm_codegen
 )
 
-set(FRONTEND_SOURCES 
+set(FRONTEND_SOURCES
     src/lexer/lexer.c
-    src/lexer/emitter.c    
-    
-    src/parser/core.c 
-    src/parser/expr.c 
-    src/parser/stmt.c 
+    src/lexer/emitter.c
+
+    src/parser/core.c
+    src/parser/expr.c
+    src/parser/stmt.c
     src/parser/fragment/cond.c
     src/parser/fragment/loop.c
     src/parser/fragment/decl.c
     src/parser/fragment/class.c
-    src/parser/top.c 
+    src/parser/top.c
     src/parser/ast_clone.c
-    src/parser/emitter.c  
-    src/parser/link.c  
-    src/parser/modif.c  
-    src/parser/modifier.c  
-    
+    src/parser/emitter.c
+    src/parser/link.c
+    src/parser/modif.c
+    src/parser/modifier.c
+
 )
 
 set(SEMANTIC_SOURCES
@@ -88,7 +90,7 @@ set(SEMANTIC_SOURCES
 )
 
 set(ALIR_SOURCES
-    src/alir/core.c 
+    src/alir/core.c
     src/alir/generator.c
     src/alir/const.c
     src/alir/flux.c
@@ -123,7 +125,7 @@ set(HELPER_SOURCES
     src/driver/lsp.c
 )
 
-set_source_files_properties(${DEPRECATED_LLVM_CODEGEN_SOURCES} 
+set_source_files_properties(${DEPRECATED_LLVM_CODEGEN_SOURCES}
     PROPERTIES COMPILE_OPTIONS "-w"
 )
 
@@ -138,17 +140,16 @@ set(COMMON_SOURCES
 
 add_executable(alkyl src/meta/vm.c
     src/driver/main.c ${COMMON_SOURCES})
-add_executable(alkyl-cli src/meta/vm.c
-    src/driver/cli.c ${COMMON_SOURCES})
+
 
 # Headers
 target_include_directories(alkyl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${LLVM_INCLUDE_DIRS})
-target_include_directories(alkyl-cli PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${LLVM_INCLUDE_DIRS})
+
 
 # target_link_libraries(alkyl PRIVATE ${llvm_libs})
 # target_link_libraries(alkyl-cli PRIVATE ${llvm_libs})
 target_link_libraries(alkyl PRIVATE LLVM)
-target_link_libraries(alkyl-cli PRIVATE LLVM)
+
 
 find_package(PkgConfig)
 pkg_check_modules(READLINE readline)
@@ -167,7 +168,7 @@ endif()
 
 if(UNIX)
     target_link_libraries(alkyl PRIVATE m pthread dl z ncurses readline)
-    target_link_libraries(alkyl-cli PRIVATE m pthread dl z ncurses readline)
+
 endif()
 
 add_custom_target(run-tests

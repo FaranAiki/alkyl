@@ -3,7 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BASENAME "out"
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#define BASENAME "build/out"
 
 #include "driver/lsp.h"
 
@@ -28,6 +31,9 @@ int main(int argc, char *argv[]) {
 
   char *filename = NULL;
   char link_flags[1024] = {0};
+  int emit_alir = 0;
+
+  mkdir("build", 0777);
 
   for (int i = 1; i < argc; i++) {
       if (strncmp(argv[i], "-l", 2) == 0) {
@@ -38,6 +44,8 @@ int main(int argc, char *argv[]) {
               fprintf(stderr, "Too many link flags\n");
               return 1;
           }
+      } else if (strcmp(argv[i], "--emit-alir") == 0) {
+          emit_alir = 1;
       } else {
           filename = argv[i];
       }
@@ -129,7 +137,9 @@ int main(int argc, char *argv[]) {
 
   // Pass to ALIR
   AlirModule *alir_module = alir_generate(&sem_ctx, root);
-  alir_emit_to_file(alir_module, BASENAME ".alir");
+  if (emit_alir) {
+      alir_emit_to_file(alir_module, BASENAME ".alir");
+  }
 
   debug_step("Finished alir. Start alir check and analysis.");
 
@@ -158,7 +168,7 @@ int main(int argc, char *argv[]) {
   CodegenCtx *cg_ctx = codegen_init(alir_module);
   LLVMModuleRef module = codegen_generate(cg_ctx);
 
-  LLVMPrintModuleToFile(module, "module.ll", NULL);
+  LLVMPrintModuleToFile(module, "build/module.ll", NULL);
   char *error = NULL;
   if (LLVMVerifyModule(module, LLVMPrintMessageAction, &error)) {
     fprintf(stderr, "LLVM Verification Error: %s\n", error);
@@ -195,7 +205,7 @@ int main(int argc, char *argv[]) {
   printf("Linking: %s\n", cmd);
   int res = system(cmd);
   if (res == 0) {
-    printf("Linked to ./"BASENAME"\n");
+    printf("Linked to "BASENAME"\n");
   } else {
     printf("Linking failed.\n");
   }

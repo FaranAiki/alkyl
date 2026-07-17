@@ -44,9 +44,9 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         int byte_size = count > 0 ? count * alir_get_type_size(elem_type) : 8;
         AlirValue *size_val = alir_const_int(ctx->module, byte_size);
 
-        // 1. Allocate on the Heap correctly for array sizes natively
+        // 1. Allocate on the Stack correctly for array sizes natively
         AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1, 0, NULL});
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOC_HEAP, raw_mem, size_val, NULL));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, raw_mem, size_val, NULL));
 
         VarType ptr_type = elem_type;
         ptr_type.ptr_depth++;
@@ -309,7 +309,7 @@ void alir_for_in_int(AlirCtx *ctx, ASTNode  *node, AlirValue *col) {
 }
 
 
-void alir_for_in_onheap(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *limit) {
+void alir_for_in_onstack(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *limit) {
     ForInNode *fn = (ForInNode*)node;
     AlirBlock *cond_bb = alir_add_block(ctx->module, ctx->current_func, "for_cond");
     AlirBlock *body_bb = alir_add_block(ctx->module, ctx->current_func, "for_body");
@@ -543,7 +543,7 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
     }
 
     if (col && (col->type.array_size > 0)) {
-        return alir_for_in_onheap(ctx, node, col, limit);  
+        return alir_for_in_onstack(ctx, node, col, limit);  
     }
 
     // If it makes it here, the collection evaluation completely failed!

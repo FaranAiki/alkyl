@@ -4,7 +4,7 @@
 
 void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
     if (!node) return;
-    
+
     ctx->current_line = node->line;
     ctx->current_col = node->col;
 
@@ -15,7 +15,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             if (strcmp(fv->name, vn->name) == 0) break;
             fv = fv->next;
         }
-        
+
         if (fv) {
             AlirSymbol *sym = alir_find_symbol(ctx, vn->name);
             if (sym && vn->initializer) {
@@ -25,7 +25,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                 }
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, sym->ptr));
             }
-            return; 
+            return;
         }
     }
 
@@ -43,17 +43,18 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_CLEAN:
         case NODE_WASH: {
             WashNode *wn = (WashNode*)node;
-            
+
             // Execute the main body
             ASTNode *s = wn->body;
             while(s) {
                 alir_gen_stmt(ctx, s);
                 s = s->next;
             }
-            
+
             // At runtime, Alkyl does not track error states for primitives.
             // The residue block is purely a semantic requirement for compile-time checking.
             // We do not emit the residue block to ALIR.
+            // TODO implement this
             break;
         }
         case NODE_SIZEOF:
@@ -64,15 +65,15 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             // Save current state
             AlirFunction *old_func = ctx->current_func;
             AlirBlock *old_block = ctx->current_block;
-            
+
             // Create temporary compile-time ALIR function
             AlirFunction *meta_func = calloc(1, sizeof(AlirFunction));
             meta_func->name = "meta_compile_time";
             meta_func->blocks = alir_add_block(ctx->module, meta_func, "entry");
-            
+
             ctx->current_func = meta_func;
             ctx->current_block = meta_func->blocks;
-            
+
             // Snapshot globals before meta block
             AlirGlobal *old_globals = ctx->module->globals;
 
@@ -82,25 +83,25 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                 alir_gen_stmt(ctx, curr);
                 curr = curr->next;
             }
-            
+
             // Execute the meta block
             MetaVM *vm = meta_vm_init();
             int meta_err = meta_vm_execute(vm, ctx->module, meta_func, ctx->sem);
-            
+
             if (meta_err) {
                 // The VM already reported the specific error at the exact line via sem_error.
                 // But just in case, we also ensure error_count increases here if not caught:
                 if (ctx->sem && ctx->sem->compiler_ctx) {
-                    // Do not increment if sem_error already did it inside the VM, 
+                    // Do not increment if sem_error already did it inside the VM,
                     // actually sem_error increments it! So we don't need to do anything else.
                 }
             }
-            
+
             // Clean up the global constants added by the meta block so they don't persist in ALIR
             ctx->module->globals = old_globals;
-            
+
             meta_vm_free(vm);
-            
+
             // Restore state
             ctx->current_func = old_func;
             ctx->current_block = old_block;
@@ -116,7 +117,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         }
         case NODE_SWITCH: alir_gen_switch(ctx, (SwitchNode*)node); break;
         case NODE_EMIT: alir_gen_flux_yield(ctx, (EmitNode*)node); break;
-        
+
         case NODE_WHILE: {
             alir_stmt_while(ctx, node);
             break;
@@ -126,16 +127,16 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             LoopNode *ln = (LoopNode*)node;
             AlirBlock *body_bb = alir_add_block(ctx->module, ctx->current_func, "loop_body");
             AlirBlock *end_bb = alir_add_block(ctx->module, ctx->current_func, "loop_end");
-            
+
             emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, body_bb->label), NULL));
-            
+
             ctx->current_block = body_bb;
             push_loop(ctx, body_bb, end_bb);
-            
+
             ASTNode *s = ln->body; while(s) { alir_gen_stmt(ctx, s); s=s->next; }
             pop_loop(ctx);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, body_bb->label), NULL));
-            
+
             ctx->current_block = end_bb;
             break;
         }
@@ -148,7 +149,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_BREAK:
             if (ctx->loop_break) emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, ctx->loop_break->label), NULL));
             break;
-            
+
         case NODE_CONTINUE:
             if (ctx->loop_continue) emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, ctx->loop_continue->label), NULL));
             break;
@@ -170,8 +171,8 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             }
             break;
         }
-        
-        case NODE_CALL: 
+
+        case NODE_CALL:
         case NODE_METHOD_CALL:
         case NODE_VAR_REF:
         case NODE_BINARY_OP:
@@ -192,7 +193,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_INC_DEC:
         case NODE_COMPOUND:
         case NODE_TEMPLATE_INSTANTIATION:
-            alir_gen_expr(ctx, node); 
+            alir_gen_expr(ctx, node);
             break;
 
         case NODE_DEFER:
@@ -206,22 +207,22 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             AlirBlock *then_bb = alir_add_block(ctx->module, ctx->current_func, "then");
             AlirBlock *else_bb = in->else_body ? alir_add_block(ctx->module, ctx->current_func, "else") : NULL;
             AlirBlock *merge_bb = alir_add_block(ctx->module, ctx->current_func, "merge");
-            
+
             AlirBlock *target_else = else_bb ? else_bb : merge_bb;
-            
+
             AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, cond, alir_val_label(ctx->module, then_bb->label));
             br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
             br->args[0] = alir_val_label(ctx->module, target_else->label);
             br->arg_count = 1;
             emit(ctx, br);
-            
+
             ctx->current_block = then_bb;
             ASTNode *s = in->then_body; while(s){ alir_gen_stmt(ctx,s); s=s->next; }
-            
+
             if (!ctx->current_block->tail || !is_terminator(ctx->current_block->tail->op)) {
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, merge_bb->label), NULL));
             }
-            
+
             if (else_bb) {
                 ctx->current_block = else_bb;
                 s = in->else_body; while(s){ alir_gen_stmt(ctx,s); s=s->next; }
@@ -229,7 +230,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                     emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, merge_bb->label), NULL));
                 }
             }
-            
+
             ctx->current_block = merge_bb;
             break;
         }

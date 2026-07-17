@@ -6,7 +6,7 @@ if exists("b:current_syntax")
 endif
 
 " Keywords
-syn keyword alirKeyword block func store load call return onstack onheap sizeof bitcast getptr promise type struct
+syn keyword alirKeyword block func store load call return onstack sizeof bitcast getptr promise type struct
 syn match alirLabel "^\s*[a-zA-Z0-9_]\+:"
 
 " Types

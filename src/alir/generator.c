@@ -342,6 +342,33 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
 
     AlirStruct *st = alir_find_struct(ctx->module, cn->name);
     
+    Parameter *p_head = NULL;
+    Parameter **p_tail = &p_head;
+    int p_count = 0;
+
+    if (ctx->sem) {
+        Parameter *p_this = arena_alloc_type(ctx->sem->compiler_ctx->arena, Parameter);
+        p_this->name = arena_strdup(ctx->sem->compiler_ctx->arena, "this");
+        p_this->type = this_t;
+        *p_tail = p_this; p_tail = &p_this->next;
+        p_count++;
+    }
+
+    if (st && !cn->is_union) {
+        AlirField *f = st->fields;
+        while (f) {
+            alir_func_add_param(ctx->module, ctx->current_func, f->name, f->type);
+            if (ctx->sem) {
+                Parameter *p_f = arena_alloc_type(ctx->sem->compiler_ctx->arena, Parameter);
+                p_f->name = arena_strdup(ctx->sem->compiler_ctx->arena, f->name);
+                p_f->type = f->type;
+                *p_tail = p_f; p_tail = &p_f->next;
+            }
+            p_count++;
+            f = f->next;
+        }
+    }
+    
     // [FIX] Register the implicit constructor in the class's semantic symbol table
     // so that call-site validation (sem_check_call) sees the correct parameter count.
     if (ctx->sem) {
@@ -352,18 +379,6 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
             ctor_sym->name = arena_strdup(ctx->sem->compiler_ctx->arena, cn->name);
             ctor_sym->kind = SYM_FUNC;
             ctor_sym->type = (VarType){TYPE_VOID, 0};
-            
-            Parameter *p_head = NULL;
-            Parameter **p_tail = &p_head;
-            int p_count = 0;
-
-            // 'this' parameter for constructor
-            Parameter *p_this = arena_alloc_type(ctx->sem->compiler_ctx->arena, Parameter);
-            p_this->name = arena_strdup(ctx->sem->compiler_ctx->arena, "this");
-            p_this->type = this_t;
-            *p_tail = p_this; p_tail = &p_this->next;
-            p_count++;
-
             ctor_sym->params = p_head;
             ctor_sym->param_count = p_count;
             ctor_sym->next = class_sym->inner_scope->symbols;
@@ -379,31 +394,24 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_val_var(ctx->module, "p0"), this_ptr));
 
     if (st && !cn->is_union) {
-        ASTNode *mem = cn->members;
-        while(mem) {
-            if (mem->type == NODE_VAR_DECL) {
-                VarDeclNode *vd = (VarDeclNode*)mem;
-                if (vd->initializer) {
-                    AlirField *f = st->fields;
-                    while(f) {
-                        if (strcmp(f->name, vd->name) == 0) break;
-                        f = f->next;
-                    }
-                    if (f) {
-                        AlirValue *arg_val = alir_gen_expr(ctx, vd->initializer);
-                        if (!arg_val) arg_val = alir_const_int(ctx->module, 0); // fallback
-                        
-                        AlirValue *loaded_this = new_temp(ctx, this_t);
-                        emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_this, this_ptr, NULL));
+        int param_idx = 1;
+        AlirField *f = st->fields;
+        while (f) {
+            char p_name[64];
+            snprintf(p_name, sizeof(p_name), "p%d", param_idx);
+            AlirValue *arg_val = alir_val_var(ctx->module, p_name);
+            arg_val->type = f->type;
+            
+            AlirValue *loaded_this = new_temp(ctx, this_t);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_this, this_ptr, NULL));
 
-                        VarType ft = f->type; ft.ptr_depth++;
-                        AlirValue *field_ptr = new_temp(ctx, ft);
-                        emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, loaded_this, alir_const_int(ctx->module, f->index)));
-                        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, arg_val, field_ptr));
-                    }
-                }
-            }
-            mem = mem->next;
+            VarType ft = f->type; ft.ptr_depth++;
+            AlirValue *field_ptr = new_temp(ctx, ft);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, loaded_this, alir_const_int(ctx->module, f->index)));
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, arg_val, field_ptr));
+            
+            param_idx++;
+            f = f->next;
         }
     }
 
@@ -418,7 +426,18 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
 
     char func_name[256];
     if (fn->mangled_name) {
-        snprintf(func_name, sizeof(func_name), "%s", fn->mangled_name);
+        if (class_name) {
+            char search_str[256];
+            snprintf(search_str, sizeof(search_str), "_%s", fn->name);
+            char *pos = strstr(fn->mangled_name, search_str);
+            if (pos) {
+                snprintf(func_name, sizeof(func_name), "%s%s", class_name, pos);
+            } else {
+                snprintf(func_name, sizeof(func_name), "%s", fn->mangled_name);
+            }
+        } else {
+            snprintf(func_name, sizeof(func_name), "%s", fn->mangled_name);
+        }
     } else {
         if (class_name) {
             if (strcmp(fn->name, "init") == 0 || strcmp(fn->name, class_name) == 0) {

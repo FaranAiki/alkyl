@@ -63,9 +63,9 @@ AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *
     AlirInst *i_size = mk_inst(ctx->module, ALIR_OP_SIZEOF, size_val, alir_val_type(ctx->module, class_name), NULL);
     emit(ctx, i_size);
 
-    // 2. Alloc Heap (Malloc)
+    // 2. Alloc Stack (Alloca)
     AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1}); // char*
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOC_HEAP, raw_mem, size_val, NULL));
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, raw_mem, size_val, NULL));
 
     // 3. Bitcast to Class*
     VarType cls_ptr_type = {TYPE_CLASS, 1, 0, alir_strdup(ctx->module, class_name)};

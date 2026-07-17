@@ -71,8 +71,19 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                     if (found) {
                         if (member->kind == SYM_FUNC) {
                             SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, member, (ASTNode*)node);
-                            if (resolved) {
-                                node->mangled_name = resolved->mangled_name;
+                            if (resolved && resolved->mangled_name) {
+                                if (strcmp(class_sym->name, current_class->name) != 0) {
+                                    int prefix_len = strlen(current_class->name);
+                                    if (strncmp(resolved->mangled_name, current_class->name, prefix_len) == 0 && resolved->mangled_name[prefix_len] == '_') {
+                                        char buf[512];
+                                        snprintf(buf, sizeof(buf), "%s%s", class_sym->name, resolved->mangled_name + prefix_len);
+                                        node->mangled_name = arena_strdup(ctx->compiler_ctx->arena, buf);
+                                    } else {
+                                        node->mangled_name = resolved->mangled_name;
+                                    }
+                                } else {
+                                    node->mangled_name = resolved->mangled_name;
+                                }
                             }
                         } else {
                             // Var func ptr call etc
@@ -113,6 +124,19 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                                         
                                         curr_arg = &(*curr_arg)->next;
                                         arg_count++;
+                                    }
+                                    if (member->kind == SYM_FUNC) {
+                                        SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, member, (ASTNode*)node);
+                                        if (resolved && resolved->mangled_name) {
+                                            int prefix_len = strlen(trait_sym->name);
+                                            if (strncmp(resolved->mangled_name, trait_sym->name, prefix_len) == 0 && resolved->mangled_name[prefix_len] == '_') {
+                                                char buf[512];
+                                                snprintf(buf, sizeof(buf), "%s%s", class_sym->name, resolved->mangled_name + prefix_len);
+                                                node->mangled_name = arena_strdup(ctx->compiler_ctx->arena, buf);
+                                            } else {
+                                                node->mangled_name = resolved->mangled_name;
+                                            }
+                                        }
                                     }
                                     goto done_method_search;
                                 }

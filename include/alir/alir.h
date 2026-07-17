@@ -35,12 +35,10 @@ typedef enum {
     ALIR_OP_BITCAST,    // Replaces raw casting logic
     
     // New Memory Ops for Lowering
-    ALIR_OP_ALLOC_HEAP, // malloc
     ALIR_OP_SIZEOF,     // sizeof(T)
     ALIR_OP_ALIGNOF,    // alignof(T)
     ALIR_OP_TYPEOF,     // typeof(T)
     ALIR_OP_DEFINED,    // defined(T)
-    ALIR_OP_FREE_HEAP,       // free
 
     // Arithmetic
     ALIR_OP_ADD, ALIR_OP_SUB, ALIR_OP_MUL, ALIR_OP_DIV, ALIR_OP_MOD,

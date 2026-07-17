@@ -1,0 +1,19 @@
+at namespace main:
+2:5: error: Undefined variable 'print'
+  |     print "%s\n", c"Hello World!";
+  |     ^
+2:5: error: Undefined function or class 'print'
+  |     print "%s\n", c"Hello World!";
+  |     ^
+Semantic analysis failed with 4 errors.
+
+=================================================================
+==64059==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 131120 byte(s) in 2 object(s) allocated from:
+    #0 0x7fd866b2c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+    #1 0x5587d47dfdaa in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:29
+    #2 0x5587d47dfdaa in arena_alloc /home/faranaiki/Git/alkyl/src/common/arena.c:65
+    #3 0x7ffcab7f880d  (<unknown module>)
+
+SUMMARY: AddressSanitizer: 131120 byte(s) leaked in 2 allocation(s).

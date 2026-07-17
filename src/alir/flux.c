@@ -130,7 +130,7 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     emit(ctx, mk_inst(ctx->module, ALIR_OP_SIZEOF, size_val, alir_val_type(ctx->module, struct_name), NULL));
     
     AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1});
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOC_HEAP, raw_mem, size_val, NULL));
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, raw_mem, size_val, NULL));
     
     AlirValue *ctx_ptr = new_temp(ctx, ret_type);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, ctx_ptr, raw_mem, NULL));

@@ -1,2 +1,0 @@
-llc -relocation-model=pic -filetype=obj out.ll -o mout.o
-clang -fPIC mout.o -fuse-ld=lld -o mout -fPIE

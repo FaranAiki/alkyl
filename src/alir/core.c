@@ -187,9 +187,6 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_LOAD: return "load";
         case ALIR_OP_GET_PTR: return "getptr";
         case ALIR_OP_BITCAST: return "bitcast";
-        
-        case ALIR_OP_ALLOC_HEAP: return "onheap";
-        case ALIR_OP_FREE_HEAP: return "unheap";
         case ALIR_OP_SIZEOF: return "sizeof";
         case ALIR_OP_ALIGNOF: return "alignof";
         case ALIR_OP_TYPEOF: return "typeof";

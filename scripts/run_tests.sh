@@ -74,7 +74,7 @@ for AKY_FILE in $FILES; do
         read -r -a FLAGS <<< "$FLAGS_STR"
     fi
 
-    ./alkyl "${FLAGS[@]}" "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
+    build/alkyl "${FLAGS[@]}" "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
     COMP_RET=$?
     
     # Strip colors for diffing
@@ -93,7 +93,7 @@ for AKY_FILE in $FILES; do
     # Check compilation success/failure
     if [ $COMP_RET -ne 0 ]; then
         # Compilation failed (non-zero exit code)
-        rm -f ./out
+        rm -f build/out
         
         if [ ! -f "$EXPECTED_LOG" ]; then
             echo -e "${COLOR_RED}FAILED (Compilation failed with exit code $COMP_RET but no expected log exists)${COLOR_RESET}"
@@ -118,9 +118,9 @@ for AKY_FILE in $FILES; do
     fi
     
     # 2. Execution (if compiled successfully)
-    if [ -f "./out" ]; then
+    if [ -f "build/out" ]; then
         # Always use input file (now that they all exist)
-        ./out < "$INPUT_FILE" > "$ACTUAL_OUT" 2>&1
+        ./build/out < "$INPUT_FILE" > "$ACTUAL_OUT" 2>&1
         RUN_RET=$?
         
         if [ $UPDATE -eq 1 ]; then
@@ -133,7 +133,7 @@ for AKY_FILE in $FILES; do
             if ! diff "$EXPECTED_OUT" "$ACTUAL_OUT" > "$RUN_DIFF"; then
                 echo -e "${COLOR_RED}FAILED (Output Mismatch)${COLOR_RESET}"
                 FAILED=$((FAILED + 1))
-                rm -f ./out
+                rm -f build/out
                 continue
             else
                 rm -f "$RUN_DIFF"
@@ -146,14 +146,14 @@ for AKY_FILE in $FILES; do
             if ! diff "$CLEAN_EXPECTED_LOG" "$CLEAN_ACTUAL_LOG" > "$LOGDIFF"; then
                 echo -e "${COLOR_RED}FAILED (Log Mismatch)${COLOR_RESET}"
                 FAILED=$((FAILED + 1))
-                rm -f ./out
+                rm -f build/out
                 continue
             else
                 rm -f "$LOGDIFF"
             fi
         fi
         
-        rm -f ./out
+        rm -f build/out
     else
         # If no ./out but compilation exit code was 0
         echo -e "${COLOR_RED}FAILED (No executable produced but compilation succeeded)${COLOR_RESET}"

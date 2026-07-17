@@ -11,7 +11,16 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
     switch (inst->op) {
         case ALIR_OP_ALLOCA: {
             LLVMTypeRef ty = get_llvm_type(ctx, inst->dest->type);
-            res = LLVMBuildAlloca(ctx->builder, ty, "alloc");
+            if (op1) {
+                LLVMValueRef size = op1;
+                // alloca expects size_t (i64 on 64-bit systems)
+                if (LLVMGetTypeKind(LLVMTypeOf(size)) == LLVMIntegerTypeKind && LLVMGetIntTypeWidth(LLVMTypeOf(size)) < 64) {
+                    size = LLVMBuildZExt(ctx->builder, size, LLVMInt64TypeInContext(ctx->llvm_ctx), "sz_ext");
+                }
+                res = LLVMBuildArrayAlloca(ctx->builder, LLVMInt8TypeInContext(ctx->llvm_ctx), size, "alloc");
+            } else {
+                res = LLVMBuildAlloca(ctx->builder, ty, "alloc");
+            }
             break;
         }
         // TODO fix this store
@@ -497,17 +506,6 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         
         // Low Level Memory Overrides
         // TODO make sure this is proper
-        case ALIR_OP_ALLOC_HEAP: {
-            if (op1) {
-                LLVMValueRef size = op1;
-                // malloc expects size_t (i64 on 64-bit systems)
-                if (LLVMGetTypeKind(LLVMTypeOf(size)) == LLVMIntegerTypeKind && LLVMGetIntTypeWidth(LLVMTypeOf(size)) < 64) {
-                    size = LLVMBuildZExt(ctx->builder, size, LLVMInt64TypeInContext(ctx->llvm_ctx), "sz_ext");
-                }
-                res = LLVMBuildArrayMalloc(ctx->builder, LLVMInt8TypeInContext(ctx->llvm_ctx), size, "malloc");
-            }
-            break;
-        }
         case ALIR_OP_SIZEOF: {
             LLVMTypeRef ty = get_llvm_type(ctx, inst->op1->type);
             res = LLVMSizeOf(ty);
@@ -525,10 +523,6 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         case ALIR_OP_TYPEOF: {
             char *type_str = sem_type_to_str(inst->op1->type);
             res = LLVMBuildGlobalStringPtr(ctx->builder, type_str, "typeof_str");
-            break;
-        }
-        case ALIR_OP_FREE_HEAP: {
-            if (op1) LLVMBuildFree(ctx->builder, op1);
             break;
         }
         case ALIR_OP_MOV: {
