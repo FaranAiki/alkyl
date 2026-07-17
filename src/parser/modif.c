@@ -8,9 +8,18 @@ ASTNode* parse_define(Parser *p) {
   int sig_cap = 0;
 
   do {
-      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected macro name after 'define'");
-      char *macro_name = parser_strdup(p, p->current_token.text);
-      eat(p, TOKEN_IDENTIFIER);
+      char *macro_name = NULL;
+      if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text) {
+          macro_name = parser_strdup(p, p->current_token.text);
+      } else {
+          const char *kw = token_type_to_string(p->current_token.type);
+          if (kw) {
+              macro_name = parser_strdup(p, kw);
+          } else {
+              parser_fail(p, "Expected macro name after 'define'");
+          }
+      }
+      eat(p, p->current_token.type);
       
       char **params = NULL;
       int param_count = 0;

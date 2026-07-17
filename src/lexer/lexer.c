@@ -469,22 +469,26 @@ static int lex_word(Lexer *l, Token *t) {
   }
 
   char word[256];
-  if (length < 256) {
-      strncpy(word, start, length);
-      word[length] = '\0';
-
-      init_kw_hash();
-      unsigned int h = hash_str(word) % KW_HASH_SIZE;
-      while (kw_hash[h].word != NULL) {
-          if (strcmp(kw_hash[h].word, word) == 0) {
-              t->type = kw_hash[h].type;
-              return 1;
-          }
-          h = (h + 1) % KW_HASH_SIZE;
-      }
+  if (length >= 256) {
+      Token dummy = {TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col};
+      report_error(l, dummy, "Identifier length exceeds maximum limit of 255 characters");
+      exit(1);
   }
 
-  // Fallback to identifier for unknown or extremely long strings
+  strncpy(word, start, length);
+  word[length] = '\0';
+
+  init_kw_hash();
+  unsigned int h = hash_str(word) % KW_HASH_SIZE;
+  while (kw_hash[h].word != NULL) {
+      if (strcmp(kw_hash[h].word, word) == 0) {
+          t->type = kw_hash[h].type;
+          return 1;
+      }
+      h = (h + 1) % KW_HASH_SIZE;
+  }
+
+  // Fallback to identifier
   t->type = TOKEN_IDENTIFIER;
   t->text = intern_strndup(l, start, length);
   return 1;

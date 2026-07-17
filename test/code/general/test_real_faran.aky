@@ -15,7 +15,7 @@ abstract method class Communication {
 }
 
 // exact method = impl Person, defined in std/alias
-exact method class Person has Identity, Hand {
+exact method class Person has Identity, Communication {
   void wave() {
     cprintf "I am waving!\n";
   }
@@ -29,6 +29,6 @@ int main(int argc, char **argv) {
   let imut Faran = Person("Faran Aiki", 19);
   Faran.wave();
   Faran.introduce();
-  Faran.age = 12;
-  Faran.introduce();
+  // Faran.age = 12; this gives compiler time error
+  // Faran.introduce();
 }
