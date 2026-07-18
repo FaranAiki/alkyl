@@ -158,6 +158,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
               func->ret_type = vt;
               func->params = NULL;
               func->body = body;
+              func->has_body = 1;
               func->is_open = member_open;
               func->class_name = parser_strdup(p, class_name);
               func->is_flux = 1;
@@ -201,6 +202,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
               func->ret_type = target_type;
               func->params = NULL;
               func->body = body;
+              func->has_body = 1;
               func->is_open = member_open;
               func->class_name = parser_strdup(p, class_name); 
               
@@ -290,6 +292,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                       func->ret_type = vt;
                       func->params = params;
                       func->body = body;
+                      func->has_body = 1;
                       func->is_open = member_open;
                       func->class_name = parser_strdup(p, class_name); 
                       
@@ -351,10 +354,13 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   }
                   eat(p, TOKEN_RPAREN);
                   ASTNode *body = NULL;
+                  int has_body = 0;
                   if (p->current_token.type == TOKEN_SEMICOLON) {
                       eat(p, TOKEN_SEMICOLON);
+                      has_body = 0;
                   } else {
                       eat(p, TOKEN_LBRACE);
+                      has_body = 1;
                       body = parse_statements(p);
                       eat(p, TOKEN_RBRACE);
                       apply_implicit_return(p, &body);
@@ -368,6 +374,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   func->ret_type = vt;
                   func->params = params;
                   func->body = body;
+                  func->has_body = has_body;
                   func->is_open = member_open;
                   func->class_name = parser_strdup(p, class_name); 
                   

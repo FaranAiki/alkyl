@@ -15,7 +15,7 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
-add_compile_options(-Wall -Wextra -g -O3 -flto
+add_compile_options(-Wall -Wextra -g -O3 -flto=auto
 -Wno-missing-field-initializers
 )
 
@@ -97,6 +97,8 @@ set(ALIR_SOURCES
     src/alir/utils.c
     src/alir/lvalue.c
     src/alir/emitter.c
+    src/alir/binary_write.c
+    src/alir/binary_read.c
     src/alir/stmt.c
 
     src/alir/fragment/generate.c

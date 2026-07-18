@@ -14,11 +14,6 @@ int main(int argc, char *argv[]) {
   Arena arena, arena_debug;
   CompilerContext comp_ctx, comp_ctx_debug;
 
-  arena_init(&arena);
-  arena_init(&arena_debug);
-  context_init(&comp_ctx, &arena);
-  context_init(&comp_ctx_debug, &arena_debug);
-
   if (argc < 2) {
     printf("Usage: %s <file.aky> [-l<lib>] | --lsp\n", argv[0]);
     return 1;
@@ -29,9 +24,15 @@ int main(int argc, char *argv[]) {
       return 0;
   }
 
+  arena_init(&arena);
+  arena_init(&arena_debug);
+  context_init(&comp_ctx, &arena);
+  context_init(&comp_ctx_debug, &arena_debug);
+
   char *filename = NULL;
   char link_flags[1024] = {0};
   int emit_alir = 0;
+  int emit_balir = 0;
 
   mkdir("build", 0777);
 
@@ -46,6 +47,8 @@ int main(int argc, char *argv[]) {
           }
       } else if (strcmp(argv[i], "--emit-alir") == 0) {
           emit_alir = 1;
+      } else if (strcmp(argv[i], "--emit-balir") == 0) {
+          emit_balir = 1;
       } else {
           filename = argv[i];
       }
@@ -53,6 +56,8 @@ int main(int argc, char *argv[]) {
 
   if (!filename) {
       fprintf(stderr, "No input file specified\n");
+      arena_free(&arena);
+      arena_free(&arena_debug);
       return 1;
   }
 
@@ -91,6 +96,8 @@ int main(int argc, char *argv[]) {
 
   if (comp_ctx.error_count > 0) {
       free(code);
+      arena_free(&arena);
+      arena_free(&arena_debug);
       return 1;
   }
 
@@ -158,6 +165,10 @@ int main(int argc, char *argv[]) {
   if (comp_ctx.error_count > 0) {
       fprintf(stderr, "Compilation aborted due to previous errors.\n");
       return 1;
+  }
+  
+  if (emit_balir) {
+      alir_write_binary(alir_module, BASENAME ".balir");
   }
 
   debug_step("Finished alir check and analysis. Start Codegen using LLVM Codegen");

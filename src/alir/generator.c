@@ -465,7 +465,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
         p = p->next;
     }
 
-    if (!fn->body) return;
+    if (!fn->has_body) return;
 
     ctx->current_block = alir_add_block(ctx->module, ctx->current_func, "entry");
     ctx->temp_counter = 0;

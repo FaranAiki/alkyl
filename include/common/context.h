@@ -12,6 +12,7 @@ typedef struct {
   bool allocator_arc;
   char *default_cconv;
   bool inject_enum_as_cstring;
+  bool double_quote_as_string;
 } CompilerSettings;
 
 // Holds the global state for a single compilation session

@@ -1,0 +1,1 @@
+extern int printf(char*, ...) as cprintf; class Foo { public int x; method void m1() {} } int main() { cprintf("%d\\n", hasattribute(Foo)[0]); cprintf("%s\\n", hasattribute(Foo)[1]); }

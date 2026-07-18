@@ -14,7 +14,7 @@ syn keyword alkylKeyword let mut imut immutable const final pristine reactive co
 syn keyword alkylModifier public private open closed extern naked abstract exact method container frame pragma
 syn keyword alkylTypeKeyword class struct enum union namespace typedef compound type
 syn keyword alkylBuiltinType int void char bool single double short long unsigned typeof sizeof alignof hasmethod hasattribute
-syn keyword alkylBoolean true false
+syn keyword alkylBoolean true false null
 syn keyword alkylOperatorKeyword infop prefop suffop infmut premut sufmut
 
 " Numbers

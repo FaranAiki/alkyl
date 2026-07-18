@@ -154,6 +154,7 @@ typedef struct {
   bool is_pristine : 1;
   bool has_explicit_pristine : 1;
   bool is_extern : 1;
+  bool has_body : 1;
   bool is_covalent : 1;
   char *cconv;
   char *extern_name;
@@ -174,7 +175,8 @@ typedef struct {
 
   bool is_open : 1; 
   bool is_public : 1; 
-  bool is_extern : 1; 
+  bool is_extern : 1;
+  bool has_body : 1; 
   bool is_union : 1;
   bool is_static : 1; 
   bool is_abstract : 1;
@@ -203,7 +205,8 @@ typedef struct {
 
   bool is_open : 1; 
   bool is_public : 1; 
-  bool is_extern : 1; 
+  bool is_extern : 1;
+  bool has_body : 1; 
   bool is_union : 1;
   bool is_static : 1; 
   bool is_abstract : 1;

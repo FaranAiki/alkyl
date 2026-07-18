@@ -106,6 +106,7 @@ static ASTNode* parse_single_extern(Parser *p, int modifiers) {
   FuncDefNode *node = parser_alloc(p, sizeof(FuncDefNode));
   node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = ret_type;
   node->params = params_head; node->body = NULL; node->is_varargs = is_varargs;
+  node->has_body = 0;
   node->is_extern = true;
   node->extern_name = extern_name;
   node->cconv = p->pending_cconv ? p->pending_cconv : p->ctx->settings.default_cconv;
@@ -358,7 +359,9 @@ ASTNode* parse_top_level_internal(Parser *p) {
                       } else if (strcmp(key, "require_semicolons") == 0 && val) {
                           p->l->settings.require_semicolons = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
                       } else if (strcmp(key, "double_quote_as_string") == 0 && val) {
-                          p->l->settings.double_quote_as_string = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
+                          bool setting = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
+                          p->l->settings.double_quote_as_string = setting;
+                          p->ctx->settings.double_quote_as_string = setting;
                       }
                   }
               } else if (p->current_token.type == TOKEN_ASSIGN) {
@@ -585,6 +588,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
     
     FuncDefNode *node = parser_alloc(p, sizeof(FuncDefNode));
     node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = vtype; node->params = params_head; node->body = body;
+    node->has_body = 1;
     node->is_flux = is_flux; 
     node->base.line = line; node->base.col = col;
     node->cconv = p->pending_cconv ? p->pending_cconv : p->ctx->settings.default_cconv;

@@ -261,6 +261,9 @@ const char* alir_op_str(AlirOpcode op);
 void* alir_alloc(AlirModule *mod, size_t size);
 char* alir_strdup(AlirModule *mod, const char *str);
 
+int alir_write_binary(AlirModule *mod, const char *filename);
+AlirModule* alir_read_binary(CompilerContext *ctx, const char *filename);
+
 #include "lvalue.h"
 #include "const.h"
 #include "stmt.h"

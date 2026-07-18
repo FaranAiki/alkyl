@@ -58,3 +58,8 @@ For further information, look at
 * alkyl/docs/internal
 * alkyl/docs/software-arch: An archictecture containing rigorous definition, formalization, and standardizaton of this project's scope. This includes the Alkyl Programming Language written in C, Alkyl Programming Language written in Alkyl itself, and others.
 * alkyl/docs/business-arch: An architecture containing views from business perspective of Alkyl Project.
+
+# BALR Format
+The compiled ALIR module uses a binary representation called `.balir`.
+The magic hex sequence `2f 58 b0 4f 2e c2 a8 ee 24` is placed at the start of `.balir` files to identify them.
+This hex sequence is derived from hashing the word `faranaiki` with SHA256, taking the first 36 characters, decomposing them into 18 hex pairs, and multiplying hex 1 x hex 2 mod 0x100, etc.
