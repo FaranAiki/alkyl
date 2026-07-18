@@ -14,8 +14,9 @@ void* alir_alloc(AlirModule *mod, size_t size) {
 }
 
 char* alir_strdup(AlirModule *mod, const char *str) {
-    if (mod && mod->compiler_ctx && mod->compiler_ctx->arena) {
-        return arena_strdup(mod->compiler_ctx->arena, str);
+    if (!str) return NULL;
+    if (mod && mod->compiler_ctx) {
+        return (char*)context_intern(mod->compiler_ctx, str);
     }
     return strdup(str);
 }

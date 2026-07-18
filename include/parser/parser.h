@@ -4,8 +4,8 @@
 #include "../lexer/lexer.h"
 #include "../common/debug.h"
 #include "../common/context.h"
-#include <setjmp.h>
 #include <stdbool.h>
+#include "../common/hashmap.h"
 
 #include "parser/typestruct.h"
 #include "semantic/typestruct.h"
@@ -28,13 +28,18 @@ typedef struct Parser {
     ParserSettings settings;
     
     Token current_token;
-    jmp_buf *recover_buf;
+    int has_error;
     
     Macro *macro_head;
     TypeName *type_head;
     TypeAlias *alias_head;
     struct Expansion *expansion_head;
     int disable_macro_expansion;
+    Token *tokens;
+    int token_count;
+    int token_capacity;
+    int token_pos;
+    HashMap types_map;
     char *current_namespace;
     char *pending_cconv;
 } Parser;

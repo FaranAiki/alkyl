@@ -31,7 +31,6 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
                 VarType new_t = replace_with[i];
                 new_t.ptr_depth += t.ptr_depth;
                 new_t.array_depth += t.array_depth;
-                new_t.vector_depth += t.vector_depth;
                 return new_t;
             }
         }

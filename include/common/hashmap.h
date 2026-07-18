@@ -21,6 +21,7 @@ void hashmap_init(HashMap *map, Arena *arena, int initial_capacity);
 void hashmap_put(HashMap *map, const char *key, void *value);
 void* hashmap_get(HashMap *map, const char *key);
 int hashmap_has(HashMap *map, const char *key);
+const char* hashmap_intern(HashMap *map, const char *key);
 
 // Increments a counter for the given string key and returns the new count.
 // Very useful for deduplicating strings (like IR labels).

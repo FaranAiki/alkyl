@@ -12,7 +12,6 @@ void parser_emit_indent(StringBuilder *sb, int indent) {
 }
 
 void parser_emit_type(StringBuilder *sb, VarType t) {
-    for (int i = 0; i < t.vector_depth; i++) sb_append(sb, "vector ");
     if (t.is_unsigned) sb_append(sb, "unsigned ");
     
     switch (t.base) {

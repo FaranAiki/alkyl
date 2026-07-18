@@ -124,7 +124,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
         int idx = alir_robust_get_field_index(ctx, class_name, ma->member_name);
         
         // Find field type for precise IR typing
-        VarType field_type = {TYPE_AUTO, 0, 0, NULL};
+        VarType field_type = {TYPE_AUTO, 0, NULL};
         if (class_name) {
             AlirStruct *st = alir_find_struct(ctx->module, class_name);
             if (st) {
@@ -650,7 +650,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
         if (sym && sym->kind == SYM_FUNC && sym->is_flux) {
             char struct_name[512];
             snprintf(struct_name, sizeof(struct_name), "FluxCtx_%s", cn->name);
-            ret_type = (VarType){TYPE_CLASS, 1, 0, alir_strdup(ctx->module, struct_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+            ret_type = (VarType){TYPE_CLASS, 1, alir_strdup(ctx->module, struct_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
             found = 1;
         }
     }
@@ -773,7 +773,7 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
                     if (method_sym->is_flux) {
                         char struct_name[512];
                         snprintf(struct_name, sizeof(struct_name), "FluxCtx_%s", func_name);
-                        ret_type = (VarType){TYPE_CLASS, 1, 0, alir_strdup(ctx->module, struct_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+                        ret_type = (VarType){TYPE_CLASS, 1, alir_strdup(ctx->module, struct_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
                         found_flux = 1;
                     }
                     break;
@@ -808,7 +808,7 @@ AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     ASTNode *elem = al->elements;
     while(elem) { count++; elem = elem->next; }
 
-    VarType elem_type = {TYPE_INT, 0, 0, NULL};
+    VarType elem_type = {TYPE_INT, 0, NULL};
     if (al->elements) {
         elem_type = sem_get_node_type(ctx->sem, al->elements);
         if (elem_type.base == TYPE_UNKNOWN || elem_type.base == TYPE_AUTO) {
@@ -924,7 +924,7 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
                 if (enum_name) {
                     SemSymbol *enum_sym = sem_symbol_lookup(ctx->sem, enum_name, NULL);
                     if (enum_sym && enum_sym->inner_scope) {
-                        VarType str_type = (VarType){TYPE_CHAR, 1, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+                        VarType str_type = (VarType){TYPE_CHAR, 1, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
                         AlirValue *dest = new_temp(ctx, str_type);
                         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, dest, NULL, NULL));
                         

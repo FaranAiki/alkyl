@@ -9,7 +9,7 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
         char *class_name = this_sym->type.class_name;
         
         int idx = -1;
-        VarType field_type = {TYPE_AUTO, 0, 0, NULL};
+        VarType field_type = {TYPE_AUTO, 0, NULL};
         AlirStruct *st = alir_find_struct(ctx->module, class_name);
         if (st) {
             AlirField *f = st->fields;
@@ -57,7 +57,7 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
     AlirSymbol *this_sym = alir_find_symbol(ctx, "this");
     if (this_sym && this_sym->type.class_name) {
         int idx = -1;
-        VarType field_type = {TYPE_AUTO, 0, 0, NULL};
+        VarType field_type = {TYPE_AUTO, 0, NULL};
         AlirStruct *st = alir_find_struct(ctx->module, this_sym->type.class_name);
         if (st) {
             AlirField *f = st->fields;
@@ -116,7 +116,7 @@ AlirValue* alir_gen_addr_member_access(AlirCtx *ctx, ASTNode *node) {
     }
 
     int idx = -1;
-    VarType field_type = {TYPE_AUTO, 0, 0, NULL};
+    VarType field_type = {TYPE_AUTO, 0, NULL};
     
     if (class_name) {
         AlirStruct *st = alir_find_struct(ctx->module, class_name);
@@ -151,7 +151,7 @@ AlirValue* alir_gen_addr_member_access(AlirCtx *ctx, ASTNode *node) {
     }
     if (idx == -1) {
         idx = 0;
-        field_type = (VarType){TYPE_AUTO, 0, 0, NULL};
+        field_type = (VarType){TYPE_AUTO, 0, NULL};
     }
     
     field_type.ptr_depth++; // It's a pointer to the field

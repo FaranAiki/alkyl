@@ -9,9 +9,6 @@ void semantic_emit_indent(StringBuilder *sb, int indent) {
 }
 
 void semantic_emit_type_str(StringBuilder *sb, VarType t) {
-    // 1. Explicitly mark Vectors
-    for (int i = 0; i < t.vector_depth; i++) sb_append_fmt(sb, "vector ");
-    
     if (t.is_unsigned) sb_append_fmt(sb, "unsigned ");
     
     // 2. Explicitly handle C-Strings vs Char

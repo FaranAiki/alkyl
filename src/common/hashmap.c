@@ -147,6 +147,47 @@ void hashmap_put(HashMap *map, const char *key, void *value) {
     entries[new_idx].value = value;
 }
 
+const char* hashmap_intern(HashMap *map, const char *key) {
+    if (!map || !key) return NULL;
+    
+    // Resize at 2/3 load factor
+    int limit = (map->capacity * 2) / 3;
+    if (map->size >= limit) {
+        hashmap_resize(map);
+    }
+    
+    uint32_t hash = hash_string(key);
+    size_t mask = map->capacity - 1;
+    size_t perturb = hash;
+    size_t i = hash & mask;
+    
+    int32_t *indices = (int32_t*)map->buckets;
+    DictEntry *entries = (DictEntry*)(indices + map->capacity);
+    
+    while (indices[i] != -1) {
+        int idx = indices[i];
+        if (entries[idx].hash == hash && 
+           (entries[idx].key == key || strcmp(entries[idx].key, key) == 0)) {
+            return entries[idx].key; // Found existing interned string
+        }
+        i = (i * 5 + 1 + perturb) & mask;
+        perturb >>= PERTURB_SHIFT;
+    }
+    
+    int new_idx = map->size++;
+    indices[i] = new_idx;
+    
+    entries[new_idx].hash = hash;
+    if (map->arena) {
+        entries[new_idx].key = arena_strdup(map->arena, key);
+    } else {
+        entries[new_idx].key = strdup(key);
+    }
+    entries[new_idx].value = entries[new_idx].key;
+    
+    return entries[new_idx].key;
+}
+
 void* hashmap_get(HashMap *map, const char *key) {
     if (!map || !key) return NULL;
     

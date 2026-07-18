@@ -84,7 +84,7 @@ ASTNode* parse_define(Parser *p) {
       snprintf(hint, sizeof(hint), "Did you mean \"define %s as %s...\"?", sigs[0].name, found);
       report_hint(p->l, p->current_token, hint);
       
-      if (p->recover_buf) longjmp(*p->recover_buf, 1);
+      p->has_error = 1; return NULL;
   }
   eat(p, TOKEN_AS);
   

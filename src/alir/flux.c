@@ -87,7 +87,7 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     if (class_name) {
         AlirField *f = alir_alloc(ctx->module, sizeof(AlirField));
         f->name = alir_strdup(ctx->module, "this");
-        f->type = (VarType){TYPE_CLASS, 1, 0, alir_strdup(ctx->module, class_name)}; 
+        f->type = (VarType){TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)}; 
         f->index = p_idx++;
         *tail=f; tail=&f->next;
     }
@@ -114,10 +114,10 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     alir_register_struct(ctx->module, struct_name, fields, 0);
     
     // 3. Generate INIT Function (The Generator Factory)
-    VarType ret_type = {TYPE_CLASS, 1, 0, alir_strdup(ctx->module, struct_name)};
+    VarType ret_type = {TYPE_CLASS, 1, alir_strdup(ctx->module, struct_name)};
     ctx->current_func = alir_add_function(ctx->module, func_name, ret_type, 0); 
     
-    if (class_name) alir_func_add_param(ctx->module, ctx->current_func, "this", (VarType){TYPE_CLASS, 1, 0, alir_strdup(ctx->module, class_name)});
+    if (class_name) alir_func_add_param(ctx->module, ctx->current_func, "this", (VarType){TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)});
     p = fn->params;
     while(p) {
         alir_func_add_param(ctx->module, ctx->current_func, p->name, p->type);
@@ -156,9 +156,9 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     if (class_name) {
         char arg_name[16]; sprintf(arg_name, "p%d", param_offset++);
         AlirValue *arg_val = alir_val_var(ctx->module, arg_name); 
-        arg_val->type = (VarType){TYPE_CLASS, 1, 0, alir_strdup(ctx->module, class_name)}; 
+        arg_val->type = (VarType){TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)}; 
         
-        AlirValue *f_ptr = new_temp(ctx, (VarType){TYPE_CLASS, 2, 0, alir_strdup(ctx->module, class_name)});
+        AlirValue *f_ptr = new_temp(ctx, (VarType){TYPE_CLASS, 2, alir_strdup(ctx->module, class_name)});
         emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, f_ptr, ctx_ptr, alir_const_int(ctx->module, p_idx++)));
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, arg_val, f_ptr));
     }
@@ -200,10 +200,10 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     ctx->symbols = NULL; 
     p_idx = 4;
     if (class_name) {
-         VarType pt = {TYPE_CLASS, 1, 0, alir_strdup(ctx->module, class_name)}; pt.ptr_depth++;
+         VarType pt = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)}; pt.ptr_depth++;
          AlirValue *ptr = new_temp(ctx, pt);
          emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, ptr, ctx->flux_ctx_ptr, alir_const_int(ctx->module, p_idx++)));
-         alir_add_symbol(ctx, "this", ptr, (VarType){TYPE_CLASS, 1, 0, alir_strdup(ctx->module, class_name)});
+         alir_add_symbol(ctx, "this", ptr, (VarType){TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)});
     }
     p = fn->params;
     while(p) {

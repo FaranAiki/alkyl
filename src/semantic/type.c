@@ -234,7 +234,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                 lhs_type = rhs_type;
             } else {
                 sem_error(ctx, (ASTNode*)node, "Undefined variable '%s'", node->name);
-                lhs_type = (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+                lhs_type = (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
             }
         } else {
             if (!sym->is_mutable) {
@@ -274,7 +274,6 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                 
                 if (lhs_type.array_size > 0) lhs_type.array_size = 0;
                 else if (lhs_type.ptr_depth > 0) lhs_type.ptr_depth--;
-                else if (lhs_type.vector_depth > 0) lhs_type.vector_depth--;
                 else {
                     sem_error(ctx, (ASTNode*)node, "Cannot index into non-array variable '%s'", node->name);
                 }
@@ -426,15 +425,15 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
 }
 
 int is_numeric(VarType t) {
-    return ((t.base >= TYPE_INT && t.base <= TYPE_LONG_DOUBLE) || t.base == TYPE_ENUM) && t.ptr_depth == 0 && t.vector_depth == 0;
+    return ((t.base >= TYPE_INT && t.base <= TYPE_LONG_DOUBLE) || t.base == TYPE_ENUM) && t.ptr_depth == 0;
 }
 
 int is_integer(VarType t) {
-    return ((t.base >= TYPE_INT && t.base <= TYPE_CHAR) || t.base == TYPE_ENUM) && t.ptr_depth == 0 && t.vector_depth == 0;
+    return ((t.base >= TYPE_INT && t.base <= TYPE_CHAR) || t.base == TYPE_ENUM) && t.ptr_depth == 0;
 }
 
 int is_bool(VarType t) {
-    return (t.base == TYPE_BOOL && t.ptr_depth == 0 && t.vector_depth == 0);
+    return (t.base == TYPE_BOOL && t.ptr_depth == 0);
 }
 
 int is_pointer(VarType t) {

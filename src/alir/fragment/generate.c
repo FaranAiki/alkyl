@@ -17,7 +17,7 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         ASTNode *elem = al->elements;
         while(elem) { count++; elem = elem->next; }
 
-        VarType elem_type = {TYPE_INT, 0, 0, NULL};
+        VarType elem_type = {TYPE_INT, 0, NULL};
         if (al->elements) {
             elem_type = sem_get_node_type(ctx->sem, al->elements);
             if (elem_type.base == TYPE_UNKNOWN || elem_type.base == TYPE_AUTO) {
@@ -45,7 +45,7 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         AlirValue *size_val = alir_const_int(ctx->module, byte_size);
 
         // 1. Allocate on the Stack correctly for array sizes natively
-        AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1, 0, NULL});
+        AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1, NULL});
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, raw_mem, size_val, NULL));
 
         VarType ptr_type = elem_type;
@@ -128,7 +128,7 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         alir_add_symbol(ctx, vn->name, ptr, actual_type);
 
         CallNode *cn = (CallNode*)vn->initializer;
-        AlirInst *call_init = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_global(ctx->module, cn->name, (VarType){TYPE_VOID, 0, 0, NULL}), NULL);
+        AlirInst *call_init = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_global(ctx->module, cn->name, (VarType){TYPE_VOID, 0, NULL}), NULL);
         
         int arg_count = 0; ASTNode *a = cn->args; while(a) { arg_count++; a=a->next; }
         call_init->arg_count = arg_count + 1;

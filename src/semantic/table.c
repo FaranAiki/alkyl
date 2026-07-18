@@ -37,7 +37,7 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
 }
 
 VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
-    if (!node) return (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+    if (!node) return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     
     unsigned int idx = hash_ptr(node);
     TypeEntry *curr = ctx->type_buckets[idx];
@@ -46,7 +46,7 @@ VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
         curr = curr->next;
     }
 
-    return (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+    return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
 }
 
 void sem_set_node_tainted(SemanticCtx *ctx, ASTNode *node, int is_tainted) {
@@ -61,7 +61,7 @@ void sem_set_node_tainted(SemanticCtx *ctx, ASTNode *node, int is_tainted) {
         curr = curr->next;
     }
     
-    sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+    sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     ctx->type_buckets[idx]->is_tainted = is_tainted;
 }
 
@@ -88,7 +88,7 @@ void sem_set_node_impure(SemanticCtx *ctx, ASTNode *node, int is_impure) {
         curr = curr->next;
     }
     
-    sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+    sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     ctx->type_buckets[idx]->is_impure = is_impure;
 }
 
@@ -109,7 +109,7 @@ static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
         if (strcmp(name, "Vector_int") == 0) {
             printf("DEBUG: find_in_scope_direct (map) for 'Vector_int', res=%p\n", res);
         }
-        if (res && res->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && strcmp(res->name, scope->class_sym->name) == 0) {
+        if (res && res->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && res->name == scope->class_sym->name) {
             return NULL; // Do not return the constructor here to avoid shadowing the class name
         }
         return res;
@@ -117,11 +117,11 @@ static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
     // Fallback if hashmap is not initialized
     SemSymbol *sym = scope->symbols;
     while (sym) {
-        if (strcmp(name, "Vector_int") == 0 && strcmp(sym->name, "Vector_int") == 0) {
+        if (strcmp(name, "Vector_int") == 0 && sym->name == name) {
             printf("DEBUG: find_in_scope_direct (fallback) found 'Vector_int'\n");
         }
-        if (strcmp(sym->name, name) == 0) {
-            if (sym->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && strcmp(sym->name, scope->class_sym->name) == 0) {
+        if (sym->name == name) {
+            if (sym->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && sym->name == scope->class_sym->name) {
                 // skip constructor
             } else {
                 return sym;
@@ -354,8 +354,6 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
 
 int sem_types_are_equal(VarType a, VarType b) {
     if (a.base != b.base) return 0;
-    if (a.ptr_depth != b.ptr_depth) return 0;
-    if (a.vector_depth != b.vector_depth) return 0;
     if (a.array_size != b.array_size) return 0;
     if (a.is_unsigned != b.is_unsigned) return 0; 
     
@@ -425,7 +423,7 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
     if (src.base == TYPE_ENUM && dest_is_num) return 1;
     if (dest.base == TYPE_ENUM && src_is_num) return 1;
     
-    if (dest_is_num && src_is_num && dest.ptr_depth == 0 && src.ptr_depth == 0 && dest.vector_depth == 0 && src.vector_depth == 0) {
+    if (dest_is_num && src_is_num && dest.ptr_depth == 0 && src.ptr_depth == 0) {
         return true; 
     }
 
@@ -439,16 +437,10 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
         return true;
     }
     
-    if (src.array_size > 0 && dest.ptr_depth == src.ptr_depth + 1 && dest.base == src.base && dest.vector_depth == src.vector_depth) {
+    if (src.array_size > 0 && dest.ptr_depth == src.ptr_depth + 1 && dest.base == src.base) {
         return true; 
     }
     
-    // Array/Pointer literal to Vector assignment compatibility
-    if (dest.base == src.base && dest.vector_depth > 0 && 
-        src.ptr_depth == dest.vector_depth && src.vector_depth == 0 && 
-        dest.ptr_depth == 0) {
-        return 1;
-    }
 
     // casting char*, int* to void* or int* to void*
     if ((dest.base == TYPE_VOID && dest.ptr_depth > 0 && src.ptr_depth > 0) || (src.base == TYPE_VOID && src.ptr_depth > 0 && dest.ptr_depth > 0)) return true;
@@ -484,10 +476,6 @@ char* sem_type_to_str(VarType t) {
     }
     
     int pos = 0;
-    /* fix this is buggy
-    for (int i=0; i<t.vector_depth; i++) {
-        pos += snprintf(buf + pos, 256 - pos, "vector ");
-    }*/
 
     if (t.is_tainted) pos += snprintf(buf + pos, 256 - pos, "tainted ");
     else if (t.is_pristine) pos += snprintf(buf + pos, 256 - pos, "pristine ");

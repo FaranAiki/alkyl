@@ -197,8 +197,8 @@ ASTNode* parse_assignment_or_call(Parser *p) {
   
   if (p->ctx) p->ctx->error_count++;
   
-  if (p->recover_buf) longjmp(*p->recover_buf, 1);
-  else exit(1);
+  return NULL;
+  
 
   return NULL;
 }

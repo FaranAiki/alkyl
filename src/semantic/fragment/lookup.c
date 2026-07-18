@@ -16,7 +16,7 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
         } else {
             sem_error(ctx, (ASTNode*)node, "Type '%s' is not a class/struct", obj_type.class_name);
         }
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         return;
     }
     
@@ -53,7 +53,7 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                         if (member->is_flux) {
                             char buf[256];
                             snprintf(buf, sizeof(buf), "FluxCtx_%s_%s", current_class->name, member->name);
-                            VarType flux_type = {TYPE_CLASS, 1, 0, arena_strdup(ctx->compiler_ctx->arena, buf), 0, 0, NULL, NULL, 0, 0, 0, 0};
+                            VarType flux_type = {TYPE_CLASS, 1, arena_strdup(ctx->compiler_ctx->arena, buf), 0, 0, NULL, NULL, 0, 0, 0, 0};
                             flux_type.fp_ret_type = arena_alloc_type(ctx->compiler_ctx->arena, VarType);
                             *flux_type.fp_ret_type = member->type; // Bind the underlying yield type natively!
                             sem_set_node_type(ctx, (ASTNode*)node, flux_type);
@@ -157,6 +157,6 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
     done_method_search:
     if (!found) {
          sem_error(ctx, (ASTNode*)node, "Method '%s' not found in class '%s'", node->method_name, obj_type.class_name);
-         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     }
 }

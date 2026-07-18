@@ -337,7 +337,7 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
     AlirFunction *af = alir_add_function(ctx->module, cn->name, (VarType){TYPE_VOID, 0}, 0);
     ctx->current_func = af;
     
-    VarType this_t = {TYPE_CLASS, 1, 0, alir_strdup(ctx->module, cn->name)};
+    VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, cn->name)};
     alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
 
     AlirStruct *st = alir_find_struct(ctx->module, cn->name);
@@ -455,7 +455,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
     if (fn->cconv) ctx->current_func->cconv = alir_strdup(ctx->module, fn->cconv);
 
     if (class_name) {
-        VarType this_t = {TYPE_CLASS, 1, 0, alir_strdup(ctx->module, class_name)};
+        VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)};
         alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
     }
 
@@ -474,7 +474,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
     int p_idx = 0;
 
     if (class_name) {
-        VarType this_t = {TYPE_CLASS, 1, 0, alir_strdup(ctx->module, class_name)};
+        VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)};
         
         char pname[16]; snprintf(pname, sizeof(pname), "p%d", p_idx++);
         AlirValue *pval = alir_val_var(ctx->module, pname);

@@ -6,12 +6,24 @@
 void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
     p->l = l;
     p->ctx = l->ctx;
-    p->recover_buf = NULL;
+    p->has_error = 0;
     p->macro_head = NULL;
     p->type_head = NULL;
     p->alias_head = NULL;
     p->expansion_head = NULL;
     p->disable_macro_expansion = 0;
+    
+    p->tokens = NULL;
+    p->token_count = 0;
+    p->token_capacity = 0;
+    p->token_pos = 0;
+    
+    if (p->ctx && p->ctx->arena) {
+        hashmap_init(&p->types_map, p->ctx->arena, 64);
+    } else {
+        hashmap_init(&p->types_map, NULL, 64);
+    }
+    
     p->pending_cconv = NULL;
     
     if (settings) {
@@ -43,31 +55,18 @@ char* parser_strdup(Parser *p, const char *str) {
 }
 
 void register_typename(Parser *p, const char *name, int is_enum) {
-    TypeName *t = parser_alloc(p, sizeof(TypeName));
-    t->name = parser_strdup(p, name);
-    t->is_enum = is_enum;
-    t->next = p->type_head;
-    p->type_head = t;
+    hashmap_put(&p->types_map, name, (void*)(intptr_t)(is_enum ? 2 : 1));
 
     const char *current_ns = diag_get_namespace(p->ctx);
     if (current_ns && strlen(current_ns) > 0 && strcmp(current_ns, "main") != 0) {
         char full_name[512];
         snprintf(full_name, sizeof(full_name), "%s.%s", current_ns, name);
-        TypeName *t2 = parser_alloc(p, sizeof(TypeName));
-        t2->name = parser_strdup(p, full_name);
-        t2->is_enum = is_enum;
-        t2->next = p->type_head;
-        p->type_head = t2;
+        hashmap_put(&p->types_map, parser_strdup(p, full_name), (void*)(intptr_t)(is_enum ? 2 : 1));
     }
 }
 
 int is_typename(Parser *p, const char *name) {
-    TypeName *cur = p->type_head;
-    while(cur) {
-        if (strcmp(cur->name, name) == 0) return 1;
-        cur = cur->next;
-    }
-    return 0;
+    return hashmap_has(&p->types_map, name);
 }
 
 int is_type_start(Parser *p) {
@@ -84,12 +83,8 @@ int is_type_start(Parser *p) {
 }
 
 static int get_typename_kind(Parser *p, const char *name) {
-    TypeName *cur = p->type_head;
-    if (strcmp(name, "CAllocator") == 0) printf("DEBUG: get_typename_kind searching for %s\n", name);
-    while(cur) {
-        if (strcmp(name, "CAllocator") == 0) printf("  checking against %s\n", cur->name);
-        if (strcmp(cur->name, name) == 0) return cur->is_enum ? 2 : 1;
-        cur = cur->next;
+    if (hashmap_has(&p->types_map, name)) {
+        return (int)(intptr_t)hashmap_get(&p->types_map, name);
     }
     return 0;
 }
@@ -153,7 +148,13 @@ static Macro* find_macro(Parser *p, const char *name) {
 }
 
 Token lexer_next_raw(Parser *p) {
-    return lexer_next(p->l);
+    if (p->tokens && p->token_pos < p->token_count) {
+        return p->tokens[p->token_pos++];
+    }
+    Token eof;
+    memset(&eof, 0, sizeof(Token));
+    eof.type = TOKEN_EOF;
+    return eof;
 }
 
 Token get_next_token_expanded(Parser *p) {
@@ -165,7 +166,7 @@ Token get_next_token_expanded(Parser *p) {
             return get_next_token_expanded(p);
         }
     }
-    return lexer_next(p->l);
+    return lexer_next_raw(p);
 }
 
 static Token fetch_safe(Parser *p) { return get_next_token_expanded(p); }
@@ -173,12 +174,7 @@ static Token fetch_safe(Parser *p) { return get_next_token_expanded(p); }
 void parser_fail_at(Parser *p, Token t, const char *msg) {
     report_error(p->l, t, msg); 
     if (p->ctx) p->ctx->error_count++;
-    
-    if (p->recover_buf) {
-        longjmp(*p->recover_buf, 1);
-    } else {
-        exit(1);
-    }
+    p->has_error = 1;
 }
 
 void parser_fail(Parser *p, const char *msg) {
@@ -189,10 +185,12 @@ void parser_sync(Parser *p) {
     while (p->current_token.type != TOKEN_EOF) {
         if (p->current_token.type == TOKEN_SEMICOLON) {
             eat(p, TOKEN_SEMICOLON);
+    if (p->has_error) return;
             return;
         }
         if (p->current_token.type == TOKEN_RBRACE) {
             eat(p, TOKEN_RBRACE);
+    if (p->has_error) return;
             return;
         }
         switch (p->current_token.type) {
@@ -213,11 +211,13 @@ void parser_sync(Parser *p) {
                 return;
             default:
                 eat(p, p->current_token.type); 
+    if (p->has_error) return;
         }
     }
 }
 
 void eat(Parser *p, TokenType type) {
+  if (p->has_error) return;
   if (p->current_token.type == type) {
     Token t = fetch_safe(p);
     
@@ -337,32 +337,36 @@ VarType parse_type(Parser *p) {
   if (p->current_token.type == TOKEN_KW_UNSIGNED) {
       t.is_unsigned = 1;
       eat(p, TOKEN_KW_UNSIGNED);
+    if (p->has_error) return (VarType){0};
   }
 
   if (p->current_token.type == TOKEN_IDENTIFIER) {
       VarType *alias = get_alias(p, p->current_token.text);
       if (alias) {
           t.base = alias->base;
-          t.ptr_depth += alias->ptr_depth; 
-          t.vector_depth += alias->vector_depth;
+          t.ptr_depth += alias->ptr_depth;
           t.array_size = alias->array_size;
           if (alias->class_name) t.class_name = parser_strdup(p, alias->class_name);
           eat(p, TOKEN_IDENTIFIER);
+    if (p->has_error) return (VarType){0};
       }
       else {
-          Lexer saved_l = *(p->l);
+          int saved_pos = p->token_pos;
           Token saved_tok = p->current_token;
 
           char full_type_name[512];
           snprintf(full_type_name, sizeof(full_type_name), "%s", p->current_token.text);
           eat(p, TOKEN_IDENTIFIER);
+    if (p->has_error) return (VarType){0};
           
           while (p->current_token.type == TOKEN_DOT) {
               eat(p, TOKEN_DOT);
+    if (p->has_error) return (VarType){0};
               strcat(full_type_name, ".");
               if (p->current_token.type == TOKEN_IDENTIFIER) {
                   strcat(full_type_name, p->current_token.text);
                   eat(p, TOKEN_IDENTIFIER);
+    if (p->has_error) return (VarType){0};
               } else {
                   break;
               }
@@ -383,6 +387,7 @@ VarType parse_type(Parser *p) {
                       snprintf(full_name, sizeof(full_name), "%s", base_name);
                       
                       eat(p, TOKEN_LBRACKET);
+    if (p->has_error) return (VarType){0};
                       strcat(full_name, "[");
                       
                       while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
@@ -392,8 +397,10 @@ VarType parse_type(Parser *p) {
                               strcat(full_name, token_type_to_string(p->current_token.type));
                           }
                           eat(p, p->current_token.type);
+    if (p->has_error) return (VarType){0};
                       }
                       eat(p, TOKEN_RBRACKET);
+    if (p->has_error) return (VarType){0};
                       strcat(full_name, "]");
                       t.class_name = parser_strdup(p, full_name);
                   } else {
@@ -401,7 +408,7 @@ VarType parse_type(Parser *p) {
                   }
               }
           } else {
-              *(p->l) = saved_l;
+              p->token_pos = saved_pos;
               p->current_token = saved_tok;
               if (t.is_unsigned) t.base = TYPE_INT;
               return t; 
@@ -413,19 +420,24 @@ VarType parse_type(Parser *p) {
       else if (ct == TOKEN_KW_SHORT) { t.base = TYPE_SHORT; eat(p, TOKEN_KW_SHORT); }
       else if (ct == TOKEN_KW_LONG) {
           eat(p, TOKEN_KW_LONG);
+    if (p->has_error) return (VarType){0};
           if (p->current_token.type == TOKEN_KW_LONG) {
               eat(p, TOKEN_KW_LONG);
+    if (p->has_error) return (VarType){0};
               if (p->current_token.type == TOKEN_KW_DOUBLE) {
                   eat(p, TOKEN_KW_DOUBLE);
+    if (p->has_error) return (VarType){0};
                   t.base = TYPE_LONG_DOUBLE;
               } else {
                   t.base = TYPE_LONG_LONG;
               }
           } else if (p->current_token.type == TOKEN_KW_DOUBLE) {
               eat(p, TOKEN_KW_DOUBLE);
+    if (p->has_error) return (VarType){0};
               t.base = TYPE_LONG_DOUBLE;
           } else if (p->current_token.type == TOKEN_KW_INT) {
               eat(p, TOKEN_KW_INT);
+    if (p->has_error) return (VarType){0};
               t.base = TYPE_LONG;
           } else {
               t.base = TYPE_LONG;
@@ -433,8 +445,10 @@ VarType parse_type(Parser *p) {
       }
       else if (ct == TOKEN_KW_DOUBLE) {
           eat(p, TOKEN_KW_DOUBLE);
+    if (p->has_error) return (VarType){0};
           if (p->current_token.type == TOKEN_KW_LONG) {
               eat(p, TOKEN_KW_LONG);
+    if (p->has_error) return (VarType){0};
               if (p->current_token.type == TOKEN_KW_LONG) eat(p, TOKEN_KW_LONG); 
               t.base = TYPE_LONG_DOUBLE;
           } else {
@@ -456,18 +470,21 @@ VarType parse_type(Parser *p) {
   while (p->current_token.type == TOKEN_STAR) {
     t.ptr_depth++;
     eat(p, TOKEN_STAR);
+    if (p->has_error) return (VarType){0};
   }
   
   if (p->current_token.type == TOKEN_LPAREN) {
       Token next = parser_peek_token(p);
       if (next.type == TOKEN_STAR) {
           return parse_func_ptr_decl(p, t, NULL);
+    if (p->has_error) return (VarType){0};
       }
   }
   
   if (p->current_token.type == TOKEN_QUESTION) {
       t.is_tainted = 1;
       eat(p, TOKEN_QUESTION);
+    if (p->has_error) return (VarType){0};
   }
 
   return t;
@@ -482,18 +499,23 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     *vt.fp_ret_type = ret_type;
     
     eat(p, TOKEN_LPAREN);
+    if (p->has_error) return (VarType){0};
     if (p->current_token.type == TOKEN_STAR) {
         eat(p, TOKEN_STAR);
+    if (p->has_error) return (VarType){0};
         
         if (p->current_token.type == TOKEN_IDENTIFIER) {
             if (out_name) *out_name = parser_strdup(p, p->current_token.text);
             eat(p, TOKEN_IDENTIFIER);
+    if (p->has_error) return (VarType){0};
         } else if (out_name) {
             *out_name = NULL;
         }
         
         eat(p, TOKEN_RPAREN);
+    if (p->has_error) return (VarType){0};
         eat(p, TOKEN_LPAREN);
+    if (p->has_error) return (VarType){0};
     } else {
         if (out_name) *out_name = NULL;
     }
@@ -507,25 +529,32 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
             if (p->current_token.type == TOKEN_ELLIPSIS) {
                 vt.fp_is_varargs = 1;
                 eat(p, TOKEN_ELLIPSIS);
+    if (p->has_error) return (VarType){0};
                 break;
             }
             
             int pmods = parse_modifiers(p);
+    if (p->has_error) return (VarType){0};
             (void)pmods; // unused in func ptr types for now
             VarType pt = parse_type(p);
+    if (p->has_error) return (VarType){0};
             if (pt.base == TYPE_UNKNOWN) parser_fail(p, "Expected type in function pointer params");
             
             if (p->current_token.type == TOKEN_IDENTIFIER) {
                 eat(p, TOKEN_IDENTIFIER); 
+    if (p->has_error) return (VarType){0};
             }
             
              if (p->current_token.type == TOKEN_LBRACKET) {
                 eat(p, TOKEN_LBRACKET);
+    if (p->has_error) return (VarType){0};
                 if (p->current_token.type != TOKEN_RBRACKET) {
                      ASTNode* tmp = parse_expression(p);
+    if (p->has_error) return (VarType){0};
                      (void)tmp;
                 }
                 eat(p, TOKEN_RBRACKET);
+    if (p->has_error) return (VarType){0};
                 pt.ptr_depth++;
             }
             
@@ -542,6 +571,7 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
         }
     }
     eat(p, TOKEN_RPAREN);
+    if (p->has_error) return (VarType){0};
     
     return vt;
 }
@@ -579,37 +609,59 @@ Token parser_peek_token(Parser *p) {
             return p->expansion_head->tokens[p->expansion_head->pos];
         }
     }
-    Lexer l2 = *p->l;
-    return lexer_next(&l2);
+    if (p->tokens && p->token_pos < p->token_count) {
+        return p->tokens[p->token_pos];
+    }
+    Token eof;
+    memset(&eof, 0, sizeof(Token));
+    eof.type = TOKEN_EOF;
+    return eof;
 }
 
 void parser_prescan(Parser *p) {
-    if (!p->l) return;
-    Lexer l2 = *p->l;
-    Token t = lexer_next(&l2);
-    while (t.type != TOKEN_EOF) {
+    int saved_pos = p->token_pos;
+    while (p->token_pos < p->token_count) {
+        Token t = lexer_next_raw(p);
+        if (t.type == TOKEN_EOF) break;
         if (t.type == TOKEN_CLASS || t.type == TOKEN_STRUCT || t.type == TOKEN_UNION || t.type == TOKEN_ENUM) {
-            Token name = lexer_next(&l2);
+            Token name = lexer_next_raw(p);
             if (name.type == TOKEN_IDENTIFIER) {
                 register_typename(p, name.text, (t.type == TOKEN_ENUM));
             }
         }
-        t = lexer_next(&l2);
     }
+    p->token_pos = saved_pos;
 }
 
 ASTNode* parse_program(Parser *p) {
+  if (p->l) {
+      p->token_capacity = 1024;
+      p->tokens = parser_alloc(p, sizeof(Token) * p->token_capacity);
+      p->token_count = 0;
+      p->token_pos = 0;
+      while (1) {
+          Token t = lexer_next(p->l);
+          if (p->token_count >= p->token_capacity) {
+              int new_cap = p->token_capacity * 2;
+              Token *new_tokens = parser_alloc(p, sizeof(Token) * new_cap);
+              memcpy(new_tokens, p->tokens, sizeof(Token) * p->token_count);
+              p->tokens = new_tokens;
+              p->token_capacity = new_cap;
+          }
+          p->tokens[p->token_count++] = t;
+          if (t.type == TOKEN_EOF) break;
+      }
+  }
+
   parser_prescan(p);
   p->current_token = lexer_next_raw(p);
   
   ASTNode *head = NULL;
   ASTNode **current = &head;
   
-  jmp_buf recover_buf;
-  p->recover_buf = &recover_buf;
-
   while (p->current_token.type != TOKEN_EOF) {
-    if (setjmp(recover_buf) != 0) {
+    if (p->has_error) {
+        p->has_error = 0;
         parser_sync(p);
         if (p->current_token.type == TOKEN_EOF) break;
     }
@@ -624,7 +676,6 @@ ASTNode* parse_program(Parser *p) {
     }
   }
   
-  p->recover_buf = NULL;
   *current = NULL;
   return head;
 }

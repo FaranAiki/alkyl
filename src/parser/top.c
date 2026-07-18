@@ -33,9 +33,11 @@ void apply_implicit_return(Parser *p, ASTNode **body_ptr) {
 static ASTNode* parse_single_extern(Parser *p, int modifiers) {
   if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION) {
       eat(p, p->current_token.type);
-      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected name for extern keyword");
+      if (p->has_error) return NULL;
+      if (p->current_token.type != TOKEN_IDENTIFIER) { parser_fail(p, "Expected name for extern keyword"); return NULL; }
       char *name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
+      if (p->has_error) return NULL;
       eat(p, TOKEN_SEMICOLON);
       
       register_typename(p, name, 0); 
@@ -49,9 +51,10 @@ static ASTNode* parse_single_extern(Parser *p, int modifiers) {
   }
   
   VarType ret_type = parse_type(p);
-  if (ret_type.base == TYPE_UNKNOWN) { parser_fail(p, "Expected return type for extern function"); }
-  if (p->current_token.type != TOKEN_IDENTIFIER) { parser_fail(p, "Expected extern function name"); }
+  if (ret_type.base == TYPE_UNKNOWN) { parser_fail(p, "Expected return type for extern function"); return NULL; }
+  if (p->current_token.type != TOKEN_IDENTIFIER) { parser_fail(p, "Expected extern function name"); return NULL; }
   char *name = p->current_token.text; p->current_token.text = NULL; eat(p, TOKEN_IDENTIFIER);
+  if (p->has_error) return NULL;
   name = parser_strdup(p, name);
 
   eat(p, TOKEN_LPAREN);
@@ -62,7 +65,7 @@ static ASTNode* parse_single_extern(Parser *p, int modifiers) {
       if (p->current_token.type == TOKEN_ELLIPSIS) { eat(p, TOKEN_ELLIPSIS); is_varargs = 1; break; }
       int pmods = parse_modifiers(p);
       VarType ptype = parse_type(p);
-      if (ptype.base == TYPE_UNKNOWN) { parser_fail(p, "Expected parameter type"); }
+      if (ptype.base == TYPE_UNKNOWN) { parser_fail(p, "Expected parameter type"); return NULL; }
       char *pname = NULL;
       if (p->current_token.type == TOKEN_IDENTIFIER) { pname = parser_strdup(p, p->current_token.text); p->current_token.text = NULL; eat(p, TOKEN_IDENTIFIER); }
       
@@ -92,14 +95,17 @@ static ASTNode* parse_single_extern(Parser *p, int modifiers) {
     }
   }
   eat(p, TOKEN_RPAREN); 
+  if (p->has_error) return NULL;
   
   char *extern_name = NULL;
   if (p->current_token.type == TOKEN_AS) {
       eat(p, TOKEN_AS);
-      if (p->current_token.type != TOKEN_IDENTIFIER) { parser_fail(p, "Expected identifier after 'as'"); }
+      if (p->has_error) return NULL;
+      if (p->current_token.type != TOKEN_IDENTIFIER) { parser_fail(p, "Expected identifier after 'as'"); return NULL; }
       extern_name = name;
       name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
+      if (p->has_error) return NULL;
   }
   
   eat(p, TOKEN_SEMICOLON);

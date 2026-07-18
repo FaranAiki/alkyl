@@ -92,8 +92,7 @@ typedef enum {
 
 typedef struct VarType {
   BaseType base;
-  int ptr_depth; 
-  int vector_depth; // <--- VECTOR SUPPORT
+  int ptr_depth;
   char *class_name;
   int array_size;
   int array_depth;

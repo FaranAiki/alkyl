@@ -3,9 +3,9 @@
 
 #include "hashmap.h"
 #include "arena.h"
-#include <setjmp.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <setjmp.h>
 
 typedef struct {
   bool no_purge;
@@ -41,5 +41,6 @@ typedef struct {
 
 // Initialize the context with a provided arena
 void context_init(CompilerContext *ctx, Arena *arena);
+const char* context_intern(CompilerContext *ctx, const char *str);
 
 #endif // CONTEXT_H

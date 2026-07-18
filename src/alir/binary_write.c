@@ -24,7 +24,6 @@ static void bw_str(FILE *f, const char *s) {
 static void bw_type(FILE *f, VarType t) {
     bw_u8(f, t.base);
     bw_u32(f, t.ptr_depth);
-    bw_u32(f, t.vector_depth);
     bw_str(f, t.class_name);
     bw_u32(f, t.array_size);
     bw_u32(f, t.array_depth);

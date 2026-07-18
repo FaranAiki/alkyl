@@ -31,7 +31,6 @@ static VarType br_type(AlirModule *m, FILE *f) {
     VarType t; memset(&t, 0, sizeof(VarType));
     t.base = br_u8(f);
     t.ptr_depth = br_u32(f);
-    t.vector_depth = br_u32(f);
     t.class_name = br_str(m, f);
     t.array_size = br_u32(f);
     t.array_depth = br_u32(f);

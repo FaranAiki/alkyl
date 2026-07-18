@@ -90,7 +90,7 @@ AlirValue* alir_val_type(AlirModule *mod, const char *type_name) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_TYPE;
     v->val.str_val = alir_strdup(mod, type_name);
-    v->type = (VarType){TYPE_CLASS, 0, 0, alir_strdup(mod, type_name), 0, 0};
+    v->type = (VarType){TYPE_CLASS, 0, alir_strdup(mod, type_name), 0, 0};
     return v;
 }
 

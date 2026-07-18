@@ -2,7 +2,11 @@
 
 ASTNode* parse_import(Parser *p) {
   eat(p, TOKEN_IMPORT);
-  if (p->current_token.type != TOKEN_STRING && p->current_token.type != TOKEN_C_STRING) parser_fail(p, "Expected file path string after 'import'");
+  if (p->has_error) return NULL;
+  if (p->current_token.type != TOKEN_STRING && p->current_token.type != TOKEN_C_STRING) {
+      parser_fail(p, "Expected file path string after 'import'");
+      return NULL;
+  }
   char* fname = parser_strdup(p, p->current_token.text);
   p->current_token.text = NULL;
   eat(p, p->current_token.type);
@@ -17,6 +21,7 @@ ASTNode* parse_import(Parser *p) {
       char msg[256];
       snprintf(msg, 256, "Could not open imported file: '%s'", fname);
       parser_fail(p, msg); 
+      return NULL;
   }
   
   Lexer import_l; 
@@ -28,6 +33,7 @@ ASTNode* parse_import(Parser *p) {
   // Share state to allow macros, typedefs, and struct types to cross file boundaries
   import_p.macro_head = p->macro_head;
   import_p.type_head = p->type_head;
+  import_p.types_map = p->types_map;
   import_p.alias_head = p->alias_head;
   
   ASTNode* imported_root = parse_program(&import_p);
@@ -35,6 +41,7 @@ ASTNode* parse_import(Parser *p) {
   // Bring the global definitions back into the parent parser's scope
   p->macro_head = import_p.macro_head;
   p->type_head = import_p.type_head;
+  p->types_map = import_p.types_map;
   p->alias_head = import_p.alias_head;
   
   return imported_root; 
@@ -50,6 +57,7 @@ ASTNode* parse_link(Parser *p) {
     else eat(p, TOKEN_STRING);
   } else {
     parser_fail(p, "Expected library name (string or identifier) after 'link'");
+    return NULL;
   }
   if (p->current_token.type == TOKEN_SEMICOLON) eat(p, TOKEN_SEMICOLON);
   LinkNode *node = parser_alloc(p, sizeof(LinkNode));
