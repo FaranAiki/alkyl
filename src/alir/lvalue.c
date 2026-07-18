@@ -39,6 +39,8 @@ int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char
     return idx == -1 ? 0 : idx;
 }
 
+AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node);
+
 // Handles L-Values: Returns the memory address of arr[index]
 AlirValue* alir_gen_addr_array_access(AlirCtx *ctx, ArrayAccessNode *aa) {
     // 1. Get the address of the array variable itself
@@ -156,6 +158,10 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     // no need to change
     if (node->type == NODE_ARRAY_ACCESS) {
         return alir_gen_addr_array_access(ctx, (ArrayAccessNode*)node);
+    }
+    
+    if (node->type == NODE_ARRAY_LIT) {
+        return alir_gen_array_lit(ctx, node);
     }
 
     // TODO add vector access
@@ -813,12 +819,11 @@ AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     }
 
     VarType arr_type = elem_type;
-    arr_type.ptr_depth = 0;
-    arr_type.array_size = count > 0 ? count : 1; // Safely bound stack array allocations
+    arr_type.array_size = count > 0 ? count : 1; 
 
     VarType ptr_type = elem_type;
     ptr_type.ptr_depth++; 
-    ptr_type.array_size = 0;
+    ptr_type.array_size = arr_type.array_size; 
     
     // 1. Allocate on the Stack natively
     AlirValue *stack_ptr = new_temp(ctx, arr_type);

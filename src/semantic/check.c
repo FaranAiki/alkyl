@@ -648,11 +648,18 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                         if (match) {
                             LiteralNode *ln = arena_alloc(ctx->compiler_ctx->arena, sizeof(LiteralNode));
                             ln->base.type = NODE_LITERAL;
-                            ln->var_type.base = TYPE_CLASS;
-                            ln->var_type.class_name = arena_strdup(ctx->compiler_ctx->arena, "string");
-                            ln->var_type.ptr_depth = 0;
+                            if (ctx->compiler_ctx->settings.double_quote_as_string) {
+                                ln->var_type.base = TYPE_CLASS;
+                                ln->var_type.class_name = arena_strdup(ctx->compiler_ctx->arena, "string");
+                                ln->var_type.ptr_depth = 0;
+                            } else {
+                                ln->var_type.base = TYPE_CHAR;
+                                ln->var_type.class_name = NULL;
+                                ln->var_type.ptr_depth = 1;
+                            }
                             ln->var_type.array_size = 0;
                             ln->val.str_val = arena_strdup(ctx->compiler_ctx->arena, s->name);
+                            sem_set_node_type(ctx, (ASTNode*)ln, ln->var_type);
                             *curr = (ASTNode*)ln;
                             curr = &(*curr)->next;
                             count++;
@@ -662,13 +669,53 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 }
             }
             
-            // If none found, we still need an empty array, but we can't type check empty array easily.
-            // Well, let's just create an empty array literal.
+            // Insert the length at index 0
+            ASTNode *len_ast = NULL;
+            if (ctx->compiler_ctx->settings.double_quote_as_string) {
+                char length_str[16];
+                snprintf(length_str, sizeof(length_str), "%d", count);
+                LiteralNode *len_node = arena_alloc(ctx->compiler_ctx->arena, sizeof(LiteralNode));
+                len_node->base.type = NODE_LITERAL;
+                len_node->var_type.base = TYPE_CLASS;
+                len_node->var_type.class_name = arena_strdup(ctx->compiler_ctx->arena, "string");
+                len_node->var_type.ptr_depth = 0;
+                len_node->var_type.array_size = 0;
+                len_node->val.str_val = arena_strdup(ctx->compiler_ctx->arena, length_str);
+                sem_set_node_type(ctx, (ASTNode*)len_node, len_node->var_type);
+                len_ast = (ASTNode*)len_node;
+            } else {
+                LiteralNode *int_node = arena_alloc(ctx->compiler_ctx->arena, sizeof(LiteralNode));
+                int_node->base.type = NODE_LITERAL;
+                int_node->var_type.base = TYPE_INT;
+                int_node->var_type.ptr_depth = 0;
+                int_node->var_type.array_size = 0;
+                int_node->val.int_val = count;
+                
+                CastNode *cast_node = arena_alloc(ctx->compiler_ctx->arena, sizeof(CastNode));
+                cast_node->base.type = NODE_CAST;
+                cast_node->var_type.base = TYPE_CHAR;
+                cast_node->var_type.ptr_depth = 1;
+                cast_node->var_type.array_size = 0;
+                sem_set_node_type(ctx, (ASTNode*)int_node, int_node->var_type);
+                cast_node->operand = (ASTNode*)int_node;
+                sem_set_node_type(ctx, (ASTNode*)cast_node, cast_node->var_type);
+                len_ast = (ASTNode*)cast_node;
+            }
+            
+            len_ast->next = head;
+            head = len_ast;
+            count++;
+            
             node->type = NODE_ARRAY_LIT;
             ArrayLitNode *an = (ArrayLitNode*)node;
             an->elements = head;
             
-            VarType arr_t = { .base = TYPE_CLASS, .class_name = arena_strdup(ctx->compiler_ctx->arena, "string"), .ptr_depth = 0, .array_size = count };
+            VarType arr_t;
+            if (ctx->compiler_ctx->settings.double_quote_as_string) {
+                arr_t = (VarType){ .base = TYPE_CLASS, .class_name = arena_strdup(ctx->compiler_ctx->arena, "string"), .ptr_depth = 0, .array_size = count };
+            } else {
+                arr_t = (VarType){ .base = TYPE_CHAR, .class_name = NULL, .ptr_depth = 1, .array_size = count };
+            }
             sem_set_node_type(ctx, node, arr_t);
             break;
         }
