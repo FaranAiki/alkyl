@@ -1,0 +1,24 @@
+extern
+  int printf(char*, ...) as cprintf;
+
+class Identity {
+  char *name;
+
+  int speak() {
+    return 1;
+  }
+}
+
+class Person has Identity {
+  int intro() {
+    this[Identity].name;
+    return 1;
+  }
+}
+
+int main() {
+  Person p = Person("Faran Aiki", 10);
+  p.speak();
+  p.intro();
+  return 0;
+}

@@ -452,6 +452,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
 
     ctx->current_func = alir_add_function(ctx->module, func_name, fn->ret_type, 0);
     ctx->current_func->is_varargs = fn->is_varargs;
+    ctx->current_func->is_extern = fn->is_extern;
     if (fn->cconv) ctx->current_func->cconv = alir_strdup(ctx->module, fn->cconv);
 
     if (class_name) {

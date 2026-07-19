@@ -4,6 +4,8 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
     VarType obj_type = sem_get_node_type(ctx, node->object);
 
     SemSymbol *class_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
+    printf("DEBUG: sem_lookup_class_call for '%s', class_sym=%p\n", obj_type.class_name, class_sym);
+    if (class_sym) printf("DEBUG: class_sym->kind=%d\n", class_sym->kind);
     if (!class_sym || class_sym->kind != SYM_CLASS) {
         if (class_sym && class_sym->kind == SYM_TEMPLATE) {
             CompoundNode *cn = class_sym->template_node;
@@ -113,6 +115,24 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                                     found = 1;
                                 }
                                 if (found) {
+                                    char *obj_name = "obj";
+                                    int should_warn = 1;
+                                    if (node->object) {
+                                        if (node->object->type == NODE_VAR_REF) {
+                                            obj_name = ((VarRefNode*)node->object)->name;
+                                        } else if (node->object->type == NODE_ARRAY_ACCESS) {
+                                            ArrayAccessNode *aa = (ArrayAccessNode*)node->object;
+                                            if (aa->index->type == NODE_VAR_REF) {
+                                                VarRefNode *vr = (VarRefNode*)aa->index;
+                                                if (strcmp(vr->name, trait_sym->name) == 0) {
+                                                    should_warn = 0; // Explicitly qualified
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (should_warn) {
+                                        sem_warning(ctx, (ASTNode*)node, "%s is from %s, consider %s[%s].%s", node->method_name, trait_sym->name, obj_name, trait_sym->name, node->method_name);
+                                    }
                                     int arg_count = 0;
                                     ASTNode **curr_arg = &node->args;
                                     while(*curr_arg) {

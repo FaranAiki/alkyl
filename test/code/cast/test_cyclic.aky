@@ -9,6 +9,7 @@ class B {
 }
 
 int main() {
-    let mut a = A(null as B*, 10);
+    let mut b = B(0 as A*, 20); // wait, 0 as A*?
+    let mut a = A(&b, 10);
     return a.x;
 }

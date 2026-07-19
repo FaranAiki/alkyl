@@ -7,7 +7,7 @@ int divbytwo?(int a, int b = 2) {
 
 int main() {
   int t = divbytwo(100, 0);
-  untaint t residue DivByError {
+  untaint t residue(DivByError) {
 
   }
 }

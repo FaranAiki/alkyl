@@ -24,6 +24,11 @@ void context_init(CompilerContext *ctx, Arena *arena) {
     // 1024 is a good starting capacity for average source files
     hashmap_init(&ctx->string_pool, arena, 1024);
     hashmap_init(&ctx->error_table, arena, 64);
+    ctx->next_error_id = 0;
+    
+    // Inject ErrNull as ID 0
+    int null_id = ctx->next_error_id++;
+    hashmap_put(&ctx->error_table, strdup("ErrNull"), (void*)(intptr_t)(null_id + 1));
     ctx->settings.no_purge = false;
     ctx->settings.allocator_arc = false;
     ctx->settings.inject_enum_as_cstring = true;

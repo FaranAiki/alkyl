@@ -143,6 +143,20 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
         }
     }
 
+    void *err_val = hashmap_get(&ctx->compiler_ctx->error_table, ref->name);
+    if (!err_val && strncmp(ref->name, "Err", 3) == 0) {
+        int id = ctx->compiler_ctx->next_error_id++;
+        hashmap_put(&ctx->compiler_ctx->error_table, strdup(ref->name), (void*)(intptr_t)(id + 1));
+        err_val = (void*)(intptr_t)(id + 1);
+    }
+    
+    if (err_val) {
+        ref->is_error_id = 1;
+        ref->error_id = (int)(intptr_t)err_val;
+        sem_set_node_type(ctx, node, (VarType){TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+        return;
+    }
+
     sem_error(ctx, node, "Undefined variable '%s'", ref->name);
     sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
 }
@@ -157,6 +171,24 @@ void sem_check_array_access(SemanticCtx *ctx, ASTNode *node) {
     }
     
     VarType t = sem_get_node_type(ctx, aa->target);
+    
+    // Check for trait access (composition)
+    if (t.base == TYPE_CLASS && t.class_name && aa->index->type == NODE_VAR_REF) {
+        char *trait_name = ((VarRefNode*)aa->index)->name;
+        SemSymbol *class_sym = sem_symbol_lookup(ctx, t.class_name, NULL);
+        if (class_sym && class_sym->trait_count > 0) {
+            for (int i = 0; i < class_sym->trait_count; i++) {
+                if (strcmp(class_sym->traits[i], trait_name) == 0) {
+                    // Valid composition access!
+                    VarType trait_t = t;
+                    trait_t.class_name = arena_strdup(ctx->compiler_ctx->arena, trait_name);
+                    sem_set_node_type(ctx, node, trait_t);
+                    return;
+                }
+            }
+        }
+    }
+    
     if (t.array_size > 0) t.array_size = 0;
     else if (t.ptr_depth > 0) t.ptr_depth--;
     else if (t.base == TYPE_ENUM || t.base == TYPE_ARRAY || (t.base == TYPE_CLASS && t.class_name && (strcmp(t.class_name, "string") == 0 || strcmp(t.class_name, "vector") == 0 || strcmp(t.class_name, "hashmap") == 0))) {

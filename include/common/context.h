@@ -5,6 +5,7 @@
 #include "arena.h"
 #include <stddef.h>
 #include <stdbool.h>
+
 #include <setjmp.h>
 
 typedef struct {
@@ -18,7 +19,7 @@ typedef struct {
 // Holds the global state for a single compilation session
 typedef struct {
   Arena *arena;
-    
+
   int lexer_error_count;
   int parser_error_count;
   int semantic_error_count;
@@ -27,7 +28,7 @@ typedef struct {
   jmp_buf recover_buf;
   int has_recovery;    // Flag to ensure jump buffer is valid
   int error_count;
-    
+
   // Diagnostic State (formerly globals in diagnostic.c)
   char current_namespace[256];
   char last_reported_namespace[256];
@@ -35,6 +36,7 @@ typedef struct {
 
   HashMap string_pool;
   HashMap error_table;
+  int next_error_id;
   void *macro_head;
   CompilerSettings settings;
 } CompilerContext;

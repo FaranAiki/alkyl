@@ -60,11 +60,29 @@ AlirValue* alir_gen_addr_array_access(AlirCtx *ctx, ArrayAccessNode *aa) {
     }
 
     // 3. Evaluate the index
-    AlirValue *index = alir_gen_expr(ctx, aa->index);
+    AlirValue *index = NULL;
+    VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
+    VarType target_t = sem_get_node_type(ctx->sem, aa->target);
+    
+    // Check if it's a trait access: trait access is represented as ArrayAccess but the result type 
+    // is a different class than the target type
+    if (elem_t.base == TYPE_CLASS && target_t.base == TYPE_CLASS && 
+        elem_t.class_name && target_t.class_name &&
+        strcmp(elem_t.class_name, target_t.class_name) != 0) {
+        
+        VarType ptr_t = elem_t;
+        ptr_t.ptr_depth++;
+        
+        AlirValue *elem_ptr = new_temp(ctx, ptr_t);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, elem_ptr, base_ptr, NULL));
+        return elem_ptr;
+    }
+    
+    index = alir_gen_expr(ctx, aa->index);
     if (!index) index = alir_const_int(ctx->module, 0); 
     
     // 4. Calculate the type of the pointer we are creating
-    VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
+    elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
     VarType ptr_t = elem_t;
     ptr_t.ptr_depth++; 
 
@@ -77,16 +95,29 @@ AlirValue* alir_gen_addr_array_access(AlirCtx *ctx, ArrayAccessNode *aa) {
 
 // Handles R-Values: Returns the actual data inside arr[index]
 AlirValue* alir_gen_expr_array_access(AlirCtx *ctx, ArrayAccessNode *aa) {
+    VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
+    VarType target_t = sem_get_node_type(ctx->sem, aa->target);
+    
+    // Check if it's a trait access. If so, just return the target bitcasted!
+    if (elem_t.base == TYPE_CLASS && target_t.base == TYPE_CLASS && 
+        elem_t.class_name && target_t.class_name &&
+        strcmp(elem_t.class_name, target_t.class_name) != 0) {
+        
+        AlirValue *target_val = alir_gen_expr(ctx, aa->target);
+        if (!target_val) return NULL;
+        
+        AlirValue *casted = new_temp(ctx, elem_t);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, casted, target_val, NULL));
+        return casted;
+    }
+
     // 1. Get the memory address of the element
     AlirValue *elem_ptr = alir_gen_addr_array_access(ctx, aa);
     if (!elem_ptr) return NULL;
 
     // 2. Emit a LOAD instruction to read the actual value
-    VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
     AlirValue *loaded_val = new_temp(ctx, elem_t);
-    
     emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_val, elem_ptr, NULL));
-    
     return loaded_val;
 }
 
@@ -100,7 +131,6 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
         VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
-        printf("DEBUG: alir_gen_addr ma->object obj_t.base=%d, class_name=%s, ptr_depth=%d, line=%d\n", obj_t.base, obj_t.class_name ? obj_t.class_name : "NULL", obj_t.ptr_depth, ma->object->line);
         if (obj_t.base == TYPE_ENUM) return NULL; 
 
         AlirValue *base_ptr = NULL;
@@ -225,6 +255,10 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
 }
 
 AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
+    if (vn->is_error_id) {
+        return alir_const_int(ctx->module, vn->error_id);
+    }
+
     AlirValue *ptr = alir_gen_addr(ctx, (ASTNode*)vn);
     if (!ptr) {
         // If it's a global function or global variable
@@ -337,11 +371,21 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     VarType r_type = sem_get_node_type(ctx->sem, bn->right);
 
     // Fallback operator
-    if (bn->op == TOKEN_QUESTION) {
-        VarType res_ty = l->type;
-        res_ty.is_tainted = 0;
+    if (bn->op == TOKEN_QUESTION || bn->op == TOKEN_QUESTION_QUESTION) {
+        VarType res_ty = sem_get_node_type(ctx->sem, (ASTNode*)bn);
         AlirValue *res = new_temp(ctx, res_ty);
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_FALLBACK, res, l, r));
+        AlirInst *inst = mk_inst(ctx->module, ALIR_OP_FALLBACK, res, l, r);
+        if (bn->fallback_err_name) {
+            void *err_val = hashmap_get(&ctx->sem->compiler_ctx->error_table, bn->fallback_err_name);
+            if (err_val) {
+                int id = (int)(intptr_t)err_val;
+                AlirValue *id_val = alir_const_int(ctx->module, id);
+                inst->args = arena_alloc(ctx->sem->compiler_ctx->arena, sizeof(AlirValue*));
+                inst->args[0] = id_val;
+                inst->arg_count = 1;
+            }
+        }
+        emit(ctx, inst);
         return res;
     }
 
@@ -916,7 +960,23 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_MEMBER_ACCESS: return alir_gen_access(ctx, node);
         case NODE_ARRAY_ACCESS: {
             ArrayAccessNode *aa = (ArrayAccessNode*)node;
-            VarType t = sem_get_node_type(ctx->sem, aa->target);
+            VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
+            VarType target_t = sem_get_node_type(ctx->sem, aa->target);
+            
+            // CRITICAL FIX: Trait access is a direct bitcast, no memory load!
+            if (elem_t.base == TYPE_CLASS && target_t.base == TYPE_CLASS && 
+                elem_t.class_name && target_t.class_name &&
+                strcmp(elem_t.class_name, target_t.class_name) != 0) {
+                
+                AlirValue *target_val = alir_gen_expr(ctx, aa->target);
+                if (!target_val) return NULL;
+                
+                AlirValue *casted = new_temp(ctx, elem_t);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, casted, target_val, NULL));
+                return casted;
+            }
+            
+            VarType t = target_t;
             if (t.base == TYPE_ENUM && ctx->sem->compiler_ctx->settings.inject_enum_as_cstring) {
                 char *enum_name = NULL;
                 if (aa->target->type == NODE_VAR_REF) enum_name = ((VarRefNode*)aa->target)->name;

@@ -1,0 +1,28 @@
+extern int printf(char* fmt, ...);
+
+tainted int getProfile(int x) {
+    if (x == 1) purge ErrNull;
+    if (x == 2) purge ErrDBcrash;
+    if (x == 3) purge ErrDBsomething;
+    return x;
+}
+
+int main() {
+    // Should filter out ErrNull first, then ErrDBcrash, then ErrDBsomething.
+    // If it reaches the end, it should be the valid value.
+    
+    // We will test what happens when getProfile returns a specific error.
+    int test_val1 = getProfile(1) ?? 999 ? 0;
+    printf(c"Test 1 (ErrNull): %d\n", test_val1);
+    
+    int test_val2 = getProfile(2) ?? 999 ?[ErrDBcrash] 888 ?[ErrDBsomething] 777 ? 0;
+    printf(c"Test 2 (ErrDBcrash): %d\n", test_val2);
+    
+    int test_val3 = getProfile(3) ?? 999 ?[ErrDBcrash] 888 ?[ErrDBsomething] 777 ? 0;
+    printf(c"Test 3 (ErrDBsomething): %d\n", test_val3);
+    
+    int test_val4 = getProfile(4) ?? 999 ?[ErrDBcrash] 888 ?[ErrDBsomething] 777 ? 0;
+    printf(c"Test 4 (Valid): %d\n", test_val4);
+    
+    return 0;
+}

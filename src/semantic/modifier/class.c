@@ -60,6 +60,24 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
                             if (strcmp(member->name, node->member_name) == 0) {
                                 sem_set_node_type(ctx, (ASTNode*)node, member->type);
                                 found = 1;
+                                char *obj_name = "obj";
+                                int should_warn = 1;
+                                if (node->object) {
+                                    if (node->object->type == NODE_VAR_REF) {
+                                        obj_name = ((VarRefNode*)node->object)->name;
+                                    } else if (node->object->type == NODE_ARRAY_ACCESS) {
+                                        ArrayAccessNode *aa = (ArrayAccessNode*)node->object;
+                                        if (aa->index->type == NODE_VAR_REF) {
+                                            VarRefNode *vr = (VarRefNode*)aa->index;
+                                            if (strcmp(vr->name, trait_sym->name) == 0) {
+                                                should_warn = 0; // Explicitly qualified
+                                            }
+                                        }
+                                    }
+                                }
+                                if (should_warn) {
+                                    sem_warning(ctx, (ASTNode*)node, "%s is from %s, consider %s[%s]", node->member_name, trait_sym->name, obj_name, trait_sym->name);
+                                }
                                 goto done_search;
                             }
                             member = member->next;

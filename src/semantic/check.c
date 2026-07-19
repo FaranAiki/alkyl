@@ -104,6 +104,26 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
         node = node->next;
     }
 }
+static int sem_count_class_fields(SemanticCtx *ctx, SemSymbol *sym) {
+    if (!sym || sym->kind != SYM_CLASS) return 0;
+    int count = 0;
+    if (sym->parent_name) {
+        SemSymbol *p = sem_symbol_lookup(ctx, sym->parent_name, NULL);
+        if (p) count += sem_count_class_fields(ctx, p);
+    }
+    for (int i=0; i<sym->trait_count; i++) {
+        SemSymbol *t = sem_symbol_lookup(ctx, sym->traits[i], NULL);
+        if (t) count += sem_count_class_fields(ctx, t);
+    }
+    if (sym->inner_scope) {
+        SemSymbol *s = sym->inner_scope->symbols;
+        while(s) {
+            if (s->kind == SYM_VAR) count++;
+            s = s->next;
+        }
+    }
+    return count;
+}
 
 static void sem_check_call_args(SemanticCtx *ctx, CallNode *node, SemSymbol *sym) {
     int arg_count = 0;
@@ -246,13 +266,40 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         // But since we haven't run ALIR yet, we might need to simulate it or trust that it'll be checked later.
         // Actually, I added logic to ALIR to register it in the symtable, but ALIR runs AFTER semantic.
         // So we need to handle implicit constructor argument counting here too.
+        if (!ctor_found && sym->trait_count > 0) {
+            for (int i = 0; i < sym->trait_count; i++) {
+                SemSymbol *trait_sym = sem_symbol_lookup(ctx, sym->traits[i], NULL);
+                if (trait_sym && trait_sym->inner_scope) {
+                    SemSymbol *constructor = trait_sym->inner_scope->symbols;
+                    while (constructor) {
+                        if (strcmp(constructor->name, trait_sym->name) == 0 || strcmp(constructor->name, "init") == 0) {
+                            sem_check_call_args(ctx, node, constructor);
+                            ctor_found = 1;
+                            sem_warning(ctx, (ASTNode*)node, "no initialization from %s, using %s as a constructor", sym->name, trait_sym->name);
+                            break;
+                        }
+                        constructor = constructor->next;
+                    }
+                    if (ctor_found) break;
+                }
+            }
+        }
+
         if (!ctor_found) {
+             if (sym->trait_count > 0) {
+                 sem_warning(ctx, (ASTNode*)node, "no initialization from %s, using %s as a constructor", sym->name, sym->traits[0]);
+             }
              // Basic validation for implicit constructor: should match number of fields
-             // (This is tricky because fields might be inherited)
+             int total_fields = sem_count_class_fields(ctx, sym);
+             int arg_count = 0;
              ASTNode *a = node->args;
              while(a) {
                  sem_check_expr(ctx, a);
                  a = a->next;
+                 arg_count++;
+             }
+             if (arg_count != total_fields) {
+                 sem_error(ctx, (ASTNode*)node, "Expected %d argument(s) for implicit constructor of '%s', got %d", total_fields, sym->name, arg_count);
              }
         }
     }
@@ -306,9 +353,14 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
         node->right->next = NULL;
     }
 
-    
-    if (node->op == TOKEN_QUESTION) {
-        sem_set_node_tainted(ctx, (ASTNode*)node, 0); // Result is pristine!
+    if (node->op == TOKEN_QUESTION || node->op == TOKEN_QUESTION_QUESTION) {
+        if (node->fallback_err_name) {
+            // It filters a specific error. Without full union types, we just keep it tainted if the left was tainted.
+            sem_set_node_tainted(ctx, (ASTNode*)node, sem_get_node_tainted(ctx, node->left));
+        } else {
+            // Catch-all
+            sem_set_node_tainted(ctx, (ASTNode*)node, 0); // Result is pristine!
+        }
     } else if (sem_get_node_tainted(ctx, node->left) || sem_get_node_tainted(ctx, node->right)) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
     } else if (node->op == TOKEN_SLASH) {
@@ -331,9 +383,22 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
         return;
     }
     
-    if (node->op == TOKEN_QUESTION) {
-        // Fallback uses the type of the left hand side
-        sem_set_node_type(ctx, (ASTNode*)node, l);
+    if (node->op == TOKEN_QUESTION || node->op == TOKEN_QUESTION_QUESTION) {
+        // Fallback uses the type of the left hand side, but preserve the taint state we just calculated
+        int calculated_taint = sem_get_node_tainted(ctx, (ASTNode*)node);
+        VarType res_ty = l;
+        res_ty.is_tainted = calculated_taint;
+        sem_set_node_type(ctx, (ASTNode*)node, res_ty);
+        
+        // Register the error ID if it's a specific fallback
+        if (node->fallback_err_name) {
+            void *err_val = hashmap_get(&ctx->compiler_ctx->error_table, node->fallback_err_name);
+            if (!err_val && strncmp(node->fallback_err_name, "Err", 3) == 0) {
+                int id = ctx->compiler_ctx->next_error_id++;
+                hashmap_put(&ctx->compiler_ctx->error_table, strdup(node->fallback_err_name), (void*)(intptr_t)(id + 1));
+            }
+        }
+        
         return;
     }
    
@@ -738,7 +803,6 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             }
             SemScope *found_in_scope = NULL;
             SemSymbol *sym = sem_symbol_lookup(ctx, target_name, &found_in_scope);
-            printf("Looking up '%s', found sym: %p, kind: %d\n", target_name, sym, sym ? (int)sym->kind : -1);
             if (!sym || sym->kind != SYM_TEMPLATE) {
                 // Fallback to array access / component access!
                 if (ti->num_template_types == 1 && ti->template_types[0].base == TYPE_CLASS) {
@@ -877,7 +941,8 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 VarRefNode *var = (VarRefNode*)pn->msg;
                 // It's an error identifier!
                 if (!hashmap_get(&ctx->compiler_ctx->error_table, var->name)) {
-                    hashmap_put(&ctx->compiler_ctx->error_table, strdup(var->name), (void*)1);
+                    int id = ctx->compiler_ctx->next_error_id++;
+                    hashmap_put(&ctx->compiler_ctx->error_table, strdup(var->name), (void*)(intptr_t)(id + 1));
                 }
                 // No further type check on var because it's just an error identifier
             } else {
@@ -936,12 +1001,6 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             } else if (wn->wash_type == WASH_TYPE_WASH || wn->wash_type == WASH_TYPE_CLEAN) { 
                 sem_scope_enter(ctx, 0, (VarType){0});
                 
-                if (wn->err_name) {
-                    VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0}; 
-                    SemSymbol *err_sym = sem_symbol_add(ctx, wn->err_name, SYM_VAR, err_type);
-                    err_sym->is_initialized = 1;
-                }
-                
                 int old_pristine = target_sym ? target_sym->is_pristine : 0;
                 if (target_sym) target_sym->is_pristine = 1;
                 
@@ -954,6 +1013,12 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 if (wn->else_body) {
                     ctx->in_wash_block++;
                     sem_scope_enter(ctx, 0, (VarType){0});
+                    
+                    if (wn->err_name) {
+                        VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0}; 
+                        SemSymbol *err_sym = sem_symbol_add(ctx, wn->err_name, SYM_VAR, err_type);
+                        err_sym->is_initialized = 1;
+                    }
                     
                     if (wn->else_body->type == NODE_WASH || wn->else_body->type == NODE_IF) {
                         sem_check_node(ctx, wn->else_body);
@@ -982,6 +1047,27 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 } else {
                     sem_check_block(ctx, ifn->else_body);
                 }
+                sem_scope_exit(ctx);
+            }
+            break;
+        }
+        case NODE_SWITCH: {
+            SwitchNode *sn = (SwitchNode*)node;
+            sem_check_expr(ctx, sn->condition);
+            
+            CaseNode *sc = (CaseNode*)sn->cases;
+            while (sc) {
+                if (sc->value) {
+                    sem_check_expr(ctx, sc->value);
+                }
+                sem_scope_enter(ctx, 0, (VarType){0});
+                sem_check_block(ctx, sc->body);
+                sem_scope_exit(ctx);
+                sc = (CaseNode*)sc->base.next;
+            }
+            if (sn->default_case) {
+                sem_scope_enter(ctx, 0, (VarType){0});
+                sem_check_block(ctx, ((CaseNode*)sn->default_case)->body);
                 sem_scope_exit(ctx);
             }
             break;
@@ -1030,6 +1116,17 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_INC_DEC:
         case NODE_CALL:
         case NODE_METHOD_CALL:
+        case NODE_MEMBER_ACCESS:
+        case NODE_ARRAY_ACCESS:
+        case NODE_VECTOR_ACCESS:
+        case NODE_BINARY_OP:
+        case NODE_UNARY_OP:
+        case NODE_VAR_REF:
+        case NODE_LITERAL:
+        case NODE_ARRAY_LIT:
+        case NODE_VECTOR_LIT:
+        case NODE_CAST:
+        case NODE_TYPEOF:
             sem_check_expr(ctx, node); 
             break;
         case NODE_EMIT: {

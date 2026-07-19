@@ -117,11 +117,11 @@ static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
     // Fallback if hashmap is not initialized
     SemSymbol *sym = scope->symbols;
     while (sym) {
-        if (strcmp(name, "Vector_int") == 0 && sym->name == name) {
+        if (strcmp(name, "Vector_int") == 0 && strcmp(sym->name, name) == 0) {
             printf("DEBUG: find_in_scope_direct (fallback) found 'Vector_int'\n");
         }
-        if (sym->name == name) {
-            if (sym->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && sym->name == scope->class_sym->name) {
+        if (strcmp(sym->name, name) == 0) {
+            if (sym->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && strcmp(sym->name, scope->class_sym->name) == 0) {
                 // skip constructor
             } else {
                 return sym;
@@ -444,6 +444,10 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
 
     // casting char*, int* to void* or int* to void*
     if ((dest.base == TYPE_VOID && dest.ptr_depth > 0 && src.ptr_depth > 0) || (src.base == TYPE_VOID && src.ptr_depth > 0 && dest.ptr_depth > 0)) return true;
+    
+    // allow casting between pointers and integers
+    if (dest_is_num && dest.ptr_depth == 0 && src.ptr_depth > 0) return true;
+    if (src_is_num && src.ptr_depth == 0 && dest.ptr_depth > 0) return true;
 
     return false;
 }

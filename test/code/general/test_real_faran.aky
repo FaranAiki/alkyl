@@ -27,7 +27,7 @@ exact method class Person has Identity, Communication {
 
 int main(int argc, char **argv) {
   let imut Faran = Person("Faran Aiki", 19);
-  Faran.wave();
+  Faran[Identity].wave();
   Faran.introduce();
   // Faran.age = 12; this gives compiler time error
   // Faran.introduce();

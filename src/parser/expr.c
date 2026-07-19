@@ -302,16 +302,7 @@ ASTNode* parse_factor(Parser *p) {
     node = (ASTNode*)ln;
     set_loc(node, line, col);
   }
-  else if (p->current_token.type == TOKEN_NULL) {
-    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
-    ln->base.type = NODE_LITERAL;
-    ln->var_type.base = TYPE_VOID;
-    ln->var_type.ptr_depth = 1;
-    ln->val.long_val = 0;
-    eat(p, TOKEN_NULL);
-    node = (ASTNode*)ln;
-    set_loc(node, line, col);
-  }
+
   else if (p->current_token.type == TOKEN_FLOAT || p->current_token.type == TOKEN_LONG_DOUBLE_LIT) {
     LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;
@@ -560,8 +551,40 @@ ASTNode* parse_logic_or(Parser *p) {
 }
 
 ASTNode* parse_fallback(Parser *p) {
-  TokenType ops[] = {TOKEN_QUESTION};
-  return parse_binary_op(p, parse_logic_or, ops, 1);
+  ASTNode *left = parse_logic_or(p);
+  while (p->current_token.type == TOKEN_QUESTION || p->current_token.type == TOKEN_QUESTION_QUESTION) {
+      int is_coalesce = (p->current_token.type == TOKEN_QUESTION_QUESTION);
+      int op = p->current_token.type;
+      int line = p->current_token.line;
+      int col = p->current_token.col;
+      eat(p, op);
+      
+      char *err_id = NULL;
+      if (!is_coalesce && p->current_token.type == TOKEN_LBRACKET) {
+          eat(p, TOKEN_LBRACKET);
+          if (p->current_token.type == TOKEN_IDENTIFIER) {
+              err_id = parser_strdup(p, p->current_token.text);
+              eat(p, TOKEN_IDENTIFIER);
+          }
+          eat(p, TOKEN_RBRACKET);
+      } else if (is_coalesce) {
+          err_id = parser_strdup(p, "ErrNull");
+      }
+      
+      ASTNode *right = parse_logic_or(p);
+      
+      BinaryOpNode *node = parser_alloc(p, sizeof(BinaryOpNode));
+      node->base.type = NODE_BINARY_OP;
+      node->base.line = line;
+      node->base.col = col;
+      node->op = op;
+      node->left = left;
+      node->right = right;
+      node->fallback_err_name = err_id;
+      
+      left = (ASTNode*)node;
+  }
+  return left;
 }
 
 ASTNode* parse_assignment(Parser *p) {

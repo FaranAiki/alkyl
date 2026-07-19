@@ -127,6 +127,7 @@ typedef struct AlirFunction {
     int block_count;
     int is_flux;
     int is_varargs;
+    int is_extern;
     char *cconv;
     struct AlirFunction *next;
 } AlirFunction;

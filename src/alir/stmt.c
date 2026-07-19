@@ -33,11 +33,17 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_PURGE: {
             PurgeNode *pn = (PurgeNode*)node;
             VarRefNode *vr = (VarRefNode*)pn->msg;
+            int err_id = 1;
+            if (ctx->sem && ctx->sem->compiler_ctx) {
+                void *val = hashmap_get(&ctx->sem->compiler_ctx->error_table, vr->name);
+                if (val) err_id = (int)(intptr_t)val;
+            }
             char buf[512];
             snprintf(buf, sizeof(buf), "purge: %s\n", vr->name);
             VarType str_type = { .base = TYPE_CLASS, .class_name = (char*)"string", .ptr_depth = 0 };
             AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, str_type, ctx->str_counter++);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, NULL));
+            AlirValue *id_val = alir_const_int(ctx->module, err_id);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, id_val));
             break;
         }
         case NODE_CLEAN:

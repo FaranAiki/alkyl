@@ -360,7 +360,9 @@ typedef struct {
   ASTNode base;
   char *name;
   char *mangled_name;
+  int error_id;
   bool is_class_member : 1; 
+  bool is_error_id : 1;
 } VarRefNode;
 
 typedef struct {
@@ -396,6 +398,7 @@ typedef struct {
   ASTNode *left;
   ASTNode *right;
   char *overloaded_func_name;
+  char *fallback_err_name; // For ?[...] operator
 } BinaryOpNode;
 
 typedef struct {

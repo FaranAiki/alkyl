@@ -22,6 +22,6 @@ int main() {
   let gg = Vector[int](1, 3);
   cprintf (c"%s\n", typeof(gg));
   // cprintf(c"%d\n", gg as char); // expect wrong, yet get 16 for somereason 1 * 1 + 2 * 2 = 5
-  cprintf(c"%d\n", gg);
+  cprintf(c"%d\n", gg as int);
   cprintf(c"%d, %d\n", gg.x, gg.y); // print 1, 2
 }

@@ -41,7 +41,6 @@ void sem_hint(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
 
 void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     if (ctx->compiler_ctx) {
-        ctx->compiler_ctx->error_count++;
         ctx->compiler_ctx->semantic_error_count++;
     }
     
@@ -108,6 +107,33 @@ static int check_class_size_cycle(SemanticCtx *ctx, SemSymbol *sym) {
     sym->must_pure = 0;
     sym->must_pristine = 1; // marked as fully visited
     return 1;
+}
+
+void sem_warning(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
+    char msg[1024];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, args);
+    va_end(args);
+
+    if (ctx->current_source && node) {
+        Lexer l;
+        setup_report_lexer(&l, ctx);
+        
+        Token t;
+        t.line = node->line;
+        t.col = node->col;
+        t.type = TOKEN_UNKNOWN; 
+        t.text = NULL;
+        
+        report_warning(&l, t, msg);
+    } else {
+        if (node) {
+            fprintf(stderr, "[Semantic Warning] Line %d, Col %d: %s\n", node->line, node->col, msg);
+        } else {
+            fprintf(stderr, "[Semantic Warning] %s\n", msg);
+        }
+    }
 }
 
 void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {

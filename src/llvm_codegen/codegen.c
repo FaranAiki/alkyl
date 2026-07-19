@@ -270,7 +270,9 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
     // 3. Function Prototypes (Declarations)
     AlirFunction *func = ctx->alir_mod->functions;
     while (func) {
-        LLVMTypeRef ret_ty = get_llvm_type(ctx, func->ret_type);
+        VarType real_ret_ty = func->ret_type;
+        if (func->is_extern) real_ret_ty.is_tainted = 0;
+        LLVMTypeRef ret_ty = get_llvm_type(ctx, real_ret_ty);
         LLVMTypeRef *param_tys = NULL;
         
         if (func->param_count > 0) {
@@ -279,6 +281,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
             int i = 0;
             while(p) {
                 VarType p_ty = p->type;
+                if (func->is_extern) p_ty.is_tainted = 0;
                 if (p_ty.array_size > 0) { p_ty.array_size = 0; p_ty.ptr_depth++; } // Parameter decay
                 param_tys[i++] = get_llvm_type(ctx, p_ty);
                 p = p->next;

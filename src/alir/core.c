@@ -39,8 +39,11 @@ AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, 
     AlirFunction *f = alir_alloc(mod, sizeof(AlirFunction));
     f->name = alir_strdup(mod, name);
     f->ret_type = ret;
+    f->block_count = 0;
     f->is_flux = is_flux;
     f->is_varargs = 0;
+    f->is_extern = 0;
+    f->cconv = NULL;
     
     if (!mod->functions) {
         mod->functions = f;
