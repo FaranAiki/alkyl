@@ -1,0 +1,10 @@
+errnum [ErrMyError]
+
+int main() {
+  int x = ErrMyError;
+  int y = ErrDivisionByZero;
+  if (x == y) {
+    return 1;
+  }
+  return 0;
+}

@@ -86,6 +86,21 @@ void sem_check_unary_op_switch(SemanticCtx *ctx, ASTNode *node) {
 
 void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
     VarRefNode *ref = (VarRefNode*)node;
+    
+    void *err_val = hashmap_get(&ctx->compiler_ctx->error_table, ref->name);
+    if (!err_val && strncmp(ref->name, "Err", 3) == 0) {
+        int id = ctx->compiler_ctx->next_error_id++;
+        hashmap_put(&ctx->compiler_ctx->error_table, strdup(ref->name), (void*)(intptr_t)(id + 1));
+        err_val = (void*)(intptr_t)(id + 1);
+    }
+    
+    if (err_val) {
+        ref->is_error_id = 1;
+        ref->error_id = (int)(intptr_t)err_val;
+        sem_set_node_type(ctx, node, (VarType){TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+        return;
+    }
+
     SemScope *found_in_scope = NULL;
     SemSymbol *sym = sem_symbol_lookup(ctx, ref->name, &found_in_scope);
     
@@ -141,20 +156,6 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
                 return;
             }
         }
-    }
-
-    void *err_val = hashmap_get(&ctx->compiler_ctx->error_table, ref->name);
-    if (!err_val && strncmp(ref->name, "Err", 3) == 0) {
-        int id = ctx->compiler_ctx->next_error_id++;
-        hashmap_put(&ctx->compiler_ctx->error_table, strdup(ref->name), (void*)(intptr_t)(id + 1));
-        err_val = (void*)(intptr_t)(id + 1);
-    }
-    
-    if (err_val) {
-        ref->is_error_id = 1;
-        ref->error_id = (int)(intptr_t)err_val;
-        sem_set_node_type(ctx, node, (VarType){TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
-        return;
     }
 
     sem_error(ctx, node, "Undefined variable '%s'", ref->name);

@@ -1,4 +1,6 @@
-errnum [ErrSomethingElse]
+import "lib/c";
+
+errnum [ErrNull, ErrSomethingElse]
 
 // A tainted function that may purge an error
 tainted int divide(int a, int b) {
@@ -9,6 +11,7 @@ tainted int divide(int a, int b) {
 }
 
 // A pristine main function
+// Still error!
 pristine int main() {
     tainted int res_a = divide(10, 2);
     tainted int res_b = divide(10, 0);
@@ -17,20 +20,31 @@ pristine int main() {
     untaint res_a residue err_a {
         if err_a == ErrDivisionByZero {
             // Error handling
+            __c_printf("division by zero");
             res_a = 0;
         }
     }
     // res_a is now safe to use as pristine
 
+    __c_printf("%d\n", res_a);
+
+    int t = 1 / 0;
+
     // Using clean on res_b
     clean res_b as safe_b {
         // safe_b is a pristine copy of res_b and can be safely used
         safe_b = safe_b + 1;
+        __c_printf("%d", safe_b);
     } residue err_b {
+        __c_printf("%d and %d\n", err_b, ErrDivisionByZero);
         if err_b == ErrDivisionByZero {
-            // handle error
+            __c_printf("Division by zero!")
         }
     }
+
+    __c_printf("%d\n", res_b
+      ?? 2
+      ? 3);
 
     return 0;
 }
