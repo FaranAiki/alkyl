@@ -56,8 +56,9 @@ int needs_semicolon(ASTNode *node) {
         case NODE_EMIT:
         case NODE_PURGE:
             return 1;
-        case NODE_WASH:
-            return ((WashNode*)node)->wash_type == 2;
+        case NODE_CLEAN:
+        case NODE_UNTAINT:
+            return 0; // TODO check if these are terminal
         default:
             return 0;
     }
@@ -275,29 +276,17 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
             break;
         }
 
-        case NODE_WASH: {
-            WashNode *wn = (WashNode*)node;
-            if (wn->wash_type == 2) {
-                sb_append(sb, "untaint ");
-                parser_emit_ast_node(sb, wn->target, 0);
-                sb_append_fmt(sb, " residue (%s) ", wn->err_name ? wn->err_name : "err");
-                parser_emit_block(sb, wn->body, indent);
-            } else {
-                sb_append_fmt(sb, "%s ", wn->wash_type == 1 ? "clean" : "wash");
-                parser_emit_ast_node(sb, wn->target, 0);
-                sb_append(sb, " ");
-                parser_emit_block(sb, wn->body, indent);
-                if (wn->else_body) {
-                    sb_append_fmt(sb, " residue (%s) ", wn->err_name ? wn->err_name : "err");
-                    if (wn->else_body->type == NODE_WASH || wn->else_body->type == NODE_IF) {
-                        parser_emit_ast_node(sb, wn->else_body, indent);
-                    } else {
-                        parser_emit_block(sb, wn->else_body, indent);
-                    }
-                }
-            }
+
+        case NODE_CLEAN: {
+            CleanNode *wn = (CleanNode*)node;
             break;
         }
+        case NODE_UNTAINT: {
+            UntaintNode *wn = (UntaintNode*)node;
+            break;
+        }
+        case NODE_ERRNUM:
+            break;
 
         case NODE_SWITCH: {
             SwitchNode *sn = (SwitchNode*)node;

@@ -9,6 +9,7 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
     sym->must_pure = fd->has_explicit_pure;
     sym->is_pristine = fd->is_pristine;
     sym->must_pristine = fd->has_explicit_pristine;
+    sym->has_explicit_pristine = fd->has_explicit_pristine;
     sym->is_flux = fd->is_flux;
     sym->is_variadic = fd->is_varargs; 
     sym->params = fd->params; // idk if this is redundant or not but ok
@@ -96,4 +97,29 @@ void sem_symbolic_namespace(SemanticCtx *ctx, ASTNode *node) {
     ctx->current_scope = ns_scope;
     sem_scan_top_level(ctx, ns->body);
     ctx->current_scope = old;
+}
+
+void sem_symbolic_node_errnum(SemanticCtx *ctx, ASTNode *node) {
+    ErrNumNode *en = (ErrNumNode*)node;
+    EnumEntry *entry = en->entries;
+    
+    // Add them to the global error table.
+    // If not found, assign next_error_id.
+    while (entry) {
+        if (!hashmap_get(&ctx->compiler_ctx->error_table, entry->name)) {
+            // Next error id is next_error_id + 1. (0 is NoError)
+            int id = ctx->compiler_ctx->next_error_id++;
+            hashmap_put(&ctx->compiler_ctx->error_table, strdup(entry->name), (void*)(intptr_t)(id + 1));
+            
+            // Wait, also need to add them as variables so they can be referenced in code (like `purge ErrSomething;`)
+            // The Purge check expects them to just be parsed as VarRef, but during type checking of other stuff,
+            // they might be unresolved symbols. 
+            // We can just add them to the global scope as integer constants.
+            VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+            SemSymbol *sym = sem_symbol_add(ctx, entry->name, SYM_VAR, err_type);
+            sym->is_initialized = 1;
+            sym->is_mutable = 0;
+        }
+        entry = entry->next;
+    }
 }

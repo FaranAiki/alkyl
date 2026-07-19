@@ -236,19 +236,70 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
   
   int line = p->current_token.line, col = p->current_token.col;
 
-  // Handle explicit non-modifier WASH and CLEAN statements
-  if (p->current_token.type == TOKEN_WASH || p->current_token.type == TOKEN_CLEAN) {
-      WashType wash_type = (p->current_token.type == TOKEN_CLEAN) ? WASH_TYPE_CLEAN : WASH_TYPE_WASH;
-      eat(p, p->current_token.type);
-      ASTNode *target = parse_expression(p);
-      return parse_wash_or_clean_tail(p, target, wash_type); 
+  if (p->current_token.type == TOKEN_CLEAN) {
+      eat(p, TOKEN_CLEAN);
+      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected variable to clean");
+      char *var_name = parser_strdup(p, p->current_token.text);
+      eat(p, TOKEN_IDENTIFIER);
+
+      char *pristine_var = NULL;
+      if (p->current_token.type == TOKEN_AS) {
+          eat(p, TOKEN_AS);
+          if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected new pristine variable name");
+          pristine_var = parser_strdup(p, p->current_token.text);
+          eat(p, TOKEN_IDENTIFIER);
+      }
+
+      eat(p, TOKEN_LBRACE);
+      ASTNode *body = parse_statements(p);
+      eat(p, TOKEN_RBRACE);
+
+      eat(p, TOKEN_RESIDUE);
+      if (p->current_token.type == TOKEN_LPAREN) eat(p, TOKEN_LPAREN);
+      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected error variable name after residue");
+      char *err_var = parser_strdup(p, p->current_token.text);
+      eat(p, TOKEN_IDENTIFIER);
+      if (p->current_token.type == TOKEN_RPAREN) eat(p, TOKEN_RPAREN);
+
+      eat(p, TOKEN_LBRACE);
+      ASTNode *residue_body = parse_statements(p);
+      eat(p, TOKEN_RBRACE);
+      
+      CleanNode *cn = parser_alloc(p, sizeof(CleanNode));
+      cn->base.type = NODE_CLEAN;
+      cn->base.line = line;
+      cn->base.col = col;
+      cn->var_name = var_name;
+      cn->pristine_var_name = pristine_var;
+      cn->body = body;
+      cn->err_var_name = err_var;
+      cn->residue_body = residue_body;
+      return (ASTNode*)cn;
   }
 
-  // Handle explicit UNTAINT statement
   if (p->current_token.type == TOKEN_UNTAINT) {
       eat(p, TOKEN_UNTAINT);
-      ASTNode *target = parse_expression(p);
-      return parse_wash_or_clean_tail(p, target, WASH_TYPE_UNTAINT);
+      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected variable to untaint");
+      char *var_name = parser_strdup(p, p->current_token.text);
+      eat(p, TOKEN_IDENTIFIER);
+      
+      eat(p, TOKEN_RESIDUE);
+      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected error variable name after residue");
+      char *err_var = parser_strdup(p, p->current_token.text);
+      eat(p, TOKEN_IDENTIFIER);
+      
+      eat(p, TOKEN_LBRACE);
+      ASTNode *residue_body = parse_statements(p);
+      eat(p, TOKEN_RBRACE);
+      
+      UntaintNode *un = parser_alloc(p, sizeof(UntaintNode));
+      un->base.type = NODE_UNTAINT;
+      un->base.line = line;
+      un->base.col = col;
+      un->var_name = var_name;
+      un->err_var_name = err_var;
+      un->residue_body = residue_body;
+      return (ASTNode*)un;
   }
 
   int modifiers = parse_modifiers(p);

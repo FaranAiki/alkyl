@@ -1,0 +1,57 @@
+pkgname=alkyl-git
+pkgver=r1
+pkgrel=1
+pkgdesc="Alkyl Compiler"
+arch=('x86_64')
+url="https://github.com/FaranAiki/alkyl"
+license=('GPL')
+makedepends=('cmake' 'llvm', 'gcc')
+source=("git+https://github.com/yourusername/alkyl.git")
+md5sums=('SKIP')
+
+build() {
+  cd alkyl
+  mkdir -p build
+  cd build
+  cmake ..
+  make
+}
+
+package() {
+  cd alkyl
+
+  # Install binary
+  install -Dm755 build/alkyl "$pkgdir/usr/bin/alkyl"
+
+  # Install desktop icon
+  install -Dm644 misc/asset/logo.png "$pkgdir/usr/share/icons/hicolor/512x512/apps/alkyl.png"
+  
+  # Install desktop file
+  install -d "$pkgdir/usr/share/applications"
+  cat <<EOF > "$pkgdir/usr/share/applications/alkyl.desktop"
+[Desktop Entry]
+Name=Alkyl Compiler
+Exec=alkyl %F
+Icon=alkyl
+Terminal=true
+Type=Application
+Categories=Development;
+EOF
+
+  # Install MIME info
+  install -d "$pkgdir/usr/share/mime/packages"
+  cat <<EOF > "$pkgdir/usr/share/mime/packages/application-x-alkyl.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-alkyl">
+    <comment>Alkyl Source File</comment>
+    <glob pattern="*.aky"/>
+    <glob pattern="*.hky"/>
+    <icon name="application-x-alkyl"/>
+  </mime-type>
+</mime-info>
+EOF
+
+  # Install MIME icon
+  install -Dm644 misc/asset/script_logo.png "$pkgdir/usr/share/icons/hicolor/512x512/mimetypes/application-x-alkyl.png"
+}

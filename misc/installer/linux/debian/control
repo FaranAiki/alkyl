@@ -1,0 +1,12 @@
+Source: alkyl
+Maintainer: Your Name <your.email@example.com>
+Section: devel
+Priority: optional
+Standards-Version: 4.5.0
+Build-Depends: debhelper (>= 12), cmake, llvm, pkg-config, libffi-dev, libreadline-dev
+
+Package: alkyl
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Alkyl Compiler
+ A statically typed, compiled programming language.

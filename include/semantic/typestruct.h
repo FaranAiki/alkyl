@@ -50,6 +50,7 @@ typedef struct SemSymbol {
     bool is_used_as_composition : 1;
     bool is_pure : 1;
     bool is_pristine : 1;
+    bool has_explicit_pristine : 1;
     bool is_flux : 1;          // Marks a function as a flux generator
     bool must_pure : 1; // Checker to see if it must pure tagged as pure 
     bool must_pristine : 1; // Checker to see if it must pristine tagged as pristine 

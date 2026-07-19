@@ -31,6 +31,7 @@ typedef enum {
   NODE_STRUCT,
   NODE_NAMESPACE, 
   NODE_ENUM, 
+  NODE_ERRNUM,
   NODE_MEMBER_ACCESS,
   NODE_METHOD_CALL, 
   NODE_TYPEOF,
@@ -41,6 +42,7 @@ typedef enum {
   NODE_FOR_IN,
   NODE_WASH, 
   NODE_CLEAN,
+  NODE_UNTAINT,
   NODE_SIZEOF,
   NODE_ALIGNOF,
   NODE_DEFER,
@@ -225,6 +227,11 @@ typedef struct {
     EnumEntry *entries;
 } EnumNode;
 
+typedef struct {
+    ASTNode base;
+    EnumEntry *entries;
+} ErrNumNode;
+
 
 
 typedef struct {
@@ -306,12 +313,19 @@ typedef struct {
 
 typedef struct {
     ASTNode base;
-    ASTNode *target;
-    char *err_name; 
+    char *var_name;
+    char *pristine_var_name;
     ASTNode *body;
-    ASTNode *else_body;
-    unsigned int wash_type : 2; 
-} WashNode;
+    char *err_var_name;
+    ASTNode *residue_body;
+} CleanNode;
+
+typedef struct {
+    ASTNode base;
+    char *var_name;
+    char *err_var_name;
+    ASTNode *residue_body;
+} UntaintNode;
 
 typedef struct {
   ASTNode base;

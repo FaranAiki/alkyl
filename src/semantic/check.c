@@ -78,6 +78,10 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
         else if (node->type == NODE_ENUM) {
             sem_symbolic_node_enum(ctx, node);
         }
+        else if (node->type == NODE_ERRNUM) {
+            extern void sem_symbolic_node_errnum(SemanticCtx *ctx, ASTNode *node);
+            sem_symbolic_node_errnum(ctx, node);
+        }
         else if (node->type == NODE_NAMESPACE) {
             sem_symbolic_namespace(ctx, node);
         }
@@ -937,6 +941,15 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
     switch (node->type) {
         case NODE_PURGE: {
             PurgeNode *pn = (PurgeNode*)node;
+            
+            if (ctx->current_func_sym) {
+                if (ctx->current_func_sym->has_explicit_pristine) {
+                    sem_error(ctx, node, "Pristine function '%s' cannot use purge", ctx->current_func_sym->name);
+                } else if (!ctx->current_func_sym->type.is_tainted) {
+                    sem_hint(ctx, node, "Function '%s' uses purge, consider marking it as tainted", ctx->current_func_sym->name);
+                }
+            }
+            
             if (pn->msg->type == NODE_VAR_REF) {
                 VarRefNode *var = (VarRefNode*)pn->msg;
                 // It's an error identifier!
@@ -976,62 +989,66 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             }
             break;
         }
-        case NODE_WASH: {
-            WashNode *wn = (WashNode*)node;
-            sem_check_expr(ctx, wn->target);
-            SemSymbol *target_sym = NULL;
-            if (wn->target->type == NODE_VAR_REF) {
-                target_sym = sem_symbol_lookup(ctx, ((VarRefNode*)wn->target)->name, NULL);
+        case NODE_CLEAN: {
+            CleanNode *cn = (CleanNode*)node;
+            SemSymbol *target_sym = sem_symbol_lookup(ctx, cn->var_name, NULL);
+            if (!target_sym) {
+                sem_error(ctx, node, "Unknown variable '%s' in clean statement", cn->var_name);
+                break;
             }
-            if (wn->wash_type == WASH_TYPE_UNTAINT) { 
+            if (!target_sym->type.is_tainted) {
+                sem_error(ctx, node, "Variable '%s' is not tainted", cn->var_name);
+            }
+            
+            sem_scope_enter(ctx, 0, (VarType){0});
+            VarType pristine_type = target_sym->type;
+            pristine_type.is_tainted = 0;
+            const char *target_name = cn->pristine_var_name ? cn->pristine_var_name : cn->var_name;
+            SemSymbol *pristine_sym = sem_symbol_add(ctx, target_name, SYM_VAR, pristine_type);
+            pristine_sym->is_initialized = 1;
+            pristine_sym->is_pristine = 1;
+
+            sem_check_block(ctx, cn->body);
+            sem_scope_exit(ctx);
+            
+            if (cn->residue_body) {
                 sem_scope_enter(ctx, 0, (VarType){0});
+                VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0}; 
+                SemSymbol *err_sym = sem_symbol_add(ctx, cn->err_var_name, SYM_VAR, err_type);
+                err_sym->is_initialized = 1;
                 
-                if (wn->err_name) {
-                    VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0}; 
-                    SemSymbol *err_sym = sem_symbol_add(ctx, wn->err_name, SYM_VAR, err_type);
-                    err_sym->is_initialized = 1;
-                }
-                
-                sem_check_block(ctx, wn->body);
+                sem_check_block(ctx, cn->residue_body);
                 sem_scope_exit(ctx);
-                
-                if (target_sym) {
-                    target_sym->is_pristine = 1; 
-                }
-            } else if (wn->wash_type == WASH_TYPE_WASH || wn->wash_type == WASH_TYPE_CLEAN) { 
-                sem_scope_enter(ctx, 0, (VarType){0});
-                
-                int old_pristine = target_sym ? target_sym->is_pristine : 0;
-                if (target_sym) target_sym->is_pristine = 1;
-                
-                sem_check_block(ctx, wn->body);
-                
-                if (target_sym && wn->wash_type == WASH_TYPE_WASH) target_sym->is_pristine = old_pristine;
-                
-                sem_scope_exit(ctx);
-                
-                if (wn->else_body) {
-                    ctx->in_wash_block++;
-                    sem_scope_enter(ctx, 0, (VarType){0});
-                    
-                    if (wn->err_name) {
-                        VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0}; 
-                        SemSymbol *err_sym = sem_symbol_add(ctx, wn->err_name, SYM_VAR, err_type);
-                        err_sym->is_initialized = 1;
-                    }
-                    
-                    if (wn->else_body->type == NODE_WASH || wn->else_body->type == NODE_IF) {
-                        sem_check_node(ctx, wn->else_body);
-                    } else {
-                        sem_check_block(ctx, wn->else_body);
-                    }
-                    
-                    sem_scope_exit(ctx);
-                    ctx->in_wash_block--;
-                }
             }
             break;
         }
+        case NODE_UNTAINT: {
+            UntaintNode *un = (UntaintNode*)node;
+            SemSymbol *target_sym = sem_symbol_lookup(ctx, un->var_name, NULL);
+            if (!target_sym) {
+                sem_error(ctx, node, "Unknown variable '%s' in untaint statement", un->var_name);
+                break;
+            }
+            if (!target_sym->type.is_tainted) {
+                sem_error(ctx, node, "Variable '%s' is not tainted", un->var_name);
+            }
+            
+            if (un->residue_body) {
+                sem_scope_enter(ctx, 0, (VarType){0});
+                VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0}; 
+                SemSymbol *err_sym = sem_symbol_add(ctx, un->err_var_name, SYM_VAR, err_type);
+                err_sym->is_initialized = 1;
+                
+                sem_check_block(ctx, un->residue_body);
+                sem_scope_exit(ctx);
+            }
+            
+            target_sym->is_pristine = 1;
+            target_sym->type.is_tainted = 0;
+            break;
+        }
+        case NODE_ERRNUM:
+            break;
         case NODE_IF: {
             IfNode *ifn = (IfNode*)node;
             sem_check_expr(ctx, ifn->condition);

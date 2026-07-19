@@ -159,6 +159,27 @@ void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     }
 }
 
+void sem_register_builtins(SemanticCtx *ctx) {
+    if (ctx->compiler_ctx) {
+        VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+        
+        // Always inject ErrNull to the global scope
+        SemSymbol *sym_null = sem_symbol_add(ctx, "ErrNull", SYM_VAR, err_type);
+        sym_null->is_initialized = 1;
+        sym_null->is_mutable = 0;
+        
+        if (!ctx->compiler_ctx->settings.no_purge) {
+            if (!hashmap_get(&ctx->compiler_ctx->error_table, "ErrDivisionByZero")) {
+                int id = ctx->compiler_ctx->next_error_id++;
+                hashmap_put(&ctx->compiler_ctx->error_table, strdup("ErrDivisionByZero"), (void*)(intptr_t)(id + 1));
+            }
+            SemSymbol *sym_div = sem_symbol_add(ctx, "ErrDivisionByZero", SYM_VAR, err_type);
+            sym_div->is_initialized = 1;
+            sym_div->is_mutable = 0;
+        }
+    }
+}
+
 int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
     if (!root) return 0;
     
@@ -172,7 +193,7 @@ int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
         ctx->ast_tail = tail;
     }
     
-    // sem_register_builtins(ctx);
+    sem_register_builtins(ctx);
     sem_scan_top_level(ctx, root);
     
     int current_errors = 0;

@@ -100,6 +100,7 @@ typedef enum {
 
   TOKEN_NAMESPACE, 
   TOKEN_ENUM, 
+  TOKEN_ERRNUM,
 
   // Flux / Generator Support
   TOKEN_FLUX,
@@ -270,6 +271,7 @@ static const KeywordDef keywords[] = {
     {"else", TOKEN_ELSE},
     {"emit", TOKEN_EMIT},
     {"enum", TOKEN_ENUM},
+    {"errnum", TOKEN_ERRNUM},
     {"exact", TOKEN_EXACT},
     {"extern", TOKEN_EXTERN},
     {"false", TOKEN_FALSE},

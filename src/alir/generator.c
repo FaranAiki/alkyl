@@ -73,7 +73,15 @@ long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
                return val;
            }
        }
-       
+
+       // Handle error identifiers (ErrSomething) declared via errnum or implicitly
+       if (ctx->sem && ctx->sem->compiler_ctx && strncmp(vr->name, "Err", 3) == 0) {
+           void *err_val = hashmap_get(&ctx->sem->compiler_ctx->error_table, vr->name);
+           if (err_val) {
+               return (long)(intptr_t)err_val;
+           }
+       }
+
        // Fallback global enum search for bare enum members inside switches
        AlirEnum *e = ctx->module->enums;
        while(e) {

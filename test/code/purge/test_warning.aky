@@ -1,0 +1,11 @@
+errnum [ErrSome]
+int should_be_tainted() {
+  purge ErrSome;
+}
+
+pristine int main() {
+  return 0;
+}
+pristine int should_not_be_tainted() {
+  purge ErrNull;
+}

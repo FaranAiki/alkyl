@@ -143,6 +143,10 @@ set(COMMON_SOURCES
 add_executable(alkyl src/meta/vm.c
     src/driver/main.c ${COMMON_SOURCES})
 
+if(WIN32)
+    target_sources(alkyl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/misc/installer/windows/alkyl.rc)
+endif()
+
 
 # Headers
 target_include_directories(alkyl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${LLVM_INCLUDE_DIRS})

@@ -30,6 +30,8 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
     }
 
     switch(node->type) {
+        // in case a pristine function STILL contains error, then purge here
+        // purge SHOULD NOT be in alir: it is type check/error
         case NODE_PURGE: {
             PurgeNode *pn = (PurgeNode*)node;
             VarRefNode *vr = (VarRefNode*)pn->msg;
@@ -39,6 +41,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                 if (val) err_id = (int)(intptr_t)val;
             }
             char buf[512];
+            // TODO fix this
             snprintf(buf, sizeof(buf), "purge: %s\n", vr->name);
             VarType str_type = { .base = TYPE_CLASS, .class_name = (char*)"string", .ptr_depth = 0 };
             AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, str_type, ctx->str_counter++);
@@ -46,23 +49,131 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, id_val));
             break;
         }
-        case NODE_CLEAN:
-        case NODE_WASH: {
-            WashNode *wn = (WashNode*)node;
-
-            // Execute the main body
-            ASTNode *s = wn->body;
-            while(s) {
-                alir_gen_stmt(ctx, s);
-                s = s->next;
+        case NODE_CLEAN: {
+            CleanNode *cn = (CleanNode*)node;
+            AlirSymbol *target_sym = alir_find_symbol(ctx, cn->var_name);
+            
+            VarType pristine_type = target_sym->type;
+            pristine_type.is_tainted = 0;
+            AlirValue *pristine_ptr = new_temp(ctx, pristine_type);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, pristine_ptr, NULL, NULL));
+            const char *target_name = cn->pristine_var_name ? cn->pristine_var_name : cn->var_name;
+            alir_add_symbol(ctx, target_name, pristine_ptr, pristine_type);
+            
+            AlirValue *err_code_ptr = new_temp(ctx, (VarType){TYPE_INT, 1, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, err_code_ptr, target_sym->ptr, alir_const_int(ctx->module, 0)));
+            
+            AlirValue *err_code = new_temp(ctx, (VarType){TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, err_code, err_code_ptr, NULL));
+            
+            AlirValue *pristine_val_ptr = new_temp(ctx, pristine_type);
+            pristine_val_ptr->type.ptr_depth++;
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, pristine_val_ptr, target_sym->ptr, alir_const_int(ctx->module, 1)));
+            
+            AlirValue *pristine_val = new_temp(ctx, pristine_type);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, pristine_val, pristine_val_ptr, NULL));
+            
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pristine_val, pristine_ptr));
+            
+            AlirValue *cond = new_temp(ctx, (VarType){TYPE_BOOL, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, cond, err_code, alir_const_int(ctx->module, 0)));
+            
+            AlirBlock *then_bb = alir_add_block(ctx->module, ctx->current_func, "clean_then");
+            AlirBlock *else_bb = cn->residue_body ? alir_add_block(ctx->module, ctx->current_func, "clean_residue") : NULL;
+            AlirBlock *merge_bb = alir_add_block(ctx->module, ctx->current_func, "clean_merge");
+            
+            AlirBlock *target_else = else_bb ? else_bb : merge_bb;
+            
+            AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, cond, alir_val_label(ctx->module, then_bb->label));
+            br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
+            br->args[0] = alir_val_label(ctx->module, target_else->label);
+            br->arg_count = 1;
+            emit(ctx, br);
+            
+            ctx->current_block = then_bb;
+            ASTNode *s = cn->body; while(s) { alir_gen_stmt(ctx, s); s=s->next; }
+            if (!ctx->current_block->tail || !is_terminator(ctx->current_block->tail->op)) {
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, merge_bb->label), NULL));
             }
-
-            // At runtime, Alkyl does not track error states for primitives.
-            // The residue block is purely a semantic requirement for compile-time checking.
-            // We do not emit the residue block to ALIR.
-            // TODO implement this
+            
+            if (else_bb) {
+                ctx->current_block = else_bb;
+                
+                VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+                AlirValue *err_ptr = new_temp(ctx, err_type);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, err_ptr, NULL, NULL));
+                alir_add_symbol(ctx, cn->err_var_name, err_ptr, err_type);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, err_code, err_ptr));
+                
+                s = cn->residue_body; while(s) { alir_gen_stmt(ctx, s); s=s->next; }
+                if (!ctx->current_block->tail || !is_terminator(ctx->current_block->tail->op)) {
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, merge_bb->label), NULL));
+                }
+            }
+            
+            ctx->current_block = merge_bb;
             break;
         }
+        case NODE_UNTAINT: {
+            UntaintNode *un = (UntaintNode*)node;
+            AlirSymbol *target_sym = alir_find_symbol(ctx, un->var_name);
+            
+            VarType pristine_type = target_sym->type;
+            pristine_type.is_tainted = 0;
+            AlirValue *pristine_ptr = new_temp(ctx, pristine_type);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, pristine_ptr, NULL, NULL));
+            
+            // Add symbol using the SAME name (shadowing it)
+            alir_add_symbol(ctx, un->var_name, pristine_ptr, pristine_type);
+            
+            AlirValue *err_code_ptr = new_temp(ctx, (VarType){TYPE_INT, 1, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, err_code_ptr, target_sym->ptr, alir_const_int(ctx->module, 0)));
+            
+            AlirValue *err_code = new_temp(ctx, (VarType){TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, err_code, err_code_ptr, NULL));
+            
+            AlirValue *pristine_val_ptr = new_temp(ctx, pristine_type);
+            pristine_val_ptr->type.ptr_depth++;
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, pristine_val_ptr, target_sym->ptr, alir_const_int(ctx->module, 1)));
+            
+            AlirValue *pristine_val = new_temp(ctx, pristine_type);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, pristine_val, pristine_val_ptr, NULL));
+            
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pristine_val, pristine_ptr));
+            
+            AlirValue *cond = new_temp(ctx, (VarType){TYPE_BOOL, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, cond, err_code, alir_const_int(ctx->module, 0)));
+            
+            AlirBlock *residue_bb = un->residue_body ? alir_add_block(ctx->module, ctx->current_func, "untaint_residue") : NULL;
+            AlirBlock *merge_bb = alir_add_block(ctx->module, ctx->current_func, "untaint_merge");
+            
+            AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, cond, alir_val_label(ctx->module, merge_bb->label));
+            br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
+            br->args[0] = alir_val_label(ctx->module, residue_bb ? residue_bb->label : merge_bb->label);
+            br->arg_count = 1;
+            emit(ctx, br);
+            
+            if (residue_bb) {
+                ctx->current_block = residue_bb;
+                
+                VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+                AlirValue *err_ptr = new_temp(ctx, err_type);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, err_ptr, NULL, NULL));
+                alir_add_symbol(ctx, un->err_var_name, err_ptr, err_type);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, err_code, err_ptr));
+                
+                ASTNode *s = un->residue_body; while(s) { alir_gen_stmt(ctx, s); s=s->next; }
+                if (!ctx->current_block->tail || !is_terminator(ctx->current_block->tail->op)) {
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, merge_bb->label), NULL));
+                }
+            }
+            
+            ctx->current_block = merge_bb;
+            break;
+        }
+        case NODE_ERRNUM:
+            break;
+
         case NODE_SIZEOF:
             alir_gen_expr(ctx, node);
             break;

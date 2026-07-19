@@ -260,6 +260,45 @@ ASTNode* parse_top_level(Parser *p) {
     return node;
 }
 
+ASTNode* parse_errnum(Parser *p) {
+    int line = p->current_token.line;
+    int col = p->current_token.col;
+    eat(p, TOKEN_ERRNUM);
+    eat(p, TOKEN_LBRACKET);
+    
+    EnumEntry *head = NULL;
+    EnumEntry **curr = &head;
+    
+    while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+        if (p->current_token.type != TOKEN_IDENTIFIER) {
+            parser_fail(p, "Expected identifier in errnum list");
+            break;
+        }
+        
+        EnumEntry *entry = parser_alloc(p, sizeof(EnumEntry));
+        entry->name = parser_strdup(p, p->current_token.text);
+        entry->value = -1; // Semantic analyzer handles numbering
+        entry->next = NULL;
+        *curr = entry;
+        curr = &entry->next;
+        
+        eat(p, TOKEN_IDENTIFIER);
+        if (p->current_token.type == TOKEN_COMMA) {
+            eat(p, TOKEN_COMMA);
+        } else {
+            break;
+        }
+    }
+    eat(p, TOKEN_RBRACKET);
+    
+    ErrNumNode *node = parser_alloc(p, sizeof(ErrNumNode));
+    node->base.type = NODE_ERRNUM;
+    node->base.line = line;
+    node->base.col = col;
+    node->entries = head;
+    return (ASTNode*)node;
+}
+
 ASTNode* parse_top_level_internal(Parser *p) { 
   if (p->current_token.type == TOKEN_SEMICOLON) {
       eat(p, TOKEN_SEMICOLON);
@@ -308,6 +347,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
   if (p->current_token.type == TOKEN_DEFINE) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_define(p); }
   if (p->current_token.type == TOKEN_TYPEDEF) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_typedef(p); }
   if (p->current_token.type == TOKEN_ENUM) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_enum(p); }
+  if (p->current_token.type == TOKEN_ERRNUM) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_errnum(p); }
 
   if (p->current_token.type == TOKEN_PREMETA) {
       if(modifiers) parser_fail(p, "Modifiers not allowed");

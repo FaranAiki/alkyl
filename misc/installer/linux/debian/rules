@@ -1,0 +1,37 @@
+#!/usr/bin/make -f
+%:
+	dh $@ --buildsystem=cmake
+
+override_dh_auto_install:
+	dh_auto_install
+	
+	# Install binary manually if standard cmake install isn't set up
+	install -Dm755 obj-*/alkyl debian/alkyl/usr/bin/alkyl
+	
+	# Desktop Icon
+	install -Dm644 misc/asset/logo.png debian/alkyl/usr/share/icons/hicolor/512x512/apps/alkyl.png
+	
+	# Desktop Entry
+	mkdir -p debian/alkyl/usr/share/applications
+	echo "[Desktop Entry]" > debian/alkyl/usr/share/applications/alkyl.desktop
+	echo "Name=Alkyl Compiler" >> debian/alkyl/usr/share/applications/alkyl.desktop
+	echo "Exec=alkyl %F" >> debian/alkyl/usr/share/applications/alkyl.desktop
+	echo "Icon=alkyl" >> debian/alkyl/usr/share/applications/alkyl.desktop
+	echo "Terminal=true" >> debian/alkyl/usr/share/applications/alkyl.desktop
+	echo "Type=Application" >> debian/alkyl/usr/share/applications/alkyl.desktop
+	echo "Categories=Development;" >> debian/alkyl/usr/share/applications/alkyl.desktop
+	
+	# MIME type definition
+	mkdir -p debian/alkyl/usr/share/mime/packages
+	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" > debian/alkyl/usr/share/mime/packages/application-x-alkyl.xml
+	echo "<mime-info xmlns=\"http://www.freedesktop.org/standards/shared-mime-info\">" >> debian/alkyl/usr/share/mime/packages/application-x-alkyl.xml
+	echo "  <mime-type type=\"application/x-alkyl\">" >> debian/alkyl/usr/share/mime/packages/application-x-alkyl.xml
+	echo "    <comment>Alkyl Source File</comment>" >> debian/alkyl/usr/share/mime/packages/application-x-alkyl.xml
+	echo "    <glob pattern=\"*.aky\"/>" >> debian/alkyl/usr/share/mime/packages/application-x-alkyl.xml
+	echo "    <glob pattern=\"*.hky\"/>" >> debian/alkyl/usr/share/mime/packages/application-x-alkyl.xml
+	echo "    <icon name=\"application-x-alkyl\"/>" >> debian/alkyl/usr/share/mime/packages/application-x-alkyl.xml
+	echo "  </mime-type>" >> debian/alkyl/usr/share/mime/packages/application-x-alkyl.xml
+	echo "</mime-info>" >> debian/alkyl/usr/share/mime/packages/application-x-alkyl.xml
+	
+	# MIME icon
+	install -Dm644 misc/asset/script_logo.png debian/alkyl/usr/share/icons/hicolor/512x512/mimetypes/application-x-alkyl.png

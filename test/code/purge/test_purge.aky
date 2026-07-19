@@ -1,0 +1,36 @@
+errnum [ErrSomethingElse]
+
+// A tainted function that may purge an error
+tainted int divide(int a, int b) {
+    if b == 0 {
+        purge ErrDivisionByZero;
+    }
+    return a / b;
+}
+
+// A pristine main function
+pristine int main() {
+    tainted int res_a = divide(10, 2);
+    tainted int res_b = divide(10, 0);
+
+    // Using untaint on res_a
+    untaint res_a residue err_a {
+        if err_a == ErrDivisionByZero {
+            // Error handling
+            res_a = 0;
+        }
+    }
+    // res_a is now safe to use as pristine
+
+    // Using clean on res_b
+    clean res_b as safe_b {
+        // safe_b is a pristine copy of res_b and can be safely used
+        safe_b = safe_b + 1;
+    } residue err_b {
+        if err_b == ErrDivisionByZero {
+            // handle error
+        }
+    }
+
+    return 0;
+}

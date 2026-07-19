@@ -329,17 +329,33 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             clone = (ASTNode*)n;
             break;
         }
-        case NODE_WASH: {
-            WashNode *orig = (WashNode*)node;
-            WashNode *n = arena_alloc(ctx->arena, sizeof(WashNode));
-            *n = *orig;
-            n->target = ast_clone(ctx, orig->target, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
-            if (orig->err_name) n->err_name = arena_strdup(ctx->arena, orig->err_name);
+        case NODE_CLEAN: {
+            CleanNode *orig = (CleanNode*)node;
+            CleanNode *n = arena_alloc(ctx->arena, sizeof(CleanNode));
+            n->base.type = NODE_CLEAN;
+            n->base.line = orig->base.line;
+            n->base.col = orig->base.col;
+            n->var_name = orig->var_name ? arena_strdup(ctx->arena, orig->var_name) : NULL;
+            n->pristine_var_name = orig->pristine_var_name ? arena_strdup(ctx->arena, orig->pristine_var_name) : NULL;
+            n->err_var_name = orig->err_var_name ? arena_strdup(ctx->arena, orig->err_var_name) : NULL;
             n->body = ast_clone(ctx, orig->body, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
-            n->else_body = ast_clone(ctx, orig->else_body, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
-            clone = (ASTNode*)n;
-            break;
+            n->residue_body = ast_clone(ctx, orig->residue_body, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            return (ASTNode*)n;
         }
+        case NODE_UNTAINT: {
+            UntaintNode *orig = (UntaintNode*)node;
+            UntaintNode *n = arena_alloc(ctx->arena, sizeof(UntaintNode));
+            n->base.type = NODE_UNTAINT;
+            n->base.line = orig->base.line;
+            n->base.col = orig->base.col;
+            n->var_name = orig->var_name ? arena_strdup(ctx->arena, orig->var_name) : NULL;
+            n->err_var_name = orig->err_var_name ? arena_strdup(ctx->arena, orig->err_var_name) : NULL;
+            n->residue_body = ast_clone(ctx, orig->residue_body, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            return (ASTNode*)n;
+        }
+        case NODE_ERRNUM:
+            // Top level constructs are typically not cloned in template instantiation
+            return NULL;
         default:
             clone = arena_alloc(ctx->arena, sizeof(ASTNode));
             *clone = *node;
