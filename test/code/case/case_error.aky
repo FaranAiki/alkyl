@@ -1,8 +1,13 @@
 extern int printf(char* format, ...);
 
+int m?() {
+  purge ErrNull;
+  return 0;
+}
+
 int main() {
-    tainted int x = 10;
-    
+    tainted int x = m();
+
     clean x {
         printf(c"Clean\n");
     } residue (err) {
@@ -13,6 +18,6 @@ int main() {
                 printf(c"Null error\n");
         }
     }
-    
+
     return 0;
 }
