@@ -1,0 +1,12 @@
+extern int printf(char*, ...);
+compound[type[int] Type] {
+    class Vector {
+        Type x, y;
+    }
+}
+int main() {
+    let a = Vector[int](1, 2);
+    mut Vector[int] b(a);
+    a.x = 99;
+    printf "Hmm... something is wrong!";
+}

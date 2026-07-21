@@ -14,6 +14,59 @@ SemSymbol* lookup_local_symbol(SemanticCtx *ctx, const char *name) {
     return NULL;
 }
 
+// If `node` is a call to a function that has an attached `errnum [...]` set,
+// returns that function's SemSymbol (so the caller can enumerate its errors).
+// Otherwise returns NULL.
+SemSymbol* sem_get_errnum_func_sym(SemanticCtx *ctx, ASTNode *node) {
+    if (!node) return NULL;
+    // Unwrap assignment RHS etc. by inspecting the inner call expression.
+    if (node->type == NODE_CALL) {
+        CallNode *cn = (CallNode*)node;
+        char *fname = cn->name;
+        if (!fname && cn->target && cn->target->type == NODE_MEMBER_ACCESS) {
+            fname = ((MemberAccessNode*)cn->target)->member_name;
+        }
+        if (fname) {
+            SemSymbol *sym = sem_symbol_lookup(ctx, fname, NULL);
+            if (sym && sym->kind == SYM_FUNC && sym->has_errnum) return sym;
+        }
+    }
+    return NULL;
+}
+
+// Checks that the residue cases cover every error in `err_sym`'s error set.
+// `default_case` indicates whether a catch-all default is present.
+// Emits an error if uncovered (and not suppressed by a `reason`), otherwise a
+// warning if the handling is partial/non-exhaustive.
+void sem_check_residue_exhaustive(SemanticCtx *ctx, ASTNode *where,
+                                          SemSymbol *err_sym, ResidueCase *cases,
+                                          int default_case) {
+    int total = err_sym->num_err;
+    int covered = 0;
+    for (int i = 0; i < total; i++) {
+        const char *ename = err_sym->err_names[i];
+        int found = default_case;
+        for (ResidueCase *rc = cases; rc; rc = rc->next) {
+            if (rc->is_default) { found = 1; continue; }
+            for (int j = 0; j < rc->num_err; j++) {
+                if (strcmp(rc->err_names[j], ename) == 0) { found = 1; break; }
+            }
+            if (found) break;
+        }
+        if (found) covered++;
+    }
+
+    if (covered < total) {
+        if (where && where->reason) {
+            sem_hint(ctx, where, "purge may not be thorough: not all residue handled (handled %d of %d errors)",
+                     covered, total);
+        } else {
+            sem_error(ctx, where, "not all residue is purged (handled %d of %d errors from '%s')",
+                      covered, total, err_sym->name);
+        }
+    }
+}
+
 void sem_insert_implicit_cast(SemanticCtx *ctx, ASTNode **node_ptr, VarType target_type) {
     if (!node_ptr || !*node_ptr) return;
     VarType current = sem_get_node_type(ctx, *node_ptr);
@@ -45,6 +98,19 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
 
     while (node) {
         if (node->type == NODE_FUNC_DEF) {
+            FuncDefNode *fd = (FuncDefNode*)node;
+            // Register the error set attached via `errnum [...]` and mark the
+            // function's return type as tainted.
+            if (fd->has_errnum && ctx->compiler_ctx) {
+                fd->ret_type.is_tainted = 1;
+                for (int i = 0; i < fd->num_err; i++) {
+                    const char *name = fd->err_names[i];
+                    if (!hashmap_get(&ctx->compiler_ctx->error_table, name)) {
+                        int id = ctx->compiler_ctx->next_error_id++;
+                        hashmap_put(&ctx->compiler_ctx->error_table, strdup(name), (void*)(intptr_t)(id + 1));
+                    }
+                }
+            }
             sem_symbolic_func_def(ctx, node);
         }
         else if (node->type == NODE_VAR_DECL) {
@@ -178,6 +244,8 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
             }
         } else if (node->target->type == NODE_VAR_REF) {
             node->name = ((VarRefNode*)node->target)->name;
+        } else if (node->target->type == NODE_MEMBER_ACCESS) {
+            node->name = ((MemberAccessNode*)node->target)->member_name;
         }
     }
     
@@ -185,7 +253,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         char *bracket = strchr(node->name, '[');
         if (bracket) {
             char mangled[512];
-            strcpy(mangled, node->name);
+            snprintf(mangled, sizeof(mangled), "%s", node->name);
             for (int i=0; mangled[i]; i++) {
                 if (mangled[i] == '[') mangled[i] = '_';
                 else if (mangled[i] == ']') mangled[i] = '\0';
@@ -194,7 +262,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
             // Remove double underscores just in case `, ` became `__`
             char final_mangled[512];
             int j = 0;
-            for (int i=0; mangled[i]; i++) {
+            for (int i=0; mangled[i] && j < 511; i++) {
                 if (mangled[i] == '_' && mangled[i+1] == '_') continue;
                 final_mangled[j++] = mangled[i];
             }
@@ -303,7 +371,17 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                  arg_count++;
              }
              if (arg_count != total_fields) {
-                 sem_error(ctx, (ASTNode*)node, "Expected %d argument(s) for implicit constructor of '%s', got %d", total_fields, sym->name, arg_count);
+                 int is_copy = 0;
+                 if (arg_count == 1) {
+                     VarType arg_type = sem_get_node_type(ctx, node->args);
+                     // printf("DEBUG: copy check: base=%d expected=%d class_name=%s sym_name=%s\n", arg_type.base, TYPE_CLASS, arg_type.class_name ? arg_type.class_name : "(null)", sym->name);
+                     if (arg_type.base == TYPE_CLASS && arg_type.class_name && strcmp(arg_type.class_name, sym->name) == 0) {
+                         is_copy = 1;
+                     }
+                 }
+                 if (!is_copy) {
+                     sem_error(ctx, (ASTNode*)node, "Expected %d argument(s) for implicit constructor of '%s', got %d", total_fields, sym->name, arg_count);
+                 }
              }
         }
     }
@@ -402,10 +480,10 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
                 hashmap_put(&ctx->compiler_ctx->error_table, strdup(node->fallback_err_name), (void*)(intptr_t)(id + 1));
             }
         }
-        
+
         return;
     }
-   
+    
     // todo fix this casting!
     if (node->op == TOKEN_EQ || node->op == TOKEN_NEQ || 
         node->op == TOKEN_LT || node->op == TOKEN_GT || 
@@ -771,6 +849,9 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 len_ast = (ASTNode*)cast_node;
             }
             
+            // Terminate the symbol list
+            *curr = NULL;
+            
             len_ast->next = head;
             head = len_ast;
             count++;
@@ -792,7 +873,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             TemplateInstNode *ti = (TemplateInstNode*)node;
             char target_name[256] = "";
             if (ti->target->type == NODE_VAR_REF) {
-                strcpy(target_name, ((VarRefNode*)ti->target)->name);
+                snprintf(target_name, sizeof(target_name), "%s", ((VarRefNode*)ti->target)->name);
             } else if (ti->target->type == NODE_MEMBER_ACCESS) {
                 MemberAccessNode *ma = (MemberAccessNode*)ti->target;
                 if (ma->object->type == NODE_VAR_REF) {
@@ -863,37 +944,43 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             
             SemSymbol *inst_sym = sem_symbol_lookup(ctx, mangled, NULL);
             if (!inst_sym) {
-                // 1. Collect all top-level names in the block and their mangled names
-                int num_renames = 0;
-                char *rename_from[32];
-                char *rename_to[32];
-                ASTNode *cn_curr = cn->body;
-                while (cn_curr) {
-                    char *base_name = NULL;
-                    if (cn_curr->type == NODE_FUNC_DEF) base_name = ((FuncDefNode*)cn_curr)->name;
-                    else if (cn_curr->type == NODE_CLASS) base_name = ((ClassNode*)cn_curr)->name;
-                    
-                    if (base_name) {
-                        rename_from[num_renames] = base_name;
-                        char node_mangled[1024];
-                        snprintf(node_mangled, sizeof(node_mangled), "%s", base_name);
-                        for (int i = 0; i < ti->num_template_types; i++) {
-                            char *t_str = sem_type_to_str(ti->template_types[i]);
-                            strncat(node_mangled, "_", sizeof(node_mangled) - strlen(node_mangled) - 1);
-                            strncat(node_mangled, t_str, sizeof(node_mangled) - strlen(node_mangled) - 1);
-                        }
-                        rename_to[num_renames] = arena_strdup(ctx->compiler_ctx->arena, node_mangled);
-                        num_renames++;
+            // 1. Collect all top-level names in the block and their mangled names
+            int num_renames = 0;
+            char *rename_from[32];
+            char *rename_to[32];
+            ASTNode *cn_curr = cn->body;
+            while (cn_curr) {
+                char *base_name = NULL;
+                if (cn_curr->type == NODE_FUNC_DEF) base_name = ((FuncDefNode*)cn_curr)->name;
+                else if (cn_curr->type == NODE_CLASS) base_name = ((ClassNode*)cn_curr)->name;
+                
+                if (base_name) {
+                    if (num_renames >= 32) {
+                        sem_error(ctx, node, "Template has too many top-level symbols to instantiate");
+                        break;
                     }
-                    cn_curr = cn_curr->next;
+                    rename_from[num_renames] = base_name;
+                    char node_mangled[1024];
+                    snprintf(node_mangled, sizeof(node_mangled), "%s", base_name);
+                    for (int i = 0; i < ti->num_template_types; i++) {
+                        char *t_str = sem_type_to_str(ti->template_types[i]);
+                        size_t nm_len = strlen(node_mangled);
+                        if (nm_len + 1 < sizeof(node_mangled)) {
+                            snprintf(node_mangled + nm_len, sizeof(node_mangled) - nm_len, "_%s", t_str);
+                        }
+                    }
+                    rename_to[num_renames] = arena_strdup(ctx->compiler_ctx->arena, node_mangled);
+                    num_renames++;
                 }
-                
-                for (int i = 0; i < num_renames; i++) {
-                    printf("Rename: %s -> %s\n", rename_from[i], rename_to[i]);
-                }
-                
-                // 2. Clone the body with replacements AND renames
-                ASTNode *cloned_body = ast_clone(ctx->compiler_ctx, cn->body, cn->type_params, ti->template_types, ti->num_template_types, rename_from, rename_to, num_renames);
+                cn_curr = cn_curr->next;
+            }
+            
+            for (int i = 0; i < num_renames; i++) {
+                printf("Rename: %s -> %s\n", rename_from[i], rename_to[i]);
+            }
+            
+            // 2. Clone the body with replacements AND renames
+            ASTNode *cloned_body = ast_clone(ctx->compiler_ctx, cn->body, cn->type_params, ti->template_types, ti->num_template_types, rename_from, rename_to, num_renames);
                 
                 if (ctx->ast_tail) {
                     *ctx->ast_tail = cloned_body;
@@ -999,7 +1086,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             if (!target_sym->type.is_tainted) {
                 sem_error(ctx, node, "Variable '%s' is not tainted", cn->var_name);
             }
-            
+
             sem_scope_enter(ctx, 0, (VarType){0});
             VarType pristine_type = target_sym->type;
             pristine_type.is_tainted = 0;
@@ -1010,15 +1097,24 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
 
             sem_check_block(ctx, cn->body);
             sem_scope_exit(ctx);
-            
-            if (cn->residue_body) {
+
+            if (cn->residue_cases || cn->residue_body) {
                 sem_scope_enter(ctx, 0, (VarType){0});
-                VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0}; 
+                VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
                 SemSymbol *err_sym = sem_symbol_add(ctx, cn->err_var_name, SYM_VAR, err_type);
                 err_sym->is_initialized = 1;
-                
-                sem_check_block(ctx, cn->residue_body);
+
+                int has_default = 0;
+                for (ResidueCase *rc = cn->residue_cases; rc; rc = rc->next) {
+                    if (rc->is_default) has_default = 1;
+                    sem_check_block(ctx, rc->body);
+                }
+                if (cn->residue_body) sem_check_block(ctx, cn->residue_body);
                 sem_scope_exit(ctx);
+
+                if (target_sym->has_errnum) {
+                    sem_check_residue_exhaustive(ctx, node, target_sym, cn->residue_cases, has_default);
+                }
             }
             break;
         }
@@ -1032,17 +1128,26 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             if (!target_sym->type.is_tainted) {
                 sem_error(ctx, node, "Variable '%s' is not tainted", un->var_name);
             }
-            
-            if (un->residue_body) {
+
+            if (un->residue_cases || un->residue_body) {
                 sem_scope_enter(ctx, 0, (VarType){0});
-                VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0}; 
+                VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
                 SemSymbol *err_sym = sem_symbol_add(ctx, un->err_var_name, SYM_VAR, err_type);
                 err_sym->is_initialized = 1;
-                
-                sem_check_block(ctx, un->residue_body);
+
+                int has_default = 0;
+                for (ResidueCase *rc = un->residue_cases; rc; rc = rc->next) {
+                    if (rc->is_default) has_default = 1;
+                    sem_check_block(ctx, rc->body);
+                }
+                if (un->residue_body) sem_check_block(ctx, un->residue_body);
                 sem_scope_exit(ctx);
+
+                if (target_sym->has_errnum) {
+                    sem_check_residue_exhaustive(ctx, node, target_sym, un->residue_cases, has_default);
+                }
             }
-            
+
             target_sym->is_pristine = 1;
             target_sym->type.is_tainted = 0;
             break;
@@ -1084,7 +1189,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             }
             if (sn->default_case) {
                 sem_scope_enter(ctx, 0, (VarType){0});
-                sem_check_block(ctx, ((CaseNode*)sn->default_case)->body);
+                sem_check_block(ctx, sn->default_case);
                 sem_scope_exit(ctx);
             }
             break;
@@ -1141,7 +1246,6 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_VAR_REF:
         case NODE_LITERAL:
         case NODE_ARRAY_LIT:
-        case NODE_VECTOR_LIT:
         case NODE_CAST:
         case NODE_TYPEOF:
             sem_check_expr(ctx, node); 
@@ -1161,7 +1265,6 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         LITERAL
         ARRAY_LIT
         ARRAY_ACCESS
-        VECTOR_LIT
         VECTOR_ACCESS
         INC_DEC
         LINK
@@ -1258,7 +1361,13 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
         if (sym && sym->inner_scope) {
             SemScope *old = ctx->current_scope;
             ctx->current_scope = sym->inner_scope;
+            
+            const char *old_ns = arena_strdup(ctx->compiler_ctx->arena, diag_get_namespace(ctx->compiler_ctx));
+            diag_set_namespace(ctx->compiler_ctx, ns->name);
+            
             sem_check_block(ctx, ns->body);
+            
+            diag_set_namespace(ctx->compiler_ctx, old_ns);
             ctx->current_scope = old;
         }
     }

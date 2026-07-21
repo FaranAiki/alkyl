@@ -3,14 +3,14 @@ import "lib/c";
 int main() {
   int i = 0;
   while i < 10 {
-    printf "%d\n", i;
+    clib.printf "%d\n", i;
     i++;
   }
 
   int y = 0;
   while i == 10 {
     y++;
-    printf "%d: %d\n", i, y;
+    clib.printf "%d: %d\n", i, y;
     if y > 10 then break;
   }
 }

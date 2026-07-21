@@ -1,0 +1,10 @@
+extern int printf(char* format, ...);
+errnum [ErrNull]
+int m?() { return 0; }
+int main() {
+    tainted int x = m();
+    clean x {
+        printf "Hmm... something is wrong!";
+    } residue err {
+    }
+}

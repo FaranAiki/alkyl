@@ -61,7 +61,7 @@ static ASTNode* parse_single_extern(Parser *p, int modifiers) {
   Parameter *params_head = NULL; Parameter **curr_param = &params_head;
   int is_varargs = 0;
   if (p->current_token.type != TOKEN_RPAREN) {
-    while (1) {
+    while (1) { if (p->has_error) break;
       if (p->current_token.type == TOKEN_ELLIPSIS) { eat(p, TOKEN_ELLIPSIS); is_varargs = 1; break; }
       int pmods = parse_modifiers(p);
       VarType ptype = parse_type(p);
@@ -129,7 +129,7 @@ ASTNode* parse_extern(Parser *p, int modifiers) {
       ASTNode *head = NULL;
       ASTNode **curr = &head;
       
-      while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+      while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
           ASTNode *decl = parse_single_extern(p, modifiers);
           if (decl) {
               if (!head) {
@@ -163,7 +163,7 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
   int *num_allowed = parser_alloc(p, sizeof(int) * max_params);
   int num_params = 0;
   
-  while (p->current_token.type != TOKEN_RBRACKET) {
+  while (p->current_token.type != TOKEN_RBRACKET) { if (p->has_error) break;
       VarType *curr_allowed = NULL;
       int curr_num = 0;
       if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text && strcmp(p->current_token.text, "type") == 0) {
@@ -171,7 +171,7 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
           if (p->current_token.type == TOKEN_LBRACKET) {
               eat(p, TOKEN_LBRACKET);
               curr_allowed = parser_alloc(p, sizeof(VarType) * 16);
-              while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+              while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
                   curr_allowed[curr_num++] = parse_type(p);
                   if (p->current_token.type == TOKEN_COMMA) {
                       eat(p, TOKEN_COMMA);
@@ -210,7 +210,7 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
   if (p->current_token.type == TOKEN_LBRACE) {
       eat(p, TOKEN_LBRACE);
       ASTNode **curr_body = &body;
-      while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+      while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
           ASTNode *stmt = parse_top_level(p);
           if (stmt) {
               *curr_body = stmt;
@@ -260,28 +260,33 @@ ASTNode* parse_top_level(Parser *p) {
     return node;
 }
 
+ASTNode* parse_func_def_after_type(Parser *p, int modifiers, VarType vtype, int line, int col, int is_flux);
+
+// Parses `errnum [ErrA, ErrB, ...]` which MUST be immediately followed by a
+// function definition (no semicolon). The error set is attached to that
+// function, marking its return type as tainted and recording the error names.
 ASTNode* parse_errnum(Parser *p) {
     int line = p->current_token.line;
     int col = p->current_token.col;
     eat(p, TOKEN_ERRNUM);
     eat(p, TOKEN_LBRACKET);
-    
+
     EnumEntry *head = NULL;
     EnumEntry **curr = &head;
-    
-    while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+
+    while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
         if (p->current_token.type != TOKEN_IDENTIFIER) {
             parser_fail(p, "Expected identifier in errnum list");
             break;
         }
-        
+
         EnumEntry *entry = parser_alloc(p, sizeof(EnumEntry));
         entry->name = parser_strdup(p, p->current_token.text);
         entry->value = -1; // Semantic analyzer handles numbering
         entry->next = NULL;
         *curr = entry;
         curr = &entry->next;
-        
+
         eat(p, TOKEN_IDENTIFIER);
         if (p->current_token.type == TOKEN_COMMA) {
             eat(p, TOKEN_COMMA);
@@ -290,13 +295,45 @@ ASTNode* parse_errnum(Parser *p) {
         }
     }
     eat(p, TOKEN_RBRACKET);
-    
-    ErrNumNode *node = parser_alloc(p, sizeof(ErrNumNode));
-    node->base.type = NODE_ERRNUM;
-    node->base.line = line;
-    node->base.col = col;
-    node->entries = head;
-    return (ASTNode*)node;
+
+    // The errnum must be followed directly by a function definition.
+    if (p->current_token.type == TOKEN_SEMICOLON) {
+        parser_fail(p, "errnum must be attached to a function declaration (no semicolon)");
+        return NULL;
+    }
+
+    int modifiers = parse_modifiers(p);
+    VarType vtype = parse_type(p);
+    if (vtype.base == TYPE_UNKNOWN) {
+        parser_fail(p, "errnum must be followed by a function definition");
+        return NULL;
+    }
+    if (p->current_token.type == TOKEN_FLUX) {
+        eat(p, TOKEN_FLUX);
+    }
+
+    ASTNode *fn = parse_func_def_after_type(p, modifiers, vtype, line, col, 0);
+    if (!fn || fn->type != NODE_FUNC_DEF) {
+        parser_fail(p, "errnum must be followed by a function definition");
+        return fn;
+    }
+
+    // Attach the error set to the function definition.
+    FuncDefNode *fd = (FuncDefNode*)fn;
+    int count = 0;
+    for (EnumEntry *e = head; e; e = e->next) count++;
+    fd->err_names = parser_alloc(p, sizeof(char*) * (count > 0 ? count : 1));
+    fd->num_err = count;
+    fd->has_errnum = 1;
+    int i = 0;
+    for (EnumEntry *e = head; e; e = e->next) {
+        fd->err_names[i++] = e->name;
+    }
+    // The function's return type is tainted because it can fail with one of these errors.
+    fd->ret_type.is_tainted = 1;
+
+    // Free the temporary EnumEntry list (names are now owned by the FuncDefNode).
+    return fn;
 }
 
 ASTNode* parse_top_level_internal(Parser *p) { 
@@ -318,7 +355,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
       char *ns_name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
 
-      const char *old_ns = diag_get_namespace(p->ctx);
+      char *old_ns = parser_strdup(p, diag_get_namespace(p->ctx));
       diag_set_namespace(p->ctx, ns_name);
 
       eat(p, TOKEN_LBRACE);
@@ -326,7 +363,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
       ASTNode *body_head = NULL;
       ASTNode **body_curr = &body_head;
       
-      while(p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+      while(p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
           ASTNode *n = parse_top_level(p);
           if (n) {
               *body_curr = n;
@@ -347,13 +384,16 @@ ASTNode* parse_top_level_internal(Parser *p) {
   if (p->current_token.type == TOKEN_DEFINE) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_define(p); }
   if (p->current_token.type == TOKEN_TYPEDEF) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_typedef(p); }
   if (p->current_token.type == TOKEN_ENUM) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_enum(p); }
-  if (p->current_token.type == TOKEN_ERRNUM) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_errnum(p); }
+  if (p->current_token.type == TOKEN_ERRNUM) {
+      if (modifiers) parser_fail(p, "Modifiers not allowed on errnum");
+      return parse_errnum(p);
+  }
 
   if (p->current_token.type == TOKEN_PREMETA) {
       if(modifiers) parser_fail(p, "Modifiers not allowed");
       eat(p, TOKEN_PREMETA);
       eat(p, TOKEN_LBRACE);
-      while(p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+      while(p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
           char *reason_str = NULL;
           if (p->current_token.type == TOKEN_REASON) {
               eat(p, TOKEN_REASON);
@@ -444,7 +484,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
       
       if (p->current_token.type == TOKEN_LBRACKET) {
           eat(p, TOKEN_LBRACKET);
-          while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+          while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
               char *reason_str = NULL;
               if (p->current_token.type == TOKEN_REASON) {
                   eat(p, TOKEN_REASON);
@@ -558,6 +598,13 @@ ASTNode* parse_top_level_internal(Parser *p) {
       return (ASTNode*)node;
   }
 
+  return parse_func_def_after_type(p, modifiers, vtype, line, col, is_flux);
+}
+
+// Parses a function definition given an already-parsed return type.
+// Used both for normal function definitions and for functions decorated
+// with an attached `errnum [...]` error set.
+ASTNode* parse_func_def_after_type(Parser *p, int modifiers, VarType vtype, int line, int col, int is_flux) {
   char *name = NULL;
   if (p->current_token.type == TOKEN_PREFOP || p->current_token.type == TOKEN_INFOP || p->current_token.type == TOKEN_SUFFOP ||
       p->current_token.type == TOKEN_PREMUT || p->current_token.type == TOKEN_INFMUT || p->current_token.type == TOKEN_SUFMUT) {
@@ -595,7 +642,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
     eat(p, TOKEN_LPAREN);
     Parameter *params_head = NULL; Parameter **curr_param = &params_head;
     if (p->current_token.type != TOKEN_RPAREN) {
-      while (1) {
+      while (1) { if (p->has_error) break;
         int pmods = parse_modifiers(p);
         VarType ptype = parse_type(p);
         if (ptype.base == TYPE_UNKNOWN) parser_fail(p, "Expected parameter type in function definition");
@@ -651,7 +698,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
     // Initial extra_ptrs for the first variable is 0
     int next_extra_ptrs = 0;
     
-    while (1) {
+    while (1) { if (p->has_error) break;
         VarType current_vtype = vtype;
         current_vtype.ptr_depth += next_extra_ptrs;
         
@@ -664,7 +711,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
         ASTNode *array_size = NULL;
         ASTNode **curr_sz = &array_size;
         
-        while (p->current_token.type == TOKEN_LBRACKET) {
+        while (p->current_token.type == TOKEN_LBRACKET) { if (p->has_error) break;
             is_array = 1;
             current_vtype.ptr_depth++; 
             eat(p, TOKEN_LBRACKET);
@@ -700,7 +747,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
             
             // Allow pointer asterisks like *y
             next_extra_ptrs = 0;
-              while (p->current_token.type == TOKEN_STAR) {
+              while (p->current_token.type == TOKEN_STAR) { if (p->has_error) break;
                   next_extra_ptrs++;
                   eat(p, TOKEN_STAR);
               }

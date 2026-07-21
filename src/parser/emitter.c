@@ -278,11 +278,9 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
 
 
         case NODE_CLEAN: {
-            CleanNode *wn = (CleanNode*)node;
             break;
         }
         case NODE_UNTAINT: {
-            UntaintNode *wn = (UntaintNode*)node;
             break;
         }
         case NODE_ERRNUM:

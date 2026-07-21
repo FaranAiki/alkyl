@@ -55,6 +55,11 @@ typedef struct SemSymbol {
     bool must_pure : 1; // Checker to see if it must pure tagged as pure 
     bool must_pristine : 1; // Checker to see if it must pristine tagged as pristine 
     bool is_union : 1;
+    
+    // Attached error set (`errnum [...]`) for tainted functions.
+    bool has_errnum : 1;
+    int num_err;
+    char **err_names;
 } SemSymbol;
 
 typedef struct SemScope {

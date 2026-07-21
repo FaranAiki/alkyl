@@ -1,0 +1,5 @@
+extern int printf(char*, ...) as cprintf;
+int main() {
+    cprintf("%s %d %d\n", "Hello", 10, 20);
+    return 0;
+}

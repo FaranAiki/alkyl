@@ -278,6 +278,7 @@ static int lex_number(Lexer *l, Token *t) {
       }
 
       char *buf = malloc(length + 1);
+      if (!buf) return 0;
       memcpy(buf, start, length);
       buf[length] = '\0';
       double dval = strtod(buf, NULL);
@@ -527,11 +528,23 @@ Token lexer_next(Lexer *l) {
       }
 
       if (new_indent > l->indent_level) {
+          if (l->pending_count >= 16) {
+              report_error(l, (Token){TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col}, "Indentation too deep");
+              return (Token){TOKEN_EOF, NULL, 0, 0, 0.0, l->line, l->col};
+          }
+          if (l->indent_level >= 127) {
+              report_error(l, (Token){TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col}, "Indentation too deep");
+              return (Token){TOKEN_EOF, NULL, 0, 0, 0.0, l->line, l->col};
+          }
           Token lbrace = {TOKEN_LBRACE, NULL, 0, 0, 0.0, l->line, 1};
           l->pending_tokens[l->pending_count++] = lbrace;
           l->indent_stack[++l->indent_level] = new_indent;
       } else if (new_indent < l->indent_level) {
           while (l->indent_level > 0 && l->indent_stack[l->indent_level] > new_indent) {
+              if (l->pending_count >= 16) {
+                  report_error(l, (Token){TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col}, "Indentation too deep");
+                  return (Token){TOKEN_EOF, NULL, 0, 0, 0.0, l->line, l->col};
+              }
               Token rbrace = {TOKEN_RBRACE, NULL, 0, 0, 0.0, l->line, 1};
               l->pending_tokens[l->pending_count++] = rbrace;
               l->indent_level--;
@@ -564,6 +577,10 @@ Token lexer_next(Lexer *l) {
 
   if (l->pending_count > 0) {
       if (t.type != TOKEN_EOF) {
+          if (l->pending_count >= 16) {
+              report_error(l, (Token){TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col}, "Too many pending tokens");
+              return t;
+          }
           l->pending_tokens[l->pending_count++] = t;
       }
       Token first = l->pending_tokens[0];

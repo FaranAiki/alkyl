@@ -297,7 +297,6 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_LITERAL:
         case NODE_ARRAY_LIT:
         case NODE_ARRAY_ACCESS:
-        case NODE_VECTOR_LIT:
         case NODE_VECTOR_ACCESS:
         case NODE_MEMBER_ACCESS:
         case NODE_TYPEOF:
@@ -359,6 +358,10 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_ENUM:
         case NODE_LINK:
         case NODE_CASE:
+        case NODE_WASH:
+        case NODE_NAMED_ARG:
+            break;
+        default:
             break;
     }
 }

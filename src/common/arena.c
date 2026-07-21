@@ -1,6 +1,7 @@
 #include "arena.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 // Default to 4KB blocks if not specified
 #ifndef ARENA_BLOCK_SIZE
@@ -26,6 +27,7 @@ void arena_init(Arena *a) {
 }
 
 static ArenaBlock* arena_create_block(size_t size) {
+    if (size > SIZE_MAX - sizeof(ArenaBlock)) return NULL;
     ArenaBlock *block = (ArenaBlock*)malloc(sizeof(ArenaBlock) + size);
     if (block) {
         block->next = NULL;
@@ -38,6 +40,7 @@ static ArenaBlock* arena_create_block(size_t size) {
 void* arena_alloc(Arena *a, size_t size) {
     if (!a || size == 0) return NULL;
 
+    if (size > SIZE_MAX - (ARENA_ALIGNMENT - 1)) return NULL;
     size_t aligned_size = (size + ARENA_ALIGNMENT - 1) & ~(ARENA_ALIGNMENT - 1);
 
     if (a->current) {
@@ -60,20 +63,14 @@ void* arena_alloc(Arena *a, size_t size) {
         }
     }
 
-    // 3. Allocate a new block
     size_t block_size = (aligned_size > a->default_block_size) ? aligned_size : a->default_block_size;
     ArenaBlock *new_block = arena_create_block(block_size);
-    if (!new_block) return NULL; 
+    if (!new_block) return NULL;
 
     if (!a->head) {
-        // First block
         a->head = new_block;
         a->current = new_block;
     } else {
-        // Link new block
-        // If we were in the middle of a chain (due to reset), we insert/splice here
-        // to preserve the list structure or just append. 
-        // Simple append strategy:
         new_block->next = a->current->next;
         a->current->next = new_block;
         a->current = new_block;

@@ -141,7 +141,7 @@ ASTNode* parse_assignment_or_call(Parser *p) {
           *curr_arg = parse_expression(p);
           curr_arg = &(*curr_arg)->next;
 
-          while (p->current_token.type == TOKEN_COMMA) {
+          while (p->current_token.type == TOKEN_COMMA) { if (p->has_error) break;
               eat(p, TOKEN_COMMA);
               *curr_arg = parse_expression(p);
               curr_arg = &(*curr_arg)->next;
@@ -226,6 +226,64 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
     return node;
 }
 
+// Parses the residue cases that follow `residue ErrVar`:
+//   [ErrA, ErrB] { ... }     (an explicit error case)
+//   { ... }                  (the default catch-all case, must be last)
+// Each case binds `default_err_var` as the error variable inside its body.
+static ResidueCase* parse_residue_cases(Parser *p, char *default_err_var) {
+    ResidueCase *head = NULL;
+    ResidueCase **curr = &head;
+
+    while (p->current_token.type == TOKEN_LBRACKET || p->current_token.type == TOKEN_LBRACE) { if (p->has_error) break;
+        ResidueCase *rc = parser_alloc(p, sizeof(ResidueCase));
+        rc->err_names = NULL;
+        rc->num_err = 0;
+        rc->is_default = 0;
+        rc->next = NULL;
+
+        if (p->current_token.type == TOKEN_LBRACKET) {
+            eat(p, TOKEN_LBRACKET);
+            int cap = 4;
+            rc->err_names = parser_alloc(p, sizeof(char*) * cap);
+            while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
+                if (p->current_token.type != TOKEN_IDENTIFIER) {
+                    parser_fail(p, "Expected error name in residue case");
+                    break;
+                }
+                if (rc->num_err >= cap) {
+                    cap *= 2;
+                    char **tmp = parser_alloc(p, sizeof(char*) * cap);
+                    for (int i = 0; i < rc->num_err; i++) tmp[i] = rc->err_names[i];
+                    rc->err_names = tmp;
+                }
+                rc->err_names[rc->num_err++] = parser_strdup(p, p->current_token.text);
+                eat(p, TOKEN_IDENTIFIER);
+                if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
+                else break;
+            }
+            eat(p, TOKEN_RBRACKET);
+        } else {
+            rc->is_default = 1;
+        }
+
+        if (p->current_token.type != TOKEN_LBRACE) {
+            parser_fail(p, "Expected '{' after residue case");
+            break;
+        }
+        eat(p, TOKEN_LBRACE);
+        rc->body = parse_statements(p);
+        eat(p, TOKEN_RBRACE);
+
+        *curr = rc;
+        curr = &rc->next;
+
+        if (rc->is_default) break; // default must be the last case
+    }
+
+    (void)default_err_var;
+    return head;
+}
+
 ASTNode* parse_single_statement_or_block_internal(Parser *p) {
   if (p->current_token.type == TOKEN_LBRACE) {
     eat(p, TOKEN_LBRACE);
@@ -255,16 +313,12 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       eat(p, TOKEN_RBRACE);
 
       eat(p, TOKEN_RESIDUE);
-      if (p->current_token.type == TOKEN_LPAREN) eat(p, TOKEN_LPAREN);
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected error variable name after residue");
       char *err_var = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
-      if (p->current_token.type == TOKEN_RPAREN) eat(p, TOKEN_RPAREN);
 
-      eat(p, TOKEN_LBRACE);
-      ASTNode *residue_body = parse_statements(p);
-      eat(p, TOKEN_RBRACE);
-      
+      ResidueCase *cases = parse_residue_cases(p, err_var);
+
       CleanNode *cn = parser_alloc(p, sizeof(CleanNode));
       cn->base.type = NODE_CLEAN;
       cn->base.line = line;
@@ -273,7 +327,8 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       cn->pristine_var_name = pristine_var;
       cn->body = body;
       cn->err_var_name = err_var;
-      cn->residue_body = residue_body;
+      cn->residue_cases = cases;
+      cn->residue_body = NULL;
       return (ASTNode*)cn;
   }
 
@@ -287,18 +342,17 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected error variable name after residue");
       char *err_var = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
-      
-      eat(p, TOKEN_LBRACE);
-      ASTNode *residue_body = parse_statements(p);
-      eat(p, TOKEN_RBRACE);
-      
+
+      ResidueCase *cases = parse_residue_cases(p, err_var);
+
       UntaintNode *un = parser_alloc(p, sizeof(UntaintNode));
       un->base.type = NODE_UNTAINT;
       un->base.line = line;
       un->base.col = col;
       un->var_name = var_name;
       un->err_var_name = err_var;
-      un->residue_body = residue_body;
+      un->residue_cases = cases;
+      un->residue_body = NULL;
       return (ASTNode*)un;
   }
 
@@ -432,7 +486,7 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       ASTNode *array_size = NULL;
       ASTNode **curr_sz = &array_size;
       
-      while (p->current_token.type == TOKEN_LBRACKET) {
+      while (p->current_token.type == TOKEN_LBRACKET) { if (p->has_error) break;
         is_array = 1;
         peek_t.ptr_depth++; 
         eat(p, TOKEN_LBRACKET);
@@ -488,7 +542,7 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
 ASTNode* parse_statements(Parser *p) {
   ASTNode *head = NULL;
   ASTNode **current = &head;
-  while (p->current_token.type != TOKEN_EOF && p->current_token.type != TOKEN_RBRACE) {
+  while (p->current_token.type != TOKEN_EOF && p->current_token.type != TOKEN_RBRACE) { if (p->has_error) break;
     ASTNode *stmt = parse_single_statement_or_block(p);
     if (stmt) {
       *current = stmt;

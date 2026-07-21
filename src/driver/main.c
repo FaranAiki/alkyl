@@ -33,6 +33,8 @@ int main(int argc, char *argv[]) {
   char link_flags[1024] = {0};
   int emit_alir = 0;
   int emit_balir = 0;
+  
+  ParserSettings parser_settings = {0};
 
   mkdir("build", 0777);
 
@@ -49,6 +51,8 @@ int main(int argc, char *argv[]) {
           emit_alir = 1;
       } else if (strcmp(argv[i], "--emit-balir") == 0) {
           emit_balir = 1;
+      } else if (strcmp(argv[i], "--allow-vector-init") == 0) {
+          parser_settings.allow_vector_initialization = 1;
       } else {
           filename = argv[i];
       }
@@ -76,7 +80,7 @@ int main(int argc, char *argv[]) {
   to_token_out(&l_debug, BASENAME ".tok");
 
   Parser p;
-  parser_init(&p, &l, NULL);
+  parser_init(&p, &l, &parser_settings);
 
   ASTNode *root = parse_program(&p);
 

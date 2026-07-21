@@ -23,7 +23,6 @@ typedef enum {
   NODE_LITERAL,
   NODE_ARRAY_LIT, 
   NODE_ARRAY_ACCESS, 
-  NODE_VECTOR_LIT, 
   NODE_VECTOR_ACCESS, 
   NODE_INC_DEC, 
   NODE_LINK,
@@ -159,6 +158,9 @@ typedef struct {
   bool is_covalent : 1;
   char *cconv;
   char *extern_name;
+  char **err_names;       // error set attached via `errnum [...]`
+  int num_err;
+  bool has_errnum : 1;
 } FuncDefNode;
 
 typedef struct {
@@ -231,6 +233,16 @@ typedef struct {
     ASTNode base;
     EnumEntry *entries;
 } ErrNumNode;
+
+// A single residue case inside an untaint/clean statement:
+//   [ErrA, ErrB] { ... }   (err_names == NULL means the default catch-all case)
+typedef struct ResidueCase {
+    char **err_names;     // NULL for the default catch-all case
+    int num_err;
+    ASTNode *body;
+    bool is_default : 1;  // catch-all case (no bracket)
+    struct ResidueCase *next;
+} ResidueCase;
 
 
 
@@ -317,14 +329,16 @@ typedef struct {
     char *pristine_var_name;
     ASTNode *body;
     char *err_var_name;
-    ASTNode *residue_body;
+    ResidueCase *residue_cases;  // list of [Err...] { ... } cases (replaces residue_body)
+    ASTNode *residue_body;       // kept for backward compat (single residue)
 } CleanNode;
 
 typedef struct {
     ASTNode base;
     char *var_name;
     char *err_var_name;
-    ASTNode *residue_body;
+    ResidueCase *residue_cases;  // list of [Err...] { ... } cases
+    ASTNode *residue_body;       // kept for backward compat
 } UntaintNode;
 
 typedef struct {
@@ -388,6 +402,7 @@ typedef struct {
 typedef struct {
   ASTNode base;
   ASTNode *elements; 
+  bool is_vector;
 } ArrayLitNode;
 
 typedef struct {
@@ -396,10 +411,6 @@ typedef struct {
   ASTNode *index;
 } VectorAccessNode;
 
-typedef struct {
-  ASTNode base;
-  ASTNode *elements; 
-} VectorLitNode;
 
 typedef struct {
   ASTNode base;
@@ -412,7 +423,12 @@ typedef struct {
   ASTNode *left;
   ASTNode *right;
   char *overloaded_func_name;
-  char *fallback_err_name; // For ?[...] operator
+  char *fallback_err_name; // For ?[...] operator (first/legacy case)
+  char *err_var_name;     // bound error variable for `? [Err] v`
+  // List of cases for the `?`/untaint/clean residue matching.
+  // Each case has a set of error names (err_names == NULL means default).
+  ResidueCase *cases;
+  int exhaustiveness_checked : 1;
 } BinaryOpNode;
 
 typedef struct {

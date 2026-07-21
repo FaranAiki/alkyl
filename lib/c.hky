@@ -9,7 +9,10 @@ import "c/time";
 import "c/stdlib";
 */
 
-extern int printf(char *s, ...) as __c_printf;
-extern void* malloc(long size) as __c_malloc;
-extern void free(void* ptr) as __c_malloc;
+namespace clib {
 
+extern int printf(char *s, ...);
+extern void* malloc(long size);
+extern void free(void* ptr);
+
+}

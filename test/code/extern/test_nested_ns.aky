@@ -1,0 +1,9 @@
+namespace ns {
+  namespace clib {
+    extern int printf(char*,...);
+  }
+}
+
+int main() {
+  return ns.clib.printf("hello");
+}

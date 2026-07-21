@@ -1,6 +1,12 @@
 #include "semantic.h"
 #include <stdio.h>
 
+// Defined in check.c.
+extern SemSymbol* sem_get_errnum_func_sym(SemanticCtx *ctx, ASTNode *node);
+extern void sem_check_residue_exhaustive(SemanticCtx *ctx, ASTNode *where,
+                                         SemSymbol *err_sym, ResidueCase *cases,
+                                         int default_case);
+
 void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarType src) {
     int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && strcmp(dest.class_name, "string") == 0 && dest.ptr_depth == 0);
     int src_is_char = (src.base == TYPE_CHAR && (src.ptr_depth > 0 || src.array_size > 0));
@@ -41,9 +47,12 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         if (sym && sym->kind == SYM_TEMPLATE) {
             CompoundNode *cn = sym->template_node;
             char expected_types[256] = "";
+            size_t pos = 0;
             for (int i=0; i<cn->num_type_params; i++) {
-                strcat(expected_types, cn->type_params[i]);
-                if (i < cn->num_type_params - 1) strcat(expected_types, ", ");
+                pos += snprintf(expected_types + pos, sizeof(expected_types) - pos, "%s", cn->type_params[i]);
+                if (i < cn->num_type_params - 1 && pos < sizeof(expected_types) - 1) {
+                    pos += snprintf(expected_types + pos, sizeof(expected_types) - pos, ", ");
+                }
             }
             sem_error(ctx, (ASTNode*)node, "'%s' needs types [%s]", node->var_type.class_name, expected_types);
             node->var_type.base = TYPE_UNKNOWN;
@@ -53,7 +62,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         char *bracket = strchr(node->var_type.class_name, '[');
         if (bracket) {
             char mangled[512];
-            strcpy(mangled, node->var_type.class_name);
+            snprintf(mangled, sizeof(mangled), "%s", node->var_type.class_name);
             for (int i=0; mangled[i]; i++) {
                 if (mangled[i] == '[') mangled[i] = '_';
                 else if (mangled[i] == ']') mangled[i] = '\0';
@@ -61,7 +70,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             }
             char final_mangled[512];
             int j = 0;
-            for (int i=0; mangled[i]; i++) {
+            for (int i=0; mangled[i] && j < 511; i++) {
                 if (mangled[i] == '_' && mangled[i+1] == '_') continue;
                 final_mangled[j++] = mangled[i];
             }
@@ -417,11 +426,58 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                  sem_check_implicit_cast(ctx, (ASTNode*)node, lhs_type, rhs_type);
                  sem_set_node_type(ctx, (ASTNode*)node, lhs_type);
             }
-        } else {
-             sem_check_implicit_cast(ctx, (ASTNode*)node, lhs_type, rhs_type);
-             sem_set_node_type(ctx, (ASTNode*)node, lhs_type);
+    } else {
+         sem_check_implicit_cast(ctx, (ASTNode*)node, lhs_type, rhs_type);
+         sem_set_node_type(ctx, (ASTNode*)node, lhs_type);
+    }
+
+    // Propagate the attached error set from an errnum function call to the
+    // assigned variable, so untaint/clean can later verify exhaustiveness.
+    if (node->name) {
+        SemSymbol *sym = sem_symbol_lookup(ctx, node->name, NULL);
+        if (sym && sym->kind == SYM_VAR) {
+            SemSymbol *err_sym = sem_get_errnum_func_sym(ctx, node->value);
+            if (err_sym) {
+                sym->has_errnum = err_sym->has_errnum;
+                sym->num_err = err_sym->num_err;
+                sym->err_names = err_sym->err_names;
+            }
+
+            // Exhaustiveness check for a `? ... ? ...` fallback chain.
+            ASTNode *val = node->value;
+            if (val && val->type == NODE_BINARY_OP &&
+                (((BinaryOpNode*)val)->op == TOKEN_QUESTION ||
+                 ((BinaryOpNode*)val)->op == TOKEN_QUESTION_QUESTION)) {
+                // Walk down to the original tainted call at the bottom.
+                ASTNode *c = val;
+                while (c && c->type == NODE_BINARY_OP &&
+                       (((BinaryOpNode*)c)->op == TOKEN_QUESTION ||
+                        ((BinaryOpNode*)c)->op == TOKEN_QUESTION_QUESTION)) {
+                    c = ((BinaryOpNode*)c)->left;
+                }
+                SemSymbol *src_err = sem_get_errnum_func_sym(ctx, c);
+                if (src_err) {
+                    ResidueCase *head = NULL;
+                    ResidueCase **curr = &head;
+                    int has_default = 0;
+                    ASTNode *n = val;
+                    while (n && n->type == NODE_BINARY_OP &&
+                           (((BinaryOpNode*)n)->op == TOKEN_QUESTION ||
+                            ((BinaryOpNode*)n)->op == TOKEN_QUESTION_QUESTION)) {
+                        BinaryOpNode *bn = (BinaryOpNode*)n;
+                        if (bn->cases) {
+                            *curr = bn->cases;
+                            curr = &bn->cases->next;
+                        }
+                        if (bn->cases && bn->cases->is_default) has_default = 1;
+                        n = bn->left;
+                    }
+                    sem_check_residue_exhaustive(ctx, (ASTNode*)node, src_err, head, has_default);
+                }
+            }
         }
     }
+}
 }
 
 int is_numeric(VarType t) {

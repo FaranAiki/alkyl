@@ -1013,7 +1013,6 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
                         }
                         emit(ctx, sw);
                         
-                        AlirBlock *orig_bb = ctx->current_block;
                         item = enum_sym->inner_scope->symbols;
                         AlirSwitchCase *sc_iter = sw->cases;
                         while(item && sc_iter) {

@@ -7,7 +7,7 @@
 void* alir_alloc(AlirModule *mod, size_t size) {
     if (mod && mod->compiler_ctx && mod->compiler_ctx->arena) {
         void *ptr = arena_alloc(mod->compiler_ctx->arena, size);
-        memset(ptr, 0, size);
+        if (ptr) memset(ptr, 0, size);
         return ptr;
     }
     return calloc(1, size);
@@ -91,15 +91,18 @@ AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, 
 // TODO change this
 static HashMap label_map;
 static AlirFunction *current_tracked_func = NULL;
+static Arena *current_tracked_arena = NULL;
 
 AlirBlock* alir_add_block(AlirModule *mod, AlirFunction *func, const char *label_hint) {
-    // Re-initialize map if starting a new function
-    if (func != current_tracked_func) {
-        if (current_tracked_func && (!mod || !mod->compiler_ctx || !mod->compiler_ctx->arena)) {
+    Arena *arena = (mod && mod->compiler_ctx) ? mod->compiler_ctx->arena : NULL;
+    
+    if (func != current_tracked_func || arena != current_tracked_arena) {
+        if (current_tracked_func && !current_tracked_arena) {
             hashmap_free(&label_map);
         }
-        hashmap_init(&label_map, (mod && mod->compiler_ctx) ? mod->compiler_ctx->arena : NULL, 64);
+        hashmap_init(&label_map, arena, 64);
         current_tracked_func = func;
+        current_tracked_arena = arena;
     }
 
     AlirBlock *b = alir_alloc(mod, sizeof(AlirBlock));

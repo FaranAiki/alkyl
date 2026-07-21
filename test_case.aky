@@ -1,0 +1,13 @@
+import "lib/c";
+enum Makanan [ Ayam = 0, Burger, Sapi, Daging ];
+int main() {
+    let sarapan = Makanan.Burger;
+    switch (sarapan) {
+        case Ayam, Daging:
+            clib.printf "Ayam or Daging!\n";
+        leak case Burger:
+            clib.printf "Burger!\n";
+        case Sapi:
+            clib.printf "Sapi!\n";
+    }
+}

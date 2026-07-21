@@ -1,0 +1,7 @@
+namespace clib {
+  extern int printf(char*,...);
+}
+
+int main(int argc, char **argv) {
+  return clib.printf("hello");
+}

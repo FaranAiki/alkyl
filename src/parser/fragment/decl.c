@@ -69,7 +69,7 @@ ASTNode* parse_var_decl_internal(Parser *p) {
       ASTNode *array_size = NULL;
       ASTNode **curr_sz = &array_size;
       
-      while (p->current_token.type == TOKEN_LBRACKET) {
+      while (p->current_token.type == TOKEN_LBRACKET) { if (p->has_error) break;
         is_array = 1;
         current_vtype.ptr_depth++; 
         eat(p, TOKEN_LBRACKET);
@@ -108,7 +108,7 @@ ASTNode* parse_var_decl_internal(Parser *p) {
           eat(p, TOKEN_COMMA);
           
           next_extra_ptrs = 0;
-          while (p->current_token.type == TOKEN_STAR) {
+          while (p->current_token.type == TOKEN_STAR) { if (p->has_error) break;
               next_extra_ptrs++;
               eat(p, TOKEN_STAR);
           }

@@ -363,6 +363,7 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_PREFOP: return "prefix operator";
         case TOKEN_SUFFOP: return "suffix operator";
         case TOKEN_UNKNOWN: return "UNKNOWN";
+        default: break;
     }
     return "unknown";
 }

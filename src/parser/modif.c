@@ -91,7 +91,7 @@ ASTNode* parse_define(Parser *p) {
   Token *body_tokens = parser_alloc(p, sizeof(Token) * 32);
   int body_cap = 32;
   int body_len = 0;
-  while (p->current_token.type != TOKEN_SEMICOLON && p->current_token.type != TOKEN_EOF) {
+  while (p->current_token.type != TOKEN_SEMICOLON && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
       if (body_len >= body_cap) { 
           body_cap *= 2; 
           Token *new_toks = parser_alloc(p, sizeof(Token)*body_cap);
@@ -153,7 +153,7 @@ ASTNode* parse_typedef(Parser *p) {
           eat(p, TOKEN_IDENTIFIER);
           
           VarType current_target = target;
-          while (p->current_token.type == TOKEN_LBRACKET) {
+          while (p->current_token.type == TOKEN_LBRACKET) { if (p->has_error) break;
               eat(p, TOKEN_LBRACKET);
               if (p->current_token.type != TOKEN_RBRACKET) {
                   ASTNode *sz = parse_expression(p);
@@ -199,7 +199,7 @@ ASTNode* parse_typedef(Parser *p) {
       VarType target = parse_type(p);
       if (target.base == TYPE_UNKNOWN) parser_fail(p, "Unknown type in typedef");
       
-      while (p->current_token.type == TOKEN_LBRACKET) {
+      while (p->current_token.type == TOKEN_LBRACKET) { if (p->has_error) break;
           eat(p, TOKEN_LBRACKET);
           if (p->current_token.type != TOKEN_RBRACKET) {
               ASTNode *sz = parse_expression(p);

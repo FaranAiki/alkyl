@@ -8,9 +8,9 @@ static void get_val_key(AlirValue *val, char *out_key) {
         return;
     }
     if (val->kind == ALIR_VAL_TEMP) {
-        sprintf(out_key, "%%t%d", val->temp_id);
+        snprintf(out_key, 64, "%%t%d", val->temp_id);
     } else if (val->kind == ALIR_VAL_VAR) {
-        sprintf(out_key, "@%s", val->val.str_val);
+        snprintf(out_key, 64, "@%s", val->val.str_val);
     } else {
         out_key[0] = '\0';
     }

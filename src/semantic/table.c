@@ -183,9 +183,17 @@ void sem_scope_enter(SemanticCtx *ctx, int is_func, VarType ret_type) {
     new_scope->symbol_map = arena_alloc_type(ctx->compiler_ctx->arena, HashMap);
     hashmap_init((HashMap*)new_scope->symbol_map, ctx->compiler_ctx->arena, 16);
     new_scope->parent = ctx->current_scope;
-    new_scope->is_function_scope = is_func;
-    new_scope->is_class_scope = 0; 
-    new_scope->expected_ret_type = ret_type;
+    if (is_func) {
+        new_scope->is_function_scope = 1;
+        new_scope->expected_ret_type = ret_type;
+    } else if (ctx->current_scope) {
+        new_scope->is_function_scope = ctx->current_scope->is_function_scope;
+        new_scope->expected_ret_type = ctx->current_scope->expected_ret_type;
+    } else {
+        new_scope->is_function_scope = 0;
+        new_scope->expected_ret_type = ret_type;
+    }
+    new_scope->is_class_scope = 0;
     
     ctx->current_scope = new_scope;
 }

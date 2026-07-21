@@ -18,7 +18,7 @@ ASTNode* parse_enum(Parser *p) {
   EnumEntry **curr_entry = &entries_head;
   int current_val = 0;
 
-  while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+  while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected enum member name");
       char *member_name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
@@ -120,7 +120,8 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
       
       int current_label_modifiers = 0; // Tracks active label modifiers like `public:`
       
-      while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+      while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
+          if (p->has_error) break;
           int member_modifiers = parse_modifiers(p);
           
           if (p->current_token.type == TOKEN_COLON) {
@@ -392,7 +393,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                       ASTNode *array_size = NULL;
                       ASTNode **curr_sz = &array_size;
 
-                      while (p->current_token.type == TOKEN_LBRACKET) {
+                      while (p->current_token.type == TOKEN_LBRACKET) { if (p->has_error) break;
                           is_array = 1;
                           eat(p, TOKEN_LBRACKET);
                           ASTNode *sz = NULL;
@@ -434,7 +435,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                           eat(p, TOKEN_COMMA);
                           
                           next_extra_ptrs = 0;
-                          while (p->current_token.type == TOKEN_STAR) {
+                          while (p->current_token.type == TOKEN_STAR) { if (p->has_error) break;
                               next_extra_ptrs++;
                               eat(p, TOKEN_STAR);
                           }

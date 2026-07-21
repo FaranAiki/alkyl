@@ -243,7 +243,10 @@ void eat(Parser *p, TokenType type) {
                 int depth = 0;
                 while(1) {
                     Token arg_t = fetch_safe(p);
-                    if (arg_t.type == TOKEN_EOF) parser_fail(p, "Unexpected EOF in macro arguments");
+                    if (arg_t.type == TOKEN_EOF) {
+                        parser_fail(p, "Unexpected EOF in macro arguments");
+                        return;
+                    }
                     
                     if (arg_t.type == TOKEN_LPAREN) depth++;
                     else if (arg_t.type == TOKEN_RPAREN) {
@@ -354,54 +357,64 @@ VarType parse_type(Parser *p) {
           int saved_pos = p->token_pos;
           Token saved_tok = p->current_token;
 
-          char full_type_name[512];
-          snprintf(full_type_name, sizeof(full_type_name), "%s", p->current_token.text);
-          eat(p, TOKEN_IDENTIFIER);
-    if (p->has_error) return (VarType){0};
-          
-          while (p->current_token.type == TOKEN_DOT) {
-              eat(p, TOKEN_DOT);
-    if (p->has_error) return (VarType){0};
-              strcat(full_type_name, ".");
-              if (p->current_token.type == TOKEN_IDENTIFIER) {
-                  strcat(full_type_name, p->current_token.text);
-                  eat(p, TOKEN_IDENTIFIER);
-    if (p->has_error) return (VarType){0};
-              } else {
-                  break;
-              }
-          }
+           char full_type_name[512];
+           snprintf(full_type_name, sizeof(full_type_name), "%s", p->current_token.text);
+           eat(p, TOKEN_IDENTIFIER);
+           if (p->has_error) return (VarType){0};
+           
+           while (p->current_token.type == TOKEN_DOT) { if (p->has_error) break;
+               eat(p, TOKEN_DOT);
+               if (p->has_error) return (VarType){0};
+               size_t len = strlen(full_type_name);
+               if (len + 1 < sizeof(full_type_name)) {
+                   snprintf(full_type_name + len, sizeof(full_type_name) - len, ".%s", p->current_token.text);
+               }
+               if (p->current_token.type == TOKEN_IDENTIFIER) {
+                   eat(p, TOKEN_IDENTIFIER);
+                   if (p->has_error) return (VarType){0};
+               } else {
+                   break;
+               }
+           }
 
-          int kind = get_typename_kind(p, full_type_name);
-          if (kind != 0) {
-              if (kind == 2) { 
-                  t.base = TYPE_ENUM;
-                  t.class_name = parser_strdup(p, full_type_name);
-              } else {
-                  t.base = TYPE_CLASS;
-                  char base_name[512];
-                  snprintf(base_name, sizeof(base_name), "%s", full_type_name);
-                  
-                  if (p->current_token.type == TOKEN_LBRACKET) {
-                      char full_name[1024];
-                      snprintf(full_name, sizeof(full_name), "%s", base_name);
-                      
-                      eat(p, TOKEN_LBRACKET);
-    if (p->has_error) return (VarType){0};
-                      strcat(full_name, "[");
-                      
-                      while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
-                          if (p->current_token.text) {
-                              strcat(full_name, p->current_token.text);
-                          } else {
-                              strcat(full_name, token_type_to_string(p->current_token.type));
-                          }
-                          eat(p, p->current_token.type);
-    if (p->has_error) return (VarType){0};
+           int kind = get_typename_kind(p, full_type_name);
+           if (kind != 0) {
+               if (kind == 2) { 
+                   t.base = TYPE_ENUM;
+                   t.class_name = parser_strdup(p, full_type_name);
+               } else {
+                   t.base = TYPE_CLASS;
+                   char base_name[512];
+                   snprintf(base_name, sizeof(base_name), "%s", full_type_name);
+                   
+                   if (p->current_token.type == TOKEN_LBRACKET) {
+                       char full_name[1024];
+                       snprintf(full_name, sizeof(full_name), "%s", base_name);
+                       
+                       eat(p, TOKEN_LBRACKET);
+                       if (p->has_error) return (VarType){0};
+                       size_t fn_len = strlen(full_name);
+                       if (fn_len + 1 < sizeof(full_name)) {
+                           full_name[fn_len] = '[';
+                           full_name[fn_len + 1] = '\0';
+                       }
+                       
+                       while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+                           fn_len = strlen(full_name);
+                           if (fn_len + 1 < sizeof(full_name)) {
+                               const char *txt = p->current_token.text ? p->current_token.text : token_type_to_string(p->current_token.type);
+                               snprintf(full_name + fn_len, sizeof(full_name) - fn_len, "%s", txt);
+                           }
+                           eat(p, p->current_token.type);
+                           if (p->has_error) return (VarType){0};
+                       }
+                       eat(p, TOKEN_RBRACKET);
+                       if (p->has_error) return (VarType){0};
+                       fn_len = strlen(full_name);
+                      if (fn_len + 1 < sizeof(full_name)) {
+                          full_name[fn_len] = ']';
+                          full_name[fn_len + 1] = '\0';
                       }
-                      eat(p, TOKEN_RBRACKET);
-    if (p->has_error) return (VarType){0};
-                      strcat(full_name, "]");
                       t.class_name = parser_strdup(p, full_name);
                   } else {
                       t.class_name = parser_strdup(p, base_name);
@@ -467,7 +480,7 @@ VarType parse_type(Parser *p) {
       }
   }
 
-  while (p->current_token.type == TOKEN_STAR) {
+  while (p->current_token.type == TOKEN_STAR) { if (p->has_error) break;
     t.ptr_depth++;
     eat(p, TOKEN_STAR);
     if (p->has_error) return (VarType){0};

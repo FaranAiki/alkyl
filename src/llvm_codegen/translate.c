@@ -325,7 +325,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
                 }
                 
                 // If arg is tainted (struct) but function expects pristine (non-struct), extract inner value
-                if (i < num_params) {
+                if ((unsigned)i < num_params) {
                     LLVMTypeRef expected_ty = param_tys[i];
                     if (LLVMGetTypeKind(expected_ty) != LLVMStructTypeKind && LLVMGetTypeKind(LLVMTypeOf(args[i])) == LLVMStructTypeKind) {
                         args[i] = LLVMBuildExtractValue(ctx->builder, args[i], 1, "ext_taint_arg");
@@ -514,8 +514,6 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
                 inner_dest_ty = LLVMStructGetTypeAtIndex(dest_ty, 1);
             }
             
-            LLVMTypeKind inner_dest_k = LLVMGetTypeKind(inner_dest_ty);
-
             LLVMValueRef cast_res = NULL;
             if (is_float) {
                 if (inst->dest->type.base == TYPE_FLOAT || inst->dest->type.base == TYPE_DOUBLE) {

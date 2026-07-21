@@ -39,6 +39,8 @@ static void hashmap_resize(HashMap *map) {
         new_block = malloc(new_bytes);
     }
 
+    if (!new_block) return;
+
     int32_t *new_indices = (int32_t*)new_block;
     DictEntry *new_entries = (DictEntry*)(new_indices + new_cap);
 
@@ -97,6 +99,8 @@ void hashmap_init(HashMap *map, Arena *arena, int initial_capacity) {
     } else {
         map->buckets = (MapEntry**)malloc(bytes);
     }
+    
+    if (!map->buckets) return;
     
     int32_t *indices = (int32_t*)map->buckets;
     for (int i = 0; i < cap; i++) {
@@ -183,7 +187,7 @@ const char* hashmap_intern(HashMap *map, const char *key) {
     } else {
         entries[new_idx].key = strdup(key);
     }
-    entries[new_idx].value = entries[new_idx].key;
+    entries[new_idx].value = (void*)(intptr_t)entries[new_idx].key;
     
     return entries[new_idx].key;
 }
@@ -264,13 +268,8 @@ void hashmap_free(HashMap *map) {
     // If we used an arena, the arena handles the teardown entirely.
     if (!map || map->arena) return; 
     
-    int32_t *indices = (int32_t*)map->buckets;
-    DictEntry *entries = (DictEntry*)(indices + map->capacity);
-    
-    for (int i = 0; i < map->size; i++) {
-        // Cast away const specifically for deletion
-        free((void*)entries[i].key);
-    }
+    // Do NOT free keys in non-arena mode: hashmap_intern returns strdup'd keys
+    // to callers, who may still hold them after the map is freed.
     
     free(map->buckets);
     map->buckets = NULL;

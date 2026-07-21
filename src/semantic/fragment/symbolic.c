@@ -28,6 +28,12 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
     }
     sym->mangled_name = mangled;
     fd->mangled_name = mangled;
+
+    if (fd->has_errnum) {
+        sym->has_errnum = 1;
+        sym->num_err = fd->num_err;
+        sym->err_names = fd->err_names;
+    }
 }
 
 void sem_symbolic_var_decl(SemanticCtx *ctx, ASTNode *node) {
@@ -95,7 +101,13 @@ void sem_symbolic_namespace(SemanticCtx *ctx, ASTNode *node) {
     
     SemScope *old = ctx->current_scope;
     ctx->current_scope = ns_scope;
+    
+    const char *old_ns = arena_strdup(ctx->compiler_ctx->arena, diag_get_namespace(ctx->compiler_ctx));
+    diag_set_namespace(ctx->compiler_ctx, ns->name);
+    
     sem_scan_top_level(ctx, ns->body);
+    
+    diag_set_namespace(ctx->compiler_ctx, old_ns);
     ctx->current_scope = old;
 }
 

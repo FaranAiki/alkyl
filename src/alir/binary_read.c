@@ -3,7 +3,11 @@
 #include <stdint.h>
 #include <string.h>
 
-static uint8_t br_u8(FILE *f) { uint8_t v; fread(&v, 1, 1, f); return v; }
+static uint8_t br_u8(FILE *f) { 
+    uint8_t v; 
+    if (fread(&v, 1, 1, f) != 1) return 0;
+    return v; 
+}
 static uint32_t br_u32(FILE *f) {
     uint32_t result = 0;
     uint32_t shift = 0;
@@ -15,14 +19,19 @@ static uint32_t br_u32(FILE *f) {
     }
     return result;
 }
-static uint64_t br_u64(FILE *f) { uint64_t v; fread(&v, 8, 1, f); return v; }
+static uint64_t br_u64(FILE *f) { 
+    uint64_t v; 
+    if (fread(&v, 8, 1, f) != 1) return 0;
+    return v; 
+}
 
 static char* br_str(AlirModule *m, FILE *f) {
     uint32_t len = br_u32(f);
     if (len == 0) return NULL;
     len -= 1;
     char *buf = alir_alloc(m, len + 1);
-    if (len > 0) fread(buf, 1, len, f);
+    if (!buf) return NULL;
+    if (len > 0 && fread(buf, 1, len, f) != len) return NULL;
     buf[len] = 0;
     return buf;
 }
@@ -110,7 +119,7 @@ static AlirFunction* br_func(AlirModule *m, FILE *f) {
     
     fn->param_count = br_u32(f);
     AlirParam **p_tail = &fn->params;
-    for (uint32_t j = 0; j < fn->param_count; j++) {
+    for (int j = 0; j < fn->param_count; j++) {
         AlirParam *p = alir_alloc(m, sizeof(AlirParam));
         p->name = br_str(m, f);
         p->type = br_type(m, f);

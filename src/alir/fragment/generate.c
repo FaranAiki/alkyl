@@ -174,6 +174,8 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
     
     if (vn->initializer) {
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val ? val : alir_const_int(ctx->module, 0), ptr));
+    } else if (vn->var_type.array_size == 0 && vn->var_type.ptr_depth > 0) {
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 0), ptr));
     }
 }
 

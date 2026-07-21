@@ -20,13 +20,13 @@ pristine int main() {
     untaint res_a residue err_a {
         if err_a == ErrDivisionByZero {
             // Error handling
-            __c_printf("division by zero");
+            clib.printf("division by zero");
             res_a = 0;
         }
     }
     // res_a is now safe to use as pristine
 
-    __c_printf("%d\n", res_a);
+    clib.printf("%d\n", res_a);
 
     int t = 1 / 0;
 
@@ -34,15 +34,15 @@ pristine int main() {
     clean res_b as safe_b {
         // safe_b is a pristine copy of res_b and can be safely used
         safe_b = safe_b + 1;
-        __c_printf("%d", safe_b);
+        clib.printf("%d", safe_b);
     } residue err_b {
-        __c_printf("%d and %d\n", err_b, ErrDivisionByZero);
+        clib.printf("%d and %d\n", err_b, ErrDivisionByZero);
         if err_b == ErrDivisionByZero {
-            __c_printf("Division by zero!")
+            clib.printf("Division by zero!")
         }
     }
 
-    __c_printf("%d\n", res_b
+    clib.printf("%d\n", res_b
       ?? 2
       ? 3);
 

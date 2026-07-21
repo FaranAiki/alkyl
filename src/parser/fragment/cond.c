@@ -57,7 +57,7 @@ ASTNode* parse_switch(Parser *p) {
     ASTNode **cases_curr = &cases_head;
     ASTNode *default_body = NULL;
 
-    while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+    while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
         int is_leak = 0;
         int case_line = p->current_token.line;
         int case_col = p->current_token.col;

@@ -26,7 +26,7 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
     }
     *curr_arg = expr;
     curr_arg = &(*curr_arg)->next;
-    while (p->current_token.type == TOKEN_COMMA) {
+    while (p->current_token.type == TOKEN_COMMA) { if (p->has_error) break;
       eat(p, TOKEN_COMMA);
       expr = parse_expression(p);
       if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
@@ -50,8 +50,83 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
   return (ASTNode*)node;
 }
 
+static ASTNode* parse_string_leading_call(Parser *p, ASTNode *target, int line, int col) {
+  ASTNode *args_head = NULL;
+  ASTNode **curr_arg = &args_head;
+
+  while (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) { if (p->has_error) break;
+    int is_string = (p->current_token.type == TOKEN_STRING);
+    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
+    ln->base.type = NODE_LITERAL;
+    ln->var_type.base = TYPE_CHAR;
+    ln->var_type.ptr_depth = 1;
+    ln->val.str_val = parser_strdup(p, p->current_token.text);
+    ln->base.next = NULL;
+    p->current_token.text = NULL;
+    eat(p, p->current_token.type);
+
+    if (is_string && p->l->settings.double_quote_as_string) {
+      VarRefNode *target_vn = parser_alloc(p, sizeof(VarRefNode));
+      target_vn->base.type = NODE_VAR_REF;
+      target_vn->name = parser_strdup(p, "string");
+      set_loc((ASTNode*)target_vn, line, col);
+
+      CallNode *str_call = parser_alloc(p, sizeof(CallNode));
+      str_call->base.type = NODE_CALL;
+      str_call->name = parser_strdup(p, "string");
+      str_call->target = (ASTNode*)target_vn;
+      str_call->args = (ASTNode*)ln;
+      ln = (LiteralNode*)str_call;
+    }
+
+    *curr_arg = (ASTNode*)ln;
+    curr_arg = &(*curr_arg)->next;
+
+    if (p->current_token.type == TOKEN_COMMA) {
+      eat(p, TOKEN_COMMA);
+    } else {
+      break;
+    }
+  }
+
+  while (p->current_token.type != TOKEN_SEMICOLON &&
+         p->current_token.type != TOKEN_RPAREN &&
+         p->current_token.type != TOKEN_RBRACKET &&
+         p->current_token.type != TOKEN_COMMA &&
+         p->current_token.type != TOKEN_EOF) {
+    ASTNode *expr = parse_expression(p);
+    *curr_arg = expr;
+    curr_arg = &(*curr_arg)->next;
+    if (p->current_token.type == TOKEN_COMMA) {
+      eat(p, TOKEN_COMMA);
+    } else {
+      break;
+    }
+  }
+
+  if (target && target->type == NODE_MEMBER_ACCESS) {
+    MemberAccessNode *ma = (MemberAccessNode*)target;
+    MethodCallNode *mc = parser_alloc(p, sizeof(MethodCallNode));
+    mc->base.type = NODE_METHOD_CALL;
+    mc->object = ma->object;
+    mc->method_name = ma->member_name;
+    mc->args = args_head;
+    mc->mangled_name = NULL;
+    mc->owner_class = NULL;
+    mc->is_static = 0;
+    return (ASTNode*)mc;
+  }
+
+  CallNode *node = parser_alloc(p, sizeof(CallNode));
+  node->base.type = NODE_CALL;
+  node->name = NULL;
+  node->target = target;
+  node->args = args_head;
+  return (ASTNode*)node;
+}
+
 ASTNode* parse_postfix(Parser *p, ASTNode *node) {
-    while (1) {
+    while (1) { if (p->has_error) break;
         int line = p->current_token.line;
         int col = p->current_token.col;
 
@@ -78,7 +153,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                     }
                     *curr_arg = expr;
                     curr_arg = &(*curr_arg)->next;
-                    while (p->current_token.type == TOKEN_COMMA) {
+                    while (p->current_token.type == TOKEN_COMMA) { if (p->has_error) break;
                         eat(p, TOKEN_COMMA);
                         expr = parse_expression(p);
                         if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
@@ -118,7 +193,11 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                 VarType *types = parser_alloc(p, sizeof(VarType) * max_args);
                 int num_types = 0;
                 
-                while (p->current_token.type != TOKEN_RBRACKET) {
+                while (p->current_token.type != TOKEN_RBRACKET) { if (p->has_error) break;
+                    if (num_types >= max_args) {
+                        report_error(p->l, p->current_token, "Too many template type parameters");
+                        break;
+                    }
                     types[num_types++] = parse_type(p);
                     if (p->current_token.type == TOKEN_COMMA) {
                         eat(p, TOKEN_COMMA);
@@ -170,6 +249,10 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
         }
         else if (p->current_token.type == TOKEN_LPAREN) {
             node = parse_call(p, node);
+            set_loc(node, line, col);
+        }
+        else if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
+            node = parse_string_leading_call(p, node, line, col);
             set_loc(node, line, col);
         }
         // parse other postfix
@@ -268,7 +351,7 @@ ASTNode* parse_factor(Parser *p) {
     if (p->current_token.type != TOKEN_RBRACKET) {
       *curr_elem = parse_expression(p);
       curr_elem = &(*curr_elem)->next;
-      while (p->current_token.type == TOKEN_COMMA) {
+      while (p->current_token.type == TOKEN_COMMA) { if (p->has_error) break;
         eat(p, TOKEN_COMMA);
         *curr_elem = parse_expression(p);
         curr_elem = &(*curr_elem)->next;
@@ -278,6 +361,7 @@ ASTNode* parse_factor(Parser *p) {
     ArrayLitNode *an = parser_alloc(p, sizeof(ArrayLitNode));
     an->base.type = NODE_ARRAY_LIT;
     an->elements = elems_head;
+    an->is_vector = p->settings.allow_vector_initialization;
     node = (ASTNode*)an;
     set_loc(node, line, col);
   }
@@ -484,7 +568,7 @@ ASTNode* parse_unary(Parser *p) {
 
 static ASTNode* parse_binary_op(Parser *p, ASTNode* (*sub_parser)(Parser*), TokenType* ops, int num_ops) {
   ASTNode *left = sub_parser(p);
-  while (1) {
+  while (1) { if (p->has_error) break;
     int found = 0;
     int line = p->current_token.line;
     int col = p->current_token.col;
@@ -552,27 +636,58 @@ ASTNode* parse_logic_or(Parser *p) {
 
 ASTNode* parse_fallback(Parser *p) {
   ASTNode *left = parse_logic_or(p);
-  while (p->current_token.type == TOKEN_QUESTION || p->current_token.type == TOKEN_QUESTION_QUESTION) {
+  while (p->current_token.type == TOKEN_QUESTION || p->current_token.type == TOKEN_QUESTION_QUESTION) { if (p->has_error) break;
       int is_coalesce = (p->current_token.type == TOKEN_QUESTION_QUESTION);
       int op = p->current_token.type;
       int line = p->current_token.line;
       int col = p->current_token.col;
       eat(p, op);
-      
+
       char *err_id = NULL;
-      if (!is_coalesce && p->current_token.type == TOKEN_LBRACKET) {
+      char **err_names = NULL;
+      int num_err = 0;
+      char *err_var = NULL;
+      int is_default = 0;
+
+      if (is_coalesce) {
+          err_id = parser_strdup(p, "ErrNull");
+          err_names = parser_alloc(p, sizeof(char*));
+          err_names[0] = parser_strdup(p, "ErrNull");
+          num_err = 1;
+      } else if (p->current_token.type == TOKEN_LBRACKET) {
           eat(p, TOKEN_LBRACKET);
-          if (p->current_token.type == TOKEN_IDENTIFIER) {
-              err_id = parser_strdup(p, p->current_token.text);
+          int cap = 4;
+          err_names = parser_alloc(p, sizeof(char*) * cap);
+          while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
+              if (p->current_token.type != TOKEN_IDENTIFIER) {
+                  parser_fail(p, "Expected error name in ? [...] case");
+                  break;
+              }
+              if (num_err >= cap) {
+                  cap *= 2;
+                  char **tmp = parser_alloc(p, sizeof(char*) * cap);
+                  for (int i = 0; i < num_err; i++) tmp[i] = err_names[i];
+                  err_names = tmp;
+              }
+              err_names[num_err++] = parser_strdup(p, p->current_token.text);
               eat(p, TOKEN_IDENTIFIER);
+              if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
+              else break;
           }
           eat(p, TOKEN_RBRACKET);
-      } else if (is_coalesce) {
-          err_id = parser_strdup(p, "ErrNull");
+          err_id = num_err > 0 ? parser_strdup(p, err_names[0]) : NULL;
+          // optional bound error variable: ? [ErrX] v
+          if (p->current_token.type == TOKEN_IDENTIFIER) {
+              err_var = parser_strdup(p, p->current_token.text);
+              eat(p, TOKEN_IDENTIFIER);
+          }
+      } else {
+          // `? ...` with no bracket => default catch-all case.
+          is_default = 1;
       }
-      
+
       ASTNode *right = parse_logic_or(p);
-      
+
       BinaryOpNode *node = parser_alloc(p, sizeof(BinaryOpNode));
       node->base.type = NODE_BINARY_OP;
       node->base.line = line;
@@ -581,7 +696,16 @@ ASTNode* parse_fallback(Parser *p) {
       node->left = left;
       node->right = right;
       node->fallback_err_name = err_id;
-      
+      node->err_var_name = err_var;
+
+      ResidueCase *rc = parser_alloc(p, sizeof(ResidueCase));
+      rc->err_names = err_names;
+      rc->num_err = num_err;
+      rc->body = right;
+      rc->next = NULL;
+      rc->is_default = is_default;
+      node->cases = rc;
+
       left = (ASTNode*)node;
   }
   return left;
@@ -639,7 +763,7 @@ ASTNode* parse_initializer(Parser *p, VarType vtype) {
         ASTNode *args_head = NULL;
         ASTNode **curr_arg = &args_head;
         if (p->current_token.type != TOKEN_RPAREN) {
-            while (1) {
+            while (1) { if (p->has_error) break;
                 ASTNode *expr = parse_expression(p);
                 if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
                     NamedArgNode *narg = parser_alloc(p, sizeof(NamedArgNode));

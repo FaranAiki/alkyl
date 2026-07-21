@@ -18,21 +18,21 @@ int main() {
   // typeof(sarapan) is an integer
   let sarapan = Makanan.Ayam;
   // this should print Ayam because Makanan[sarapan] = Makanan[0] = sarapan
-  printf "%s is %d\n", Makanan[sarapan], sarapan;
+  clib.printf "%s is %d\n", Makanan[sarapan], sarapan;
   sarapan++;
-  printf "%s is %d\n", Makanan[sarapan], sarapan;
+  clib.printf "%s is %d\n", Makanan[sarapan], sarapan;
   sarapan = Makanan.Daging;
   switch (sarapan) {
     // case is blocked:
     // you do not need break here
     case Ayam, Daging:
-      printf "Ayam ato ngak daging!\n";
+      clib.printf "Ayam ato ngak daging!\n";
     // this will fall into the default
     // as the leak case "leaks"
     leak case Burger:
-      printf "Yeay!\n";
+      clib.printf "Yeay!\n";
     case Sapi:
-      printf "Huh!\n";
+      clib.printf "Huh!\n";
   }
-  printf "anjay aman bosku!\n";
+  clib.printf "anjay aman bosku!\n";
 }

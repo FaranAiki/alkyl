@@ -1,0 +1,9 @@
+import "lib/c"
+int m?() { return 0; }
+int main() {
+    tainted int x = m();
+    clean x {
+        clib.printf(c"Clean\n");
+    } residue err {
+    }
+}

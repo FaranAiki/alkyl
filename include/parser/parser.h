@@ -20,6 +20,7 @@ typedef struct {
     int allow_implicit_return;
     int allow_postfix_types;       // e.g., let x: int
     int strict_boolean_conditions; // e.g., if (1) vs if (true)
+    int allow_vector_initialization;
 } ParserSettings;
 
 typedef struct Parser {
