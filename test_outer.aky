@@ -1,8 +1,0 @@
-int main() {
-    int outer_var = 42;
-    tainted int x = 0;
-    clean x {
-        outer_var = 43;
-    } residue err {
-    }
-}
