@@ -1,0 +1,18 @@
+at namespace main:
+2:10: error: Undefined variable 'foo'
+  |   return foo();
+  |          ^
+2:13: error: Undefined function or class 'foo'
+  |   return foo();
+  |             ^
+2:3: error: Return type mismatch
+  |   return foo();
+  |   ^
+Semantic analysis failed with 3 errors.
+step: Finished lexing. Start parsing.
+AST Node Type: 1
+step: Start Semantic Analysis.
+DEBUG: sem_symbol_add: Adding 'ErrNull' to local scope (is_func=0)
+DEBUG: sem_symbol_add: Adding 'ErrDivisionByZero' to local scope (is_func=0)
+DEBUG: sem_symbol_add: Adding 'main' to local scope (is_func=0)
+sem_check_func_def for: main

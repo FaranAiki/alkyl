@@ -1,0 +1,22 @@
+/usr/bin/ld: build/out.o: in function `main':
+main_module:(.text+0xe): undefined reference to `foo'
+collect2: error: ld returned 1 exit status
+step: Finished lexing. Start parsing.
+AST Node Type: 1
+AST Node Type: 1
+step: Start Semantic Analysis.
+DEBUG: sem_symbol_add: Adding 'ErrNull' to local scope (is_func=0)
+DEBUG: sem_symbol_add: Adding 'ErrDivisionByZero' to local scope (is_func=0)
+DEBUG: sem_symbol_add: Adding 'foo' to local scope (is_func=0)
+DEBUG: sem_symbol_add: Adding 'main' to local scope (is_func=0)
+sem_check_func_def for: foo
+sem_check_func_def for: main
+DEBUG: sem_symbol_add: Adding 'argc' to local scope (is_func=1)
+DEBUG: sem_symbol_add: Adding 'argv' to local scope (is_func=1)
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linking failed.

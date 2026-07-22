@@ -218,11 +218,13 @@ int main(int argc, char *argv[]) {
   snprintf(cmd, sizeof(cmd), "gcc -g -O0 "BASENAME".o -o "BASENAME" -no-pie %s", link_flags);
 
   printf("Linking: %s\n", cmd);
+  int final_ret = 0;
   int res = system(cmd);
   if (res == 0) {
     printf("Linked to "BASENAME"\n");
   } else {
     printf("Linking failed.\n");
+    final_ret = 1;
   }
 
   // codegen_dispose(cg_ctx);
@@ -235,5 +237,5 @@ int main(int argc, char *argv[]) {
   arena_free(&arena);
   arena_free(&arena_debug);
 
-  return 0;
+  return final_ret;
 }

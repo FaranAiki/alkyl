@@ -1,0 +1,16 @@
+at namespace ns:
+in .../code/extern/test_nested_class3.aky:
+3:5: error: Unexpected token in class body. Expected member declaration or '}'.
+  |     foo() {}
+  |     ^
+at namespace main:
+4:3: error: Unexpected token in expression: '}'
+  |   }
+  |   ^
+5:1: error: Unexpected token in expression: '}'
+  | }
+  | ^
+step: Finished lexing. Start parsing.
+DEBUG: after parse_type, vt.base=20, token.type=23
+AST Node Type: 24
+AST Node Type: 1

@@ -1,0 +1,36 @@
+Cannot allocate unsized type
+  %alloc = alloca %ns.Clib, align 8
+GEP into unsized type!
+  %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+GEP into unsized type!
+  %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+Cannot allocate unsized type
+  %alloc = alloca %ns.Clib, align 8
+GEP into unsized type!
+  %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+GEP into unsized type!
+  %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+LLVM Verification Error: Cannot allocate unsized type
+  %alloc = alloca %ns.Clib, align 8
+GEP into unsized type!
+  %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+GEP into unsized type!
+  %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+
+step: Finished lexing. Start parsing.
+DEBUG: after parse_type, vt.base=1, token.type=23
+AST Node Type: 24
+AST Node Type: 1
+step: Start Semantic Analysis.
+DEBUG: sem_symbol_add: Adding 'ErrNull' to local scope (is_func=0)
+DEBUG: sem_symbol_add: Adding 'ErrDivisionByZero' to local scope (is_func=0)
+DEBUG: sem_symbol_add: Adding 'ns' to local scope (is_func=0)
+DEBUG: sem_symbol_add: Adding 'Clib' to local scope (is_func=0)
+DEBUG: sem_symbol_add: Adding 'x' to local scope (is_func=0)
+DEBUG: sem_symbol_add: Adding 'main' to local scope (is_func=0)
+sem_check_func_def for: main
+DEBUG: sem_symbol_add: Adding 'c' to local scope (is_func=1)
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start Codegen using LLVM Codegen

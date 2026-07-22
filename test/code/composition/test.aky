@@ -13,15 +13,15 @@ class Identity {
 
 class Person has Identity {
   int intro() {
-    cprintf "I am %d\n y.o.", this.age;
-    cprtinf "My name is %s", this[Identity].name;
+    cprintf "I am %d y.o.\n", this.age;
+    cprintf "My name is %s\n", this[Identity].name;
     return 1;
   }
 }
 
 int main() {
   Person p = Person("Faran Aiki", 10);
-  p[Identityt].speak();
+  p[Identity].speak();
   p.intro();
   return 0;
 }
