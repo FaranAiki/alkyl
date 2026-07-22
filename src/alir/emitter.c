@@ -4,7 +4,7 @@ void alir_fprint_type(FILE *f, VarType t) {
     switch(t.base) {
         case TYPE_INT: fprintf(f, "int"); break;
         case TYPE_LONG: fprintf(f, "long"); break;
-        case TYPE_FLOAT: fprintf(f, "float"); break;
+        case TYPE_SINGLE: fprintf(f, "float"); break;
         case TYPE_DOUBLE: fprintf(f, "double"); break;
         case TYPE_CHAR: fprintf(f, "char"); break;
         case TYPE_BOOL: fprintf(f, "bool"); break;
@@ -32,8 +32,8 @@ void alir_fprint_val(FILE *f, AlirValue *v) {
     if (!v) { fprintf(f, "void"); return; }
     switch(v->kind) {
         case ALIR_VAL_CONST:
-            if (v->type.base == TYPE_FLOAT || v->type.base == TYPE_DOUBLE)
-                fprintf(f, "%.2f", v->val.float_val);
+            if (v->type.base == TYPE_SINGLE || v->type.base == TYPE_DOUBLE)
+                fprintf(f, "%.2f", v->val.single_val);
             else
                 fprintf(f, "%ld", v->val.long_val);
             break;

@@ -284,7 +284,7 @@ static int lex_number(Lexer *l, Token *t) {
       double dval = strtod(buf, NULL);
       free(buf);
 
-      t->type = TOKEN_FLOAT;
+      t->type = TOKEN_DOUBLE_LIT;
       t->double_val = dval;
 
       // TODO fix this
@@ -293,7 +293,7 @@ static int lex_number(Lexer *l, Token *t) {
           t->type = TOKEN_LONG_DOUBLE_LIT;
       } else if (tolower(peek(l)) == 'f') {
           advance(l);
-          t->type = TOKEN_FLOAT;
+          t->type = TOKEN_SINGLE;
       }
       return 1;
     }

@@ -9,7 +9,7 @@ typedef union {
   long long_val;
   long long long_long_val;
   unsigned long long unsigned_long_val;
-  float float_val;
+  float single_val;
   double double_val;
   char *str_val; 
   void *any;

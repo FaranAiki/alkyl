@@ -12,7 +12,7 @@ int alir_get_type_size(VarType t) {
         case TYPE_UNSIGNED_CHAR: return 1;
         case TYPE_INT:
         case TYPE_UNSIGNED_INT:
-        case TYPE_FLOAT: return 4;
+        case TYPE_SINGLE: return 4;
         case TYPE_LONG:
         case TYPE_DOUBLE: return 8;
         // TODO: Struct/Class size calculation goes here later
@@ -212,8 +212,8 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
                 return alir_const_int(ctx->module, ln->val.int_val);
             case TYPE_LONG:
                 return alir_const_long(ctx->module, ln->val.long_val); 
-            case TYPE_FLOAT:
-                return alir_const_float(ctx->module, ln->val.float_val);
+            case TYPE_SINGLE:
+                return alir_const_float(ctx->module, ln->val.single_val);
             case TYPE_DOUBLE:
                 return alir_const_double(ctx->module, ln->val.double_val);
             case TYPE_UNSIGNED_INT:
@@ -278,8 +278,13 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
                 t = ptr_type;
             }
             return alir_val_global(ctx->module, sym->mangled_name ? sym->mangled_name : vn->name, t);
+        } else if (sym && sym->kind == SYM_VAR) {
+            VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
+            t.ptr_depth++; // Make it a pointer type because it's an address
+            ptr = alir_val_global(ctx->module, sym->mangled_name ? sym->mangled_name : vn->name, t);
+        } else {
+            return NULL; // Safety guard against unresolved allocas
         }
-        return NULL; // Safety guard against unresolved allocas
     }
 
     // Get precise type from Semantics
@@ -393,8 +398,8 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
         return res;
     }
 
-    int is_float = (l_type.base == TYPE_FLOAT || l_type.base == TYPE_DOUBLE ||
-                    r_type.base == TYPE_FLOAT || r_type.base == TYPE_DOUBLE);
+    int is_float = (l_type.base == TYPE_SINGLE || l_type.base == TYPE_DOUBLE ||
+                    r_type.base == TYPE_SINGLE || r_type.base == TYPE_DOUBLE);
 
     if (is_float) {
         VarType target = {TYPE_DOUBLE, 0}; // Default to double for mixed
@@ -465,7 +470,7 @@ AlirValue* alir_gen_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
         case TOKEN_MINUS: {
             // Lower unary minus to: 0 - operand
             AlirValue *zero = alir_const_int(ctx->module, 0);
-            if (res_type.base == TYPE_FLOAT) {
+            if (res_type.base == TYPE_SINGLE) {
                 zero = alir_const_float(ctx->module, 0.0);
                 op = ALIR_OP_FSUB;
             } else if (res_type.base == TYPE_DOUBLE) {
@@ -531,11 +536,11 @@ AlirValue* alir_gen_inc_dec(AlirCtx *ctx, IncDecNode *id) {
     AlirValue *val = new_temp(ctx, t);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, val, ptr, NULL));
     
-    AlirValue *one = (t.base == TYPE_FLOAT || t.base == TYPE_DOUBLE) ? 
+    AlirValue *one = (t.base == TYPE_SINGLE || t.base == TYPE_DOUBLE) ? 
         alir_const_float(ctx->module, 1.0) : alir_const_int(ctx->module, 1);
         
     AlirOpcode op = (id->op == TOKEN_INCREMENT) ? ALIR_OP_ADD : ALIR_OP_SUB;
-    if (t.base == TYPE_FLOAT || t.base == TYPE_DOUBLE) {
+    if (t.base == TYPE_SINGLE || t.base == TYPE_DOUBLE) {
         op = (id->op == TOKEN_INCREMENT) ? ALIR_OP_FADD : ALIR_OP_FSUB;
     }
     
@@ -962,6 +967,36 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_ARRAY_LIT: return alir_gen_array_lit(ctx, node);
         case NODE_LITERAL: return alir_gen_literal(ctx, (LiteralNode*)node);
         case NODE_VAR_REF: return alir_gen_var_ref(ctx, (VarRefNode*)node);
+        case NODE_ASSIGN: {
+            AssignNode *an = (AssignNode*)node;
+            if (an->overloaded_func_name) {
+                AlirValue *lhs_ptr = NULL;
+                if (an->target) lhs_ptr = alir_gen_addr(ctx, an->target);
+                else if (an->name) {
+                    AlirSymbol *s = alir_find_symbol(ctx, an->name);
+                    if (s) lhs_ptr = s->ptr;
+                    else lhs_ptr = alir_val_global(ctx->module, an->name, sem_get_node_type(ctx->sem, node));
+                }
+                AlirValue *rhs = alir_gen_expr(ctx, an->value);
+                AlirValue **args = arena_alloc(ctx->sem->compiler_ctx->arena, sizeof(AlirValue*) * 2);
+                args[0] = lhs_ptr; args[1] = rhs;
+                AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, an->overloaded_func_name), NULL);
+                call->args = args; call->arg_count = 2;
+                emit(ctx, call);
+                return rhs;
+            }
+            AlirValue *val = alir_gen_expr(ctx, an->value);
+            if (!val) val = alir_const_int(ctx->module, 0);
+            AlirValue *ptr = NULL;
+            if (an->target) ptr = alir_gen_addr(ctx, an->target);
+            else if (an->name) {
+                AlirSymbol *s = alir_find_symbol(ctx, an->name);
+                if (s) ptr = s->ptr;
+                else ptr = alir_val_global(ctx->module, an->name, sem_get_node_type(ctx->sem, (ASTNode*)an->value));
+            }
+            if (ptr) emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
+            return val;
+        }
         case NODE_BINARY_OP: return alir_gen_binary_op(ctx, (BinaryOpNode*)node);
         case NODE_UNARY_OP: return alir_gen_unary_op(ctx, (UnaryOpNode*)node);
         case NODE_INC_DEC: return alir_gen_inc_dec(ctx, (IncDecNode*)node);

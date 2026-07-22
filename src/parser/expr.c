@@ -387,12 +387,19 @@ ASTNode* parse_factor(Parser *p) {
     set_loc(node, line, col);
   }
 
-  else if (p->current_token.type == TOKEN_FLOAT || p->current_token.type == TOKEN_LONG_DOUBLE_LIT) {
+  else if (p->current_token.type == TOKEN_SINGLE || p->current_token.type == TOKEN_LONG_DOUBLE_LIT || p->current_token.type == TOKEN_DOUBLE_LIT) {
     LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;
-    if (p->current_token.type == TOKEN_LONG_DOUBLE_LIT) ln->var_type.base = TYPE_LONG_DOUBLE;
-    else ln->var_type.base = TYPE_DOUBLE;
-    ln->val.double_val = p->current_token.double_val;
+    if (p->current_token.type == TOKEN_LONG_DOUBLE_LIT) {
+        ln->var_type.base = TYPE_LONG_DOUBLE;
+        ln->val.double_val = p->current_token.double_val;
+    } else if (p->current_token.type == TOKEN_DOUBLE_LIT) {
+        ln->var_type.base = TYPE_DOUBLE;
+        ln->val.double_val = p->current_token.double_val;
+    } else {
+        ln->var_type.base = TYPE_SINGLE;
+        ln->val.single_val = (float)p->current_token.double_val;
+    }
     eat(p, p->current_token.type);
     node = (ASTNode*)ln;
     set_loc(node, line, col);
@@ -524,7 +531,8 @@ ASTNode* parse_factor(Parser *p) {
       VarType t = parse_type(p);
       LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
       ln->base.type = NODE_LITERAL;
-      ln->var_type = t;
+      ln->var_type.base = TYPE_INT;
+      ln->var_type.ptr_depth = 0;
       ln->val.long_val = t.base;
       node = (ASTNode*)ln;
       set_loc(node, line, col);

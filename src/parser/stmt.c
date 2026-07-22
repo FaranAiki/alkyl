@@ -118,7 +118,7 @@ ASTNode* parse_assignment_or_call(Parser *p) {
   
   if (node->type == NODE_VAR_REF || node->type == NODE_TEMPLATE_INSTANTIATION) {
       TokenType t = p->current_token.type;
-      int is_arg_start = (t == TOKEN_NUMBER || t == TOKEN_FLOAT || t == TOKEN_STRING || 
+      int is_arg_start = (t == TOKEN_NUMBER || t == TOKEN_SINGLE || t == TOKEN_STRING || 
             t == TOKEN_C_STRING || t == TOKEN_BYTE_STRING ||
             t == TOKEN_CHAR_LIT || t == TOKEN_TRUE || t == TOKEN_FALSE || 
             t == TOKEN_IDENTIFIER || t == TOKEN_LPAREN || t == TOKEN_LBRACKET || 

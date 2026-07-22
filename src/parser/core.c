@@ -17,6 +17,7 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
     p->token_count = 0;
     p->token_capacity = 0;
     p->token_pos = 0;
+    p->synthetic_classes = NULL;
     
     if (p->ctx && p->ctx->arena) {
         hashmap_init(&p->types_map, p->ctx->arena, 64);
@@ -470,7 +471,7 @@ VarType parse_type(Parser *p) {
       }
       else if (ct == TOKEN_KW_CHAR) { t.base = TYPE_CHAR; eat(p, TOKEN_KW_CHAR); }
       else if (ct == TOKEN_KW_BOOL) { t.base = TYPE_BOOL; eat(p, TOKEN_KW_BOOL); }
-      else if (ct == TOKEN_KW_SINGLE) { t.base = TYPE_FLOAT; eat(p, TOKEN_KW_SINGLE); }
+      else if (ct == TOKEN_KW_SINGLE) { t.base = TYPE_SINGLE; eat(p, TOKEN_KW_SINGLE); }
 
       else if (ct == TOKEN_KW_VOID) { t.base = TYPE_VOID; eat(p, TOKEN_KW_VOID); }
       else if (ct == TOKEN_KW_LET) { t.base = TYPE_AUTO; eat(p, TOKEN_KW_LET); }

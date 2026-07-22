@@ -98,8 +98,6 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
 void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
     if (!node) return;
 
-    printf("sem_check_func_def for: %s\n", node->name);
-
     if (node->ret_type.base == TYPE_CLASS && node->ret_type.class_name) {
         SemSymbol *sym = sem_symbol_lookup(ctx, node->ret_type.class_name, NULL);
         if (sym && sym->kind == SYM_TEMPLATE) {

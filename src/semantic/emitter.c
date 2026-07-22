@@ -28,7 +28,7 @@ void semantic_emit_type_str(StringBuilder *sb, VarType t) {
         case TYPE_LONG_LONG: sb_append_fmt(sb, "long long"); break;
         case TYPE_CHAR: sb_append_fmt(sb, "char"); break; // Single character
         case TYPE_BOOL: sb_append_fmt(sb, "bool"); break;
-        case TYPE_FLOAT: sb_append_fmt(sb, "single"); break;
+        case TYPE_SINGLE: sb_append_fmt(sb, "single"); break;
         case TYPE_DOUBLE: sb_append_fmt(sb, "double"); break;
         case TYPE_LONG_DOUBLE: sb_append_fmt(sb, "long double"); break;
         case TYPE_VOID: sb_append_fmt(sb, "void"); break;

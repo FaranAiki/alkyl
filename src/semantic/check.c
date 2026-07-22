@@ -493,7 +493,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
             VarType target_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
             if (l.base == TYPE_LONG_DOUBLE || r.base == TYPE_LONG_DOUBLE) target_type.base = TYPE_LONG_DOUBLE;
             else if (l.base == TYPE_DOUBLE || r.base == TYPE_DOUBLE) target_type.base = TYPE_DOUBLE;
-            else if (l.base == TYPE_FLOAT || r.base == TYPE_FLOAT) target_type.base = TYPE_FLOAT;
+            else if (l.base == TYPE_SINGLE || r.base == TYPE_SINGLE) target_type.base = TYPE_SINGLE;
             else if (l.base == TYPE_LONG || r.base == TYPE_LONG) target_type.base = TYPE_LONG;
             else if (l.base == TYPE_UNSIGNED_INT || r.base == TYPE_UNSIGNED_INT) target_type.base = TYPE_UNSIGNED_INT;
             if (l.is_tainted || r.is_tainted) target_type.is_tainted = 1;
@@ -510,7 +510,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
         
         if (l.base == TYPE_LONG_DOUBLE || r.base == TYPE_LONG_DOUBLE) target_type.base = TYPE_LONG_DOUBLE;
         else if (l.base == TYPE_DOUBLE || r.base == TYPE_DOUBLE) target_type.base = TYPE_DOUBLE;
-        else if (l.base == TYPE_FLOAT || r.base == TYPE_FLOAT) target_type.base = TYPE_FLOAT;
+        else if (l.base == TYPE_SINGLE || r.base == TYPE_SINGLE) target_type.base = TYPE_SINGLE;
         else if (l.base == TYPE_LONG || r.base == TYPE_LONG) target_type.base = TYPE_LONG;
         else if (l.base == TYPE_UNSIGNED_INT || r.base == TYPE_UNSIGNED_INT) target_type.base = TYPE_UNSIGNED_INT;
         if (l.is_tainted || r.is_tainted) target_type.is_tainted = 1;
@@ -605,7 +605,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     snprintf(as_name, sizeof(as_name), "as_%s", cn->var_type.class_name ? cn->var_type.class_name : "");
                 } else if (cn->var_type.base == TYPE_INT) {
                     snprintf(as_name, sizeof(as_name), "as_int");
-                } else if (cn->var_type.base == TYPE_FLOAT) {
+                } else if (cn->var_type.base == TYPE_SINGLE) {
                     snprintf(as_name, sizeof(as_name), "as_float");
                 } else {
                     snprintf(as_name, sizeof(as_name), "as_type%d", cn->var_type.base);

@@ -6,10 +6,12 @@ meta void print(...) {
             cprintf("%d", arg);
         } else if typeof(arg) == single {
             cprintf("%f", arg);
-        } else if typeof(arg) == char* {
-            cprintf("%s", arg);
         } else if typeof(arg) == char {
-            cprintf("%c", arg);
+            if sizeof(arg) == 1 {
+                cprintf("%c", arg);
+            } else {
+                cprintf("%s", arg);
+            }
         } else {
             // Unhandled types fallback
             cprintf("?");

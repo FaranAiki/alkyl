@@ -46,7 +46,7 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
         case TYPE_LONG_LONG: base = LLVMInt64TypeInContext(ctx->llvm_ctx); break;
         case TYPE_CHAR: base = LLVMInt8TypeInContext(ctx->llvm_ctx); break;
         case TYPE_BOOL: base = LLVMInt1TypeInContext(ctx->llvm_ctx); break;
-        case TYPE_FLOAT: base = LLVMFloatTypeInContext(ctx->llvm_ctx); break;
+        case TYPE_SINGLE: base = LLVMFloatTypeInContext(ctx->llvm_ctx); break;
         case TYPE_DOUBLE: 
         case TYPE_LONG_DOUBLE: base = LLVMDoubleTypeInContext(ctx->llvm_ctx); break;
 
@@ -104,8 +104,8 @@ LLVMValueRef get_llvm_value(CodegenCtx *ctx, AlirValue *v) {
     switch (v->kind) {
         case ALIR_VAL_CONST: {
             LLVMTypeRef ty = get_llvm_type(ctx, v->type);
-            if (v->type.base == TYPE_FLOAT) {
-                return LLVMConstReal(ty, v->val.float_val);
+            if (v->type.base == TYPE_SINGLE) {
+                return LLVMConstReal(ty, v->val.single_val);
             } else if (v->type.base == TYPE_DOUBLE) {
                 return LLVMConstReal(ty, v->val.double_val);
             } else if (v->type.base == TYPE_LONG) {

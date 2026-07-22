@@ -21,7 +21,7 @@ char* lexer_to_string(Lexer *l) {
             sb_append_fmt(&sb, "'%s'", t.text);
         } else if (t.type == TOKEN_NUMBER) {
             sb_append_fmt(&sb, "%d", t.int_val);
-        } else if (t.type == TOKEN_FLOAT) {
+        } else if (t.type == TOKEN_SINGLE) {
             sb_append_fmt(&sb, "%f", t.double_val);
         } else if (t.type == TOKEN_STRING) {
             sb_append_fmt(&sb, "\"%s\"", t.text ? t.text : "");

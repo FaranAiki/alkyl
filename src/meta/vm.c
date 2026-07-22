@@ -18,7 +18,7 @@
 typedef struct {
     union {
         long long int_val;
-        double float_val;
+        double single_val;
         void *ptr_val; // Memory or string pointer
     } as;
 } VMValue;
@@ -33,6 +33,14 @@ MetaVM* meta_vm_init() {
 void meta_vm_free(MetaVM *vm) {
     if (vm) {
         if (vm->registers) free(vm->registers);
+        VMGlobal *g = vm->globals;
+        while (g) {
+            VMGlobal *next = g->next;
+            free(g->name);
+            free(g->ptr_val);
+            free(g);
+            g = next;
+        }
         free(vm);
     }
 }
@@ -47,7 +55,7 @@ static AlirBlock* find_block(AlirFunction *func, const char *label) {
     return NULL;
 }
 
-int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *sem_ctx_ptr) {
+long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *sem_ctx_ptr) {
     if (!func || !vm) return 0;
     SemanticCtx *sem_ctx = (SemanticCtx *)sem_ctx_ptr;
     
@@ -70,17 +78,49 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
                 case ALIR_OP_STORE: {
                     if (inst->op1 && inst->op2) { // op1 = value, op2 = ptr
                         long long val = 0;
-                        if (inst->op1->kind == ALIR_VAL_CONST) val = inst->op1->val.int_val;
+                        if (inst->op1->kind == ALIR_VAL_CONST) val = inst->op1->val.long_long_val;
                         else if (inst->op1->kind == ALIR_VAL_TEMP) val = registers[inst->op1->temp_id].as.int_val;
                         
-                        void *ptr = registers[inst->op2->temp_id].as.ptr_val;
+                        void *ptr = NULL;
+                        if (inst->op2->kind == ALIR_VAL_TEMP) ptr = registers[inst->op2->temp_id].as.ptr_val;
+                        else if (inst->op2->kind == ALIR_VAL_GLOBAL) {
+                            VMGlobal *g = vm->globals;
+                            while(g) {
+                                if (strcmp(g->name, inst->op2->val.str_val) == 0) {
+                                    ptr = g->ptr_val;
+                                    break;
+                                }
+                                g = g->next;
+                            }
+                            if (!ptr) {
+                                VMGlobal *vg = calloc(1, sizeof(VMGlobal));
+                                vg->name = strdup(inst->op2->val.str_val);
+                                vg->ptr_val = calloc(1, 8);
+                                vg->next = vm->globals;
+                                vm->globals = vg;
+                                ptr = vg->ptr_val;
+                            }
+                        }
                         if (ptr) *((long long*)ptr) = val;
                     }
                     break;
                 }
                 case ALIR_OP_LOAD: {
                     if (inst->dest && inst->op1) { // dest = value, op1 = ptr
-                        void *ptr = registers[inst->op1->temp_id].as.ptr_val;
+                        void *ptr = NULL;
+                        if (inst->op1->kind == ALIR_VAL_TEMP) ptr = registers[inst->op1->temp_id].as.ptr_val;
+                        else if (inst->op1->kind == ALIR_VAL_GLOBAL) {
+                            VMGlobal *g = vm->globals;
+                            // printf("DEBUG: ALIR_OP_LOAD ALIR_VAL_GLOBAL %s\n", inst->op1->val.str_val);
+                            while(g) {
+                                if (strcmp(g->name, inst->op1->val.str_val) == 0) {
+                                    ptr = g->ptr_val;
+                                    break;
+                                }
+                                g = g->next;
+                            }
+                            if (!ptr) printf("DEBUG: Global '%s' NOT FOUND in LOAD!\n", inst->op1->val.str_val);
+                        }
                         if (ptr) registers[inst->dest->temp_id].as.int_val = *((long long*)ptr);
                     }
                     break;
@@ -94,8 +134,8 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
                 case ALIR_OP_EQ:
                 case ALIR_OP_NEQ: {
                     if (inst->dest && inst->op1 && inst->op2) {
-                        long long v1 = (inst->op1->kind == ALIR_VAL_CONST) ? inst->op1->val.int_val : registers[inst->op1->temp_id].as.int_val;
-                        long long v2 = (inst->op2->kind == ALIR_VAL_CONST) ? inst->op2->val.int_val : registers[inst->op2->temp_id].as.int_val;
+                        long long v1 = (inst->op1->kind == ALIR_VAL_CONST) ? inst->op1->val.long_long_val : registers[inst->op1->temp_id].as.int_val;
+                        long long v2 = (inst->op2->kind == ALIR_VAL_CONST) ? inst->op2->val.long_long_val : registers[inst->op2->temp_id].as.int_val;
                         long long res = 0;
                         if (inst->op == ALIR_OP_ADD) res = v1 + v2;
                         else if (inst->op == ALIR_OP_SUB) res = v1 - v2;
@@ -130,7 +170,7 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
                 case ALIR_OP_CONDI: {
                     long long cond = 0;
                     if (inst->op1->kind == ALIR_VAL_TEMP) cond = registers[inst->op1->temp_id].as.int_val;
-                    else if (inst->op1->kind == ALIR_VAL_CONST) cond = inst->op1->val.int_val;
+                    else if (inst->op1->kind == ALIR_VAL_CONST) cond = inst->op1->val.long_long_val;
                     
                     if (cond) {
                         if (inst->op2 && inst->op2->kind == ALIR_VAL_LABEL) 
@@ -198,7 +238,7 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
                             for (int i = 0; i < inst->arg_count; i++) {
                                 AlirValue *arg = inst->args[i];
                                 if (arg->kind == ALIR_VAL_CONST) {
-                                    if (arg->type.base == TYPE_INT) printf("%d", arg->val.int_val);
+                                    if (arg->type.base == TYPE_INT) printf("%d", arg->val.long_long_val);
                                     else if (arg->type.base == TYPE_CLASS && arg->type.class_name && strcmp(arg->type.class_name, "string") == 0) printf("%s", arg->val.str_val);
                                 } else if (arg->kind == ALIR_VAL_TEMP) {
                                     printf("%lld", registers[arg->temp_id].as.int_val);
@@ -229,7 +269,7 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
                                     if (arg->type.base == TYPE_INT || arg->type.base == TYPE_BOOL) {
                                         arg_types[i] = &ffi_type_sint64;
                                         long long *val = malloc(sizeof(long long));
-                                        if (arg->kind == ALIR_VAL_CONST) *val = arg->val.int_val;
+                                        if (arg->kind == ALIR_VAL_CONST) *val = arg->val.long_long_val;
                                         else if (arg->kind == ALIR_VAL_TEMP) *val = registers[arg->temp_id].as.int_val;
                                         arg_values[i] = val;
                                     } else if ((arg->type.base == TYPE_CLASS && arg->type.class_name && strcmp(arg->type.class_name, "string") == 0) || arg->type.base == TYPE_AUTO) {
@@ -287,11 +327,29 @@ int meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *se
                     }
                     break;
                 }
+                case ALIR_OP_RET: {
+                    if (inst->op1) {
+                        if (inst->op1->kind == ALIR_VAL_TEMP) return registers[inst->op1->temp_id].as.int_val;
+                        else if (inst->op1->kind == ALIR_VAL_CONST) return inst->op1->val.long_long_val;
+                        else if (inst->op1->kind == ALIR_VAL_GLOBAL) {
+                            if (module) {
+                                AlirGlobal *g = module->globals;
+                                while(g) {
+                                    if (strcmp(g->name, inst->op1->val.str_val) == 0 && g->string_content) {
+                                        return (intptr_t)g->string_content;
+                                    }
+                                    g = g->next;
+                                }
+                            }
+                        }
+                    }
+                    return 0;
+                }
                 default:
                     break;
             }
             // Break inner instruction loop if we jumped
-            if (inst->op == ALIR_OP_JUMP || inst->op == ALIR_OP_CONDI) break;
+            if (inst->op == ALIR_OP_JUMP || inst->op == ALIR_OP_CONDI || inst->op == ALIR_OP_RET) break;
             if (inst->op == ALIR_OP_PANIC) {
                 // Compile-time panic
                 if (inst->op1) {

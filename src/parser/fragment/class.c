@@ -193,7 +193,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   snprintf(as_name, sizeof(as_name), "as_%s", target_type.class_name);
               } else if (target_type.base == TYPE_INT) {
                   snprintf(as_name, sizeof(as_name), "as_int");
-              } else if (target_type.base == TYPE_FLOAT) {
+              } else if (target_type.base == TYPE_SINGLE) {
                   snprintf(as_name, sizeof(as_name), "as_float");
               } else {
                   snprintf(as_name, sizeof(as_name), "as_type%d", target_type.base);

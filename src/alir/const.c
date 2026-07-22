@@ -43,8 +43,8 @@ AlirValue* alir_const_long(AlirModule *mod, long val) {
 AlirValue* alir_const_float(AlirModule *mod, float val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
-    v->type = (VarType){TYPE_FLOAT, 0};
-    v->val.float_val = val;
+    v->type = (VarType){TYPE_SINGLE, 0};
+    v->val.single_val = val;
     return v;
 }
 

@@ -6,7 +6,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
     LLVMValueRef op2 = get_llvm_value(ctx, inst->op2);
     LLVMValueRef res = NULL;
 
-    int is_float = (inst->op1 && (inst->op1->type.base == TYPE_FLOAT || inst->op1->type.base == TYPE_DOUBLE));
+    int is_float = (inst->op1 && (inst->op1->type.base == TYPE_SINGLE || inst->op1->type.base == TYPE_DOUBLE));
 
     switch (inst->op) {
         case ALIR_OP_ALLOCA: {
@@ -322,6 +322,10 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
                     }
                     // printf("%d\n", (LLVMGetIntTypeWidth(arg_ty)));
                 // Force conversion from integer to double or whatnot
+                } else if (LLVMGetTypeKind(arg_ty) == LLVMFloatTypeKind) {
+                    if ((unsigned)i >= num_params) {
+                        args[i] = LLVMBuildFPExt(ctx->builder, args[i], LLVMDoubleTypeInContext(ctx->llvm_ctx), "prom_float");
+                    }
                 }
                 
                 // If arg is tainted (struct) but function expects pristine (non-struct), extract inner value
@@ -516,7 +520,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             
             LLVMValueRef cast_res = NULL;
             if (is_float) {
-                if (inst->dest->type.base == TYPE_FLOAT || inst->dest->type.base == TYPE_DOUBLE) {
+                if (inst->dest->type.base == TYPE_SINGLE || inst->dest->type.base == TYPE_DOUBLE) {
                     cast_res = LLVMBuildFPCast(ctx->builder, actual_op1, inner_dest_ty, "fpcast");
                 } else {
                     cast_res = LLVMBuildFPToSI(ctx->builder, actual_op1, inner_dest_ty, "fptosi");
@@ -534,7 +538,7 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
                     } else {
                         cast_res = LLVMBuildBitCast(ctx->builder, actual_op1, inner_dest_ty, "cast_bitcast");
                     }
-                } else if (inst->dest->type.base == TYPE_FLOAT || inst->dest->type.base == TYPE_DOUBLE) {
+                } else if (inst->dest->type.base == TYPE_SINGLE || inst->dest->type.base == TYPE_DOUBLE) {
                     cast_res = LLVMBuildSIToFP(ctx->builder, actual_op1, inner_dest_ty, "sitofp");
                 } else {
                     cast_res = LLVMBuildIntCast(ctx->builder, actual_op1, inner_dest_ty, "intcast");

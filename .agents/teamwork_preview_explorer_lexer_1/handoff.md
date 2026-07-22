@@ -75,7 +75,7 @@ Exact details of structural configurations, parsing locations, and behavior patt
   Parameter start sets use `TOKEN_STRING` but exclude `TOKEN_C_STRING`:
   ```c
   TokenType t = p->current_token.type;
-  int is_arg_start = (t == TOKEN_NUMBER || t == TOKEN_FLOAT || t == TOKEN_STRING || 
+  int is_arg_start = (t == TOKEN_NUMBER || t == TOKEN_SINGLE || t == TOKEN_STRING || 
         t == TOKEN_CHAR_LIT || t == TOKEN_TRUE || t == TOKEN_FALSE || 
         ...
   ```

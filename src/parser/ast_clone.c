@@ -106,7 +106,7 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
                         if (strcmp(orig->name + 3, type_params[i]) == 0) {
                             char buf[256];
                             const char *repl = replace_with[i].base == TYPE_INT ? "int" :
-                                               replace_with[i].base == TYPE_FLOAT ? "float" :
+                                               replace_with[i].base == TYPE_SINGLE ? "float" :
                                                replace_with[i].base == TYPE_DOUBLE ? "double" :
                                                replace_with[i].base == TYPE_BOOL ? "bool" :
                                                replace_with[i].class_name ? replace_with[i].class_name : "unknown";
@@ -326,6 +326,7 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             clone = (ASTNode*)n;
             break;
         }
+        case NODE_TYPEOF:
         case NODE_SIZEOF:
         case NODE_ALIGNOF: {
             SizeOfNode *orig = (SizeOfNode*)node;
@@ -469,6 +470,11 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
             rn->value = ast_rewrite_macro(ctx, rn->value, varargs_head, param_names, param_args, num_params);
             break;
         }
+        case NODE_CAST: {
+            CastNode *cn = (CastNode*)node;
+            cn->operand = ast_rewrite_macro(ctx, cn->operand, varargs_head, param_names, param_args, num_params);
+            break;
+        }
         case NODE_IF: {
             IfNode *in = (IfNode*)node;
             in->condition = ast_rewrite_macro(ctx, in->condition, varargs_head, param_names, param_args, num_params);
@@ -528,8 +534,8 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
         }
         case NODE_TYPEOF:
         case NODE_SIZEOF: {
-            UnaryOpNode *un = (UnaryOpNode*)node;
-            un->operand = ast_rewrite_macro(ctx, un->operand, varargs_head, param_names, param_args, num_params);
+            SizeOfNode *sn = (SizeOfNode*)node;
+            sn->operand = ast_rewrite_macro(ctx, sn->operand, varargs_head, param_names, param_args, num_params);
             break;
         }
         default:

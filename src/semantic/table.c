@@ -226,7 +226,6 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     sym->inner_scope = NULL;
     
     if (ctx->current_scope) {
-        printf("DEBUG: sem_symbol_add: Adding '%s' to local scope (is_func=%d)\n", name, ctx->current_scope->is_function_scope);
         sym->next = ctx->current_scope->symbols;
         ctx->current_scope->symbols = sym;
         
@@ -243,7 +242,6 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
             }
         }
     } else {
-        printf("DEBUG: sem_symbol_add: Adding '%s' to global scope\n", name);
         sym->next = ctx->global_scope->symbols;
         ctx->global_scope->symbols = sym;
         
@@ -474,7 +472,7 @@ char* sem_type_to_str(VarType t) {
         case TYPE_LONG_LONG: base = "long long"; break;
         case TYPE_CHAR: base = "char"; break;
         case TYPE_BOOL: base = "bool"; break;
-        case TYPE_FLOAT: base = "single"; break;
+        case TYPE_SINGLE: base = "single"; break;
         case TYPE_DOUBLE: base = "double"; break;
         case TYPE_LONG_DOUBLE: base = "long double"; break;
         case TYPE_VOID: base = "void"; break;
@@ -498,13 +496,12 @@ char* sem_type_to_str(VarType t) {
     for(int i=0; i<t.ptr_depth; i++) {
         if(pos < 255) buf[pos++] = '*';
     }
+    if (t.array_size > 0) {
+        pos += snprintf(buf + pos, 256 - pos, "[%d]", t.array_size);
+    }
     buf[pos] = '\0';
 
-    if (t.array_size > 0) {
-        char tmp[32];
-        snprintf(tmp, 32, "[%d]", t.array_size);
-        strcat(buf, tmp);
-    }
+
     
     if (t.is_func_ptr) {
         strcat(buf, "(*)(...)");
@@ -521,7 +518,7 @@ char* sem_mangle_type(VarType t) {
         case TYPE_LONG_LONG: base = "i64"; break;
         case TYPE_CHAR: base = "i8"; break;
         case TYPE_BOOL: base = "bool"; break;
-        case TYPE_FLOAT: base = "f32"; break;
+        case TYPE_SINGLE: base = "f32"; break;
         case TYPE_DOUBLE: base = "f64"; break;
         case TYPE_LONG_DOUBLE: base = "f64"; break;
         case TYPE_VOID: base = "void"; break;

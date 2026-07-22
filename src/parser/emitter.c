@@ -21,7 +21,7 @@ void parser_emit_type(StringBuilder *sb, VarType t) {
         case TYPE_LONG_LONG: sb_append(sb, "long long"); break;
         case TYPE_CHAR: sb_append(sb, "char"); break;
         case TYPE_BOOL: sb_append(sb, "bool"); break;
-        case TYPE_FLOAT: sb_append(sb, "single"); break;
+        case TYPE_SINGLE: sb_append(sb, "single"); break;
         case TYPE_DOUBLE: sb_append(sb, "double"); break;
         case TYPE_LONG_DOUBLE: sb_append(sb, "long double"); break;
         case TYPE_VOID: sb_append(sb, "void"); break;
@@ -452,7 +452,7 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
                  if (ln->var_type.is_unsigned) sb_append_fmt(sb, "%lluULL", (unsigned long long)ln->val.long_val);
                  else sb_append_fmt(sb, "%lldLL", (long long)ln->val.long_val);
             }
-            else if (ln->var_type.base == TYPE_FLOAT) {
+            else if (ln->var_type.base == TYPE_SINGLE) {
                  sb_append_fmt(sb, "%ff", ln->val.double_val);
             }
             else if (ln->var_type.base == TYPE_DOUBLE || ln->var_type.base == TYPE_LONG_DOUBLE) {
