@@ -6,10 +6,12 @@ meta void print(...) {
             cprintf("%d", arg);
         } else if typeof(arg) == single {
             cprintf("%f", arg);
-        } else if typeof(arg) == char {
+        } else if typeof(arg) == char* {
             cprintf("%s", arg);
+        } else if typeof(arg) == char {
+            cprintf("%c", arg);
         } else {
-            // Unhandled types fallback or simple print? We can use %p for pointer but let's just do %d
+            // Unhandled types fallback
             cprintf("?");
         }
     }
