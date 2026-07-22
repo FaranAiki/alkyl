@@ -1,0 +1,13 @@
+--- src/alir/lvalue.c
++++ src/alir/lvalue.c
+@@ -226,6 +226,10 @@
+     }
+     
+     if ((ln->var_type.base == TYPE_CLASS && ln->var_type.class_name && strcmp(ln->var_type.class_name, "string") == 0) || (ln->var_type.base == TYPE_CHAR && ln->var_type.ptr_depth > 0)) {
++        if (!ln->val.str_val || (long)ln->val.str_val <= 0x1000) {
++            return alir_const_int(ctx->module, ln->val.long_val);
++        }
++        
+         AlirValue *glob = alir_module_add_string_literal(ctx->module, ln->val.str_val, ln->var_type, ctx->str_counter++);
+         if (ln->var_type.base == TYPE_CLASS && strcmp(ln->var_type.class_name, "string") == 0) {
+             AlirValue *val = new_temp(ctx, ln->var_type);

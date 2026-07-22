@@ -389,12 +389,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
         for (int i=0; i<num_params; i++) {
             if (param_names[i] && strcmp(vn->name, param_names[i]) == 0) {
                 // Replace with a clone of the argument to avoid sharing nodes
-                ASTNode *old_next = param_args[i]->next;
-                param_args[i]->next = NULL;
-                ASTNode *cloned_arg = ast_clone(ctx, param_args[i], NULL, NULL, 0, NULL, NULL, 0);
-                param_args[i]->next = old_next;
-                cloned_arg->next = ast_rewrite_macro(ctx, node->next, varargs_head, param_names, param_args, num_params);
-                return cloned_arg;
+                return ast_clone(ctx, param_args[i], NULL, NULL, 0, NULL, NULL, 0);
             }
         }
     }
@@ -415,12 +410,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
                         curr = curr->next;
                     }
                     if (curr) {
-                        ASTNode *old_next = curr->next;
-                        curr->next = NULL;
-                        ASTNode *cloned_arg = ast_clone(ctx, curr, NULL, NULL, 0, NULL, NULL, 0);
-                        curr->next = old_next;
-                        cloned_arg->next = ast_rewrite_macro(ctx, node->next, varargs_head, param_names, param_args, num_params);
-                        return cloned_arg;
+                        return ast_clone(ctx, curr, NULL, NULL, 0, NULL, NULL, 0);
                     }
                 }
             }
@@ -493,8 +483,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
                     new_names[num_params] = fn->var_name;
                     new_args[num_params] = curr_arg;
                     
-                    ASTNode *cloned_body = ast_clone(ctx, fn->body, NULL, NULL, 0, NULL, NULL, 0);
-                    cloned_body = ast_rewrite_macro(ctx, cloned_body, varargs_head, new_names, new_args, num_params + 1);
+                    ASTNode *cloned_body = ast_rewrite_macro(ctx, fn->body, varargs_head, new_names, new_args, num_params + 1);
                     
                     if (!expanded_head) expanded_head = cloned_body;
                     else expanded_tail->next = cloned_body;

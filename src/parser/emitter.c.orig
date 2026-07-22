@@ -460,21 +460,13 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
             }
             else if (ln->var_type.base == TYPE_CLASS && ln->var_type.class_name && strcmp(ln->var_type.class_name, "string") == 0) {
                 sb_append(sb, "\"");
-                if (ln->val.str_val && (long)ln->val.str_val > 0x1000) {
-                    sb_append_escaped(sb, ln->val.str_val);
-                } else {
-                    sb_append(sb, "<type_literal>");
-                }
+                sb_append_escaped(sb, ln->val.str_val);
                 sb_append(sb, "\"");
             }
             else if (ln->var_type.base == TYPE_CHAR) {
                 if (ln->var_type.ptr_depth > 0) {
                     sb_append(sb, "c\"");
-                    if (ln->val.str_val && (long)ln->val.str_val > 0x1000) {
-                        sb_append_escaped(sb, ln->val.str_val);
-                    } else {
-                        sb_append(sb, "<type_literal>");
-                    }
+                    sb_append_escaped(sb, ln->val.str_val);
                     sb_append(sb, "\"");
                 } else {
                     sb_append(sb, "'");

@@ -1,0 +1,17 @@
+extern int printf(char* fmt, ...) as cprintf;
+
+meta void print(...) {
+    for arg in ... {
+        if typeof(arg) == int {
+            cprintf("%d", arg);
+        } else if typeof(arg) == single {
+            cprintf("%f", arg);
+        } else if typeof(arg) == char {
+            cprintf("%s", arg);
+        } else {
+            // Unhandled types fallback or simple print? We can use %p for pointer but let's just do %d
+            cprintf("?");
+        }
+    }
+    cprintf("\n");
+}
