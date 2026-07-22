@@ -474,6 +474,103 @@ VarType parse_type(Parser *p) {
 
       else if (ct == TOKEN_KW_VOID) { t.base = TYPE_VOID; eat(p, TOKEN_KW_VOID); }
       else if (ct == TOKEN_KW_LET) { t.base = TYPE_AUTO; eat(p, TOKEN_KW_LET); }
+      else if (ct == TOKEN_UNION) {
+          eat(p, TOKEN_UNION);
+          if (p->current_token.type == TOKEN_LBRACKET) {
+              eat(p, TOKEN_LBRACKET);
+              char buf[512] = "__Union_";
+              
+              ClassNode *cls = parser_alloc(p, sizeof(ClassNode));
+              cls->base.type = NODE_CLASS;
+              cls->is_union = 1;
+              ASTNode *last_member = NULL;
+              int field_idx = 0;
+              
+              while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+                  VarType f_type = parse_type(p);
+                  char *f_name = NULL;
+                  if (p->current_token.type == TOKEN_IDENTIFIER) {
+                      f_name = parser_strdup(p, p->current_token.text);
+                      eat(p, TOKEN_IDENTIFIER);
+                  } else {
+                      char f_buf[32];
+                      snprintf(f_buf, sizeof(f_buf), "_f%d", field_idx++);
+                      f_name = parser_strdup(p, f_buf);
+                  }
+                  
+                  VarDeclNode *vd = parser_alloc(p, sizeof(VarDeclNode));
+                  vd->base.type = NODE_VAR_DECL;
+                  vd->name = f_name;
+                  vd->var_type = f_type;
+                  if (last_member) last_member->next = (ASTNode*)vd;
+                  else cls->members = (ASTNode*)vd;
+                  last_member = (ASTNode*)vd;
+                  
+                  strncat(buf, f_name, sizeof(buf) - strlen(buf) - 1);
+                  if (p->current_token.type == TOKEN_COMMA) {
+                      strncat(buf, "_", sizeof(buf) - strlen(buf) - 1);
+                      eat(p, TOKEN_COMMA);
+                  }
+              }
+              eat(p, TOKEN_RBRACKET);
+              t.base = TYPE_CLASS;
+              t.class_name = parser_strdup(p, buf);
+              cls->name = t.class_name;
+              cls->base.next = p->synthetic_classes;
+              p->synthetic_classes = (ASTNode*)cls;
+          } else {
+              parser_fail(p, "Expected '[' after union type");
+          }
+      }
+      else if (ct == TOKEN_ABSTRACT) {
+          eat(p, TOKEN_ABSTRACT);
+          if (p->current_token.type == TOKEN_CONTAINER) {
+              eat(p, TOKEN_CONTAINER);
+              if (p->current_token.type == TOKEN_CLASS) {
+                  eat(p, TOKEN_CLASS);
+                  if (p->current_token.type == TOKEN_LBRACE) {
+                      eat(p, TOKEN_LBRACE);
+                      
+                      ClassNode *cls = parser_alloc(p, sizeof(ClassNode));
+                      cls->base.type = NODE_CLASS;
+                      ASTNode *last_member = NULL;
+                      
+                      while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+                          VarType f_type = parse_type(p);
+                          if (p->current_token.type == TOKEN_IDENTIFIER) {
+                              char *f_name = parser_strdup(p, p->current_token.text);
+                              eat(p, TOKEN_IDENTIFIER);
+                              VarDeclNode *vd = parser_alloc(p, sizeof(VarDeclNode));
+                              vd->base.type = NODE_VAR_DECL;
+                              vd->name = f_name;
+                              vd->var_type = f_type;
+                              if (last_member) last_member->next = (ASTNode*)vd;
+                              else cls->members = (ASTNode*)vd;
+                              last_member = (ASTNode*)vd;
+                          }
+                          if (p->current_token.type == TOKEN_SEMICOLON) eat(p, TOKEN_SEMICOLON);
+                      }
+                      eat(p, TOKEN_RBRACE);
+                      t.base = TYPE_CLASS;
+                      
+                      // Generate a unique name using a static counter for this session
+                      static int anon_struct_counter = 0;
+                      char buf[64];
+                      snprintf(buf, sizeof(buf), "__AnonStruct_%d", anon_struct_counter++);
+                      t.class_name = parser_strdup(p, buf);
+                      cls->name = t.class_name;
+                      cls->base.next = p->synthetic_classes;
+                      p->synthetic_classes = (ASTNode*)cls;
+                  } else {
+                      parser_fail(p, "Expected '{' after abstract container class");
+                  }
+              } else {
+                  parser_fail(p, "Expected 'class' after abstract container");
+              }
+          } else {
+              parser_fail(p, "Expected 'container' after abstract");
+          }
+      }
       else {
           if (t.is_unsigned) t.base = TYPE_INT; 
           else return t; 
@@ -689,6 +786,16 @@ ASTNode* parse_program(Parser *p) {
     }
   }
   
-  *current = NULL;
+  if (p->synthetic_classes) {
+      if (!*current) *current = p->synthetic_classes;
+      else {
+          ASTNode *iter = head;
+          while (iter->next) iter = iter->next;
+          iter->next = p->synthetic_classes;
+      }
+  } else {
+      *current = NULL;
+  }
+  
   return head;
 }

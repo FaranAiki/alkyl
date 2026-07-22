@@ -43,6 +43,7 @@ typedef struct Parser {
     HashMap types_map;
     char *current_namespace;
     char *pending_cconv;
+    struct ASTNode *synthetic_classes;
 } Parser;
 
 void parser_init(Parser *p, Lexer *l, ParserSettings *settings);

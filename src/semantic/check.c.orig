@@ -912,19 +912,18 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             SemSymbol *sym = sem_symbol_lookup(ctx, target_name, &found_in_scope);
             if (!sym || sym->kind != SYM_TEMPLATE) {
                 // Fallback to array access / component access!
-                if (ti->num_template_types == 1) {
-                    LiteralNode *index_ln = arena_alloc(ctx->compiler_ctx->arena, sizeof(LiteralNode));
-                    index_ln->base.type = NODE_LITERAL;
-                    index_ln->var_type = ti->template_types[0];
-                    index_ln->val.long_val = ti->template_types[0].base;
-                    index_ln->base.line = node->line;
-                    index_ln->base.col = node->col;
+                if (ti->num_template_types == 1 && ti->template_types[0].base == TYPE_CLASS) {
+                    VarRefNode *index_vr = arena_alloc(ctx->compiler_ctx->arena, sizeof(VarRefNode));
+                    index_vr->base.type = NODE_VAR_REF;
+                    index_vr->name = arena_strdup(ctx->compiler_ctx->arena, ti->template_types[0].class_name);
+                    index_vr->base.line = node->line;
+                    index_vr->base.col = node->col;
                     
                     ArrayAccessNode *aa = (ArrayAccessNode*)node;
                     aa->base.type = NODE_ARRAY_ACCESS;
                     // aa->target is already ti->target, so we don't need to change it
                     aa->target = ti->target;
-                    aa->index = (ASTNode*)index_ln;
+                    aa->index = (ASTNode*)index_vr;
                     
                     sem_check_expr(ctx, node); // Check again as array access
                     break;

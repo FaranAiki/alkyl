@@ -1,7 +1,4 @@
-union Registration {
-    char* str_field;
-    int int_field;
-}
+union[char*, int] Registration;
 
 int main() {
     Registration testing;

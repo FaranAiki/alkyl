@@ -173,6 +173,36 @@ void sem_check_array_access(SemanticCtx *ctx, ASTNode *node) {
     
     VarType t = sem_get_node_type(ctx, aa->target);
     
+    // Check for union access by type
+    if (t.base == TYPE_CLASS && t.class_name) {
+        SemSymbol *class_sym = sem_symbol_lookup(ctx, t.class_name, NULL);
+        if (class_sym && class_sym->is_union && aa->index->type == NODE_LITERAL) {
+            VarType index_type = sem_get_node_type(ctx, aa->index);
+            if (class_sym->inner_scope) {
+                SemSymbol *f = class_sym->inner_scope->symbols;
+                while (f) {
+                    if (f->kind == SYM_VAR && sem_types_are_compatible(ctx, f->type, index_type)) {
+                        MemberAccessNode ma;
+                        memset(&ma, 0, sizeof(MemberAccessNode));
+                        ma.base.type = NODE_MEMBER_ACCESS;
+                        ma.base.line = node->line;
+                        ma.base.col = node->col;
+                        ma.object = aa->target;
+                        ma.member_name = arena_strdup(ctx->compiler_ctx->arena, f->name);
+                        
+                        sem_set_node_type(ctx, node, f->type);
+                        memcpy(node, &ma, sizeof(MemberAccessNode));
+                        return;
+                    }
+                    f = f->next;
+                }
+            }
+            sem_error(ctx, node, "Union does not have a member of the requested type");
+            sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            return;
+        }
+    }
+    
     // Check for trait access (composition)
     if (t.base == TYPE_CLASS && t.class_name && aa->index->type == NODE_VAR_REF) {
         char *trait_name = ((VarRefNode*)aa->index)->name;

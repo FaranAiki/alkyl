@@ -544,10 +544,15 @@ ASTNode* parse_top_level_internal(Parser *p) {
   // TODO separate this
   if (p->current_token.type == TOKEN_CLASS || 
       p->current_token.type == TOKEN_STRUCT || 
-      p->current_token.type == TOKEN_UNION || 
       (p->current_token.type == TOKEN_OPEN) || 
       (p->current_token.type == TOKEN_CLOSED)) {
     return parse_class_impl(p, modifiers);
+  }
+  
+  if (p->current_token.type == TOKEN_UNION) {
+      if (parser_peek_token(p).type != TOKEN_LBRACKET) {
+          return parse_class_impl(p, modifiers);
+      }
   }
 
   if (p->current_token.type == TOKEN_LINK) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_link(p); }

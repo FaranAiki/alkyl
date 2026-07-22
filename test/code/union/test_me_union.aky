@@ -1,14 +1,10 @@
 extern int printf(char*, ...);
 
-union aku {
-  int suka;
-  char bukan;
-  double ikan;
-}
+union[int, single] aku;
 
 int main() {
   aku t;
-  t.suka = 5;
+  t[int] = 5;
   printf("t.suka as d is: %d\n", t.suka);
   printf("t as d is: %d\n", t); // as int EXPECT IT to return suka okay!
 }

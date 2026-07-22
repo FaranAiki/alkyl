@@ -524,7 +524,7 @@ ASTNode* parse_factor(Parser *p) {
       VarType t = parse_type(p);
       LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
       ln->base.type = NODE_LITERAL;
-      ln->var_type = t;
+      ln->var_type.base = TYPE_INT;
       ln->val.long_val = t.base;
       node = (ASTNode*)ln;
       set_loc(node, line, col);

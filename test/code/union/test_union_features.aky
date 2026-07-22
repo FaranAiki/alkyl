@@ -1,0 +1,9 @@
+int main() {
+    union[int hex_value, float dec_value] t;
+    t = 1.0;
+    
+    t[int] = 3;
+    int a = t as int;
+    
+    return a;
+}
