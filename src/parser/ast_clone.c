@@ -370,3 +370,116 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
     
     return clone;
 }
+
+ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs_head, char **param_names, ASTNode **param_args, int num_params) {
+    if (!node) return NULL;
+    
+    // Check for parameter replacement
+    if (node->type == NODE_VAR_REF) {
+        VarRefNode *vn = (VarRefNode*)node;
+        for (int i=0; i<num_params; i++) {
+            if (param_names[i] && strcmp(vn->name, param_names[i]) == 0) {
+                // Replace with a clone of the argument to avoid sharing nodes
+                return ast_clone(ctx, param_args[i], NULL, NULL, 0, NULL, NULL, 0);
+            }
+        }
+    }
+    
+    // Check for ...[N]
+    if (node->type == NODE_ARRAY_ACCESS) {
+        ArrayAccessNode *aa = (ArrayAccessNode*)node;
+        if (aa->target && aa->target->type == NODE_VAR_REF) {
+            VarRefNode *vn = (VarRefNode*)aa->target;
+            if (strcmp(vn->name, "...") == 0) {
+                if (aa->index && aa->index->type == NODE_LITERAL) {
+                    LiteralNode *ln = (LiteralNode*)aa->index;
+                    int idx = (int)ln->val.long_val;
+                    
+                    // Traverse varargs to find the N-th argument
+                    ASTNode *curr = varargs_head;
+                    for (int i=0; i<idx && curr; i++) {
+                        curr = curr->next;
+                    }
+                    if (curr) {
+                        return ast_clone(ctx, curr, NULL, NULL, 0, NULL, NULL, 0);
+                    }
+                }
+            }
+        }
+    }
+    
+    // Recurse down the tree
+    // We modify the cloned AST in place!
+    switch (node->type) {
+        case NODE_FUNC_DEF: {
+            FuncDefNode *fn = (FuncDefNode*)node;
+            fn->body = ast_rewrite_macro(ctx, fn->body, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        case NODE_VAR_DECL: {
+            VarDeclNode *vn = (VarDeclNode*)node;
+            vn->initializer = ast_rewrite_macro(ctx, vn->initializer, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        case NODE_ASSIGN: {
+            AssignNode *an = (AssignNode*)node;
+            an->target = ast_rewrite_macro(ctx, an->target, varargs_head, param_names, param_args, num_params);
+            an->value = ast_rewrite_macro(ctx, an->value, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        case NODE_BINARY_OP: {
+            BinaryOpNode *bn = (BinaryOpNode*)node;
+            bn->left = ast_rewrite_macro(ctx, bn->left, varargs_head, param_names, param_args, num_params);
+            bn->right = ast_rewrite_macro(ctx, bn->right, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        case NODE_CALL: {
+            CallNode *cn = (CallNode*)node;
+            cn->target = ast_rewrite_macro(ctx, cn->target, varargs_head, param_names, param_args, num_params);
+            cn->args = ast_rewrite_macro(ctx, cn->args, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        case NODE_METHOD_CALL: {
+            MethodCallNode *mcn = (MethodCallNode*)node;
+            mcn->object = ast_rewrite_macro(ctx, mcn->object, varargs_head, param_names, param_args, num_params);
+            mcn->args = ast_rewrite_macro(ctx, mcn->args, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        case NODE_RETURN: {
+            ReturnNode *rn = (ReturnNode*)node;
+            rn->value = ast_rewrite_macro(ctx, rn->value, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        case NODE_IF: {
+            IfNode *in = (IfNode*)node;
+            in->condition = ast_rewrite_macro(ctx, in->condition, varargs_head, param_names, param_args, num_params);
+            in->then_body = ast_rewrite_macro(ctx, in->then_body, varargs_head, param_names, param_args, num_params);
+            in->else_body = ast_rewrite_macro(ctx, in->else_body, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        case NODE_ARRAY_ACCESS: {
+            ArrayAccessNode *an = (ArrayAccessNode*)node;
+            an->target = ast_rewrite_macro(ctx, an->target, varargs_head, param_names, param_args, num_params);
+            an->index = ast_rewrite_macro(ctx, an->index, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        case NODE_UNARY_OP: {
+            UnaryOpNode *un = (UnaryOpNode*)node;
+            un->operand = ast_rewrite_macro(ctx, un->operand, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        case NODE_TYPEOF:
+        case NODE_SIZEOF: {
+            UnaryOpNode *un = (UnaryOpNode*)node;
+            un->operand = ast_rewrite_macro(ctx, un->operand, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        default:
+            break;
+    }
+    
+    // Also rewrite next nodes in the list!
+    node->next = ast_rewrite_macro(ctx, node->next, varargs_head, param_names, param_args, num_params);
+    
+    return node;
+}

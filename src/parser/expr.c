@@ -502,10 +502,16 @@ ASTNode* parse_factor(Parser *p) {
     node = (ASTNode*)sn;
     set_loc(node, line, col);
   }
-  else if (p->current_token.type == TOKEN_IDENTIFIER) {
-    char *name = parser_strdup(p, p->current_token.text);
-    p->current_token.text = NULL;
-    eat(p, TOKEN_IDENTIFIER);
+  else if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_ELLIPSIS) {
+    char *name;
+    if (p->current_token.type == TOKEN_ELLIPSIS) {
+        name = parser_strdup(p, "...");
+        eat(p, TOKEN_ELLIPSIS);
+    } else {
+        name = parser_strdup(p, p->current_token.text);
+        p->current_token.text = NULL;
+        eat(p, TOKEN_IDENTIFIER);
+    }
     
     VarRefNode *vn = parser_alloc(p, sizeof(VarRefNode));
     vn->base.type = NODE_VAR_REF;
@@ -513,6 +519,15 @@ ASTNode* parse_factor(Parser *p) {
     node = (ASTNode*)vn;
     set_loc(node, line, col);
     
+  }
+  else if (is_type_start(p)) {
+      VarType t = parse_type(p);
+      LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
+      ln->base.type = NODE_LITERAL;
+      ln->var_type.base = TYPE_INT;
+      ln->val.long_val = t.base;
+      node = (ASTNode*)ln;
+      set_loc(node, line, col);
   }
   else {
     char msg[128];

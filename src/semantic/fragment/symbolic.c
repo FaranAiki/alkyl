@@ -11,6 +11,8 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
     sym->must_pristine = fd->has_explicit_pristine;
     sym->has_explicit_pristine = fd->has_explicit_pristine;
     sym->is_flux = fd->is_flux;
+    sym->is_macro = fd->is_macro;
+    sym->node_ptr = node;
     sym->is_variadic = fd->is_varargs; 
     sym->params = fd->params; // idk if this is redundant or not but ok
     Parameter *p = fd->params;

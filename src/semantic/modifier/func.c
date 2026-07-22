@@ -150,7 +150,9 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
         p = p->next;
     }
     
-    sem_check_block(ctx, node->body);
+    if (!node->is_macro) {
+        sem_check_block(ctx, node->body);
+    }
     sem_scope_exit(ctx);
     
     ctx->current_func_sym = old_func;

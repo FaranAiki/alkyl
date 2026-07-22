@@ -731,6 +731,59 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
         }
         return alir_lower_new_object(ctx, target_name, cn->args);
     }
+    
+    // Intercept Macro function calls
+    if (ctx->sem) {
+        SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, NULL);
+        if (sym && sym->kind == SYM_FUNC && sym->is_macro && sym->node_ptr) {
+            FuncDefNode *fd = (FuncDefNode*)sym->node_ptr;
+            
+            // Collect macro arguments and parameters
+            int num_params = 0;
+            Parameter *p = fd->params;
+            while(p) { num_params++; p = p->next; }
+            
+            char **param_names = NULL;
+            ASTNode **param_args = NULL;
+            ASTNode *varargs_head = NULL;
+            
+            if (num_params > 0) {
+                param_names = calloc(num_params, sizeof(char*));
+                param_args = calloc(num_params, sizeof(ASTNode*));
+                p = fd->params;
+                ASTNode *a = cn->args;
+                for (int i=0; i<num_params && a; i++) {
+                    param_names[i] = p->name;
+                    param_args[i] = a;
+                    p = p->next;
+                    a = a->next;
+                }
+                varargs_head = a; // Any remaining args are varargs
+            } else {
+                varargs_head = cn->args;
+            }
+            
+            // Clone the AST body so we don't modify the original macro definition
+            CompilerContext *cctx = ctx->module->compiler_ctx;
+            ASTNode *cloned_body = ast_clone(cctx, fd->body, NULL, NULL, 0, NULL, NULL, 0);
+            
+            // Rewrite variable references and varargs inside the cloned body
+            cloned_body = ast_rewrite_macro(cctx, cloned_body, varargs_head, param_names, param_args, num_params);
+            
+            if (param_names) free(param_names);
+            if (param_args) free(param_args);
+            
+            // Compile the rewritten AST directly into the current caller's ALIR block
+            ASTNode *curr = cloned_body;
+            while (curr) {
+                alir_gen_stmt(ctx, curr);
+                curr = curr->next;
+            }
+            
+            return new_temp(ctx, (VarType){TYPE_VOID, 0});
+        }
+    }
+    
     return alir_gen_call_std(ctx, cn);
 }
 
@@ -924,19 +977,13 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         }
         case NODE_TYPEOF: {
             SizeOfNode *sn = (SizeOfNode*)node;
-            VarType t = { .base = TYPE_CLASS, .class_name = (char*)"string" };
-            AlirValue *dest = new_temp(ctx, t);
-            
-            AlirValue *operand = alir_alloc(ctx->module, sizeof(AlirValue));
-            operand->kind = ALIR_VAL_TYPE;
+            VarType op_type;
             if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
-                operand->type = sem_get_node_type(ctx->sem, sn->operand);
+                op_type = sem_get_node_type(ctx->sem, sn->operand);
             } else {
-                operand->type = sn->target_type;
+                op_type = sn->target_type;
             }
-            
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_TYPEOF, dest, operand, NULL));
-            return dest;
+            return alir_const_int(ctx->module, op_type.base);
         }
         case NODE_DEFINED: {
             UnaryOpNode *un = (UnaryOpNode*)node;

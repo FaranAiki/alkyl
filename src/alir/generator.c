@@ -614,7 +614,10 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root) {
     ASTNode *curr = root;
     while(curr) {
         if (curr->type == NODE_FUNC_DEF) {
-            alir_gen_function_def(ctx, (FuncDefNode*)curr, NULL);
+            FuncDefNode *fn = (FuncDefNode*)curr;
+            if (!fn->is_macro) {
+                alir_gen_function_def(ctx, fn, NULL);
+            }
         } else if (curr->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)curr;
             int has_constructor = 0;

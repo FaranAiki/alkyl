@@ -759,7 +759,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
                 sem_check_expr(ctx, sn->operand);
             }
-            sem_set_node_type(ctx, node, (VarType){ .base = TYPE_CLASS, .class_name = (char*)"string" });
+            sem_set_node_type(ctx, node, (VarType){ .base = TYPE_INT, .ptr_depth = 0 });
             break;
         }
         case NODE_HAS_METHOD:

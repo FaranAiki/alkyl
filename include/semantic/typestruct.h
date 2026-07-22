@@ -20,6 +20,7 @@ typedef struct SemSymbol {
     
     // Function specific
     Parameter *params;
+    ASTNode *node_ptr; // Store the original AST node for macro expansion
     int param_count;
     
     // Class specific
@@ -52,6 +53,7 @@ typedef struct SemSymbol {
     bool is_pristine : 1;
     bool has_explicit_pristine : 1;
     bool is_flux : 1;          // Marks a function as a flux generator
+    bool is_macro : 1;
     bool must_pure : 1; // Checker to see if it must pure tagged as pure 
     bool must_pristine : 1; // Checker to see if it must pristine tagged as pristine 
     bool is_union : 1;

@@ -143,6 +143,7 @@ typedef struct {
   HasASemantic is_has_a;
 
   bool is_varargs : 1; 
+  bool is_macro : 1;
   bool is_public : 1;
   bool is_open : 1;
   bool is_static : 1;

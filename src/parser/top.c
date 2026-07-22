@@ -640,9 +640,11 @@ ASTNode* parse_func_def_after_type(Parser *p, int modifiers, VarType vtype, int 
   
   if (p->current_token.type == TOKEN_LPAREN) {
     eat(p, TOKEN_LPAREN);
+    int is_varargs = 0;
     Parameter *params_head = NULL; Parameter **curr_param = &params_head;
     if (p->current_token.type != TOKEN_RPAREN) {
       while (1) { if (p->has_error) break;
+        if (p->current_token.type == TOKEN_ELLIPSIS) { eat(p, TOKEN_ELLIPSIS); is_varargs = 1; break; }
         int pmods = parse_modifiers(p);
         VarType ptype = parse_type(p);
         if (ptype.base == TYPE_UNKNOWN) parser_fail(p, "Expected parameter type in function definition");
@@ -683,6 +685,7 @@ ASTNode* parse_func_def_after_type(Parser *p, int modifiers, VarType vtype, int 
     node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = vtype; node->params = params_head; node->body = body;
     node->has_body = 1;
     node->is_flux = is_flux; 
+    node->is_varargs = is_varargs;
     node->base.line = line; node->base.col = col;
     node->cconv = p->pending_cconv ? p->pending_cconv : p->ctx->settings.default_cconv;
     p->pending_cconv = NULL; // Consume it

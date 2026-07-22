@@ -1,0 +1,9 @@
+extern int printf(char*, ...);
+void my_print(...) {
+  printf("%d\n", ...[0]);
+  printf("%s\n", typeof(...[0]));
+}
+int main() {
+  my_print(42);
+  return 0;
+}

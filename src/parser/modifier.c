@@ -65,6 +65,9 @@ int parse_modifiers(Parser* p) {
         } else if (p->current_token.type == TOKEN_FRAME) {
             modifiers |= MODIFIER_FRAME;
             eat(p, TOKEN_FRAME);
+        } else if (p->current_token.type == TOKEN_META) {
+            modifiers |= MODIFIER_META;
+            eat(p, TOKEN_META);
         } else if (p->current_token.type == TOKEN_IDENTIFIER && strcmp(p->current_token.text, "static") == 0) {
             modifiers |= MODIFIER_STATIC;
             eat(p, TOKEN_IDENTIFIER);
@@ -122,6 +125,7 @@ void apply_func_modifiers(FuncDefNode* node, int modifiers) {
     if (modifiers & MODIFIER_OPEN) node->is_open = 1;
     if (modifiers & MODIFIER_CLOSED) node->is_open = 0;
     if (modifiers & MODIFIER_STATIC) node->is_static = 1;
+    if (modifiers & MODIFIER_META) node->is_macro = 1;
     if (modifiers & MODIFIER_COVALENT) node->is_covalent = 1;
     
     // node is pure is TRUE by default unless proven otherwise (e.g. explicitly impure)
