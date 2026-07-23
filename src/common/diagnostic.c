@@ -212,7 +212,7 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_DOT: return ".";
 
         case TOKEN_NUMBER: return "number";
-        case TOKEN_SINGLE: return "float";
+        case TOKEN_SINGLE_LIT: return "float";
         case TOKEN_STRING: return "string";
         case TOKEN_C_STRING: return "c-string";
         case TOKEN_CHAR_LIT: return "char";

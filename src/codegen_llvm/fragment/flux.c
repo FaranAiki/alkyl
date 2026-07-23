@@ -1,6 +1,6 @@
-#include "codegen.h"
+#include "../../include/codegen_llvm/codegen.h"
 
-void llvm_codegen_flux_iter_init(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, LLVMValueRef *res) {
+void codegen_llvm_flux_iter_init(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, LLVMValueRef *res) {
     LLVMTypeRef i64_ty = LLVMInt64TypeInContext(ctx->llvm_ctx);
     LLVMTypeRef ptr_ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
     
@@ -42,7 +42,7 @@ void llvm_codegen_flux_iter_init(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef o
     LLVMBuildStore(ctx->builder, LLVMConstInt(i64_ty, 0, 0), p_idx);
 }
 
-void llvm_codegen_flux_iter_get(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, LLVMValueRef *res) {
+void codegen_llvm_flux_iter_get(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, LLVMValueRef *res) {
     LLVMTypeRef i64_ty = LLVMInt64TypeInContext(ctx->llvm_ctx);
     LLVMTypeRef ptr_ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
     LLVMTypeRef iter_struct_ty = LLVMStructTypeInContext(ctx->llvm_ctx, (LLVMTypeRef[]){ptr_ty, i64_ty, i64_ty}, 3, 0);
@@ -63,7 +63,7 @@ void llvm_codegen_flux_iter_get(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op
     }
 }
 
-void llvm_codegen_flux_iter_next(CodegenCtx *ctx, LLVMValueRef op1) {
+void codegen_llvm_flux_iter_next(CodegenCtx *ctx, LLVMValueRef op1) {
     LLVMTypeRef i64_ty = LLVMInt64TypeInContext(ctx->llvm_ctx);
     LLVMTypeRef ptr_ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
     LLVMTypeRef iter_struct_ty = LLVMStructTypeInContext(ctx->llvm_ctx, (LLVMTypeRef[]){ptr_ty, i64_ty, i64_ty}, 3, 0);
@@ -77,7 +77,7 @@ void llvm_codegen_flux_iter_next(CodegenCtx *ctx, LLVMValueRef op1) {
     }
 }
 
-void llvm_codegen_flux_iter_valid(CodegenCtx *ctx, LLVMValueRef op1, LLVMValueRef *res) {
+void codegen_llvm_flux_iter_valid(CodegenCtx *ctx, LLVMValueRef op1, LLVMValueRef *res) {
     LLVMTypeRef i64_ty = LLVMInt64TypeInContext(ctx->llvm_ctx);
     LLVMTypeRef ptr_ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
     LLVMTypeRef iter_struct_ty = LLVMStructTypeInContext(ctx->llvm_ctx, (LLVMTypeRef[]){ptr_ty, i64_ty, i64_ty}, 3, 0);

@@ -65,7 +65,7 @@ static void generate_semantic_tokens(const char *filepath, int **out_data, int *
             token_type = 4; // keyword
         } else if (t.type == TOKEN_KW_INT || t.type == TOKEN_KW_VOID || t.type == TOKEN_KW_CHAR || t.type == TOKEN_KW_BOOL || t.type == TOKEN_KW_SINGLE || t.type == TOKEN_KW_DOUBLE || t.type == TOKEN_KW_SHORT || t.type == TOKEN_KW_LONG || t.type == TOKEN_KW_UNSIGNED) {
             token_type = 0; // type (previously class)
-        } else if (t.type >= TOKEN_NUMBER && t.type <= TOKEN_SINGLE) {
+        } else if (t.type >= TOKEN_NUMBER && t.type <= TOKEN_SINGLE_LIT) {
             token_type = 5; // number
         } else if (t.type == TOKEN_STRING || t.type == TOKEN_BYTE_STRING || t.type == TOKEN_CHAR_LIT) {
             token_type = 6; // string

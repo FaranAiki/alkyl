@@ -6,8 +6,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include <setjmp.h>
-
 typedef struct {
   bool no_purge;
   bool allocator_arc;
@@ -24,9 +22,6 @@ typedef struct {
   int parser_error_count;
   int semantic_error_count;
   int alir_error_count;
-
-  jmp_buf recover_buf;
-  int has_recovery;    // Flag to ensure jump buffer is valid
   int error_count;
 
   // Diagnostic State (formerly globals in diagnostic.c)

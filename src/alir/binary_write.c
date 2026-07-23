@@ -40,7 +40,7 @@ static void bw_value(FILE *f, AlirValue *v) {
     bw_type(f, v->type);
     bw_u32(f, v->temp_id);
     // Value union
-    if (v->kind == ALIR_VAL_INT || v->kind == ALIR_VAL_FLOAT || v->kind == ALIR_VAL_CONST) {
+    if (v->kind == ALIR_VAL_INT || v->kind == ALIR_VAL_SINGLE || v->kind == ALIR_VAL_DOUBLE || v->kind == ALIR_VAL_CONST) {
         bw_u64(f, v->val.int_val); // union overlays float, we just copy 8 bytes
     } else if (v->kind == ALIR_VAL_VAR || v->kind == ALIR_VAL_LABEL || v->kind == ALIR_VAL_TYPE || v->kind == ALIR_VAL_GLOBAL) {
         bw_str(f, v->val.str_val);

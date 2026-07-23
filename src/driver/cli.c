@@ -13,6 +13,7 @@
 
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "../common/diagnostic.h"
 
 // Global context for autocompletion
 static SemanticCtx *global_sem_ctx = NULL;
@@ -31,8 +32,9 @@ static char* ethyl_generator(const char* text, int state) {
         char *name = sym->name;
         sym = sym->next; // advance for next call
         
-        // Match prefix, or if text is empty match everything (so tab gives all)
-        if (text_len == 0 || strncmp(name, text, text_len) == 0) {
+        // Also use levenshtein distance for fuzzy autocomplete (only if length >= 3)
+        if (text_len == 0 || strncmp(name, text, text_len) == 0 || 
+            (text_len >= 3 && levenshtein_dist(name, text) <= (text_len / 3))) {
             return strdup(name);
         }
     }
@@ -52,6 +54,32 @@ static void display_matches_hook(char **matches, int num_matches, int max_length
     rl_display_match_list(matches, num_matches, max_length);
     printf("\033[0m"); 
     rl_forced_update_display();
+}
+
+static void ethyl_redisplay(void) {
+    rl_redisplay();
+
+    if (rl_line_buffer && rl_point == strlen(rl_line_buffer) && rl_point > 0) {
+        if (!global_sem_ctx || !global_sem_ctx->global_scope) return;
+        
+        int text_len = strlen(rl_line_buffer);
+        SemSymbol *sym = global_sem_ctx->global_scope->symbols;
+        char *best_match = NULL;
+        while (sym) {
+            if (strncmp(sym->name, rl_line_buffer, text_len) == 0) {
+                best_match = sym->name;
+                break;
+            }
+            sym = sym->next;
+        }
+        
+        if (best_match && strlen(best_match) > text_len) {
+            char *hint = best_match + text_len;
+            printf("\033[90m%s\033[0m", hint);
+            printf("\033[%dD", (int)strlen(hint));
+            fflush(stdout);
+        }
+    }
 }
 
 char* get_smart_input(Arena* arena, int cmd_count) {
@@ -106,6 +134,7 @@ int run_repl(void) {
 
     rl_attempted_completion_function = ethyl_completion;
     rl_completion_display_matches_hook = display_matches_hook;
+    rl_redisplay_function = ethyl_redisplay;
 
     Arena ast_arena;
     arena_init(&ast_arena);
@@ -129,11 +158,15 @@ int run_repl(void) {
 
     // We keep one AlirModule appending stuff
     AlirModule *module = alir_create_module(&ctx, "ethyl_repl");
-    MetaVM *vm = meta_vm_init();
+    
+    Arena vm_arena;
+    arena_init(&vm_arena);
+    MetaVM *vm = meta_vm_init(&vm_arena);
 
     // Setup readline autocomplete
     rl_attempted_completion_function = ethyl_completion;
     rl_completion_display_matches_hook = display_matches_hook;
+    rl_redisplay_function = ethyl_redisplay;
 
     int cmd_count = 0;
 
@@ -149,12 +182,9 @@ int run_repl(void) {
         while(len > 0 && buffer[len-1] == ' ') len--;
         buffer[len] = '\0';
         
-        if (len > 0 && buffer[len-1] != ';' && buffer[len-1] != '}') {
-            if (len + 1 < 4096) strcat(buffer, ";");
-        }
-
         Lexer l;
         LexerSettings settings = {0};
+        settings.require_semicolons = 0;
         lexer_init(&l, &ctx, "REPL", buffer, &settings);
         
         p.l = &l;
@@ -224,19 +254,40 @@ int run_repl(void) {
                     }
                     
                     if (compiled_fn) {
-                        initial_val = meta_vm_execute(vm, module, compiled_fn, &sem);
+                        initial_val = meta_vm_execute(vm, module, compiled_fn, &sem, NULL, 0);
                     }
                 }
                 
                 // Add to MetaVM global memory map
-                VMGlobal *vg = calloc(1, sizeof(VMGlobal));
-                vg->name = strdup(vd->name);
-                vg->ptr_val = calloc(1, 8);
+                VMGlobal *vg = arena_alloc(&vm_arena, sizeof(VMGlobal));
+                vg->name = arena_strdup(&vm_arena, vd->name);
+                vg->ptr_val = arena_alloc(&vm_arena, 1024);
                 *((long long*)vg->ptr_val) = initial_val;
                 vg->next = vm->globals;
                 vm->globals = vg;
                 
-            } else if (curr->type != NODE_FUNC_DEF && curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE) {
+            } else if (curr->type == NODE_CLASS) {
+                // Class definitions go straight to the current sem context
+                sem_check_node(&sem, curr);
+                
+                // Register in ALIR module
+                AlirCtx alir_ctx;
+                memset(&alir_ctx, 0, sizeof(AlirCtx));
+                alir_ctx.sem = &sem;
+                alir_ctx.module = module;
+                
+                pass1_register(&alir_ctx, curr);
+                pass2_populate(&alir_ctx, root, curr);
+                
+            } else if (curr->type == NODE_FUNC_DEF) {
+                if (((FuncDefNode*)curr)->has_body) {
+                    AlirCtx alir_ctx;
+                    memset(&alir_ctx, 0, sizeof(AlirCtx));
+                    alir_ctx.sem = &sem; 
+                    alir_ctx.module = module;
+                    alir_gen_function_def(&alir_ctx, (FuncDefNode*)curr, NULL);
+                }
+            } else if (curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT && curr->type != NODE_LINK) {
                 char func_name[64];
                 sprintf(func_name, "__repl_expr_%d", cmd_count);
                 
@@ -272,7 +323,8 @@ int run_repl(void) {
                 }
                 
                 if (compiled_fn) {
-                    long long exit_code = meta_vm_execute(vm, module, compiled_fn, &sem);
+                    alir_emit_to_file(module, "repl_debug.alir");
+                    long long exit_code = meta_vm_execute(vm, module, compiled_fn, &sem, NULL, 0);
                     if (ret_type.base != TYPE_VOID && ret_type.base != TYPE_UNKNOWN) {
                         if ((ret_type.base == TYPE_INT || ret_type.base == TYPE_LONG) && ret_type.ptr_depth == 0 && ret_type.array_size == 0)
                             printf("-> %lld (int)\n", exit_code);

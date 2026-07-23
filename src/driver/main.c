@@ -162,10 +162,6 @@ int main(int argc, char *argv[]) {
 
   sem_cleanup(&sem_ctx);
 
-  LLVMInitializeNativeTarget();
-  LLVMInitializeNativeAsmPrinter();
-  LLVMInitializeNativeAsmParser();
-
   if (comp_ctx.error_count > 0) {
       fprintf(stderr, "Compilation aborted due to previous errors.\n");
       return 1;
@@ -175,63 +171,10 @@ int main(int argc, char *argv[]) {
       alir_write_binary(alir_module, BASENAME ".balir");
   }
 
-  debug_step("Finished alir check and analysis. Start Codegen using LLVM Codegen");
+  debug_step("Finished alir check and analysis. Start Codegen");
   arena_reset(&arena);
-  // Pass source code to codegen for error reporting
-  // TODO make this modular so that we do not need to always bind to LLVM
-  // Separate this!
-  CodegenCtx *cg_ctx = codegen_init(alir_module);
-  LLVMModuleRef module = codegen_generate(cg_ctx);
 
-  LLVMPrintModuleToFile(module, "build/module.ll", NULL);
-  char *error = NULL;
-  if (LLVMVerifyModule(module, LLVMPrintMessageAction, &error)) {
-    fprintf(stderr, "LLVM Verification Error: %s\n", error);
-    LLVMDisposeMessage(error);
-    return 1;
-  }
-
-  char *triple = LLVMGetDefaultTargetTriple();
-  LLVMTargetRef target;
-  char *err_msg = NULL;
-  LLVMGetTargetFromTriple(triple, &target, &err_msg);
-
-  LLVMTargetMachineRef machine = LLVMCreateTargetMachine(
-    target, triple, "generic", "",
-    LLVMCodeGenLevelAggressive, LLVMRelocPIC, LLVMCodeModelDefault
-  );
-
-  if (LLVMTargetMachineEmitToFile(machine, module, BASENAME ".o", LLVMObjectFile, &err_msg) != 0) {
-    fprintf(stderr, "Emit Error: %s\n", err_msg);
-    return 1;
-  }
-
-  if (LLVMPrintModuleToFile(module, BASENAME ".ll", &err_msg) != 0) {
-    fprintf(stderr, "Emit Error: %s\n", err_msg);
-    return 1;
-  }
-
-  printf("Compiled to "BASENAME".o\n");
-
-  // TODO, maybe we do not need gcc and implement ourselves
-  char cmd[2048];
-  snprintf(cmd, sizeof(cmd), "gcc -g -O0 "BASENAME".o -o "BASENAME" -no-pie %s", link_flags);
-
-  printf("Linking: %s\n", cmd);
-  int final_ret = 0;
-  int res = system(cmd);
-  if (res == 0) {
-    printf("Linked to "BASENAME"\n");
-  } else {
-    printf("Linking failed.\n");
-    final_ret = 1;
-  }
-
-  // codegen_dispose(cg_ctx);
-  LLVMDisposeTargetMachine(machine);
-  LLVMContextRef llvm_ctx = LLVMGetModuleContext(module);
-  LLVMDisposeModule(module);
-  LLVMContextDispose(llvm_ctx);
+  int final_ret = backend_run(alir_module, BASENAME, link_flags);
   free(code);
 
   arena_free(&arena);

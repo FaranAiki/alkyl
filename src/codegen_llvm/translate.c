@@ -1,4 +1,4 @@
-#include "translate.h"
+#include "../../include/codegen_llvm/translate.h"
 #include "../semantic/semantic.h"
 
 void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
@@ -585,19 +585,19 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
 
         // Native Abstract Iterators Lowering 
         case ALIR_OP_ITER_INIT: {
-            llvm_codegen_flux_iter_init(ctx, inst, op1, &res);
+            codegen_llvm_flux_iter_init(ctx, inst, op1, &res);
             break;
         }
         case ALIR_OP_ITER_VALID: {
-            llvm_codegen_flux_iter_valid(ctx, op1, &res);
+            codegen_llvm_flux_iter_valid(ctx, op1, &res);
             break;
         }
         case ALIR_OP_ITER_GET: {
-            llvm_codegen_flux_iter_get(ctx, inst, op1, &res);
+            codegen_llvm_flux_iter_get(ctx, inst, op1, &res);
             break;
         }
         case ALIR_OP_ITER_NEXT: {
-            llvm_codegen_flux_iter_next(ctx, op1); 
+            codegen_llvm_flux_iter_next(ctx, op1); 
             break;
         }
 

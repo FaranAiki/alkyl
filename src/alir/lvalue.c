@@ -401,10 +401,20 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     int is_float = (l_type.base == TYPE_SINGLE || l_type.base == TYPE_DOUBLE ||
                     r_type.base == TYPE_SINGLE || r_type.base == TYPE_DOUBLE);
 
+    VarType res_type = (VarType){TYPE_INT, 0};
+
     if (is_float) {
-        VarType target = {TYPE_DOUBLE, 0}; // Default to double for mixed
+        VarType target = {TYPE_DOUBLE, 0};
+        
+        if (l_type.base == TYPE_DOUBLE || r_type.base == TYPE_DOUBLE) {
+            target.base = TYPE_DOUBLE;
+        } else if (l_type.base == TYPE_SINGLE || r_type.base == TYPE_SINGLE) {
+            target.base = TYPE_SINGLE;
+        }
+
         l = promote(ctx, l, target);
         r = promote(ctx, r, target);
+        res_type = target;
     }
 
     AlirOpcode op = ALIR_OP_ADD;
@@ -428,7 +438,6 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     }
     
     // Result type logic
-    VarType res_type = is_float ? (VarType){TYPE_DOUBLE, 0} : (VarType){TYPE_INT, 0};
     if (op == ALIR_OP_EQ || op == ALIR_OP_LT || op == ALIR_OP_GT || op == ALIR_OP_LTE || op == ALIR_OP_GTE || op == ALIR_OP_NEQ) res_type = (VarType){TYPE_BOOL, 0};
     
     AlirValue *dest = new_temp(ctx, res_type);

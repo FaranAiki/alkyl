@@ -2,7 +2,7 @@
 #define MAIN_H
 
 #include <stdbool.h>
-#include "../../include/llvm_codegen/codegen.h"
+#include "../../include/codegen/codegen.h"
 #include "../../include/parser/parser.h"
 #include "../../include/semantic/semantic.h"
 #include "../../include/parser/parser.h"

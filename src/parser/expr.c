@@ -387,7 +387,7 @@ ASTNode* parse_factor(Parser *p) {
     set_loc(node, line, col);
   }
 
-  else if (p->current_token.type == TOKEN_SINGLE || p->current_token.type == TOKEN_LONG_DOUBLE_LIT || p->current_token.type == TOKEN_DOUBLE_LIT) {
+  else if (p->current_token.type == TOKEN_SINGLE_LIT || p->current_token.type == TOKEN_LONG_DOUBLE_LIT || p->current_token.type == TOKEN_DOUBLE_LIT) {
     LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;
     if (p->current_token.type == TOKEN_LONG_DOUBLE_LIT) {

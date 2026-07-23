@@ -293,7 +293,7 @@ static int lex_number(Lexer *l, Token *t) {
           t->type = TOKEN_LONG_DOUBLE_LIT;
       } else if (tolower(peek(l)) == 'f') {
           advance(l);
-          t->type = TOKEN_SINGLE;
+          t->type = TOKEN_SINGLE_LIT;
       }
       return 1;
     }

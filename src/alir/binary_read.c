@@ -57,7 +57,7 @@ static AlirValue* br_value(AlirModule *m, FILE *f) {
     v->type = br_type(m, f);
     v->temp_id = br_u32(f);
     
-    if (v->kind == ALIR_VAL_INT || v->kind == ALIR_VAL_FLOAT || v->kind == ALIR_VAL_CONST) {
+    if (v->kind == ALIR_VAL_INT || v->kind == ALIR_VAL_SINGLE || v->kind == ALIR_VAL_DOUBLE || v->kind == ALIR_VAL_CONST) {
         v->val.int_val = br_u64(f);
     } else if (v->kind == ALIR_VAL_VAR || v->kind == ALIR_VAL_LABEL || v->kind == ALIR_VAL_TYPE || v->kind == ALIR_VAL_GLOBAL) {
         v->val.str_val = br_str(m, f);

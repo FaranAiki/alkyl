@@ -202,8 +202,10 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             }
 
             // Execute the meta block
-            MetaVM *vm = meta_vm_init();
-            int meta_err = meta_vm_execute(vm, ctx->module, meta_func, ctx->sem);
+            Arena meta_arena;
+            arena_init(&meta_arena);
+            MetaVM *vm = meta_vm_init(&meta_arena);
+            int meta_err = meta_vm_execute(vm, ctx->module, meta_func, ctx->sem, NULL, 0);
 
             if (meta_err) {
                 // The VM already reported the specific error at the exact line via sem_error.
@@ -218,6 +220,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             ctx->module->globals = old_globals;
 
             meta_vm_free(vm);
+            arena_reset(&meta_arena);
 
             // Restore state
             ctx->current_func = old_func;

@@ -51,7 +51,8 @@ include_directories(
 
     include/common
 
-    include/llvm_codegen
+    include/codegen_llvm
+    include/codegen_qbe
 )
 
 set(FRONTEND_SOURCES
@@ -112,11 +113,30 @@ set (ALICK_SOURCES
     src/alick/cfg.c
 )
 
-set (LLVM_CODEGEN_SOURCES
-    src/llvm_codegen/codegen.c
-    src/llvm_codegen/translate.c
-    src/llvm_codegen/fragment/flux.c
+set(BACKEND "llvm" CACHE STRING "The backend to use for compilation (llvm or qbe)")
+
+string(TOLOWER "${BACKEND}" BACKEND_LOWER)
+
+set(CODEGEN_LLVM_SOURCES
+    src/codegen_llvm/codegen.c
+    src/codegen_llvm/translate.c
+    src/codegen_llvm/fragment/flux.c
+    src/codegen_llvm/driver.c
 )
+
+set(CODEGEN_QBE_SOURCES
+    src/codegen_qbe/codegen.c
+)
+
+if (BACKEND_LOWER STREQUAL "llvm")
+    set(CODEGEN_SOURCES ${CODEGEN_LLVM_SOURCES})
+    add_definitions(-DBACKEND_LLVM)
+elseif(BACKEND_LOWER STREQUAL "qbe")
+    set(CODEGEN_SOURCES ${CODEGEN_QBE_SOURCES})
+    add_definitions(-DBACKEND_QBE)
+else()
+    message(FATAL_ERROR "Unknown BACKEND: ${BACKEND}")
+endif()
 
 set(HELPER_SOURCES
     src/common/diagnostic.c
@@ -127,16 +147,12 @@ set(HELPER_SOURCES
     src/driver/lsp.c
 )
 
-set_source_files_properties(${DEPRECATED_LLVM_CODEGEN_SOURCES}
-    PROPERTIES COMPILE_OPTIONS "-w"
-)
-
 set(COMMON_SOURCES
   ${FRONTEND_SOURCES}
   ${SEMANTIC_SOURCES}
   ${ALIR_SOURCES}
   ${ALICK_SOURCES}
-  ${LLVM_CODEGEN_SOURCES}
+  ${CODEGEN_SOURCES}
   ${HELPER_SOURCES}
 )
 

@@ -53,6 +53,13 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
     AlirSymbol *sym = alir_find_symbol(ctx, vn->name);
     if (sym) return sym->ptr;
 
+    SemSymbol *glob_sym = sem_symbol_lookup(ctx->sem, vn->name, NULL);
+    if (glob_sym && glob_sym->kind == SYM_VAR) {
+        VarType t = sem_get_node_type(ctx->sem, node);
+        t.ptr_depth++;
+        return alir_val_global(ctx->module, glob_sym->mangled_name ? glob_sym->mangled_name : vn->name, t);
+    }
+
     // Implicit this indexing
     AlirSymbol *this_sym = alir_find_symbol(ctx, "this");
     if (this_sym && this_sym->type.class_name) {

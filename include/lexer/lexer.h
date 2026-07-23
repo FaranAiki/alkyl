@@ -23,7 +23,7 @@ typedef enum {
   TOKEN_DOT,    
   
   TOKEN_NUMBER,   
-  TOKEN_SINGLE,  
+  TOKEN_SINGLE_LIT,  
   TOKEN_STRING,
   TOKEN_C_STRING, 
   TOKEN_BYTE_STRING,
