@@ -6,13 +6,15 @@ import "c/ctype";
 import "c/stddef";
 import "c/string";
 import "c/time";
-import "c/stdlib";
 */
 
+/*
+import "c/stdlib";
+import "c/stdio";
+*/
+
+// fallback
 namespace clib {
-
-extern int printf(char *s, ...);
-extern void* malloc(long size);
-extern void free(void* ptr);
-
+  extern int printf(char*, ...);
+  // extern void free(void*);
 }

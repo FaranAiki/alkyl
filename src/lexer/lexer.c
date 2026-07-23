@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdint.h>
 
 void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char* src, LexerSettings *settings) {
   l->src = src;
@@ -259,6 +260,77 @@ static int lex_symbol(Lexer *l, Token *t) {
 static int lex_number(Lexer *l, Token *t) {
     if (!isdigit(peek(l))) return 0;
 
+    int prefix_mode = 0; // 0=none, 1=hex_int, 2=bin_int, 3=hex_single, 4=bin_single, 5=hex_double, 6=bin_double
+    char first_digit = peek(l);
+    
+    char second_char = l->src[l->pos] != '\0' ? l->src[l->pos + 1] : '\0';
+    if ((first_digit == '0' || first_digit == '1' || first_digit == '2') && 
+        (tolower(second_char) == 'x' || tolower(second_char) == 'b')) {
+        if (first_digit == '0' && tolower(second_char) == 'x') prefix_mode = 1;
+        else if (first_digit == '0' && tolower(second_char) == 'b') prefix_mode = 2;
+        else if (first_digit == '1' && tolower(second_char) == 'x') prefix_mode = 3;
+        else if (first_digit == '1' && tolower(second_char) == 'b') prefix_mode = 4;
+        else if (first_digit == '2' && tolower(second_char) == 'x') prefix_mode = 5;
+        else if (first_digit == '2' && tolower(second_char) == 'b') prefix_mode = 6;
+    }
+
+    if (prefix_mode > 0) {
+        advance(l); // consume digit
+        advance(l); // consume x/b
+        unsigned long long val = 0;
+        int is_hex = (prefix_mode == 1 || prefix_mode == 3 || prefix_mode == 5);
+        
+        while (1) {
+            char c = peek(l);
+            if (is_hex) {
+                if (isdigit(c)) val = val * 16 + (c - '0');
+                else if (tolower(c) >= 'a' && tolower(c) <= 'f') val = val * 16 + (tolower(c) - 'a' + 10);
+                else break;
+            } else {
+                if (c == '0' || c == '1') val = val * 2 + (c - '0');
+                else break;
+            }
+            advance(l);
+        }
+        
+        if (prefix_mode == 1 || prefix_mode == 2) {
+            t->type = TOKEN_NUMBER;
+            t->long_val = val;
+            
+            int is_u = 0, is_l = 0, is_ll = 0;
+            while (1) {
+                char s = tolower(peek(l));
+                if (s == 'u') { is_u = 1; advance(l); }
+                else if (s == 'l') {
+                    advance(l);
+                    if (tolower(peek(l)) == 'l') { is_ll = 1; advance(l); }
+                    else { is_l = 1; }
+                } else break;
+            }
+            if (is_ll && is_u) t->type = TOKEN_ULONG_LONG_LIT;
+            else if (is_ll) t->type = TOKEN_LONG_LONG_LIT;
+            else if (is_l && is_u) t->type = TOKEN_ULONG_LIT;
+            else if (is_l) t->type = TOKEN_LONG_LIT;
+            else if (is_u) t->type = TOKEN_UINT_LIT;
+            
+            return 1;
+        } else if (prefix_mode == 3 || prefix_mode == 4) {
+            t->type = TOKEN_SINGLE_LIT;
+            uint32_t raw_val = (uint32_t)val;
+            float fval;
+            memcpy(&fval, &raw_val, sizeof(float));
+            t->double_val = (double)fval;
+            return 1;
+        } else {
+            t->type = TOKEN_DOUBLE_LIT;
+            uint64_t raw_val = (uint64_t)val;
+            double dval;
+            memcpy(&dval, &raw_val, sizeof(double));
+            t->double_val = dval;
+            return 1;
+        }
+    }
+
     const char *start = &l->src[l->pos];
     int length = 0;
     unsigned long long val = 0;
@@ -316,6 +388,7 @@ static int lex_number(Lexer *l, Token *t) {
     }
 
     t->type = TOKEN_NUMBER;
+    t->long_val = val;
     if (is_ll && is_u) t->type = TOKEN_ULONG_LONG_LIT;
     else if (is_ll) t->type = TOKEN_LONG_LONG_LIT;
     else if (is_l && is_u) t->type = TOKEN_ULONG_LIT;

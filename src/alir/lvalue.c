@@ -438,6 +438,8 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
         case TOKEN_XOR: op = ALIR_OP_XOR; break;
         case TOKEN_LSHIFT: op = ALIR_OP_SHL; break;
         case TOKEN_RSHIFT: op = ALIR_OP_SHR; break;
+        case TOKEN_LROTATE: op = ALIR_OP_ROTL; break;
+        case TOKEN_RROTATE: op = ALIR_OP_ROTR; break;
         // ... add other cases
     }
     
@@ -1007,7 +1009,35 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
                 if (s) ptr = s->ptr;
                 else ptr = alir_val_global(ctx->module, an->name, sem_get_node_type(ctx->sem, (ASTNode*)an->value));
             }
-            if (ptr) emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
+            if (ptr) {
+                VarType target_type = ptr->type;
+                if (target_type.ptr_depth > 0) target_type.ptr_depth--;
+
+                if (an->op != TOKEN_ASSIGN) {
+                    AlirValue *old_val = new_temp(ctx, target_type);
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, old_val, ptr, NULL));
+                    
+                    AlirOpcode bin_op = ALIR_OP_ADD;
+                    switch (an->op) {
+                        case TOKEN_PLUS_ASSIGN: bin_op = ALIR_OP_ADD; break;
+                        case TOKEN_MINUS_ASSIGN: bin_op = ALIR_OP_SUB; break;
+                        case TOKEN_STAR_ASSIGN: bin_op = ALIR_OP_MUL; break;
+                        case TOKEN_SLASH_ASSIGN: bin_op = ALIR_OP_DIV; break;
+                        case TOKEN_MOD_ASSIGN: bin_op = ALIR_OP_MOD; break;
+                        case TOKEN_AND_ASSIGN: bin_op = ALIR_OP_AND; break;
+                        case TOKEN_OR_ASSIGN: bin_op = ALIR_OP_OR; break;
+                        case TOKEN_XOR_ASSIGN: bin_op = ALIR_OP_XOR; break;
+                        case TOKEN_LSHIFT_ASSIGN: bin_op = ALIR_OP_SHL; break;
+                        case TOKEN_RSHIFT_ASSIGN: bin_op = ALIR_OP_SHR; break;
+                        default: break;
+                    }
+                    
+                    AlirValue *new_val = new_temp(ctx, target_type);
+                    emit(ctx, mk_inst(ctx->module, bin_op, new_val, old_val, val));
+                    val = new_val;
+                }
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
+            }
             return val;
         }
         case NODE_BINARY_OP: return alir_gen_binary_op(ctx, (BinaryOpNode*)node);

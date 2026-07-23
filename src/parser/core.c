@@ -35,6 +35,8 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
         p->settings.allow_implicit_return = 0;
         p->settings.allow_postfix_types = 0;
         p->settings.strict_boolean_conditions = 0;
+        p->settings.namespace_auto_search = 1;
+        p->settings.namespace_ausearch_warning = 1;
     }
     
     if (l) {

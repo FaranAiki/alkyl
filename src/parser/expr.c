@@ -92,6 +92,9 @@ static ASTNode* parse_string_leading_call(Parser *p, ASTNode *target, int line, 
   while (p->current_token.type != TOKEN_SEMICOLON &&
          p->current_token.type != TOKEN_RPAREN &&
          p->current_token.type != TOKEN_RBRACKET &&
+         p->current_token.type != TOKEN_RBRACE &&
+         p->current_token.type != TOKEN_ELSE &&
+         p->current_token.type != TOKEN_ELIF &&
          p->current_token.type != TOKEN_COMMA &&
          p->current_token.type != TOKEN_EOF) {
     ASTNode *expr = parse_expression(p);
@@ -550,6 +553,7 @@ ASTNode* parse_factor(Parser *p) {
 }
 
 ASTNode* parse_unary(Parser *p) {
+  if (p->has_error) return NULL;
   int line = p->current_token.line;
   int col = p->current_token.col;
   
@@ -777,6 +781,7 @@ ASTNode* parse_assignment(Parser *p) {
 }
 
 ASTNode* parse_expression(Parser *p) {
+  if (p->has_error) return NULL;
   return parse_assignment(p);
 }
 ASTNode* parse_initializer(Parser *p, VarType vtype) {

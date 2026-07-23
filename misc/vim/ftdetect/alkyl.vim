@@ -1,1 +1,1 @@
-autocmd BufNewFile,BufRead *.aky setfiletype alkyl
+autocmd BufNewFile,BufRead *.aky,*.hky setfiletype alkyl

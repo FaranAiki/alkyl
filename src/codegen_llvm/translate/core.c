@@ -38,6 +38,8 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         case ALIR_OP_XOR:
         case ALIR_OP_SHL:
         case ALIR_OP_SHR:
+        case ALIR_OP_ROTR:
+        case ALIR_OP_ROTL:
         case ALIR_OP_NOT:
         case ALIR_OP_EQ:
         case ALIR_OP_NEQ:

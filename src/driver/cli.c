@@ -40,10 +40,17 @@ static char* ethyl_generator(const char* text, int state) {
     static SemSymbol *sym = NULL;
     static int word_len = 0;
     static const char *word = NULL;
+    static const char *keywords[] = {
+        "let", "mut", "if", "else", "while", "for", "in", "return", "switch", "case", 
+        "break", "continue", "func", "class", "struct", "union", "enum", "errnum", 
+        "import", "namespace", "true", "false", "null", "void", "extern", "pure", "pristine", NULL
+    };
+    static int kw_idx = 0;
 
     if (!state) {
         if (!global_sem_ctx || !global_sem_ctx->global_scope) return NULL;
         sym = global_sem_ctx->global_scope->symbols;
+        kw_idx = 0;
 
         // We extract the last word from the entire rl_line_buffer instead of using 'text'
         word = get_last_word(rl_line_buffer, &word_len);
@@ -54,6 +61,13 @@ static char* ethyl_generator(const char* text, int state) {
         sym = sym->next; // advance for next call
 
         // Only use prefix match for autocomplete
+        if (word_len == 0 || strncmp(name, word, word_len) == 0) {
+            return strdup(name);
+        }
+    }
+
+    while (keywords[kw_idx]) {
+        const char *name = keywords[kw_idx++];
         if (word_len == 0 || strncmp(name, word, word_len) == 0) {
             return strdup(name);
         }
@@ -79,31 +93,53 @@ static void display_matches_hook(char **matches, int num_matches, int max_length
 static void ethyl_redisplay(void) {
     rl_redisplay();
 
-    if (rl_line_buffer && rl_point == (int)strlen(rl_line_buffer) && rl_point > 0) {
-        if (!global_sem_ctx || !global_sem_ctx->global_scope) return;
+    printf("\033[s"); // Save cursor
+    
+    int len = rl_line_buffer ? (int)strlen(rl_line_buffer) : 0;
+    if (len > rl_point) {
+        printf("\033[%dC", len - rl_point); // Move to end of line
+    }
+    printf("\033[K"); // Clear trailing ghost text
 
+    if (rl_line_buffer && rl_point == len && rl_point > 0) {
         int word_len = 0;
         const char *word = get_last_word(rl_line_buffer, &word_len);
 
         if (word_len > 0) {
-            SemSymbol *sym = global_sem_ctx->global_scope->symbols;
-            char *best_match = NULL;
-            while (sym) {
-                if (strncmp(sym->name, word, word_len) == 0) {
-                    best_match = sym->name;
-                    break;
+            const char *best_match = NULL;
+            if (global_sem_ctx && global_sem_ctx->global_scope) {
+                SemSymbol *sym = global_sem_ctx->global_scope->symbols;
+                while (sym) {
+                    if (strncmp(sym->name, word, word_len) == 0) {
+                        best_match = sym->name;
+                        break;
+                    }
+                    sym = sym->next;
                 }
-                sym = sym->next;
+            }
+            if (!best_match) {
+                static const char *keywords[] = {
+                    "let", "mut", "if", "else", "while", "for", "in", "return", "switch", "case", 
+                    "break", "continue", "func", "class", "struct", "union", "enum", "errnum", 
+                    "import", "namespace", "true", "false", "null", "void", "extern", "pure", "pristine", NULL
+                };
+                for (int i = 0; keywords[i]; i++) {
+                    if (strncmp(keywords[i], word, word_len) == 0) {
+                        best_match = keywords[i];
+                        break;
+                    }
+                }
             }
 
             if (best_match && (int)strlen(best_match) > word_len) {
-                char *hint = best_match + word_len;
+                const char *hint = best_match + word_len;
                 printf("\033[90m%s\033[0m", hint);
-                printf("\033[%dD", (int)strlen(hint));
-                fflush(stdout);
             }
         }
     }
+
+    printf("\033[u"); // Restore cursor
+    fflush(stdout);
 }
 
 char* get_smart_input(Arena* arena, int cmd_count) {
@@ -152,13 +188,29 @@ char* get_smart_input(Arena* arena, int cmd_count) {
     return input_buffer;
 }
 
+#include <signal.h>
+
 extern int rl_newline(int count, int key);
 static int accept_line_clear_hint(int count, int key) {
-    if (rl_line_buffer && rl_point == (int)strlen(rl_line_buffer)) {
+    if (rl_line_buffer) {
+        rl_point = rl_end;
+        rl_redisplay();
         printf("\033[K");
         fflush(stdout);
     }
     return rl_newline(count, key);
+}
+
+static void handle_sigint(int sig) {
+    (void)sig;
+    if (rl_line_buffer) {
+        rl_point = rl_end;
+        rl_redisplay(); // This will trigger ethyl_redisplay which clears the ghost text
+    }
+    printf("^C\n");
+    rl_on_new_line();
+    rl_replace_line("", 0);
+    rl_redisplay();
 }
 
 int run_repl(void) {
@@ -186,6 +238,8 @@ int run_repl(void) {
     SemanticSettings sem_settings = {0};
     sem_settings.implicit_let = true;
     sem_settings.replace_variable = true;
+    sem_settings.namespace_auto_search = true;
+    sem_settings.namespace_ausearch_warning = false;
     SemanticCtx sem;
     sem_init(&sem, &ctx, &sem_settings);
     global_sem_ctx = &sem;
@@ -198,6 +252,8 @@ int run_repl(void) {
     MetaVM *vm = meta_vm_init(&vm_arena);
 
     // Setup readline autocomplete
+    rl_catch_signals = 0;
+    signal(SIGINT, handle_sigint);
     rl_attempted_completion_function = ethyl_completion;
     rl_completion_display_matches_hook = display_matches_hook;
     rl_redisplay_function = ethyl_redisplay;
@@ -379,11 +435,16 @@ int run_repl(void) {
                 fn->ret_type = ret_type;
                 fn->has_body = 1;
 
-                // If it's a statement, we just return nothing or the expression result
-                ReturnNode *ret = arena_alloc(&ast_arena, sizeof(ReturnNode));
-                ret->base.type = NODE_RETURN;
-                ret->value = curr;
-                fn->body = (ASTNode*)ret;
+                if (curr->type == NODE_IF || curr->type == NODE_WHILE || curr->type == NODE_FOR_IN ||
+                    curr->type == NODE_LOOP || curr->type == NODE_SWITCH || curr->type == NODE_BREAK ||
+                    curr->type == NODE_CONTINUE || curr->type == NODE_RETURN || curr->type == NODE_DEFER) {
+                    fn->body = curr;
+                } else {
+                    ReturnNode *ret = arena_alloc(&ast_arena, sizeof(ReturnNode));
+                    ret->base.type = NODE_RETURN;
+                    ret->value = curr;
+                    fn->body = (ASTNode*)ret;
+                }
 
                 sem_check_func_def(&sem, fn);
 

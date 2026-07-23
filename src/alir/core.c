@@ -237,6 +237,8 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_XOR: return "xor";
         case ALIR_OP_SHL: return "shl";
         case ALIR_OP_SHR: return "shr";
+        case ALIR_OP_ROTR: return "rotr";
+        case ALIR_OP_ROTL: return "rotl";
         
         case ALIR_OP_MOV: return "mov";
         case ALIR_OP_PHI: return "phi";

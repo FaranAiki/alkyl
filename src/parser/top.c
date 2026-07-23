@@ -584,6 +584,17 @@ ASTNode* parse_top_level_internal(Parser *p) {
       return parse_single_statement_or_block(p);
   }
 
+  if (vtype.base == TYPE_CLASS && p->current_token.type == TOKEN_LPAREN) {
+      if (modifiers) parser_fail(p, "Invalid modifier here");
+      VarRefNode *vn = parser_alloc(p, sizeof(VarRefNode));
+      vn->base.type = NODE_VAR_REF;
+      vn->name = vtype.class_name;
+      ASTNode* call = parse_call(p, (ASTNode*)vn);
+      eat_semi(p);
+      set_loc(call, line, col);
+      return call;
+  }
+
   if (p->current_token.type == TOKEN_LPAREN) {
       char *name = NULL;
       vtype = parse_func_ptr_decl(p, vtype, &name);

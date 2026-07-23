@@ -35,6 +35,8 @@ int main(int argc, char *argv[]) {
   int emit_balir = 0;
   
   ParserSettings parser_settings = {0};
+  parser_settings.namespace_auto_search = 1;
+  parser_settings.namespace_ausearch_warning = 1;
 
   mkdir("build", 0777);
 

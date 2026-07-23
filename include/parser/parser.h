@@ -21,6 +21,8 @@ typedef struct {
     int allow_postfix_types;       // e.g., let x: int
     int strict_boolean_conditions; // e.g., if (1) vs if (true)
     int allow_vector_initialization;
+    int namespace_auto_search;     // default 1
+    int namespace_ausearch_warning;// default 1
 } ParserSettings;
 
 typedef struct Parser {

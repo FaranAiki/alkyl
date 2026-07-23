@@ -142,3 +142,7 @@ The project uses the pure C API (`llvm-c/Core.h`) rather than the C++ object-ori
 
 ## 6. What to Do 
 With the given information, do:
+
+<RULE>
+Alkyl files use the extensions .aky (source) and .hky (header) strictly. Do not use or assume .al extensions.
+</RULE>

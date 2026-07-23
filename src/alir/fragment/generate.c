@@ -235,6 +235,30 @@ void alir_stmt_assign(AlirCtx *ctx, ASTNode *node) {
         VarType target_type = ptr->type;
         target_type.ptr_depth--;
         val = promote(ctx, val, target_type);
+
+        if (an->op != TOKEN_ASSIGN) {
+            AlirValue *old_val = new_temp(ctx, target_type);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, old_val, ptr, NULL));
+
+            AlirOpcode bin_op = ALIR_OP_ADD;
+            switch (an->op) {
+                case TOKEN_PLUS_ASSIGN: bin_op = ALIR_OP_ADD; break;
+                case TOKEN_MINUS_ASSIGN: bin_op = ALIR_OP_SUB; break;
+                case TOKEN_STAR_ASSIGN: bin_op = ALIR_OP_MUL; break;
+                case TOKEN_SLASH_ASSIGN: bin_op = ALIR_OP_DIV; break;
+                case TOKEN_MOD_ASSIGN: bin_op = ALIR_OP_MOD; break;
+                case TOKEN_AND_ASSIGN: bin_op = ALIR_OP_AND; break;
+                case TOKEN_OR_ASSIGN: bin_op = ALIR_OP_OR; break;
+                case TOKEN_XOR_ASSIGN: bin_op = ALIR_OP_XOR; break;
+                case TOKEN_LSHIFT_ASSIGN: bin_op = ALIR_OP_SHL; break;
+                case TOKEN_RSHIFT_ASSIGN: bin_op = ALIR_OP_SHR; break;
+                default: break;
+            }
+
+            AlirValue *new_val = new_temp(ctx, target_type);
+            emit(ctx, mk_inst(ctx->module, bin_op, new_val, old_val, val));
+            val = new_val;
+        }
     }
     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
 }

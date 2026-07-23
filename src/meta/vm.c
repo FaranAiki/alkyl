@@ -244,8 +244,18 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                 case ALIR_OP_SUB:
                 case ALIR_OP_MUL:
                 case ALIR_OP_DIV:
+                case ALIR_OP_MOD:
+                case ALIR_OP_AND:
+                case ALIR_OP_OR:
+                case ALIR_OP_XOR:
+                case ALIR_OP_SHL:
+                case ALIR_OP_SHR:
+                case ALIR_OP_ROTL:
+                case ALIR_OP_ROTR:
                 case ALIR_OP_LT:
                 case ALIR_OP_GT:
+                case ALIR_OP_LTE:
+                case ALIR_OP_GTE:
                 case ALIR_OP_EQ:
                 case ALIR_OP_NEQ: {
                     if (inst->dest && inst->op1 && inst->op2) {
@@ -268,8 +278,50 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                 return vm->status;
                             }
                         }
+                        else if (inst->op == ALIR_OP_MOD) {
+                            if (v2 != 0) res = v1 % v2;
+                            else {
+                                if (sem_ctx) {
+                                    ASTNode fake_node = {0};
+                                    fake_node.line = inst->line;
+                                    fake_node.col = inst->col;
+                                    sem_error(sem_ctx, &fake_node, "Division by zero during compile-time meta execution");
+                                }
+                                vm->status = 1;
+                                return vm->status;
+                            }
+                        }
+                        else if (inst->op == ALIR_OP_AND) res = v1 & v2;
+                        else if (inst->op == ALIR_OP_OR) res = v1 | v2;
+                        else if (inst->op == ALIR_OP_XOR) res = v1 ^ v2;
+                        else if (inst->op == ALIR_OP_SHL) res = v1 << v2;
+                        else if (inst->op == ALIR_OP_SHR) res = v1 >> v2;
+                        else if (inst->op == ALIR_OP_ROTL) {
+                            int bw = inst->op1->type.base == TYPE_INT ? 32 : (inst->op1->type.base == TYPE_LONG ? 64 : 32);
+                            unsigned int amt = v2 % bw;
+                            if (bw == 32) {
+                                uint32_t u1 = (uint32_t)v1;
+                                res = (long long)(int32_t)((u1 << amt) | (u1 >> ((32 - amt) % 32)));
+                            } else {
+                                uint64_t u1 = (uint64_t)v1;
+                                res = (long long)((u1 << amt) | (u1 >> ((64 - amt) % 64)));
+                            }
+                        }
+                        else if (inst->op == ALIR_OP_ROTR) {
+                            int bw = inst->op1->type.base == TYPE_INT ? 32 : (inst->op1->type.base == TYPE_LONG ? 64 : 32);
+                            unsigned int amt = v2 % bw;
+                            if (bw == 32) {
+                                uint32_t u1 = (uint32_t)v1;
+                                res = (long long)(int32_t)((u1 >> amt) | (u1 << ((32 - amt) % 32)));
+                            } else {
+                                uint64_t u1 = (uint64_t)v1;
+                                res = (long long)((u1 >> amt) | (u1 << ((64 - amt) % 64)));
+                            }
+                        }
                         else if (inst->op == ALIR_OP_LT) res = v1 < v2;
                         else if (inst->op == ALIR_OP_GT) res = v1 > v2;
+                        else if (inst->op == ALIR_OP_LTE) res = v1 <= v2;
+                        else if (inst->op == ALIR_OP_GTE) res = v1 >= v2;
                         else if (inst->op == ALIR_OP_EQ) res = v1 == v2;
                         else if (inst->op == ALIR_OP_NEQ) res = v1 != v2;
                         registers[inst->dest->temp_id].as.int_val = res;

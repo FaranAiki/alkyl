@@ -92,6 +92,26 @@ LLVMValueRef translate_expr(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             case ALIR_OP_SHL: res = LLVMBuildShl(ctx->builder, op1, op2, "shl"); break;
             case ALIR_OP_SHR: res = LLVMBuildAShr(ctx->builder, op1, op2, "shr"); break;
             case ALIR_OP_NOT: res = (LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) ? LLVMBuildIsNull(ctx->builder, op1, "isnull") : LLVMBuildNot(ctx->builder, op1, "not"); break;
+            case ALIR_OP_ROTL:
+            case ALIR_OP_ROTR: {
+                LLVMTypeRef ty = LLVMTypeOf(op1);
+                unsigned bw = LLVMGetIntTypeWidth(ty);
+                char name[64];
+                if (inst->op == ALIR_OP_ROTL) {
+                    snprintf(name, sizeof(name), "llvm.fshl.i%u", bw);
+                } else {
+                    snprintf(name, sizeof(name), "llvm.fshr.i%u", bw);
+                }
+                LLVMValueRef func = LLVMGetNamedFunction(ctx->llvm_mod, name);
+                LLVMTypeRef args[] = { ty, ty, ty };
+                LLVMTypeRef fty = LLVMFunctionType(ty, args, 3, 0);
+                if (!func) {
+                    func = LLVMAddFunction(ctx->llvm_mod, name, fty);
+                }
+                LLVMValueRef call_args[] = { op1, op1, op2 };
+                res = LLVMBuildCall2(ctx->builder, fty, func, call_args, 3, "rot");
+                break;
+            }
             
     }
     return res;

@@ -91,6 +91,8 @@ typedef struct TypeEntry {
 typedef struct {
     bool implicit_let;
     bool replace_variable;
+    bool namespace_auto_search;
+    bool namespace_ausearch_warning;
 } SemanticSettings;
 
 typedef struct {

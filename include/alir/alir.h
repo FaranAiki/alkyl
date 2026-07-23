@@ -47,7 +47,7 @@ typedef enum {
     
     // Logical / Bitwise
     ALIR_OP_AND, ALIR_OP_OR, ALIR_OP_XOR, ALIR_OP_NOT, 
-    ALIR_OP_SHL, ALIR_OP_SHR,
+    ALIR_OP_SHL, ALIR_OP_SHR, ALIR_OP_ROTR, ALIR_OP_ROTL,
     
     // Comparison
     ALIR_OP_LT, ALIR_OP_GT, ALIR_OP_LTE, ALIR_OP_GTE, ALIR_OP_EQ, ALIR_OP_NEQ,
