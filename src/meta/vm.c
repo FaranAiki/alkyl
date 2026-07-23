@@ -149,7 +149,7 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                         else if (inst->op2->kind == ALIR_VAL_TEMP) offset = registers[inst->op2->temp_id].as.int_val;
                         else if (inst->op2->kind == ALIR_VAL_VAR) offset = meta_vm_resolve_var(inst->op2, module, vm, args, arg_count);
                         
-                        fprintf(stderr, "DEBUG: ALIR_OP_GET_PTR offset=%lld\n", offset);
+// fprintf(stderr, "DEBUG: ALIR_OP_GET_PTR offset=%lld\n", offset);
                         
                         // Treat offset as index into 8-byte array
                         if (base_ptr) {
@@ -172,7 +172,7 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                 }
                                 g = g->next;
                             }
-                            if (!ptr) printf("DEBUG: Global '%s' NOT FOUND in LOAD!\n", inst->op1->val.str_val);
+// if (!ptr) printf("DEBUG: Global '%s' NOT FOUND in LOAD!\n", inst->op1->val.str_val);
                         }
                         if (ptr) registers[inst->dest->temp_id].as.int_val = *((long long*)ptr);
                     }
@@ -396,13 +396,13 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                     else if (arg->kind == ALIR_VAL_VAR) new_args[i] = meta_vm_resolve_var(arg, module, vm, args, arg_count);
                                     else new_args[i] = 0;
                                 }
-                                fprintf(stderr, "DEBUG: Calling internal func %s with arg %lld\n", target_fn->name, inst->arg_count > 0 ? new_args[0] : -1);
+// fprintf(stderr, "DEBUG: Calling internal func %s with arg %lld\n", target_fn->name, inst->arg_count > 0 ? new_args[0] : -1);
                                 long long rc = meta_vm_execute(vm, module, target_fn, sem_ctx_ptr, new_args, inst->arg_count);
-                                fprintf(stderr, "DEBUG: Returned %lld\n", rc);
+// fprintf(stderr, "DEBUG: Returned %lld\n", rc);
                                 free(new_args);
                                 if (inst->dest) {
                                     registers[inst->dest->temp_id].as.int_val = rc;
-                                    fprintf(stderr, "DEBUG: Stored %lld to %d\n", rc, inst->dest->temp_id);
+// fprintf(stderr, "DEBUG: Stored %lld to %d\n", rc, inst->dest->temp_id);
                                 }
                             } else {
                                 void *func_ptr = dlsym(RTLD_DEFAULT, inst->op1->val.str_val);
@@ -424,7 +424,7 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                             arg_types[i] = &ffi_type_pointer;
                                             void **val = malloc(sizeof(void*));
                                             *val = NULL;
-                                            fprintf(stderr, "DEBUG: string arg kind=%d\n", arg->kind);
+// fprintf(stderr, "DEBUG: string arg kind=%d\n", arg->kind);
                                             if (arg->kind == ALIR_VAL_CONST) *val = (void*)arg->val.str_val;
                                             else if (arg->kind == ALIR_VAL_VAR) *val = (void*)(intptr_t)meta_vm_resolve_var(arg, module, vm, args, arg_count);
                                             else if (arg->kind == ALIR_VAL_GLOBAL && module) {
@@ -436,7 +436,7 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                                     }
                                                     g = g->next;
                                                 }
-                                                fprintf(stderr, "DEBUG: ALIR_VAL_GLOBAL resolved to %p (g->name: %s, arg->str: %s)\n", *val, module->globals ? module->globals->name : "null", arg->val.str_val);
+// fprintf(stderr, "DEBUG: ALIR_VAL_GLOBAL resolved to %p (g->name: %s, arg->str: %s)\n", *val, module->globals ? module->globals->name : "null", arg->val.str_val);
                                             }
                                             arg_values[i] = val;
                                         } else {
@@ -481,8 +481,30 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                 }
                 case ALIR_OP_RET: {
                     if (inst->op1) {
-                        if (inst->op1->kind == ALIR_VAL_TEMP) { ret_val = registers[inst->op1->temp_id].as.int_val; goto cleanup; }
-                        else if (inst->op1->kind == ALIR_VAL_CONST) { ret_val = inst->op1->val.long_long_val; goto cleanup; }
+                        if (inst->op1->kind == ALIR_VAL_TEMP) { 
+                            if (inst->op1->type.base == TYPE_SINGLE) {
+                                float f = (float)registers[inst->op1->temp_id].as.single_val;
+                                memcpy(&ret_val, &f, sizeof(float));
+                            } else if (inst->op1->type.base == TYPE_DOUBLE) {
+                                double d = registers[inst->op1->temp_id].as.single_val;
+                                memcpy(&ret_val, &d, sizeof(double));
+                            } else {
+                                ret_val = registers[inst->op1->temp_id].as.int_val; 
+                            }
+                            goto cleanup; 
+                        }
+                        else if (inst->op1->kind == ALIR_VAL_CONST) { 
+                            if (inst->op1->type.base == TYPE_SINGLE) {
+                                float f = inst->op1->val.single_val;
+                                memcpy(&ret_val, &f, sizeof(float));
+                            } else if (inst->op1->type.base == TYPE_DOUBLE) {
+                                double d = inst->op1->val.double_val;
+                                memcpy(&ret_val, &d, sizeof(double));
+                            } else {
+                                ret_val = inst->op1->val.long_long_val;
+                            }
+                            goto cleanup; 
+                        }
                         else if (inst->op1->kind == ALIR_VAL_GLOBAL) {
                             if (module) {
                                 AlirGlobal *g = module->globals;

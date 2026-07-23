@@ -1,5 +1,7 @@
 # build
 build/
+build_llvm/
+build_qbe/
 
 # outshit
 out.*
@@ -18,6 +20,10 @@ out
 *.tok
 *.alir
 *.semc
+
+# why is there original and reject bro
+*.orig
+*.rej
 
 # valgrind
 *.valgrind*
@@ -38,6 +44,7 @@ out.s
 # alkyl specific
 alkyl
 alkyl-cli
+ethyl
 
 # cmake
 CMakeFiles/

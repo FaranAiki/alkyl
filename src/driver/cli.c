@@ -20,14 +20,29 @@
 // Global context for autocompletion
 static SemanticCtx *global_sem_ctx = NULL;
 
+#include <ctype.h>
+
+static const char* get_last_word(const char* line, int* word_len) {
+    int len = strlen(line);
+    int i = len - 1;
+    while (i >= 0 && (isalnum(line[i]) || line[i] == '_')) i--;
+    i++;
+    *word_len = len - i;
+    return line + i;
+}
+
 static char* ethyl_generator(const char* text, int state) {
+    (void)text;
     static SemSymbol *sym = NULL;
-    static int text_len = 0;
+    static int word_len = 0;
+    static const char *word = NULL;
 
     if (!state) {
         if (!global_sem_ctx || !global_sem_ctx->global_scope) return NULL;
         sym = global_sem_ctx->global_scope->symbols;
-        text_len = strlen(text);
+
+        // We extract the last word from the entire rl_line_buffer instead of using 'text'
+        word = get_last_word(rl_line_buffer, &word_len);
     }
 
     while (sym) {
@@ -35,8 +50,8 @@ static char* ethyl_generator(const char* text, int state) {
         sym = sym->next; // advance for next call
 
         // Also use levenshtein distance for fuzzy autocomplete (only if length >= 3)
-        if (text_len == 0 || strncmp(name, text, text_len) == 0 ||
-            (text_len >= 3 && levenshtein_dist(name, text) <= (text_len / 3))) {
+        if (word_len == 0 || strncmp(name, word, word_len) == 0 ||
+            (word_len >= 3 && levenshtein_dist(name, word) <= (word_len / 3))) {
             return strdup(name);
         }
     }
@@ -64,22 +79,26 @@ static void ethyl_redisplay(void) {
     if (rl_line_buffer && rl_point == (int)strlen(rl_line_buffer) && rl_point > 0) {
         if (!global_sem_ctx || !global_sem_ctx->global_scope) return;
 
-        int text_len = strlen(rl_line_buffer);
-        SemSymbol *sym = global_sem_ctx->global_scope->symbols;
-        char *best_match = NULL;
-        while (sym) {
-            if (strncmp(sym->name, rl_line_buffer, text_len) == 0) {
-                best_match = sym->name;
-                break;
-            }
-            sym = sym->next;
-        }
+        int word_len = 0;
+        const char *word = get_last_word(rl_line_buffer, &word_len);
 
-        if (best_match && (int)strlen(best_match) > text_len) {
-            char *hint = best_match + text_len;
-            printf("\033[90m%s\033[0m", hint);
-            printf("\033[%dD", (int)strlen(hint));
-            fflush(stdout);
+        if (word_len > 0) {
+            SemSymbol *sym = global_sem_ctx->global_scope->symbols;
+            char *best_match = NULL;
+            while (sym) {
+                if (strncmp(sym->name, word, word_len) == 0) {
+                    best_match = sym->name;
+                    break;
+                }
+                sym = sym->next;
+            }
+
+            if (best_match && (int)strlen(best_match) > word_len) {
+                char *hint = best_match + word_len;
+                printf("\033[90m%s\033[0m", hint);
+                printf("\033[%dD", (int)strlen(hint));
+                fflush(stdout);
+            }
         }
     }
 }
@@ -290,6 +309,8 @@ int run_repl(void) {
                     alir_gen_function_def(&alir_ctx, (FuncDefNode*)curr, NULL);
                 }
             } else if (curr->type == NODE_LINK) {
+// TODO make sure so that WIN32 knows things, but this is significantly difficult: don't care lmao
+// TODO self-hosting means alkyl must have proper define: e.g. if defined(os.linux) or if os.name == "Linux" in meta
 #ifndef _WIN32
                 LinkNode *ln = (LinkNode*)curr;
                 char libname[256];
@@ -352,6 +373,7 @@ int run_repl(void) {
                     compiled_fn = compiled_fn->next;
                 }
 
+                // TODO make this more MECE & orthgonal
                 if (compiled_fn) {
                     alir_emit_to_file(module, "repl_debug.alir");
                     long long exit_code = meta_vm_execute(vm, module, compiled_fn, &sem, NULL, 0);

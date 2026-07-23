@@ -107,7 +107,7 @@ static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
     if (scope->symbol_map) {
         SemSymbol *res = (SemSymbol*)hashmap_get((HashMap*)scope->symbol_map, name);
         if (strcmp(name, "Vector_int") == 0) {
-            printf("DEBUG: find_in_scope_direct (map) for 'Vector_int', res=%p\n", res);
+// printf("DEBUG: find_in_scope_direct (map) for 'Vector_int', res=%p\n", res);
         }
         if (res && res->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && res->name == scope->class_sym->name) {
             return NULL; // Do not return the constructor here to avoid shadowing the class name
@@ -118,7 +118,7 @@ static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
     SemSymbol *sym = scope->symbols;
     while (sym) {
         if (strcmp(name, "Vector_int") == 0 && strcmp(sym->name, name) == 0) {
-            printf("DEBUG: find_in_scope_direct (fallback) found 'Vector_int'\n");
+// printf("DEBUG: find_in_scope_direct (fallback) found 'Vector_int'\n");
         }
         if (strcmp(sym->name, name) == 0) {
             if (sym->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && strcmp(sym->name, scope->class_sym->name) == 0) {
@@ -130,7 +130,7 @@ static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
         sym = sym->next;
     }
     if (strcmp(name, "Vector_int") == 0) {
-        printf("DEBUG: find_in_scope_direct (fallback) didn't find 'Vector_int'\n");
+// printf("DEBUG: find_in_scope_direct (fallback) didn't find 'Vector_int'\n");
     }
     return NULL;
 }
@@ -285,17 +285,17 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
         return NULL;
     }
     if (strcmp(name, "ArenaAllocator") == 0) {
-        printf("DEBUG: Looking up 'ArenaAllocator'...\n");
+// printf("DEBUG: Looking up 'ArenaAllocator'...\n");
     }
     SemScope *scope = ctx->current_scope;
     while (scope) {
         if (strcmp(name, "ArenaAllocator") == 0) {
-            printf("DEBUG: Checking scope (is_func=%d, is_class=%d)\n", scope->is_function_scope, scope->is_class_scope);
+// printf("DEBUG: Checking scope (is_func=%d, is_class=%d)\n", scope->is_function_scope, scope->is_class_scope);
         }
 
         SemSymbol *sym = find_in_scope_direct(scope, name);
         if (sym) {
-            if (strcmp(name, "ArenaAllocator") == 0) printf("DEBUG: Found 'ArenaAllocator'!\n");
+// if (strcmp(name, "ArenaAllocator") == 0) printf("DEBUG: Found 'ArenaAllocator'!\n");
             if (out_scope) *out_scope = scope;
             return sym;
         }

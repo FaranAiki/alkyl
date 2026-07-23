@@ -736,6 +736,7 @@ ASTNode* parse_fallback(Parser *p) {
 
 ASTNode* parse_assignment(Parser *p) {
   ASTNode *lhs = parse_fallback(p); 
+  if (p->has_error) return lhs;
   
   if (p->current_token.type == TOKEN_ASSIGN || 
       p->current_token.type == TOKEN_PLUS_ASSIGN ||
