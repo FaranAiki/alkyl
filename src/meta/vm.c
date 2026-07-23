@@ -420,6 +420,21 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                             else if (arg->kind == ALIR_VAL_TEMP) *val = registers[arg->temp_id].as.int_val;
                                             else if (arg->kind == ALIR_VAL_VAR) *val = meta_vm_resolve_var(arg, module, vm, args, arg_count);
                                             arg_values[i] = val;
+                                        } else if (arg->type.base == TYPE_DOUBLE || arg->type.base == TYPE_SINGLE) {
+                                            arg_types[i] = (arg->type.base == TYPE_DOUBLE) ? &ffi_type_double : &ffi_type_float;
+                                            void *val = malloc((arg->type.base == TYPE_DOUBLE) ? sizeof(double) : sizeof(float));
+                                            if (arg->kind == ALIR_VAL_CONST) {
+                                                if (arg->type.base == TYPE_DOUBLE) *(double*)val = arg->val.double_val;
+                                                else *(float*)val = arg->val.single_val;
+                                            } else if (arg->kind == ALIR_VAL_TEMP) {
+                                                if (arg->type.base == TYPE_DOUBLE) *(double*)val = registers[arg->temp_id].as.single_val;
+                                                else *(float*)val = (float)registers[arg->temp_id].as.single_val;
+                                            } else if (arg->kind == ALIR_VAL_VAR) {
+                                                long long raw = meta_vm_resolve_var(arg, module, vm, args, arg_count);
+                                                if (arg->type.base == TYPE_DOUBLE) memcpy(val, &raw, sizeof(double));
+                                                else { float f; memcpy(&f, &raw, sizeof(float)); *(float*)val = f; }
+                                            }
+                                            arg_values[i] = val;
                                         } else if ((arg->type.base == TYPE_CLASS && arg->type.class_name && strcmp(arg->type.class_name, "string") == 0) || arg->type.base == TYPE_AUTO || arg->type.ptr_depth > 0) {
                                             arg_types[i] = &ffi_type_pointer;
                                             void **val = malloc(sizeof(void*));
@@ -447,14 +462,25 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                     
                                     ffi_type *ret_type = &ffi_type_void;
                                     if (inst->dest) {
-                                         ret_type = &ffi_type_sint64;
+                                        if (inst->dest->type.base == TYPE_DOUBLE) ret_type = &ffi_type_double;
+                                        else if (inst->dest->type.base == TYPE_SINGLE) ret_type = &ffi_type_float;
+                                        else ret_type = &ffi_type_sint64;
                                     }
     
                                     if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, inst->arg_count, ret_type, arg_types) == FFI_OK) {
-                                        long long rc = 0;
-                                        ffi_call(&cif, func_ptr, &rc, arg_values);
+                                        long long rc_int = 0;
+                                        double rc_double = 0;
+                                        float rc_float = 0;
+                                        void *rc = &rc_int;
                                         if (inst->dest) {
-                                             registers[inst->dest->temp_id].as.int_val = rc;
+                                            if (inst->dest->type.base == TYPE_DOUBLE) rc = &rc_double;
+                                            else if (inst->dest->type.base == TYPE_SINGLE) rc = &rc_float;
+                                        }
+                                        ffi_call(&cif, func_ptr, rc, arg_values);
+                                        if (inst->dest) {
+                                            if (inst->dest->type.base == TYPE_DOUBLE) registers[inst->dest->temp_id].as.single_val = rc_double;
+                                            else if (inst->dest->type.base == TYPE_SINGLE) registers[inst->dest->temp_id].as.single_val = (double)rc_float;
+                                            else registers[inst->dest->temp_id].as.int_val = rc_int;
                                         }
                                     }
                                     

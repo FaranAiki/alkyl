@@ -220,6 +220,7 @@ typedef struct {
     int spaces_per_indent;
     int require_semicolons;  // 1: semicolons are strictly required
     int double_quote_as_string; // 1: treat "..." as string(c"..."), 0: treat "..." as c"..."
+    int import_require_double_quotes;
 } LexerSettings;
 
 typedef struct {

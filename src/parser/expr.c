@@ -353,6 +353,7 @@ ASTNode* parse_factor(Parser *p) {
       curr_elem = &(*curr_elem)->next;
       while (p->current_token.type == TOKEN_COMMA) { if (p->has_error) break;
         eat(p, TOKEN_COMMA);
+        if (p->current_token.type == TOKEN_RBRACKET) break;
         *curr_elem = parse_expression(p);
         curr_elem = &(*curr_elem)->next;
       }

@@ -3,13 +3,37 @@
 ASTNode* parse_import(Parser *p) {
   eat(p, TOKEN_IMPORT);
   if (p->has_error) return NULL;
-  if (p->current_token.type != TOKEN_STRING && p->current_token.type != TOKEN_C_STRING) {
-      parser_fail(p, "Expected file path string after 'import'");
-      return NULL;
+  char* fname = NULL;
+  if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
+      fname = parser_strdup(p, p->current_token.text);
+      p->current_token.text = NULL;
+      eat(p, p->current_token.type);
+  } else {
+      if (p->l->settings.import_require_double_quotes) {
+          parser_fail(p, "Expected file path string after 'import'");
+          return NULL;
+      }
+      char path_buf[256] = {0};
+      while (p->current_token.type == TOKEN_IDENTIFIER || 
+             p->current_token.type == TOKEN_DOT || 
+             p->current_token.type == TOKEN_SLASH) {
+          if (p->current_token.type == TOKEN_DOT) {
+              strcat(path_buf, "/");
+          } else if (p->current_token.type == TOKEN_SLASH) {
+              strcat(path_buf, "/");
+          } else {
+              if (p->current_token.text) {
+                  strncat(path_buf, p->current_token.text, 255 - strlen(path_buf));
+              }
+          }
+          eat(p, p->current_token.type);
+      }
+      if (strlen(path_buf) == 0) {
+          parser_fail(p, "Expected file path after 'import'");
+          return NULL;
+      }
+      fname = parser_strdup(p, path_buf);
   }
-  char* fname = parser_strdup(p, p->current_token.text);
-  p->current_token.text = NULL;
-  eat(p, p->current_token.type);
   
   // optional semicolon
   if (p->current_token.type == TOKEN_SEMICOLON) {

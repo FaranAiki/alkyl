@@ -23,9 +23,13 @@ static SemanticCtx *global_sem_ctx = NULL;
 #include <ctype.h>
 
 static const char* get_last_word(const char* line, int* word_len) {
-    int len = strlen(line);
+    int len = line ? strlen(line) : 0;
+    if (len == 0) {
+        *word_len = 0;
+        return line ? line : "";
+    }
     int i = len - 1;
-    while (i >= 0 && (isalnum(line[i]) || line[i] == '_')) i--;
+    while (i >= 0 && (isalnum((unsigned char)line[i]) || line[i] == '_')) i--;
     i++;
     *word_len = len - i;
     return line + i;
@@ -49,9 +53,8 @@ static char* ethyl_generator(const char* text, int state) {
         char *name = sym->name;
         sym = sym->next; // advance for next call
 
-        // Also use levenshtein distance for fuzzy autocomplete (only if length >= 3)
-        if (word_len == 0 || strncmp(name, word, word_len) == 0 ||
-            (word_len >= 3 && levenshtein_dist(name, word) <= (word_len / 3))) {
+        // Only use prefix match for autocomplete
+        if (word_len == 0 || strncmp(name, word, word_len) == 0) {
             return strdup(name);
         }
     }
@@ -149,6 +152,15 @@ char* get_smart_input(Arena* arena, int cmd_count) {
     return input_buffer;
 }
 
+extern int rl_newline(int count, int key);
+static int accept_line_clear_hint(int count, int key) {
+    if (rl_line_buffer && rl_point == (int)strlen(rl_line_buffer)) {
+        printf("\033[K");
+        fflush(stdout);
+    }
+    return rl_newline(count, key);
+}
+
 int run_repl(void) {
     printf("\033[36mEthyl (Alkyl interpreter) version 0.0.1 \033[0m\n");
     printf("Type \033[33m'exit'\033[0m or \033[33m'quit'\033[0m to leave.\n\n");
@@ -166,6 +178,7 @@ int run_repl(void) {
     // Initialize global parser state (we will share the types_map across REPL lines)
     Lexer dummy_l;
     LexerSettings dummy_settings = {0};
+    dummy_settings.import_require_double_quotes = 0;
     lexer_init(&dummy_l, &ctx, "REPL", "", &dummy_settings);
     Parser p;
     parser_init(&p, &dummy_l, NULL);
@@ -188,6 +201,8 @@ int run_repl(void) {
     rl_attempted_completion_function = ethyl_completion;
     rl_completion_display_matches_hook = display_matches_hook;
     rl_redisplay_function = ethyl_redisplay;
+    rl_bind_key('\r', accept_line_clear_hint);
+    rl_bind_key('\n', accept_line_clear_hint);
 
     int cmd_count = 0;
 
@@ -206,6 +221,7 @@ int run_repl(void) {
         Lexer l;
         LexerSettings settings = {0};
         settings.require_semicolons = 0;
+        settings.import_require_double_quotes = 0;
         lexer_init(&l, &ctx, "REPL", buffer, &settings);
 
         p.l = &l;
@@ -282,8 +298,20 @@ int run_repl(void) {
                 // Add to MetaVM global memory map
                 VMGlobal *vg = arena_alloc(&vm_arena, sizeof(VMGlobal));
                 vg->name = arena_strdup(&vm_arena, vd->name);
-                vg->ptr_val = arena_alloc(&vm_arena, 1024);
-                *((long long*)vg->ptr_val) = initial_val;
+                
+                VarType vt = vd->var_type;
+                if (vt.base == TYPE_UNKNOWN && vd->initializer) vt = sem_get_node_type(&sem, vd->initializer);
+                
+                if (vt.array_size > 0) {
+                    if (initial_val) {
+                        vg->ptr_val = (void*)(intptr_t)initial_val;
+                    } else {
+                        vg->ptr_val = arena_alloc(&vm_arena, vt.array_size * 8);
+                    }
+                } else {
+                    vg->ptr_val = arena_alloc(&vm_arena, 1024);
+                    *((long long*)vg->ptr_val) = initial_val;
+                }
                 vg->next = vm->globals;
                 vm->globals = vg;
 
@@ -377,6 +405,20 @@ int run_repl(void) {
                 if (compiled_fn) {
                     alir_emit_to_file(module, "repl_debug.alir");
                     long long exit_code = meta_vm_execute(vm, module, compiled_fn, &sem, NULL, 0);
+                    
+                    if (curr->type == NODE_ASSIGN && ((AssignNode*)curr)->is_implicit_let) {
+                        if (ret_type.array_size > 0) {
+                            VMGlobal *g = vm->globals;
+                            while (g) {
+                                if (strcmp(g->name, ((AssignNode*)curr)->name) == 0) {
+                                    g->ptr_val = (void*)(intptr_t)exit_code;
+                                    break;
+                                }
+                                g = g->next;
+                            }
+                        }
+                    }
+
                     if (ret_type.base != TYPE_VOID && ret_type.base != TYPE_UNKNOWN) {
                         if ((ret_type.base == TYPE_INT || ret_type.base == TYPE_LONG) && ret_type.ptr_depth == 0 && ret_type.array_size == 0)
                             printf("-> %lld (int)\n", exit_code);
@@ -391,8 +433,24 @@ int run_repl(void) {
                         else if ((ret_type.base == TYPE_CLASS && ret_type.class_name && strcmp(ret_type.class_name, "string") == 0) || (ret_type.base == TYPE_CHAR && ret_type.ptr_depth == 1 && ret_type.array_size == 0))
                             printf("-> %s (char*)\n", (char*)(intptr_t)exit_code);
                         else {
-                            if (ret_type.ptr_depth > 0 || ret_type.array_size > 0)
-                                printf("-> %p (%s)\n", (void*)(intptr_t)exit_code, sem_type_to_str(ret_type));
+                            if (ret_type.ptr_depth > 0 || ret_type.array_size > 0) {
+                                if (ret_type.array_size > 0 && exit_code != 0) {
+                                    printf("-> [");
+                                    for (int i = 0; i < ret_type.array_size; i++) {
+                                        if (ret_type.base == TYPE_DOUBLE || ret_type.base == TYPE_SINGLE) {
+                                            double val = ((double*)(intptr_t)exit_code)[i];
+                                            printf("%f", val);
+                                        } else {
+                                            long long val = ((long long*)(intptr_t)exit_code)[i];
+                                            printf("%lld", val);
+                                        }
+                                        if (i < ret_type.array_size - 1) printf(", ");
+                                    }
+                                    printf("] (%s)\n", sem_type_to_str(ret_type));
+                                } else {
+                                    printf("-> %p (%s)\n", (void*)(intptr_t)exit_code, sem_type_to_str(ret_type));
+                                }
+                            }
                             else
                                 printf("-> %lld (%s)\n", exit_code, sem_type_to_str(ret_type));
                         }
