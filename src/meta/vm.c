@@ -420,10 +420,11 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                             else if (arg->kind == ALIR_VAL_TEMP) *val = registers[arg->temp_id].as.int_val;
                                             else if (arg->kind == ALIR_VAL_VAR) *val = meta_vm_resolve_var(arg, module, vm, args, arg_count);
                                             arg_values[i] = val;
-                                        } else if ((arg->type.base == TYPE_CLASS && arg->type.class_name && strcmp(arg->type.class_name, "string") == 0) || arg->type.base == TYPE_AUTO) {
+                                        } else if ((arg->type.base == TYPE_CLASS && arg->type.class_name && strcmp(arg->type.class_name, "string") == 0) || arg->type.base == TYPE_AUTO || arg->type.ptr_depth > 0) {
                                             arg_types[i] = &ffi_type_pointer;
                                             void **val = malloc(sizeof(void*));
                                             *val = NULL;
+                                            fprintf(stderr, "DEBUG: string arg kind=%d\n", arg->kind);
                                             if (arg->kind == ALIR_VAL_CONST) *val = (void*)arg->val.str_val;
                                             else if (arg->kind == ALIR_VAL_VAR) *val = (void*)(intptr_t)meta_vm_resolve_var(arg, module, vm, args, arg_count);
                                             else if (arg->kind == ALIR_VAL_GLOBAL && module) {
@@ -435,6 +436,7 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                                     }
                                                     g = g->next;
                                                 }
+                                                fprintf(stderr, "DEBUG: ALIR_VAL_GLOBAL resolved to %p (g->name: %s, arg->str: %s)\n", *val, module->globals ? module->globals->name : "null", arg->val.str_val);
                                             }
                                             arg_values[i] = val;
                                         } else {

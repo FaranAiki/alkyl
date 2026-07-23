@@ -23,24 +23,24 @@ static SemanticCtx *global_sem_ctx = NULL;
 static char* ethyl_generator(const char* text, int state) {
     static SemSymbol *sym = NULL;
     static int text_len = 0;
-    
+
     if (!state) {
         if (!global_sem_ctx || !global_sem_ctx->global_scope) return NULL;
         sym = global_sem_ctx->global_scope->symbols;
         text_len = strlen(text);
     }
-    
+
     while (sym) {
         char *name = sym->name;
         sym = sym->next; // advance for next call
-        
+
         // Also use levenshtein distance for fuzzy autocomplete (only if length >= 3)
-        if (text_len == 0 || strncmp(name, text, text_len) == 0 || 
+        if (text_len == 0 || strncmp(name, text, text_len) == 0 ||
             (text_len >= 3 && levenshtein_dist(name, text) <= (text_len / 3))) {
             return strdup(name);
         }
     }
-    
+
     return NULL;
 }
 
@@ -52,9 +52,9 @@ static char** ethyl_completion(const char* text, int start, int end) {
 }
 
 static void display_matches_hook(char **matches, int num_matches, int max_length) {
-    printf("\033[90m\n"); 
+    printf("\033[90m\n");
     rl_display_match_list(matches, num_matches, max_length);
-    printf("\033[0m"); 
+    printf("\033[0m");
     rl_forced_update_display();
 }
 
@@ -63,7 +63,7 @@ static void ethyl_redisplay(void) {
 
     if (rl_line_buffer && rl_point == (int)strlen(rl_line_buffer) && rl_point > 0) {
         if (!global_sem_ctx || !global_sem_ctx->global_scope) return;
-        
+
         int text_len = strlen(rl_line_buffer);
         SemSymbol *sym = global_sem_ctx->global_scope->symbols;
         char *best_match = NULL;
@@ -74,7 +74,7 @@ static void ethyl_redisplay(void) {
             }
             sym = sym->next;
         }
-        
+
         if (best_match && (int)strlen(best_match) > text_len) {
             char *hint = best_match + text_len;
             printf("\033[90m%s\033[0m", hint);
@@ -87,7 +87,7 @@ static void ethyl_redisplay(void) {
 char* get_smart_input(Arena* arena, int cmd_count) {
     char prompt[128];
     sprintf(prompt, "\033[32mIn [%d]:\033[0m ", cmd_count);
-    
+
     char *input_buffer = arena_alloc(arena, 4096);
     if (!input_buffer) return NULL;
     input_buffer[0] = '\0';
@@ -111,7 +111,7 @@ char* get_smart_input(Arena* arena, int cmd_count) {
             free(line); return NULL;
         }
         strcat(input_buffer, line);
-        strcat(input_buffer, " "); 
+        strcat(input_buffer, " ");
         total_len += line_len + 1;
         int in_string = 0;
         int in_char = 0;
@@ -131,7 +131,7 @@ char* get_smart_input(Arena* arena, int cmd_count) {
 }
 
 int run_repl(void) {
-    printf("\033[36methyl v0.0.1 \033[0m\n");
+    printf("\033[36mEthyl (Alkyl interpreter) version 0.0.1 \033[0m\n");
     printf("Type \033[33m'exit'\033[0m or \033[33m'quit'\033[0m to leave.\n\n");
 
     rl_attempted_completion_function = ethyl_completion;
@@ -160,7 +160,7 @@ int run_repl(void) {
 
     // We keep one AlirModule appending stuff
     AlirModule *module = alir_create_module(&ctx, "ethyl_repl");
-    
+
     Arena vm_arena;
     arena_init(&vm_arena);
     MetaVM *vm = meta_vm_init(&vm_arena);
@@ -174,31 +174,31 @@ int run_repl(void) {
 
     while (1) {
         char *buffer = get_smart_input(&ast_arena, cmd_count);
-        if (!buffer) break; 
+        if (!buffer) break;
 
-        if (strcmp(buffer, "exit ") == 0 || strcmp(buffer, "quit ") == 0) { 
+        if (strcmp(buffer, "exit ") == 0 || strcmp(buffer, "quit ") == 0) {
             break;
         }
 
         int len = strlen(buffer);
         while(len > 0 && buffer[len-1] == ' ') len--;
         buffer[len] = '\0';
-        
+
         Lexer l;
         LexerSettings settings = {0};
         settings.require_semicolons = 0;
         lexer_init(&l, &ctx, "REPL", buffer, &settings);
-        
+
         p.l = &l;
         p.has_error = 0;
         p.token_pos = 0;
         p.tokens = NULL;
         p.token_capacity = 0;
         p.current_token.type = TOKEN_UNKNOWN;
-        
+
         ASTNode *root = parse_program(&p);
         if (!root || p.has_error) continue;
-        
+
         sem.current_source = buffer;
         sem.current_filename = "REPL";
 
@@ -224,42 +224,42 @@ int run_repl(void) {
             if (curr->type == NODE_VAR_DECL) {
                 VarDeclNode *vd = (VarDeclNode*)curr;
                 long long initial_val = 0;
-                
+
                 if (vd->initializer) {
                     char func_name[64];
                     sprintf(func_name, "__repl_init_%d", cmd_count);
-                    
+
                     FuncDefNode *fn = arena_alloc(&ast_arena, sizeof(FuncDefNode));
                     fn->base.type = NODE_FUNC_DEF;
                     fn->name = func_name;
                     fn->ret_type = sem_get_node_type(&sem, vd->initializer);
                     fn->has_body = 1;
-                    
+
                     ReturnNode *ret = arena_alloc(&ast_arena, sizeof(ReturnNode));
                     ret->base.type = NODE_RETURN;
                     ret->value = vd->initializer;
                     fn->body = (ASTNode*)ret;
-                    
+
                     sem_check_func_def(&sem, fn);
-                    
+
                     AlirCtx alir_ctx;
                     memset(&alir_ctx, 0, sizeof(AlirCtx));
-                    alir_ctx.sem = &sem; 
+                    alir_ctx.sem = &sem;
                     alir_ctx.module = module;
-                    
+
                     alir_gen_function_def(&alir_ctx, fn, NULL);
-                    
+
                     AlirFunction *compiled_fn = module->functions;
                     while (compiled_fn) {
                         if (strcmp(compiled_fn->name, func_name) == 0) break;
                         compiled_fn = compiled_fn->next;
                     }
-                    
+
                     if (compiled_fn) {
                         initial_val = meta_vm_execute(vm, module, compiled_fn, &sem, NULL, 0);
                     }
                 }
-                
+
                 // Add to MetaVM global memory map
                 VMGlobal *vg = arena_alloc(&vm_arena, sizeof(VMGlobal));
                 vg->name = arena_strdup(&vm_arena, vd->name);
@@ -267,25 +267,25 @@ int run_repl(void) {
                 *((long long*)vg->ptr_val) = initial_val;
                 vg->next = vm->globals;
                 vm->globals = vg;
-                
+
             } else if (curr->type == NODE_CLASS) {
                 // Class definitions go straight to the current sem context
                 sem_check_node(&sem, curr);
-                
+
                 // Register in ALIR module
                 AlirCtx alir_ctx;
                 memset(&alir_ctx, 0, sizeof(AlirCtx));
                 alir_ctx.sem = &sem;
                 alir_ctx.module = module;
-                
+
                 pass1_register(&alir_ctx, curr);
                 pass2_populate(&alir_ctx, root, curr);
-                
+
             } else if (curr->type == NODE_FUNC_DEF) {
                 if (((FuncDefNode*)curr)->has_body) {
                     AlirCtx alir_ctx;
                     memset(&alir_ctx, 0, sizeof(AlirCtx));
-                    alir_ctx.sem = &sem; 
+                    alir_ctx.sem = &sem;
                     alir_ctx.module = module;
                     alir_gen_function_def(&alir_ctx, (FuncDefNode*)curr, NULL);
                 }
@@ -320,38 +320,38 @@ int run_repl(void) {
             } else if (curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT && curr->type != NODE_LINK) {
                 char func_name[64];
                 sprintf(func_name, "__repl_expr_%d", cmd_count);
-                
+
                 // Wrap in a synthetic function
                 FuncDefNode *fn = arena_alloc(&ast_arena, sizeof(FuncDefNode));
                 fn->base.type = NODE_FUNC_DEF;
                 fn->name = func_name;
-                
+
                 VarType ret_type = sem_get_node_type(&sem, curr);
                 fn->ret_type = ret_type;
                 fn->has_body = 1;
-                
+
                 // If it's a statement, we just return nothing or the expression result
                 ReturnNode *ret = arena_alloc(&ast_arena, sizeof(ReturnNode));
                 ret->base.type = NODE_RETURN;
                 ret->value = curr;
                 fn->body = (ASTNode*)ret;
-                
+
                 sem_check_func_def(&sem, fn);
-                
+
                 AlirCtx alir_ctx;
                 memset(&alir_ctx, 0, sizeof(AlirCtx));
-                alir_ctx.sem = &sem; 
+                alir_ctx.sem = &sem;
                 alir_ctx.module = module;
-                
+
                 // Hack: generate the function
                 alir_gen_function_def(&alir_ctx, fn, NULL);
-                
+
                 AlirFunction *compiled_fn = module->functions;
                 while (compiled_fn) {
                     if (strcmp(compiled_fn->name, func_name) == 0) break;
                     compiled_fn = compiled_fn->next;
                 }
-                
+
                 if (compiled_fn) {
                     alir_emit_to_file(module, "repl_debug.alir");
                     long long exit_code = meta_vm_execute(vm, module, compiled_fn, &sem, NULL, 0);
@@ -379,7 +379,7 @@ int run_repl(void) {
             }
             curr = curr->next;
         }
-        
+
         cmd_count++;
     }
     meta_vm_free(vm);
