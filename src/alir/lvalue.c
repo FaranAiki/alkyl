@@ -136,7 +136,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
         AlirValue *base_ptr = NULL;
         // CRITICAL FIX: If accessing a field on a flat stack object, get its address directly 
         // instead of loading it by value. If it's a pointer/heap object, evaluate it normally.
-        if (obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
+        if (0 && obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
             base_ptr = alir_gen_addr(ctx, ma->object);
         } else {
             base_ptr = alir_gen_expr(ctx, ma->object);
@@ -573,7 +573,7 @@ AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
         VarType obj_t = sem_get_node_type(ctx->sem, cn->operand);
         printf("DEBUG: alir_gen_cast cn->operand obj_t.base=%d, ptr_depth=%d, class_name=%s\n", obj_t.base, obj_t.ptr_depth, obj_t.class_name ? obj_t.class_name : "NULL");
         AlirValue *this_val = NULL;
-        if (obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
+        if (0 && obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
             this_val = alir_gen_addr(ctx, cn->operand);
         } else {
             this_val = alir_gen_expr(ctx, cn->operand); 
@@ -812,7 +812,7 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
         }
     }
     
-    return alir_gen_call_std(ctx, cn);
+    printf("DEBUG: calling std call for %s\n", target_name); return alir_gen_call_std(ctx, cn);
 }
 
 AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
@@ -821,7 +821,7 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     
     // CRITICAL FIX: If the object is a flat stack struct, get its address directly.
     // If it's already a heap pointer, let it be loaded properly.
-    if (obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
+    if (0 && obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
         this_val = alir_gen_addr(ctx, mc->object);
     } else {
         this_val = alir_gen_expr(ctx, mc->object); 

@@ -293,6 +293,11 @@ int run_repl(void) {
         sem.current_source = buffer;
         sem.current_filename = "REPL";
 
+        ASTNode **tail = &root;
+        while (*tail && (*tail)->next) tail = &(*tail)->next;
+        if (*tail) sem.ast_tail = &(*tail)->next;
+        else sem.ast_tail = tail;
+
         sem_scan_top_level(&sem, root);
         ASTNode *curr = root;
         while (curr) {
@@ -307,6 +312,27 @@ int run_repl(void) {
         if (ctx.semantic_error_count > 0) {
             ctx.semantic_error_count = 0; // reset for next line
             continue;
+        }
+
+        // First pass: ALIR compile all declarations (functions, classes) in the current line
+        curr = root;
+        while(curr) {
+            if (curr->type == NODE_FUNC_DEF) {
+                if (((FuncDefNode*)curr)->has_body) {
+                    AlirCtx alir_ctx;
+                    memset(&alir_ctx, 0, sizeof(AlirCtx));
+                    alir_ctx.sem = &sem;
+                    alir_ctx.module = module;
+                    alir_gen_function_def(&alir_ctx, (FuncDefNode*)curr, NULL);
+                }
+            } else if (curr->type == NODE_CLASS) {
+                AlirCtx alir_ctx;
+                memset(&alir_ctx, 0, sizeof(AlirCtx));
+                alir_ctx.sem = &sem;
+                alir_ctx.module = module;
+                pass1_register(&alir_ctx, curr); pass2_populate(&alir_ctx, root, curr);
+            }
+            curr = curr->next;
         }
 
         // Evaluate top level expressions using MetaVM
@@ -331,7 +357,7 @@ int run_repl(void) {
                     ret->value = vd->initializer;
                     fn->body = (ASTNode*)ret;
 
-                    sem_check_func_def(&sem, fn);
+                    printf("DEBUG CLI: curr->type=%d\n", curr->type); ASTNode **old_tail = sem.ast_tail; ASTNode *first_new = NULL; if (old_tail) first_new = *old_tail; sem_check_func_def(&sem, fn); printf("DEBUG CLI: &sem.ast_tail=%p, old_tail=%p, sem.ast_tail=%p, first_new=%p, *old_tail=%p\n", &sem.ast_tail, old_tail, sem.ast_tail, first_new, old_tail ? *old_tail : NULL); if (old_tail && *old_tail != first_new) { ASTNode *n = *old_tail; while(n) { if (n->type == NODE_FUNC_DEF) { AlirCtx actx; memset(&actx, 0, sizeof(AlirCtx)); actx.sem = &sem; actx.module = module; alir_gen_function_def(&actx, (FuncDefNode*)n, NULL); printf("DEBUG CLI: compiled function %s (mangled: %s)\n", ((FuncDefNode*)n)->name, ((FuncDefNode*)n)->mangled_name); } n = n->next; } }
 
                     AlirCtx alir_ctx;
                     memset(&alir_ctx, 0, sizeof(AlirCtx));
@@ -424,7 +450,7 @@ int run_repl(void) {
 #endif
             } else if (curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT && curr->type != NODE_LINK) {
                 char func_name[64];
-                sprintf(func_name, "__repl_expr_%d", cmd_count);
+                static int repl_expr_count = 0; sprintf(func_name, "__repl_expr_%d", ++repl_expr_count);
 
                 // Wrap in a synthetic function
                 FuncDefNode *fn = arena_alloc(&ast_arena, sizeof(FuncDefNode));
@@ -446,7 +472,7 @@ int run_repl(void) {
                     fn->body = (ASTNode*)ret;
                 }
 
-                sem_check_func_def(&sem, fn);
+                printf("DEBUG CLI: curr->type=%d\n", curr->type); ASTNode **old_tail = sem.ast_tail; ASTNode *first_new = NULL; if (old_tail) first_new = *old_tail; sem_check_func_def(&sem, fn); printf("DEBUG CLI: &sem.ast_tail=%p, old_tail=%p, sem.ast_tail=%p, first_new=%p, *old_tail=%p\n", &sem.ast_tail, old_tail, sem.ast_tail, first_new, old_tail ? *old_tail : NULL); if (old_tail && *old_tail != first_new) { ASTNode *n = *old_tail; while(n) { if (n->type == NODE_FUNC_DEF) { AlirCtx actx; memset(&actx, 0, sizeof(AlirCtx)); actx.sem = &sem; actx.module = module; alir_gen_function_def(&actx, (FuncDefNode*)n, NULL); printf("DEBUG CLI: compiled function %s (mangled: %s)\n", ((FuncDefNode*)n)->name, ((FuncDefNode*)n)->mangled_name); } n = n->next; } }
 
                 AlirCtx alir_ctx;
                 memset(&alir_ctx, 0, sizeof(AlirCtx));
@@ -481,8 +507,10 @@ int run_repl(void) {
                     }
 
                     if (ret_type.base != TYPE_VOID && ret_type.base != TYPE_UNKNOWN) {
-                        if ((ret_type.base == TYPE_INT || ret_type.base == TYPE_LONG) && ret_type.ptr_depth == 0 && ret_type.array_size == 0)
-                            printf("-> %lld (int)\n", exit_code);
+                        if ((ret_type.base == TYPE_INT || ret_type.base == TYPE_LONG) && ret_type.ptr_depth == 0 && ret_type.array_size == 0) {
+                            if (ret_type.is_unsigned) printf("-> %llu (unsigned int)\n", (unsigned long long)exit_code);
+                            else printf("-> %lld (int)\n", exit_code);
+                        }
                         else if (ret_type.base == TYPE_SINGLE && ret_type.ptr_depth == 0 && ret_type.array_size == 0) {
                             union { long long i; float f; } u; u.i = exit_code;
                             printf("-> %f (single)\n", (double)u.f);

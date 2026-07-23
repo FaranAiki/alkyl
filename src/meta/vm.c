@@ -178,6 +178,23 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                     }
                     break;
                 }
+                case ALIR_OP_SIZEOF: {
+                    if (inst->dest) {
+                        // VM pointer size is 8
+                        registers[inst->dest->temp_id].as.int_val = 8;
+                    }
+                    break;
+                }
+                case ALIR_OP_BITCAST: {
+                    if (inst->dest && inst->op1) {
+                        if (inst->op1->kind == ALIR_VAL_TEMP) {
+                            registers[inst->dest->temp_id].as.int_val = registers[inst->op1->temp_id].as.int_val;
+                        } else if (inst->op1->kind == ALIR_VAL_CONST) {
+                            registers[inst->dest->temp_id].as.int_val = inst->op1->val.long_long_val;
+                        }
+                    }
+                    break;
+                }
                 case ALIR_OP_CAST: {
                     if (inst->dest && inst->op1) {
                         double fval = 0;

@@ -207,7 +207,27 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
         return 1;
     }
 
+
+    for (AlirGlobal *g = module->globals; g; g = g->next) {
+        if (g->string_content) {
+            fprintf(out, "data $%s = { b \"", g->name);
+            for (int i = 0; g->string_content[i]; i++) {
+                char c = g->string_content[i];
+                if (c == '\n') fprintf(out, "\\n");
+                else if (c == '\r') fprintf(out, "\\r");
+                else if (c == '\t') fprintf(out, "\\t");
+                else if (c == '\"') fprintf(out, "\\\"");
+                else if (c == '\\') fprintf(out, "\\\\");
+                else fprintf(out, "%c", c);
+            }
+            fprintf(out, "\", b 0 }\n");
+        } else {
+            fprintf(out, "data $%s = { z 8 }\n", g->name);
+        }
+    }
+
     for (AlirFunction *f = module->functions; f; f = f->next) {
+ if (!f->blocks) continue;
         char ret_t = qbe_type(f->ret_type);
         if (ret_t == 'v') {
             fprintf(out, "export function $%s(", f->name);

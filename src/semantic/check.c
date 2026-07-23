@@ -1005,7 +1005,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             // 2. Clone the body with replacements AND renames
             ASTNode *cloned_body = ast_clone(ctx->compiler_ctx, cn->body, cn->type_params, ti->template_types, ti->num_template_types, rename_from, rename_to, num_renames);
                 
-                if (ctx->ast_tail) {
+                printf("DEBUG: &ctx->ast_tail=%p, ctx->ast_tail=%p, *ctx->ast_tail=%p\n", &ctx->ast_tail, ctx->ast_tail, ctx->ast_tail ? *ctx->ast_tail : NULL); if (ctx->ast_tail) {
                     *ctx->ast_tail = cloned_body;
                     while (*ctx->ast_tail) {
                         ctx->ast_tail = &(*ctx->ast_tail)->next;

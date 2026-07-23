@@ -72,25 +72,47 @@ AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *
     AlirValue *obj_ptr = new_temp(ctx, cls_ptr_type);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, obj_ptr, raw_mem, NULL));
 
-    // 4. Call Constructor
-    // Note: In a real compiler, we'd mangle the constructor name properly or look it up via SemCtx
-    // [FIX] ALIR_VAL_GLOBAL ensures the emitted name uses `@`
-    AlirInst *call_init = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_global(ctx->module, class_name, (VarType){TYPE_VOID, 0, NULL}), NULL);
-    
-    int arg_count = 0; ASTNode *a = args; while(a) { arg_count++; a=a->next; }
-    call_init->arg_count = arg_count + 1;
-    call_init->args = alir_alloc(ctx->module, sizeof(AlirValue*) * (arg_count + 1));
-    
-    call_init->args[0] = obj_ptr; // THIS pointer
-    
-    int i = 1; a = args;
-    while(a) {
-        call_init->args[i++] = alir_gen_expr(ctx, a);
-        a = a->next;
+    // 4. Call Constructor or Implicit Member Initialization
+    SemSymbol *sym = ctx->sem ? sem_symbol_lookup(ctx->sem, class_name, NULL) : NULL;
+    int ctor_exists = 0;
+    if (sym && sym->inner_scope) {
+         SemSymbol *constructor = sym->inner_scope->symbols;
+         while (constructor) {
+             if (strcmp(constructor->name, class_name) == 0 || strcmp(constructor->name, "init") == 0) { ctor_exists = 1; break; }
+             constructor = constructor->next;
+         }
     }
-    
-    call_init->dest = new_temp(ctx, (VarType){TYPE_VOID, 0});
-    emit(ctx, call_init);
+
+    if (ctor_exists) {
+        AlirInst *call_init = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_global(ctx->module, class_name, (VarType){TYPE_VOID, 0, NULL}), NULL);
+        int arg_count = 0; ASTNode *a = args; while(a) { arg_count++; a=a->next; }
+        call_init->arg_count = arg_count + 1;
+        call_init->args = alir_alloc(ctx->module, sizeof(AlirValue*) * (arg_count + 1));
+        call_init->args[0] = obj_ptr; // THIS pointer
+        int i = 1; a = args;
+        while(a) {
+            call_init->args[i++] = alir_gen_expr(ctx, a);
+            a = a->next;
+        }
+        call_init->dest = new_temp(ctx, (VarType){TYPE_VOID, 0});
+        emit(ctx, call_init);
+    } else {
+        // Implicit initialization (structural assignment)
+        int idx = 0;
+        ASTNode *a = args;
+        while(a) {
+            AlirValue *val = alir_gen_expr(ctx, a);
+            if (val) {
+                // Get pointer to field
+                AlirValue *field_ptr = new_temp(ctx, (VarType){TYPE_AUTO, 1, NULL});
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, obj_ptr, alir_const_int(ctx->module, idx)));
+                // Store value: op1 is VALUE, op2 is DEST POINTER
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, field_ptr));
+            }
+            idx++;
+            a = a->next;
+        }
+    }
     
     return obj_ptr;
 }
