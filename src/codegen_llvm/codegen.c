@@ -365,7 +365,8 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
             }
 
             // Safety Net: Terminate Basic Block if implicit
-            if (!LLVMGetBasicBlockTerminator(bb)) {
+            LLVMBasicBlockRef current_bb = LLVMGetInsertBlock(ctx->builder);
+            if (!LLVMGetBasicBlockTerminator(current_bb)) {
                 if (func->ret_type.base == TYPE_VOID) {
                     LLVMBuildRetVoid(ctx->builder);
                 } else {

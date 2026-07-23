@@ -418,7 +418,7 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                 }
                 case ALIR_OP_CALL: {
                     if (inst->op1 && (inst->op1->kind == ALIR_VAL_VAR || inst->op1->kind == ALIR_VAL_GLOBAL)) {
-                        if (strcmp(inst->op1->val.str_val, "print") == 0) {
+                        if (inst->op1->val.str_val && strcmp(inst->op1->val.str_val, "print") == 0) {
                             for (int i = 0; i < inst->arg_count; i++) {
                                 AlirValue *arg = inst->args[i];
                                 if (arg->kind == ALIR_VAL_CONST) {

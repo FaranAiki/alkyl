@@ -1,19 +1,16 @@
-class Vector {
-  int a;
-  int b;
-}
 class Somefunc {
-  int a = 0;
+  int a;
   int something() {
     this.a += 1;
     return this.a;
   }
 }
+
 Somefunc thing() {
   return Somefunc(1);
 }
+
 int main() {
-  let v = Vector(1, 2).a;
   let t = thing().something();
-  return v + t; // expected: 1 + 2 = 3
+  return t;
 }

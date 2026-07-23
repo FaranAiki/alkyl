@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
       alir_write_binary(alir_module, BASENAME ".balir");
   }
 
-  debug_step("Finished alir check and analysis. Start Codegen");
+  debug_step("Finished alir check and analysis. Start Codegen using LLVM Codegen");
   arena_reset(&arena);
 
   int final_ret = backend_run(alir_module, BASENAME, link_flags);

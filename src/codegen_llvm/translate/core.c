@@ -45,8 +45,8 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         case ALIR_OP_NEQ:
         case ALIR_OP_LT:
         case ALIR_OP_LTE:
-        case ALIR_OP_GT:
         case ALIR_OP_GTE:
+        case ALIR_OP_BITCAST:
         case ALIR_OP_CAST:
             res = translate_expr(ctx, inst, op1, op2, is_float);
             break;

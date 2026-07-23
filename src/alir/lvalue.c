@@ -614,6 +614,16 @@ AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
 
 AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
     const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
+    if (!target_name && cn->target) {
+        if (cn->target->type == NODE_VAR_REF) {
+            target_name = ((VarRefNode*)cn->target)->name;
+        } else if (cn->target->type == NODE_TEMPLATE_INSTANTIATION) {
+            TemplateInstNode *ti = (TemplateInstNode*)cn->target;
+            if (ti->target && ti->target->type == NODE_VAR_REF) {
+                target_name = ((VarRefNode*)ti->target)->name;
+            }
+        }
+    }
 
     if (cn->target && (cn->target->type == NODE_MEMBER_ACCESS || cn->target->type == NODE_VAR_REF) && ctx->sem && cn->name) {
         ASTNode *object_node = NULL;

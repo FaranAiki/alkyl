@@ -204,11 +204,23 @@ void sem_check_array_access(SemanticCtx *ctx, ASTNode *node) {
     }
     
     // Check for trait access (composition)
-    if (t.base == TYPE_CLASS && t.class_name && aa->index->type == NODE_VAR_REF) {
-        char *trait_name = ((VarRefNode*)aa->index)->name;
-        SemSymbol *class_sym = sem_symbol_lookup(ctx, t.class_name, NULL);
+    if (t.base == TYPE_CLASS && t.class_name) {
+        char *trait_name = NULL;
+        if (aa->index->type == NODE_VAR_REF) {
+            trait_name = ((VarRefNode*)aa->index)->name;
+        } else if (aa->index->type == NODE_LITERAL) {
+            VarType index_type = sem_get_node_type(ctx, aa->index);
+            if (index_type.base == TYPE_CLASS && index_type.class_name) {
+                trait_name = index_type.class_name;
+            }
+        }
+        
+        if (trait_name) {
+            SemSymbol *class_sym = sem_symbol_lookup(ctx, t.class_name, NULL);
+        printf("DEBUG: sem_check_array_access: trait_name=%s, class=%s, trait_count=%d\n", trait_name, t.class_name, class_sym ? class_sym->trait_count : -1);
         if (class_sym && class_sym->trait_count > 0) {
             for (int i = 0; i < class_sym->trait_count; i++) {
+                printf("DEBUG: checking trait %s == %s\n", class_sym->traits[i], trait_name);
                 if (strcmp(class_sym->traits[i], trait_name) == 0) {
                     // Valid composition access!
                     VarType trait_t = t;
@@ -217,6 +229,7 @@ void sem_check_array_access(SemanticCtx *ctx, ASTNode *node) {
                     return;
                 }
             }
+        }
         }
     }
     

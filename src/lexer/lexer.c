@@ -352,12 +352,11 @@ static int lex_number(Lexer *l, Token *t) {
         length++;
       }
 
-      char *buf = malloc(length + 1);
+      char *buf = arena_alloc(l->ctx->arena, length + 1);
       if (!buf) return 0;
       memcpy(buf, start, length);
       buf[length] = '\0';
       double dval = strtod(buf, NULL);
-      free(buf);
 
       t->type = TOKEN_DOUBLE_LIT;
       t->double_val = dval;
@@ -438,7 +437,7 @@ static int lex_char(Lexer *l, Token *t) {
 // Dynamically scales using StringBuilder, eliminating hard limits and data loss.
 static char* consume_string_content(Lexer *l) {
     StringBuilder sb;
-    sb_init(&sb, NULL);
+    sb_init(&sb, l->ctx->arena);
 
     while (peek(l) != '"' && peek(l) != '\0') {
       char val = peek(l);

@@ -354,7 +354,7 @@ int run_repl(void) {
         curr = root;
         while(curr) {
             if (curr->type == NODE_FUNC_DEF) {
-                if (((FuncDefNode*)curr)->has_body) {
+                if (((FuncDefNode*)curr)->has_body && !((FuncDefNode*)curr)->is_macro) {
                     AlirCtx alir_ctx;
                     memset(&alir_ctx, 0, sizeof(AlirCtx));
                     alir_ctx.sem = &sem;
@@ -393,7 +393,7 @@ int run_repl(void) {
                     ret->value = vd->initializer;
                     fn->body = (ASTNode*)ret;
 
-                    printf("DEBUG CLI: curr->type=%d\n", curr->type); ASTNode **old_tail = sem.ast_tail; ASTNode *first_new = NULL; if (old_tail) first_new = *old_tail; sem_check_func_def(&sem, fn); printf("DEBUG CLI: &sem.ast_tail=%p, old_tail=%p, sem.ast_tail=%p, first_new=%p, *old_tail=%p\n", &sem.ast_tail, old_tail, sem.ast_tail, first_new, old_tail ? *old_tail : NULL); if (old_tail && *old_tail != first_new) { ASTNode *n = *old_tail; while(n) { if (n->type == NODE_FUNC_DEF) { AlirCtx actx; memset(&actx, 0, sizeof(AlirCtx)); actx.sem = &sem; actx.module = module; alir_gen_function_def(&actx, (FuncDefNode*)n, NULL); printf("DEBUG CLI: compiled function %s (mangled: %s)\n", ((FuncDefNode*)n)->name, ((FuncDefNode*)n)->mangled_name); } n = n->next; } }
+                    printf("DEBUG CLI: curr->type=%d\n", curr->type); ASTNode **old_tail = sem.ast_tail; ASTNode *first_new = NULL; if (old_tail) first_new = *old_tail; sem_check_func_def(&sem, fn); printf("DEBUG CLI: &sem.ast_tail=%p, old_tail=%p, sem.ast_tail=%p, first_new=%p, *old_tail=%p\n", &sem.ast_tail, old_tail, sem.ast_tail, first_new, old_tail ? *old_tail : NULL); if (old_tail && *old_tail != first_new) { ASTNode *n = *old_tail; while(n) { if (n->type == NODE_FUNC_DEF && !((FuncDefNode*)n)->is_macro) { AlirCtx actx; memset(&actx, 0, sizeof(AlirCtx)); actx.sem = &sem; actx.module = module; alir_gen_function_def(&actx, (FuncDefNode*)n, NULL); printf("DEBUG CLI: compiled function %s (mangled: %s)\n", ((FuncDefNode*)n)->name, ((FuncDefNode*)n)->mangled_name); } n = n->next; } }
 
                     AlirCtx alir_ctx;
                     memset(&alir_ctx, 0, sizeof(AlirCtx));
@@ -447,7 +447,7 @@ int run_repl(void) {
                 pass2_populate(&alir_ctx, root, curr);
 
             } else if (curr->type == NODE_FUNC_DEF) {
-                if (((FuncDefNode*)curr)->has_body) {
+                if (((FuncDefNode*)curr)->has_body && !((FuncDefNode*)curr)->is_macro) {
                     AlirCtx alir_ctx;
                     memset(&alir_ctx, 0, sizeof(AlirCtx));
                     alir_ctx.sem = &sem;
@@ -508,7 +508,7 @@ int run_repl(void) {
                     fn->body = (ASTNode*)ret;
                 }
 
-                printf("DEBUG CLI: curr->type=%d\n", curr->type); ASTNode **old_tail = sem.ast_tail; ASTNode *first_new = NULL; if (old_tail) first_new = *old_tail; sem_check_func_def(&sem, fn); printf("DEBUG CLI: &sem.ast_tail=%p, old_tail=%p, sem.ast_tail=%p, first_new=%p, *old_tail=%p\n", &sem.ast_tail, old_tail, sem.ast_tail, first_new, old_tail ? *old_tail : NULL); if (old_tail && *old_tail != first_new) { ASTNode *n = *old_tail; while(n) { if (n->type == NODE_FUNC_DEF) { AlirCtx actx; memset(&actx, 0, sizeof(AlirCtx)); actx.sem = &sem; actx.module = module; alir_gen_function_def(&actx, (FuncDefNode*)n, NULL); printf("DEBUG CLI: compiled function %s (mangled: %s)\n", ((FuncDefNode*)n)->name, ((FuncDefNode*)n)->mangled_name); } n = n->next; } }
+                printf("DEBUG CLI: curr->type=%d\n", curr->type); ASTNode **old_tail = sem.ast_tail; ASTNode *first_new = NULL; if (old_tail) first_new = *old_tail; sem_check_func_def(&sem, fn); printf("DEBUG CLI: &sem.ast_tail=%p, old_tail=%p, sem.ast_tail=%p, first_new=%p, *old_tail=%p\n", &sem.ast_tail, old_tail, sem.ast_tail, first_new, old_tail ? *old_tail : NULL); if (old_tail && *old_tail != first_new) { ASTNode *n = *old_tail; while(n) { if (n->type == NODE_FUNC_DEF && !((FuncDefNode*)n)->is_macro) { AlirCtx actx; memset(&actx, 0, sizeof(AlirCtx)); actx.sem = &sem; actx.module = module; alir_gen_function_def(&actx, (FuncDefNode*)n, NULL); printf("DEBUG CLI: compiled function %s (mangled: %s)\n", ((FuncDefNode*)n)->name, ((FuncDefNode*)n)->mangled_name); } n = n->next; } }
 
                 AlirCtx alir_ctx;
                 memset(&alir_ctx, 0, sizeof(AlirCtx));

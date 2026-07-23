@@ -66,6 +66,10 @@ int parse_modifiers(Parser* p) {
             modifiers |= MODIFIER_FRAME;
             eat(p, TOKEN_FRAME);
         } else if (p->current_token.type == TOKEN_META) {
+            TokenType next = parser_peek_token(p).type;
+            if (next == TOKEN_LBRACE || next == TOKEN_LBRACKET || next == TOKEN_LPAREN || next == TOKEN_IF || next == TOKEN_WHILE) {
+                break; // Not a modifier! Let top.c or stmt.c handle it.
+            }
             modifiers |= MODIFIER_META;
             eat(p, TOKEN_META);
         } else if (p->current_token.type == TOKEN_IDENTIFIER && strcmp(p->current_token.text, "static") == 0) {

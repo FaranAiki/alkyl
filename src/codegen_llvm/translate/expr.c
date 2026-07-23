@@ -141,6 +141,43 @@ LLVMValueRef translate_expr(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 res = LLVMBuildCall2(ctx->builder, fty, func, call_args, 3, "rot");
                 break;
             }
+            case ALIR_OP_BITCAST:
+                res = LLVMBuildBitCast(ctx->builder, op1, get_llvm_type(ctx, inst->dest->type), "bitcast");
+                break;
+            case ALIR_OP_CAST: {
+                LLVMTypeRef dst_ty = get_llvm_type(ctx, inst->dest->type);
+                LLVMTypeRef src_ty = LLVMTypeOf(op1);
+                LLVMTypeKind dst_kind = LLVMGetTypeKind(dst_ty);
+                LLVMTypeKind src_kind = LLVMGetTypeKind(src_ty);
+                if (src_kind == LLVMIntegerTypeKind && dst_kind == LLVMPointerTypeKind) {
+                    res = LLVMBuildIntToPtr(ctx->builder, op1, dst_ty, "int2ptr");
+                } else if (src_kind == LLVMPointerTypeKind && dst_kind == LLVMIntegerTypeKind) {
+                    res = LLVMBuildPtrToInt(ctx->builder, op1, dst_ty, "ptr2int");
+                } else if (src_kind == LLVMIntegerTypeKind && dst_kind == LLVMIntegerTypeKind) {
+                    if (LLVMGetIntTypeWidth(dst_ty) > LLVMGetIntTypeWidth(src_ty)) {
+                        res = inst->dest->type.is_unsigned ? LLVMBuildZExt(ctx->builder, op1, dst_ty, "zext") : LLVMBuildSExt(ctx->builder, op1, dst_ty, "sext");
+                    } else if (LLVMGetIntTypeWidth(dst_ty) < LLVMGetIntTypeWidth(src_ty)) {
+                        res = LLVMBuildTrunc(ctx->builder, op1, dst_ty, "trunc");
+                    } else {
+                        res = op1;
+                    }
+                } else if (src_kind == LLVMPointerTypeKind && dst_kind == LLVMStructTypeKind) {
+                    res = LLVMBuildLoad2(ctx->builder, dst_ty, op1, "cast_load");
+                } else if (src_kind == LLVMStructTypeKind && dst_kind == LLVMStructTypeKind) {
+                    res = op1; // ALREADY SAME STRUCT
+                } else if (src_kind == LLVMIntegerTypeKind && (dst_kind == LLVMDoubleTypeKind || dst_kind == LLVMFloatTypeKind)) {
+                    res = inst->op1->type.is_unsigned ? LLVMBuildUIToFP(ctx->builder, op1, dst_ty, "ui2fp") : LLVMBuildSIToFP(ctx->builder, op1, dst_ty, "si2fp");
+                } else if ((src_kind == LLVMDoubleTypeKind || src_kind == LLVMFloatTypeKind) && dst_kind == LLVMIntegerTypeKind) {
+                    res = inst->dest->type.is_unsigned ? LLVMBuildFPToUI(ctx->builder, op1, dst_ty, "fp2ui") : LLVMBuildFPToSI(ctx->builder, op1, dst_ty, "fp2si");
+                } else if ((src_kind == LLVMDoubleTypeKind || src_kind == LLVMFloatTypeKind) && (dst_kind == LLVMDoubleTypeKind || dst_kind == LLVMFloatTypeKind)) {
+                    if (src_kind == LLVMDoubleTypeKind && dst_kind == LLVMFloatTypeKind) res = LLVMBuildFPTrunc(ctx->builder, op1, dst_ty, "fptrunc");
+                    else if (src_kind == LLVMFloatTypeKind && dst_kind == LLVMDoubleTypeKind) res = LLVMBuildFPExt(ctx->builder, op1, dst_ty, "fpext");
+                    else res = op1;
+                } else {
+                    res = LLVMBuildBitCast(ctx->builder, op1, dst_ty, "bitcast");
+                }
+                break;
+            }
             
     }
     return res;

@@ -140,6 +140,22 @@ The project uses the pure C API (`llvm-c/Core.h`) rather than the C++ object-ori
 * **Effect:** This requires manual management of strings and builders (`LLVMBuildAdd`, `LLVMBuildRet`).
 * **Architecture:** It allows the entire compiler to remain pure C, ensuring high portability and a smaller runtime footprint compared to linking against the C++ LLVM libraries. It requires explicit type creation (e.g., `LLVMInt32Type()`) at every step.
 
+## 5. ALIR (Alkyl Intermediate Representation) & Codegen
+
+Between Semantic Analysis and LLVM Codegen, there is the **ALIR (Alkyl Intermediate Representation)** phase.
+* **ALIR Structure**: ALIR flattens the AST into a linear sequence of instructions (`AlirInst`). Each block has `inst_head` and `inst_tail`.
+* **Codegen Routing (`src/codegen_llvm/translate/`)**:
+  * `core.c`: Contains `translate_inst()` which acts as a massive router for ALIR instructions.
+  * `expr.c`: Handles math/logic (`ALIR_OP_ADD`), memory refs, and casts.
+  * `flow.c`: Handles jumps, blocks, calls (`ALIR_OP_CALL`), returns.
+  * `stmt.c`: Handles memory allocations (`ALIR_OP_ALLOC`) and stores.
+  * `misc.c`: Handles compiler-specific/meta operators like `ALIR_OP_SIZEOF` and `ALIR_OP_ALIGNOF`. Note: these *must* be resolved in Codegen rather than Semantic Analysis because LLVM handles target-specific byte constraints and data layout alignments.
+
+### JIT/REPL Macro Handling (`src/driver/cli.c`)
+* The `ethyl` REPL acts dynamically, compiling top-level statements via JIT as they are entered.
+* **Macro Functions (`meta void ...`)**: When a macro function (e.g. `meta void print(...)`) is parsed, it sets `is_macro = 1` on its `FuncDefNode`.
+* **Crucial Rule**: In `cli.c`, we MUST ensure we do not eagerly compile AST nodes into ALIR if `is_macro == 1` (i.e. `if (node->type == NODE_FUNC_DEF && !((FuncDefNode*)node)->is_macro)`). Macros are strictly AST-expansion constructs; eagerly generating ALIR for an unexpanded macro will cause segmentation faults (like `GA ADA COLLECTION!`) since its internal variables (e.g., `for arg in ...`) are unbound placeholders until the call site.
+
 ## 6. What to Do 
 With the given information, do:
 
