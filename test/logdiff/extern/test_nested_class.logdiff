@@ -13,12 +13,15 @@
 < DEBUG: sem_symbol_add: Adding 'main' to local scope (is_func=0)
 < sem_check_func_def for: main
 < DEBUG: sem_symbol_add: Adding 'c' to local scope (is_func=1)
-20c8,9
+18a7,8
+> Warning: Implicitly resolved 'Clib' to 'ns.Clib'
+> DEBUG: calling std call for ns.Clib
+20c10,11
 < step: Finished alir check and analysis. Start Codegen using LLVM Codegen
 ---
 > step: Finished alir check and analysis. Start Codegen
 > Unreachable!
-23c12
+23c14
 < Linking failed.
 ---
 > Linked to build/out

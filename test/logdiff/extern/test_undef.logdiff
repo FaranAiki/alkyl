@@ -11,12 +11,14 @@
 < sem_check_func_def for: main
 < DEBUG: sem_symbol_add: Adding 'argc' to local scope (is_func=1)
 < DEBUG: sem_symbol_add: Adding 'argv' to local scope (is_func=1)
-19c8,9
+17a7
+> DEBUG: calling std call for foo
+19c9,10
 < step: Finished alir check and analysis. Start Codegen using LLVM Codegen
 ---
 > step: Finished alir check and analysis. Start Codegen
 > Unreachable!
-22c12
+22c13
 < Linking failed.
 ---
 > Linked to build/out

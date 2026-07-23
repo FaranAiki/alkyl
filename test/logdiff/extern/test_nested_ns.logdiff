@@ -1,4 +1,13 @@
-13,20d12
+1,8d0
+< at namespace main:
+< 8:17: error: 'clib' is not a namespace
+<   |   return ns.clib.printf("hello");
+<   |                 ^
+< 8:3: error: Return type mismatch
+<   |   return ns.clib.printf("hello");
+<   |   ^
+< Semantic analysis failed with 2 errors.
+13,20c5,14
 < DEBUG: sem_symbol_add: Adding 'ErrNull' to local scope (is_func=0)
 < DEBUG: sem_symbol_add: Adding 'ErrDivisionByZero' to local scope (is_func=0)
 < DEBUG: sem_symbol_add: Adding 'ns' to local scope (is_func=0)
@@ -7,3 +16,14 @@
 < DEBUG: sem_symbol_add: Adding 'main' to local scope (is_func=0)
 < sem_check_func_def for: printf
 < sem_check_func_def for: main
+---
+> Warning: Implicitly resolved 'clib' to 'ns.clib'
+> step: Finished Semantic Analysis. Start macro-linking.
+> step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+> Warning: Implicitly resolved 'clib' to 'ns.clib'
+> step: Finished alir. Start alir check and analysis.
+> step: Finished alir check and analysis. Start Codegen
+> Unreachable!
+> Compiled to build/out.o
+> Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+> Linked to build/out

@@ -1,0 +1,7 @@
+extern int printf(char *fmt, ...);
+int main() {
+    int x = 1;
+    printf("rotr = %d\n", x %>> 1);
+    printf("rotl = %d\n", x <<% 1);
+    return 0;
+}

@@ -134,7 +134,7 @@ set(CODEGEN_QBE_SOURCES
 
 if (BACKEND_LOWER STREQUAL "llvm")
     set(CODEGEN_SOURCES ${CODEGEN_LLVM_SOURCES})
-    add_definitions(-DBACKEND_LLVM)
+    add_definitions(-DBACKEND=llvm)
 elseif(BACKEND_LOWER STREQUAL "qbe")
     set(CODEGEN_SOURCES ${CODEGEN_QBE_SOURCES})
     add_definitions(-DBACKEND_QBE)
