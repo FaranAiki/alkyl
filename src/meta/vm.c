@@ -32,6 +32,7 @@ MetaVM* meta_vm_init(Arena *arena) {
 }
 
 void meta_vm_free(MetaVM *vm) {
+    (void)vm;
     // Handled by Arena
 }
 

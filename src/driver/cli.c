@@ -59,7 +59,7 @@ static void display_matches_hook(char **matches, int num_matches, int max_length
 static void ethyl_redisplay(void) {
     rl_redisplay();
 
-    if (rl_line_buffer && rl_point == strlen(rl_line_buffer) && rl_point > 0) {
+    if (rl_line_buffer && rl_point == (int)strlen(rl_line_buffer) && rl_point > 0) {
         if (!global_sem_ctx || !global_sem_ctx->global_scope) return;
         
         int text_len = strlen(rl_line_buffer);
@@ -73,7 +73,7 @@ static void ethyl_redisplay(void) {
             sym = sym->next;
         }
         
-        if (best_match && strlen(best_match) > text_len) {
+        if (best_match && (int)strlen(best_match) > text_len) {
             char *hint = best_match + text_len;
             printf("\033[90m%s\033[0m", hint);
             printf("\033[%dD", (int)strlen(hint));
