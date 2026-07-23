@@ -72,6 +72,7 @@ void parser_fail_at(Parser *p, Token t, const char *msg);
 void parser_sync(Parser *p);
 
 void eat(Parser *p, TokenType type);
+void eat_semi(Parser *p);
 VarType parse_type(Parser *p); 
 VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name);
 

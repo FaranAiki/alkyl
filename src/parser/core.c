@@ -185,7 +185,7 @@ void parser_fail(Parser *p, const char *msg) {
 void parser_sync(Parser *p) {
     while (p->current_token.type != TOKEN_EOF) {
         if (p->current_token.type == TOKEN_SEMICOLON) {
-            eat(p, TOKEN_SEMICOLON);
+            eat_semi(p);
     if (p->has_error) return;
             return;
         }
@@ -549,7 +549,7 @@ VarType parse_type(Parser *p) {
                               else cls->members = (ASTNode*)vd;
                               last_member = (ASTNode*)vd;
                           }
-                          if (p->current_token.type == TOKEN_SEMICOLON) eat(p, TOKEN_SEMICOLON);
+                          if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
                       }
                       eat(p, TOKEN_RBRACE);
                       t.base = TYPE_CLASS;

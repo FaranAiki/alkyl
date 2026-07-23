@@ -9,10 +9,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
-
+#include "codegen_llvm/codegen.h"
 #include <readline/readline.h>
 #include <readline/history.h>
+#ifndef _WIN32
+#include <dlfcn.h>
+#endif
 #include "../common/diagnostic.h"
 
 // Global context for autocompletion
@@ -287,6 +289,34 @@ int run_repl(void) {
                     alir_ctx.module = module;
                     alir_gen_function_def(&alir_ctx, (FuncDefNode*)curr, NULL);
                 }
+            } else if (curr->type == NODE_LINK) {
+#ifndef _WIN32
+                LinkNode *ln = (LinkNode*)curr;
+                char libname[256];
+#ifdef __APPLE__
+                snprintf(libname, sizeof(libname), "lib%s.dylib", ln->lib_name);
+#else
+                snprintf(libname, sizeof(libname), "lib%s.so", ln->lib_name);
+#endif
+                void *handle = dlopen(libname, RTLD_GLOBAL | RTLD_NOW);
+                if (!handle) {
+                    snprintf(libname, sizeof(libname), "%s", ln->lib_name);
+                    handle = dlopen(libname, RTLD_GLOBAL | RTLD_NOW);
+                }
+#ifndef __APPLE__
+                if (!handle) {
+                    snprintf(libname, sizeof(libname), "lib%s.so.6", ln->lib_name);
+                    handle = dlopen(libname, RTLD_GLOBAL | RTLD_NOW);
+                }
+#endif
+                if (!handle) {
+                    printf("\033[31mFailed to link '%s': %s\033[0m\n", ln->lib_name, dlerror());
+                } else {
+                    printf("\033[32mLinked '%s' successfully.\033[0m\n", ln->lib_name);
+                }
+#else
+                printf("\033[31mDynamic linking in REPL is not supported on Windows yet.\033[0m\n");
+#endif
             } else if (curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT && curr->type != NODE_LINK) {
                 char func_name[64];
                 sprintf(func_name, "__repl_expr_%d", cmd_count);

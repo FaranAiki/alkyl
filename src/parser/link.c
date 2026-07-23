@@ -13,7 +13,7 @@ ASTNode* parse_import(Parser *p) {
   
   // optional semicolon
   if (p->current_token.type == TOKEN_SEMICOLON) {
-      eat(p, TOKEN_SEMICOLON);
+      eat_semi(p);
   } 
   
   char* src = read_import_file(p, fname);
@@ -59,7 +59,7 @@ ASTNode* parse_link(Parser *p) {
     parser_fail(p, "Expected library name (string or identifier) after 'link'");
     return NULL;
   }
-  if (p->current_token.type == TOKEN_SEMICOLON) eat(p, TOKEN_SEMICOLON);
+  if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
   LinkNode *node = parser_alloc(p, sizeof(LinkNode));
   node->base.type = NODE_LINK;
   node->lib_name = lib_name;

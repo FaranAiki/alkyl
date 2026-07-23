@@ -45,7 +45,7 @@ ASTNode* parse_enum(Parser *p) {
       else if (p->current_token.type != TOKEN_RBRACKET) parser_fail(p, "Expected ',' or ']' in enum definition");
   }
   eat(p, TOKEN_RBRACKET);
-  eat(p, TOKEN_SEMICOLON);
+  eat_semi(p);
 
   EnumNode *en = parser_alloc(p, sizeof(EnumNode));
   en->base.type = NODE_ENUM;
@@ -224,7 +224,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                       vt = parse_func_ptr_decl(p, vt, &mem_name);
                       
                       ASTNode *init = parse_initializer(p, vt);
-                      eat(p, TOKEN_SEMICOLON);
+                      eat_semi(p);
                       
                       VarDeclNode *var = parser_alloc(p, sizeof(VarDeclNode));
                       var->base.type = NODE_VAR_DECL;
@@ -357,7 +357,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   ASTNode *body = NULL;
                   int has_body = 0;
                   if (p->current_token.type == TOKEN_SEMICOLON) {
-                      eat(p, TOKEN_SEMICOLON);
+                      eat_semi(p);
                       has_body = 0;
                   } else {
                       eat(p, TOKEN_LBRACE);
@@ -448,7 +448,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                           break;
                       }
                   }
-                  eat(p, TOKEN_SEMICOLON);
+                  eat_semi(p);
               }
           } else {
               parser_fail(p, "Unexpected token in class body. Expected member declaration or '}'.");

@@ -38,7 +38,7 @@ static ASTNode* parse_single_extern(Parser *p, int modifiers) {
       char *name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
       if (p->has_error) return NULL;
-      eat(p, TOKEN_SEMICOLON);
+      eat_semi(p);
       
       register_typename(p, name, 0); 
       
@@ -108,7 +108,7 @@ static ASTNode* parse_single_extern(Parser *p, int modifiers) {
       if (p->has_error) return NULL;
   }
   
-  eat(p, TOKEN_SEMICOLON);
+  eat_semi(p);
   FuncDefNode *node = parser_alloc(p, sizeof(FuncDefNode));
   node->base.type = NODE_FUNC_DEF; node->name = name; node->ret_type = ret_type;
   node->params = params_head; node->body = NULL; node->is_varargs = is_varargs;
@@ -338,7 +338,7 @@ ASTNode* parse_errnum(Parser *p) {
 
 ASTNode* parse_top_level_internal(Parser *p) { 
   if (p->current_token.type == TOKEN_SEMICOLON) {
-      eat(p, TOKEN_SEMICOLON);
+      eat_semi(p);
       return NULL;
   }
 
@@ -471,7 +471,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
           } else {
               eat(p, p->current_token.type); // skip unhandled
           }
-          if (p->current_token.type == TOKEN_SEMICOLON) eat(p, TOKEN_SEMICOLON);
+          if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
       }
       eat(p, TOKEN_RBRACE);
       return parse_top_level(p);
@@ -589,7 +589,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
       vtype = parse_func_ptr_decl(p, vtype, &name);
       
       ASTNode *init = parse_initializer(p, vtype);
-      eat(p, TOKEN_SEMICOLON);
+      eat_semi(p);
       
       VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
       node->base.type = NODE_VAR_DECL;
@@ -768,7 +768,7 @@ ASTNode* parse_func_def_after_type(Parser *p, int modifiers, VarType vtype, int 
             break;
         }
     }
-    eat(p, TOKEN_SEMICOLON);
+    eat_semi(p);
     return head;
   }
 }

@@ -108,7 +108,7 @@ ASTNode* parse_define(Parser *p) {
       register_macro(p, sigs[i].name, sigs[i].params, sigs[i].param_count, body_tokens, body_len);
   }
   
-  if (p->current_token.type == TOKEN_SEMICOLON) eat(p, TOKEN_SEMICOLON);
+  if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
 
   return NULL; 
 }
@@ -138,7 +138,7 @@ ASTNode* parse_typedef(Parser *p) {
           VarType fp_type = parse_func_ptr_decl(p, target, &cb_name);
           register_alias(p, cb_name, fp_type);
           // No free(cb_name)
-          eat(p, TOKEN_SEMICOLON);
+          eat_semi(p);
           return NULL;
       }
       
@@ -215,6 +215,6 @@ ASTNode* parse_typedef(Parser *p) {
       }
   }
   
-  eat(p, TOKEN_SEMICOLON);
+  eat_semi(p);
   return NULL;
 }
