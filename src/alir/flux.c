@@ -1,7 +1,7 @@
 #include "alir.h"
 
 static int is_terminator_op(AlirOpcode op) {
-    return op == ALIR_OP_RET || op == ALIR_OP_JUMP || op == ALIR_OP_CONDI || op == ALIR_OP_SWITCH || op == ALIR_OP_YIELD;
+    return op == ALIR_OP_RET || op == ALIR_OP_JUMP || op == ALIR_OP_CONDI || op == ALIR_OP_SWITCH || op == ALIR_OP_YIELD || op == ALIR_OP_PANIC;
 }
 
 // TODO should this use parser tho?

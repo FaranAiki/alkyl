@@ -4,6 +4,7 @@
 
 void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
     if (!node) return;
+    if (ctx->current_block && ctx->current_block->tail && is_terminator(ctx->current_block->tail->op)) return;
 
     ctx->current_line = node->line;
     ctx->current_col = node->col;

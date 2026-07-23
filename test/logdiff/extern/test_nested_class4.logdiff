@@ -1,69 +1,51 @@
-2a3,12
-> loading unsized types is not allowed
->   %load = load %ns.Clib, ptr %alloc, align 1
-> IntToPtr source must be an integral
->   %safe_cast = inttoptr %ns.Clib %load to ptr
-> GEP into unsized type!
->   %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %safe_cast, i32 0, i32 0
-> loading unsized types is not allowed
->   %load1 = load %ns.Clib, ptr %alloc, align 1
-> IntToPtr source must be an integral
->   %safe_cast2 = inttoptr %ns.Clib %load1 to ptr
-4,6c14
-<   %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+3,12d2
+< loading unsized types is not allowed
+<   %load = load %ns.Clib, ptr %alloc, align 1
+< IntToPtr source must be an integral
+<   %safe_cast = inttoptr %ns.Clib %load to ptr
 < GEP into unsized type!
-<   %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+<   %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %safe_cast, i32 0, i32 0
+< loading unsized types is not allowed
+<   %load1 = load %ns.Clib, ptr %alloc, align 1
+< IntToPtr source must be an integral
+<   %safe_cast2 = inttoptr %ns.Clib %load1 to ptr
+14c4,6
+<   %struct_gep3 = getelementptr inbounds nuw %ns.Clib, ptr %safe_cast2, i32 0, i32 0
 ---
->   %struct_gep3 = getelementptr inbounds nuw %ns.Clib, ptr %safe_cast2, i32 0, i32 0
-8a17,26
-> loading unsized types is not allowed
->   %load = load %ns.Clib, ptr %alloc, align 1
-> IntToPtr source must be an integral
->   %safe_cast = inttoptr %ns.Clib %load to ptr
+>   %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
 > GEP into unsized type!
->   %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %safe_cast, i32 0, i32 0
-> loading unsized types is not allowed
->   %load1 = load %ns.Clib, ptr %alloc, align 1
-> IntToPtr source must be an integral
->   %safe_cast2 = inttoptr %ns.Clib %load1 to ptr
-10,12c28
-<   %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+>   %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+17,26d8
+< loading unsized types is not allowed
+<   %load = load %ns.Clib, ptr %alloc, align 1
+< IntToPtr source must be an integral
+<   %safe_cast = inttoptr %ns.Clib %load to ptr
 < GEP into unsized type!
-<   %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+<   %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %safe_cast, i32 0, i32 0
+< loading unsized types is not allowed
+<   %load1 = load %ns.Clib, ptr %alloc, align 1
+< IntToPtr source must be an integral
+<   %safe_cast2 = inttoptr %ns.Clib %load1 to ptr
+28c10,12
+<   %struct_gep3 = getelementptr inbounds nuw %ns.Clib, ptr %safe_cast2, i32 0, i32 0
 ---
->   %struct_gep3 = getelementptr inbounds nuw %ns.Clib, ptr %safe_cast2, i32 0, i32 0
-14a31,40
-> loading unsized types is not allowed
->   %load = load %ns.Clib, ptr %alloc, align 1
-> IntToPtr source must be an integral
->   %safe_cast = inttoptr %ns.Clib %load to ptr
+>   %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
 > GEP into unsized type!
->   %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %safe_cast, i32 0, i32 0
-> loading unsized types is not allowed
->   %load1 = load %ns.Clib, ptr %alloc, align 1
-> IntToPtr source must be an integral
->   %safe_cast2 = inttoptr %ns.Clib %load1 to ptr
-16,18c42
-<   %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+>   %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+31,40d14
+< loading unsized types is not allowed
+<   %load = load %ns.Clib, ptr %alloc, align 1
+< IntToPtr source must be an integral
+<   %safe_cast = inttoptr %ns.Clib %load to ptr
 < GEP into unsized type!
-<   %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+<   %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %safe_cast, i32 0, i32 0
+< loading unsized types is not allowed
+<   %load1 = load %ns.Clib, ptr %alloc, align 1
+< IntToPtr source must be an integral
+<   %safe_cast2 = inttoptr %ns.Clib %load1 to ptr
+42c16,18
+<   %struct_gep3 = getelementptr inbounds nuw %ns.Clib, ptr %safe_cast2, i32 0, i32 0
 ---
->   %struct_gep3 = getelementptr inbounds nuw %ns.Clib, ptr %safe_cast2, i32 0, i32 0
-21d44
-< DEBUG: after parse_type, vt.base=1, token.type=23
-25,32d47
-< DEBUG: sem_symbol_add: Adding 'ErrNull' to local scope (is_func=0)
-< DEBUG: sem_symbol_add: Adding 'ErrDivisionByZero' to local scope (is_func=0)
-< DEBUG: sem_symbol_add: Adding 'ns' to local scope (is_func=0)
-< DEBUG: sem_symbol_add: Adding 'Clib' to local scope (is_func=0)
-< DEBUG: sem_symbol_add: Adding 'x' to local scope (is_func=0)
-< DEBUG: sem_symbol_add: Adding 'main' to local scope (is_func=0)
-< sem_check_func_def for: main
-< DEBUG: sem_symbol_add: Adding 'c' to local scope (is_func=1)
-34a50
-> Warning: Implicitly resolved 'Clib' to 'ns.Clib'
-36c52,53
-< step: Finished alir check and analysis. Start Codegen using LLVM Codegen
----
-> step: Finished alir check and analysis. Start Codegen
-> Unreachable!
+>   %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
+> GEP into unsized type!
+>   %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0

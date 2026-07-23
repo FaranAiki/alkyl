@@ -52,8 +52,44 @@ static char* ethyl_generator(const char* text, int state) {
         sym = global_sem_ctx->global_scope->symbols;
         kw_idx = 0;
 
-        // We extract the last word from the entire rl_line_buffer instead of using 'text'
         word = get_last_word(rl_line_buffer, &word_len);
+        
+        int word_start_idx = word - rl_line_buffer;
+        if (word_start_idx > 0 && rl_line_buffer[word_start_idx - 1] == '.') {
+            int i = word_start_idx - 2;
+            while (i >= 0 && (isalnum((unsigned char)rl_line_buffer[i]) || rl_line_buffer[i] == '_')) i--;
+            i++;
+            int ns_len = (word_start_idx - 1) - i;
+            if (ns_len > 0) {
+                char ns_name[256];
+                snprintf(ns_name, ns_len + 1, "%s", rl_line_buffer + i);
+                
+                sym = NULL;
+                SemSymbol *ns = global_sem_ctx->global_scope->symbols;
+                while(ns) {
+                    if (strcmp(ns->name, ns_name) == 0) {
+                        if (ns->kind == SYM_NAMESPACE && ns->inner_scope) {
+                            sym = ns->inner_scope->symbols;
+                        } else if (ns->type.base == TYPE_CLASS && ns->type.class_name) {
+                            SemSymbol *cls = global_sem_ctx->global_scope->symbols;
+                            while(cls) {
+                                if (strcmp(cls->name, ns->type.class_name) == 0 && cls->kind == SYM_CLASS && cls->inner_scope) {
+                                    sym = cls->inner_scope->symbols;
+                                    break;
+                                }
+                                cls = cls->next;
+                            }
+                        } else if (ns->kind == SYM_CLASS && ns->inner_scope) {
+                            // Static class members
+                            sym = ns->inner_scope->symbols;
+                        }
+                        break;
+                    }
+                    ns = ns->next;
+                }
+                kw_idx = 999; // Don't autocomplete keywords after a dot
+            }
+        }
     }
 
     while (sym) {

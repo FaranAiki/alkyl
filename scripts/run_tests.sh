@@ -119,8 +119,11 @@ for AKY_FILE in $FILES; do
     
     # 2. Execution (if compiled successfully)
     if [ -f "build/out" ]; then
-        # Always use input file (now that they all exist)
-        ./build/out < "$INPUT_FILE" > "$ACTUAL_OUT" 2>&1
+        if [ -f "$INPUT_FILE" ]; then
+            ./build/out < "$INPUT_FILE" > "$ACTUAL_OUT" 2>&1
+        else
+            ./build/out > "$ACTUAL_OUT" 2>&1
+        fi
         RUN_RET=$?
         
         if [ $UPDATE -eq 1 ]; then

@@ -134,10 +134,16 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
         if (obj_t.base == TYPE_ENUM) return NULL; 
 
         AlirValue *base_ptr = NULL;
-        // CRITICAL FIX: If accessing a field on a flat stack object, get its address directly 
-        // instead of loading it by value. If it's a pointer/heap object, evaluate it normally.
-        if (0 && obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
+        if (obj_t.ptr_depth == 0) {
             base_ptr = alir_gen_addr(ctx, ma->object);
+            if (!base_ptr) {
+                AlirValue *rval = alir_gen_expr(ctx, ma->object);
+                if (rval) {
+                    base_ptr = new_temp(ctx, obj_t);
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, base_ptr, NULL, NULL));
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, rval, base_ptr));
+                }
+            }
         } else {
             base_ptr = alir_gen_expr(ctx, ma->object);
         }
@@ -819,10 +825,16 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     VarType obj_t = sem_get_node_type(ctx->sem, mc->object);
     AlirValue *this_val = NULL;
     
-    // CRITICAL FIX: If the object is a flat stack struct, get its address directly.
-    // If it's already a heap pointer, let it be loaded properly.
-    if (0 && obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
+    if (obj_t.ptr_depth == 0) {
         this_val = alir_gen_addr(ctx, mc->object);
+        if (!this_val) {
+            AlirValue *rval = alir_gen_expr(ctx, mc->object);
+            if (rval) {
+                this_val = new_temp(ctx, obj_t);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, this_val, NULL, NULL));
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, rval, this_val));
+            }
+        }
     } else {
         this_val = alir_gen_expr(ctx, mc->object); 
     }

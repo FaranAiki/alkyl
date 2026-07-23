@@ -37,6 +37,35 @@ LLVMValueRef translate_expr(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 }
                 break;
             }
+            case ALIR_OP_EQ:
+            case ALIR_OP_NEQ:
+            case ALIR_OP_LT:
+            case ALIR_OP_LTE:
+            case ALIR_OP_GT:
+            case ALIR_OP_GTE: {
+                if (is_float) {
+                    switch (inst->op) {
+                        case ALIR_OP_EQ: res = LLVMBuildFCmp(ctx->builder, LLVMRealOEQ, op1, op2, "eq_f"); break;
+                        case ALIR_OP_NEQ: res = LLVMBuildFCmp(ctx->builder, LLVMRealONE, op1, op2, "neq_f"); break;
+                        case ALIR_OP_LT: res = LLVMBuildFCmp(ctx->builder, LLVMRealOLT, op1, op2, "lt_f"); break;
+                        case ALIR_OP_LTE: res = LLVMBuildFCmp(ctx->builder, LLVMRealOLE, op1, op2, "lte_f"); break;
+                        case ALIR_OP_GT: res = LLVMBuildFCmp(ctx->builder, LLVMRealOGT, op1, op2, "gt_f"); break;
+                        case ALIR_OP_GTE: res = LLVMBuildFCmp(ctx->builder, LLVMRealOGE, op1, op2, "gte_f"); break;
+                        default: break;
+                    }
+                } else {
+                    switch (inst->op) {
+                        case ALIR_OP_EQ: res = LLVMBuildICmp(ctx->builder, LLVMIntEQ, op1, op2, "eq"); break;
+                        case ALIR_OP_NEQ: res = LLVMBuildICmp(ctx->builder, LLVMIntNE, op1, op2, "neq"); break;
+                        case ALIR_OP_LT: res = LLVMBuildICmp(ctx->builder, LLVMIntSLT, op1, op2, "lt"); break;
+                        case ALIR_OP_LTE: res = LLVMBuildICmp(ctx->builder, LLVMIntSLE, op1, op2, "lte"); break;
+                        case ALIR_OP_GT: res = LLVMBuildICmp(ctx->builder, LLVMIntSGT, op1, op2, "gt"); break;
+                        case ALIR_OP_GTE: res = LLVMBuildICmp(ctx->builder, LLVMIntSGE, op1, op2, "gte"); break;
+                        default: break;
+                    }
+                }
+                break;
+            }
             case ALIR_OP_DIV:
             case ALIR_OP_MOD:
             case ALIR_OP_FDIV: {

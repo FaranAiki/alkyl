@@ -3,20 +3,12 @@ AST Node Type: 1
 AST Node Type: 1
 AST Node Type: 1
 step: Start Semantic Analysis.
-DEBUG: sem_symbol_add: Adding 'ErrNull' to local scope (is_func=0)
-DEBUG: sem_symbol_add: Adding 'ErrDivisionByZero' to local scope (is_func=0)
-DEBUG: sem_symbol_add: Adding 'cmalloc' to local scope (is_func=0)
-DEBUG: sem_symbol_add: Adding 'cfree' to local scope (is_func=0)
-DEBUG: sem_symbol_add: Adding 'main' to local scope (is_func=0)
-sem_check_func_def for: cmalloc
-DEBUG: sem_symbol_add: Adding 'size' to local scope (is_func=1)
-sem_check_func_def for: cfree
-sem_check_func_def for: main
-DEBUG: sem_symbol_add: Adding 'p' to local scope (is_func=1)
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+DEBUG: calling std call for malloc
+DEBUG: calling std call for free
 step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+step: Finished alir check and analysis. Start Codegen
 Compiled to build/out.o
 Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
 Linked to build/out

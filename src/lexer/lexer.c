@@ -63,15 +63,17 @@ static char* intern_string(Lexer *l, const char *str) {
 }
 
 static char* intern_strndup(Lexer *l, const char *str, size_t len) {
-    char *temp = malloc(len + 1);
-    if (!temp) return NULL;
-
-    memcpy(temp, str, len);
-    temp[len] = '\0';
-    char* res = intern_string(l, temp);
-
-    free(temp);
-    return res;
+    if (len < 512) {
+        char temp[512];
+        memcpy(temp, str, len);
+        temp[len] = '\0';
+        return intern_string(l, temp);
+    } else {
+        char *temp = arena_alloc(l->ctx->arena, len + 1);
+        memcpy(temp, str, len);
+        temp[len] = '\0';
+        return intern_string(l, temp);
+    }
 }
 
 void skip_whitespace_and_comments(Lexer *l) {

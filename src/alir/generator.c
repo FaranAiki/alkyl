@@ -29,7 +29,8 @@ int is_terminator(AlirOpcode op) {
            op == ALIR_OP_JUMP || 
            op == ALIR_OP_CONDI || 
            op == ALIR_OP_SWITCH || 
-           op == ALIR_OP_YIELD;
+           op == ALIR_OP_YIELD ||
+           op == ALIR_OP_PANIC;
 }
 
 // Helper to extract constant integer from AST node (Literals or Enum Members)
