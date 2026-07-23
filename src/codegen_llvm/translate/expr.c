@@ -178,7 +178,7 @@ LLVMValueRef translate_expr(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 }
                 break;
             }
-            
+        default: break;
     }
     return res;
 }

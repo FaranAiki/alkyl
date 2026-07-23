@@ -2,6 +2,7 @@
 #include "../../semantic/semantic.h"
 
 LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, LLVMValueRef op2, int is_float) {
+    (void)is_float;
     LLVMValueRef res = NULL;
     switch (inst->op) {
             case ALIR_OP_ALLOCA: {
@@ -80,7 +81,8 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 }
                 break;
             }
-            
+        default:
+            break;
     }
     return res;
 }

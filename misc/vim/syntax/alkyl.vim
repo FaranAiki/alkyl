@@ -33,6 +33,9 @@ syn region alkylBlockComment start="/\*" end="\*/"
 " Types/Classes (PascalCase)
 syn match alkylClass "\<[A-Z][a-zA-Z0-9_]*\>"
 
+" Functions
+syn match alkylFunction "\<[a-zA-Z_][a-zA-Z0-9_]*\>\s*("me=e-1
+
 " Highlighting Links
 hi def link alkylStatement Statement
 hi def link alkylConditional Conditional
@@ -42,6 +45,7 @@ hi def link alkylModifier StorageClass
 hi def link alkylTypeKeyword Structure
 hi def link alkylBuiltinType Type
 hi def link alkylClass Type
+hi def link alkylFunction Function
 hi def link alkylBoolean Boolean
 hi def link alkylOperatorKeyword Keyword
 

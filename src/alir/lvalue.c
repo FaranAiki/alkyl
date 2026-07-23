@@ -579,14 +579,18 @@ AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
         VarType obj_t = sem_get_node_type(ctx->sem, cn->operand);
         printf("DEBUG: alir_gen_cast cn->operand obj_t.base=%d, ptr_depth=%d, class_name=%s\n", obj_t.base, obj_t.ptr_depth, obj_t.class_name ? obj_t.class_name : "NULL");
         AlirValue *this_val = NULL;
-        if (0 && obj_t.base == TYPE_CLASS && obj_t.ptr_depth == 0) {
+        if (obj_t.ptr_depth == 0) {
             this_val = alir_gen_addr(ctx, cn->operand);
+            if (!this_val) {
+                AlirValue *rval = alir_gen_expr(ctx, cn->operand);
+                if (rval) {
+                    this_val = new_temp(ctx, obj_t);
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, this_val, NULL, NULL));
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, rval, this_val));
+                }
+            }
         } else {
             this_val = alir_gen_expr(ctx, cn->operand); 
-        }
-        if (!this_val) {
-             this_val = new_temp(ctx, (VarType){TYPE_INT, 0});
-             emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, this_val, NULL, NULL));
         }
         
         AlirValue *func_val = alir_val_var(ctx->module, cn->custom_cast_method);

@@ -58,6 +58,8 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
         case ALIR_OP_PHI:
         case ALIR_OP_CALL:
         case ALIR_OP_RET:
+        case ALIR_OP_FALLBACK:
+        case ALIR_OP_PANIC:
             res = translate_flow(ctx, inst, op1, op2, is_float);
             break;
             
