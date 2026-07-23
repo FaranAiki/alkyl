@@ -96,15 +96,15 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
               if (func->param_count > 0) fprintf(f, ", ");
               fprintf(f, "...");
           }
-          fprintf(f, ") {\n");
+          fprintf(f, "):\n");
           
           AlirBlock *b = func->blocks;
           while(b) {
-              fprintf(f, "%s:\n", b->label);
+              fprintf(f, "  %s:\n", b->label);
               
               AlirInst *inst = b->head;
               while(inst) {
-                  fprintf(f, "  ");
+                  fprintf(f, "    ");
                   if (inst->dest) {
                       alir_fprint_val(f, inst->dest);
                       fprintf(f, " = ");
@@ -118,16 +118,27 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                         alir_fprint_val(f, inst->op1);
                       }
                   } 
+                  else if (inst->op == ALIR_OP_STORE) {
+                      if (inst->op2) alir_fprint_val(f, inst->op2);
+                      else fprintf(f, "undef");
+                      
+                      fprintf(f, " <- ");
+                      
+                      if (inst->op1) {
+                          alir_fprint_type(f, inst->op1->type);
+                          fprintf(f, " ");
+                          alir_fprint_val(f, inst->op1);
+                      } else {
+                          fprintf(f, "undef");
+                      }
+                  }
                   else {
                       // [FIX] Add required typing to the instruction output
                       // this is the getptr isn't
                       fprintf(f, "%s ", alir_op_str(inst->op));
 
-                      if (inst->dest && inst->op != ALIR_OP_STORE && inst->op != ALIR_OP_CALL) {
+                      if (inst->dest && inst->op != ALIR_OP_CALL) {
                           alir_fprint_type(f, inst->dest->type);
-                          fprintf(f, " ");
-                      } else if (inst->op == ALIR_OP_STORE && inst->op1) {
-                          alir_fprint_type(f, inst->op1->type);
                           fprintf(f, " ");
                       } else if (inst->op == ALIR_OP_RET && inst->op1) {
                           alir_fprint_type(f, inst->op1->type);
@@ -136,8 +147,6 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                       
                       if (inst->op1) {
                           alir_fprint_val(f, inst->op1);
-                      } else if (inst->op == ALIR_OP_STORE) {
-                           fprintf(f, "undef"); 
                       } else if (inst->op == ALIR_OP_RET && !inst->op1) {
                           fprintf(f, "void");
                       }
@@ -173,7 +182,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
               }
               b = b->next;
           }
-          fprintf(f, "}\n");
+          fprintf(f, "\n");
       }
       func = func->next;
 

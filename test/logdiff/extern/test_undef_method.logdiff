@@ -1,4 +1,4 @@
-13,19c13
+13,20d12
 < DEBUG: sem_symbol_add: Adding 'ErrNull' to local scope (is_func=0)
 < DEBUG: sem_symbol_add: Adding 'ErrDivisionByZero' to local scope (is_func=0)
 < DEBUG: sem_symbol_add: Adding 'Foo' to local scope (is_func=0)
@@ -6,5 +6,4 @@
 < sem_check_func_def for: main
 < DEBUG: sem_symbol_add: Adding 'f' to local scope (is_func=1)
 < DEBUG: sem_lookup_class_call for 'Foo', class_sym=0x55b54a69cb08
----
-> DEBUG: sem_lookup_class_call for 'Foo', class_sym=0x559277b38b18
+< DEBUG: class_sym->kind=2

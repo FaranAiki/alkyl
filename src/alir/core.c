@@ -212,7 +212,7 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_CONDI: return "condition";
         case ALIR_OP_SWITCH: return "jumpint";
         case ALIR_OP_CALL: return "call";
-        case ALIR_OP_RET: return "return";
+        case ALIR_OP_RET: return "->";
         case ALIR_OP_PANIC: return "panic";
         
         // Added flux/iterator support strings

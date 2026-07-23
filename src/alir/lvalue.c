@@ -305,6 +305,10 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
         }
     }
     
+    if (t.array_size > 0) {
+        return ptr;
+    }
+    
     AlirValue *val = new_temp(ctx, t);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, val, ptr, NULL));
     return val;

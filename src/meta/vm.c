@@ -532,6 +532,16 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                             goto cleanup; 
                         }
                         else if (inst->op1->kind == ALIR_VAL_GLOBAL) {
+                            if (vm) {
+                                VMGlobal *vg = vm->globals;
+                                while(vg) {
+                                    if (strcmp(vg->name, inst->op1->val.str_val) == 0) {
+                                        ret_val = (long long)(intptr_t)vg->ptr_val;
+                                        goto cleanup;
+                                    }
+                                    vg = vg->next;
+                                }
+                            }
                             if (module) {
                                 AlirGlobal *g = module->globals;
                                 while(g) {

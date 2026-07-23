@@ -119,7 +119,11 @@ string(TOLOWER "${BACKEND}" BACKEND_LOWER)
 
 set(CODEGEN_LLVM_SOURCES
     src/codegen_llvm/codegen.c
-    src/codegen_llvm/translate.c
+    src/codegen_llvm/translate/core.c
+    src/codegen_llvm/translate/stmt.c
+    src/codegen_llvm/translate/expr.c
+    src/codegen_llvm/translate/flow.c
+    src/codegen_llvm/translate/misc.c
     src/codegen_llvm/fragment/flux.c
     src/codegen_llvm/driver.c
 )
@@ -221,3 +225,5 @@ add_custom_target(run-tests
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running Alkyl tests..."
 )
+message(STATUS "CODEGEN_SOURCES: ${CODEGEN_SOURCES}")
+message(STATUS "BACKEND_LOWER: ${BACKEND_LOWER}")
