@@ -16,8 +16,8 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn);
 AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn);
 AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc);
 AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node);
-AlirValue* alir_gen_expr_array_access(AlirCtx *ctx, ArrayAccessNode *aa);
-AlirValue* alir_gen_addr_array_access(AlirCtx *ctx, ArrayAccessNode *aa);
+AlirValue* alir_gen_expr_index_access(AlirCtx *ctx, IndexAccessNode *aa);
+AlirValue* alir_gen_addr_index_access(AlirCtx *ctx, IndexAccessNode *aa);
 
 int alir_get_type_size(VarType t);
 

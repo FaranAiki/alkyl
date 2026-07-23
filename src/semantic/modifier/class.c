@@ -65,8 +65,8 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
                                 if (node->object) {
                                     if (node->object->type == NODE_VAR_REF) {
                                         obj_name = ((VarRefNode*)node->object)->name;
-                                    } else if (node->object->type == NODE_ARRAY_ACCESS) {
-                                        ArrayAccessNode *aa = (ArrayAccessNode*)node->object;
+                                    } else if (node->object->type == NODE_INDEX_ACCESS) {
+                                        IndexAccessNode *aa = (IndexAccessNode*)node->object;
                                         if (aa->index->type == NODE_VAR_REF) {
                                             VarRefNode *vr = (VarRefNode*)aa->index;
                                             if (strcmp(vr->name, trait_sym->name) == 0) {

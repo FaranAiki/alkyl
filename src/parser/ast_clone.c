@@ -286,9 +286,9 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             clone = (ASTNode*)n;
             break;
         }
-        case NODE_ARRAY_ACCESS: {
-            ArrayAccessNode *orig = (ArrayAccessNode*)node;
-            ArrayAccessNode *n = arena_alloc(ctx->arena, sizeof(ArrayAccessNode));
+        case NODE_INDEX_ACCESS: {
+            IndexAccessNode *orig = (IndexAccessNode*)node;
+            IndexAccessNode *n = arena_alloc(ctx->arena, sizeof(IndexAccessNode));
             *n = *orig;
             n->target = ast_clone(ctx, orig->target, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
             n->index = ast_clone(ctx, orig->index, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
@@ -401,8 +401,8 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
     }
     
     // Check for ...[N]
-    if (node->type == NODE_ARRAY_ACCESS) {
-        ArrayAccessNode *aa = (ArrayAccessNode*)node;
+    if (node->type == NODE_INDEX_ACCESS) {
+        IndexAccessNode *aa = (IndexAccessNode*)node;
         if (aa->target && aa->target->type == NODE_VAR_REF) {
             VarRefNode *vn = (VarRefNode*)aa->target;
             if (strcmp(vn->name, "...") == 0) {
@@ -521,8 +521,8 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
             fn->body = ast_rewrite_macro(ctx, fn->body, varargs_head, param_names, param_args, num_params);
             break;
         }
-        case NODE_ARRAY_ACCESS: {
-            ArrayAccessNode *an = (ArrayAccessNode*)node;
+        case NODE_INDEX_ACCESS: {
+            IndexAccessNode *an = (IndexAccessNode*)node;
             an->target = ast_rewrite_macro(ctx, an->target, varargs_head, param_names, param_args, num_params);
             an->index = ast_rewrite_macro(ctx, an->index, varargs_head, param_names, param_args, num_params);
             break;

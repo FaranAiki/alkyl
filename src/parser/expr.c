@@ -220,8 +220,8 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                 ASTNode *index = parse_expression(p);
                 eat(p, TOKEN_RBRACKET);
                 
-                ArrayAccessNode *aa = parser_alloc(p, sizeof(ArrayAccessNode));
-                aa->base.type = NODE_ARRAY_ACCESS;
+                IndexAccessNode *aa = parser_alloc(p, sizeof(IndexAccessNode));
+                aa->base.type = NODE_INDEX_ACCESS;
                 aa->target = node; 
                 aa->index = index;
                 node = (ASTNode*)aa;

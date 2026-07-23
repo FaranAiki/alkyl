@@ -1,3 +1,5 @@
+/* TODO: make this more beautiful bro */
+
 extern int printf(char* fmt, ...) as cprintf;
 
 meta void print(...) {
@@ -6,6 +8,8 @@ meta void print(...) {
             cprintf("%d", arg);
         } else if typeof(arg) == single {
             cprintf("%f", arg);
+        } else if typeof(arg) == double {
+            cprintf("%lf", arg);
         } else if typeof(arg) == char {
             if sizeof(arg) == 1 {
                 cprintf("%c", arg);
@@ -14,7 +18,7 @@ meta void print(...) {
             }
         } else {
             // Unhandled types fallback
-            cprintf("?");
+            cprintf("%s", arg as char*);
         }
     }
     cprintf("\n");

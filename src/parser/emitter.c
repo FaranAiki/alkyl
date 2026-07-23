@@ -50,7 +50,7 @@ int needs_semicolon(ASTNode *node) {
         case NODE_UNARY_OP:
         case NODE_BINARY_OP:
         case NODE_VAR_REF:
-        case NODE_ARRAY_ACCESS:
+        case NODE_INDEX_ACCESS:
         case NODE_MEMBER_ACCESS:
         case NODE_CAST:
         case NODE_EMIT:
@@ -520,8 +520,8 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
             break;
         }
 
-        case NODE_ARRAY_ACCESS: {
-            ArrayAccessNode *aa = (ArrayAccessNode*)node;
+        case NODE_INDEX_ACCESS: {
+            IndexAccessNode *aa = (IndexAccessNode*)node;
             parser_emit_ast_node(sb, aa->target, 0);
             sb_append(sb, "[");
             parser_emit_ast_node(sb, aa->index, 0);

@@ -22,7 +22,7 @@ typedef enum {
   NODE_UNARY_OP, 
   NODE_LITERAL,
   NODE_ARRAY_LIT, 
-  NODE_ARRAY_ACCESS, 
+  NODE_INDEX_ACCESS, 
   NODE_VECTOR_ACCESS, 
   NODE_INC_DEC, 
   NODE_LINK,
@@ -398,7 +398,7 @@ typedef struct {
   ASTNode base;
   ASTNode *target; 
   ASTNode *index;
-} ArrayAccessNode;
+} IndexAccessNode;
 
 typedef struct {
   ASTNode base;

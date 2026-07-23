@@ -42,7 +42,7 @@ int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char
 AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node);
 
 // Handles L-Values: Returns the memory address of arr[index]
-AlirValue* alir_gen_addr_array_access(AlirCtx *ctx, ArrayAccessNode *aa) {
+AlirValue* alir_gen_addr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     // 1. Get the address of the array variable itself
     AlirValue *base_ptr = alir_gen_addr(ctx, aa->target);
     if (!base_ptr) return NULL;
@@ -94,7 +94,7 @@ AlirValue* alir_gen_addr_array_access(AlirCtx *ctx, ArrayAccessNode *aa) {
 }
 
 // Handles R-Values: Returns the actual data inside arr[index]
-AlirValue* alir_gen_expr_array_access(AlirCtx *ctx, ArrayAccessNode *aa) {
+AlirValue* alir_gen_expr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
     VarType target_t = sem_get_node_type(ctx->sem, aa->target);
     
@@ -112,7 +112,7 @@ AlirValue* alir_gen_expr_array_access(AlirCtx *ctx, ArrayAccessNode *aa) {
     }
 
     // 1. Get the memory address of the element
-    AlirValue *elem_ptr = alir_gen_addr_array_access(ctx, aa);
+    AlirValue *elem_ptr = alir_gen_addr_index_access(ctx, aa);
     if (!elem_ptr) return NULL;
 
     // 2. Emit a LOAD instruction to read the actual value
@@ -192,8 +192,8 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     }
     
     // no need to change
-    if (node->type == NODE_ARRAY_ACCESS) {
-        return alir_gen_addr_array_access(ctx, (ArrayAccessNode*)node);
+    if (node->type == NODE_INDEX_ACCESS) {
+        return alir_gen_addr_index_access(ctx, (IndexAccessNode*)node);
     }
     
     if (node->type == NODE_ARRAY_LIT) {
@@ -1113,8 +1113,8 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
             return dest;
         }
         case NODE_MEMBER_ACCESS: return alir_gen_access(ctx, node);
-        case NODE_ARRAY_ACCESS: {
-            ArrayAccessNode *aa = (ArrayAccessNode*)node;
+        case NODE_INDEX_ACCESS: {
+            IndexAccessNode *aa = (IndexAccessNode*)node;
             VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
             VarType target_t = sem_get_node_type(ctx->sem, aa->target);
             

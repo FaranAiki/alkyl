@@ -23,6 +23,15 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
     }
     
     SemSymbol *current_class = class_sym;
+    char *actual_class_name = class_sym->name;
+    if (node->object && node->object->type == NODE_INDEX_ACCESS) {
+        IndexAccessNode *aa = (IndexAccessNode*)node->object;
+        VarType base_type = sem_get_node_type(ctx, aa->target);
+        if (base_type.base == TYPE_CLASS && base_type.class_name) {
+            actual_class_name = base_type.class_name;
+        }
+    }
+
     int found = 0;
    
     // TODO fix this parsing for current_class!
@@ -74,11 +83,11 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                         if (member->kind == SYM_FUNC) {
                             SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, member, (ASTNode*)node);
                             if (resolved && resolved->mangled_name) {
-                                if (strcmp(class_sym->name, current_class->name) != 0) {
+                                if (strcmp(actual_class_name, current_class->name) != 0) {
                                     int prefix_len = strlen(current_class->name);
                                     if (strncmp(resolved->mangled_name, current_class->name, prefix_len) == 0 && resolved->mangled_name[prefix_len] == '_') {
                                         char buf[512];
-                                        snprintf(buf, sizeof(buf), "%s%s", class_sym->name, resolved->mangled_name + prefix_len);
+                                        snprintf(buf, sizeof(buf), "%s%s", actual_class_name, resolved->mangled_name + prefix_len);
                                         node->mangled_name = arena_strdup(ctx->compiler_ctx->arena, buf);
                                     } else {
                                         node->mangled_name = resolved->mangled_name;
@@ -120,8 +129,8 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                                     if (node->object) {
                                         if (node->object->type == NODE_VAR_REF) {
                                             obj_name = ((VarRefNode*)node->object)->name;
-                                        } else if (node->object->type == NODE_ARRAY_ACCESS) {
-                                            ArrayAccessNode *aa = (ArrayAccessNode*)node->object;
+                                        } else if (node->object->type == NODE_INDEX_ACCESS) {
+                                            IndexAccessNode *aa = (IndexAccessNode*)node->object;
                                             if (aa->index->type == NODE_VAR_REF) {
                                                 VarRefNode *vr = (VarRefNode*)aa->index;
                                                 if (strcmp(vr->name, trait_sym->name) == 0) {
@@ -151,7 +160,7 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                                             int prefix_len = strlen(trait_sym->name);
                                             if (strncmp(resolved->mangled_name, trait_sym->name, prefix_len) == 0 && resolved->mangled_name[prefix_len] == '_') {
                                                 char buf[512];
-                                                snprintf(buf, sizeof(buf), "%s%s", class_sym->name, resolved->mangled_name + prefix_len);
+                                                snprintf(buf, sizeof(buf), "%s%s", actual_class_name, resolved->mangled_name + prefix_len);
                                                 node->mangled_name = arena_strdup(ctx->compiler_ctx->arena, buf);
                                             } else {
                                                 node->mangled_name = resolved->mangled_name;

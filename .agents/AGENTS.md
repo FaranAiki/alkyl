@@ -162,3 +162,14 @@ With the given information, do:
 <RULE>
 Alkyl files use the extensions .aky (source) and .hky (header) strictly. Do not use or assume .al extensions.
 </RULE>
+
+### Unions and ALIR Type Layout
+- Unions are registered as synthetic types (`__Union_...`) in the AST and ALIR.
+- In `src/semantic/check.c` and `src/semantic/fragment/switch.c`, when processing union field access (either by explicit field name or by type index like `t[int]`), we must first perform an **exact match** on the field type (`sem_types_are_equal`). If an exact match isn't found, we can fall back to a **compatible match** (`sem_types_are_compatible`). 
+- This two-pass type checking prevents the compiler from mistakenly returning the first implicitly castable field (e.g. `single` when `int` is requested).
+- In ALIR `src/codegen_llvm/translate/stmt.c`, `ALIR_OP_GET_PTR` on a union evaluates directly to the base pointer of the union (`op1`), bypassing `LLVMBuildStructGEP2`, because unions share the same start address for all members.
+
+### ALIR Codegen
+- Missing instructions in `translate_inst` (like `ALIR_OP_SIZEOF` or `ALIR_OP_ALIGNOF`) will silently assign `NULL` to the destination temporary variable `res`.
+- If the next instruction attempts to use this `NULL` temporary variable (e.g., `LLVMTypeOf(op1)`), it will cause a `SIGSEGV` during Codegen phase. 
+- Ensure all ALIR operators are correctly routed in the giant switch statement in `src/codegen_llvm/translate/core.c` and implemented in their respective files.

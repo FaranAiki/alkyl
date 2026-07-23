@@ -184,8 +184,8 @@ static bool sem_is_lvalue_mutable(SemanticCtx *ctx, ASTNode *node) {
     } else if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
         return sem_is_lvalue_mutable(ctx, ma->object);
-    } else if (node->type == NODE_ARRAY_ACCESS) {
-        ArrayAccessNode *aa = (ArrayAccessNode*)node;
+    } else if (node->type == NODE_INDEX_ACCESS) {
+        IndexAccessNode *aa = (IndexAccessNode*)node;
         return sem_is_lvalue_mutable(ctx, aa->target);
     } else if (node->type == NODE_UNARY_OP) {
         // e.g. pointer dereference `*ptr`

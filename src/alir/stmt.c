@@ -300,7 +300,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_UNARY_OP:
         case NODE_LITERAL:
         case NODE_ARRAY_LIT:
-        case NODE_ARRAY_ACCESS:
+        case NODE_INDEX_ACCESS:
         case NODE_VECTOR_ACCESS:
         case NODE_MEMBER_ACCESS:
         case NODE_TYPEOF:

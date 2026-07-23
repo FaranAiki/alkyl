@@ -581,8 +581,8 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             break;
         }
         case NODE_MEMBER_ACCESS: sem_check_member_access(ctx, (MemberAccessNode*)node); break;
-        case NODE_ARRAY_ACCESS: {
-            sem_check_array_access(ctx, node);
+        case NODE_INDEX_ACCESS: {
+            sem_check_index_access(ctx, node);
             break;
         }
         case NODE_CAST: {
@@ -631,7 +631,26 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 if (op_t.base == TYPE_CLASS && op_t.class_name) {
                     SemSymbol *class_sym = sem_symbol_lookup(ctx, op_t.class_name, NULL);
                     if (class_sym && class_sym->is_union && class_sym->inner_scope) {
+                        // First pass: exact match
                         SemSymbol *f = class_sym->inner_scope->symbols;
+                        while (f) {
+                            if (f->kind == SYM_VAR && sem_types_are_equal(f->type, cn->var_type)) {
+                                MemberAccessNode ma;
+                                memset(&ma, 0, sizeof(MemberAccessNode));
+                                ma.base.type = NODE_MEMBER_ACCESS;
+                                ma.base.line = node->line;
+                                ma.base.col = node->col;
+                                ma.object = cn->operand;
+                                ma.member_name = arena_strdup(ctx->compiler_ctx->arena, f->name);
+                                
+                                sem_set_node_type(ctx, node, f->type);
+                                memcpy(node, &ma, sizeof(MemberAccessNode));
+                                return;
+                            }
+                            f = f->next;
+                        }
+                        // Second pass: compatible match
+                        f = class_sym->inner_scope->symbols;
                         while (f) {
                             if (f->kind == SYM_VAR && sem_types_are_compatible(ctx, f->type, cn->var_type)) {
                                 MemberAccessNode ma;
@@ -644,7 +663,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                                 
                                 sem_set_node_type(ctx, node, f->type);
                                 memcpy(node, &ma, sizeof(MemberAccessNode));
-                                return; // Successfully replaced!
+                                return;
                             }
                             f = f->next;
                         }
@@ -920,8 +939,8 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     index_ln->base.line = node->line;
                     index_ln->base.col = node->col;
                     
-                    ArrayAccessNode *aa = (ArrayAccessNode*)node;
-                    aa->base.type = NODE_ARRAY_ACCESS;
+                    IndexAccessNode *aa = (IndexAccessNode*)node;
+                    aa->base.type = NODE_INDEX_ACCESS;
                     // aa->target is already ti->target, so we don't need to change it
                     aa->target = ti->target;
                     aa->index = (ASTNode*)index_ln;
@@ -1262,7 +1281,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_CALL:
         case NODE_METHOD_CALL:
         case NODE_MEMBER_ACCESS:
-        case NODE_ARRAY_ACCESS:
+        case NODE_INDEX_ACCESS:
         case NODE_VECTOR_ACCESS:
         case NODE_BINARY_OP:
         case NODE_UNARY_OP:

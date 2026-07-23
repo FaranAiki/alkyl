@@ -15,7 +15,7 @@ void apply_implicit_return(Parser *p, ASTNode **body_ptr) {
     int is_expr = (last->type == NODE_LITERAL || last->type == NODE_VAR_REF || 
                    last->type == NODE_BINARY_OP || last->type == NODE_UNARY_OP || 
                    last->type == NODE_CALL || last->type == NODE_METHOD_CALL || 
-                   last->type == NODE_ARRAY_ACCESS || last->type == NODE_MEMBER_ACCESS || 
+                   last->type == NODE_INDEX_ACCESS || last->type == NODE_MEMBER_ACCESS || 
                    last->type == NODE_CAST || last->type == NODE_INC_DEC);
     if (is_expr) {
         ReturnNode *ret = parser_alloc(p, sizeof(ReturnNode));
@@ -549,10 +549,12 @@ ASTNode* parse_top_level_internal(Parser *p) {
     return parse_class_impl(p, modifiers);
   }
   
+  int started_with_union = 0;
   if (p->current_token.type == TOKEN_UNION) {
       if (parser_peek_token(p).type != TOKEN_LBRACKET) {
           return parse_class_impl(p, modifiers);
       }
+      started_with_union = 1;
   }
 
   if (p->current_token.type == TOKEN_LINK) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_link(p); }
@@ -582,6 +584,15 @@ ASTNode* parse_top_level_internal(Parser *p) {
   if (vtype.base == TYPE_UNKNOWN) {
       if (modifiers) parser_fail(p, "Modifiers not allowed on statement");
       return parse_single_statement_or_block(p);
+  }
+  
+  if (started_with_union && p->current_token.type == TOKEN_IDENTIFIER && parser_peek_token(p).type == TOKEN_SEMICOLON) {
+      char *name = parser_strdup(p, p->current_token.text);
+      eat(p, TOKEN_IDENTIFIER);
+      eat_semi(p);
+      register_alias(p, name, vtype);
+      register_typename(p, name, 0);
+      return NULL;
   }
 
   if (vtype.base == TYPE_CLASS && p->current_token.type == TOKEN_LPAREN) {
