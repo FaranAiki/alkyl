@@ -278,6 +278,14 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_RETURN: {
             ReturnNode *rn = (ReturnNode*)node;
             if (ctx->in_flux_resume) {
+                if (rn->value) {
+                    AlirValue *val = alir_gen_expr(ctx, rn->value);
+                    if (!val) val = alir_const_int(ctx->module, 0);
+                    VarType res_t = val->type; res_t.ptr_depth++;
+                    AlirValue *res_ptr = new_temp(ctx, res_t); 
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, res_ptr, ctx->flux_ctx_ptr, alir_const_int(ctx->module, 2)));
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, res_ptr));
+                }
                 AlirValue *fin_ptr = new_temp(ctx, (VarType){TYPE_BOOL, 1});
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, fin_ptr, ctx->flux_ctx_ptr, alir_const_int(ctx->module, 1)));
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 1), fin_ptr));

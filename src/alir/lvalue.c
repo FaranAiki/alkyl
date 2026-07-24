@@ -776,7 +776,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
         if (sym && sym->kind == SYM_FUNC && sym->is_flux) {
             char struct_name[512];
             snprintf(struct_name, sizeof(struct_name), "FluxCtx_%s", target_name);
-            ret_type = (VarType){TYPE_CLASS, 1, alir_strdup(ctx->module, struct_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+            ret_type = (VarType){TYPE_CLASS, 0, alir_strdup(ctx->module, struct_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
             found = 1;
         }
     }
@@ -966,7 +966,7 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
                     if (method_sym->is_flux) {
                         char struct_name[512];
                         snprintf(struct_name, sizeof(struct_name), "FluxCtx_%s", func_name);
-                        ret_type = (VarType){TYPE_CLASS, 1, alir_strdup(ctx->module, struct_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+                        ret_type = (VarType){TYPE_CLASS, 0, alir_strdup(ctx->module, struct_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
                         found_flux = 1;
                     }
                     break;

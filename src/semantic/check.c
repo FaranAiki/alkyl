@@ -396,9 +396,9 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
  else if (sym->kind == SYM_FUNC && sym->is_flux) {
 
         // Rewrite flux generator return type dynamically for iterators to intercept!
-        char buf[256];
-        snprintf(buf, sizeof(buf), "FluxCtx_%s", sym->name);
-        VarType flux_type = {TYPE_CLASS, 1, arena_strdup(ctx->compiler_ctx->arena, buf), 0, 0, NULL, NULL, 0, 0, 0, 0};
+        char buf[512];
+        snprintf(buf, sizeof(buf), "FluxCtx_%s", sym->mangled_name ? sym->mangled_name : sym->name);
+        VarType flux_type = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, buf), 0, 0, NULL, NULL, 0, 0, 0, 0};
         flux_type.fp_ret_type = arena_alloc_type(ctx->compiler_ctx->arena, VarType);
         *flux_type.fp_ret_type = sym->type; // Save underlying yield type
         sem_set_node_type(ctx, (ASTNode*)node, flux_type);

@@ -218,6 +218,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
 
                 LLVMDisposeTargetData(td);
             } else {
+                printf("LLVMStructSetBody for %s with %d fields\n", st->name, st->field_count);
                 LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
             }
             

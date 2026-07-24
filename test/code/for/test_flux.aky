@@ -1,0 +1,18 @@
+import "lib/c"
+
+flux int random_generator(int limit) {
+    int todo = 0;
+    while todo < limit {
+        todo++;
+        clib.printf c"generator: todo = %d, limit = %d\n", todo, limit;
+        emit todo;
+    }
+    return 100;
+}
+
+int main() {
+    for t in random_generator(5) {
+        clib.printf c"Got: %d\n", t;
+    }
+    return 0;
+}

@@ -1,0 +1,7 @@
+import "lib/c"
+int main() {
+    int t = 0;
+    for i in 100 { t += i; }
+    clib.printf c"%d\n", t;
+    return 0;
+}

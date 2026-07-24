@@ -53,7 +53,9 @@ void collect_flux_vars_recursive(AlirCtx *ctx, ASTNode *node, int *idx_ptr) {
 
 void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     char func_name[512];
-    if (class_name) {
+    if (fn->mangled_name) {
+        snprintf(func_name, sizeof(func_name), "%s", fn->mangled_name);
+    } else if (class_name) {
         snprintf(func_name, sizeof(func_name), "%s_%s", class_name, fn->name);
     } else {
         snprintf(func_name, sizeof(func_name), "%s", fn->name);
@@ -114,8 +116,9 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     alir_register_struct(ctx->module, struct_name, fields, 0);
     
     // 3. Generate INIT Function (The Generator Factory)
-    VarType ret_type = {TYPE_CLASS, 1, alir_strdup(ctx->module, struct_name)};
-    ctx->current_func = alir_add_function(ctx->module, func_name, ret_type, 0); 
+    VarType ret_type_by_val = {TYPE_CLASS, 0, alir_strdup(ctx->module, struct_name)};
+    VarType ret_type_ptr = {TYPE_CLASS, 1, alir_strdup(ctx->module, struct_name)};
+    ctx->current_func = alir_add_function(ctx->module, func_name, ret_type_by_val, 0); 
     
     if (class_name) alir_func_add_param(ctx->module, ctx->current_func, "this", (VarType){TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)});
     p = fn->params;
@@ -132,7 +135,7 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1});
     emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, raw_mem, size_val, NULL));
     
-    AlirValue *ctx_ptr = new_temp(ctx, ret_type);
+    AlirValue *ctx_ptr = new_temp(ctx, ret_type_ptr);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, ctx_ptr, raw_mem, NULL));
     
     AlirValue *ptr_state = new_temp(ctx, (VarType){TYPE_INT, 1});
@@ -175,11 +178,13 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
         p = p->next;
     }
     
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, ctx_ptr, NULL));
+    AlirValue *ret_val = new_temp(ctx, ret_type_by_val);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, ret_val, ctx_ptr, NULL));
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, ret_val, NULL));
     
     // 4. Generate RESUME Function
     ctx->current_func = alir_add_function(ctx->module, resume_name, (VarType){TYPE_VOID}, 0);
-    alir_func_add_param(ctx->module, ctx->current_func, "ctx", ret_type); 
+    alir_func_add_param(ctx->module, ctx->current_func, "ctx", ret_type_ptr); 
     
     ctx->current_block = alir_add_block(ctx->module, ctx->current_func, "entry");
     
@@ -189,8 +194,9 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     
     // [CRITICAL FIX] Bind the exact struct type to the parameter to prevent ALIR backend
     // from defaulting to `void ptr` when processing field accesses!
+    // from defaulting to `void ptr` when processing field accesses!
     ctx->flux_ctx_ptr = alir_val_var(ctx->module, "p0"); 
-    ctx->flux_ctx_ptr->type = ret_type;
+    ctx->flux_ctx_ptr->type = ret_type_ptr;
     
     AlirValue *ptr_st = new_temp(ctx, (VarType){TYPE_INT, 1});
     emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, ptr_st, ctx->flux_ctx_ptr, alir_const_int(ctx->module, 0)));

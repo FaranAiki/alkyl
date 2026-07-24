@@ -47,9 +47,9 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
 
                     if (member->kind == SYM_FUNC) {
                         if (member->is_flux) {
-                            char buf[256];
-                            snprintf(buf, sizeof(buf), "FluxCtx_%s_%s", ns_sym->name, member->name);
-                            VarType flux_type = {TYPE_CLASS, 1, arena_strdup(ctx->compiler_ctx->arena, buf), 0, 0, NULL, NULL, 0, 0, 0, 0};
+                            char buf[512];
+                            snprintf(buf, sizeof(buf), "FluxCtx_%s", member->mangled_name ? member->mangled_name : member->name);
+                            VarType flux_type = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, buf), 0, 0, NULL, NULL, 0, 0, 0, 0};
                             flux_type.fp_ret_type = arena_alloc_type(ctx->compiler_ctx->arena, VarType);
                             *flux_type.fp_ret_type = member->type;
                             sem_set_node_type(ctx, (ASTNode*)node, flux_type);

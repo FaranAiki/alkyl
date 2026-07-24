@@ -168,9 +168,16 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         vn->var_type.ptr_depth++;
     }
 
-    AlirValue *ptr = new_temp(ctx, vn->var_type);
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
-    alir_add_symbol(ctx, vn->name, ptr, vn->var_type);
+    AlirValue *ptr = NULL;
+    if (ctx->in_flux_resume) {
+        AlirSymbol *ex = alir_find_symbol(ctx, vn->name);
+        if (ex) ptr = ex->ptr;
+    }
+    if (!ptr) {
+        ptr = new_temp(ctx, vn->var_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
+        alir_add_symbol(ctx, vn->name, ptr, vn->var_type);
+    }
     
     if (vn->initializer) {
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val ? val : alir_const_int(ctx->module, 0), ptr));
@@ -231,11 +238,12 @@ void alir_stmt_assign(AlirCtx *ctx, ASTNode *node) {
         ptr = new_temp(ctx, val->type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
     }
-    if (ptr && ptr->type.ptr_depth > 0) {
+    if (ptr) {
         VarType target_type = ptr->type;
-        target_type.ptr_depth--;
+        if (target_type.ptr_depth > 0) target_type.ptr_depth--;
         val = promote(ctx, val, target_type);
 
+        // removed printf
         if (an->op != TOKEN_ASSIGN) {
             AlirValue *old_val = new_temp(ctx, target_type);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, old_val, ptr, NULL));
@@ -564,6 +572,14 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
     AlirValue *limit = alir_const_int(ctx->module, limit_val);
 
     if (col && col->type.base == TYPE_CLASS && col->type.class_name && strncmp(col->type.class_name, "FluxCtx_", 8) == 0) {
+        printf("DEBUG: FluxCtx ptr_depth = %d\n", col->type.ptr_depth);
+        if (col->type.ptr_depth == 0) {
+            VarType pt = col->type; // Do not increment ptr_depth for ALLOCA dest type
+            AlirValue *col_ptr = new_temp(ctx, pt);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, col_ptr, NULL, NULL));
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, col, col_ptr));
+            col = col_ptr;
+        }
         return alir_for_in_flux(ctx, node, col);
     }
 
