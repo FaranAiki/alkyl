@@ -378,22 +378,9 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
         }
     }
     
-    // [FIX] Register the implicit constructor in the class's semantic symbol table
-    // so that call-site validation (sem_check_call) sees the correct parameter count.
-    if (ctx->sem) {
-        SemSymbol *class_sym = sem_symbol_lookup(ctx->sem, cn->name, NULL);
-        if (class_sym && class_sym->kind == SYM_CLASS && class_sym->inner_scope) {
-            SemSymbol *ctor_sym = arena_alloc_type(ctx->sem->compiler_ctx->arena, SemSymbol);
-            memset(ctor_sym, 0, sizeof(SemSymbol));
-            ctor_sym->name = arena_strdup(ctx->sem->compiler_ctx->arena, cn->name);
-            ctor_sym->kind = SYM_FUNC;
-            ctor_sym->type = (VarType){TYPE_VOID, 0};
-            ctor_sym->params = p_head;
-            ctor_sym->param_count = p_count;
-            ctor_sym->next = class_sym->inner_scope->symbols;
-            class_sym->inner_scope->symbols = ctor_sym;
-        }
-    }
+    // Removed: ALIR should not mutate the semantic symbol table with an implicit constructor
+    // because it includes the hidden 'this' parameter, breaking argument counts in subsequent
+    // REPL commands when sem_check_call_args sees it.
 
     ctx->current_block = alir_add_block(ctx->module, ctx->current_func, "entry");
     

@@ -65,7 +65,7 @@ void register_typename(Parser *p, const char *name, int is_enum) {
     if (current_ns && strlen(current_ns) > 0 && strcmp(current_ns, "main") != 0) {
         char full_name[512];
         snprintf(full_name, sizeof(full_name), "%s.%s", current_ns, name);
-        hashmap_put(&p->types_map, parser_strdup(p, full_name), (void*)(intptr_t)(is_enum ? 2 : 1));
+        hashmap_put(&p->types_map, full_name, (void*)(intptr_t)(is_enum ? 2 : 1));
     }
 }
 
@@ -419,7 +419,7 @@ VarType parse_type(Parser *p) {
                           full_name[fn_len] = ']';
                           full_name[fn_len + 1] = '\0';
                       }
-                      t.class_name = parser_strdup(p, full_name);
+                      t.class_name = full_name;
                   } else {
                       t.class_name = parser_strdup(p, base_name);
                   }

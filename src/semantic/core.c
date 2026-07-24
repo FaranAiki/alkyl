@@ -171,7 +171,7 @@ void sem_register_builtins(SemanticCtx *ctx) {
         if (!ctx->compiler_ctx->settings.no_purge) {
             if (!hashmap_get(&ctx->compiler_ctx->error_table, "ErrDivisionByZero")) {
                 int id = ctx->compiler_ctx->next_error_id++;
-                hashmap_put(&ctx->compiler_ctx->error_table, strdup("ErrDivisionByZero"), (void*)(intptr_t)(id + 1));
+                hashmap_put(&ctx->compiler_ctx->error_table, "ErrDivisionByZero", (void*)(intptr_t)(id + 1));
             }
             SemSymbol *sym_div = sem_symbol_add(ctx, "ErrDivisionByZero", SYM_VAR, err_type);
             sym_div->is_initialized = 1;

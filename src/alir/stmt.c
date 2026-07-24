@@ -185,7 +185,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             AlirBlock *old_block = ctx->current_block;
 
             // Create temporary compile-time ALIR function
-            AlirFunction *meta_func = calloc(1, sizeof(AlirFunction));
+            AlirFunction *meta_func = alir_alloc(ctx->module, sizeof(AlirFunction));
             meta_func->name = "meta_compile_time";
             meta_func->blocks = alir_add_block(ctx->module, meta_func, "entry");
 

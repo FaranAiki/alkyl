@@ -10,13 +10,7 @@
 
 #define ARENA_ALIGNMENT sizeof(void*)
 
-struct ArenaBlock {
-    ArenaBlock *next;
-    size_t capacity;
-    size_t used;
-    // C99 Flexible array member for the actual memory
-    char data[]; 
-};
+// ArenaBlock is now defined in arena.h
 
 void arena_init(Arena *a) {
     if (a) {
@@ -37,29 +31,14 @@ static ArenaBlock* arena_create_block(size_t size) {
     return block;
 }
 
-void* arena_alloc(Arena *a, size_t size) {
-    if (!a || size == 0) return NULL;
-
-    if (size > SIZE_MAX - (ARENA_ALIGNMENT - 1)) return NULL;
-    size_t aligned_size = (size + ARENA_ALIGNMENT - 1) & ~(ARENA_ALIGNMENT - 1);
-
-    if (a->current) {
-        if (a->current->used + aligned_size <= a->current->capacity) {
+void* arena_alloc_slow(Arena *a, size_t aligned_size) {
+    if (a->current && a->current->next) {
+        ArenaBlock *next = a->current->next;
+        if (next->capacity >= aligned_size) {
+            a->current = next;
             void *ptr = a->current->data + a->current->used;
             a->current->used += aligned_size;
             return ptr;
-        }
-
-        if (a->current->next) {
-            ArenaBlock *next = a->current->next;
-            if (next->capacity >= aligned_size) {
-                a->current = next;
-                if (a->current->used + aligned_size <= a->current->capacity) {
-                    void *ptr = a->current->data + a->current->used;
-                    a->current->used += aligned_size;
-                    return ptr;
-                }
-            }
         }
     }
 

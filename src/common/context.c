@@ -27,7 +27,7 @@ void context_init(CompilerContext *ctx, Arena *arena) {
 
     // Inject ErrNull as ID 0
     int null_id = ctx->next_error_id++;
-    hashmap_put(&ctx->error_table, strdup("ErrNull"), (void*)(intptr_t)(null_id + 1));
+    hashmap_put(&ctx->error_table, "ErrNull", (void*)(intptr_t)(null_id + 1));
     ctx->settings.no_purge = false;
     ctx->settings.allocator_arc = false;
     ctx->settings.inject_enum_as_cstring = true;

@@ -90,7 +90,7 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
     void *err_val = hashmap_get(&ctx->compiler_ctx->error_table, ref->name);
     if (!err_val && strncmp(ref->name, "Err", 3) == 0) {
         int id = ctx->compiler_ctx->next_error_id++;
-        hashmap_put(&ctx->compiler_ctx->error_table, strdup(ref->name), (void*)(intptr_t)(id + 1));
+        hashmap_put(&ctx->compiler_ctx->error_table, ref->name, (void*)(intptr_t)(id + 1));
         err_val = (void*)(intptr_t)(id + 1);
     }
     

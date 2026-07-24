@@ -5,7 +5,13 @@
 #include <stdint.h>
 
 // Forward declaration
-typedef struct ArenaBlock ArenaBlock;
+typedef struct ArenaBlock {
+    struct ArenaBlock *next;
+    size_t capacity;
+    size_t used;
+    // C99 Flexible array member for the actual memory
+    char data[]; 
+} ArenaBlock;
 
 typedef struct {
     ArenaBlock *head;
@@ -18,7 +24,20 @@ void arena_init(Arena *a);
 
 // Allocate memory from the arena. Returns NULL on failure.
 // Returned pointer is aligned to sizeof(void*).
-void* arena_alloc(Arena *a, size_t size);
+void* arena_alloc_slow(Arena *a, size_t aligned_size);
+
+static inline void* arena_alloc(Arena *a, size_t size) {
+    if (!a || size == 0) return NULL;
+    size_t aligned_size = (size + sizeof(void*) - 1) & ~(sizeof(void*) - 1);
+    
+    if (a->current && a->current->used + aligned_size <= a->current->capacity) {
+        void *ptr = a->current->data + a->current->used;
+        a->current->used += aligned_size;
+        return ptr;
+    }
+    
+    return arena_alloc_slow(a, aligned_size);
+}
 
 // Reset the arena for reuse without freeing the allocated blocks.
 // Sets the current pointer back to the head and resets usage counters.

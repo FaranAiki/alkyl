@@ -67,12 +67,23 @@ long long meta_vm_resolve_var(AlirValue *val, AlirModule *module, MetaVM *vm, lo
     return 0;
 }
 long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *sem_ctx_ptr, long long *args, int arg_count) {
-    if (!func || !vm) return 0;
+    if (!vm || !func) return 0;
+    
+    if (strcmp(func->name, "Vector_as_int") == 0) {
+        int count = 0;
+        AlirInst *i = func->blocks ? func->blocks->head : NULL;
+        while(i) {
+            count++; i = i->next;
+        }
+    }
     SemanticCtx *sem_ctx = (SemanticCtx *)sem_ctx_ptr;
     
+    VMValue local_registers[MAX_VM_STACK];
+    memset(local_registers, 0, sizeof(local_registers));
     VMValue *old_registers = vm->registers;
-    vm->registers = calloc(MAX_VM_STACK, sizeof(VMValue));
-    VMValue *registers = (VMValue*) vm->registers;
+    vm->registers = local_registers;
+    VMValue *registers = local_registers;
+    
     long long ret_val = 0;
     vm->status = 0;
     
@@ -117,9 +128,9 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                 g = g->next;
                             }
                             if (!ptr) {
-                                VMGlobal *vg = calloc(1, sizeof(VMGlobal));
-                                vg->name = strdup(inst->op2->val.str_val);
-                                vg->ptr_val = calloc(1, 1024);
+                                VMGlobal *vg = arena_alloc(vm->arena, sizeof(VMGlobal));
+                                vg->name = arena_strdup(vm->arena, inst->op2->val.str_val);
+                                vg->ptr_val = arena_alloc(vm->arena, 1024);
                                 vg->next = vm->globals;
                                 vm->globals = vg;
                                 ptr = vg->ptr_val;
@@ -174,7 +185,9 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                             }
 // if (!ptr) printf("DEBUG: Global '%s' NOT FOUND in LOAD!\n", inst->op1->val.str_val);
                         }
-                        if (ptr) registers[inst->dest->temp_id].as.int_val = *((long long*)ptr);
+                        if (ptr) {
+                            registers[inst->dest->temp_id].as.int_val = *((long long*)ptr);
+                        }
                     }
                     break;
                 }
@@ -454,10 +467,18 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                     }
                                     f = f->next;
                                 }
+                                if (!target_fn) {
+                                    printf("DEBUG: Function '%s' not found in module! Available functions:\n", inst->op1->val.str_val);
+                                    f = module->functions;
+                                    while(f) {
+                                        printf(" - %s\n", f->name);
+                                        f = f->next;
+                                    }
+                                }
                             }
                             
                             if (target_fn) {
-                                long long *new_args = malloc(sizeof(long long) * inst->arg_count);
+                                int __na_sz = inst->arg_count > 0 ? inst->arg_count : 1; long long new_args[__na_sz];
                                 for (int i = 0; i < inst->arg_count; i++) {
                                     AlirValue *arg = inst->args[i];
                                     if (arg->kind == ALIR_VAL_CONST) new_args[i] = arg->val.long_long_val;
@@ -467,8 +488,9 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                 }
 // fprintf(stderr, "DEBUG: Calling internal func %s with arg %lld\n", target_fn->name, inst->arg_count > 0 ? new_args[0] : -1);
                                 long long rc = meta_vm_execute(vm, module, target_fn, sem_ctx_ptr, new_args, inst->arg_count);
-// fprintf(stderr, "DEBUG: Returned %lld\n", rc);
-                                free(new_args);
+                                if (strcmp(target_fn->name, "Vector_as_int") == 0) {
+                                }
+                                
                                 if (inst->dest) {
                                     registers[inst->dest->temp_id].as.int_val = rc;
 // fprintf(stderr, "DEBUG: Stored %lld to %d\n", rc, inst->dest->temp_id);
@@ -477,21 +499,22 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                 void *func_ptr = dlsym(RTLD_DEFAULT, inst->op1->val.str_val);
                                 if (func_ptr) {
                                     ffi_cif cif;
-                                    ffi_type **arg_types = malloc(inst->arg_count * sizeof(ffi_type *));
-                                    void **arg_values = malloc(inst->arg_count * sizeof(void *));
+                                    int __at_sz = inst->arg_count > 0 ? inst->arg_count : 1; ffi_type *arg_types[__at_sz];
+                                    int __av_sz = inst->arg_count > 0 ? inst->arg_count : 1; void *arg_values[__av_sz];
+                                    uint64_t arg_data[__av_sz];
                                     
                                     for (int i = 0; i < inst->arg_count; i++) {
                                         AlirValue *arg = inst->args[i];
                                         if (arg->type.base == TYPE_INT || arg->type.base == TYPE_BOOL) {
                                             arg_types[i] = &ffi_type_sint64;
-                                            long long *val = malloc(sizeof(long long));
+                                            long long *val = (long long*)&arg_data[i];
                                             if (arg->kind == ALIR_VAL_CONST) *val = arg->val.long_long_val;
                                             else if (arg->kind == ALIR_VAL_TEMP) *val = registers[arg->temp_id].as.int_val;
                                             else if (arg->kind == ALIR_VAL_VAR) *val = meta_vm_resolve_var(arg, module, vm, args, arg_count);
                                             arg_values[i] = val;
                                         } else if (arg->type.base == TYPE_DOUBLE || arg->type.base == TYPE_SINGLE) {
                                             arg_types[i] = (arg->type.base == TYPE_DOUBLE) ? &ffi_type_double : &ffi_type_float;
-                                            void *val = malloc((arg->type.base == TYPE_DOUBLE) ? sizeof(double) : sizeof(float));
+                                            void *val = &arg_data[i];
                                             if (arg->kind == ALIR_VAL_CONST) {
                                                 if (arg->type.base == TYPE_DOUBLE) *(double*)val = arg->val.double_val;
                                                 else *(float*)val = arg->val.single_val;
@@ -506,9 +529,8 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                             arg_values[i] = val;
                                         } else if ((arg->type.base == TYPE_CLASS && arg->type.class_name && strcmp(arg->type.class_name, "string") == 0) || arg->type.base == TYPE_AUTO || arg->type.ptr_depth > 0) {
                                             arg_types[i] = &ffi_type_pointer;
-                                            void **val = malloc(sizeof(void*));
+                                            void **val = (void**)&arg_data[i];
                                             *val = NULL;
-// fprintf(stderr, "DEBUG: string arg kind=%d\n", arg->kind);
                                             if (arg->kind == ALIR_VAL_CONST) *val = (void*)arg->val.str_val;
                                             else if (arg->kind == ALIR_VAL_VAR) *val = (void*)(intptr_t)meta_vm_resolve_var(arg, module, vm, args, arg_count);
                                             else if (arg->kind == ALIR_VAL_GLOBAL && module) {
@@ -520,7 +542,6 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                                     }
                                                     g = g->next;
                                                 }
-// fprintf(stderr, "DEBUG: ALIR_VAL_GLOBAL resolved to %p (g->name: %s, arg->str: %s)\n", *val, module->globals ? module->globals->name : "null", arg->val.str_val);
                                             }
                                             arg_values[i] = val;
                                         } else {
@@ -552,10 +573,6 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                             else registers[inst->dest->temp_id].as.int_val = rc_int;
                                         }
                                     }
-                                    
-                                    for (int i=0; i<inst->arg_count; i++) if (arg_values[i]) free(arg_values[i]);
-                                    free(arg_types);
-                                    free(arg_values);
                                 } else {
                                     // Extern function not found
                                     if (sem_ctx) {
@@ -660,7 +677,7 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
     ret_val = vm->status;
 
 cleanup:
-    free(vm->registers);
+    
     vm->registers = old_registers;
     return ret_val;
 }

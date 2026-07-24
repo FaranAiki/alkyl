@@ -182,5 +182,10 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
     }
     
     ctx->current_scope = old_scope;
+    
+    SemSymbol *s = class_sym->inner_scope->symbols;
+    while(s) {
+        s = s->next;
+    }
 }
 

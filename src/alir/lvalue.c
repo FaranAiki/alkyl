@@ -131,10 +131,14 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
         VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
+        if (obj_t.base == TYPE_UNKNOWN && ma->object->type == NODE_VAR_REF) {
+            AlirSymbol *sym = alir_find_symbol(ctx, ((VarRefNode*)ma->object)->name);
+            if (sym) obj_t = sym->type;
+        }
         if (obj_t.base == TYPE_ENUM) return NULL; 
 
         AlirValue *base_ptr = NULL;
-        if (obj_t.ptr_depth == 0) {
+        if (obj_t.ptr_depth == 0 && obj_t.base != TYPE_CLASS) {
             base_ptr = alir_gen_addr(ctx, ma->object);
             if (!base_ptr) {
                 AlirValue *rval = alir_gen_expr(ctx, ma->object);
@@ -296,12 +300,35 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
     // Get precise type from Semantics
     VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
     
-    // [FIX] Infer type correctly separating Local Variables (ALLOCA) from Struct Fields (GET_PTR)
-    AlirSymbol *sym = alir_find_symbol(ctx, vn->name);
-    if (sym && sym->ptr == ptr) {
+    AlirSymbol *asym = alir_find_symbol(ctx, vn->name);
+    if (!asym && vn->is_class_member) {
+        // [FIX] Field Access Rewrite
+        MemberAccessNode *ma = arena_alloc_type(ctx->sem->compiler_ctx->arena, MemberAccessNode);
+        ma->base.type = NODE_MEMBER_ACCESS;
+        ma->base.line = vn->base.line;
+        ma->base.col = vn->base.col;
+        VarRefNode *th = arena_alloc_type(ctx->sem->compiler_ctx->arena, VarRefNode);
+        th->base.type = NODE_VAR_REF;
+        th->name = arena_strdup(ctx->sem->compiler_ctx->arena, "this");
+        ma->object = (ASTNode*)th;
+        ma->member_name = vn->name;
+        AlirValue *res = alir_gen_addr(ctx, (ASTNode*)ma);
+        
+        // WE MUST LOAD THE VALUE, BECAUSE alir_gen_var_ref IS SUPPOSED TO RETURN THE R-VALUE (loaded value)
+        VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
+        if (t.base == TYPE_UNKNOWN && res) {
+            t = res->type;
+            if (t.ptr_depth > 0) t.ptr_depth--;
+        }
+        if (t.array_size > 0) return res;
+        AlirValue *val = new_temp(ctx, t);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, val, res, NULL));
+        return val;
+    }
+    if (asym && asym->ptr == ptr) {
         // Address came directly from an ALLOCA. Type is intact.
-        if (sym->type.base != TYPE_UNKNOWN && sym->type.base != TYPE_AUTO) {
-            t = sym->type;
+        if (asym->type.base != TYPE_UNKNOWN && asym->type.base != TYPE_AUTO) {
+            t = asym->type;
         }
     } else {
         // Address came from a GET_PTR (e.g. implicit `this.` field indexing). It's a T*.
@@ -585,9 +612,12 @@ AlirValue* alir_gen_inc_dec(AlirCtx *ctx, IncDecNode *id) {
 AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
     if (cn->custom_cast_method) {
         VarType obj_t = sem_get_node_type(ctx->sem, cn->operand);
-        printf("DEBUG: alir_gen_cast cn->operand obj_t.base=%d, ptr_depth=%d, class_name=%s\n", obj_t.base, obj_t.ptr_depth, obj_t.class_name ? obj_t.class_name : "NULL");
+        if (obj_t.base == TYPE_UNKNOWN && cn->operand->type == NODE_VAR_REF) {
+            AlirSymbol *sym = alir_find_symbol(ctx, ((VarRefNode*)cn->operand)->name);
+            if (sym) obj_t = sym->type;
+        }
         AlirValue *this_val = NULL;
-        if (obj_t.ptr_depth == 0) {
+        if (obj_t.ptr_depth == 0 && obj_t.base != TYPE_CLASS) {
             this_val = alir_gen_addr(ctx, cn->operand);
             if (!this_val) {
                 AlirValue *rval = alir_gen_expr(ctx, cn->operand);
@@ -800,8 +830,8 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
             ASTNode *varargs_head = NULL;
             
             if (num_params > 0) {
-                param_names = calloc(num_params, sizeof(char*));
-                param_args = calloc(num_params, sizeof(ASTNode*));
+                param_names = alir_alloc(ctx->module, num_params * sizeof(char*));
+                param_args = alir_alloc(ctx->module, num_params * sizeof(ASTNode*));
                 p = fd->params;
                 ASTNode *a = cn->args;
                 for (int i=0; i<num_params && a; i++) {
@@ -822,8 +852,8 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
             // Rewrite variable references and varargs inside the cloned body
             cloned_body = ast_rewrite_macro(cctx, cloned_body, varargs_head, param_names, param_args, num_params);
             
-            if (param_names) free(param_names);
-            if (param_args) free(param_args);
+             
+             
             
             // Run semantic analysis on the expanded macro body
             extern void sem_check_block(SemanticCtx *ctx, ASTNode *block);
@@ -840,14 +870,17 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
         }
     }
     
-    printf("DEBUG: calling std call for %s\n", target_name); return alir_gen_call_std(ctx, cn);
 }
 
 AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     VarType obj_t = sem_get_node_type(ctx->sem, mc->object);
+    if (obj_t.base == TYPE_UNKNOWN && mc->object->type == NODE_VAR_REF) {
+        AlirSymbol *sym = alir_find_symbol(ctx, ((VarRefNode*)mc->object)->name);
+        if (sym) obj_t = sym->type;
+    }
     AlirValue *this_val = NULL;
     
-    if (obj_t.ptr_depth == 0) {
+    if (obj_t.ptr_depth == 0 && obj_t.base != TYPE_CLASS) {
         this_val = alir_gen_addr(ctx, mc->object);
         if (!this_val) {
             AlirValue *rval = alir_gen_expr(ctx, mc->object);

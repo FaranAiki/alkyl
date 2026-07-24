@@ -42,7 +42,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             } else if (func) {
                 LLVMTypeRef ret_ty = inst->dest ? get_llvm_type(ctx, inst->dest->type) : LLVMVoidTypeInContext(ctx->llvm_ctx);
                 int param_count = inst->arg_count;
-                LLVMTypeRef *param_types = malloc(sizeof(LLVMTypeRef) * param_count);
+                int __pt_sz = param_count > 0 ? param_count : 1; LLVMTypeRef param_types[__pt_sz];
                 for (int i=0; i<param_count; i++) {
                     if (inst->args[i]) {
                         param_types[i] = get_llvm_type(ctx, inst->args[i]->type);
@@ -51,7 +51,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     }
                 }
                 func_ty = LLVMFunctionType(ret_ty, param_types, param_count, inst->op1->type.fp_is_varargs);
-                free(param_types);
+                
             }
 
             if (!func && inst->op1 && (inst->op1->kind == ALIR_VAL_VAR || inst->op1->kind == ALIR_VAL_GLOBAL) && inst->op1->val.str_val) {
@@ -67,9 +67,9 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
 
             if (!func) break;
             
-            LLVMValueRef *args = malloc(sizeof(LLVMValueRef) * inst->arg_count);
+            int __args_sz = inst->arg_count > 0 ? inst->arg_count : 1; LLVMValueRef args[__args_sz];
             unsigned num_params = LLVMCountParamTypes(func_ty);
-            LLVMTypeRef *param_tys = malloc(sizeof(LLVMTypeRef) * num_params);
+            int __pn_sz = num_params > 0 ? num_params : 1; LLVMTypeRef param_tys[__pn_sz];
             LLVMGetParamTypes(func_ty, param_tys);
             
             for(int i = 0; i < inst->arg_count; i++) {
@@ -101,11 +101,11 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     }
                 }
             }
-            free(param_tys);
+            
 
             res = LLVMBuildCall2(ctx->builder, func_ty, func, args, inst->arg_count, (LLVMGetReturnType(func_ty) == LLVMVoidTypeInContext(ctx->llvm_ctx)) ? "" : "call");
             LLVMSetInstructionCallConv(res, LLVMGetFunctionCallConv(func));
-            free(args);
+            
             
             if (inst->dest) {
                 LLVMTypeRef expected_res_ty = get_llvm_type(ctx, inst->dest->type);

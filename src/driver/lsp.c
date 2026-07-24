@@ -141,6 +141,8 @@ static void send_response(const char *json_response) {
 
 void start_lsp_server(void) {
     fprintf(stderr, "Starting Alkyl LSP server...\n");
+    Arena lsp_arena;
+    arena_init(&lsp_arena);
     while (1) {
         int length = 0;
         read_content_length(&length);
@@ -149,7 +151,7 @@ void start_lsp_server(void) {
             break;
         }
         
-        char *content = malloc(length + 1);
+        char *content = arena_alloc(&lsp_arena, length + 1);
         int read_bytes = fread(content, 1, length, stdin);
         content[read_bytes] = '\0';
         
@@ -209,7 +211,7 @@ void start_lsp_server(void) {
             // Build json response
             // Maximum digits per int is ~10, plus commas
             int max_json_size = 2048 + (token_len * 15);
-            char *reply = malloc(max_json_size);
+            char *reply = arena_alloc(&lsp_arena, max_json_size);
             int offset = snprintf(reply, max_json_size, "{\"jsonrpc\":\"2.0\",\"id\":%s,\"result\":{\"data\":[", id_buf[0] ? id_buf : "1");
             
             for (int i = 0; i < token_len; i++) {
@@ -220,7 +222,6 @@ void start_lsp_server(void) {
             send_response(reply);
             
             if (tokens) free(tokens);
-            free(reply);
         }
         else if (strstr(content, "\"method\":\"shutdown\"") || strstr(content, "\"method\": \"shutdown\"")) {
             char reply[1024];
@@ -228,13 +229,14 @@ void start_lsp_server(void) {
             send_response(reply);
         }
         else if (strstr(content, "\"method\":\"exit\"") || strstr(content, "\"method\": \"exit\"")) {
-            free(content);
+            arena_free(&lsp_arena);
             exit(0);
         }
         else {
             // Ignore other notifications (like didOpen, didChange)
         }
         
-        free(content);
+        arena_reset(&lsp_arena);
     }
+    arena_free(&lsp_arena);
 }

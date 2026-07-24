@@ -17,6 +17,8 @@ void emit(AlirCtx *ctx, AlirInst *i) {
         i->line = ctx->current_line;
         i->col = ctx->current_col;
     }
+    if (ctx->current_func && strcmp(ctx->current_func->name, "Vector_as_int") == 0) {
+    }
     alir_append_inst(ctx->current_block, i);
 }
 

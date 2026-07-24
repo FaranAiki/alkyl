@@ -36,6 +36,20 @@ AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
 }
 
 AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, int is_flux) {
+    if (mod->functions) {
+        AlirFunction *curr = mod->functions;
+        while(curr) {
+            if (strcmp(curr->name, name) == 0) {
+                curr->ret_type = ret;
+                curr->is_flux = is_flux;
+                curr->blocks = NULL;
+                curr->block_count = 0;
+                return curr;
+            }
+            curr = curr->next;
+        }
+    }
+
     AlirFunction *f = alir_alloc(mod, sizeof(AlirFunction));
     f->name = alir_strdup(mod, name);
     f->ret_type = ret;

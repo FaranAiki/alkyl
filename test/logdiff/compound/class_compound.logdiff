@@ -1,0 +1,23 @@
+0a1,14
+> at namespace main:
+> 15:3: error: Type mismatch in declaration of 'my_vector'. Expected 'P²òlü', got 'Vector_int*'
+>   |   Vector[int] my_vector = Vector[int](10, 10);
+>   |   ^
+> 16:43: error: Type 'P²òlü' is not a class/struct
+>   |   clib.printf "x & y: %d, %d\n", my_vector.x, my_vector.y;
+>   |                                           ^
+> 16:56: error: Type 'P²òlü' is not a class/struct
+>   |   clib.printf "x & y: %d, %d\n", my_vector.x, my_vector.y;
+>   |                                                        ^
+> 17:42: error: Type 'P²òlü' is not a class/struct
+>   |   clib.printf "distance: %d\n", my_vector.distance_square();
+>   |                                          ^
+> Semantic analysis failed with 4 errors.
+8,14d21
+< step: Finished Semantic Analysis. Start macro-linking.
+< step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+< step: Finished alir. Start alir check and analysis.
+< step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+< Compiled to build/out.o
+< Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+< Linked to build/out

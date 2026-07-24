@@ -107,7 +107,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
                     const char *name = fd->err_names[i];
                     if (!hashmap_get(&ctx->compiler_ctx->error_table, name)) {
                         int id = ctx->compiler_ctx->next_error_id++;
-                        hashmap_put(&ctx->compiler_ctx->error_table, strdup(name), (void*)(intptr_t)(id + 1));
+                        hashmap_put(&ctx->compiler_ctx->error_table, name, (void*)(intptr_t)(id + 1));
                     }
                 }
             }
@@ -188,7 +188,9 @@ static int sem_count_class_fields(SemanticCtx *ctx, SemSymbol *sym) {
     if (sym->inner_scope) {
         SemSymbol *s = sym->inner_scope->symbols;
         while(s) {
-            if (s->kind == SYM_VAR) count++;
+            if (s->kind == SYM_VAR) {
+                count++;
+            }
             s = s->next;
         }
     }
@@ -270,6 +272,8 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
             node->name = arena_strdup(ctx->compiler_ctx->arena, final_mangled);
         }
         sym = sem_symbol_lookup(ctx, node->name, NULL);
+        if (sym) {
+        }
     }
     if (!sym) {
         sem_error(ctx, (ASTNode*)node, "Undefined function or class '%s'", node->name);
@@ -477,7 +481,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
             void *err_val = hashmap_get(&ctx->compiler_ctx->error_table, node->fallback_err_name);
             if (!err_val && strncmp(node->fallback_err_name, "Err", 3) == 0) {
                 int id = ctx->compiler_ctx->next_error_id++;
-                hashmap_put(&ctx->compiler_ctx->error_table, strdup(node->fallback_err_name), (void*)(intptr_t)(id + 1));
+                hashmap_put(&ctx->compiler_ctx->error_table, node->fallback_err_name, (void*)(intptr_t)(id + 1));
             }
         }
 
@@ -1124,7 +1128,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 // It's an error identifier!
                 if (!hashmap_get(&ctx->compiler_ctx->error_table, var->name)) {
                     int id = ctx->compiler_ctx->next_error_id++;
-                    hashmap_put(&ctx->compiler_ctx->error_table, strdup(var->name), (void*)(intptr_t)(id + 1));
+                    hashmap_put(&ctx->compiler_ctx->error_table, var->name, (void*)(intptr_t)(id + 1));
                 }
                 // No further type check on var because it's just an error identifier
             } else {

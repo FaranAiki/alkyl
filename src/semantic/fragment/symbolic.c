@@ -128,7 +128,7 @@ void sem_symbolic_node_errnum(SemanticCtx *ctx, ASTNode *node) {
         if (!hashmap_get(&ctx->compiler_ctx->error_table, entry->name)) {
             // Next error id is next_error_id + 1. (0 is NoError)
             int id = ctx->compiler_ctx->next_error_id++;
-            hashmap_put(&ctx->compiler_ctx->error_table, strdup(entry->name), (void*)(intptr_t)(id + 1));
+            hashmap_put(&ctx->compiler_ctx->error_table, entry->name, (void*)(intptr_t)(id + 1));
             
             // Wait, also need to add them as variables so they can be referenced in code (like `purge ErrSomething;`)
             // The Purge check expects them to just be parsed as VarRef, but during type checking of other stuff,

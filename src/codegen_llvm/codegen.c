@@ -5,7 +5,8 @@
 #include <stdio.h>
 
 CodegenCtx* codegen_init(AlirModule *mod) {
-    CodegenCtx *ctx = calloc(1, sizeof(CodegenCtx));
+    CodegenCtx *ctx = mod->compiler_ctx && mod->compiler_ctx->arena ? arena_alloc(mod->compiler_ctx->arena, sizeof(CodegenCtx)) : calloc(1, sizeof(CodegenCtx));
+    if(ctx) memset(ctx, 0, sizeof(CodegenCtx));
     ctx->alir_mod = mod;
     ctx->llvm_ctx = LLVMContextCreate();
     ctx->llvm_mod = LLVMModuleCreateWithNameInContext(mod->name ? mod->name : "alick_module", ctx->llvm_ctx);
@@ -29,7 +30,7 @@ void codegen_dispose(CodegenCtx *ctx) {
 
     // Note: To preserve LLVMModule for execution/JIT, we only clean up the builder.
     // The module and LLVMContext will need to be disposed later by the driver.
-    free(ctx);
+    if (!ctx->arena) free(ctx);
 }
 
 LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
@@ -160,7 +161,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
     st = ctx->alir_mod->structs;
     while (st) {
         if (st->field_count > 0) {
-            LLVMTypeRef *field_tys = malloc(sizeof(LLVMTypeRef) * st->field_count);
+            int __ft_sz = st->field_count > 0 ? st->field_count : 1; LLVMTypeRef field_tys[__ft_sz];
             AlirField *f = st->fields;
             while(f) {
                 field_tys[f->index] = get_llvm_type(ctx, f->type);
@@ -219,7 +220,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
             } else {
                 LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
             }
-            free(field_tys);
+            
         }
         st = st->next;
     }
@@ -278,7 +279,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
         LLVMTypeRef *param_tys = NULL;
 
         if (func->param_count > 0) {
-            param_tys = malloc(sizeof(LLVMTypeRef) * func->param_count);
+            int __pt2_sz = func->param_count > 0 ? func->param_count : 1; LLVMTypeRef __pt2_arr[__pt2_sz]; param_tys = __pt2_arr;
             AlirParam *p = func->params;
             int i = 0;
             while(p) {
@@ -306,7 +307,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
         hashmap_put(&ctx->func_map, func->name, llvm_func);
         hashmap_put(&ctx->func_type_map, func->name, func_ty);
 
-        if (param_tys) free(param_tys);
+        if (param_tys) 
         func = func->next;
     }
 
@@ -331,7 +332,8 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
             b = b->next;
         }
 
-        ctx->temps = calloc(ctx->max_temps, sizeof(LLVMValueRef));
+        ctx->temps = ctx->arena ? arena_alloc(ctx->arena, ctx->max_temps * sizeof(LLVMValueRef)) : calloc(ctx->max_temps, sizeof(LLVMValueRef));
+        if (ctx->temps) memset(ctx->temps, 0, ctx->max_temps * sizeof(LLVMValueRef));
 
         // Map native parameter locals to value map (e.g. `p0`, `p1` injected by ALIR generator)
         AlirParam *p = func->params;
@@ -378,7 +380,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
             b = b->next;
         }
 
-        free(ctx->temps);
+        if (!ctx->arena) free(ctx->temps);
         ctx->temps = NULL;
         func = func->next;
     }
