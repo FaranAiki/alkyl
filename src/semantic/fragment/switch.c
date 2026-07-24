@@ -23,6 +23,35 @@ void sem_check_for_in(SemanticCtx *ctx, ASTNode *node) {
         iter_type.base = TYPE_CHAR;
     } else if (is_integer(iter_type)) {
         // Allowed: integers act as valid iterators (0 to N-1) 
+    } else if (iter_type.base == TYPE_CLASS && iter_type.class_name) {
+        MethodCallNode *mc = arena_alloc_type(ctx->compiler_ctx->arena, MethodCallNode);
+        memset(mc, 0, sizeof(MethodCallNode));
+        mc->base.type = NODE_METHOD_CALL;
+        mc->base.line = fn->collection->line;
+        mc->base.col = fn->collection->col;
+        mc->object = fn->collection;
+        mc->method_name = "iterate";
+        mc->args = NULL;
+        
+        fn->collection = (ASTNode*)mc;
+        
+        // Suppress errors during sem_check_expr just in case we want to customize the message? 
+        // No, let it throw the standard "no member named iterate" if it's missing!
+        sem_check_expr(ctx, fn->collection);
+        
+        col_type = sem_get_node_type(ctx, fn->collection);
+        iter_type = col_type;
+        
+        if (iter_type.base == TYPE_CLASS && iter_type.class_name && strncmp(iter_type.class_name, "FluxCtx_", 8) == 0) {
+            if (iter_type.fp_ret_type) {
+                iter_type = *iter_type.fp_ret_type;
+            } else {
+                iter_type = (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+            }
+        } else {
+            sem_error(ctx, node, "Class '%s' iterate method must return a valid flux context", iter_type.class_name);
+            iter_type = (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+        }
     } else {
         sem_error(ctx, node, "Cannot iterate over non-iterable type");
         iter_type = (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};

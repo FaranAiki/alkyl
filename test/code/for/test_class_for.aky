@@ -1,0 +1,24 @@
+import "lib/c"
+
+class Range {
+    int dummy;
+    flux int {
+        int i = 0;
+        while i < 3 {
+            emit i;
+            i++;
+        }
+        return 999;
+    }
+}
+
+int main() {
+    Range r;
+    
+    clib.printf c"Testing class flux\n";
+    for val in r {
+        clib.printf c"%d\n", val;
+    }
+    
+    return 0;
+}

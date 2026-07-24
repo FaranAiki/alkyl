@@ -1,0 +1,22 @@
+import "lib/c"
+
+int main() {
+    clib.printf c"Testing array\n";
+    let p = [1, 2, 3];
+    for varname in p {
+        clib.printf c"%d\n", varname;
+    }
+
+    clib.printf c"Testing integer\n";
+    for i in 3 {
+        clib.printf c"%d\n", i;
+    }
+
+    clib.printf c"Testing char*\n";
+    char* str = c"hello";
+    for ch in str {
+        clib.printf c"%c\n", ch;
+    }
+
+    return 0;
+}

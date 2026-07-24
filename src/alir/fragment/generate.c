@@ -501,7 +501,7 @@ void alir_for_in_flux(AlirCtx *ctx, ASTNode *node, AlirValue *col) {
     
     // valid = (finished == false)
     AlirValue *valid = new_temp(ctx, (VarType){TYPE_BOOL});
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, valid, is_fin, alir_const_int(ctx->module, 0)));
+    AlirValue *false_val = alir_const_int(ctx->module, 0); false_val->type.base = TYPE_BOOL; emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, valid, is_fin, false_val));
     
     AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, valid, alir_val_label(ctx->module, body_bb->label));
     br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
