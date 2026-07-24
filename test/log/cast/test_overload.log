@@ -1,5 +1,23 @@
+Call parameter type does not match function signature!
+  %load = load %Calculator, ptr %alloc, align 4
+ ptr  %call = call i32 @Calculator_add_i32_i32(%Calculator %load, i32 10, i32 20)
+Call parameter type does not match function signature!
+  %load2 = load %Calculator, ptr %alloc, align 4
+ ptr  %call3 = call double @Calculator_add_f64_f64(%Calculator %load2, double 1.050000e+01, double 2.050000e+01)
+Call parameter type does not match function signature!
+  %load = load %Calculator, ptr %alloc, align 4
+ ptr  %call = call i32 @Calculator_add_i32_i32(%Calculator %load, i32 10, i32 20)
+Call parameter type does not match function signature!
+  %load2 = load %Calculator, ptr %alloc, align 4
+ ptr  %call3 = call double @Calculator_add_f64_f64(%Calculator %load2, double 1.050000e+01, double 2.050000e+01)
+LLVM Verification Error: Call parameter type does not match function signature!
+  %load = load %Calculator, ptr %alloc, align 4
+ ptr  %call = call i32 @Calculator_add_i32_i32(%Calculator %load, i32 10, i32 20)
+Call parameter type does not match function signature!
+  %load2 = load %Calculator, ptr %alloc, align 4
+ ptr  %call3 = call double @Calculator_add_f64_f64(%Calculator %load2, double 1.050000e+01, double 2.050000e+01)
+
 step: Finished lexing. Start parsing.
-AST Node Type: 24
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
@@ -13,13 +31,9 @@ Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'Calculator' to 'main.Calculator'
 Warning: Implicitly resolved 'Calculator' to 'main.Calculator'
-Warning: Implicitly resolved 'Calculator' to 'main.Calculator'
 Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

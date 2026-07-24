@@ -1,14 +1,43 @@
+IntToPtr source must be an integral
+  %safe_cast = inttoptr %BooleanWrapper %load to ptr
+IntToPtr source must be an integral
+  %safe_cast = inttoptr %BooleanWrapper %load to ptr
+IntToPtr source must be an integral
+  %safe_cast3 = inttoptr %BooleanWrapper %load2 to ptr
+Call parameter type does not match function signature!
+  %load9 = load %BooleanWrapper, ptr %alloc1, align 1
+ ptr  %call10 = call i32 @BooleanWrapper_as_int(%BooleanWrapper %load9)
+Call parameter type does not match function signature!
+  %load11 = load %BooleanWrapper, ptr %alloc1, align 1
+ ptr  %call12 = call i32 @BooleanWrapper_as_int(%BooleanWrapper %load11)
+IntToPtr source must be an integral
+  %safe_cast = inttoptr %BooleanWrapper %load to ptr
+IntToPtr source must be an integral
+  %safe_cast = inttoptr %BooleanWrapper %load to ptr
+IntToPtr source must be an integral
+  %safe_cast3 = inttoptr %BooleanWrapper %load2 to ptr
+Call parameter type does not match function signature!
+  %load9 = load %BooleanWrapper, ptr %alloc1, align 1
+ ptr  %call10 = call i32 @BooleanWrapper_as_int(%BooleanWrapper %load9)
+Call parameter type does not match function signature!
+  %load11 = load %BooleanWrapper, ptr %alloc1, align 1
+ ptr  %call12 = call i32 @BooleanWrapper_as_int(%BooleanWrapper %load11)
+LLVM Verification Error: IntToPtr source must be an integral
+  %safe_cast = inttoptr %BooleanWrapper %load to ptr
+IntToPtr source must be an integral
+  %safe_cast = inttoptr %BooleanWrapper %load to ptr
+IntToPtr source must be an integral
+  %safe_cast3 = inttoptr %BooleanWrapper %load2 to ptr
+Call parameter type does not match function signature!
+  %load9 = load %BooleanWrapper, ptr %alloc1, align 1
+ ptr  %call10 = call i32 @BooleanWrapper_as_int(%BooleanWrapper %load9)
+Call parameter type does not match function signature!
+  %load11 = load %BooleanWrapper, ptr %alloc1, align 1
+ ptr  %call12 = call i32 @BooleanWrapper_as_int(%BooleanWrapper %load11)
+
 step: Finished lexing. Start parsing.
-AST Node Type: 22
-AST Node Type: 1
-AST Node Type: 1
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-DEBUG: alir_gen_cast cn->operand obj_t.base=16, ptr_depth=0, class_name=BooleanWrapper
-DEBUG: alir_gen_cast cn->operand obj_t.base=16, ptr_depth=0, class_name=BooleanWrapper
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

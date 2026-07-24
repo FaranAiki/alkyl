@@ -1,11 +1,19 @@
+IntToPtr source must be an integral
+  %safe_cast = inttoptr %Counter %load to ptr
+IntToPtr source must be an integral
+  %safe_cast2 = inttoptr %Counter %load1 to ptr
+IntToPtr source must be an integral
+  %safe_cast = inttoptr %Counter %load to ptr
+IntToPtr source must be an integral
+  %safe_cast2 = inttoptr %Counter %load1 to ptr
+LLVM Verification Error: IntToPtr source must be an integral
+  %safe_cast = inttoptr %Counter %load to ptr
+IntToPtr source must be an integral
+  %safe_cast2 = inttoptr %Counter %load1 to ptr
+
 step: Finished lexing. Start parsing.
-AST Node Type: 22
-AST Node Type: 1
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

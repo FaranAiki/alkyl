@@ -5,11 +5,32 @@ at namespace main:
 23:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
+Invalid bitcast
+  %bitcast = bitcast %Person %load to %Identity
+Call parameter type does not match function signature!
+  %ext_taint_arg = extractvalue %Identity %bitcast, 1
+ ptr  %call = call i32 @Person_speak(i32 %ext_taint_arg)
+Call parameter type does not match function signature!
+  %ext_taint_arg2 = extractvalue %Person %load1, 1
+ ptr  %call3 = call i32 @Person_intro(i32 %ext_taint_arg2)
+Invalid bitcast
+  %bitcast = bitcast %Person %load to %Identity
+Call parameter type does not match function signature!
+  %ext_taint_arg = extractvalue %Identity %bitcast, 1
+ ptr  %call = call i32 @Person_speak(i32 %ext_taint_arg)
+Call parameter type does not match function signature!
+  %ext_taint_arg2 = extractvalue %Person %load1, 1
+ ptr  %call3 = call i32 @Person_intro(i32 %ext_taint_arg2)
+LLVM Verification Error: Invalid bitcast
+  %bitcast = bitcast %Person %load to %Identity
+Call parameter type does not match function signature!
+  %ext_taint_arg = extractvalue %Identity %bitcast, 1
+ ptr  %call = call i32 @Person_speak(i32 %ext_taint_arg)
+Call parameter type does not match function signature!
+  %ext_taint_arg2 = extractvalue %Person %load1, 1
+ ptr  %call3 = call i32 @Person_intro(i32 %ext_taint_arg2)
+
 step: Finished lexing. Start parsing.
-AST Node Type: 1
-AST Node Type: 22
-AST Node Type: 22
-AST Node Type: 1
 step: Start Semantic Analysis.
 DEBUG: sem_check_index_access: trait_name=Identity, class=Person, trait_count=1
 DEBUG: checking trait Identity == Identity
@@ -17,12 +38,5 @@ DEBUG: sem_check_index_access: trait_name=Identity, class=Person, trait_count=1
 DEBUG: checking trait Identity == Identity
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-DEBUG: calling std call for printf
-DEBUG: calling std call for printf
-DEBUG: calling std call for printf
-DEBUG: calling std call for printf
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

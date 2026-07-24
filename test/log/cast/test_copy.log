@@ -1,15 +1,16 @@
+at namespace main:
+9:25: error: Undefined function or class '8/n함U'
+  |     mut Vector[int] b(a);
+  |                         ^
+9:5: error: Type mismatch in declaration of 'b'. Expected '8/n함U', got 'unknown'
+  |     mut Vector[int] b(a);
+  |     ^
+11:38: error: Type '8/n함U' is not a class/struct
+  |     printf c"b.x = %d, b.y = %d\n", b.x, b.y;
+  |                                      ^
+11:43: error: Type '8/n함U' is not a class/struct
+  |     printf c"b.x = %d, b.y = %d\n", b.x, b.y;
+  |                                           ^
+Semantic analysis failed with 4 errors.
 step: Finished lexing. Start parsing.
-AST Node Type: 1
-AST Node Type: 46
-  Compound body:
-    Inner AST Node Type: 22
-AST Node Type: 1
 step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-DEBUG: calling std call for printf
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out
