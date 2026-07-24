@@ -1,0 +1,19 @@
+6,7c6,20
+< step: Finished lexing. Start parsing.
+< step: Start Semantic Analysis.
+---
+> 
+> =================================================================
+> ==1502951==ERROR: LeakSanitizer: detected memory leaks
+> 
+> Direct leak of 131120 byte(s) in 2 object(s) allocated from:
+>     #0 0x7f8c8632c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x56538f6c1d41 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+>     #2 0x56538f6c1d41 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+> 
+> Indirect leak of 65560 byte(s) in 1 object(s) allocated from:
+>     #0 0x7f8c8632c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x56538f6c1d41 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+>     #2 0x56538f6c1d41 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+> 
+> SUMMARY: AddressSanitizer: 196680 byte(s) leaked in 3 allocation(s).

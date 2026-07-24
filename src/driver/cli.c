@@ -522,6 +522,7 @@ int run_repl(void) {
 
                 // Wrap in a synthetic function
                 FuncDefNode *fn = arena_alloc(&ast_arena, sizeof(FuncDefNode));
+                memset(fn, 0, sizeof(FuncDefNode));
                 fn->base.type = NODE_FUNC_DEF;
                 fn->name = func_name;
 
@@ -535,6 +536,7 @@ int run_repl(void) {
                     fn->body = curr;
                 } else {
                     ReturnNode *ret = arena_alloc(&ast_arena, sizeof(ReturnNode));
+                    memset(ret, 0, sizeof(ReturnNode));
                     ret->base.type = NODE_RETURN;
                     ret->value = curr;
                     fn->body = (ASTNode*)ret;

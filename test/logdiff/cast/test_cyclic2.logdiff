@@ -1,0 +1,48 @@
+1,11c1,35
+< step: Finished lexing. Start parsing.
+< step: Start Semantic Analysis.
+< step: Finished Semantic Analysis. Start macro-linking.
+< step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+< step: Finished alir. Start alir check and analysis.
+< step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+< LLVMStructSetBody for B with 2 fields
+< LLVMStructSetBody for A with 2 fields
+< Compiled to build/out.o
+< Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+< Linked to build/out
+---
+> AddressSanitizer:DEADLYSIGNAL
+> =================================================================
+> ==1501667==ERROR: AddressSanitizer: SEGV on unknown address (pc 0x7f26d06e94d5 bp 0x7ffdd75bc110 sp 0x7ffdd75bb890 T0)
+> ==1501667==The signal is caused by a READ memory access.
+> ==1501667==Hint: this fault was caused by a dereference of a high value address (see register values below).  Disassemble the provided pc to learn which register was used.
+>     #0 0x7f26d06e94d5  (/usr/lib/libasan.so.8+0xe94d5) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x557c9162bf63 in alir_find_struct /home/faranaiki/Git/alkyl/src/alir/core.c:185
+>     #2 0x557c9162bf63 in alir_get_field_index /home/faranaiki/Git/alkyl/src/alir/core.c:192
+>     #3 0x557c9162bf63 in alir_robust_get_field_index /home/faranaiki/Git/alkyl/src/alir/lvalue.c:31
+>     #4 0x557c9163fae1 in alir_gen_addr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:183
+>     #5 0x557c9163fae1 in alir_gen_addr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:143
+>     #6 0x557c91649d95 in alir_gen_var_ref /home/faranaiki/Git/alkyl/src/alir/lvalue.c:340
+>     #7 0x557c916314dc in alir_gen_var_ref /home/faranaiki/Git/alkyl/src/alir/lvalue.c:301
+>     #8 0x557c916314dc in alir_gen_expr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:1092
+>     #9 0x557c9163fa6e in alir_gen_addr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:171
+>     #10 0x557c9163fa6e in alir_gen_addr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:143
+>     #11 0x557c916338bf in alir_gen_access /home/faranaiki/Git/alkyl/src/alir/lvalue.c:388
+>     #12 0x557c916338bf in alir_gen_expr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:1201
+>     #13 0x557c9165c720 in alir_gen_stmt /home/faranaiki/Git/alkyl/src/alir/stmt.c:296
+>     #14 0x557c91620a0a in alir_gen_function_def /home/faranaiki/Git/alkyl/src/alir/generator.c:499
+>     #15 0x557c91629974 in alir_gen_functions_recursive /home/faranaiki/Git/alkyl/src/alir/generator.c:616
+>     #16 0x557c91598785 in alir_generate /home/faranaiki/Git/alkyl/src/alir/generator.c:652
+>     #17 0x557c91598785 in main /home/faranaiki/Git/alkyl/src/driver/main.c:150
+>     #18 0x7f26c5c27740  (/usr/lib/libc.so.6+0x27740) (BuildId: d8ceb52a8c6e1fefece4ca75f7396d1d5bffc565)
+>     #19 0x7f26c5c27878 in __libc_start_main (/usr/lib/libc.so.6+0x27878) (BuildId: d8ceb52a8c6e1fefece4ca75f7396d1d5bffc565)
+>     #20 0x557c9159eb34 in _start (/home/faranaiki/Git/alkyl/build/alkyl+0x25b34) (BuildId: 01eee67181f94f7ac2ccfe480983fa138a58439e)
+> 
+> ==1501667==Register values:
+> rax = 0x0000000000000001  rbx = 0x00007e36c2630a08  rcx = 0xbebebebebebebebe  rdx = 0x00000fc6d84c6136  
+> rdi = 0x00007e36c262a830  rsi = 0xbebebebebebebebe  rbp = 0x00007ffdd75bc110  rsp = 0x00007ffdd75bb890  
+>  r8 = 0xbebebebebebebebe   r9 = 0x00000fc7584be2a0  r10 = 0x0000000000000048  r11 = 0x0000000000000042  
+> r12 = 0x00007e36c262a830  r13 = 0xbebebebebebebebe  r14 = 0x0000000000000000  r15 = 0x00007b26c19f0730  
+> AddressSanitizer can not provide additional info.
+> SUMMARY: AddressSanitizer: SEGV /home/faranaiki/Git/alkyl/src/alir/core.c:185 in alir_find_struct
+> ==1501667==ABORTING

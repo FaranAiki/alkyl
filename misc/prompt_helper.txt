@@ -86,7 +86,7 @@ This directory connects the library modules into executable tools.
 
 * **`cli.c` (The REPL)**:
 * Implements an interactive shell using `readline`.
-* Uses **LLVM JIT** (`LLVMCreateExecutionEngineForModule`) to compile and execute AST nodes in memory immediately, allowing line-by-line interaction.
+* Uses **MetaVM** (the internal ALIR interpreter) to compile and execute AST nodes in memory immediately, allowing line-by-line interaction.
 
 
 

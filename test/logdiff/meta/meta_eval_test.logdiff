@@ -1,0 +1,30 @@
+1,15c1,13
+< step: Finished lexing. Start parsing.
+< step: Start Semantic Analysis.
+< step: Finished Semantic Analysis. Start macro-linking.
+< step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+< --- Start Meta Execution ---
+< Result of 10 + 25 = 
+< 35
+< Branching works: 35 is greater than 30!
+< --- End Meta Execution ---
+< die
+< step: Finished alir. Start alir check and analysis.
+< step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+< Compiled to build/out.o
+< Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+< Linked to build/out
+---
+> 
+> =================================================================
+> ==1502525==ERROR: LeakSanitizer: detected memory leaks
+> 
+> Direct leak of 131120 byte(s) in 2 object(s) allocated from:
+>     #0 0x7fc5d972c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x560aa8a861db in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+>     #2 0x560aa8a861db in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+>     #3 0x560aa8a861db in arena_alloc /home/faranaiki/Git/alkyl/include/alir/../semantic/../parser/../lexer/../common/arena.h:38
+>     #4 0x560aa8a861db in meta_vm_init /home/faranaiki/Git/alkyl/src/meta/vm.c:20
+>     #5 0x560aa8a861db in alir_gen_stmt /home/faranaiki/Git/alkyl/src/alir/stmt.c:208
+> 
+> SUMMARY: AddressSanitizer: 131120 byte(s) leaked in 2 allocation(s).

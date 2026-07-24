@@ -1,14 +1,9 @@
-1,3c1,5
+1,13c1,20
 < /usr/bin/ld: build/out.o: in function `main':
 < main_module:(.text+0x19): undefined reference to `ns.Clib'
 < collect2: error: ld returned 1 exit status
----
-> at namespace main:
-> 8:3: error: Type mismatch in declaration of 'c'. Expected 'ns.Clib', got 'Clib*'
->   |   ns.Clib c(1);
->   |   ^
-> Semantic analysis failed with 1 errors.
-6,13d7
+< step: Finished lexing. Start parsing.
+< step: Start Semantic Analysis.
 < step: Finished Semantic Analysis. Start macro-linking.
 < step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 < step: Finished alir. Start alir check and analysis.
@@ -17,3 +12,24 @@
 < Compiled to build/out.o
 < Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
 < Linking failed.
+---
+> at namespace main:
+> 8:3: error: Type mismatch in declaration of 'c'. Expected 'ns.Clib', got 'Clib*'
+>   |   ns.Clib c(1);
+>   |   ^
+> Semantic analysis failed with 1 errors.
+> 
+> =================================================================
+> ==1502109==ERROR: LeakSanitizer: detected memory leaks
+> 
+> Direct leak of 131120 byte(s) in 2 object(s) allocated from:
+>     #0 0x7f2daa52c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x55ea307aad41 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+>     #2 0x55ea307aad41 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+> 
+> Indirect leak of 65560 byte(s) in 1 object(s) allocated from:
+>     #0 0x7f2daa52c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x55ea307aad41 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+>     #2 0x55ea307aad41 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+> 
+> SUMMARY: AddressSanitizer: 196680 byte(s) leaked in 3 allocation(s).

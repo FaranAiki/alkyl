@@ -23,9 +23,10 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
     char *error = NULL;
     if (LLVMVerifyModule(llvm_module, LLVMPrintMessageAction, &error)) {
         fprintf(stderr, "LLVM Verification Error: %s\n", error);
-        LLVMDisposeMessage(error);
+        if (error) LLVMDisposeMessage(error);
         return 1;
     }
+    if (error) LLVMDisposeMessage(error);
 
     char *triple = LLVMGetDefaultTargetTriple();
     LLVMTargetRef target;
@@ -60,11 +61,12 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
         final_ret = 1;
     }
 
-    // codegen_dispose(cg_ctx); // currently crashes or frees things badly?
+    codegen_dispose(cg_ctx); 
     LLVMDisposeTargetMachine(machine);
     LLVMContextRef llvm_ctx = LLVMGetModuleContext(llvm_module);
     LLVMDisposeModule(llvm_module);
     LLVMContextDispose(llvm_ctx);
+    LLVMDisposeMessage(triple);
 
     return final_ret;
 }
