@@ -1,10 +1,11 @@
 " Vim syntax file
 " Language: Alkyl
-" Latest Revision: 14 July 2026
+" Latest Revision: 24 July 2026
 
 if exists("b:current_syntax")
   finish
 endif
+
 
 " Keywords
 syn keyword alkylStatement return break continue defer emit purge link import as is in has meta premeta postmeta define defined accept reject flux leak once reason alir
@@ -26,10 +27,6 @@ syn region alkylString start=/"/ skip=/\\"/ end=/"/
 syn region alkylCString start=/c"/ skip=/\\"/ end=/"/
 syn match alkylChar /'.'|'\\.'/
 
-" Comments
-syn match alkylComment "//.*$"
-syn region alkylBlockComment start="/\*" end="\*/"
-
 " Types/Classes (PascalCase)
 syn match alkylClass "\<[A-Z][a-zA-Z0-9_]*\>"
 
@@ -40,6 +37,10 @@ syn match alkylFunction "\<[a-zA-Z_][a-zA-Z0-9_]*\>\s*("me=e-1
 syn match alkylDelimiter "[(){}\[\];,]"
 syn match alkylOperator "[+\-*/%=<>!&|^~]"
 syn match alkylDot "\."
+
+" Comments (must be after operators so they take precedence)
+syn match alkylComment "//.*$"
+syn region alkylBlockComment start="/\*" end="\*/"
 
 " Highlighting Links
 hi def link alkylStatement Statement
