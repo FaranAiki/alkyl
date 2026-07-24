@@ -353,14 +353,11 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
     
     Parameter *p_head = NULL;
     Parameter **p_tail = &p_head;
-    int p_count = 0;
-
     if (ctx->sem) {
         Parameter *p_this = arena_alloc_type(ctx->sem->compiler_ctx->arena, Parameter);
         p_this->name = arena_strdup(ctx->sem->compiler_ctx->arena, "this");
         p_this->type = this_t;
         *p_tail = p_this; p_tail = &p_this->next;
-        p_count++;
     }
 
     if (st && !cn->is_union) {
@@ -373,7 +370,6 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
                 p_f->type = f->type;
                 *p_tail = p_f; p_tail = &p_f->next;
             }
-            p_count++;
             f = f->next;
         }
     }

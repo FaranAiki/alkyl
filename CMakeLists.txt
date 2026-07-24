@@ -3,10 +3,11 @@ project(alkyl C)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g -Wno-stringop-overflow")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -Wno-stringop-overflow")
 
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wno-stringop-overflow")
 
 find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
@@ -17,6 +18,7 @@ add_definitions(${LLVM_DEFINITIONS})
 
 add_compile_options(-Wall -Wextra -g -O3 -flto=auto
 -Wno-missing-field-initializers
+-Wno-stringop-overflow
 )
 
 llvm_map_components_to_libnames(llvm_libs

@@ -310,8 +310,8 @@ int run_repl(void) {
     sem_init(&sem, &ctx, &sem_settings);
     global_sem_ctx = &sem;
 
-    // We keep one AlirModule appending stuff. Pass NULL to use calloc instead of ast_arena
-    AlirModule *module = alir_create_module(NULL, "ethyl_repl");
+    // We keep one AlirModule appending stuff.
+    AlirModule *module = alir_create_module(&ctx, "ethyl_repl");
 
     Arena vm_arena;
     arena_init(&vm_arena);
@@ -577,9 +577,11 @@ int run_repl(void) {
                         printf("-> (void)\n");
                     }
                     else if (ret_type.base != TYPE_UNKNOWN) {
-                        if ((ret_type.base == TYPE_INT || ret_type.base == TYPE_LONG) && ret_type.ptr_depth == 0 && ret_type.array_size == 0) {
-                            if (ret_type.is_unsigned) printf("-> %llu (unsigned int)\n", (unsigned long long)exit_code);
-                            else printf("-> %lld (int)\n", exit_code);
+                        if ((ret_type.base == TYPE_INT || ret_type.base == TYPE_LONG || ret_type.base == TYPE_LONG_LONG || ret_type.base == TYPE_UNSIGNED_INT || ret_type.base == TYPE_UNSIGNED_LONG || ret_type.base == TYPE_UNSIGNED_LONG_LONG) && ret_type.ptr_depth == 0 && ret_type.array_size == 0) {
+                            if (ret_type.is_unsigned || ret_type.base == TYPE_UNSIGNED_INT || ret_type.base == TYPE_UNSIGNED_LONG || ret_type.base == TYPE_UNSIGNED_LONG_LONG || ret_type.base == TYPE_UNSIGNED_CHAR) 
+                                printf("-> %llu (%s)\n", (unsigned long long)exit_code, sem_type_to_str(ret_type));
+                            else 
+                                printf("-> %lld (%s)\n", exit_code, sem_type_to_str(ret_type));
                         }
                         else if (ret_type.base == TYPE_SINGLE && ret_type.ptr_depth == 0 && ret_type.array_size == 0) {
                             union { long long i; float f; } u; u.i = exit_code;
@@ -644,6 +646,7 @@ int run_repl(void) {
         cmd_count++;
     }
     meta_vm_free(vm);
+    arena_free(&vm_arena);
     sem_cleanup(&sem);
     arena_free(&ast_arena);
     return 0;

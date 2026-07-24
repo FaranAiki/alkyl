@@ -241,6 +241,12 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
                 return alir_const_int(ctx->module, ln->val.int_val);
             case TYPE_LONG:
                 return alir_const_long(ctx->module, ln->val.long_val); 
+            case TYPE_LONG_LONG:
+                return alir_const_long_long(ctx->module, ln->val.long_long_val);
+            case TYPE_UNSIGNED_LONG:
+                return alir_const_unsigned_long(ctx->module, ln->val.long_val);
+            case TYPE_UNSIGNED_LONG_LONG:
+                return alir_const_unsigned_long_long(ctx->module, ln->val.unsigned_long_val);
             case TYPE_SINGLE:
                 return alir_const_float(ctx->module, ln->val.single_val);
             case TYPE_DOUBLE:
@@ -471,6 +477,14 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
         l = promote(ctx, l, target);
         r = promote(ctx, r, target);
         res_type = target;
+    } else {
+        if (l_type.base != TYPE_UNKNOWN && r_type.base != TYPE_UNKNOWN && l_type.ptr_depth == 0 && r_type.ptr_depth == 0 && !l_type.is_func_ptr && !r_type.is_func_ptr) {
+            if (l_type.base > r_type.base) {
+                r = promote(ctx, r, l_type);
+            } else if (l_type.base < r_type.base) {
+                l = promote(ctx, l, r_type);
+            }
+        }
     }
 
     AlirOpcode op = ALIR_OP_ADD;

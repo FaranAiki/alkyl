@@ -36,6 +36,11 @@ syn match alkylClass "\<[A-Z][a-zA-Z0-9_]*\>"
 " Functions
 syn match alkylFunction "\<[a-zA-Z_][a-zA-Z0-9_]*\>\s*("me=e-1
 
+" Delimiters and Punctuation
+syn match alkylDelimiter "[(){}\[\];,]"
+syn match alkylOperator "[+\-*/%=<>!&|^~]"
+syn match alkylDot "\."
+
 " Highlighting Links
 hi def link alkylStatement Statement
 hi def link alkylConditional Conditional
@@ -57,5 +62,9 @@ hi def link alkylChar Character
 
 hi def link alkylComment Comment
 hi def link alkylBlockComment Comment
+
+hi def link alkylDelimiter Delimiter
+hi def link alkylOperator Operator
+hi def link alkylDot Special
 
 let b:current_syntax = "alkyl"

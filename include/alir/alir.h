@@ -27,6 +27,7 @@ typedef struct AlirValue {
     Value val;
 } AlirValue;
 
+// TODO make sure conversion from string using this enum
 typedef enum {
     ALIR_OP_ALLOCA,
     ALIR_OP_FREE_STACK,
@@ -34,8 +35,11 @@ typedef enum {
     ALIR_OP_LOAD,
     ALIR_OP_GET_PTR,    // Generic GEP (Get Element Ptr) for Arrays/Structs
     ALIR_OP_BITCAST,    // Replaces raw casting logic
-    
+
     // New Memory Ops for Lowering
+    // THESE SHOULD NOT EXISTS IN ALIR!
+    // BECAUSE THIS IS SEMANTIC ONLY!
+    // TODO: REMOVE THESE
     ALIR_OP_SIZEOF,     // sizeof(T)
     ALIR_OP_ALIGNOF,    // alignof(T)
     ALIR_OP_TYPEOF,     // typeof(T)
@@ -44,14 +48,14 @@ typedef enum {
     // Arithmetic
     ALIR_OP_ADD, ALIR_OP_SUB, ALIR_OP_MUL, ALIR_OP_DIV, ALIR_OP_MOD,
     ALIR_OP_FADD, ALIR_OP_FSUB, ALIR_OP_FMUL, ALIR_OP_FDIV,
-    
+
     // Logical / Bitwise
-    ALIR_OP_AND, ALIR_OP_OR, ALIR_OP_XOR, ALIR_OP_NOT, 
+    ALIR_OP_AND, ALIR_OP_OR, ALIR_OP_XOR, ALIR_OP_NOT,
     ALIR_OP_SHL, ALIR_OP_SHR, ALIR_OP_ROTR, ALIR_OP_ROTL,
-    
+
     // Comparison
     ALIR_OP_LT, ALIR_OP_GT, ALIR_OP_LTE, ALIR_OP_GTE, ALIR_OP_EQ, ALIR_OP_NEQ,
-    
+
     // Control Flow
     ALIR_OP_JUMP,         // Unconditional Branch
     ALIR_OP_CONDI,    // Conditional Branch
@@ -60,10 +64,10 @@ typedef enum {
     ALIR_OP_RET,
     ALIR_OP_PANIC,
     ALIR_OP_FALLBACK,
-    
+
     // Flux / Coroutines
     ALIR_OP_YIELD,      // High-level yield (lowers to state machine)
-    
+
     // Iteration (High Level)
     ALIR_OP_ITER_INIT,  // Initialize iterator from collection
     ALIR_OP_ITER_VALID, // Check if iterator is valid
@@ -72,7 +76,7 @@ typedef enum {
 
     // Misc
     ALIR_OP_CAST,
-    ALIR_OP_PHI,        
+    ALIR_OP_PHI,
     ALIR_OP_MOV
 } AlirOpcode;
 
@@ -81,14 +85,14 @@ typedef struct AlirInst {
     AlirValue *dest;        // Result (e.g., %1 = ...)
     AlirValue *op1;         // First operand
     AlirValue *op2;         // Second operand (optional)
-    
+
     // For Calls or Switches
-    AlirValue **args;       
+    AlirValue **args;
     int arg_count;
-    
+
     // For Switches (Cases map to labels)
-    struct AlirSwitchCase *cases; 
-    
+    struct AlirSwitchCase *cases;
+
     struct AlirInst *next;
 
     // Source mapping context
@@ -119,7 +123,7 @@ typedef struct AlirParam {
 typedef struct AlirFunction {
     char *name;
     VarType ret_type;
-    
+
     // Params
     AlirParam *params;
     int param_count;
@@ -176,7 +180,7 @@ typedef struct AlirModule {
     AlirStruct *structs;    // Registry of struct definitions
     AlirEnum *enums;        // Registry of enum definitions
     CompilerContext *compiler_ctx; // Reference for Arena
-    
+
     // Diagnostics tracing
     const char *src;
     const char *filename;
@@ -184,7 +188,7 @@ typedef struct AlirModule {
 
 typedef struct AlirSymbol {
     char *name;
-    AlirValue *ptr; 
+    AlirValue *ptr;
     VarType type;
     struct AlirSymbol *next;
 } AlirSymbol;
@@ -198,17 +202,17 @@ typedef struct FluxVar {
 
 typedef struct AlirCtx {
     SemanticCtx *sem;       // Reference to Semantic Context for Type Resolution
-    
+
     AlirModule *module;
     AlirFunction *current_func;
     AlirBlock *current_block;
-    
+
     AlirSymbol *symbols;    // Local IR Symbol Table (Name -> Register)
-    
-    int temp_counter;       
+
+    int temp_counter;
     int label_counter;
     int str_counter;        // For naming global strings
-    
+
     AlirBlock *loop_continue;
     AlirBlock *loop_break;
     struct AlirCtx *loop_parent;

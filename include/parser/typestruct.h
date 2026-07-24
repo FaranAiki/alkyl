@@ -116,6 +116,7 @@ typedef struct ASTNode {
   int line;
   int col;
   char *reason;
+  VarType sem_type;
 } ASTNode;
 
 typedef struct Parameter {

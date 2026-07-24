@@ -27,6 +27,7 @@ MetaVM* meta_vm_init(Arena *arena) {
     MetaVM *vm = arena_alloc(arena, sizeof(MetaVM));
     vm->arena = arena;
     vm->registers = arena_alloc(arena, MAX_VM_STACK * sizeof(VMValue));
+    vm->globals = NULL;
     vm->status = 0;
     return vm;
 }
@@ -70,10 +71,9 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
     if (!vm || !func) return 0;
     
     if (strcmp(func->name, "Vector_as_int") == 0) {
-        int count = 0;
         AlirInst *i = func->blocks ? func->blocks->head : NULL;
         while(i) {
-            count++; i = i->next;
+            i = i->next;
         }
     }
     SemanticCtx *sem_ctx = (SemanticCtx *)sem_ctx_ptr;

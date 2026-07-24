@@ -164,12 +164,19 @@ static AlirGlobal* br_global(AlirModule *m, FILE *f) {
     return g;
 }
 
+static const uint8_t MAGIC2[5] = {0xfa, 0x8a, 0x11, 0xa1, 0xc1};
 static const uint8_t MAGIC[9] = {0x2f, 0x58, 0xb0, 0x4f, 0x2e, 0xc2, 0xa8, 0xee, 0x24};
 static const uint8_t VERSION = 1;
 
 AlirModule* alir_read_binary(CompilerContext *ctx, const char *filename) {
     FILE *f = fopen(filename, "rb");
     if (!f) return NULL;
+
+    uint8_t magic2[5];
+    if (fread(magic2, 1, 5, f) != 5 || memcmp(magic2, MAGIC2, 5) != 0) {
+        fclose(f);
+        return NULL;
+    }
 
     uint8_t magic[9];
     if (fread(magic, 1, 9, f) != 9 || memcmp(magic, MAGIC, 9) != 0) {

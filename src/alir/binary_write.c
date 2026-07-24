@@ -132,6 +132,7 @@ static void bw_global(FILE *f, AlirGlobal *g) {
     bw_str(f, g->string_content);
 }
 
+static const uint8_t MAGIC2[5] = {0xfa, 0x8a, 0x11, 0xa1, 0xc1};
 static const uint8_t MAGIC[9] = {0x2f, 0x58, 0xb0, 0x4f, 0x2e, 0xc2, 0xa8, 0xee, 0x24};
 static const uint8_t VERSION = 1;
 
@@ -139,6 +140,7 @@ int alir_write_binary(AlirModule *mod, const char *filename) {
     FILE *f = fopen(filename, "wb");
     if (!f) return 1;
 
+    fwrite(MAGIC2, 1, 5, f);
     fwrite(MAGIC, 1, 9, f);
     fwrite(&VERSION, 1, 1, f);
     

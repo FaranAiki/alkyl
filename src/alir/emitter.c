@@ -134,12 +134,18 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                           fprintf(f, "undef");
                       }
                   }
-                  /*
                   else if (inst->op == ALIR_OP_CONDI) {
-                      // Use this:
-                      // instead of condition %5, we do
-                      // if %5 jmp_1 | jmp_ 2
-                  }*/
+                      fprintf(f, "if ");
+                      if (inst->op1) alir_fprint_val(f, inst->op1);
+                      else fprintf(f, "undef");
+                      fprintf(f, " then ");
+                      if (inst->op2) alir_fprint_val(f, inst->op2);
+                      else fprintf(f, "undef");
+                      fprintf(f, " else ");
+                      if (inst->arg_count > 0 && inst->args[0]) alir_fprint_val(f, inst->args[0]);
+                      else fprintf(f, "undef");
+                      fprintf(f, " ");
+                  }
                   else {
                       // [FIX] Add required typing to the instruction output
                       // this is the getptr isn't

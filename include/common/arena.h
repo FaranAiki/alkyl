@@ -9,8 +9,6 @@ typedef struct ArenaBlock {
     struct ArenaBlock *next;
     size_t capacity;
     size_t used;
-    // C99 Flexible array member for the actual memory
-    char data[]; 
 } ArenaBlock;
 
 typedef struct {
@@ -31,12 +29,19 @@ static inline void* arena_alloc(Arena *a, size_t size) {
     size_t aligned_size = (size + sizeof(void*) - 1) & ~(sizeof(void*) - 1);
     
     if (a->current && a->current->used + aligned_size <= a->current->capacity) {
-        void *ptr = a->current->data + a->current->used;
+        uintptr_t addr = (uintptr_t)a->current + sizeof(ArenaBlock) + a->current->used;
+        void *ptr = (void *)addr;
         a->current->used += aligned_size;
         return ptr;
     }
     
-    return arena_alloc_slow(a, aligned_size);
+    void *ptr = arena_alloc_slow(a, aligned_size);
+    if (!ptr) {
+        // Abort on OOM to prevent LTO warnings about possible NULL pointer dereferences
+        extern void abort(void);
+        abort();
+    }
+    return ptr;
 }
 
 // Reset the arena for reuse without freeing the allocated blocks.

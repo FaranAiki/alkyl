@@ -131,6 +131,7 @@ typedef enum {
   TOKEN_KW_SHORT,
   TOKEN_KW_LONG,
   TOKEN_KW_UNSIGNED,
+  TOKEN_KW_SIGNED,
 
   // Extended Literal Tokens
   TOKEN_ULONG_LONG_LIT,
@@ -328,6 +329,7 @@ static const KeywordDef keywords[] = {
     {"residue", TOKEN_RESIDUE},
     {"return", TOKEN_RETURN},
     {"short", TOKEN_KW_SHORT},
+    {"signed", TOKEN_KW_SIGNED},
     {"single", TOKEN_KW_SINGLE},
     {"sizeof", TOKEN_KW_SIZEOF},
 

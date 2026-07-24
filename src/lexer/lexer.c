@@ -33,7 +33,9 @@ void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char
 }
 
 #define peek(l) ((l)->src[(l)->pos])
-#define advance(l) ((l)->src[(l)->pos++])
+static inline char advance(Lexer *l) {
+    return l->src[l->pos++];
+}
 
 static char* intern_string(Lexer *l, const char *str) {
     if (!str) return NULL;

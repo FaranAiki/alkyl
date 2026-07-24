@@ -12,6 +12,7 @@ unsigned int hash_ptr(ASTNode *node) {
 
 void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
     if (!node) return;
+    node->sem_type = type;
     unsigned int idx = hash_ptr(node);
     
     TypeEntry *curr = ctx->type_buckets[idx];
@@ -38,6 +39,10 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
 
 VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+    
+    if (node->sem_type.base != TYPE_UNKNOWN) {
+        return node->sem_type;
+    }
     
     unsigned int idx = hash_ptr(node);
     TypeEntry *curr = ctx->type_buckets[idx];
@@ -488,10 +493,14 @@ char* sem_type_to_str(VarType t) {
     const char *base = "unknown";
     switch(t.base) {
         case TYPE_INT: base = "int"; break;
+        case TYPE_UNSIGNED_INT: base = "unsigned int"; break;
         case TYPE_SHORT: base = "short"; break;
         case TYPE_LONG: base = "long"; break;
+        case TYPE_UNSIGNED_LONG: base = "unsigned long"; break;
         case TYPE_LONG_LONG: base = "long long"; break;
+        case TYPE_UNSIGNED_LONG_LONG: base = "unsigned long long"; break;
         case TYPE_CHAR: base = "char"; break;
+        case TYPE_UNSIGNED_CHAR: base = "unsigned char"; break;
         case TYPE_BOOL: base = "bool"; break;
         case TYPE_SINGLE: base = "single"; break;
         case TYPE_DOUBLE: base = "double"; break;

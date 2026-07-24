@@ -36,7 +36,8 @@ void* arena_alloc_slow(Arena *a, size_t aligned_size) {
         ArenaBlock *next = a->current->next;
         if (next->capacity >= aligned_size) {
             a->current = next;
-            void *ptr = a->current->data + a->current->used;
+            uintptr_t addr = (uintptr_t)a->current + sizeof(ArenaBlock) + a->current->used;
+            void *ptr = (void *)addr;
             a->current->used += aligned_size;
             return ptr;
         }
@@ -55,7 +56,8 @@ void* arena_alloc_slow(Arena *a, size_t aligned_size) {
         a->current = new_block;
     }
 
-    void *ptr = new_block->data + new_block->used;
+    uintptr_t addr = (uintptr_t)new_block + sizeof(ArenaBlock) + new_block->used;
+    void *ptr = (void *)addr;
     new_block->used += aligned_size;
     return ptr;
 }

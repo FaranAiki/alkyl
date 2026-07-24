@@ -40,6 +40,30 @@ AlirValue* alir_const_long(AlirModule *mod, long val) {
     return v;
 }
 
+AlirValue* alir_const_long_long(AlirModule *mod, long long val) {
+    AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
+    v->kind = ALIR_VAL_CONST;
+    v->type = (VarType){TYPE_LONG_LONG, 0};
+    v->val.long_long_val = val;
+    return v;
+}
+
+AlirValue* alir_const_unsigned_long(AlirModule *mod, unsigned long val) {
+    AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
+    v->kind = ALIR_VAL_CONST;
+    v->type = (VarType){TYPE_UNSIGNED_LONG, 0};
+    v->val.unsigned_long_val = val;
+    return v;
+}
+
+AlirValue* alir_const_unsigned_long_long(AlirModule *mod, unsigned long long val) {
+    AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
+    v->kind = ALIR_VAL_CONST;
+    v->type = (VarType){TYPE_UNSIGNED_LONG_LONG, 0};
+    v->val.unsigned_long_val = val; // Assuming union has unsigned_long_val for both, or should I use unsigned_long_val for unsigned long long? Wait, the union in aliases.h has unsigned_long_val which is unsigned long long.
+    return v;
+}
+
 AlirValue* alir_const_float(AlirModule *mod, float val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;

@@ -29,7 +29,7 @@ AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
     } else {
         m = calloc(1, sizeof(AlirModule));
     }
-    
+
     m->compiler_ctx = ctx;
     m->name = alir_strdup(m, name);
     return m;
@@ -58,7 +58,7 @@ AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, 
     f->is_varargs = 0;
     f->is_extern = 0;
     f->cconv = NULL;
-    
+
     if (!mod->functions) {
         mod->functions = f;
     } else {
@@ -73,7 +73,7 @@ void alir_func_add_param(AlirModule *mod, AlirFunction *func, const char *name, 
     AlirParam *p = alir_alloc(mod, sizeof(AlirParam));
     p->name = alir_strdup(mod, name ? name : "");
     p->type = type;
-    
+
     if (!func->params) {
         func->params = p;
     } else {
@@ -88,16 +88,16 @@ void alir_func_add_param(AlirModule *mod, AlirFunction *func, const char *name, 
 AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, VarType type, int id_hint) {
     char label[64];
     sprintf(label, "str.%d", id_hint);
-    
+
     AlirGlobal *g = alir_alloc(mod, sizeof(AlirGlobal));
     g->name = alir_strdup(mod, label);
     g->string_content = alir_strdup(mod, content);
-    
-    g->type = type; 
-    
+
+    g->type = type;
+
     g->next = mod->globals;
     mod->globals = g;
-    
+
     return alir_val_global(mod, label, g->type);
 }
 
@@ -109,7 +109,7 @@ static Arena *current_tracked_arena = NULL;
 
 AlirBlock* alir_add_block(AlirModule *mod, AlirFunction *func, const char *label_hint) {
     Arena *arena = (mod && mod->compiler_ctx) ? mod->compiler_ctx->arena : NULL;
-    
+
     if (func != current_tracked_func || arena != current_tracked_arena) {
         if (current_tracked_func && !current_tracked_arena) {
             hashmap_free(&label_map);
@@ -121,7 +121,7 @@ AlirBlock* alir_add_block(AlirModule *mod, AlirFunction *func, const char *label
 
     AlirBlock *b = alir_alloc(mod, sizeof(AlirBlock));
     b->id = func->block_count; // Use block count as ID
-    
+
     if (!label_hint) {
         char buf[32];
         sprintf(buf, "L%d", b->id);
@@ -163,7 +163,7 @@ void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields, 
     st->is_union = is_union;
     st->name = alir_strdup(mod, name);
     st->fields = fields;
-    
+
     if (fields == NULL) {
         st->field_count = -1; // Unresolved marker
     } else {
@@ -174,7 +174,7 @@ void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields, 
             f = f->next;
         }
     }
-    
+
     st->next = mod->structs;
     mod->structs = st;
 }
@@ -191,7 +191,7 @@ AlirStruct* alir_find_struct(AlirModule *mod, const char *name) {
 int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *field_name) {
     AlirStruct *st = alir_find_struct(mod, struct_name);
     if (!st) return -1;
-    
+
     AlirField *f = st->fields;
     while(f) {
         if (strcmp(f->name, field_name) == 0) return f->index;
@@ -200,6 +200,7 @@ int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *f
     return -1;
 }
 
+// TODO change this into ENUM!
 const char* alir_op_str(AlirOpcode op) {
     switch(op) {
         case ALIR_OP_ALLOCA: return "onstack";
@@ -211,7 +212,7 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_SIZEOF: return "sizeof";
         case ALIR_OP_ALIGNOF: return "alignof";
         case ALIR_OP_TYPEOF: return "typeof";
-        
+
         case ALIR_OP_ADD: return "add";
         case ALIR_OP_SUB: return "sub";
         case ALIR_OP_MUL: return "mul";
@@ -221,31 +222,31 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_FSUB: return "fsub";
         case ALIR_OP_FMUL: return "fmul";
         case ALIR_OP_FDIV: return "fdiv";
-        
+
         case ALIR_OP_JUMP: return "jump";
         case ALIR_OP_CONDI: return "condition";
         case ALIR_OP_SWITCH: return "jumpint";
         case ALIR_OP_CALL: return "call";
         case ALIR_OP_RET: return "->";
         case ALIR_OP_PANIC: return "panic";
-        
+
         // Added flux/iterator support strings
         case ALIR_OP_YIELD: return "yield";
         case ALIR_OP_ITER_INIT: return "iter_init";
         case ALIR_OP_ITER_VALID: return "iter_valid";
         case ALIR_OP_ITER_NEXT: return "iter_next";
         case ALIR_OP_ITER_GET: return "iter_get";
-        
+
         case ALIR_OP_CAST: return "cast";
         case ALIR_OP_NOT: return "not";
-        
+
         case ALIR_OP_LT: return "lt";
         case ALIR_OP_GT: return "gt";
         case ALIR_OP_LTE: return "lte";
         case ALIR_OP_GTE: return "gte";
         case ALIR_OP_EQ: return "eq";
         case ALIR_OP_NEQ: return "neq";
-        
+
         case ALIR_OP_AND: return "and";
         case ALIR_OP_OR: return "or";
         case ALIR_OP_XOR: return "xor";
@@ -253,10 +254,10 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_SHR: return "shr";
         case ALIR_OP_ROTR: return "rotr";
         case ALIR_OP_ROTL: return "rotl";
-        
+
         case ALIR_OP_MOV: return "mov";
         case ALIR_OP_PHI: return "phi";
-        
+
         default: return "op";
     }
 }

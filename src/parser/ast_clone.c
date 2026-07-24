@@ -345,6 +345,7 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             n->base.type = NODE_CLEAN;
             n->base.line = orig->base.line;
             n->base.col = orig->base.col;
+            n->base.sem_type = orig->base.sem_type;
             n->var_name = orig->var_name ? arena_strdup(ctx->arena, orig->var_name) : NULL;
             n->pristine_var_name = orig->pristine_var_name ? arena_strdup(ctx->arena, orig->pristine_var_name) : NULL;
             n->err_var_name = orig->err_var_name ? arena_strdup(ctx->arena, orig->err_var_name) : NULL;
@@ -358,6 +359,7 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             n->base.type = NODE_UNTAINT;
             n->base.line = orig->base.line;
             n->base.col = orig->base.col;
+            n->base.sem_type = orig->base.sem_type;
             n->var_name = orig->var_name ? arena_strdup(ctx->arena, orig->var_name) : NULL;
             n->err_var_name = orig->err_var_name ? arena_strdup(ctx->arena, orig->err_var_name) : NULL;
             n->residue_body = ast_clone(ctx, orig->residue_body, type_params, replace_with, num_params, rename_from, rename_to, num_renames);

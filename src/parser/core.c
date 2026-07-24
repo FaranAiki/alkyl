@@ -346,6 +346,9 @@ VarType parse_type(Parser *p) {
       t.is_unsigned = 1;
       eat(p, TOKEN_KW_UNSIGNED);
     if (p->has_error) return (VarType){0};
+  } else if (p->current_token.type == TOKEN_KW_SIGNED) {
+      eat(p, TOKEN_KW_SIGNED);
+    if (p->has_error) return (VarType){0};
   }
 
   if (p->current_token.type == TOKEN_IDENTIFIER) {
@@ -435,7 +438,13 @@ VarType parse_type(Parser *p) {
   } else {
       TokenType ct = p->current_token.type;
       if (ct == TOKEN_KW_INT) { t.base = TYPE_INT; eat(p, TOKEN_KW_INT); }
-      else if (ct == TOKEN_KW_SHORT) { t.base = TYPE_SHORT; eat(p, TOKEN_KW_SHORT); }
+      else if (ct == TOKEN_KW_SHORT) { 
+          t.base = TYPE_SHORT; 
+          eat(p, TOKEN_KW_SHORT); 
+          if (p->current_token.type == TOKEN_KW_INT) {
+              eat(p, TOKEN_KW_INT);
+          }
+      }
       else if (ct == TOKEN_KW_LONG) {
           eat(p, TOKEN_KW_LONG);
     if (p->has_error) return (VarType){0};
@@ -448,6 +457,9 @@ VarType parse_type(Parser *p) {
                   t.base = TYPE_LONG_DOUBLE;
               } else {
                   t.base = TYPE_LONG_LONG;
+                  if (p->current_token.type == TOKEN_KW_INT) {
+                      eat(p, TOKEN_KW_INT);
+                  }
               }
           } else if (p->current_token.type == TOKEN_KW_DOUBLE) {
               eat(p, TOKEN_KW_DOUBLE);

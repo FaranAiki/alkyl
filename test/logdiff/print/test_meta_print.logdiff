@@ -1,0 +1,36 @@
+0a1,31
+> Both operands to ICmp instruction are not of the same type!
+>   %eq = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq3 = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq8 = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq12 = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq15 = icmp eq i64 ptrtoint (ptr getelementptr (i8, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq3 = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq8 = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq12 = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq15 = icmp eq i64 ptrtoint (ptr getelementptr (i8, ptr null, i32 1) to i64), i32 1
+> LLVM Verification Error: Both operands to ICmp instruction are not of the same type!
+>   %eq = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq3 = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq8 = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq12 = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
+> Both operands to ICmp instruction are not of the same type!
+>   %eq15 = icmp eq i64 ptrtoint (ptr getelementptr (i8, ptr null, i32 1) to i64), i32 1
+> 
+7,9d37
+< Compiled to build/out.o
+< Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+< Linked to build/out
