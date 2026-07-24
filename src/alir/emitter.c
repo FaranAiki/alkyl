@@ -1,5 +1,7 @@
 #include "alir.h"
 
+// TODO: make sure that we have
+// text_read.c && text_write.c
 void alir_fprint_type(FILE *f, VarType t) {
     switch(t.base) {
         case TYPE_INT: fprintf(f, "int"); break;
@@ -22,7 +24,7 @@ void alir_fprint_type(FILE *f, VarType t) {
         // TODO add ll, ld, array, vector, hashmap, auto, unknown
         default: fprintf(f, "def"); break;
     }
-    // [FIX] Correct pointer depth logic. 
+    // [FIX] Correct pointer depth logic.
     // It used to evaluate `if(0 - 1)` which is TRUE, printing 'ptr' for 0 depth.
     if (t.ptr_depth > 0) fprintf(f, "*");
     for(int i=1; i<t.ptr_depth; i++) fprintf(f, "*");
@@ -57,7 +59,7 @@ void alir_fprint_val(FILE *f, AlirValue *v) {
     }
 }
 
-// TODO separate this 
+// TODO separate this
 // and make sure unknowns do not exist
 void alir_emit_function(AlirModule *mod, FILE *f) {
   AlirFunction *func = mod->functions;
@@ -66,7 +68,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
           fprintf(f, "\npromise ");
           alir_fprint_type(f, func->ret_type);
           fprintf(f, " @%s(", func->name);
-          
+
           AlirParam *p = func->params;
           while(p) {
               alir_fprint_type(f, p->type);
@@ -78,12 +80,12 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
               fprintf(f, "...");
           }
           fprintf(f, ")\n");
-          
+
       } else {
-          fprintf(f, "\nblock %s ", func->is_flux ? "flux" : "func");
+          fprintf(f, "\n%s ", func->is_flux ? "flux" : "func");
           alir_fprint_type(f, func->ret_type);
           fprintf(f, " @%s(", func->name);
-          
+
           AlirParam *p = func->params;
           int i = 0;
           while(p) {
@@ -97,11 +99,11 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
               fprintf(f, "...");
           }
           fprintf(f, "):\n");
-          
+
           AlirBlock *b = func->blocks;
           while(b) {
               fprintf(f, "  %s:\n", b->label);
-              
+
               AlirInst *inst = b->head;
               while(inst) {
                   fprintf(f, "    ");
@@ -109,7 +111,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                       alir_fprint_val(f, inst->dest);
                       fprintf(f, " = ");
                   }
-                  
+
                   if (inst->op == ALIR_OP_ALLOCA && inst->dest) {
                       fprintf(f, "onstack ");
                       alir_fprint_type(f, inst->dest->type);
@@ -117,13 +119,13 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                         fprintf(f, " ");
                         alir_fprint_val(f, inst->op1);
                       }
-                  } 
+                  }
                   else if (inst->op == ALIR_OP_STORE) {
                       if (inst->op2) alir_fprint_val(f, inst->op2);
                       else fprintf(f, "undef");
-                      
+
                       fprintf(f, " <- ");
-                      
+
                       if (inst->op1) {
                           alir_fprint_type(f, inst->op1->type);
                           fprintf(f, " ");
@@ -132,6 +134,12 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                           fprintf(f, "undef");
                       }
                   }
+                  /*
+                  else if (inst->op == ALIR_OP_CONDI) {
+                      // Use this:
+                      // instead of condition %5, we do
+                      // if %5 jmp_1 | jmp_ 2
+                  }*/
                   else {
                       // [FIX] Add required typing to the instruction output
                       // this is the getptr isn't
@@ -144,7 +152,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                           alir_fprint_type(f, inst->op1->type);
                           fprintf(f, " ");
                       }
-                      
+
                       if (inst->op1) {
                           alir_fprint_val(f, inst->op1);
                       } else if (inst->op == ALIR_OP_RET && !inst->op1) {
@@ -165,7 +173,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                               fprintf(f, ", ");
                               alir_fprint_val(f, inst->op2);
                           }
-                          
+
                           if (inst->args) {
                               fprintf(f, " (");
                               for(int k=0; k<inst->arg_count; k++) {
@@ -176,7 +184,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                           }
                       }
                   }
-                  
+
                   fprintf(f, "\n");
                   inst = inst->next;
               }
@@ -189,8 +197,8 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
   }
 }
 void alir_emit_stream(AlirModule *mod, FILE *f) {
-    fprintf(f, "; Module: %s\n", mod->name);
-    
+    fprintf(f, "; Alir Module: %s\n", mod->name);
+
     if (mod->enums) {
         fprintf(f, "\n; Enum Definitions\n");
         AlirEnum *e = mod->enums;
@@ -230,6 +238,7 @@ void alir_emit_stream(AlirModule *mod, FILE *f) {
         while(g) {
             char *esc = escape_string(g->string_content);
             if (g->type.base == TYPE_CLASS && g->type.class_name && strcmp(g->type.class_name, "string") == 0) {
+                // TODO string is not native, fix this
                 fprintf(f, "@%s = string \"%s\"\n", g->name, esc);
             } else {
                 fprintf(f, "@%s = cstring \"%s\"\n", g->name, esc);
@@ -239,8 +248,8 @@ void alir_emit_stream(AlirModule *mod, FILE *f) {
             g = g->next;
         }
     }
-    
-    alir_emit_function(mod, f); 
+
+    alir_emit_function(mod, f);
 }
 
 void alir_print(AlirModule *mod) {

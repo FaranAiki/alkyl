@@ -13,10 +13,10 @@ void sb_init(StringBuilder *sb, Arena *arena) {
 
 static void sb_grow(StringBuilder *sb, int min_cap) {
     if (sb->cap >= min_cap) return;
-    
+
     int new_cap = sb->cap == 0 ? 64 : sb->cap * 2;
     if (new_cap < min_cap) new_cap = min_cap;
-    
+
     if (sb->arena) {
         // Arena mode: Allocate new block and copy.
         // This trades arena memory usage for safety/speed (no manual free).
@@ -58,22 +58,22 @@ void sb_append_c(StringBuilder *sb, char c) {
 void sb_append_fmt(StringBuilder *sb, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    
+
     // Determine required size
     va_list args_copy;
     va_copy(args_copy, args);
     int len = vsnprintf(NULL, 0, fmt, args_copy);
     va_end(args_copy);
-    
+
     if (len < 0) {
         va_end(args);
         return;
     }
-    
+
     sb_grow(sb, sb->len + len + 1);
     vsnprintf(sb->data + sb->len, len + 1, fmt, args);
     sb->len += len;
-    
+
     va_end(args);
 }
 
@@ -93,6 +93,7 @@ void sb_append_escaped(StringBuilder *sb, const char *str) {
     }
 }
 
+// TODO: make sure we use arena allocator
 char* escape_string(const char *str) {
     StringBuilder sb;
     sb_init(&sb, NULL);

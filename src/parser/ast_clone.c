@@ -59,7 +59,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
 }
 
 ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarType *replace_with, int num_params, char **rename_from, char **rename_to, int num_renames) {
-    if (!node) return NULL;
+    if (!ctx || !node) return NULL;
     
     ASTNode *clone = NULL;
     

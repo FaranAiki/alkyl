@@ -16,7 +16,7 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
   ASTNode **curr_arg = &args_head;
   if (p->current_token.type != TOKEN_RPAREN) {
     ASTNode *expr = parse_expression(p);
-    if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
+    if (expr && expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
         NamedArgNode *narg = parser_alloc(p, sizeof(NamedArgNode));
         narg->base.type = NODE_NAMED_ARG;
         narg->name = ((AssignNode*)expr)->name;
@@ -24,6 +24,7 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
         narg->base.line = expr->line; narg->base.col = expr->col;
         expr = (ASTNode*)narg;
     }
+    if (!expr) { p->has_error = 1; return NULL; }
     *curr_arg = expr;
     curr_arg = &(*curr_arg)->next;
     while (p->current_token.type != TOKEN_RPAREN && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
@@ -33,7 +34,7 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
           if (p->settings.function_call_require_comma) break;
       }
       expr = parse_expression(p);
-      if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
+      if (expr && expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
           NamedArgNode *narg = parser_alloc(p, sizeof(NamedArgNode));
           narg->base.type = NODE_NAMED_ARG;
           narg->name = ((AssignNode*)expr)->name;
@@ -41,6 +42,7 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
           narg->base.line = expr->line; narg->base.col = expr->col;
           expr = (ASTNode*)narg;
       }
+      if (!expr) { p->has_error = 1; break; }
       *curr_arg = expr;
       curr_arg = &(*curr_arg)->next;
     }
@@ -145,7 +147,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                 ASTNode **curr_arg = &args_head;
                 if (p->current_token.type != TOKEN_RPAREN) {
                     ASTNode *expr = parse_expression(p);
-                    if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
+                    if (expr && expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
                         NamedArgNode *narg = parser_alloc(p, sizeof(NamedArgNode));
                         narg->base.type = NODE_NAMED_ARG;
                         narg->name = ((AssignNode*)expr)->name;
@@ -153,8 +155,11 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                         narg->base.line = expr->line; narg->base.col = expr->col;
                         expr = (ASTNode*)narg;
                     }
-                    *curr_arg = expr;
-                    curr_arg = &(*curr_arg)->next;
+                    if (!expr) { p->has_error = 1; }
+                    else {
+                        *curr_arg = expr;
+                        curr_arg = &(*curr_arg)->next;
+                    }
                     while (p->current_token.type != TOKEN_RPAREN && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
                         if (p->current_token.type == TOKEN_COMMA) {
                             eat(p, TOKEN_COMMA);
@@ -162,7 +167,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                             if (p->settings.function_call_require_comma) break;
                         }
                         expr = parse_expression(p);
-                        if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
+                        if (expr && expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
                             NamedArgNode *narg = parser_alloc(p, sizeof(NamedArgNode));
                             narg->base.type = NODE_NAMED_ARG;
                             narg->name = ((AssignNode*)expr)->name;
@@ -170,6 +175,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                             narg->base.line = expr->line; narg->base.col = expr->col;
                             expr = (ASTNode*)narg;
                         }
+                        if (!expr) { p->has_error = 1; break; }
                         *curr_arg = expr;
                         curr_arg = &(*curr_arg)->next;
                     }
@@ -607,6 +613,7 @@ ASTNode* parse_unary(Parser *p) {
       eat(p, TOKEN_LPAREN);
       ASTNode *expr = parse_expression(p);
       eat(p, TOKEN_RPAREN);
+      if (!expr) { p->has_error = 1; return NULL; }
       return parse_postfix(p, expr);
   }
 
