@@ -1,0 +1,13 @@
+flux int range(int a, int b) {
+  while a < b {
+    emit a; a++
+  }
+  return b;
+}
+
+int main() {
+  mut int k = 0;
+  for val in range(1, 10)
+    k += val;
+  return k;
+}

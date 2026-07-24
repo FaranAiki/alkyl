@@ -364,6 +364,26 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                     }
                     break;
                 }
+                case ALIR_OP_SWITCH: {
+                    long long cond = 0;
+                    if (inst->op1->kind == ALIR_VAL_TEMP) cond = registers[inst->op1->temp_id].as.int_val;
+                    else if (inst->op1->kind == ALIR_VAL_CONST) cond = inst->op1->val.long_long_val;
+                    
+                    AlirSwitchCase *c = inst->cases;
+                    int matched = 0;
+                    while (c) {
+                        if (c->value == cond) {
+                            next_block = find_block(func, c->label);
+                            matched = 1;
+                            break;
+                        }
+                        c = c->next;
+                    }
+                    if (!matched && inst->op2 && inst->op2->kind == ALIR_VAL_LABEL) {
+                        next_block = find_block(func, inst->op2->val.str_val);
+                    }
+                    break;
+                }
                 case ALIR_OP_CONDI: {
                     long long cond = 0;
                     if (inst->op1->kind == ALIR_VAL_TEMP) cond = registers[inst->op1->temp_id].as.int_val;
