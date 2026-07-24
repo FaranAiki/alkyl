@@ -67,7 +67,7 @@ static int is_unambiguous_expr_start(Parser *p) {
            t == TOKEN_NOT || t == TOKEN_BIT_NOT;
 }
 
-static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target, int line, int col) {
+static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
   ASTNode *args_head = NULL;
   ASTNode **curr_arg = &args_head;
 
@@ -87,35 +87,7 @@ static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target, int line,
     }
 
     p->in_space_separated_call++;
-    ASTNode *expr = NULL;
-    if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
-        int is_string = (p->current_token.type == TOKEN_STRING);
-        LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
-        ln->base.type = NODE_LITERAL;
-        ln->var_type.base = TYPE_CHAR;
-        ln->var_type.ptr_depth = 1;
-        ln->val.str_val = parser_strdup(p, p->current_token.text);
-        ln->base.next = NULL;
-        p->current_token.text = NULL;
-        eat(p, p->current_token.type);
-
-        if (is_string && p->l->settings.double_quote_as_string) {
-          VarRefNode *target_vn = parser_alloc(p, sizeof(VarRefNode));
-          target_vn->base.type = NODE_VAR_REF;
-          target_vn->name = parser_strdup(p, "string");
-          set_loc((ASTNode*)target_vn, line, col);
-
-          CallNode *str_call = parser_alloc(p, sizeof(CallNode));
-          str_call->base.type = NODE_CALL;
-          str_call->name = parser_strdup(p, "string");
-          str_call->target = (ASTNode*)target_vn;
-          str_call->args = (ASTNode*)ln;
-          ln = (LiteralNode*)str_call;
-        }
-        expr = (ASTNode*)ln;
-    } else {
-        expr = parse_expression(p);
-    }
+    ASTNode *expr = parse_expression(p);
     p->in_space_separated_call--;
 
     if (!expr) break;
@@ -286,11 +258,11 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             set_loc(node, line, col);
         }
         else if ((p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) && p->in_space_separated_call == 0) {
-            node = parse_space_separated_call(p, node, line, col);
+            node = parse_space_separated_call(p, node);
             set_loc(node, line, col);
         }
         else if (!p->settings.function_call_require_comma && p->in_space_separated_call == 0 && is_unambiguous_expr_start(p)) {
-            node = parse_space_separated_call(p, node, line, col);
+            node = parse_space_separated_call(p, node);
             set_loc(node, line, col);
         }
         // parse other postfix
