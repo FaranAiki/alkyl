@@ -89,6 +89,14 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             clone = (ASTNode*)n;
             break;
         }
+        case NODE_ARRAY_LIT: {
+            ArrayLitNode *orig = (ArrayLitNode*)node;
+            ArrayLitNode *n = arena_alloc(ctx->arena, sizeof(ArrayLitNode));
+            *n = *orig;
+            n->elements = ast_clone(ctx, orig->elements, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            clone = (ASTNode*)n;
+            break;
+        }
         case NODE_FUNC_DEF: {
             FuncDefNode *orig = (FuncDefNode*)node;
             FuncDefNode *n = arena_alloc(ctx->arena, sizeof(FuncDefNode));
@@ -453,6 +461,11 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
             BinaryOpNode *bn = (BinaryOpNode*)node;
             bn->left = ast_rewrite_macro(ctx, bn->left, varargs_head, param_names, param_args, num_params);
             bn->right = ast_rewrite_macro(ctx, bn->right, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        case NODE_ARRAY_LIT: {
+            ArrayLitNode *an = (ArrayLitNode*)node;
+            an->elements = ast_rewrite_macro(ctx, an->elements, varargs_head, param_names, param_args, num_params);
             break;
         }
         case NODE_CALL: {
