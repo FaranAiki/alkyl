@@ -574,7 +574,8 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
     if (col && col->type.base == TYPE_CLASS && col->type.class_name && strncmp(col->type.class_name, "FluxCtx_", 8) == 0) {
         printf("DEBUG: FluxCtx ptr_depth = %d\n", col->type.ptr_depth);
         if (col->type.ptr_depth == 0) {
-            VarType pt = col->type; // Do not increment ptr_depth for ALLOCA dest type
+            VarType pt = col->type; 
+            pt.ptr_depth = 1;
             AlirValue *col_ptr = new_temp(ctx, pt);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, col_ptr, NULL, NULL));
             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, col, col_ptr));

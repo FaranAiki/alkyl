@@ -96,6 +96,8 @@ static char* ethyl_generator(const char* text, int state) {
         char *name = sym->name;
         sym = sym->next; // advance for next call
 
+        if (!name) continue; // Prevent segfault on NULL names
+
         // Only use prefix match for autocomplete
         if (word_len == 0 || strncmp(name, word, word_len) == 0) {
             return strdup(name);
@@ -146,7 +148,7 @@ static void ethyl_redisplay(void) {
             if (global_sem_ctx && global_sem_ctx->global_scope) {
                 SemSymbol *sym = global_sem_ctx->global_scope->symbols;
                 while (sym) {
-                    if (strncmp(sym->name, word, word_len) == 0) {
+                    if (sym->name && strncmp(sym->name, word, word_len) == 0) {
                         best_match = sym->name;
                         break;
                     }
@@ -187,6 +189,7 @@ char* get_smart_input(Arena* arena, int cmd_count) {
     input_buffer[0] = '\0';
     int total_len = 0;
     int brace_depth = 0;
+    int in_indent_block = 0;
     char *line;
     int first_line = 1;
     while (1) {
@@ -198,14 +201,23 @@ char* get_smart_input(Arena* arena, int cmd_count) {
             line = readline(prompt);
         }
         if (!line) return NULL;
-        if (first_line && strlen(line) > 0) add_history(line);
+        
         int line_len = strlen(line);
+        char *trimmed = line;
+        while(*trimmed == ' ' || *trimmed == '\t') trimmed++;
+        
+        if (!first_line && in_indent_block && *trimmed == '\0') {
+            free(line);
+            break;
+        }
+
+        if (first_line && strlen(line) > 0) add_history(line);
         if (total_len + line_len + 2 >= 4096) {
             printf("\033[31mInput too long!\033[0m\n");
             free(line); return NULL;
         }
         strcat(input_buffer, line);
-        strcat(input_buffer, " ");
+        strcat(input_buffer, "\n");
         total_len += line_len + 1;
         int in_string = 0;
         int in_char = 0;
@@ -217,8 +229,23 @@ char* get_smart_input(Arena* arena, int cmd_count) {
                 if (line[i] == '}') brace_depth--;
             }
         }
+        
+        if (first_line && brace_depth == 0) {
+            if (strncmp(trimmed, "if ", 3) == 0 || strncmp(trimmed, "if(", 3) == 0 ||
+                strncmp(trimmed, "while ", 6) == 0 || strncmp(trimmed, "while(", 6) == 0 ||
+                strncmp(trimmed, "for ", 4) == 0 || strncmp(trimmed, "for(", 4) == 0 ||
+                strncmp(trimmed, "else", 4) == 0 ||
+                strncmp(trimmed, "func ", 5) == 0 || strncmp(trimmed, "class ", 6) == 0 ||
+                strncmp(trimmed, "struct ", 7) == 0 || strncmp(trimmed, "enum ", 5) == 0 ||
+                strncmp(trimmed, "flux ", 5) == 0) {
+                if (line_len > 0 && trimmed[strlen(trimmed)-1] != ';' && trimmed[strlen(trimmed)-1] != '}') {
+                    in_indent_block = 1;
+                }
+            }
+        }
+        
         free(line);
-        if (brace_depth <= 0) break;
+        if (brace_depth <= 0 && !in_indent_block) break;
         first_line = 0;
     }
     return input_buffer;
@@ -266,6 +293,7 @@ int run_repl(void) {
     // Initialize global parser state (we will share the types_map across REPL lines)
     Lexer dummy_l;
     LexerSettings dummy_settings = {0};
+    dummy_settings.scope_style = SCOPE_INDENTATION;
     dummy_settings.import_require_double_quotes = 0;
     lexer_init(&dummy_l, &ctx, "REPL", "", &dummy_settings);
     Parser p;
@@ -281,8 +309,8 @@ int run_repl(void) {
     sem_init(&sem, &ctx, &sem_settings);
     global_sem_ctx = &sem;
 
-    // We keep one AlirModule appending stuff
-    AlirModule *module = alir_create_module(&ctx, "ethyl_repl");
+    // We keep one AlirModule appending stuff. Pass NULL to use calloc instead of ast_arena
+    AlirModule *module = alir_create_module(NULL, "ethyl_repl");
 
     Arena vm_arena;
     arena_init(&vm_arena);
@@ -303,16 +331,17 @@ int run_repl(void) {
         char *buffer = get_smart_input(&ast_arena, cmd_count);
         if (!buffer) break;
 
-        if (strcmp(buffer, "exit ") == 0 || strcmp(buffer, "quit ") == 0) {
+        int len = strlen(buffer);
+        while(len > 0 && (buffer[len-1] == ' ' || buffer[len-1] == '\n' || buffer[len-1] == '\r')) len--;
+        buffer[len] = '\0';
+
+        if (strcmp(buffer, "exit") == 0 || strcmp(buffer, "quit") == 0) {
             break;
         }
 
-        int len = strlen(buffer);
-        while(len > 0 && buffer[len-1] == ' ') len--;
-        buffer[len] = '\0';
-
         Lexer l;
         LexerSettings settings = {0};
+        settings.scope_style = SCOPE_INDENTATION;
         settings.require_semicolons = 0;
         settings.import_require_double_quotes = 0;
         lexer_init(&l, &ctx, "REPL", buffer, &settings);
@@ -381,7 +410,7 @@ int run_repl(void) {
                 long long initial_val = 0;
 
                 if (vd->initializer) {
-                    char func_name[64];
+                    char *func_name = arena_alloc(&ast_arena, 64);
                     sprintf(func_name, "__repl_init_%d", cmd_count);
 
                     FuncDefNode *fn = arena_alloc(&ast_arena, sizeof(FuncDefNode));
@@ -487,7 +516,7 @@ int run_repl(void) {
                 printf("\033[31mDynamic linking in REPL is not supported on Windows yet.\033[0m\n");
 #endif
             } else if (curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT && curr->type != NODE_LINK) {
-                char func_name[64];
+                char *func_name = arena_alloc(&ast_arena, 64);
                 static int repl_expr_count = 0; sprintf(func_name, "__repl_expr_%d", ++repl_expr_count);
 
                 // Wrap in a synthetic function
@@ -566,12 +595,28 @@ int run_repl(void) {
                                 if (ret_type.array_size > 0 && exit_code != 0) {
                                     printf("-> [");
                                     for (int i = 0; i < ret_type.array_size; i++) {
-                                        if (ret_type.base == TYPE_DOUBLE || ret_type.base == TYPE_SINGLE) {
-                                            double val = ((double*)(intptr_t)exit_code)[i];
-                                            printf("%f", val);
+                                        if (ret_type.array_depth > 0) {
+                                            long long inner_ptr = ((long long*)(intptr_t)exit_code)[i];
+                                            printf("[");
+                                            for (int j = 0; j < ret_type.array_depth; j++) {
+                                                if (ret_type.base == TYPE_DOUBLE || ret_type.base == TYPE_SINGLE) {
+                                                    double val = ((double*)(intptr_t)inner_ptr)[j];
+                                                    printf("%f", val);
+                                                } else {
+                                                    long long val = ((long long*)(intptr_t)inner_ptr)[j];
+                                                    printf("%lld", val);
+                                                }
+                                                if (j < ret_type.array_depth - 1) printf(", ");
+                                            }
+                                            printf("]");
                                         } else {
-                                            long long val = ((long long*)(intptr_t)exit_code)[i];
-                                            printf("%lld", val);
+                                            if (ret_type.base == TYPE_DOUBLE || ret_type.base == TYPE_SINGLE) {
+                                                double val = ((double*)(intptr_t)exit_code)[i];
+                                                printf("%f", val);
+                                            } else {
+                                                long long val = ((long long*)(intptr_t)exit_code)[i];
+                                                printf("%lld", val);
+                                            }
                                         }
                                         if (i < ret_type.array_size - 1) printf(", ");
                                     }

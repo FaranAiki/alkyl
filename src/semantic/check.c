@@ -735,22 +735,31 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             ArrayLitNode *al = (ArrayLitNode*)node;
             ASTNode *el = al->elements;
             VarType elem_type = {TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-            int count = 1; 
+            int count = 0; 
 
             if (el) {
                 sem_check_expr(ctx, el);
                 elem_type = sem_get_node_type(ctx, el);
                 el = el->next;
+                count++;
             }
             while(el) {
-              sem_check_expr(ctx, el);
-              el = el->next;
+                sem_check_expr(ctx, el);
+                VarType curr_type = sem_get_node_type(ctx, el);
+                if (!sem_types_are_compatible(ctx, elem_type, curr_type)) {
+                    sem_error(ctx, el, "Array elements have incompatible types");
+                }
+                el = el->next;
                 count++; 
+            }
+            if (elem_type.array_size > 0) {
+                elem_type.array_depth = elem_type.array_size;
             }
             elem_type.ptr_depth = 0;
             elem_type.array_size = count;
             sem_set_node_type(ctx, node, elem_type);
-            break;        }
+            break;
+        }
         case NODE_INC_DEC: {
             IncDecNode *id = (IncDecNode*)node;
             sem_check_expr(ctx, id->target);

@@ -6,7 +6,9 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
     LLVMValueRef res = NULL;
     switch (inst->op) {
             case ALIR_OP_ALLOCA: {
-                LLVMTypeRef ty = get_llvm_type(ctx, inst->dest->type);
+                VarType elem_type = inst->dest->type;
+                if (elem_type.ptr_depth > 0) elem_type.ptr_depth--;
+                LLVMTypeRef ty = get_llvm_type(ctx, elem_type);
                 if (op1) {
                     LLVMValueRef size = op1;
                     // alloca expects size_t (i64 on 64-bit systems)

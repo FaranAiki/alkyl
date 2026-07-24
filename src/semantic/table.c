@@ -380,6 +380,8 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
 int sem_types_are_equal(VarType a, VarType b) {
     if (a.base != b.base) return 0;
     if (a.array_size != b.array_size) return 0;
+    if (a.array_depth != b.array_depth) return 0;
+    if (a.ptr_depth != b.ptr_depth) return 0;
     if (a.is_unsigned != b.is_unsigned) return 0; 
     
     if (a.base == TYPE_CLASS || a.base == TYPE_ENUM || a.base == TYPE_NAMESPACE) {
@@ -517,6 +519,9 @@ char* sem_type_to_str(VarType t) {
     }
     if (t.array_size > 0) {
         pos += snprintf(buf + pos, 256 - pos, "[%d]", t.array_size);
+        if (t.array_depth > 0) {
+            pos += snprintf(buf + pos, 256 - pos, "[%d]", t.array_depth);
+        }
     }
     buf[pos] = '\0';
 

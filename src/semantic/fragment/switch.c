@@ -281,7 +281,14 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) {
         }
     }
     
-    if (t.array_size > 0) t.array_size = 0;
+    if (t.array_size > 0) {
+        if (t.array_depth > 0) {
+            t.array_size = t.array_depth;
+            t.array_depth = 0;
+        } else {
+            t.array_size = 0;
+        }
+    }
     else if (t.ptr_depth > 0) t.ptr_depth--;
     else if (t.base == TYPE_ENUM || t.base == TYPE_ARRAY || (t.base == TYPE_CLASS && t.class_name && (strcmp(t.class_name, "string") == 0 || strcmp(t.class_name, "vector") == 0 || strcmp(t.class_name, "hashmap") == 0))) {
          // for now wait!

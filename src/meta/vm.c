@@ -138,7 +138,19 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                         }
                         else if (inst->op2->kind == ALIR_VAL_VAR) ptr = (void*)(intptr_t)meta_vm_resolve_var(inst->op2, module, vm, args, arg_count);
                         
-                        if (ptr) *((long long*)ptr) = val;
+                        void *src_ptr = NULL;
+                        if (inst->op1->type.base == TYPE_CLASS && inst->op1->type.ptr_depth == 0) {
+                            if (inst->op1->kind == ALIR_VAL_TEMP) src_ptr = registers[inst->op1->temp_id].as.ptr_val;
+                            else if (inst->op1->kind == ALIR_VAL_VAR) src_ptr = (void*)(intptr_t)meta_vm_resolve_var(inst->op1, module, vm, args, arg_count);
+                        }
+                        
+                        if (ptr) {
+                            if (src_ptr) {
+                                memcpy(ptr, src_ptr, 1024);
+                            } else {
+                                *((long long*)ptr) = val;
+                            }
+                        }
                     }
                     break;
                 }
@@ -186,7 +198,13 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
 // if (!ptr) printf("DEBUG: Global '%s' NOT FOUND in LOAD!\n", inst->op1->val.str_val);
                         }
                         if (ptr) {
-                            registers[inst->dest->temp_id].as.int_val = *((long long*)ptr);
+                            if (inst->dest->type.base == TYPE_CLASS && inst->dest->type.ptr_depth == 0) {
+                                void *copy = arena_alloc(vm->arena, 1024);
+                                memcpy(copy, ptr, 1024);
+                                registers[inst->dest->temp_id].as.ptr_val = copy;
+                            } else {
+                                registers[inst->dest->temp_id].as.int_val = *((long long*)ptr);
+                            }
                         }
                     }
                     break;
