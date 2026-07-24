@@ -20,6 +20,7 @@ typedef struct HashMap {
 void hashmap_init(HashMap *map, Arena *arena, int initial_capacity);
 void hashmap_put(HashMap *map, const char *key, void *value);
 void* hashmap_get(HashMap *map, const char *key);
+void* hashmap_get_n(HashMap *map, const char *key, size_t len);
 int hashmap_has(HashMap *map, const char *key);
 const char* hashmap_intern(HashMap *map, const char *key);
 

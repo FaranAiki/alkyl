@@ -276,10 +276,12 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
         VarType real_ret_ty = func->ret_type;
         if (func->is_extern) real_ret_ty.is_tainted = 0;
         LLVMTypeRef ret_ty = get_llvm_type(ctx, real_ret_ty);
+        int __pt2_sz = func->param_count > 0 ? func->param_count : 1; 
+        LLVMTypeRef __pt2_arr[__pt2_sz]; 
         LLVMTypeRef *param_tys = NULL;
 
         if (func->param_count > 0) {
-            int __pt2_sz = func->param_count > 0 ? func->param_count : 1; LLVMTypeRef __pt2_arr[__pt2_sz]; param_tys = __pt2_arr;
+            param_tys = __pt2_arr;
             AlirParam *p = func->params;
             int i = 0;
             while(p) {
@@ -307,7 +309,6 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
         hashmap_put(&ctx->func_map, func->name, llvm_func);
         hashmap_put(&ctx->func_type_map, func->name, func_ty);
 
-        if (param_tys) 
         func = func->next;
     }
 

@@ -239,6 +239,7 @@ typedef struct {
   
   Token pending_tokens[16];
   int pending_count;
+  int last_calc_pos;
 } Lexer;
 
 typedef struct {

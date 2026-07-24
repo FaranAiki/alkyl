@@ -441,6 +441,7 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
           vn->base.type = NODE_VAR_REF;
           vn->name = peek_t.class_name;
           ASTNode* call = parse_call(p, (ASTNode*)vn);
+          call = parse_postfix(p, call);
           eat_semi(p);
           set_loc(call, line, col);
           return call;

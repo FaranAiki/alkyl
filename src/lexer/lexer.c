@@ -17,6 +17,7 @@ void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char
   l->indent_level = 0;
   l->indent_stack[0] = 0;
   l->pending_count = 0;
+  l->last_calc_pos = 0;
 
   if (settings) {
       l->settings = *settings;
@@ -31,21 +32,8 @@ void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char
   }
 }
 
-static char peek(Lexer *l) { return l->src[l->pos]; }
-
-static char advance(Lexer *l) {
-  char c = l->src[l->pos];
-  if (c == '\0') return c;
-
-  l->pos++;
-  if (c == '\n') {
-    l->line++;
-    l->col = 1;
-  } else {
-    l->col++;
-  }
-  return c;
-}
+#define peek(l) ((l)->src[(l)->pos])
+#define advance(l) ((l)->src[(l)->pos++])
 
 static char* intern_string(Lexer *l, const char *str) {
     if (!str) return NULL;
@@ -63,23 +51,30 @@ static char* intern_string(Lexer *l, const char *str) {
 }
 
 static char* intern_strndup(Lexer *l, const char *str, size_t len) {
-    if (len < 512) {
-        char temp[512];
-        memcpy(temp, str, len);
-        temp[len] = '\0';
-        return intern_string(l, temp);
-    } else {
-        char *temp = arena_alloc(l->ctx->arena, len + 1);
-        memcpy(temp, str, len);
-        temp[len] = '\0';
-        return intern_string(l, temp);
+    void *existing = hashmap_get_n(&l->ctx->string_pool, str, len);
+    if (existing) {
+        return (char*)existing;
     }
+    
+    char *new_str = arena_alloc(l->ctx->arena, len + 1);
+    memcpy(new_str, str, len);
+    new_str[len] = '\0';
+    hashmap_put(&l->ctx->string_pool, new_str, new_str);
+    return new_str;
 }
 
 void skip_whitespace_and_comments(Lexer *l) {
   while (1) {
     char c = peek(l);
     if (c == '\0') break;
+
+    // Hot path for standard spaces/newlines
+    if (c == ' ' || c == '\n' || c == '\t' || c == '\r') {
+      while (l->src[l->pos] == ' ' || l->src[l->pos] == '\n' || l->src[l->pos] == '\t' || l->src[l->pos] == '\r') {
+          l->pos++;
+      }
+      continue;
+    }
 
     if (isspace((unsigned char)c)) {
       advance(l);
@@ -528,6 +523,14 @@ static void init_kw_hash() {
     kw_hash_init = 1;
 }
 
+static unsigned int hash_strn(const char *str, size_t len) {
+    unsigned int hash = 5381;
+    for (size_t i = 0; i < len; i++) {
+        hash = ((hash << 5) + hash) + str[i];
+    }
+    return hash;
+}
+
 static int is_ident_start(char c) {
     unsigned char uc = (unsigned char)c;
     return isalpha(uc) || uc == '_' || uc >= 0x80;
@@ -549,20 +552,10 @@ static int lex_word(Lexer *l, Token *t) {
       length++;
   }
 
-  char word[256];
-  if (length >= 256) {
-      Token dummy = {TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col};
-      report_error(l, dummy, "Identifier length exceeds maximum limit of 255 characters");
-      exit(1);
-  }
-
-  strncpy(word, start, length);
-  word[length] = '\0';
-
   init_kw_hash();
-  unsigned int h = hash_str(word) % KW_HASH_SIZE;
+  unsigned int h = hash_strn(start, length) % KW_HASH_SIZE;
   while (kw_hash[h].word != NULL) {
-      if (strcmp(kw_hash[h].word, word) == 0) {
+      if (strncmp(kw_hash[h].word, start, length) == 0 && kw_hash[h].word[length] == '\0') {
           t->type = kw_hash[h].type;
           return 1;
       }
@@ -590,6 +583,17 @@ Token lexer_next(Lexer *l) {
   int is_first_token = (l->pos == 0);
 
   skip_whitespace_and_comments(l);
+
+  // Catch up line and col to l->pos
+  for (int i = l->last_calc_pos; i < l->pos; i++) {
+      if (l->src[i] == '\n') {
+          l->line++;
+          l->col = 1;
+      } else {
+          l->col++;
+      }
+  }
+  l->last_calc_pos = l->pos;
 
   int is_eof = (peek(l) == '\0');
   int is_new_line = (l->line > prev_line) || is_first_token || is_eof;
@@ -647,6 +651,17 @@ Token lexer_next(Lexer *l) {
     advance(l);
     t.type = TOKEN_UNKNOWN;
   }
+
+  // Catch up line and col to the end of the token
+  for (int i = l->last_calc_pos; i < l->pos; i++) {
+      if (l->src[i] == '\n') {
+          l->line++;
+          l->col = 1;
+      } else {
+          l->col++;
+      }
+  }
+  l->last_calc_pos = l->pos;
 
   t.length = l->pos - start_pos;
 

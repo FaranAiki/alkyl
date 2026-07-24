@@ -12,11 +12,19 @@ typedef struct {
     void *value;
 } DictEntry;
 
-// FNV-1a hash function
 static uint32_t hash_string(const char *str) {
     uint32_t hash = 2166136261u;
     while (*str) {
         hash ^= (uint8_t)(*str++);
+        hash *= 16777619u;
+    }
+    return hash;
+}
+
+static uint32_t hash_string_n(const char *str, size_t len) {
+    uint32_t hash = 2166136261u;
+    for (size_t i = 0; i < len; i++) {
+        hash ^= (uint8_t)(str[i]);
         hash *= 16777619u;
     }
     return hash;
@@ -207,6 +215,30 @@ void* hashmap_get(HashMap *map, const char *key) {
         int idx = indices[i];
         if (entries[idx].hash == hash && 
            (entries[idx].key == key || strcmp(entries[idx].key, key) == 0)) {
+            return entries[idx].value;
+        }
+        i = (i * 5 + 1 + perturb) & mask;
+        perturb >>= PERTURB_SHIFT;
+    }
+    
+    return NULL;
+}
+
+void* hashmap_get_n(HashMap *map, const char *key, size_t len) {
+    if (!map || !key) return NULL;
+    
+    uint32_t hash = hash_string_n(key, len);
+    size_t mask = map->capacity - 1;
+    size_t perturb = hash;
+    size_t i = hash & mask;
+    
+    int32_t *indices = (int32_t*)map->buckets;
+    DictEntry *entries = (DictEntry*)(indices + map->capacity);
+    
+    while (indices[i] != -1) {
+        int idx = indices[i];
+        if (entries[idx].hash == hash && 
+           (entries[idx].key == key || (strncmp(entries[idx].key, key, len) == 0 && entries[idx].key[len] == '\0'))) {
             return entries[idx].value;
         }
         i = (i * 5 + 1 + perturb) & mask;
