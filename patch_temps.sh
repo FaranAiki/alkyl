@@ -1,1 +1,0 @@
-sed -i 's/ctx->temps = calloc(ctx->max_temps, sizeof(LLVMValueRef));/ctx->temps = ctx->arena ? arena_alloc(ctx->arena, ctx->max_temps * sizeof(LLVMValueRef)) : calloc(ctx->max_temps, sizeof(LLVMValueRef));\n        if (ctx->temps) memset(ctx->temps, 0, ctx->max_temps * sizeof(LLVMValueRef));/g' src/codegen_llvm/codegen.c
