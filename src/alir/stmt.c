@@ -323,6 +323,15 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             AlirValue *cond = alir_gen_expr(ctx, in->condition);
             if (!cond) cond = alir_const_int(ctx->module, 0); // Safety net
 
+            if (cond->kind == ALIR_VAL_CONST && (cond->type.base == TYPE_INT || cond->type.base == TYPE_BOOL)) {
+                if (cond->val.int_val) {
+                    ASTNode *s = in->then_body; while(s){ alir_gen_stmt(ctx,s); s=s->next; }
+                } else if (in->else_body) {
+                    ASTNode *s = in->else_body; while(s){ alir_gen_stmt(ctx,s); s=s->next; }
+                }
+                break;
+            }
+
             AlirBlock *then_bb = alir_add_block(ctx->module, ctx->current_func, "then");
             AlirBlock *else_bb = in->else_body ? alir_add_block(ctx->module, ctx->current_func, "else") : NULL;
             AlirBlock *merge_bb = alir_add_block(ctx->module, ctx->current_func, "merge");

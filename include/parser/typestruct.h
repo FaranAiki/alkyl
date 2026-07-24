@@ -46,6 +46,7 @@ typedef enum {
   NODE_ALIGNOF,
   NODE_DEFER,
   NODE_DEFINED,
+  NODE_ISCOMPATIBLE,
   NODE_META,
   NODE_POSTMETA,
   NODE_PURGE,
@@ -494,6 +495,12 @@ typedef struct {
   VarType target_type;
   ASTNode *operand;
 } SizeOfNode;
+
+typedef struct {
+  ASTNode base;
+  VarType target_type;
+  VarType target_type2;
+} IsCompatibleNode;
 
 typedef struct {
   ASTNode base;

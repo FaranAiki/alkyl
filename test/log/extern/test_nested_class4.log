@@ -17,12 +17,12 @@ GEP into unsized type!
 GEP into unsized type!
   %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
 
-[1;36mstep: [0mFinished lexing. Start parsing.
+step: Finished lexing. Start parsing.
 AST Node Type: 24
 AST Node Type: 1
-[1;36mstep: [0mStart Semantic Analysis.
-[1;36mstep: [0mFinished Semantic Analysis. Start macro-linking.
-[1;36mstep: [0mFinished macro linking. Start generating Alkyl Intermediate Representation (alir).
-[33mWarning:[0m Implicitly resolved 'Clib' to 'ns.Clib'
-[1;36mstep: [0mFinished alir. Start alir check and analysis.
-[1;36mstep: [0mFinished alir check and analysis. Start Codegen
+step: Start Semantic Analysis.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+Warning: Implicitly resolved 'Clib' to 'ns.Clib'
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start Codegen using LLVM Codegen

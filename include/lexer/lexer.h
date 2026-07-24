@@ -125,6 +125,7 @@ typedef enum {
   TOKEN_KW_SIZEOF,
   TOKEN_KW_ALIGNOF,
   TOKEN_KW_DEFINED,
+  TOKEN_KW_ISCOMPATIBLE,
   TOKEN_DEFER,
 
   TOKEN_KW_SHORT,
@@ -295,6 +296,7 @@ static const KeywordDef keywords[] = {
     {"infop", TOKEN_INFOP},
     {"int", TOKEN_KW_INT},
     {"is", TOKEN_IS},
+    {"iscompatible", TOKEN_KW_ISCOMPATIBLE},
     {"leak", TOKEN_LEAK},
     {"let", TOKEN_KW_LET},
     {"link", TOKEN_LINK},

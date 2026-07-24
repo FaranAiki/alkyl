@@ -37,6 +37,7 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
         p->settings.strict_boolean_conditions = 0;
         p->settings.namespace_auto_search = 1;
         p->settings.namespace_ausearch_warning = 1;
+        p->settings.function_call_require_comma = 1;
     }
     
     if (l) {

@@ -26,8 +26,12 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
     }
     *curr_arg = expr;
     curr_arg = &(*curr_arg)->next;
-    while (p->current_token.type == TOKEN_COMMA) { if (p->has_error) break;
-      eat(p, TOKEN_COMMA);
+    while (p->current_token.type != TOKEN_RPAREN && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
+      if (p->current_token.type == TOKEN_COMMA) {
+          eat(p, TOKEN_COMMA);
+      } else {
+          if (p->settings.function_call_require_comma) break;
+      }
       expr = parse_expression(p);
       if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
           NamedArgNode *narg = parser_alloc(p, sizeof(NamedArgNode));
@@ -85,7 +89,7 @@ static ASTNode* parse_string_leading_call(Parser *p, ASTNode *target, int line, 
     if (p->current_token.type == TOKEN_COMMA) {
       eat(p, TOKEN_COMMA);
     } else {
-      break;
+      if (p->settings.function_call_require_comma) break;
     }
   }
 
@@ -103,7 +107,7 @@ static ASTNode* parse_string_leading_call(Parser *p, ASTNode *target, int line, 
     if (p->current_token.type == TOKEN_COMMA) {
       eat(p, TOKEN_COMMA);
     } else {
-      break;
+      if (p->settings.function_call_require_comma) break;
     }
   }
 
@@ -156,8 +160,12 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                     }
                     *curr_arg = expr;
                     curr_arg = &(*curr_arg)->next;
-                    while (p->current_token.type == TOKEN_COMMA) { if (p->has_error) break;
-                        eat(p, TOKEN_COMMA);
+                    while (p->current_token.type != TOKEN_RPAREN && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
+                        if (p->current_token.type == TOKEN_COMMA) {
+                            eat(p, TOKEN_COMMA);
+                        } else {
+                            if (p->settings.function_call_require_comma) break;
+                        }
                         expr = parse_expression(p);
                         if (expr->type == NODE_ASSIGN && ((AssignNode*)expr)->op == TOKEN_ASSIGN && ((AssignNode*)expr)->name != NULL) {
                             NamedArgNode *narg = parser_alloc(p, sizeof(NamedArgNode));
@@ -511,6 +519,18 @@ ASTNode* parse_factor(Parser *p) {
     if (has_paren) eat(p, TOKEN_RPAREN);
 
     node = (ASTNode*)sn;
+    set_loc(node, line, col);
+  }
+  else if (p->current_token.type == TOKEN_KW_ISCOMPATIBLE) {
+    eat(p, TOKEN_KW_ISCOMPATIBLE);
+    eat(p, TOKEN_LPAREN);
+    IsCompatibleNode *icn = parser_alloc(p, sizeof(IsCompatibleNode));
+    icn->base.type = NODE_ISCOMPATIBLE;
+    icn->target_type = parse_type(p);
+    eat(p, TOKEN_COMMA);
+    icn->target_type2 = parse_type(p);
+    eat(p, TOKEN_RPAREN);
+    node = (ASTNode*)icn;
     set_loc(node, line, col);
   }
   else if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_ELLIPSIS) {

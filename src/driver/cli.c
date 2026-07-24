@@ -270,6 +270,7 @@ int run_repl(void) {
     lexer_init(&dummy_l, &ctx, "REPL", "", &dummy_settings);
     Parser p;
     parser_init(&p, &dummy_l, NULL);
+    p.settings.function_call_require_comma = 0;
 
     SemanticSettings sem_settings = {0};
     sem_settings.implicit_let = true;

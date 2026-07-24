@@ -58,6 +58,8 @@ for AKY_FILE in $FILES; do
     ACTUAL_LOG="/tmp/alkyl_actual_comp.log"
     ACTUAL_OUT="/tmp/alkyl_actual_run.out"
     
+    mkdir -p "test/log/$FEATURE" "test/output/$FEATURE" "test/logdiff/$FEATURE" "test/diff/$FEATURE"
+    
     # [NEW] Clean logs (strip ANSI escape codes) for a cleaner diff
     CLEAN_ACTUAL_LOG="/tmp/alkyl_actual_comp_clean.log"
     CLEAN_EXPECTED_LOG="/tmp/alkyl_expected_comp_clean.log"

@@ -549,6 +549,45 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             sem_set_node_type(ctx, node, lit->var_type);
             break;
         }
+        case NODE_ISCOMPATIBLE: {
+            IsCompatibleNode *icn = (IsCompatibleNode*)node;
+            VarType t1 = icn->target_type;
+            VarType t2 = icn->target_type2;
+            
+            bool comp = sem_types_are_compatible(ctx, t2, t1);
+            
+            if (!comp && t1.base == TYPE_CLASS && t1.class_name) {
+                char as_name[256];
+                if (t2.base == TYPE_CLASS || t2.base == TYPE_UNKNOWN) {
+                    snprintf(as_name, sizeof(as_name), "as_%s", t2.class_name ? t2.class_name : "");
+                } else if (t2.base == TYPE_INT) {
+                    snprintf(as_name, sizeof(as_name), "as_int");
+                } else if (t2.base == TYPE_SINGLE) {
+                    snprintf(as_name, sizeof(as_name), "as_float");
+                } else {
+                    snprintf(as_name, sizeof(as_name), "as_type%d", t2.base);
+                }
+                
+                SemSymbol *class_sym = sem_symbol_lookup(ctx, t1.class_name, NULL);
+                if (class_sym && class_sym->inner_scope) {
+                    SemSymbol *member = class_sym->inner_scope->symbols;
+                    while (member) {
+                        if (member->kind == SYM_FUNC && strcmp(member->name, as_name) == 0) {
+                            comp = true;
+                            break;
+                        }
+                        member = member->next;
+                    }
+                }
+            }
+            
+            node->type = NODE_LITERAL;
+            LiteralNode *lit = (LiteralNode*)node;
+            lit->var_type = (VarType){TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+            lit->val.long_val = comp ? 1 : 0;
+            sem_set_node_type(ctx, node, lit->var_type);
+            break;
+        }
         case NODE_SIZEOF:
         case NODE_ALIGNOF: {
             SizeOfNode *sn = (SizeOfNode*)node;
@@ -1018,13 +1057,14 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             }
             
             for (int i = 0; i < num_renames; i++) {
-                printf("Rename: %s -> %s\n", rename_from[i], rename_to[i]);
+                // printf("Rename: %s -> %s\n", rename_from[i], rename_to[i]);
             }
             
             // 2. Clone the body with replacements AND renames
             ASTNode *cloned_body = ast_clone(ctx->compiler_ctx, cn->body, cn->type_params, ti->template_types, ti->num_template_types, rename_from, rename_to, num_renames);
                 
-                printf("DEBUG: &ctx->ast_tail=%p, ctx->ast_tail=%p, *ctx->ast_tail=%p\n", &ctx->ast_tail, ctx->ast_tail, ctx->ast_tail ? *ctx->ast_tail : NULL); if (ctx->ast_tail) {
+                // printf("DEBUG: &ctx->ast_tail=%p, ctx->ast_tail=%p, *ctx->ast_tail=%p\n", &ctx->ast_tail, ctx->ast_tail, ctx->ast_tail ? *ctx->ast_tail : NULL);
+                if (ctx->ast_tail) {
                     *ctx->ast_tail = cloned_body;
                     while (*ctx->ast_tail) {
                         ctx->ast_tail = &(*ctx->ast_tail)->next;

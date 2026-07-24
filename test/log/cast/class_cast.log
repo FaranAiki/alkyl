@@ -1,0 +1,20 @@
+step: Finished lexing. Start parsing.
+AST Node Type: 1
+AST Node Type: 46
+  Compound body:
+    Inner AST Node Type: 22
+    Inner AST Node Type: 1
+AST Node Type: 1
+step: Start Semantic Analysis.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+DEBUG: calling std call for printf
+DEBUG: calling std call for printf
+DEBUG: alir_gen_cast cn->operand obj_t.base=16, ptr_depth=1, class_name=Vector_int
+DEBUG: calling std call for printf
+DEBUG: calling std call for printf
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

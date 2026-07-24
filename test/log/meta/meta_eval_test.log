@@ -1,0 +1,24 @@
+step: Finished lexing. Start parsing.
+AST Node Type: 1
+step: Start Semantic Analysis.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+DEBUG: calling std call for print
+DEBUG: calling std call for (null)
+DEBUG: calling std call for print
+DEBUG: calling std call for print
+DEBUG: calling std call for print
+DEBUG: calling std call for print
+--- Start Meta Execution ---
+Result of 10 + 25 = 
+35
+Branching works: 35 is greater than 30!
+--- End Meta Execution ---
+DEBUG: calling std call for print
+DEBUG: calling std call for (null)
+die
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

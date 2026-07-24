@@ -23,6 +23,7 @@ typedef struct {
     int allow_vector_initialization;
     int namespace_auto_search;     // default 1
     int namespace_ausearch_warning;// default 1
+    int function_call_require_comma; // default 1
 } ParserSettings;
 
 typedef struct Parser {

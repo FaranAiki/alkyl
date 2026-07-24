@@ -452,6 +452,14 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     // Result type logic
     if (op == ALIR_OP_EQ || op == ALIR_OP_LT || op == ALIR_OP_GT || op == ALIR_OP_LTE || op == ALIR_OP_GTE || op == ALIR_OP_NEQ) res_type = (VarType){TYPE_BOOL, 0};
     
+    if (l->kind == ALIR_VAL_CONST && r->kind == ALIR_VAL_CONST) {
+        if (op == ALIR_OP_EQ) {
+            return alir_const_int(ctx->module, l->val.int_val == r->val.int_val ? 1 : 0);
+        } else if (op == ALIR_OP_NEQ) {
+            return alir_const_int(ctx->module, l->val.int_val != r->val.int_val ? 1 : 0);
+        }
+    }
+
     AlirValue *dest = new_temp(ctx, res_type);
     emit(ctx, mk_inst(ctx->module, op, dest, l, r));
     return dest;
@@ -732,22 +740,22 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
     
     // [FIX] Infer flux generator context type properly to prevent Array-like iteration SIGSEGVs
     int found = 0;
-    if (ctx->sem) {
+    if (ctx->sem && target_name) {
         SemScope *scope = NULL;
-        SemSymbol *sym = sem_symbol_lookup(ctx->sem, cn->name, &scope);
+        SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, &scope);
         if (sym && sym->kind == SYM_FUNC && sym->is_flux) {
             char struct_name[512];
-            snprintf(struct_name, sizeof(struct_name), "FluxCtx_%s", cn->name);
+            snprintf(struct_name, sizeof(struct_name), "FluxCtx_%s", target_name);
             ret_type = (VarType){TYPE_CLASS, 1, alir_strdup(ctx->module, struct_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
             found = 1;
         }
     }
     
-    if (!found && ctx->module) {
+    if (!found && ctx->module && target_name) {
         // Fallback if Semantic Analyzer runs dry or was cleaned up by driver
         AlirFunction *f = ctx->module->functions;
         while(f) {
-            if (strcmp(f->name, cn->name) == 0 && f->is_flux) {
+            if (f->name && strcmp(f->name, target_name) == 0 && f->is_flux) {
                 ret_type = f->ret_type;
                 found = 1;
                 break;
