@@ -416,14 +416,14 @@ VarType parse_type(Parser *p) {
                        eat(p, TOKEN_RBRACKET);
                        if (p->has_error) return (VarType){0};
                        fn_len = strlen(full_name);
-                      if (fn_len + 1 < sizeof(full_name)) {
-                          full_name[fn_len] = ']';
-                          full_name[fn_len + 1] = '\0';
-                      }
-                      t.class_name = full_name;
-                  } else {
-                      t.class_name = parser_strdup(p, base_name);
-                  }
+                       if (fn_len + 1 < sizeof(full_name)) {
+                           full_name[fn_len] = ']';
+                           full_name[fn_len + 1] = '\0';
+                       }
+                       t.class_name = parser_strdup(p, full_name);
+                   } else {
+                       t.class_name = parser_strdup(p, base_name);
+                   }
               }
           } else {
               p->token_pos = saved_pos;

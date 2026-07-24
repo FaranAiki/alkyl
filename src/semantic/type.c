@@ -272,6 +272,13 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                 }
             }
 
+            if (ctx->settings.replace_variable && node->op == TOKEN_ASSIGN && !node->index) {
+                node->is_implicit_let = true;
+                sym = sem_symbol_add(ctx, node->name, SYM_VAR, rhs_type);
+                sym->is_mutable = true;
+                sym->is_initialized = true;
+            }
+            
             lhs_type = sym->type;
             
             if (node->index) {

@@ -3,83 +3,50 @@
 
 int parse_modifiers(Parser* p) {
     int modifiers = 0;
-    // TODO switch this to switch
+
     while (1) {
-        if (p->current_token.type == TOKEN_PUBLIC) {
-            modifiers |= MODIFIER_PUBLIC;
-            eat(p, TOKEN_PUBLIC);
-        } else if (p->current_token.type == TOKEN_PRIVATE) {
-            modifiers |= MODIFIER_PRIVATE;
-            eat(p, TOKEN_PRIVATE);
-        } else if (p->current_token.type == TOKEN_OPEN) {
-            modifiers |= MODIFIER_OPEN;
-            eat(p, TOKEN_OPEN);
-        } else if (p->current_token.type == TOKEN_CLOSED) {
-            modifiers |= MODIFIER_CLOSED;
-            eat(p, TOKEN_CLOSED);
-        } else if (p->current_token.type == TOKEN_CONST) {
-            modifiers |= MODIFIER_CONST;
-            eat(p, TOKEN_CONST);
-        } else if (p->current_token.type == TOKEN_FINAL) {
-            modifiers |= MODIFIER_FINAL;
-            eat(p, TOKEN_FINAL);
-        } else if (p->current_token.type == TOKEN_INERT) {
-            modifiers |= MODIFIER_INERT;
-            eat(p, TOKEN_INERT);
-        } else if (p->current_token.type == TOKEN_REACTIVE) {
-            modifiers |= MODIFIER_REACTIVE;
-            eat(p, TOKEN_REACTIVE);
-        } else if (p->current_token.type == TOKEN_NAKED) {
-            modifiers |= MODIFIER_NAKED;
-            eat(p, TOKEN_NAKED);
-        } else if (p->current_token.type == TOKEN_PURE) {
-            modifiers |= MODIFIER_PURE;
-            eat(p, TOKEN_PURE);
-        } else if (p->current_token.type == TOKEN_IMPURE) {
-            modifiers |= MODIFIER_IMPURE;
-            eat(p, TOKEN_IMPURE);
-        } else if (p->current_token.type == TOKEN_PRISTINE) {
-            modifiers |= MODIFIER_PRISTINE;
-            eat(p, TOKEN_PRISTINE);
-        } else if (p->current_token.type == TOKEN_TAINTED) {
-            modifiers |= MODIFIER_TAINTED;
-            eat(p, TOKEN_TAINTED);
-        } else if (p->current_token.type == TOKEN_COVALENT) {
-            modifiers |= MODIFIER_COVALENT;
-            eat(p, TOKEN_COVALENT);
-        } else if (p->current_token.type == TOKEN_ABSTRACT) {
-            modifiers |= MODIFIER_ABSTRACT;
-            eat(p, TOKEN_ABSTRACT);
-        } else if (p->current_token.type == TOKEN_EXACT) {
-            modifiers |= MODIFIER_EXACT;
-            eat(p, TOKEN_EXACT);
-        } else if (p->current_token.type == TOKEN_PRAGMA) {
-            modifiers |= MODIFIER_PRAGMA;
-            eat(p, TOKEN_PRAGMA);
-        } else if (p->current_token.type == TOKEN_METHOD) {
-            modifiers |= MODIFIER_METHOD;
-            eat(p, TOKEN_METHOD);
-        } else if (p->current_token.type == TOKEN_CONTAINER) {
-            modifiers |= MODIFIER_CONTAINER;
-            eat(p, TOKEN_CONTAINER);
-        } else if (p->current_token.type == TOKEN_FRAME) {
-            modifiers |= MODIFIER_FRAME;
-            eat(p, TOKEN_FRAME);
-        } else if (p->current_token.type == TOKEN_META) {
-            TokenType next = parser_peek_token(p).type;
-            if (next == TOKEN_LBRACE || next == TOKEN_LBRACKET || next == TOKEN_LPAREN || next == TOKEN_IF || next == TOKEN_WHILE) {
-                break; // Not a modifier! Let top.c or stmt.c handle it.
+        switch (p->current_token.type) {
+            case TOKEN_PUBLIC: modifiers |= MODIFIER_PUBLIC; eat(p, TOKEN_PUBLIC); break;
+            case TOKEN_PRIVATE: modifiers |= MODIFIER_PRIVATE; eat(p, TOKEN_PRIVATE); break;
+            case TOKEN_OPEN: modifiers |= MODIFIER_OPEN; eat(p, TOKEN_OPEN); break;
+            case TOKEN_CLOSED: modifiers |= MODIFIER_CLOSED; eat(p, TOKEN_CLOSED); break;
+            case TOKEN_CONST: modifiers |= MODIFIER_CONST; eat(p, TOKEN_CONST); break;
+            case TOKEN_FINAL: modifiers |= MODIFIER_FINAL; eat(p, TOKEN_FINAL); break;
+            case TOKEN_INERT: modifiers |= MODIFIER_INERT; eat(p, TOKEN_INERT); break;
+            case TOKEN_REACTIVE: modifiers |= MODIFIER_REACTIVE; eat(p, TOKEN_REACTIVE); break;
+            case TOKEN_NAKED: modifiers |= MODIFIER_NAKED; eat(p, TOKEN_NAKED); break;
+            case TOKEN_PURE: modifiers |= MODIFIER_PURE; eat(p, TOKEN_PURE); break;
+            case TOKEN_IMPURE: modifiers |= MODIFIER_IMPURE; eat(p, TOKEN_IMPURE); break;
+            case TOKEN_PRISTINE: modifiers |= MODIFIER_PRISTINE; eat(p, TOKEN_PRISTINE); break;
+            case TOKEN_TAINTED: modifiers |= MODIFIER_TAINTED; eat(p, TOKEN_TAINTED); break;
+            case TOKEN_COVALENT: modifiers |= MODIFIER_COVALENT; eat(p, TOKEN_COVALENT); break;
+            case TOKEN_ABSTRACT: modifiers |= MODIFIER_ABSTRACT; eat(p, TOKEN_ABSTRACT); break;
+            case TOKEN_EXACT: modifiers |= MODIFIER_EXACT; eat(p, TOKEN_EXACT); break;
+            case TOKEN_PRAGMA: modifiers |= MODIFIER_PRAGMA; eat(p, TOKEN_PRAGMA); break;
+            case TOKEN_METHOD: modifiers |= MODIFIER_METHOD; eat(p, TOKEN_METHOD); break;
+            case TOKEN_CONTAINER: modifiers |= MODIFIER_CONTAINER; eat(p, TOKEN_CONTAINER); break;
+            case TOKEN_FRAME: modifiers |= MODIFIER_FRAME; eat(p, TOKEN_FRAME); break;
+            case TOKEN_META: {
+                TokenType next = parser_peek_token(p).type;
+                if (next == TOKEN_LBRACE || next == TOKEN_LBRACKET || next == TOKEN_LPAREN || next == TOKEN_IF || next == TOKEN_WHILE) {
+                    return modifiers; // Not a modifier! Let top.c or stmt.c handle it.
+                }
+                modifiers |= MODIFIER_META;
+                eat(p, TOKEN_META);
+                break;
             }
-            modifiers |= MODIFIER_META;
-            eat(p, TOKEN_META);
-        } else if (p->current_token.type == TOKEN_IDENTIFIER && strcmp(p->current_token.text, "static") == 0) {
-            modifiers |= MODIFIER_STATIC;
-            eat(p, TOKEN_IDENTIFIER);
-        } else {
-            break; // No more modifiers found
+            case TOKEN_IDENTIFIER: {
+                if (strcmp(p->current_token.text, "static") == 0) {
+                    modifiers |= MODIFIER_STATIC;
+                    eat(p, TOKEN_IDENTIFIER);
+                    break;
+                }
+                return modifiers;
+            }
+            default:
+                return modifiers;
         }
     }
-    return modifiers;
 }
 
 // Applies extracted modifiers correctly to ClassNodes
@@ -150,22 +117,7 @@ void apply_func_modifiers(FuncDefNode* node, int modifiers) {
     }
     node->has_explicit_pristine = (modifiers & MODIFIER_PRISTINE) != 0;
 
-    // oop modifier useless af 
-    if (modifiers & MODIFIER_FINAL) {
-        node->is_is_a = IS_A_FINAL;
-    } else if (modifiers & MODIFIER_NAKED) {
-        node->is_is_a = IS_A_NAKED;
-    } else {
-        node->is_is_a = IS_A_NONE;
-    }
 
-    if (modifiers & MODIFIER_INERT) {
-        node->is_has_a = HAS_A_INERT;
-    } else if (modifiers & MODIFIER_REACTIVE) {
-        node->is_has_a = HAS_A_REACTIVE;
-    } else {
-        node->is_has_a = HAS_A_NONE;
-    }
 }
 
 // Applies extracted modifiers correctly to VarDeclNodes
@@ -192,22 +144,7 @@ void apply_var_modifiers(VarDeclNode* node, int modifiers) {
     }
     node->has_explicit_pristine = (modifiers & MODIFIER_PRISTINE) != 0;
 
-    // Variable specific OOP constraints, in case anonymous classes/objects are used
-    if (modifiers & MODIFIER_FINAL) {
-        node->is_is_a = IS_A_FINAL;
-    } else if (modifiers & MODIFIER_NAKED) {
-        node->is_is_a = IS_A_NAKED;
-    } else {
-        node->is_is_a = IS_A_NONE;
-    }
 
-    if (modifiers & MODIFIER_INERT) {
-        node->is_has_a = HAS_A_INERT;
-    } else if (modifiers & MODIFIER_REACTIVE) {
-        node->is_has_a = HAS_A_REACTIVE;
-    } else {
-        node->is_has_a = HAS_A_NONE;
-    }
 }
 
 void apply_param_modifiers(Parameter* param, int modifiers) {
