@@ -467,14 +467,6 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                                     }
                                     f = f->next;
                                 }
-                                if (!target_fn) {
-                                    printf("DEBUG: Function '%s' not found in module! Available functions:\n", inst->op1->val.str_val);
-                                    f = module->functions;
-                                    while(f) {
-                                        printf(" - %s\n", f->name);
-                                        f = f->next;
-                                    }
-                                }
                             }
                             
                             if (target_fn) {

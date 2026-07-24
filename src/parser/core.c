@@ -18,6 +18,7 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
     p->token_capacity = 0;
     p->token_pos = 0;
     p->synthetic_classes = NULL;
+    p->in_space_separated_call = 0;
     
     if (p->ctx && p->ctx->arena) {
         hashmap_init(&p->types_map, p->ctx->arena, 64);

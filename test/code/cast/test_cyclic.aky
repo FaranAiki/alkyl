@@ -1,3 +1,4 @@
+import std.print
 class A {
     B* b;
     int x;
@@ -11,5 +12,6 @@ class B {
 int main() {
     let mut b = B(0 as A*, 20); // wait, 0 as A*?
     let mut a = A(&b, 10);
-    return a.x;
+    print (a.x);
+  return 0;
 }

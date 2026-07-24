@@ -1,0 +1,15 @@
+--- src/parser/expr.c
++++ src/parser/expr.c
+@@ -109,7 +109,11 @@
+ 
+   CallNode *node = parser_alloc(p, sizeof(CallNode));
+   node->base.type = NODE_CALL;
+-  node->name = NULL;
++  char *name = NULL;
++  if (target && target->type == NODE_VAR_REF) {
++      name = ((VarRefNode*)target)->name;
++  }
++  node->name = name;
+   node->target = target;
+   node->args = args_head;
+   return (ASTNode*)node;

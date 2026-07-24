@@ -1,7 +1,9 @@
+import std.print
 namespace clib {
   extern int printf(char*,...);
 }
 
 int main() {
-  return clib.printf("hello", 1, 2, 3);
+  print (clib.printf("hello", 1, 2, 3));
+  return 0;
 }

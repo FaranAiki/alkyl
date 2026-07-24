@@ -1,25 +1,6 @@
-IntToPtr source must be an integral
-  %safe_cast = inttoptr %__Union_hex_value_floatdec_value %load to ptr
-IntToPtr source must be an integral
-  %safe_cast2 = inttoptr %__Union_hex_value_floatdec_value %load1 to ptr
-IntToPtr source must be an integral
-  %safe_cast4 = inttoptr %__Union_hex_value_floatdec_value %load3 to ptr
-IntToPtr source must be an integral
-  %safe_cast = inttoptr %__Union_hex_value_floatdec_value %load to ptr
-IntToPtr source must be an integral
-  %safe_cast2 = inttoptr %__Union_hex_value_floatdec_value %load1 to ptr
-IntToPtr source must be an integral
-  %safe_cast4 = inttoptr %__Union_hex_value_floatdec_value %load3 to ptr
-LLVM Verification Error: IntToPtr source must be an integral
-  %safe_cast = inttoptr %__Union_hex_value_floatdec_value %load to ptr
-IntToPtr source must be an integral
-  %safe_cast2 = inttoptr %__Union_hex_value_floatdec_value %load1 to ptr
-IntToPtr source must be an integral
-  %safe_cast4 = inttoptr %__Union_hex_value_floatdec_value %load3 to ptr
-
+at namespace main:
+in .../code/union/test_union_features.aky:
+1:8: error: Expected file path string after 'import'
+  | import std.print
+  |        ^
 step: Finished lexing. Start parsing.
-step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using LLVM Codegen

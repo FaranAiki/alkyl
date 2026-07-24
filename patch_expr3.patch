@@ -1,0 +1,27 @@
+--- src/parser/expr.c
++++ src/parser/expr.c
+@@ -75,6 +75,7 @@
+         break;
+     }
+ 
++    p->in_space_separated_call++;
+     ASTNode *expr = NULL;
+     if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
+         int is_string = (p->current_token.type == TOKEN_STRING);
+@@ -102,6 +103,7 @@
+     } else {
+         expr = parse_expression(p);
+     }
++    p->in_space_separated_call--;
+ 
+     if (!expr) break;
+ 
+@@ -282,7 +284,7 @@
+             node = parse_space_separated_call(p, node, line, col);
+             set_loc(node, line, col);
+         }
+-        else if (!p->settings.function_call_require_comma && is_unambiguous_expr_start(p)) {
++        else if (!p->settings.function_call_require_comma && p->in_space_separated_call == 0 && is_unambiguous_expr_start(p)) {
+             node = parse_space_separated_call(p, node, line, col);
+             set_loc(node, line, col);
+         }

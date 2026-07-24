@@ -128,6 +128,13 @@ for AKY_FILE in $FILES; do
         fi
         RUN_RET=$?
         
+        if [ $RUN_RET -ne 0 ]; then
+            echo -e "${COLOR_RED}FAILED (Execution failed with exit code $RUN_RET)${COLOR_RESET}"
+            FAILED=$((FAILED + 1))
+            rm -f build/out
+            continue
+        fi
+        
         if [ $UPDATE -eq 1 ]; then
             cp "$ACTUAL_OUT" "$EXPECTED_OUT"
         fi

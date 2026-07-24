@@ -1,9 +1,15 @@
+at namespace main:
+in .../code/if/ifif.aky:
+1:8: error: Expected file path string after 'import'
+  | import std.print
+  |        ^
+3:11: error: Expected ')' but found ';'
+  |   print (0; "bad decision lol");
+  |           ^
+3:31: error: Expected ';' but found ')'
+  |   print (0; "bad decision lol");
+  |                               ^
+5:1: error: Unexpected token in expression: '}'
+  | }
+  | ^
 step: Finished lexing. Start parsing.
-step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

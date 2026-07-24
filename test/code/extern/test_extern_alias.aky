@@ -4,8 +4,9 @@ extern {
   void* free(void*) as cfree;
 }
 
-void main() {
+int main() {
     void* p = cmalloc(10);
     // this should compile fine
     cfree(p);
+    return 0;
 }

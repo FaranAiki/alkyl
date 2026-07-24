@@ -1,3 +1,4 @@
+import std.print
 class A is B {
     int x;
 }
@@ -10,5 +11,6 @@ int main() {
     let mut a = A(0, 0); // Implicit constructor args?
     a.y = 1;
     a.x = 2;
-    return a.x + a.y;
+    print (a.x + a.y);
+  return 0;
 }

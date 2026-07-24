@@ -54,56 +54,75 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
   return (ASTNode*)node;
 }
 
-static ASTNode* parse_string_leading_call(Parser *p, ASTNode *target, int line, int col) {
+static int is_unambiguous_expr_start(Parser *p) {
+    TokenType t = p->current_token.type;
+    return t == TOKEN_IDENTIFIER || t == TOKEN_NUMBER || t == TOKEN_UINT_LIT || t == TOKEN_LONG_LIT ||
+           t == TOKEN_ULONG_LIT || t == TOKEN_LONG_LONG_LIT || t == TOKEN_ULONG_LONG_LIT ||
+           t == TOKEN_SINGLE_LIT || t == TOKEN_DOUBLE_LIT || t == TOKEN_LONG_DOUBLE_LIT ||
+           t == TOKEN_STRING || t == TOKEN_C_STRING || t == TOKEN_BYTE_STRING ||
+           t == TOKEN_TRUE || t == TOKEN_FALSE ||
+           t == TOKEN_CHAR_LIT || t == TOKEN_LPAREN || t == TOKEN_LBRACKET ||
+           t == TOKEN_TYPEOF || t == TOKEN_KW_SIZEOF || t == TOKEN_KW_ALIGNOF ||
+           t == TOKEN_KW_DEFINED || t == TOKEN_HASMETHOD || t == TOKEN_HASATTRIBUTE ||
+           t == TOKEN_NOT || t == TOKEN_BIT_NOT;
+}
+
+static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target, int line, int col) {
   ASTNode *args_head = NULL;
   ASTNode **curr_arg = &args_head;
 
-  while (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) { if (p->has_error) break;
-    int is_string = (p->current_token.type == TOKEN_STRING);
-    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
-    ln->base.type = NODE_LITERAL;
-    ln->var_type.base = TYPE_CHAR;
-    ln->var_type.ptr_depth = 1;
-    ln->val.str_val = parser_strdup(p, p->current_token.text);
-    ln->base.next = NULL;
-    p->current_token.text = NULL;
-    eat(p, p->current_token.type);
-
-    if (is_string && p->l->settings.double_quote_as_string) {
-      VarRefNode *target_vn = parser_alloc(p, sizeof(VarRefNode));
-      target_vn->base.type = NODE_VAR_REF;
-      target_vn->name = parser_strdup(p, "string");
-      set_loc((ASTNode*)target_vn, line, col);
-
-      CallNode *str_call = parser_alloc(p, sizeof(CallNode));
-      str_call->base.type = NODE_CALL;
-      str_call->name = parser_strdup(p, "string");
-      str_call->target = (ASTNode*)target_vn;
-      str_call->args = (ASTNode*)ln;
-      ln = (LiteralNode*)str_call;
+  while (1) {
+    if (p->current_token.type == TOKEN_SEMICOLON ||
+        p->current_token.type == TOKEN_RPAREN ||
+        p->current_token.type == TOKEN_RBRACKET ||
+        p->current_token.type == TOKEN_RBRACE ||
+        p->current_token.type == TOKEN_ELSE ||
+        p->current_token.type == TOKEN_ELIF ||
+        p->current_token.type == TOKEN_EOF) {
+        break;
     }
 
-    *curr_arg = (ASTNode*)ln;
-    curr_arg = &(*curr_arg)->next;
+    if (!is_unambiguous_expr_start(p)) {
+        break;
+    }
 
-    if (p->current_token.type == TOKEN_COMMA) {
-      eat(p, TOKEN_COMMA);
+    p->in_space_separated_call++;
+    ASTNode *expr = NULL;
+    if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
+        int is_string = (p->current_token.type == TOKEN_STRING);
+        LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
+        ln->base.type = NODE_LITERAL;
+        ln->var_type.base = TYPE_CHAR;
+        ln->var_type.ptr_depth = 1;
+        ln->val.str_val = parser_strdup(p, p->current_token.text);
+        ln->base.next = NULL;
+        p->current_token.text = NULL;
+        eat(p, p->current_token.type);
+
+        if (is_string && p->l->settings.double_quote_as_string) {
+          VarRefNode *target_vn = parser_alloc(p, sizeof(VarRefNode));
+          target_vn->base.type = NODE_VAR_REF;
+          target_vn->name = parser_strdup(p, "string");
+          set_loc((ASTNode*)target_vn, line, col);
+
+          CallNode *str_call = parser_alloc(p, sizeof(CallNode));
+          str_call->base.type = NODE_CALL;
+          str_call->name = parser_strdup(p, "string");
+          str_call->target = (ASTNode*)target_vn;
+          str_call->args = (ASTNode*)ln;
+          ln = (LiteralNode*)str_call;
+        }
+        expr = (ASTNode*)ln;
     } else {
-      if (p->settings.function_call_require_comma) break;
+        expr = parse_expression(p);
     }
-  }
+    p->in_space_separated_call--;
 
-  while (p->current_token.type != TOKEN_SEMICOLON &&
-         p->current_token.type != TOKEN_RPAREN &&
-         p->current_token.type != TOKEN_RBRACKET &&
-         p->current_token.type != TOKEN_RBRACE &&
-         p->current_token.type != TOKEN_ELSE &&
-         p->current_token.type != TOKEN_ELIF &&
-         p->current_token.type != TOKEN_COMMA &&
-         p->current_token.type != TOKEN_EOF) {
-    ASTNode *expr = parse_expression(p);
+    if (!expr) break;
+
     *curr_arg = expr;
     curr_arg = &(*curr_arg)->next;
+
     if (p->current_token.type == TOKEN_COMMA) {
       eat(p, TOKEN_COMMA);
     } else {
@@ -126,7 +145,11 @@ static ASTNode* parse_string_leading_call(Parser *p, ASTNode *target, int line, 
 
   CallNode *node = parser_alloc(p, sizeof(CallNode));
   node->base.type = NODE_CALL;
-  node->name = NULL;
+  char *name = NULL;
+  if (target && target->type == NODE_VAR_REF) {
+      name = ((VarRefNode*)target)->name;
+  }
+  node->name = name;
   node->target = target;
   node->args = args_head;
   return (ASTNode*)node;
@@ -262,8 +285,12 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             node = parse_call(p, node);
             set_loc(node, line, col);
         }
-        else if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
-            node = parse_string_leading_call(p, node, line, col);
+        else if ((p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) && p->in_space_separated_call == 0) {
+            node = parse_space_separated_call(p, node, line, col);
+            set_loc(node, line, col);
+        }
+        else if (!p->settings.function_call_require_comma && p->in_space_separated_call == 0 && is_unambiguous_expr_start(p)) {
+            node = parse_space_separated_call(p, node, line, col);
             set_loc(node, line, col);
         }
         // parse other postfix

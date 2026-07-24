@@ -47,6 +47,7 @@ typedef struct Parser {
     char *current_namespace;
     char *pending_cconv;
     struct ASTNode *synthetic_classes;
+    int in_space_separated_call;
 } Parser;
 
 void parser_init(Parser *p, Lexer *l, ParserSettings *settings);

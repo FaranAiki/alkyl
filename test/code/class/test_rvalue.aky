@@ -1,3 +1,4 @@
+import std.print
 class Somefunc {
   int a;
   int something() {
@@ -12,5 +13,6 @@ Somefunc thing() {
 
 int main() {
   let t = thing().something();
-  return t;
+  print (t);
+  return 0;
 }

@@ -1,16 +1,6 @@
-Call parameter type does not match function signature!
-i64 0
- ptr  %call = call i32 @Somefunc_something(i64 0)
-Call parameter type does not match function signature!
-i64 0
- ptr  %call = call i32 @Somefunc_something(i64 0)
-LLVM Verification Error: Call parameter type does not match function signature!
-i64 0
- ptr  %call = call i32 @Somefunc_something(i64 0)
-
+at namespace main:
+in .../code/class/test_rvalue.aky:
+1:8: error: Expected file path string after 'import'
+  | import std.print
+  |        ^
 step: Finished lexing. Start parsing.
-step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using LLVM Codegen

@@ -543,7 +543,10 @@ int run_repl(void) {
                         }
                     }
 
-                    if (ret_type.base != TYPE_VOID && ret_type.base != TYPE_UNKNOWN) {
+                    if (ret_type.base == TYPE_VOID) {
+                        printf("-> (void)\n");
+                    }
+                    else if (ret_type.base != TYPE_UNKNOWN) {
                         if ((ret_type.base == TYPE_INT || ret_type.base == TYPE_LONG) && ret_type.ptr_depth == 0 && ret_type.array_size == 0) {
                             if (ret_type.is_unsigned) printf("-> %llu (unsigned int)\n", (unsigned long long)exit_code);
                             else printf("-> %lld (int)\n", exit_code);

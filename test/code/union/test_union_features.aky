@@ -1,3 +1,4 @@
+import std.print
 int main() {
     union[int hex_value, float dec_value] t;
     t = 1.0;
@@ -5,5 +6,6 @@ int main() {
     t[int] = 3;
     int a = t as int;
     
-    return a;
+    print (a);
+  return 0;
 }

@@ -1,3 +1,4 @@
+import std.print
 
 namespace main {
 
@@ -25,7 +26,8 @@ int main() {
     
     clib.printf "i_res = %d\n", i_res;
     
-    return i_res;
+    print (i_res);
+  return 0;
 }
 
 }

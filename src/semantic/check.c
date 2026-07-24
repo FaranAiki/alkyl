@@ -276,7 +276,11 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         }
     }
     if (!sym) {
-        sem_error(ctx, (ASTNode*)node, "Undefined function or class '%s'", node->name);
+        if (node->name) {
+            sem_error(ctx, (ASTNode*)node, "Undefined function or class '%s'", node->name);
+        } else {
+            sem_error(ctx, (ASTNode*)node, "Cannot call non-function type");
+        }
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         return;
     }

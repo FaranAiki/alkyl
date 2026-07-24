@@ -1,3 +1,4 @@
+import std.print
 namespace ns {
   namespace clib {
     extern int printf(char*,...);
@@ -5,5 +6,6 @@ namespace ns {
 }
 
 int main() {
-  return ns.clib.printf("hello");
+  print (ns.clib.printf("hello"));
+  return 0;
 }

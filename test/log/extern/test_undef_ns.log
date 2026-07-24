@@ -1,9 +1,6 @@
+at namespace main:
+in .../code/extern/test_undef_ns.aky:
+1:8: error: Expected file path string after 'import'
+  | import std.print
+  |        ^
 step: Finished lexing. Start parsing.
-step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

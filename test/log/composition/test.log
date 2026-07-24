@@ -5,31 +5,6 @@ at namespace main:
 23:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-Invalid bitcast
-  %bitcast = bitcast %Person %load to %Identity
-Call parameter type does not match function signature!
-  %ext_taint_arg = extractvalue %Identity %bitcast, 1
- ptr  %call = call i32 @Person_speak(i32 %ext_taint_arg)
-Call parameter type does not match function signature!
-  %ext_taint_arg2 = extractvalue %Person %load1, 1
- ptr  %call3 = call i32 @Person_intro(i32 %ext_taint_arg2)
-Invalid bitcast
-  %bitcast = bitcast %Person %load to %Identity
-Call parameter type does not match function signature!
-  %ext_taint_arg = extractvalue %Identity %bitcast, 1
- ptr  %call = call i32 @Person_speak(i32 %ext_taint_arg)
-Call parameter type does not match function signature!
-  %ext_taint_arg2 = extractvalue %Person %load1, 1
- ptr  %call3 = call i32 @Person_intro(i32 %ext_taint_arg2)
-LLVM Verification Error: Invalid bitcast
-  %bitcast = bitcast %Person %load to %Identity
-Call parameter type does not match function signature!
-  %ext_taint_arg = extractvalue %Identity %bitcast, 1
- ptr  %call = call i32 @Person_speak(i32 %ext_taint_arg)
-Call parameter type does not match function signature!
-  %ext_taint_arg2 = extractvalue %Person %load1, 1
- ptr  %call3 = call i32 @Person_intro(i32 %ext_taint_arg2)
-
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 DEBUG: sem_check_index_access: trait_name=Identity, class=Person, trait_count=1
@@ -40,3 +15,6 @@ step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

@@ -138,7 +138,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
         if (obj_t.base == TYPE_ENUM) return NULL; 
 
         AlirValue *base_ptr = NULL;
-        if (obj_t.ptr_depth == 0 && obj_t.base != TYPE_CLASS) {
+        if (obj_t.ptr_depth == 0) {
             base_ptr = alir_gen_addr(ctx, ma->object);
             if (!base_ptr) {
                 AlirValue *rval = alir_gen_expr(ctx, ma->object);
@@ -617,7 +617,7 @@ AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
             if (sym) obj_t = sym->type;
         }
         AlirValue *this_val = NULL;
-        if (obj_t.ptr_depth == 0 && obj_t.base != TYPE_CLASS) {
+        if (obj_t.ptr_depth == 0) {
             this_val = alir_gen_addr(ctx, cn->operand);
             if (!this_val) {
                 AlirValue *rval = alir_gen_expr(ctx, cn->operand);
@@ -870,6 +870,7 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
         }
     }
     
+    return alir_gen_call_std(ctx, cn);
 }
 
 AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
@@ -880,7 +881,7 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     }
     AlirValue *this_val = NULL;
     
-    if (obj_t.ptr_depth == 0 && obj_t.base != TYPE_CLASS) {
+    if (obj_t.ptr_depth == 0) {
         this_val = alir_gen_addr(ctx, mc->object);
         if (!this_val) {
             AlirValue *rval = alir_gen_expr(ctx, mc->object);
