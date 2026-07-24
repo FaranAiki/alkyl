@@ -7,7 +7,6 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
     switch (inst->op) {
             case ALIR_OP_ALLOCA: {
                 VarType elem_type = inst->dest->type;
-                if (elem_type.ptr_depth > 0) elem_type.ptr_depth--;
                 LLVMTypeRef ty = get_llvm_type(ctx, elem_type);
                 if (op1) {
                     LLVMValueRef size = op1;
@@ -36,11 +35,35 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             }
             case ALIR_OP_LOAD: {
                 if (op1) {
-                    LLVMTypeRef ty = get_llvm_type(ctx, inst->dest->type);
+                    LLVMTypeRef ty;
+                    if (inst->dest->type.ptr_depth > 0) {
+                        ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
+                    } else {
+                        ty = get_llvm_type(ctx, inst->dest->type);
+                    }
                     if (LLVMGetTypeKind(LLVMTypeOf(op1)) != LLVMPointerTypeKind) {
                         op1 = LLVMBuildIntToPtr(ctx->builder, op1, LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0), "load_cast");
                     }
                     res = LLVMBuildLoad2(ctx->builder, ty, op1, "load");
+                }
+                break;
+            }
+            case ALIR_OP_BITCAST: {
+                if (op1) {
+                    LLVMTypeRef ty;
+                    if (inst->dest->type.ptr_depth > 0) {
+                        ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
+                    } else {
+                        ty = get_llvm_type(ctx, inst->dest->type);
+                    }
+                    
+                    if (LLVMGetTypeKind(ty) == LLVMPointerTypeKind && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) {
+                        res = op1; // Opaque pointers: no bitcast needed!
+                    } else {
+                        // Print the types
+                        printf("BITCAST TO NON-POINTER: ptr_depth=%d\n", inst->dest->type.ptr_depth);
+                        res = LLVMBuildBitCast(ctx->builder, op1, ty, "bitcast");
+                    }
                 }
                 break;
             }
@@ -73,7 +96,13 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         // Proper LLVM GEP indexing for explicit Array types ([N x i32]*)
                         LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
                         LLVMValueRef indices[] = { zero, op2 };
-                        LLVMTypeRef arr_ty = get_llvm_type(ctx, inst->op1->type);
+                        
+                        VarType raw_t = inst->op1->type;
+                        if (raw_t.array_depth == 0 && raw_t.ptr_depth > 0) {
+                            raw_t.ptr_depth--;
+                        }
+                        LLVMTypeRef arr_ty = get_llvm_type(ctx, raw_t);
+                        
                         res = LLVMBuildGEP2(ctx->builder, arr_ty, op1, indices, 2, "array_gep");
                     } else {
                         // Standard Pointer iteration (i32*)

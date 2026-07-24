@@ -104,7 +104,8 @@ static char* ethyl_generator(const char* text, int state) {
         }
     }
 
-    while (keywords[kw_idx]) {
+    int num_keywords = sizeof(keywords) / sizeof(keywords[0]) - 1; // -1 for NULL
+    while (kw_idx < num_keywords && keywords[kw_idx]) {
         const char *name = keywords[kw_idx++];
         if (word_len == 0 || strncmp(name, word, word_len) == 0) {
             return strdup(name);
@@ -602,6 +603,9 @@ int run_repl(void) {
                                                 if (ret_type.base == TYPE_DOUBLE || ret_type.base == TYPE_SINGLE) {
                                                     double val = ((double*)(intptr_t)inner_ptr)[j];
                                                     printf("%f", val);
+                                                } else if (ret_type.base == TYPE_CHAR && ret_type.ptr_depth == 1) {
+                                                    long long val = ((long long*)(intptr_t)inner_ptr)[j];
+                                                    printf("\"%s\"", (char*)(intptr_t)val);
                                                 } else {
                                                     long long val = ((long long*)(intptr_t)inner_ptr)[j];
                                                     printf("%lld", val);
@@ -613,6 +617,9 @@ int run_repl(void) {
                                             if (ret_type.base == TYPE_DOUBLE || ret_type.base == TYPE_SINGLE) {
                                                 double val = ((double*)(intptr_t)exit_code)[i];
                                                 printf("%f", val);
+                                            } else if (ret_type.base == TYPE_CHAR && ret_type.ptr_depth == 1) {
+                                                long long val = ((long long*)(intptr_t)exit_code)[i];
+                                                printf("\"%s\"", (char*)(intptr_t)val);
                                             } else {
                                                 long long val = ((long long*)(intptr_t)exit_code)[i];
                                                 printf("%lld", val);

@@ -35,7 +35,7 @@ void codegen_dispose(CodegenCtx *ctx) {
 
 LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
     LLVMTypeRef base = NULL;
-    if (t.ptr_depth > 0 || t.is_func_ptr) {
+    if (t.ptr_depth > 0 || t.is_func_ptr || t.array_depth > 0) {
         base = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
     } else {
         switch (t.base) {

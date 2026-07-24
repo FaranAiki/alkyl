@@ -289,7 +289,9 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) {
             t.array_size = 0;
         }
     }
-    else if (t.ptr_depth > 0) t.ptr_depth--;
+    else if (t.ptr_depth > 0) {
+        t.ptr_depth--;
+    }
     else if (t.base == TYPE_ENUM || t.base == TYPE_ARRAY || (t.base == TYPE_CLASS && t.class_name && (strcmp(t.class_name, "string") == 0 || strcmp(t.class_name, "vector") == 0 || strcmp(t.class_name, "hashmap") == 0))) {
          // for now wait!
          sem_set_node_type(ctx, node, (VarType){ .base = TYPE_CLASS, .class_name = (char*)"string" });
@@ -299,5 +301,6 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) {
         sem_error(ctx, node, "Type is not a pointer, array, string, vector, hashmap, or enum");
         t = (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     }
+    
     sem_set_node_type(ctx, node, t);
 }

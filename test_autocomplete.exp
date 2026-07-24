@@ -1,0 +1,11 @@
+#!/usr/bin/expect
+spawn ./build/ethyl
+expect "In \\\[0\\\]: "
+send "\t"
+expect "In \\\[0\\\]: "
+send "foo.\t"
+expect "In \\\[0\\\]: "
+send "a\t"
+expect "In \\\[0\\\]: "
+send "exit\r"
+expect eof

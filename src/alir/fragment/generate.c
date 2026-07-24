@@ -49,9 +49,16 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, raw_mem, size_val, NULL));
 
         VarType ptr_type = elem_type;
-        ptr_type.ptr_depth++;
-        ptr_type.array_size = 0;
-
+        if (ptr_type.array_size > 0) {
+            ptr_type.ptr_depth += 2; // Array of pointers
+        } else {
+            ptr_type.ptr_depth++;
+        }
+        if (ptr_type.array_size > 0 && ptr_type.array_depth == 0) {
+            // Keep array_size as is to represent pointer to array
+        } else {
+            ptr_type.array_size = 0;
+        }
         AlirValue *heap_ptr = new_temp(ctx, ptr_type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, heap_ptr, raw_mem, NULL));
 

@@ -755,7 +755,6 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             if (elem_type.array_size > 0) {
                 elem_type.array_depth = elem_type.array_size;
             }
-            elem_type.ptr_depth = 0;
             elem_type.array_size = count;
             sem_set_node_type(ctx, node, elem_type);
             break;

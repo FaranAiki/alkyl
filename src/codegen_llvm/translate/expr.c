@@ -141,9 +141,21 @@ LLVMValueRef translate_expr(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 res = LLVMBuildCall2(ctx->builder, fty, func, call_args, 3, "rot");
                 break;
             }
-            case ALIR_OP_BITCAST:
-                res = LLVMBuildBitCast(ctx->builder, op1, get_llvm_type(ctx, inst->dest->type), "bitcast");
+            case ALIR_OP_BITCAST: {
+                LLVMTypeRef ty;
+                if (inst->dest->type.ptr_depth > 0) {
+                    ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
+                } else {
+                    ty = get_llvm_type(ctx, inst->dest->type);
+                }
+                
+                if (LLVMGetTypeKind(ty) == LLVMPointerTypeKind && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) {
+                    res = op1;
+                } else {
+                    res = LLVMBuildBitCast(ctx->builder, op1, ty, "bitcast");
+                }
                 break;
+            }
             case ALIR_OP_CAST: {
                 LLVMTypeRef dst_ty = get_llvm_type(ctx, inst->dest->type);
                 LLVMTypeRef src_ty = LLVMTypeOf(op1);

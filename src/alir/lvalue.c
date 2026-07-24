@@ -5,6 +5,11 @@ int alir_get_type_size(VarType t) {
     // All pointers are 8 bytes on a 64-bit architecture
     if (t.ptr_depth > 0) return 8; 
     
+    // In Alkyl VM, every array element takes 8 bytes.
+    if (t.array_size > 0) {
+        return t.array_size * 8;
+    }
+    
     switch (t.base) {
         case TYPE_VOID: return 0;
         case TYPE_BOOL:
@@ -90,6 +95,14 @@ AlirValue* alir_gen_addr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     AlirValue *elem_ptr = new_temp(ctx, ptr_t);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_ptr, base_ptr, index));
     
+    // In Alkyl, arrays of arrays are implemented as arrays of pointers.
+    // If the element type is an array, we must load the pointer!
+    if (elem_t.array_size > 0 || elem_t.array_depth > 0) {
+        AlirValue *loaded = new_temp(ctx, ptr_t);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded, elem_ptr, NULL));
+        elem_ptr = loaded;
+    }
+    
     return elem_ptr; 
 }
 
@@ -114,6 +127,12 @@ AlirValue* alir_gen_expr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     // 1. Get the memory address of the element
     AlirValue *elem_ptr = alir_gen_addr_index_access(ctx, aa);
     if (!elem_ptr) return NULL;
+
+    // In Alkyl, arrays are manipulated as pointers. 
+    // If the expression type is an array, its R-value is just the pointer!
+    if (elem_t.array_size > 0) {
+        return elem_ptr;
+    }
 
     // 2. Emit a LOAD instruction to read the actual value
     AlirValue *loaded_val = new_temp(ctx, elem_t);
@@ -1012,10 +1031,17 @@ AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     }
 
     VarType arr_type = elem_type;
+    if (arr_type.array_size > 0) {
+        arr_type.array_depth = arr_type.array_size;
+    }
     arr_type.array_size = count > 0 ? count : 1; 
 
     VarType ptr_type = elem_type;
-    ptr_type.ptr_depth++; 
+    if (ptr_type.array_size > 0) {
+        ptr_type.ptr_depth += 2;
+    } else {
+        ptr_type.ptr_depth++; 
+    }
     ptr_type.array_size = arr_type.array_size; 
     
     // 1. Allocate on the Stack natively
@@ -1245,7 +1271,7 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
                     }
                 }
             }
-            return alir_gen_access(ctx, node);
+            return alir_gen_expr_index_access(ctx, (IndexAccessNode*)node);
         }
         case NODE_CALL: return alir_gen_call(ctx, (CallNode*)node);
         case NODE_METHOD_CALL: return alir_gen_method_call(ctx, (MethodCallNode*)node);
