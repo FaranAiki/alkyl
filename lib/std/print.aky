@@ -1,71 +1,70 @@
 extern int printf(char* fmt, ...) as cprintf;
 
-void print_int_array(int* arr, long size) {
-    cprintf("%s", "[ ");
+void print_int_array(void* arr, long size) {
+    cprintf("%s", "[");
     let i = 0;
     while (i < size) {
-        cprintf("%d", arr[i]);
+        cprintf("%d", (arr as int*)[i]);
         if (i < size - 1) { cprintf("%s", ", "); }
         i += 1;
     }
-    cprintf("%s", " ] ");
+    cprintf("%s", "] ");
 }
 
-void print_uint_array(unsigned int* arr, long size) {
-    cprintf("%s", "[ ");
+void print_uint_array(void* arr, long size) {
+    cprintf("%s", "[");
     let i = 0;
     while (i < size) {
-        cprintf("%u", arr[i]);
+        cprintf("%u", (arr as unsigned int*)[i]);
         if (i < size - 1) { cprintf("%s", ", "); }
         i += 1;
     }
-    cprintf("%s", " ] ");
+    cprintf("%s", "] ");
 }
 
-void print_long_array(long* arr, long size) {
-    cprintf("%s", "[ ");
+void print_long_array(void* arr, long size) {
+    cprintf("%s", "[");
     let i = 0;
     while (i < size) {
-        cprintf("%ld", arr[i]);
+        cprintf("%ld", (arr as long*)[i]);
         if (i < size - 1) { cprintf("%s", ", "); }
         i += 1;
     }
-    cprintf("%s", " ] ");
+    cprintf("%s", "] ");
 }
 
-void print_ulong_array(unsigned long* arr, long size) {
-    cprintf("%s", "[ ");
+void print_ulong_array(void* arr, long size) {
+    cprintf("%s", "[");
     let i = 0;
     while (i < size) {
-        cprintf("%lu", arr[i]);
+        cprintf("%lu", (arr as unsigned long*)[i]);
         if (i < size - 1) { cprintf("%s", ", "); }
         i += 1;
     }
-    cprintf("%s", " ] ");
+    cprintf("%s", "] ");
 }
 
-void print_single_array(single* arr, long size) {
-    cprintf("%s", "[ ");
+void print_single_array(void* arr, long size) {
+    cprintf("%s", "[");
     let i = 0;
     while (i < size) {
-        cprintf("%f", arr[i]);
+        cprintf("%f", (arr as single*)[i]);
         if (i < size - 1) { cprintf("%s", ", "); }
         i += 1;
     }
-    cprintf("%s", " ] ");
+    cprintf("%s", "] ");
 }
 
-void print_double_array(double* arr, long size) {
-    cprintf("%s", "[ ");
+void print_double_array(void* arr, long size) {
+    cprintf("%s", "[");
     let i = 0;
     while (i < size) {
-        cprintf("%lf", arr[i]);
-        if (i < size - 1) { cprintf(", "); }
+        cprintf("%lf", (arr as double*)[i]);
+        if (i < size - 1) { cprintf("%s", ", "); }
         i += 1;
     }
-    cprintf(" ] ");
+    cprintf("%s", "] ");
 }
-
 
 meta void print(...) {
     for arg in ... {
@@ -88,17 +87,17 @@ meta void print(...) {
                 cprintf("%s ", arg);
             }
         } else if (typeof(arg) == typeof(int[])) {
-            print_int_array(arg as int*, sizeof(arg) >> 2);
+            print_int_array(arg as void*, sizeof(arg) >> 2);
         } else if (typeof(arg) == typeof(unsigned int[])) {
-            print_uint_array(arg as unsigned int*, sizeof(arg) >> 2);
+            print_uint_array(arg as void*, sizeof(arg) >> 2);
         } else if (typeof(arg) == typeof(long[])) {
-            print_long_array(arg as long*, sizeof(arg) >> 3);
+            print_long_array(arg as void*, sizeof(arg) >> 3);
         } else if (typeof(arg) == typeof(unsigned long[])) {
-            print_ulong_array(arg as unsigned long*, sizeof(arg) >> 3);
+            print_ulong_array(arg as void*, sizeof(arg) >> 3);
         } else if (typeof(arg) == typeof(single[])) {
-            print_single_array(arg as single*, sizeof(arg) >> 2);
+            print_single_array(arg as void*, sizeof(arg) >> 2);
         } else if (typeof(arg) == typeof(double[])) {
-            print_double_array(arg as double*, sizeof(arg) >> 3);
+            print_double_array(arg as void*, sizeof(arg) >> 3);
         } else if (typeof(arg) == typeof(char*)) {
             cprintf("%s ", arg);
         } else {

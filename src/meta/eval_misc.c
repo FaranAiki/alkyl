@@ -3,7 +3,6 @@
 #include <string.h>
 
 static int get_type_size(VarType t) {
-    fprintf(stderr, "DEBUG get_type_size: base=%d ptr_depth=%d array_size=%d\n", t.base, t.ptr_depth, t.array_size);
     int base_size = 8;
     if (t.ptr_depth > 0) {
         base_size = 8;
@@ -121,6 +120,17 @@ case ALIR_OP_BITCAST: {
             if (inst->op1->type.base == TYPE_SINGLE) ctx->registers[inst->dest->temp_id].as.single_val = inst->op1->val.single_val;
             else if (inst->op1->type.base == TYPE_DOUBLE) ctx->registers[inst->dest->temp_id].as.single_val = inst->op1->val.double_val;
             else ctx->registers[inst->dest->temp_id].as.int_val = inst->op1->val.long_long_val;
+        } else if (inst->op1->kind == ALIR_VAL_VAR) {
+            ctx->registers[inst->dest->temp_id].as.int_val = meta_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+        } else if (inst->op1->kind == ALIR_VAL_GLOBAL && ctx->module) {
+            AlirGlobal *g = ctx->module->globals;
+            while (g) {
+                if (strcmp(g->name, inst->op1->val.str_val) == 0) {
+                    ctx->registers[inst->dest->temp_id].as.int_val = (long long)(intptr_t)g->string_content;
+                    break;
+                }
+                g = g->next;
+            }
         }
     }
     break;

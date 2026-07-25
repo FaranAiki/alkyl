@@ -197,7 +197,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             }
             set_loc(node, line, col);
         } 
-        else if (p->current_token.type == TOKEN_LBRACKET && (!p->current_token.has_space_before || p->in_space_separated_call > 0)) {
+        else if (p->current_token.type == TOKEN_LBRACKET && p->disable_space_call == 0 && (!p->current_token.has_space_before || p->in_space_separated_call > 0)) {
             eat(p, TOKEN_LBRACKET);
             
             if (is_type_start(p)) {
