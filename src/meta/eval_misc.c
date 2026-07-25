@@ -123,14 +123,8 @@ case ALIR_OP_BITCAST: {
         } else if (inst->op1->kind == ALIR_VAL_VAR) {
             ctx->registers[inst->dest->temp_id].as.int_val = meta_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
         } else if (inst->op1->kind == ALIR_VAL_GLOBAL && ctx->module) {
-            AlirGlobal *g = ctx->module->globals;
-            while (g) {
-                if (strcmp(g->name, inst->op1->val.str_val) == 0) {
-                    ctx->registers[inst->dest->temp_id].as.int_val = (long long)(intptr_t)g->string_content;
-                    break;
-                }
-                g = g->next;
-            }
+            long long ptr = meta_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+            ctx->registers[inst->dest->temp_id].as.int_val = ptr;
         }
     }
     break;

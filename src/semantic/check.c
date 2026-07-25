@@ -1259,11 +1259,33 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             IfNode *ifn = (IfNode*)node;
             sem_check_expr(ctx, ifn->condition);
             
-            sem_scope_enter(ctx, 0, (VarType){0});
-            sem_check_block(ctx, ifn->then_body);
-            sem_scope_exit(ctx);
+            int cond_val = -1;
+            if (ifn->condition->type == NODE_BINARY_OP) {
+                BinaryOpNode *bin = (BinaryOpNode*)ifn->condition;
+                if (bin->op == TOKEN_EQ || bin->op == TOKEN_NEQ) {
+                    ASTNode *l = bin->left;
+                    ASTNode *r = bin->right;
+                    if (l && l->type == NODE_CAST) l = ((CastNode*)l)->operand;
+                    if (r && r->type == NODE_CAST) r = ((CastNode*)r)->operand;
+                    
+                    if (l && r && l->type == NODE_TYPEOF && r->type == NODE_TYPEOF) {
+                        SizeOfNode *sl = (SizeOfNode*)l;
+                        SizeOfNode *sr = (SizeOfNode*)r;
+                        VarType tl = sl->target_type.base != TYPE_UNKNOWN ? sl->target_type : sem_get_node_type(ctx, sl->operand);
+                        VarType tr = sr->target_type.base != TYPE_UNKNOWN ? sr->target_type : sem_get_node_type(ctx, sr->operand);
+                        cond_val = sem_types_are_equal(tl, tr) ? 1 : 0;
+                        if (bin->op == TOKEN_NEQ) cond_val = 1 - cond_val;
+                    }
+                }
+            }
             
-            if (ifn->else_body) {
+            if (cond_val == -1 || cond_val == 1) {
+                sem_scope_enter(ctx, 0, (VarType){0});
+                sem_check_block(ctx, ifn->then_body);
+                sem_scope_exit(ctx);
+            }
+            
+            if (ifn->else_body && (cond_val == -1 || cond_val == 0)) {
                 sem_scope_enter(ctx, 0, (VarType){0});
                 if (ifn->else_body->type == NODE_IF) {
                     sem_check_node(ctx, ifn->else_body);

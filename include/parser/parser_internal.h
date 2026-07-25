@@ -64,6 +64,7 @@ struct Expansion {
     Token *tokens;
     int count;
     int pos;
+    char *macro_name; /* macro that produced this expansion (blue-paint) */
     struct Expansion *next;
 };
 

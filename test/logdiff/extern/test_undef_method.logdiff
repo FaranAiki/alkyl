@@ -1,19 +1,20 @@
-9,10c9,23
-< step: Finished lexing. Start parsing.
-< step: Start Semantic Analysis.
+11c11
+< ==609952==ERROR: LeakSanitizer: detected memory leaks
 ---
-> 
-> =================================================================
-> ==410290==ERROR: LeakSanitizer: detected memory leaks
-> 
-> Direct leak of 131120 byte(s) in 2 object(s) allocated from:
->     #0 0x7f04bb52c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x560344d2a5c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
->     #2 0x560344d2a5c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
-> 
-> Indirect leak of 65560 byte(s) in 1 object(s) allocated from:
->     #0 0x7f04bb52c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x560344d2a5c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
->     #2 0x560344d2a5c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
-> 
-> SUMMARY: AddressSanitizer: 196680 byte(s) leaked in 3 allocation(s).
+> ==611924==ERROR: LeakSanitizer: detected memory leaks
+14,16c14,16
+<     #0 0x7feca052c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+<     #1 0x5631266343c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+<     #2 0x5631266343c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+---
+>     #0 0x7f874c92c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x55f4c6be63c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+>     #2 0x55f4c6be63c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+19,21c19,21
+<     #0 0x7feca052c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+<     #1 0x5631266343c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+<     #2 0x5631266343c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+---
+>     #0 0x7f874c92c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x55f4c6be63c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+>     #2 0x55f4c6be63c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47

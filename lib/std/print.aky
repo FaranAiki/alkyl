@@ -1,108 +1,121 @@
-extern int printf(char* fmt, ...) as cprintf;
+// TODO make sure that this does not heavily depends on clib!
+// do an abstraction!
 
-void print_int_array(void* arr, long size) {
-    cprintf("%s", "[");
-    let i = 0;
-    while (i < size) {
-        cprintf("%d", (arr as int*)[i]);
-        if (i < size - 1) { cprintf("%s", ", "); }
-        i += 1;
-    }
-    cprintf("%s", "] ");
+namespace __c_lib {
+  extern int printf(char*, ...);
+  extern int putchar(int);
+  extern int puts(char*);
 }
 
-void print_uint_array(void* arr, long size) {
-    cprintf("%s", "[");
-    let i = 0;
+define formatted_printf as __c_lib.printf;
+define putchar as __c_lib.putchar;
+
+void print_int_array(int arr[], unsigned long size) {
+    putchar('[');
+    unsigned long i = 0;
     while (i < size) {
-        cprintf("%u", (arr as unsigned int*)[i]);
-        if (i < size - 1) { cprintf("%s", ", "); }
+        formatted_printf("%d", arr[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
         i += 1;
     }
-    cprintf("%s", "] ");
+    putchar(']');
 }
 
-void print_long_array(void* arr, long size) {
-    cprintf("%s", "[");
-    let i = 0;
+void print_uint_array(unsigned int arr[], unsigned long size) {
+    putchar('[');
+    unsigned long i = 0;
     while (i < size) {
-        cprintf("%ld", (arr as long*)[i]);
-        if (i < size - 1) { cprintf("%s", ", "); }
+        formatted_printf("%u", arr[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
         i += 1;
     }
-    cprintf("%s", "] ");
+    putchar(']');
 }
 
-void print_ulong_array(void* arr, long size) {
-    cprintf("%s", "[");
-    let i = 0;
+void print_long_array(void* arr, unsigned long size) {
+    putchar('[');
+    unsigned long i = 0;
     while (i < size) {
-        cprintf("%lu", (arr as unsigned long*)[i]);
-        if (i < size - 1) { cprintf("%s", ", "); }
+        formatted_printf("%ld", (arr as long*)[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
         i += 1;
     }
-    cprintf("%s", "] ");
+    putchar(']');
 }
 
-void print_single_array(void* arr, long size) {
-    cprintf("%s", "[");
-    let i = 0;
+void print_ulong_array(void* arr, unsigned long size) {
+    putchar('[');
+    unsigned long i = 0;
     while (i < size) {
-        cprintf("%f", (arr as single*)[i]);
-        if (i < size - 1) { cprintf("%s", ", "); }
+        formatted_printf("%lu", (arr as unsigned long*)[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
         i += 1;
     }
-    cprintf("%s", "] ");
+    putchar(']');
 }
 
-void print_double_array(void* arr, long size) {
-    cprintf("%s", "[");
-    let i = 0;
+void print_single_array(void* arr, unsigned long size) {
+    putchar('[');
+    unsigned long i = 0;
     while (i < size) {
-        cprintf("%lf", (arr as double*)[i]);
-        if (i < size - 1) { cprintf("%s", ", "); }
+        formatted_printf("%f", (arr as single*)[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
         i += 1;
     }
-    cprintf("%s", "] ");
+    putchar(']');
 }
 
+void print_double_array(void* arr, unsigned long size) {
+    putchar('[');
+    unsigned long i = 0;
+    while (i < size) {
+        formatted_printf("%lf", (arr as double*)[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
+        i += 1;
+    }
+    putchar(']');
+}
+
+// TODO: make sure that meta can accepts optional params, e.g.
+// print(..., sep='', end='\n', file=stdout, flush=1)
 meta void print(...) {
     for arg in ... {
         if (typeof(arg) == typeof(int)) {
-            cprintf("%d ", arg);
+            formatted_printf("%d", arg);
         } else if (typeof(arg) == typeof(unsigned int)) {
-            cprintf("%u ", arg);
+            formatted_printf("%u", arg);
         } else if (typeof(arg) == typeof(long)) {
-            cprintf("%ld ", arg);
+            formatted_printf("%ld", arg);
         } else if (typeof(arg) == typeof(unsigned long)) {
-            cprintf("%lu ", arg);
+            formatted_printf("%lu", arg);
         } else if (typeof(arg) == typeof(single)) {
-            cprintf("%f ", arg);
+            formatted_printf("%f", arg);
         } else if (typeof(arg) == typeof(double)) {
-            cprintf("%lf ", arg);
+            formatted_printf("%lf", arg);
         } else if (typeof(arg) == typeof(char)) {
             if (sizeof(arg) == 1) {
-                cprintf("%c ", arg);
+                formatted_printf("%c", arg);
             } else {
-                cprintf("%s ", arg);
+                formatted_printf("%s", arg);
             }
         } else if (typeof(arg) == typeof(int[])) {
-            print_int_array(arg as void*, sizeof(arg) >> 2);
+            print_int_array(arg, sizeof(arg) >> 2);
         } else if (typeof(arg) == typeof(unsigned int[])) {
-            print_uint_array(arg as void*, sizeof(arg) >> 2);
+            print_uint_array(arg, sizeof(arg) >> 2);
         } else if (typeof(arg) == typeof(long[])) {
-            print_long_array(arg as void*, sizeof(arg) >> 3);
+            print_long_array(arg, sizeof(arg) >> 3);
         } else if (typeof(arg) == typeof(unsigned long[])) {
-            print_ulong_array(arg as void*, sizeof(arg) >> 3);
+            print_ulong_array(arg, sizeof(arg) >> 3);
         } else if (typeof(arg) == typeof(single[])) {
-            print_single_array(arg as void*, sizeof(arg) >> 2);
+            print_single_array(arg, sizeof(arg) >> 2);
         } else if (typeof(arg) == typeof(double[])) {
-            print_double_array(arg as void*, sizeof(arg) >> 3);
+            print_double_array(arg, sizeof(arg) >> 3);
         } else if (typeof(arg) == typeof(char*)) {
-            cprintf("%s ", arg);
+            formatted_printf("%s", arg);
         } else {
-            cprintf("%p ", arg);
+            // formatted_printf("%p ", arg);
+            // This should raise an error!
         }
     }
-    cprintf("%s", "\n");
+    // formatted_printf("%s", "\n");
 }

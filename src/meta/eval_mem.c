@@ -81,7 +81,16 @@ case ALIR_OP_LOAD: {
                                 }
                                 g = g->next;
                             }
-// if (!ptr) printf("DEBUG: Global '%s' NOT FOUND in LOAD!\n", inst->op1->val.str_val);
+                            if (!ptr) {
+                                AlirGlobal *ag = ctx->module->globals;
+                                while(ag) {
+                                    if (strcmp(ag->name, inst->op1->val.str_val) == 0) {
+                                        ptr = (void*)(intptr_t)ag->string_content;
+                                        break;
+                                    }
+                                    ag = ag->next;
+                                }
+                            }
                         }
                         if (ptr) {
                             if (inst->dest->type.base == TYPE_CLASS && inst->dest->type.ptr_depth == 0) {

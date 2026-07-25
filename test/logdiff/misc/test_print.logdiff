@@ -1,0 +1,12 @@
+11c11
+< ==610437==ERROR: LeakSanitizer: detected memory leaks
+---
+> ==612350==ERROR: LeakSanitizer: detected memory leaks
+14,16c14,16
+<     #0 0x7fc29f72c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+<     #1 0x55fb4fb4d3c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+<     #2 0x55fb4fb4d3c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+---
+>     #0 0x7f7a6c32c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x5601494543c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+>     #2 0x5601494543c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47

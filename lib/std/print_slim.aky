@@ -1,0 +1,17 @@
+
+namespace __c_lib {
+  extern int printf(char*, ...);
+  extern int putchar(int);
+}
+define formatted_printf as __c_lib.printf;
+define putchar as __c_lib.putchar;
+void print_int_array(int arr[], unsigned long size) {
+    putchar('[');
+    unsigned long i = 0;
+    while (i < size) {
+        formatted_printf("%d", arr[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
+        i += 1;
+    }
+    putchar(']');
+}

@@ -19,14 +19,14 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
     p->token_pos = 0;
     p->synthetic_classes = NULL;
     p->in_space_separated_call = 0;
+    p->disable_space_call = 0;
+    p->pending_cconv = NULL;
     
     if (p->ctx && p->ctx->arena) {
         hashmap_init(&p->types_map, p->ctx->arena, 64);
     } else {
         hashmap_init(&p->types_map, NULL, 64);
     }
-    
-    p->pending_cconv = NULL;
     
     if (settings) {
         p->settings = *settings;
@@ -39,6 +39,7 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
         p->settings.namespace_auto_search = 1;
         p->settings.namespace_ausearch_warning = 1;
         p->settings.function_call_require_comma = 1;
+        p->settings.array_separator_with_space = 0;
     }
     
     if (l) {
@@ -152,6 +153,14 @@ static Macro* find_macro(Parser *p, const char *name) {
     return NULL;
 }
 
+/* True if `name` is already being expanded (C preprocessor blue-paint). */
+static int macro_is_expanding(Parser *p, const char *name) {
+    for (Expansion *e = p->expansion_head; e; e = e->next) {
+        if (e->macro_name && strcmp(e->macro_name, name) == 0) return 1;
+    }
+    return 0;
+}
+
 Token lexer_next_raw(Parser *p) {
     if (p->tokens && p->token_pos < p->token_count) {
         return p->tokens[p->token_pos++];
@@ -175,6 +184,109 @@ Token get_next_token_expanded(Parser *p) {
 }
 
 static Token fetch_safe(Parser *p) { return get_next_token_expanded(p); }
+
+/* Expand object/function-like macros starting at token `t`. Used by eat() and
+ * parse_program so the first token of a REPL line also expands (e.g. define aliases). */
+static Token expand_macros_from(Parser *p, Token t) {
+    while (!p->disable_macro_expansion && t.type == TOKEN_IDENTIFIER) {
+        Macro *m = find_macro(p, t.text);
+        if (!m || macro_is_expanding(p, m->name)) break;
+
+        Token **args = NULL;
+        int *arg_lens = NULL;
+
+        if (m->param_count > 0) {
+            Token peek = fetch_safe(p);
+            if (peek.type != TOKEN_LPAREN) {
+                parser_fail(p, "Function-like macro requires arguments list '('.");
+                return t;
+            }
+
+            args = parser_alloc(p, sizeof(Token*) * m->param_count);
+            arg_lens = parser_alloc(p, m->param_count * sizeof(int));
+
+            for (int i = 0; i < m->param_count; i++) {
+                int cap = 8; int len = 0;
+                args[i] = parser_alloc(p, sizeof(Token) * cap);
+                int depth = 0;
+                while (1) {
+                    Token arg_t = fetch_safe(p);
+                    if (arg_t.type == TOKEN_EOF) {
+                        parser_fail(p, "Unexpected EOF in macro arguments");
+                        return t;
+                    }
+
+                    if (arg_t.type == TOKEN_LPAREN) depth++;
+                    else if (arg_t.type == TOKEN_RPAREN) {
+                        if (depth == 0) {
+                            if (i == m->param_count - 1) break;
+                            depth--;
+                        } else depth--;
+                    }
+                    else if (arg_t.type == TOKEN_COMMA) {
+                        if (depth == 0) {
+                            if (i < m->param_count - 1) break;
+                        }
+                    }
+
+                    if (len >= cap) {
+                        cap *= 2;
+                        Token *new_arr = parser_alloc(p, sizeof(Token) * cap);
+                        memcpy(new_arr, args[i], sizeof(Token) * len);
+                        args[i] = new_arr;
+                    }
+                    args[i][len++] = arg_t;
+                }
+                arg_lens[i] = len;
+            }
+        }
+
+        int res_cap = m->body_len * 2 + 16;
+        int res_len = 0;
+        Token *res = parser_alloc(p, sizeof(Token) * res_cap);
+
+        for (int i = 0; i < m->body_len; i++) {
+            Token bt = m->body[i];
+            int p_idx = -1;
+            if (bt.type == TOKEN_IDENTIFIER && m->param_count > 0) {
+                for (int k = 0; k < m->param_count; k++) {
+                    if (strcmp(bt.text, m->params[k]) == 0) { p_idx = k; break; }
+                }
+            }
+
+            if (p_idx != -1) {
+                for (int k = 0; k < arg_lens[p_idx]; k++) {
+                    if (res_len >= res_cap) {
+                        res_cap *= 2;
+                        Token *new_res = parser_alloc(p, sizeof(Token) * res_cap);
+                        memcpy(new_res, res, sizeof(Token) * res_len);
+                        res = new_res;
+                    }
+                    res[res_len++] = token_clone(p, args[p_idx][k]);
+                }
+            } else {
+                if (res_len >= res_cap) {
+                    res_cap *= 2;
+                    Token *new_res = parser_alloc(p, sizeof(Token) * res_cap);
+                    memcpy(new_res, res, sizeof(Token) * res_len);
+                    res = new_res;
+                }
+                res[res_len++] = token_clone(p, bt);
+            }
+        }
+
+        Expansion *ex = parser_alloc(p, sizeof(Expansion));
+        ex->tokens = res;
+        ex->count = res_len;
+        ex->pos = 0;
+        ex->macro_name = m->name;
+        ex->next = p->expansion_head;
+        p->expansion_head = ex;
+
+        t = fetch_safe(p);
+    }
+    return t;
+}
 
 void parser_fail_at(Parser *p, Token t, const char *msg) {
     report_error(p->l, t, msg); 
@@ -224,106 +336,7 @@ void parser_sync(Parser *p) {
 void eat(Parser *p, TokenType type) {
   if (p->has_error) return;
   if (p->current_token.type == type) {
-    Token t = fetch_safe(p);
-    
-    while (!p->disable_macro_expansion && t.type == TOKEN_IDENTIFIER) {
-        Macro *m = find_macro(p, t.text);
-        if (!m) break; 
-        
-        Token **args = NULL;
-        int *arg_lens = NULL;
-        
-        if (m->param_count > 0) {
-            Token peek = fetch_safe(p);
-            if (peek.type != TOKEN_LPAREN) {
-                parser_fail(p, "Function-like macro requires arguments list '('.");
-            }
-
-            args = parser_alloc(p, sizeof(Token*) * m->param_count);
-            arg_lens = parser_alloc(p, m->param_count * sizeof(int));
-            
-            for(int i=0; i<m->param_count; i++) {
-                int cap = 8; int len = 0;
-                args[i] = parser_alloc(p, sizeof(Token) * cap);
-                int depth = 0;
-                while(1) {
-                    Token arg_t = fetch_safe(p);
-                    if (arg_t.type == TOKEN_EOF) {
-                        parser_fail(p, "Unexpected EOF in macro arguments");
-                        return;
-                    }
-                    
-                    if (arg_t.type == TOKEN_LPAREN) depth++;
-                    else if (arg_t.type == TOKEN_RPAREN) {
-                        if (depth == 0) {
-                            if (i == m->param_count - 1) break; 
-                            depth--; 
-                        } else depth--;
-                    }
-                    else if (arg_t.type == TOKEN_COMMA) {
-                        if (depth == 0) {
-                            if (i < m->param_count - 1) break;
-                        }
-                    }
-                    
-                    if (len >= cap) { 
-                        cap *= 2; 
-                        Token *new_arr = parser_alloc(p, sizeof(Token)*cap);
-                        memcpy(new_arr, args[i], sizeof(Token)*len);
-                        args[i] = new_arr;
-                    }
-                    args[i][len++] = arg_t;
-                }
-                arg_lens[i] = len;
-            }
-        }
-        
-        int res_cap = m->body_len * 2 + 16;
-        int res_len = 0;
-        Token *res = parser_alloc(p, sizeof(Token) * res_cap);
-        
-        for(int i=0; i<m->body_len; i++) {
-            Token bt = m->body[i];
-            int p_idx = -1;
-            if (bt.type == TOKEN_IDENTIFIER && m->param_count > 0) {
-                for(int k=0; k<m->param_count; k++) {
-                    if (strcmp(bt.text, m->params[k]) == 0) { p_idx = k; break; }
-                }
-            }
-            
-            if (p_idx != -1) {
-                for(int k=0; k<arg_lens[p_idx]; k++) {
-                    if (res_len >= res_cap) { 
-                        res_cap *= 2; 
-                        Token *new_res = parser_alloc(p, sizeof(Token)*res_cap);
-                        memcpy(new_res, res, sizeof(Token)*res_len);
-                        res = new_res;
-                    }
-                    res[res_len++] = token_clone(p, args[p_idx][k]);
-                }
-            } else {
-                if (res_len >= res_cap) { 
-                    res_cap *= 2; 
-                    Token *new_res = parser_alloc(p, sizeof(Token)*res_cap);
-                    memcpy(new_res, res, sizeof(Token)*res_len);
-                    res = new_res;
-                }
-                res[res_len++] = token_clone(p, bt);
-            }
-        }
-        
-        Expansion *ex = parser_alloc(p, sizeof(Expansion));
-        ex->tokens = res;
-        ex->count = res_len;
-        ex->pos = 0;
-        ex->next = p->expansion_head;
-        p->expansion_head = ex;
-        
-        t = fetch_safe(p);
-    }
-    
-    p->current_token = t;
-
+    p->current_token = expand_macros_from(p, fetch_safe(p));
   } else {
     char msg[256];
     const char *expected = get_token_description(type);
@@ -364,6 +377,8 @@ VarType parse_type(Parser *p) {
       else {
           int saved_pos = p->token_pos;
           Token saved_tok = p->current_token;
+          Expansion *saved_exp = p->expansion_head;
+          int saved_exp_pos = saved_exp ? saved_exp->pos : -1;
 
            char full_type_name[512];
            snprintf(full_type_name, sizeof(full_type_name), "%s", p->current_token.text);
@@ -429,8 +444,13 @@ VarType parse_type(Parser *p) {
                    }
               }
           } else {
+              /* Rewind speculative type parse. Must restore macro expansion
+               * state too — otherwise define aliases like
+               * `define fp as __c_lib.printf` lose the `.printf` tokens. */
               p->token_pos = saved_pos;
               p->current_token = saved_tok;
+              p->expansion_head = saved_exp;
+              if (saved_exp && saved_exp_pos >= 0) saved_exp->pos = saved_exp_pos;
               if (t.is_unsigned) t.base = TYPE_INT;
               return t; 
           }
@@ -781,7 +801,9 @@ ASTNode* parse_program(Parser *p) {
   }
 
   parser_prescan(p);
-  p->current_token = lexer_next_raw(p);
+  /* Expand macros on the first token so REPL lines like `t` after
+   * `define t as p` resolve to the same binding as `p`. */
+  p->current_token = expand_macros_from(p, lexer_next_raw(p));
   
   ASTNode *head = NULL;
   ASTNode **current = &head;

@@ -39,30 +39,51 @@ AlirBlock* find_block(AlirFunction *func, const char *label) {
     }
     return NULL;
 }
+
 long long meta_vm_resolve_var(AlirValue *val, AlirModule *module, MetaVM *vm, long long *args, int arg_count) {
-    if (!val || val->kind != ALIR_VAL_VAR) return 0;
-    const char *name = val->val.str_val;
-    if (name[0] == 'p') {
-        int idx = atoi(name + 1);
-        if (idx < arg_count && args) return args[idx];
-    }
-    if (module) {
-        AlirGlobal *g = module->globals;
-        while(g) {
-            if (strcmp(g->name, name) == 0) return (long long)(intptr_t)g->string_content;
-            g = g->next;
+    if (!val) return 0;
+    if (val->kind == ALIR_VAL_VAR) {
+        const char *name = val->val.str_val;
+        if (name && name[0] == 'p') {
+            int idx = atoi(name + 1);
+            if (idx < arg_count && args) return args[idx];
         }
-    }
-    VMGlobal *g = vm->globals;
-    while(g) {
-        if (strcmp(g->name, name) == 0) return (long long)(intptr_t)g->ptr_val;
-        g = g->next;
+        if (module) {
+            AlirGlobal *g = module->globals;
+            while(g) {
+                if (strcmp(g->name, name) == 0) return (long long)(intptr_t)g->string_content;
+                g = g->next;
+            }
+        }
+        if (vm) {
+            VMGlobal *g = vm->globals;
+            while(g) {
+                if (strcmp(g->name, name) == 0) return (long long)(intptr_t)g->ptr_val;
+                g = g->next;
+            }
+        }
+    } else if (val->kind == ALIR_VAL_GLOBAL) {
+        const char *name = val->val.str_val;
+        if (module) {
+            AlirGlobal *g = module->globals;
+            while(g) {
+                if (strcmp(g->name, name) == 0) return (long long)(intptr_t)g->string_content;
+                g = g->next;
+            }
+        }
+        if (vm) {
+            VMGlobal *g = vm->globals;
+            while(g) {
+                if (strcmp(g->name, name) == 0) return (long long)(intptr_t)g->ptr_val;
+                g = g->next;
+            }
+        }
     }
     return 0;
 }
 long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *sem_ctx_ptr, long long *args, int arg_count) {
     if (!vm || !func) return 0;
-    
+
     if (strcmp(func->name, "Vector_as_int") == 0) {
         AlirInst *i = func->blocks ? func->blocks->head : NULL;
         while(i) {
@@ -70,22 +91,23 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
         }
     }
     SemanticCtx *sem_ctx = (SemanticCtx *)sem_ctx_ptr;
-    
+
     VMValue local_registers[MAX_VM_STACK];
     memset(local_registers, 0, sizeof(local_registers));
     VMValue *old_registers = vm->registers;
     vm->registers = local_registers;
     VMValue *registers = local_registers;
-    
+
     long long ret_val = 0;
     vm->status = 0;
-    
+
     AlirBlock *curr_block = func->blocks;
     while (curr_block) {
         AlirBlock *next_block = curr_block->next; // Default fallthrough
         AlirInst *inst = curr_block->head;
         while (inst) {
 
+            // TODO don't do this
             VMContext ctx = {
                 .vm = vm,
                 .module = module,
@@ -180,19 +202,19 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                 }
                 exit(1);
             }
-            
+
             if (ctx.should_return) {
                 vm->registers = old_registers;
                 return ret_val;
             }
-            
+
             inst = inst->next;
         }
         curr_block = next_block;
     }
     ret_val = vm->status;
 
-    
+
     vm->registers = old_registers;
     return ret_val;
 }

@@ -79,25 +79,37 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     args[i] = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvm_ctx), 0, 0);
                 }
                 
-                // CRITICAL: Prevent truncation for varargs on 64-bit systems.
                 LLVMTypeRef arg_ty = LLVMTypeOf(args[i]);
-                if (LLVMGetTypeKind(arg_ty) == LLVMIntegerTypeKind) {
+
+                // Match fixed parameters to the declared signature (e.g. char -> i8).
+                // Only apply C default promotions (char/short -> i32) for variadic tail args.
+                if ((unsigned)i < num_params) {
+                    LLVMTypeRef expected_ty = param_tys[i];
+                    if (LLVMGetTypeKind(expected_ty) == LLVMIntegerTypeKind &&
+                        LLVMGetTypeKind(arg_ty) == LLVMIntegerTypeKind) {
+                        unsigned ew = LLVMGetIntTypeWidth(expected_ty);
+                        unsigned aw = LLVMGetIntTypeWidth(arg_ty);
+                        if (aw < ew) {
+                            args[i] = inst->args[i]->type.is_unsigned
+                                ? LLVMBuildZExt(ctx->builder, args[i], expected_ty, "zext_arg")
+                                : LLVMBuildSExt(ctx->builder, args[i], expected_ty, "sext_arg");
+                        } else if (aw > ew) {
+                            args[i] = LLVMBuildTrunc(ctx->builder, args[i], expected_ty, "trunc_arg");
+                        }
+                    }
+                    // If arg is tainted (struct) but function expects pristine (non-struct), extract inner value
+                    if (LLVMGetTypeKind(expected_ty) != LLVMStructTypeKind && LLVMGetTypeKind(LLVMTypeOf(args[i])) == LLVMStructTypeKind) {
+                        if (LLVMCountStructElementTypes(LLVMTypeOf(args[i])) > 1) {
+                            args[i] = LLVMBuildExtractValue(ctx->builder, args[i], 1, "ext_taint_arg");
+                        }
+                    }
+                } else if (LLVMGetTypeKind(arg_ty) == LLVMIntegerTypeKind) {
                     if (inst->args[i]->type.base == TYPE_UNKNOWN || inst->args[i]->type.base == TYPE_AUTO) {
                          if (LLVMGetIntTypeWidth(arg_ty) < 64) {
                              args[i] = LLVMBuildZExt(ctx->builder, args[i], LLVMInt64TypeInContext(ctx->llvm_ctx), "prom_word");
                          }
                     } else if (LLVMGetIntTypeWidth(arg_ty) < 32) {
                         args[i] = LLVMBuildSExt(ctx->builder, args[i], LLVMInt32TypeInContext(ctx->llvm_ctx), "prom_i32");
-                    }
-                }
-                
-                // If arg is tainted (struct) but function expects pristine (non-struct), extract inner value
-                if ((unsigned)i < num_params) {
-                    LLVMTypeRef expected_ty = param_tys[i];
-                    if (LLVMGetTypeKind(expected_ty) != LLVMStructTypeKind && LLVMGetTypeKind(LLVMTypeOf(args[i])) == LLVMStructTypeKind) {
-                        if (LLVMCountStructElementTypes(LLVMTypeOf(args[i])) > 1) {
-                            args[i] = LLVMBuildExtractValue(ctx->builder, args[i], 1, "ext_taint_arg");
-                        }
                     }
                 }
             }

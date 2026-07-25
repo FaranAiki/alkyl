@@ -53,7 +53,7 @@ ASTNode* parse_import(Parser *p) {
   lexer_init(&import_l, p->ctx, fname, src, NULL);
 
   Parser import_p;
-  parser_init(&import_p, &import_l, NULL);
+  parser_init(&import_p, &import_l, &p->settings);
 
   // Share state to allow macros, typedefs, and struct types to cross file boundaries
   import_p.macro_head = p->macro_head;

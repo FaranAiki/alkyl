@@ -91,6 +91,9 @@ ASTNode* parse_define(Parser *p) {
   Token *body_tokens = parser_alloc(p, sizeof(Token) * 32);
   int body_cap = 32;
   int body_len = 0;
+  /* Store body tokens literally; expansion happens at each use site. */
+  int saved_disable = p->disable_macro_expansion;
+  p->disable_macro_expansion = 1;
   while (p->current_token.type != TOKEN_SEMICOLON && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
       if (body_len >= body_cap) { 
           body_cap *= 2; 
@@ -103,6 +106,7 @@ ASTNode* parse_define(Parser *p) {
       body_tokens[body_len++] = t;
       eat(p, p->current_token.type);
   }
+  p->disable_macro_expansion = saved_disable;
   
   for(int i=0; i<sig_count; i++) {
       register_macro(p, sigs[i].name, sigs[i].params, sigs[i].param_count, body_tokens, body_len);

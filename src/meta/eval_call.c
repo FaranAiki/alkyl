@@ -24,14 +24,8 @@ case ALIR_OP_CALL: {
                                 } else if (arg->kind == ALIR_VAL_VAR) {
                                     printf("%lld", meta_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count));
                                 } else if (arg->kind == ALIR_VAL_GLOBAL && ctx->module) {
-                                    AlirGlobal *g = ctx->module->globals;
-                                    while (g) {
-                                        if (strcmp(g->name, arg->val.str_val) == 0 && g->string_content) {
-                                            printf("%s", g->string_content);
-                                            break;
-                                        }
-                                        g = g->next;
-                                    }
+                                    long long ptr = meta_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                                    if (ptr) printf("%s", (char*)(intptr_t)ptr);
                                 }
                             }
                             printf("\n");
@@ -60,17 +54,24 @@ case ALIR_OP_CALL: {
                                     else if (arg->kind == ALIR_VAL_VAR) new_args[i] = meta_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                                     else new_args[i] = 0;
                                 }
-// fprintf(stderr, "DEBUG: Calling internal ctx->func %s with arg %lld\n", target_fn->name, inst->arg_count > 0 ? new_args[0] : -1);
                                 long long rc = meta_vm_execute(ctx->vm, ctx->module, target_fn, ctx->sem_ctx, new_args, inst->arg_count);
                                 if (strcmp(target_fn->name, "Vector_as_int") == 0) {
                                 }
                                 
                                 if (inst->dest) {
                                     ctx->registers[inst->dest->temp_id].as.int_val = rc;
-// fprintf(stderr, "DEBUG: Stored %lld to %d\n", rc, inst->dest->temp_id);
                                 }
                             } else {
                                 void *func_ptr = dlsym(RTLD_DEFAULT, inst->op1->val.str_val);
+                                AlirFunction *ext_func = NULL;
+                                if (ctx->module) {
+                                    AlirFunction *curr = ctx->module->functions;
+                                    while(curr) {
+                                        if (strcmp(curr->name, inst->op1->val.str_val) == 0) { ext_func = curr; break; }
+                                        curr = curr->next;
+                                    }
+                                }
+
                                 if (func_ptr) {
                                     ffi_cif cif;
                                     int __at_sz = inst->arg_count > 0 ? inst->arg_count : 1; ffi_type *arg_types[__at_sz];
@@ -79,12 +80,21 @@ case ALIR_OP_CALL: {
                                     
                                     for (int i = 0; i < inst->arg_count; i++) {
                                         AlirValue *arg = inst->args[i];
-                                        if (arg->type.base == TYPE_INT || arg->type.base == TYPE_BOOL) {
+                                        if ((arg->type.base == TYPE_INT || arg->type.base == TYPE_BOOL ||
+                                            arg->type.base == TYPE_CHAR || arg->type.base == TYPE_SHORT ||
+                                            arg->type.base == TYPE_LONG || arg->type.base == TYPE_LONG_LONG ||
+                                            arg->type.base == TYPE_UNSIGNED_INT || arg->type.base == TYPE_UNSIGNED_LONG ||
+                                            arg->type.base == TYPE_UNSIGNED_LONG_LONG || arg->type.base == TYPE_UNSIGNED_CHAR) &&
+                                            arg->type.ptr_depth == 0) {
                                             arg_types[i] = &ffi_type_sint64;
                                             long long *val = (long long*)&arg_data[i];
                                             if (arg->kind == ALIR_VAL_CONST) *val = arg->val.long_long_val;
                                             else if (arg->kind == ALIR_VAL_TEMP) *val = ctx->registers[arg->temp_id].as.int_val;
                                             else if (arg->kind == ALIR_VAL_VAR) *val = meta_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                                            else if (arg->kind == ALIR_VAL_GLOBAL && ctx->module) {
+                                                long long ptr = meta_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                                                *val = ptr;
+                                            }
                                             arg_values[i] = val;
                                         } else if (arg->type.base == TYPE_DOUBLE || arg->type.base == TYPE_SINGLE) {
                                             arg_types[i] = (arg->type.base == TYPE_DOUBLE) ? &ffi_type_double : &ffi_type_float;
@@ -99,6 +109,10 @@ case ALIR_OP_CALL: {
                                                 long long raw = meta_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                                                 if (arg->type.base == TYPE_DOUBLE) memcpy(val, &raw, sizeof(double));
                                                 else { float f; memcpy(&f, &raw, sizeof(float)); *(float*)val = f; }
+                                            } else if (arg->kind == ALIR_VAL_GLOBAL && ctx->module) {
+                                                long long raw = meta_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                                                if (arg->type.base == TYPE_DOUBLE) memcpy(val, &raw, sizeof(double));
+                                                else { float f; memcpy(&f, &raw, sizeof(float)); *(float*)val = f; }
                                             }
                                             arg_values[i] = val;
                                         } else if ((arg->type.base == TYPE_CLASS && arg->type.class_name && strcmp(arg->type.class_name, "string") == 0) || arg->type.base == TYPE_AUTO || arg->type.ptr_depth > 0) {
@@ -106,16 +120,11 @@ case ALIR_OP_CALL: {
                                             void **val = (void**)&arg_data[i];
                                             *val = NULL;
                                             if (arg->kind == ALIR_VAL_CONST) *val = (void*)arg->val.str_val;
+                                            else if (arg->kind == ALIR_VAL_TEMP) *val = (void*)(intptr_t)ctx->registers[arg->temp_id].as.int_val;
                                             else if (arg->kind == ALIR_VAL_VAR) *val = (void*)(intptr_t)meta_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                                             else if (arg->kind == ALIR_VAL_GLOBAL && ctx->module) {
-                                                AlirGlobal *g = ctx->module->globals;
-                                                while(g) {
-                                                    if (strcmp(g->name, arg->val.str_val) == 0 && g->string_content) {
-                                                        *val = g->string_content;
-                                                        break;
-                                                    }
-                                                    g = g->next;
-                                                }
+                                                long long ptr = meta_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                                                *val = (void*)(intptr_t)ptr;
                                             }
                                             arg_values[i] = val;
                                         } else {
@@ -130,8 +139,14 @@ case ALIR_OP_CALL: {
                                         else if (inst->dest->type.base == TYPE_SINGLE) ret_type = &ffi_type_float;
                                         else ret_type = &ffi_type_sint64;
                                     }
-    
-                                    if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, inst->arg_count, ret_type, arg_types) == FFI_OK) {
+                                    
+                                    int prep_status = FFI_OK;
+                                    if (ext_func && ext_func->is_varargs) {
+                                        prep_status = ffi_prep_cif_var(&cif, FFI_DEFAULT_ABI, ext_func->param_count, inst->arg_count, ret_type, arg_types);
+                                    } else {
+                                        prep_status = ffi_prep_cif(&cif, FFI_DEFAULT_ABI, inst->arg_count, ret_type, arg_types);
+                                    }
+                                    if (prep_status == FFI_OK) {
                                         long long rc_int = 0;
                                         double rc_double = 0;
                                         float rc_float = 0;
