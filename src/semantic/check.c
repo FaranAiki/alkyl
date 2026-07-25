@@ -550,6 +550,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
 
 void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
+    if (node->is_macro_arg) return;
     
     switch(node->type) {
         case NODE_LITERAL: {
@@ -855,7 +856,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
                 sem_check_expr(ctx, sn->operand);
             }
-            sem_set_node_type(ctx, node, (VarType){ .base = TYPE_INT, .ptr_depth = 0 });
+            sem_set_node_type(ctx, node, (VarType){ .base = TYPE_CHAR, .ptr_depth = 1, .array_size = 0 });
             break;
         }
         case NODE_HAS_METHOD:
@@ -1122,6 +1123,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
 
 void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
+    if (node->is_macro_arg) return;
     
     switch (node->type) {
         case NODE_PURGE: {
@@ -1346,6 +1348,8 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_ARRAY_LIT:
         case NODE_CAST:
         case NODE_TYPEOF:
+        case NODE_SIZEOF:
+        case NODE_ALIGNOF:
             sem_check_expr(ctx, node); 
             break;
         case NODE_EMIT: {

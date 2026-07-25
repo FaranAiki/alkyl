@@ -1,15 +1,17 @@
 #include "alir.h"
 
+// TODO separate this into modularized!
+
 // --- NEW HELPER: Dynamically calculate byte sizes for allocations ---
 int alir_get_type_size(VarType t) {
     // All pointers are 8 bytes on a 64-bit architecture
-    if (t.ptr_depth > 0) return 8; 
-    
+    if (t.ptr_depth > 0) return 8;
+
     // In Alkyl VM, every array element takes 8 bytes.
     if (t.array_size > 0) {
         return t.array_size * 8;
     }
-    
+
     switch (t.base) {
         case TYPE_VOID: return 0;
         case TYPE_BOOL:
@@ -54,7 +56,7 @@ AlirValue* alir_gen_addr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
 
     VarType alir_type = base_ptr->type;
 
-    // 2. CRITICAL: If target is a dynamic pointer (like from malloc), 
+    // 2. CRITICAL: If target is a dynamic pointer (like from malloc),
     // we must load the heap address FROM the stack variable before indexing!
     // We look at the actual ALIR variable type to determine if it's decayed
     // to a pointer instead of static inline representation on the stack.
@@ -68,33 +70,33 @@ AlirValue* alir_gen_addr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     AlirValue *index = NULL;
     VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
     VarType target_t = sem_get_node_type(ctx->sem, aa->target);
-    
-    // Check if it's a trait access: trait access is represented as ArrayAccess but the result type 
+
+    // Check if it's a trait access: trait access is represented as ArrayAccess but the result type
     // is a different class than the target type
-    if (elem_t.base == TYPE_CLASS && target_t.base == TYPE_CLASS && 
+    if (elem_t.base == TYPE_CLASS && target_t.base == TYPE_CLASS &&
         elem_t.class_name && target_t.class_name &&
         strcmp(elem_t.class_name, target_t.class_name) != 0) {
-        
+
         VarType ptr_t = elem_t;
         ptr_t.ptr_depth++;
-        
+
         AlirValue *elem_ptr = new_temp(ctx, ptr_t);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, elem_ptr, base_ptr, NULL));
         return elem_ptr;
     }
-    
+
     index = alir_gen_expr(ctx, aa->index);
-    if (!index) index = alir_const_int(ctx->module, 0); 
-    
+    if (!index) index = alir_const_int(ctx->module, 0);
+
     // 4. Calculate the type of the pointer we are creating
     elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
     VarType ptr_t = elem_t;
-    ptr_t.ptr_depth++; 
+    ptr_t.ptr_depth++;
 
     // 5. Emit GET_PTR (LLVM getelementptr) and RETURN THE POINTER
     AlirValue *elem_ptr = new_temp(ctx, ptr_t);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_ptr, base_ptr, index));
-    
+
     // In Alkyl, arrays of arrays are implemented as arrays of pointers.
     // If the element type is an array, we must load the pointer!
     if (elem_t.array_size > 0 || elem_t.array_depth > 0) {
@@ -102,23 +104,23 @@ AlirValue* alir_gen_addr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
         emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded, elem_ptr, NULL));
         elem_ptr = loaded;
     }
-    
-    return elem_ptr; 
+
+    return elem_ptr;
 }
 
 // Handles R-Values: Returns the actual data inside arr[index]
 AlirValue* alir_gen_expr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
     VarType target_t = sem_get_node_type(ctx->sem, aa->target);
-    
+
     // Check if it's a trait access. If so, just return the target bitcasted!
-    if (elem_t.base == TYPE_CLASS && target_t.base == TYPE_CLASS && 
+    if (elem_t.base == TYPE_CLASS && target_t.base == TYPE_CLASS &&
         elem_t.class_name && target_t.class_name &&
         strcmp(elem_t.class_name, target_t.class_name) != 0) {
-        
+
         AlirValue *target_val = alir_gen_expr(ctx, aa->target);
         if (!target_val) return NULL;
-        
+
         AlirValue *casted = new_temp(ctx, elem_t);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, casted, target_val, NULL));
         return casted;
@@ -128,7 +130,7 @@ AlirValue* alir_gen_expr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     AlirValue *elem_ptr = alir_gen_addr_index_access(ctx, aa);
     if (!elem_ptr) return NULL;
 
-    // In Alkyl, arrays are manipulated as pointers. 
+    // In Alkyl, arrays are manipulated as pointers.
     // If the expression type is an array, its R-value is just the pointer!
     if (elem_t.array_size > 0) {
         return elem_ptr;
@@ -146,7 +148,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     if (node->type == NODE_VAR_REF) {
         return alir_gen_addr_var_ref(ctx, node);
     }
-    
+
     if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
         VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
@@ -154,7 +156,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
             AlirSymbol *sym = alir_find_symbol(ctx, ((VarRefNode*)ma->object)->name);
             if (sym) obj_t = sym->type;
         }
-        if (obj_t.base == TYPE_ENUM) return NULL; 
+        if (obj_t.base == TYPE_ENUM) return NULL;
 
         AlirValue *base_ptr = NULL;
         if (obj_t.ptr_depth == 0) {
@@ -170,7 +172,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
         } else {
             base_ptr = alir_gen_expr(ctx, ma->object);
         }
-        
+
         if (!base_ptr) return NULL;
 
         char *class_name = base_ptr->type.class_name;
@@ -181,7 +183,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
         }
 
         int idx = alir_robust_get_field_index(ctx, class_name, ma->member_name);
-        
+
         // Find field type for precise IR typing
         VarType field_type = {TYPE_AUTO, 0, NULL};
         if (class_name) {
@@ -194,7 +196,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
                 }
             }
         }
-        
+
         if (field_type.base == TYPE_AUTO) {
             AlirStruct *search = ctx->module->structs;
             while (search) {
@@ -207,26 +209,26 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
                 search = search->next;
             }
         }
-        
+
         field_type.ptr_depth++; // Yields a pointer to the field
         AlirValue *res = new_temp(ctx, field_type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, res, base_ptr, alir_const_int(ctx->module, idx)));
         return res;
     }
-    
+
     // no need to change
     if (node->type == NODE_INDEX_ACCESS) {
         return alir_gen_addr_index_access(ctx, (IndexAccessNode*)node);
     }
-    
+
     if (node->type == NODE_ARRAY_LIT) {
         return alir_gen_array_lit(ctx, node);
     }
 
     // TODO add vector access
     if (node->type == NODE_VECTOR_ACCESS) {
-        
-    }  
+
+    }
 
     return NULL;
 }
@@ -240,7 +242,7 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
             case TYPE_INT:
                 return alir_const_int(ctx->module, ln->val.int_val);
             case TYPE_LONG:
-                return alir_const_long(ctx->module, ln->val.long_val); 
+                return alir_const_long(ctx->module, ln->val.long_val);
             case TYPE_LONG_LONG:
                 return alir_const_long_long(ctx->module, ln->val.long_long_val);
             case TYPE_UNSIGNED_LONG:
@@ -260,12 +262,12 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
             default: break; // TODO here
         }
     }
-    
+
     if ((ln->var_type.base == TYPE_CLASS && ln->var_type.class_name && strcmp(ln->var_type.class_name, "string") == 0) || (ln->var_type.base == TYPE_CHAR && ln->var_type.ptr_depth > 0)) {
         if (!ln->val.str_val || (long)ln->val.str_val <= 0x1000) {
             return alir_const_int(ctx->module, ln->val.long_val);
         }
-        
+
         AlirValue *glob = alir_module_add_string_literal(ctx->module, ln->val.str_val, ln->var_type, ctx->str_counter++);
         if (ln->var_type.base == TYPE_CLASS && strcmp(ln->var_type.class_name, "string") == 0) {
             AlirValue *val = new_temp(ctx, ln->var_type);
@@ -274,11 +276,11 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
         }
         return glob;
     }
-    
+
     if (ln->var_type.base == TYPE_BOOL) {
         return alir_const_int(ctx->module, ln->val.long_val);
     }
-    
+
     if (ln->var_type.base == TYPE_UNKNOWN && ln->var_type.ptr_depth == 1) {
         AlirValue *v = alir_alloc(ctx->module, sizeof(AlirValue));
         v->kind = ALIR_VAL_CONST;
@@ -313,6 +315,12 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
                 t = ptr_type;
             }
             return alir_val_global(ctx->module, sym->mangled_name ? sym->mangled_name : vn->name, t);
+                } else if (sym && sym->kind == SYM_CLASS) {
+            unsigned int hash = 5381;
+            char *str = sym->name;
+            int c;
+            while ((c = *str++)) hash = ((hash << 5) + hash) + c;
+            return alir_const_int(ctx->module, hash);
         } else if (sym && sym->kind == SYM_VAR) {
             VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
             t.ptr_depth++; // Make it a pointer type because it's an address
@@ -324,7 +332,7 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
 
     // Get precise type from Semantics
     VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
-    
+
     AlirSymbol *asym = alir_find_symbol(ctx, vn->name);
     if (!asym && vn->is_class_member) {
         // [FIX] Field Access Rewrite
@@ -338,7 +346,7 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
         ma->object = (ASTNode*)th;
         ma->member_name = vn->name;
         AlirValue *res = alir_gen_addr(ctx, (ASTNode*)ma);
-        
+
         // WE MUST LOAD THE VALUE, BECAUSE alir_gen_var_ref IS SUPPOSED TO RETURN THE R-VALUE (loaded value)
         VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
         if (t.base == TYPE_UNKNOWN && res) {
@@ -362,11 +370,11 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
             if (t.ptr_depth > 0) t.ptr_depth--;
         }
     }
-    
+
     if (t.array_size > 0) {
         return ptr;
     }
-    
+
     AlirValue *val = new_temp(ctx, t);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, val, ptr, NULL));
     return val;
@@ -386,18 +394,18 @@ AlirValue* alir_gen_access(AlirCtx *ctx, ASTNode *node) {
     }
 
     AlirValue *ptr = alir_gen_addr(ctx, node);
-    if (!ptr) return NULL; 
-    
+    if (!ptr) return NULL;
+
     VarType t = sem_get_node_type(ctx->sem, node);
-    
+
     // [FIX] ALWAYS trust GET_PTR's physical type over Semantic Analyzer inference bounds.
     // Address returned here is a GET_PTR so it represents a T*. We dynamically extract T.
     if (ptr->type.base != TYPE_UNKNOWN && ptr->type.base != TYPE_AUTO) {
         t = ptr->type;
         if (t.ptr_depth > 0) t.ptr_depth--;
     }
-    
-    AlirValue *val = new_temp(ctx, t); 
+
+    AlirValue *val = new_temp(ctx, t);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, val, ptr, NULL));
     return val;
 }
@@ -407,17 +415,17 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
         // Emit as function call
         AlirValue *l = alir_gen_expr(ctx, bn->left);
         AlirValue *r = alir_gen_expr(ctx, bn->right);
-        
+
         AlirValue **args = arena_alloc(ctx->sem->compiler_ctx->arena, 2 * sizeof(AlirValue*));
         args[0] = l;
         args[1] = r;
-        
+
         VarType res_ty = sem_get_node_type(ctx->sem, (ASTNode*)bn);
         AlirValue *res = NULL;
         if (res_ty.base != TYPE_VOID || res_ty.ptr_depth > 0) {
             res = new_temp(ctx, res_ty);
         }
-        
+
         AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, res, alir_val_var(ctx->module, bn->overloaded_func_name), NULL);
         call->args = args;
         call->arg_count = 2;
@@ -427,7 +435,7 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
 
     AlirValue *l = alir_gen_expr(ctx, bn->left);
     AlirValue *r = alir_gen_expr(ctx, bn->right);
-    
+
     if (!l) {
         l = new_temp(ctx, (VarType){TYPE_INT, 0});
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, l, NULL, NULL));
@@ -436,7 +444,7 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
         r = new_temp(ctx, (VarType){TYPE_INT, 0});
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, r, NULL, NULL));
     }
-    
+
     // Check types via Semantic Context to decide on Float vs Int ops
     VarType l_type = sem_get_node_type(ctx->sem, bn->left);
     VarType r_type = sem_get_node_type(ctx->sem, bn->right);
@@ -467,7 +475,7 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
 
     if (is_float) {
         VarType target = {TYPE_DOUBLE, 0};
-        
+
         if (l_type.base == TYPE_DOUBLE || r_type.base == TYPE_DOUBLE) {
             target.base = TYPE_DOUBLE;
         } else if (l_type.base == TYPE_SINGLE || r_type.base == TYPE_SINGLE) {
@@ -508,10 +516,10 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
         case TOKEN_RROTATE: op = ALIR_OP_ROTR; break;
         // ... add other cases
     }
-    
+
     // Result type logic
     if (op == ALIR_OP_EQ || op == ALIR_OP_LT || op == ALIR_OP_GT || op == ALIR_OP_LTE || op == ALIR_OP_GTE || op == ALIR_OP_NEQ) res_type = (VarType){TYPE_BOOL, 0};
-    
+
     if (l->kind == ALIR_VAL_CONST && r->kind == ALIR_VAL_CONST) {
         if (op == ALIR_OP_EQ) {
             return alir_const_int(ctx->module, l->val.int_val == r->val.int_val ? 1 : 0);
@@ -529,16 +537,16 @@ AlirValue* alir_gen_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
     if (un->overloaded_func_name) {
         // Emit as function call
         AlirValue *operand = alir_gen_expr(ctx, un->operand);
-        
+
         AlirValue **args = arena_alloc(ctx->sem->compiler_ctx->arena, sizeof(AlirValue*));
         args[0] = operand;
-        
+
         VarType res_ty = sem_get_node_type(ctx->sem, (ASTNode*)un);
         AlirValue *res = NULL;
         if (res_ty.base != TYPE_VOID || res_ty.ptr_depth > 0) {
             res = new_temp(ctx, res_ty);
         }
-        
+
         AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, res, alir_val_var(ctx->module, un->overloaded_func_name), NULL);
         call->args = args;
         call->arg_count = 1;
@@ -554,7 +562,7 @@ AlirValue* alir_gen_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
 
     AlirOpcode op = ALIR_OP_NOT;
     VarType res_type = sem_get_node_type(ctx->sem, (ASTNode*)un);
-    
+
     switch(un->op) {
         case TOKEN_MINUS: {
             // Lower unary minus to: 0 - operand
@@ -572,12 +580,12 @@ AlirValue* alir_gen_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
             emit(ctx, mk_inst(ctx->module, op, dest, zero, operand));
             return dest;
         }
-        case TOKEN_NOT: 
-            op = ALIR_OP_NOT; 
+        case TOKEN_NOT:
+            op = ALIR_OP_NOT;
             break;
-        case TOKEN_BIT_NOT: 
+        case TOKEN_BIT_NOT:
             // ALIR doesn't have an explicit BIT_NOT, usually lowered to XOR -1
-            op = ALIR_OP_XOR; 
+            op = ALIR_OP_XOR;
             AlirValue *dest = new_temp(ctx, res_type);
             emit(ctx, mk_inst(ctx->module, op, dest, operand, alir_const_int(ctx->module, -1)));
             return dest;
@@ -592,7 +600,7 @@ AlirValue* alir_gen_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
         default:
             break;
     }
-    
+
     AlirValue *dest = new_temp(ctx, res_type);
     emit(ctx, mk_inst(ctx->module, op, dest, operand, NULL));
     return dest;
@@ -624,20 +632,20 @@ AlirValue* alir_gen_inc_dec(AlirCtx *ctx, IncDecNode *id) {
     VarType t = sem_get_node_type(ctx->sem, id->target);
     AlirValue *val = new_temp(ctx, t);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, val, ptr, NULL));
-    
-    AlirValue *one = (t.base == TYPE_SINGLE || t.base == TYPE_DOUBLE) ? 
+
+    AlirValue *one = (t.base == TYPE_SINGLE || t.base == TYPE_DOUBLE) ?
         alir_const_float(ctx->module, 1.0) : alir_const_int(ctx->module, 1);
-        
+
     AlirOpcode op = (id->op == TOKEN_INCREMENT) ? ALIR_OP_ADD : ALIR_OP_SUB;
     if (t.base == TYPE_SINGLE || t.base == TYPE_DOUBLE) {
         op = (id->op == TOKEN_INCREMENT) ? ALIR_OP_FADD : ALIR_OP_FSUB;
     }
-    
+
     AlirValue *new_val = new_temp(ctx, t);
     emit(ctx, mk_inst(ctx->module, op, new_val, val, one));
-   
+
     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, new_val, ptr));
-    
+
     if (id->is_prefix) return new_val;
     return val;
 }
@@ -661,9 +669,9 @@ AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
                 }
             }
         } else {
-            this_val = alir_gen_expr(ctx, cn->operand); 
+            this_val = alir_gen_expr(ctx, cn->operand);
         }
-        
+
         AlirValue *func_val = alir_val_var(ctx->module, cn->custom_cast_method);
         AlirValue *dest = new_temp(ctx, cn->var_type);
         AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, dest, func_val, NULL);
@@ -679,7 +687,7 @@ AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
         operand = new_temp(ctx, (VarType){TYPE_INT, 0});
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, operand, NULL, NULL));
     }
-    
+
     VarType res_type = cn->var_type;
     AlirValue *dest = new_temp(ctx, res_type);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_CAST, dest, operand, NULL));
@@ -703,7 +711,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
     if (cn->target && (cn->target->type == NODE_MEMBER_ACCESS || cn->target->type == NODE_VAR_REF) && ctx->sem && cn->name) {
         ASTNode *object_node = NULL;
         VarType obj_t = {TYPE_UNKNOWN, 0};
-        
+
         if (cn->target->type == NODE_MEMBER_ACCESS) {
             MemberAccessNode *ma = (MemberAccessNode*)cn->target;
             object_node = ma->object;
@@ -714,7 +722,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
                 AlirSymbol *this_sym = alir_find_symbol(ctx, "this");
                 if (this_sym && this_sym->type.base == TYPE_CLASS) {
                     obj_t = this_sym->type;
-                    
+
                     // Create a fake object node for 'this'
                     VarRefNode *fake_this = alir_alloc(ctx->module, sizeof(VarRefNode));
                     fake_this->base.type = NODE_VAR_REF;
@@ -723,7 +731,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
                 }
             }
         }
-        
+
         if (object_node && obj_t.base == TYPE_CLASS && obj_t.class_name) {
             SemSymbol *sym = NULL;
             SemSymbol *class_sym = sem_symbol_lookup(ctx->sem, obj_t.class_name, NULL);
@@ -737,11 +745,11 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
                     s = s->next;
                 }
             }
-            
+
             if (!sym) {
                 sym = sem_symbol_lookup(ctx->sem, cn->name, NULL);
             }
-            
+
             if (sym && sym->kind == SYM_FUNC) {
                 MethodCallNode mc;
                 memset(&mc, 0, sizeof(MethodCallNode));
@@ -766,7 +774,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
         func_val = alir_val_var(ctx->module, target_name);
     }
     AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, func_val, NULL);
-    
+
     int count = 0; ASTNode *a = cn->args; while(a) { count++; a=a->next; }
     if (count == 1 && ctx->sem && target_name) {
         SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, NULL);
@@ -786,7 +794,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
 
     call->arg_count = count;
     call->args = alir_alloc(ctx->module, sizeof(AlirValue*) * count);
-    
+
     int i = 0; a = cn->args;
     while(a) {
         AlirValue *arg_val = alir_gen_expr(ctx, a);
@@ -797,10 +805,10 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
         call->args[i++] = arg_val;
         a = a->next;
     }
-    
+
     // Result type from Semantic Table
     VarType ret_type = sem_get_node_type(ctx->sem, (ASTNode*)cn);
-    
+
     // [FIX] Infer flux generator context type properly to prevent Array-like iteration SIGSEGVs
     int found = 0;
     if (ctx->sem && target_name) {
@@ -813,7 +821,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
             found = 1;
         }
     }
-    
+
     if (!found && ctx->module && target_name) {
         // Fallback if Semantic Analyzer runs dry or was cleaned up by driver
         AlirFunction *f = ctx->module->functions;
@@ -826,8 +834,8 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
             f = f->next;
         }
     }
-    
-    AlirValue *dest = new_temp(ctx, ret_type); 
+
+    AlirValue *dest = new_temp(ctx, ret_type);
     call->dest = dest;
     emit(ctx, call);
     return dest;
@@ -846,22 +854,22 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
         }
         return alir_lower_new_object(ctx, target_name, cn->args);
     }
-    
+
     // Intercept Macro function calls
     if (ctx->sem) {
         SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, NULL);
         if (sym && sym->kind == SYM_FUNC && sym->is_macro && sym->node_ptr) {
             FuncDefNode *fd = (FuncDefNode*)sym->node_ptr;
-            
+
             // Collect macro arguments and parameters
             int num_params = 0;
             Parameter *p = fd->params;
             while(p) { num_params++; p = p->next; }
-            
+
             char **param_names = NULL;
             ASTNode **param_args = NULL;
             ASTNode *varargs_head = NULL;
-            
+
             if (num_params > 0) {
                 param_names = alir_alloc(ctx->module, num_params * sizeof(char*));
                 param_args = alir_alloc(ctx->module, num_params * sizeof(ASTNode*));
@@ -877,32 +885,32 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
             } else {
                 varargs_head = cn->args;
             }
-            
+
             // Clone the AST body so we don't modify the original macro definition
             CompilerContext *cctx = ctx->module->compiler_ctx;
             ASTNode *cloned_body = ast_clone(cctx, fd->body, NULL, NULL, 0, NULL, NULL, 0);
-            
+
             // Rewrite variable references and varargs inside the cloned body
             cloned_body = ast_rewrite_macro(cctx, cloned_body, varargs_head, param_names, param_args, num_params);
-            
-             
-             
-            
+
+
+
+
             // Run semantic analysis on the expanded macro body
             extern void sem_check_block(SemanticCtx *ctx, ASTNode *block);
             sem_check_block(ctx->sem, cloned_body);
-            
+
             // Compile the rewritten AST directly into the current caller's ALIR block
             ASTNode *curr = cloned_body;
             while (curr) {
                 alir_gen_stmt(ctx, curr);
                 curr = curr->next;
             }
-            
+
             return new_temp(ctx, (VarType){TYPE_VOID, 0});
         }
     }
-    
+
     return alir_gen_call_std(ctx, cn);
 }
 
@@ -913,7 +921,7 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
         if (sym) obj_t = sym->type;
     }
     AlirValue *this_val = NULL;
-    
+
     if (obj_t.ptr_depth == 0) {
         this_val = alir_gen_addr(ctx, mc->object);
         if (!this_val) {
@@ -925,16 +933,16 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
             }
         }
     } else {
-        this_val = alir_gen_expr(ctx, mc->object); 
+        this_val = alir_gen_expr(ctx, mc->object);
     }
-    
+
     if (!this_val) {
          this_val = new_temp(ctx, (VarType){TYPE_INT, 0});
          emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, this_val, NULL, NULL));
     }
 
     char *cname = obj_t.class_name;
-    
+
     // [BUGFIX] Mangling Failure Recovery: Check IR types and Local Symtable dynamically
     if (!cname && this_val && this_val->type.class_name) {
         cname = this_val->type.class_name;
@@ -953,7 +961,7 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     }
 
     AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, func_name), NULL);
-    
+
     int count = 0; ASTNode *a = mc->args; while(a) { count++; a=a->next; }
     if (mc->is_static) {
         call->arg_count = count;
@@ -971,7 +979,7 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     } else {
         call->arg_count = count + 1;
         call->args = alir_alloc(ctx->module, sizeof(AlirValue*) * (count + 1));
-        
+
         call->args[0] = this_val;
         int i = 1; a = mc->args;
         while(a) {
@@ -984,9 +992,9 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
             a = a->next;
         }
     }
-    
+
     VarType ret_type = sem_get_node_type(ctx->sem, (ASTNode*)mc);
-    
+
     // [FIX] Infer flux generator context type properly for methods to prevent SIGSEGVs
     int found_flux = 0;
     if (ctx->sem && cname) {
@@ -1008,7 +1016,7 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
             }
         }
     }
-    
+
     if (!found_flux && ctx->module) {
         AlirFunction *f = ctx->module->functions;
         while(f) {
@@ -1029,7 +1037,7 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
 // Lowers an array literal (e.g. [1, 2, 3])
 AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     ArrayLitNode *al = (ArrayLitNode*)node;
-    
+
     int count = 0;
     ASTNode *elem = al->elements;
     while(elem) { count++; elem = elem->next; }
@@ -1048,20 +1056,20 @@ AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     if (arr_type.array_size > 0) {
         arr_type.array_depth = arr_type.array_size;
     }
-    arr_type.array_size = count > 0 ? count : 1; 
+    arr_type.array_size = count > 0 ? count : 1;
 
     VarType ptr_type = elem_type;
     if (ptr_type.array_size > 0) {
         ptr_type.ptr_depth += 2;
     } else {
-        ptr_type.ptr_depth++; 
+        ptr_type.ptr_depth++;
     }
-    ptr_type.array_size = arr_type.array_size; 
-    
+    ptr_type.array_size = arr_type.array_size;
+
     // 1. Allocate on the Stack natively
     AlirValue *stack_ptr = new_temp(ctx, arr_type);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, stack_ptr, NULL, NULL));
-    
+
     // 2. Loop and store
     elem = al->elements;
     int idx = 0;
@@ -1069,20 +1077,20 @@ AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
         AlirValue *eval = alir_gen_expr(ctx, elem);
         if (!eval) eval = alir_const_int(ctx->module, 0);
 
-        AlirValue *elem_ptr = new_temp(ctx, ptr_type); 
+        AlirValue *elem_ptr = new_temp(ctx, ptr_type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, elem_ptr, stack_ptr, alir_const_int(ctx->module, idx)));
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, eval, elem_ptr));
-        
-        elem = elem->next; 
+
+        elem = elem->next;
         idx++;
     }
 
-    return stack_ptr; 
+    return stack_ptr;
 }
 
 AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
     if (!node) return NULL;
-    
+
     ctx->current_line = node->line;
     ctx->current_col = node->col;
 
@@ -1124,7 +1132,7 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
                 if (an->op != TOKEN_ASSIGN) {
                     AlirValue *old_val = new_temp(ctx, target_type);
                     emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, old_val, ptr, NULL));
-                    
+
                     AlirOpcode bin_op = ALIR_OP_ADD;
                     switch (an->op) {
                         case TOKEN_PLUS_ASSIGN: bin_op = ALIR_OP_ADD; break;
@@ -1139,7 +1147,7 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
                         case TOKEN_RSHIFT_ASSIGN: bin_op = ALIR_OP_SHR; break;
                         default: break;
                     }
-                    
+
                     AlirValue *new_val = new_temp(ctx, target_type);
                     emit(ctx, mk_inst(ctx->module, bin_op, new_val, old_val, val));
                     val = new_val;
@@ -1152,24 +1160,25 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_UNARY_OP: return alir_gen_unary_op(ctx, (UnaryOpNode*)node);
         case NODE_INC_DEC: return alir_gen_inc_dec(ctx, (IncDecNode*)node);
         case NODE_CAST: return alir_gen_cast(ctx, (CastNode*)node);
+        // TODO size of should be diffrent
         case NODE_SIZEOF:
         case NODE_ALIGNOF: {
             SizeOfNode *sn = (SizeOfNode*)node;
             AlirValue *dest = new_temp(ctx, sem_get_node_type(ctx->sem, node));
             AlirValue *type_val = alir_alloc(ctx->module, sizeof(AlirValue));
-            type_val->kind = ALIR_VAL_TYPE; // tell LLVM it's a type 
-            
+            type_val->kind = ALIR_VAL_TYPE; // tell LLVM it's a type
+
             if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
                 type_val->type = sem_get_node_type(ctx->sem, sn->operand);
             } else {
                 type_val->type = sn->target_type;
             }
-            
+
             AlirOpcode op = (node->type == NODE_ALIGNOF) ? ALIR_OP_ALIGNOF : ALIR_OP_SIZEOF;
             emit(ctx, mk_inst(ctx->module, op, dest, type_val, NULL));
             return dest;
         }
-        case NODE_TYPEOF: {
+                case NODE_TYPEOF: {
             SizeOfNode *sn = (SizeOfNode*)node;
             VarType op_type;
             if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
@@ -1177,24 +1186,29 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
             } else {
                 op_type = sn->target_type;
             }
-            return alir_const_int(ctx->module, op_type.base);
+            unsigned int hash = 5381;
+            char *str = sem_type_to_str(op_type);
+            fprintf(stderr, "DEBUG TYPEOF: string='%s'\n", str);
+            int c;
+            while ((c = *str++)) hash = ((hash << 5) + hash) + c;
+            return alir_const_int(ctx->module, hash);
         }
         case NODE_DEFINED: {
             UnaryOpNode *un = (UnaryOpNode*)node;
             VarType t = { .base = TYPE_BOOL };
             AlirValue *dest = new_temp(ctx, t);
-            
+
             // For defined(x), x is usually parsed as a VarRefNode. We extract its name.
             char *symbol_name = "";
             if (un->operand->type == NODE_VAR_REF) {
                 symbol_name = ((VarRefNode*)un->operand)->name;
             }
-            
+
             AlirValue *operand = alir_alloc(ctx->module, sizeof(AlirValue));
             operand->kind = ALIR_VAL_VAR;
             operand->val.str_val = alir_strdup(ctx->module, symbol_name);
             operand->type.base = TYPE_UNKNOWN;
-            
+
             emit(ctx, mk_inst(ctx->module, ALIR_OP_DEFINED, dest, operand, NULL));
             return dest;
         }
@@ -1203,42 +1217,42 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
             IndexAccessNode *aa = (IndexAccessNode*)node;
             VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
             VarType target_t = sem_get_node_type(ctx->sem, aa->target);
-            
+
             // CRITICAL FIX: Trait access is a direct bitcast, no memory load!
-            if (elem_t.base == TYPE_CLASS && target_t.base == TYPE_CLASS && 
+            if (elem_t.base == TYPE_CLASS && target_t.base == TYPE_CLASS &&
                 elem_t.class_name && target_t.class_name &&
                 strcmp(elem_t.class_name, target_t.class_name) != 0) {
-                
+
                 AlirValue *target_val = alir_gen_expr(ctx, aa->target);
                 if (!target_val) return NULL;
-                
+
                 AlirValue *casted = new_temp(ctx, elem_t);
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, casted, target_val, NULL));
                 return casted;
             }
-            
+
             VarType t = target_t;
             if (t.base == TYPE_ENUM && ctx->sem->compiler_ctx->settings.inject_enum_as_cstring) {
                 char *enum_name = NULL;
                 if (aa->target->type == NODE_VAR_REF) enum_name = ((VarRefNode*)aa->target)->name;
-                
+
                 if (enum_name) {
                     SemSymbol *enum_sym = sem_symbol_lookup(ctx->sem, enum_name, NULL);
                     if (enum_sym && enum_sym->inner_scope) {
                         VarType str_type = (VarType){TYPE_CHAR, 1, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
                         AlirValue *dest = new_temp(ctx, str_type);
                         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, dest, NULL, NULL));
-                        
+
                         AlirValue *cond = alir_gen_expr(ctx, aa->index);
                         if (!cond) cond = alir_const_int(ctx->module, 0);
-                        
+
                         AlirBlock *end_bb = alir_add_block(ctx->module, ctx->current_func, "enum_str_end");
                         AlirBlock *default_bb = alir_add_block(ctx->module, ctx->current_func, "enum_str_def");
-                        
+
                         AlirInst *sw = mk_inst(ctx->module, ALIR_OP_SWITCH, NULL, cond, alir_val_label(ctx->module, default_bb->label));
                         sw->cases = NULL;
                         AlirSwitchCase **tail = &sw->cases;
-                        
+
                         SemSymbol *item = enum_sym->inner_scope->symbols;
                         while(item) {
                             AlirBlock *case_bb = alir_add_block(ctx->module, ctx->current_func, "enum_str_case");
@@ -1247,37 +1261,37 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
                             long val = 0;
                             alir_get_enum_value(ctx->module, enum_name, item->name, &val);
                             sc->value = val;
-                            
+
                             *tail = sc;
                             tail = &sc->next;
                             item = item->next;
                         }
                         emit(ctx, sw);
-                        
+
                         item = enum_sym->inner_scope->symbols;
                         AlirSwitchCase *sc_iter = sw->cases;
                         while(item && sc_iter) {
                             AlirBlock *case_bb = NULL;
                             AlirBlock *search = ctx->current_func->blocks;
-                            while(search) { 
+                            while(search) {
                                 if (strcmp(search->label, sc_iter->label) == 0) { case_bb = search; break; }
                                 search = search->next;
                             }
-                            
+
                             ctx->current_block = case_bb;
                             AlirValue *glob = alir_module_add_string_literal(ctx->module, item->name, str_type, ctx->str_counter++);
                             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, glob, dest));
                             emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, end_bb->label), NULL));
-                            
+
                             item = item->next;
                             sc_iter = sc_iter->next;
                         }
-                        
+
                         ctx->current_block = default_bb;
                         AlirValue *glob_def = alir_module_add_string_literal(ctx->module, "Unknown", str_type, ctx->str_counter++);
                         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, glob_def, dest));
                         emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, end_bb->label), NULL));
-                        
+
                         ctx->current_block = end_bb;
                         AlirValue *res = new_temp(ctx, str_type);
                         emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, res, dest, NULL));
@@ -1290,14 +1304,14 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_CALL: return alir_gen_call(ctx, (CallNode*)node);
         case NODE_METHOD_CALL: return alir_gen_method_call(ctx, (MethodCallNode*)node);
 
-        
+
         default: {
             // [ROBUST FALLBACK]: Catch unimplemented expression nodes gracefully
-            // By returning a dummy alloca for unrecognized types, we prevent 
+            // By returning a dummy alloca for unrecognized types, we prevent
             // ALICK's STORE validator from crashing on NULL ops.
             VarType t = sem_get_node_type(ctx->sem, node);
             if (t.base == TYPE_VOID) return NULL;
-           
+
             AlirValue *dummy = new_temp(ctx, t);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, dummy, NULL, NULL));
             return dummy;

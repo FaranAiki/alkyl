@@ -1,0 +1,12 @@
+import "std/print.aky"
+
+int main() {
+    let a = [1,2,3];
+    if (typeof(a) == typeof(int[])) {
+        print "It is an int array!\n";
+    }
+    if (typeof(a) == typeof(int)) {
+        print "It is an int\n";
+    }
+    return 0;
+}

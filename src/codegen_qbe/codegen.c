@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+// TODO make this more proper!
 static char qbe_type(VarType t) {
     if (t.ptr_depth > 0) return 'l';
     switch (t.base) {
@@ -52,7 +53,7 @@ static void print_val(FILE *out, AlirValue *v) {
 
 static void emit_inst(FILE *out, AlirInst *inst) {
     if (!inst) return;
-    
+
     char dt = 'w';
     if (inst->dest) {
         dt = qbe_type(inst->dest->type);
@@ -182,7 +183,7 @@ static void emit_inst(FILE *out, AlirInst *inst) {
             if (dt == 'l' && src_t == 'w') {
                 fprintf(out, " =l extsw ");
             } else if (dt == 'w' && src_t == 'l') {
-                // To truncate, QBE allows assigning with =w or using copy. 
+                // To truncate, QBE allows assigning with =w or using copy.
                 // Let's just use copy for now.
                 fprintf(out, " =w copy ");
             } else {
@@ -234,7 +235,7 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
         } else {
             fprintf(out, "export function %c $%s(", ret_t, f->name);
         }
-        
+
         AlirParam *p = f->params;
         while (p) {
             fprintf(out, "%c %%%s", qbe_type(p->type) == 'v' ? 'w' : qbe_type(p->type), p->name);
@@ -253,11 +254,11 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
     }
 
     fclose(out);
-    
+
     char cmd[512];
     snprintf(cmd, sizeof(cmd), "qbe %s.ssa -o %s.s", basename, basename);
     system(cmd);
-    
+
     snprintf(cmd, sizeof(cmd), "gcc %s.s %s -o %s", basename, link_flags ? link_flags : "", basename);
     system(cmd);
 

@@ -527,9 +527,9 @@ char* sem_type_to_str(VarType t) {
         if(pos < 255) buf[pos++] = '*';
     }
     if (t.array_size > 0) {
-        pos += snprintf(buf + pos, 256 - pos, "[%d]", t.array_size);
+        pos += snprintf(buf + pos, 256 - pos, "[]");
         if (t.array_depth > 0) {
-            pos += snprintf(buf + pos, 256 - pos, "[%d]", t.array_depth);
+            pos += snprintf(buf + pos, 256 - pos, "[]");
         }
     }
     buf[pos] = '\0';

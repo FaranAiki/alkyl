@@ -403,6 +403,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
                 ASTNode *old_next = param_args[i]->next;
                 param_args[i]->next = NULL;
                 ASTNode *cloned_arg = ast_clone(ctx, param_args[i], NULL, NULL, 0, NULL, NULL, 0);
+                cloned_arg->is_macro_arg = 1;
                 param_args[i]->next = old_next;
                 cloned_arg->next = ast_rewrite_macro(ctx, node->next, varargs_head, param_names, param_args, num_params);
                 return cloned_arg;
@@ -429,6 +430,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
                         ASTNode *old_next = curr->next;
                         curr->next = NULL;
                         ASTNode *cloned_arg = ast_clone(ctx, curr, NULL, NULL, 0, NULL, NULL, 0);
+                        cloned_arg->is_macro_arg = 1;
                         curr->next = old_next;
                         cloned_arg->next = ast_rewrite_macro(ctx, node->next, varargs_head, param_names, param_args, num_params);
                         return cloned_arg;

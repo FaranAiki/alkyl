@@ -1,5 +1,6 @@
 #include "link.h"
 
+// TODO add other features
 ASTNode* parse_import(Parser *p) {
   eat(p, TOKEN_IMPORT);
   if (p->has_error) return NULL;
@@ -14,8 +15,8 @@ ASTNode* parse_import(Parser *p) {
           return NULL;
       }
       char path_buf[256] = {0};
-      while (p->current_token.type == TOKEN_IDENTIFIER || 
-             p->current_token.type == TOKEN_DOT || 
+      while (p->current_token.type == TOKEN_IDENTIFIER ||
+             p->current_token.type == TOKEN_DOT ||
              p->current_token.type == TOKEN_SLASH) {
           if (p->current_token.type == TOKEN_DOT) {
               strcat(path_buf, "/");
@@ -34,41 +35,41 @@ ASTNode* parse_import(Parser *p) {
       }
       fname = parser_strdup(p, path_buf);
   }
-  
+
   // optional semicolon
   if (p->current_token.type == TOKEN_SEMICOLON) {
       eat_semi(p);
-  } 
-  
+  }
+
   char* src = read_import_file(p, fname);
-  if (!src) { 
+  if (!src) {
       char msg[256];
       snprintf(msg, 256, "Could not open imported file: '%s'", fname);
-      parser_fail(p, msg); 
+      parser_fail(p, msg);
       return NULL;
   }
-  
-  Lexer import_l; 
+
+  Lexer import_l;
   lexer_init(&import_l, p->ctx, fname, src, NULL);
-  
+
   Parser import_p;
   parser_init(&import_p, &import_l, NULL);
-  
+
   // Share state to allow macros, typedefs, and struct types to cross file boundaries
   import_p.macro_head = p->macro_head;
   import_p.type_head = p->type_head;
   import_p.types_map = p->types_map;
   import_p.alias_head = p->alias_head;
-  
+
   ASTNode* imported_root = parse_program(&import_p);
-  
+
   // Bring the global definitions back into the parent parser's scope
   p->macro_head = import_p.macro_head;
   p->type_head = import_p.type_head;
   p->types_map = import_p.types_map;
   p->alias_head = import_p.alias_head;
-  
-  return imported_root; 
+
+  return imported_root;
 }
 
 ASTNode* parse_link(Parser *p) {

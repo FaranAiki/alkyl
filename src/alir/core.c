@@ -86,6 +86,13 @@ void alir_func_add_param(AlirModule *mod, AlirFunction *func, const char *name, 
 
 // Update alir_module_add_string_literal (around line 52) to use the passed VarType
 AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, VarType type, int id_hint) {
+    AlirGlobal *curr = mod->globals;
+    while (curr) {
+        if (curr->string_content && strcmp(curr->string_content, content) == 0) {
+            return alir_val_global(mod, curr->name, curr->type);
+        }
+        curr = curr->next;
+    }
     char label[64];
     sprintf(label, "str.%d", id_hint);
 

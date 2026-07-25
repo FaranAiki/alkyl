@@ -197,7 +197,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             }
             set_loc(node, line, col);
         } 
-        else if (p->current_token.type == TOKEN_LBRACKET) {
+        else if (p->current_token.type == TOKEN_LBRACKET && (!p->current_token.has_space_before || p->in_space_separated_call > 0)) {
             eat(p, TOKEN_LBRACKET);
             
             if (is_type_start(p)) {
@@ -267,7 +267,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             node = parse_space_separated_call(p, node);
             set_loc(node, line, col);
         }
-        else if (!p->settings.function_call_require_comma && p->in_space_separated_call == 0 && is_unambiguous_expr_start(p)) {
+        else if (p->in_space_separated_call == 0 && is_unambiguous_expr_start(p)) {
             node = parse_space_separated_call(p, node);
             set_loc(node, line, col);
         }
@@ -285,12 +285,57 @@ ASTNode* parse_factor(Parser *p) {
   int line = p->current_token.line;
   int col = p->current_token.col;
 
+    if (p->current_token.type == TOKEN_KW_INT || p->current_token.type == TOKEN_KW_LONG ||
+      p->current_token.type == TOKEN_KW_CHAR || p->current_token.type == TOKEN_KW_SINGLE ||
+      p->current_token.type == TOKEN_KW_DOUBLE || p->current_token.type == TOKEN_KW_VOID ||
+      p->current_token.type == TOKEN_KW_BOOL || p->current_token.type == TOKEN_KW_UNSIGNED ||
+      p->current_token.type == TOKEN_KW_SHORT) {
+      
+      VarType t = parse_type(p);
+      
+      while (p->current_token.type == TOKEN_LBRACKET) {
+          eat(p, TOKEN_LBRACKET);
+          if (p->current_token.type == TOKEN_RBRACKET) {
+              eat(p, TOKEN_RBRACKET);
+              t.array_size = 1;
+          } else {
+              // This is a fixed size array, skip expressions for now
+              while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+                  eat(p, p->current_token.type);
+              }
+              eat(p, TOKEN_RBRACKET);
+              t.array_size = 1; // Just a marker
+          }
+      }
+      
+      SizeOfNode *sn = parser_alloc(p, sizeof(SizeOfNode));
+      sn->base.type = NODE_TYPEOF;
+      sn->target_type = t;
+      sn->operand = NULL;
+      node = (ASTNode*)sn;
+      set_loc(node, line, col);
+      return node;
+  }
+
   if (p->current_token.type == TOKEN_TYPEOF) {
       eat(p, TOKEN_TYPEOF);
       int has_paren = (p->current_token.type == TOKEN_LPAREN);
       if (has_paren) eat(p, TOKEN_LPAREN);
       if (is_type_start(p)) {
           VarType t = parse_type(p);
+          while (p->current_token.type == TOKEN_LBRACKET) {
+              eat(p, TOKEN_LBRACKET);
+              if (p->current_token.type == TOKEN_RBRACKET) {
+                  eat(p, TOKEN_RBRACKET);
+                  t.array_size = 1;
+              } else {
+                  while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+                      eat(p, p->current_token.type);
+                  }
+                  eat(p, TOKEN_RBRACKET);
+                  t.array_size = 1; 
+              }
+          }
           // If typeof takes a type, we wrap it in a CastNode or a new TypeOfNode.
           // Since TypeOfNode is currently UnaryOpNode, it only takes an operand expression.
           // For now we'll put a dummy literal here, but a real TypeOfTypeNode would be better.

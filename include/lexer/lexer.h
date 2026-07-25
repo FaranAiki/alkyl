@@ -204,6 +204,7 @@ typedef struct {
   int line;      
   int col;       
   int length;
+  int has_space_before;
 } Token;
 
 typedef enum {

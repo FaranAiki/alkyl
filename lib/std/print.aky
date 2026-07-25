@@ -1,25 +1,44 @@
-/* TODO: make this more beautiful bro */
-
 extern int printf(char* fmt, ...) as cprintf;
 
-// Make this more good broo
+void print_int_array(int* arr, long? size) {
+    cprintf("[ ");
+    let i = 0;
+    while (i < size) {
+        cprintf("%d", arr[i]);
+        if (i < size - 1) {
+            cprintf(", ");
+        }
+        i += 1;
+    }
+    cprintf(" ]");
+}
+
 meta void print(...) {
     for arg in ... {
-        if typeof(arg) == int {
-            cprintf("%d", arg);
-        } else if typeof(arg) == single {
-            cprintf("%f", arg);
-        } else if typeof(arg) == double {
-            cprintf("%lf", arg);
-        } else if typeof(arg) == char {
-            if sizeof(arg) == 1 {
-                cprintf("%c", arg);
+        if (typeof(arg) == typeof(int)) {
+            cprintf("%d ", arg);
+        } else if (typeof(arg) == typeof(unsigned int)) {
+            cprintf("%u ", arg);
+        } else if (typeof(arg) == typeof(long)) {
+            cprintf("%ld ", arg);
+        } else if (typeof(arg) == typeof(unsigned long)) {
+            cprintf("%lu ", arg);
+        } else if (typeof(arg) == typeof(single)) {
+            cprintf("%f ", arg);
+        } else if (typeof(arg) == typeof(double)) {
+            cprintf("%lf ", arg);
+        } else if (typeof(arg) == typeof(char)) {
+            if (sizeof(arg) == 1) {
+                cprintf("%c ", arg);
             } else {
-                cprintf("%s", arg);
+                cprintf("%s ", arg);
             }
+        } else if (typeof(arg) == typeof(int[])) {
+            print_int_array(arg as int*, (sizeof(arg)/sizeof(int))!);
+        } else if (typeof(arg) == typeof(char*)) {
+            cprintf("%s ", arg);
         } else {
-            // Unhandled types fallback
-            cprintf("%s", arg as char*);
+            cprintf("%p ", arg);
         }
     }
     cprintf("\n");

@@ -1,0 +1,10 @@
+namespace clib {
+    extern int printf(char* fmt, ...);
+}
+
+int main() {
+    let a = [1,2,3];
+    clib.printf("typeof(a) = %u\n", typeof(a));
+    clib.printf("typeof(int[]) = %u\n", typeof(int[]));
+    return 0;
+}

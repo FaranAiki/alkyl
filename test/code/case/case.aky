@@ -9,6 +9,18 @@ enum Makanan [
   Sapi,
   Daging
 ];
+/* Should this be like
+enum [
+  Ayam = 0,
+  Burger,
+  Sapi,
+  Daging
+] Makanan;
+?
+
+because
+errnum[] is like this
+*/
 
 enum Minuman[Teh, Kopi, Susu];
 
@@ -25,7 +37,7 @@ int main() {
   sarapan = Makanan.Daging;
   switch (sarapan) {
     // case is blocked:
-    // you do not need break here
+    // you do not need a break here
     case Ayam, Daging:
       clib.printf "Ayam ato ngak daging!\n";
     // this will fall into the default

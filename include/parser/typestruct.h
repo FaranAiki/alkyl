@@ -117,6 +117,7 @@ typedef struct ASTNode {
   int col;
   char *reason;
   VarType sem_type;
+  bool is_macro_arg : 1;
 } ASTNode;
 
 typedef struct Parameter {

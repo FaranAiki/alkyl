@@ -584,7 +584,9 @@ Token lexer_next(Lexer *l) {
   int prev_line = l->line;
   int is_first_token = (l->pos == 0);
 
+  int start_pos_before_skip = l->pos;
   skip_whitespace_and_comments(l);
+  int has_space_before = (l->pos > start_pos_before_skip) || is_first_token;
 
   // Catch up line and col to l->pos
   for (int i = l->last_calc_pos; i < l->pos; i++) {
@@ -633,7 +635,7 @@ Token lexer_next(Lexer *l) {
       }
   }
 
-  Token t = {TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col};
+  Token t = {TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col, 0, has_space_before};
   int start_pos = l->pos;
   char c = peek(l);
 
