@@ -300,6 +300,7 @@ int run_repl(void) {
     Parser p;
     parser_init(&p, &dummy_l, NULL);
     p.settings.function_call_require_comma = 0;
+    p.settings.array_separator_with_space = 1;
 
     SemanticSettings sem_settings = {0};
     sem_settings.implicit_let = true;

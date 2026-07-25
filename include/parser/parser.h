@@ -24,6 +24,7 @@ typedef struct {
     int namespace_auto_search;     // default 1
     int namespace_ausearch_warning;// default 1
     int function_call_require_comma; // default 1
+    int array_separator_with_space; // default 0
 } ParserSettings;
 
 typedef struct Parser {
@@ -48,6 +49,7 @@ typedef struct Parser {
     char *pending_cconv;
     struct ASTNode *synthetic_classes;
     int in_space_separated_call;
+    int disable_space_call;
 } Parser;
 
 void parser_init(Parser *p, Lexer *l, ParserSettings *settings);

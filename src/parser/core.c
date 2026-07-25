@@ -78,7 +78,7 @@ int is_type_start(Parser *p) {
     TokenType ct = p->current_token.type;
     if (ct == TOKEN_KW_INT || ct == TOKEN_KW_SHORT || ct == TOKEN_KW_LONG || 
         ct == TOKEN_KW_DOUBLE || ct == TOKEN_KW_SINGLE || ct == TOKEN_KW_CHAR || 
-        ct == TOKEN_KW_VOID || ct == TOKEN_KW_BOOL) {
+        ct == TOKEN_KW_VOID || ct == TOKEN_KW_BOOL || ct == TOKEN_KW_UNSIGNED || ct == TOKEN_KW_SIGNED) {
         return 1;
     }
     if (ct == TOKEN_IDENTIFIER && is_typename(p, p->current_token.text)) {
@@ -486,7 +486,7 @@ VarType parse_type(Parser *p) {
           }
       }
       else if (ct == TOKEN_KW_CHAR) { t.base = TYPE_CHAR; eat(p, TOKEN_KW_CHAR); }
-      else if (ct == TOKEN_KW_BOOL) { t.base = TYPE_BOOL; eat(p, TOKEN_KW_BOOL); }
+      else if (ct == TOKEN_KW_BOOL || ct == TOKEN_KW_UNSIGNED || ct == TOKEN_KW_SIGNED) { t.base = TYPE_BOOL; eat(p, TOKEN_KW_BOOL); }
       else if (ct == TOKEN_KW_SINGLE) { t.base = TYPE_SINGLE; eat(p, TOKEN_KW_SINGLE); }
 
       else if (ct == TOKEN_KW_VOID) { t.base = TYPE_VOID; eat(p, TOKEN_KW_VOID); }

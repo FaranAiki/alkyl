@@ -263,11 +263,11 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             node = parse_call(p, node);
             set_loc(node, line, col);
         }
-        else if ((p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) && p->in_space_separated_call == 0) {
+        else if ((p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) && p->in_space_separated_call == 0 && p->disable_space_call == 0) {
             node = parse_space_separated_call(p, node);
             set_loc(node, line, col);
         }
-        else if (p->in_space_separated_call == 0 && is_unambiguous_expr_start(p)) {
+        else if (p->in_space_separated_call == 0 && p->disable_space_call == 0 && is_unambiguous_expr_start(p)) {
             node = parse_space_separated_call(p, node);
             set_loc(node, line, col);
         }
@@ -409,16 +409,31 @@ ASTNode* parse_factor(Parser *p) {
     eat(p, TOKEN_LBRACKET);
     ASTNode *elems_head = NULL;
     ASTNode **curr_elem = &elems_head;
+    
+    int restore_space_call = 0;
+    if (p->settings.array_separator_with_space) {
+        p->disable_space_call++;
+        restore_space_call = 1;
+    }
+
     if (p->current_token.type != TOKEN_RBRACKET) {
       *curr_elem = parse_expression(p);
       curr_elem = &(*curr_elem)->next;
-      while (p->current_token.type == TOKEN_COMMA) { if (p->has_error) break;
-        eat(p, TOKEN_COMMA);
+      while (p->current_token.type == TOKEN_COMMA || (p->settings.array_separator_with_space && p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF)) { 
+        if (p->has_error) break;
+        if (p->current_token.type == TOKEN_COMMA) {
+            eat(p, TOKEN_COMMA);
+        }
         if (p->current_token.type == TOKEN_RBRACKET) break;
         *curr_elem = parse_expression(p);
         curr_elem = &(*curr_elem)->next;
       }
     }
+    
+    if (restore_space_call) {
+        p->disable_space_call--;
+    }
+    
     eat(p, TOKEN_RBRACKET);
     ArrayLitNode *an = parser_alloc(p, sizeof(ArrayLitNode));
     an->base.type = NODE_ARRAY_LIT;

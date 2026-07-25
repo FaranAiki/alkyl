@@ -180,6 +180,7 @@ typedef struct AlirModule {
     AlirStruct *structs;    // Registry of struct definitions
     AlirEnum *enums;        // Registry of enum definitions
     CompilerContext *compiler_ctx; // Reference for Arena
+    int str_counter;        // For naming global strings across the module
 
     // Diagnostics tracing
     const char *src;

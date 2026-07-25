@@ -3,6 +3,7 @@
 #include <string.h>
 
 static int get_type_size(VarType t) {
+    fprintf(stderr, "DEBUG get_type_size: base=%d ptr_depth=%d array_size=%d\n", t.base, t.ptr_depth, t.array_size);
     int base_size = 8;
     if (t.ptr_depth > 0) {
         base_size = 8;

@@ -94,7 +94,7 @@ AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, 
         curr = curr->next;
     }
     char label[64];
-    sprintf(label, "str.%d", id_hint);
+    sprintf(label, "str.%d", mod->str_counter++);
 
     AlirGlobal *g = alir_alloc(mod, sizeof(AlirGlobal));
     g->name = alir_strdup(mod, label);

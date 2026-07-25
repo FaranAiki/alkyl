@@ -76,6 +76,7 @@ void sem_insert_implicit_cast(SemanticCtx *ctx, ASTNode **node_ptr, VarType targ
     if (target_type.base == TYPE_VOID) return;
 
     CastNode *cast = arena_alloc_type(ctx->compiler_ctx->arena, CastNode);
+    memset(cast, 0, sizeof(CastNode));
     cast->base.type = NODE_CAST;
     cast->base.line = (*node_ptr)->line;
     cast->base.col = (*node_ptr)->col;
@@ -856,7 +857,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
                 sem_check_expr(ctx, sn->operand);
             }
-            sem_set_node_type(ctx, node, (VarType){ .base = TYPE_CHAR, .ptr_depth = 1, .array_size = 0 });
+            sem_set_node_type(ctx, node, (VarType){ .base = TYPE_UNSIGNED_LONG, .ptr_depth = 0, .array_size = 0 });
             break;
         }
         case NODE_HAS_METHOD:
