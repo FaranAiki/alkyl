@@ -1,3 +1,5 @@
-import "std/print.aky"
+import "std/print.aky";
 extern int printf(char* fmt, ...);
-if (typeof([1,2,3]) == typeof(int[])) { printf("TRUE\n"); } else { printf("FALSE\n"); }
+int main() {
+  if (typeof([1,2,3]) == typeof(int[])) { printf("TRUE\n"); } else { printf("FALSE\n"); }
+}
