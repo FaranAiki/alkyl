@@ -3,10 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// TODO: Make sure that when we use -DBACKEND=qbe
-// We link to this file instead of codegen_llvm!
-
-// TODO make this more proper!
 static char qbe_type(VarType t) {
     if (t.ptr_depth > 0) return 'l';
     switch (t.base) {
@@ -26,6 +22,16 @@ static char qbe_type(VarType t) {
         case TYPE_SINGLE: return 's';
         case TYPE_DOUBLE: return 'd';
         default: return 'l';
+    }
+}
+
+static int qbe_type_size(char qtype) {
+    switch (qtype) {
+        case 'w': return 4;
+        case 'l': return 8;
+        case 's': return 4;
+        case 'd': return 8;
+        default: return 8;
     }
 }
 
@@ -54,7 +60,7 @@ static void print_val(FILE *out, AlirValue *v) {
     }
 }
 
-static void emit_inst(FILE *out, AlirInst *inst) {
+static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
     if (!inst) return;
 
     char dt = 'w';
@@ -64,25 +70,45 @@ static void emit_inst(FILE *out, AlirInst *inst) {
     }
 
     switch (inst->op) {
-        case ALIR_OP_ALLOCA:
+        case ALIR_OP_ALLOCA: {
+            int sz = qbe_type_size(dt);
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =l alloc4 8\n");
+            fprintf(out, " =l alloc4 %d\n", sz);
             break;
-        case ALIR_OP_STORE:
-            fprintf(out, "\tstore%c ", qbe_type(inst->op1->type) == 'v' ? 'w' : qbe_type(inst->op1->type));
+        }
+        case ALIR_OP_STORE: {
+            char st = qbe_type(inst->op1->type);
+            if (st == 'v') st = 'w';
+            fprintf(out, "\tstore%c ", st);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_LOAD:
+        }
+        case ALIR_OP_LOAD: {
+            char lt = qbe_type(inst->dest->type);
+            if (lt == 'v') lt = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c load%c ", dt, dt);
+            fprintf(out, " =%c load%c ", lt, lt);
             print_val(out, inst->op1);
             fprintf(out, "\n");
             break;
+        }
+        case ALIR_OP_GET_PTR: {
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =l getptr ");
+            print_val(out, inst->op1);
+            if (inst->op2) {
+                int idx = (int)(intptr_t)inst->op2->val.long_val;
+                fprintf(out, ", %d", idx * qbe_type_size(qbe_type(inst->dest->type)));
+            }
+            fprintf(out, "\n");
+            break;
+        }
         case ALIR_OP_ADD:
             fprintf(out, "\t");
             print_val(out, inst->dest);
@@ -110,44 +136,63 @@ static void emit_inst(FILE *out, AlirInst *inst) {
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_RET:
-            fprintf(out, "\tret");
-            if (inst->op1) {
-                fprintf(out, " ");
-                print_val(out, inst->op1);
-            }
+        case ALIR_OP_DIV:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c div ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
             fprintf(out, "\n");
+            break;
+        case ALIR_OP_RET:
+            if (inst->op1) {
+                fprintf(out, "\tret ");
+                print_val(out, inst->op1);
+                fprintf(out, "\n");
+            } else {
+                fprintf(out, "\tret\n");
+            }
             break;
         case ALIR_OP_JUMP:
             fprintf(out, "\tjmp ");
             print_val(out, inst->op1);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_CONDI:
+        case ALIR_OP_CONDI: {
             fprintf(out, "\tjnz ");
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
-            fprintf(out, ", ");
-            print_val(out, inst->dest); // assume dest is else_label if present, though we might need to verify
+            if (next_block && next_block->label) {
+                fprintf(out, ", @%s", next_block->label);
+            } else {
+                fprintf(out, ", @L");
+            }
             fprintf(out, "\n");
             break;
-        case ALIR_OP_CALL:
-            fprintf(out, "\t");
+        }
+        case ALIR_OP_CALL: {
             if (inst->dest) {
-                fprintf(out, "%%t%d =%c ", inst->dest->temp_id, dt);
+                fprintf(out, "\t");
+                print_val(out, inst->dest);
+                fprintf(out, " =%c ", dt);
+            } else {
+                fprintf(out, "\t");
             }
             fprintf(out, "call ");
             print_val(out, inst->op1);
             fprintf(out, "(");
             for (int i = 0; i < inst->arg_count; i++) {
                 char at = qbe_type(inst->args[i]->type);
-                fprintf(out, "%c ", at == 'v' ? 'w' : at);
+                if (at == 'v') at = 'w';
+                fprintf(out, "%c ", at);
                 print_val(out, inst->args[i]);
                 if (i < inst->arg_count - 1) fprintf(out, ", ");
             }
             fprintf(out, ")\n");
             break;
+        }
         case ALIR_OP_LT:
             fprintf(out, "\t");
             print_val(out, inst->dest);
@@ -186,8 +231,6 @@ static void emit_inst(FILE *out, AlirInst *inst) {
             if (dt == 'l' && src_t == 'w') {
                 fprintf(out, " =l extsw ");
             } else if (dt == 'w' && src_t == 'l') {
-                // To truncate, QBE allows assigning with =w or using copy.
-                // Let's just use copy for now.
                 fprintf(out, " =w copy ");
             } else {
                 fprintf(out, " =%c copy ", dt);
@@ -211,7 +254,6 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
         return 1;
     }
 
-
     for (AlirGlobal *g = module->globals; g; g = g->next) {
         if (g->string_content) {
             fprintf(out, "data $%s = { b \"", g->name);
@@ -231,7 +273,7 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
     }
 
     for (AlirFunction *f = module->functions; f; f = f->next) {
- if (!f->blocks) continue;
+        if (!f->blocks) continue;
         char ret_t = qbe_type(f->ret_type);
         if (ret_t == 'v') {
             fprintf(out, "export function $%s(", f->name);
@@ -239,19 +281,25 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
             fprintf(out, "export function %c $%s(", ret_t, f->name);
         }
 
+        int p_idx = 0;
         AlirParam *p = f->params;
         while (p) {
-            fprintf(out, "%c %%%s", qbe_type(p->type) == 'v' ? 'w' : qbe_type(p->type), p->name);
+            char pt = qbe_type(p->type);
+            if (pt == 'v') pt = 'w';
+            fprintf(out, "%c %%p%d", pt, p_idx++);
             p = p->next;
             if (p) fprintf(out, ", ");
         }
         fprintf(out, ") {\n");
 
-        for (AlirBlock *b = f->blocks; b; b = b->next) {
-            fprintf(out, "@%s\n", b->label ? b->label : "L");
-            for (AlirInst *i = b->head; i; i = i->next) {
-                emit_inst(out, i);
+        AlirBlock *curr_block = f->blocks;
+        while (curr_block) {
+            AlirBlock *next_block = curr_block->next;
+            fprintf(out, "\t@%s\n", curr_block->label ? curr_block->label : "L");
+            for (AlirInst *i = curr_block->head; i; i = i->next) {
+                emit_inst(out, i, next_block);
             }
+            curr_block = next_block;
         }
         fprintf(out, "}\n");
     }
@@ -260,10 +308,18 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
 
     char cmd[512];
     snprintf(cmd, sizeof(cmd), "qbe %s.ssa -o %s.s", basename, basename);
-    system(cmd);
+    int qbe_ret = system(cmd);
+    if (qbe_ret != 0) {
+        fprintf(stderr, "QBE failed with code %d\n", qbe_ret);
+        return 1;
+    }
 
     snprintf(cmd, sizeof(cmd), "gcc %s.s %s -o %s", basename, link_flags ? link_flags : "", basename);
-    system(cmd);
+    int gcc_ret = system(cmd);
+    if (gcc_ret != 0) {
+        fprintf(stderr, "GCC linking failed with code %d\n", gcc_ret);
+        return 1;
+    }
 
     return 0;
 }

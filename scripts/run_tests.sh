@@ -66,7 +66,7 @@ for AKY_FILE in $FILES; do
     CLEAN_ACTUAL_LOG="/tmp/alkyl_actual_comp_clean.log"
     CLEAN_EXPECTED_LOG="/tmp/alkyl_expected_comp_clean.log"
 
-    echo -n "Testing [$FEATURE] $NAME in test/code/$FEATURE/$NAME.aky ... "
+    echo -n "build/alkyl test/code/$FEATURE/$NAME.aky ... "
 
     # 1. Compilation
     # Extract flags if specified on the first line of the file (e.g. // FLAGS: --some-flag)

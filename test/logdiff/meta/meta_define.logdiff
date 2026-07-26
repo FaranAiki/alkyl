@@ -1,18 +1,4 @@
-3c3
-< ==610329==ERROR: LeakSanitizer: detected memory leaks
----
-> ==232207==ERROR: LeakSanitizer: detected memory leaks
-6,11c6,11
-<     #0 0x7fc1f0b2c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
-<     #1 0x5612388c585b in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
-<     #2 0x5612388c585b in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
-<     #3 0x5612388c585b in arena_alloc /home/faranaiki/Git/alkyl/include/alir/../semantic/../parser/../lexer/../common/arena.h:38
-<     #4 0x5612388c585b in meta_vm_init /home/faranaiki/Git/alkyl/src/meta/vm.c:20
-<     #5 0x5612388c585b in alir_gen_stmt /home/faranaiki/Git/alkyl/src/alir/stmt.c:208
----
->     #0 0x7f1a0a12c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x55f3a81887db in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
->     #2 0x55f3a81887db in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
->     #3 0x55f3a81887db in arena_alloc /home/faranaiki/Git/alkyl/include/alir/../semantic/../parser/../lexer/../common/arena.h:38
->     #4 0x55f3a81887db in metalir_vm_init /home/faranaiki/Git/alkyl/src/metalir/vm.c:19
->     #5 0x55f3a81887db in alir_gen_stmt /home/faranaiki/Git/alkyl/src/alir/stmt.c:208
+11,13d10
+< Compiled to build/out.o
+< Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+< Linked to build/out

@@ -14,7 +14,24 @@ add_compile_options(-Wall -Wextra -g -O3 -flto=auto
 -Wno-stringop-overflow
 )
 
+set(BACKEND "llvm" CACHE STRING "The backend to use for compilation (llvm or qbe)")
+
 string(TOLOWER "${BACKEND}" BACKEND_LOWER)
+
+set(CODEGEN_LLVM_SOURCES
+    src/codegen_llvm/codegen.c
+    src/codegen_llvm/translate/core.c
+    src/codegen_llvm/translate/stmt.c
+    src/codegen_llvm/translate/expr.c
+    src/codegen_llvm/translate/flow.c
+    src/codegen_llvm/translate/misc.c
+    src/codegen_llvm/fragment/flux.c
+    src/codegen_llvm/driver.c
+)
+
+set(CODEGEN_QBE_SOURCES
+    src/codegen_qbe/codegen.c
+)
 
 if (BACKEND_LOWER STREQUAL "llvm")
     set(CODEGEN_SOURCES ${CODEGEN_LLVM_SOURCES})
@@ -67,10 +84,13 @@ include_directories(
     include/driver
 
     include/common
-
-    include/codegen_llvm
-    include/codegen_qbe
 )
+
+if (BACKEND_LOWER STREQUAL "llvm")
+    include_directories(include/codegen_llvm)
+elseif(BACKEND_LOWER STREQUAL "qbe")
+    include_directories(include/codegen_qbe)
+endif()
 
 set(FRONTEND_SOURCES
     src/lexer/lexer.c
@@ -131,21 +151,6 @@ set (ALICK_SOURCES
 )
 
 # set(BACKEND "llvm" CACHE STRING "The backend to use for compilation (llvm or qbe)")
-
-set(CODEGEN_LLVM_SOURCES
-    src/codegen_llvm/codegen.c
-    src/codegen_llvm/translate/core.c
-    src/codegen_llvm/translate/stmt.c
-    src/codegen_llvm/translate/expr.c
-    src/codegen_llvm/translate/flow.c
-    src/codegen_llvm/translate/misc.c
-    src/codegen_llvm/fragment/flux.c
-    src/codegen_llvm/driver.c
-)
-
-set(CODEGEN_QBE_SOURCES
-    src/codegen_qbe/codegen.c
-)
 
 set(HELPER_SOURCES
     src/common/diagnostic.c

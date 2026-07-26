@@ -328,9 +328,9 @@ int run_repl(void) {
                 metalir_run_func_def(r, curr);
             } else if (curr->type == NODE_LINK) {
                 metalir_run_link(r, (LinkNode*)curr);
-            } else if (curr->type == NODE_EXTERN) {
             } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
-            } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT) {
+            } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
+                       curr->type != NODE_ENUM && curr->type != NODE_ERRNUM) {
                 metalir_run_expr(r, curr, id++, 1, NULL);
             }
             curr = curr->next;
@@ -413,9 +413,9 @@ int run_file(const char *filename) {
                 metalir_run_func_def(r, curr);
             } else if (curr->type == NODE_LINK) {
                 metalir_run_link(r, (LinkNode*)curr);
-            } else if (curr->type == NODE_EXTERN) {
             } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
-            } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT) {
+            } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
+                       curr->type != NODE_ENUM && curr->type != NODE_ERRNUM) {
                 VarType rt;
                 long long res =                 metalir_run_expr(r, curr, id++, 0, &rt);
                 if (rt.base != TYPE_VOID) {
