@@ -1,4 +1,7 @@
-// How to make C do this huhh
+// This is a legacy in .c
+// In Alkyl, one should write:
+// 1. define DIAG_RED as "\033..."
+// 2. define debug_flow as ...
 
 #ifndef COMPILER_DEBUG_H
 #define COMPILER_DEBUG_H
@@ -14,38 +17,45 @@
 #define DIAG_RESET  "\033[0m"
 
 #define DEBUG_FLOW
-#ifdef DEBUG_FLOW 
+#ifdef DEBUG_FLOW
   #define debug_flow(msg, ...) printf(__FILE__ ": " DIAG_BLUE "flow: " DIAG_RESET msg, ##__VA_ARGS__); putchar('\n');
-#else 
-  #define debug_flow(msg, ...) 
-#endif // DEBUG_FLOW 
+#else
+  #define debug_flow(msg, ...)
+#endif // DEBUG_FLOW
 
 #define DEBUG_STEP
-#ifdef DEBUG_STEP 
+#ifdef DEBUG_STEP
   #define debug_step(msg, ...) printf(DIAG_CYAN "step: " DIAG_RESET msg, ##__VA_ARGS__); putchar('\n');
-#else 
-  #define debug_step(msg, ...) 
+#else
+  #define debug_step(msg, ...)
 #endif // DEBUG_STEP
 
 #define DEBUG_LEXER_OUT
-#ifdef DEBUG_LEXER_OUT 
+#ifdef DEBUG_LEXER_OUT
   #define to_token_out(l, f) lexer_to_file(l, f)
-#else 
+#else
   #define to_token_out(l, f)
-#endif // DEBUG_TOKEN_OUT 
+#endif // DEBUG_TOKEN_OUT
 
 #define DEBUG_PARSER_OUT
-#ifdef DEBUG_PARSER_OUT 
+#ifdef DEBUG_PARSER_OUT
   #define to_ast_out(p, a, f) parser_to_file(p, a, f)
-#else 
-  #define to_ast_out(p, a, f) 
+#else
+  #define to_ast_out(p, a, f)
 #endif // DEBUG_PARSER_OUT
 
 #define DEBUG_SEMANTIC_OUT
-#ifdef DEBUG_SEMANTIC_OUT 
+#ifdef DEBUG_SEMANTIC_OUT
   #define to_sem_out(p, f) semantic_to_file(p, f)
-#else 
-  #define to_sem_out(p, f) 
+#else
+  #define to_sem_out(p, f)
 #endif // DEBUG_PARSER_OUT
+
+#define DEBUG_ANY
+#ifdef DEBUG_ANY
+  #define debug_any(msg, ...) printf(msg "\n", __VA_ARGS__)
+#else
+  #define debug_any(msg, ...)
+#endif // DEBUG_ANY
 
 #endif // COMPILER_DEBUG_H

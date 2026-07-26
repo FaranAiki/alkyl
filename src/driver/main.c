@@ -30,10 +30,14 @@ int main(int argc, char *argv[]) {
     int emit_balir = 0;
 
     ParserSettings parser_settings = {0};
+    // This is the default setting
+    // for Alkyl as a compiled programming language
     parser_settings.namespace_auto_search = 1;
     parser_settings.namespace_ausearch_warning = 1;
     parser_settings.function_call_require_comma = 1;
 
+    // We do not care about Windows initially
+    // but if needed, use _mkdir
     mkdir("build", 0777);
 
     for (int i = 1; i < argc; i++) {

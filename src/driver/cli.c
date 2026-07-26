@@ -40,6 +40,9 @@ static char* ethyl_generator(const char* text, int state) {
     static SemSymbol *sym = NULL;
     static int word_len = 0;
     static const char *word = NULL;
+    // TODO use the globalized data instead of this
+    // so that EACH files know
+    // maybe put this into the common.h or something
     static const char *keywords[] = {
         "let", "mut", "if", "else", "while", "for", "in", "return", "switch", "case",
         "break", "continue", "func", "class", "struct", "union", "enum", "errnum",
@@ -179,6 +182,7 @@ static void ethyl_redisplay(void) {
     fflush(stdout);
 }
 
+// TODO maybe we should not use readlines
 char* get_smart_input(Arena* arena, int cmd_count) {
     char prompt[128];
     sprintf(prompt, "\033[32mIn [%d]:\033[0m ", cmd_count);
@@ -229,13 +233,14 @@ char* get_smart_input(Arena* arena, int cmd_count) {
             }
         }
 
+        // TODO: THIS NEEDS A NEW FUNCTION TO DO THIS!
         if (first_line && brace_depth == 0) {
             if (strncmp(trimmed, "if ", 3) == 0 || strncmp(trimmed, "if(", 3) == 0 ||
                 strncmp(trimmed, "while ", 6) == 0 || strncmp(trimmed, "while(", 6) == 0 ||
                 strncmp(trimmed, "for ", 4) == 0 || strncmp(trimmed, "for(", 4) == 0 ||
                 strncmp(trimmed, "else", 4) == 0 ||
                 strncmp(trimmed, "func ", 5) == 0 || strncmp(trimmed, "class ", 6) == 0 ||
-                strncmp(trimmed, "struct ", 7) == 0 || strncmp(trimmed, "enum ", 5) == 0 ||
+                strncmp(trimmed, "struct ", 7) == 0 ||
                 strncmp(trimmed, "flux ", 5) == 0) {
                 if (line_len > 0 && trimmed[strlen(trimmed)-1] != ';' && trimmed[strlen(trimmed)-1] != '}') {
                     in_indent_block = 1;
@@ -276,6 +281,7 @@ static void handle_sigint(int sig) {
 }
 
 int run_repl(void) {
+    // Separate this
     printf("\033[36mEthyl (Alkyl interpreter) version 0.0.1 \033[0m\n");
     printf("Type \033[33m'exit'\033[0m or \033[33m'quit'\033[0m to leave.\n\n");
 
@@ -294,6 +300,7 @@ int run_repl(void) {
     dummy_settings.scope_style = SCOPE_INDENTATION;
     dummy_settings.import_require_double_quotes = 0;
     lexer_init(&dummy_l, &ctx, "REPL", "", &dummy_settings);
+
     Parser p;
     parser_init(&p, &dummy_l, NULL);
     p.settings.function_call_require_comma = 0;
@@ -304,6 +311,7 @@ int run_repl(void) {
     sem_settings.replace_variable = true;
     sem_settings.namespace_auto_search = true;
     sem_settings.namespace_ausearch_warning = false;
+
     SemanticCtx sem;
     sem_init(&sem, &ctx, &sem_settings);
     global_sem_ctx = &sem;
@@ -319,6 +327,7 @@ int run_repl(void) {
     rl_attempted_completion_function = ethyl_completion;
     rl_completion_display_matches_hook = display_matches_hook;
     rl_redisplay_function = ethyl_redisplay;
+    // TODO do not use readline
     rl_bind_key('\r', accept_line_clear_hint);
     rl_bind_key('\n', accept_line_clear_hint);
 
@@ -377,6 +386,7 @@ int run_repl(void) {
             continue;
         }
 
+        // This is slow, change it into metarse
         curr = root;
         while(curr) {
             if (curr->type == NODE_FUNC_DEF) {
@@ -395,6 +405,7 @@ int run_repl(void) {
                 pass1_register(&alir_ctx, curr);
                 pass2_populate(&alir_ctx, root, curr);
             } else if (curr->type == NODE_ENUM) {
+                debug_any("%s", "Called here?");
                 AlirCtx alir_ctx;
                 memset(&alir_ctx, 0, sizeof(AlirCtx));
                 alir_ctx.sem = &sem;
@@ -404,6 +415,8 @@ int run_repl(void) {
             curr = curr->next;
         }
 
+        // This is slow, change it into metarse
+        // basically metarse is to parse the given ParseNode or whatever that is
         curr = root;
         while(curr) {
             if (curr->type == NODE_VAR_DECL) {
@@ -569,6 +582,8 @@ int run_repl(void) {
                         printf("-> (void)\n");
                     }
                     else if (ret_type.base != TYPE_UNKNOWN) {
+                    // This SHOULD use std.print okay
+                    // This is bloat as fuck
                         if ((ret_type.base == TYPE_INT || ret_type.base == TYPE_LONG || ret_type.base == TYPE_LONG_LONG || ret_type.base == TYPE_UNSIGNED_INT || ret_type.base == TYPE_UNSIGNED_LONG || ret_type.base == TYPE_UNSIGNED_LONG_LONG) && ret_type.ptr_depth == 0 && ret_type.array_size == 0) {
                             if (ret_type.is_unsigned || ret_type.base == TYPE_UNSIGNED_INT || ret_type.base == TYPE_UNSIGNED_LONG || ret_type.base == TYPE_UNSIGNED_LONG_LONG || ret_type.base == TYPE_UNSIGNED_CHAR)
                                 printf("-> %llu (%s)\n", (unsigned long long)exit_code, sem_type_to_str(ret_type));
@@ -645,6 +660,7 @@ int run_repl(void) {
 }
 
 // New function: interpret a file directly (like alkyl but interpreted)
+// TODO goddamn it make this modular!
 int run_file(const char *filename) {
     char *code = read_file(filename);
     if (!code) {
@@ -681,6 +697,7 @@ int run_file(const char *filename) {
     sem_settings.replace_variable = true;
     sem_settings.namespace_auto_search = true;
     sem_settings.namespace_ausearch_warning = true;
+
     SemanticCtx sem;
     sem_init(&sem, &ctx, &sem_settings);
     sem.current_source = code;
@@ -729,6 +746,7 @@ int run_file(const char *filename) {
             pass1_register(&alir_ctx, curr);
             pass2_populate(&alir_ctx, root, curr);
         } else if (curr->type == NODE_ENUM) {
+            debug_any("%s", "Called here?");
             AlirCtx alir_ctx;
             memset(&alir_ctx, 0, sizeof(AlirCtx));
             alir_ctx.sem = &sem;
@@ -751,6 +769,8 @@ int run_file(const char *filename) {
     arena_init(&vm_arena);
     MetaVM *vm = meta_vm_init(&vm_arena);
 
+    // Again, use metarse here to parse it properly
+    // instead of parsing it like this
     curr = root;
     while(curr) {
         if (curr->type == NODE_VAR_DECL) {
