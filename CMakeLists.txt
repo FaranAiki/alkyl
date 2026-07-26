@@ -9,27 +9,39 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -Wno-stringop-overflow")
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wno-stringop-overflow")
 
-find_package(LLVM REQUIRED CONFIG)
-message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-
-include_directories(${LLVM_INCLUDE_DIRS})
-add_definitions(${LLVM_DEFINITIONS})
-
 add_compile_options(-Wall -Wextra -g -O3 -flto=auto
 -Wno-missing-field-initializers
 -Wno-stringop-overflow
 )
 
-llvm_map_components_to_libnames(llvm_libs
-    core
-    executionengine
-    mcjit
-    interpreter
-    native
-    support
-    analysis
-)
+string(TOLOWER "${BACKEND}" BACKEND_LOWER)
+
+if (BACKEND_LOWER STREQUAL "llvm")
+    set(CODEGEN_SOURCES ${CODEGEN_LLVM_SOURCES})
+    add_definitions(-DBACKEND=llvm)
+
+    find_package(LLVM REQUIRED CONFIG)
+    message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+    message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+    include_directories(${LLVM_INCLUDE_DIRS})
+    add_definitions(${LLVM_DEFINITIONS})
+
+    llvm_map_components_to_libnames(llvm_libs
+        core
+        executionengine
+        mcjit
+        interpreter
+        native
+        support
+        analysis
+    )
+elseif(BACKEND_LOWER STREQUAL "qbe")
+    set(CODEGEN_SOURCES ${CODEGEN_QBE_SOURCES})
+    add_definitions(-DBACKEND=qbe)
+else()
+    message(FATAL_ERROR "Unknown BACKEND: ${BACKEND}")
+endif()
 
 include_directories(
   # src/old/codegen/ # fallback
@@ -118,9 +130,7 @@ set (ALICK_SOURCES
     src/alick/cfg.c
 )
 
-set(BACKEND "llvm" CACHE STRING "The backend to use for compilation (llvm or qbe)")
-
-string(TOLOWER "${BACKEND}" BACKEND_LOWER)
+# set(BACKEND "llvm" CACHE STRING "The backend to use for compilation (llvm or qbe)")
 
 set(CODEGEN_LLVM_SOURCES
     src/codegen_llvm/codegen.c
@@ -136,16 +146,6 @@ set(CODEGEN_LLVM_SOURCES
 set(CODEGEN_QBE_SOURCES
     src/codegen_qbe/codegen.c
 )
-
-if (BACKEND_LOWER STREQUAL "llvm")
-    set(CODEGEN_SOURCES ${CODEGEN_LLVM_SOURCES})
-    add_definitions(-DBACKEND=llvm)
-elseif(BACKEND_LOWER STREQUAL "qbe")
-    set(CODEGEN_SOURCES ${CODEGEN_QBE_SOURCES})
-    add_definitions(-DBACKEND_QBE)
-else()
-    message(FATAL_ERROR "Unknown BACKEND: ${BACKEND}")
-endif()
 
 set(HELPER_SOURCES
     src/common/diagnostic.c
@@ -165,12 +165,18 @@ set(COMMON_SOURCES
   ${HELPER_SOURCES}
 )
 
-add_executable(alkyl src/metalir/vm.c
+set(VM_META_SOURCES
+    src/metalir/vm.c
     src/metalir/eval_mem.c
     src/metalir/eval_math.c
     src/metalir/eval_flow.c
     src/metalir/eval_call.c
     src/metalir/eval_misc.c
+    src/metalir/metalir.c
+    src/metarse/metarse.c
+)
+
+add_executable(alkyl ${VM_META_SOURCES}
     src/driver/main.c ${COMMON_SOURCES})
 
 if(WIN32)
@@ -183,7 +189,7 @@ target_include_directories(alkyl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${LLVM_
 
 
 # target_link_libraries(alkyl PRIVATE ${llvm_libs})
-# target_link_libraries(alkyl-cli PRIVATE ${llvm_libs})
+# target_link_libraries(ethyl PRIVATE ${llvm_libs})
 target_link_libraries(alkyl PRIVATE LLVM)
 
 
@@ -214,14 +220,8 @@ set(ETHYL_SOURCES
   ${HELPER_SOURCES}
 )
 
-add_executable(ethyl src/metalir/vm.c
-    src/metalir/eval_mem.c
-    src/metalir/eval_math.c
-    src/metalir/eval_flow.c
-    src/metalir/eval_call.c
-    src/metalir/eval_misc.c
-    src/metalir/metalir.c
-    src/metarse/metarse.c
+add_executable(ethyl
+    ${VM_META_SOURCES}
     src/driver/cli.c ${ETHYL_SOURCES})
 target_include_directories(ethyl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 if(READLINE_FOUND)
@@ -229,11 +229,13 @@ if(READLINE_FOUND)
     target_link_libraries(ethyl PRIVATE ${READLINE_LIBRARIES})
     target_compile_definitions(ethyl PRIVATE HAVE_READLINE)
 endif()
+
 if(LIBFFI_FOUND)
     target_include_directories(ethyl PRIVATE ${LIBFFI_INCLUDE_DIRS})
     target_link_libraries(ethyl PRIVATE ${LIBFFI_LIBRARIES})
     target_compile_definitions(ethyl PRIVATE HAVE_LIBFFI)
 endif()
+
 if(UNIX)
     target_link_libraries(ethyl PRIVATE m pthread dl z ncurses readline)
 endif()
@@ -243,5 +245,6 @@ add_custom_target(run-tests
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running Alkyl tests..."
 )
+
 message(STATUS "CODEGEN_SOURCES: ${CODEGEN_SOURCES}")
 message(STATUS "BACKEND_LOWER: ${BACKEND_LOWER}")

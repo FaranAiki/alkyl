@@ -22,7 +22,7 @@ typedef struct {
     SemanticCtx *sem_ctx;
     long long *args;
     int arg_count;
-    
+
     VMValue *registers;
     AlirBlock **next_block;
     long long *ret_val;
@@ -39,4 +39,4 @@ void vm_eval_misc(VMContext *ctx, AlirInst *inst);
 
 AlirBlock* find_block(AlirFunction *func, const char *label);
 
-#endif
+#endif // VM_INTERNAL_H

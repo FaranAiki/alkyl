@@ -5,31 +5,31 @@
 
 typedef enum {
   TOKEN_EOF,
-  TOKEN_LOOP,   
-  TOKEN_WHILE,  
-  TOKEN_ONCE,   
-  TOKEN_LBRACKET, 
-  TOKEN_RBRACKET, 
-  TOKEN_LBRACE,   
-  TOKEN_RBRACE,   
-  TOKEN_LPAREN,   
-  TOKEN_RPAREN,   
+  TOKEN_LOOP,
+  TOKEN_WHILE,
+  TOKEN_ONCE,
+  TOKEN_LBRACKET,
+  TOKEN_RBRACKET,
+  TOKEN_LBRACE,
+  TOKEN_RBRACE,
+  TOKEN_LPAREN,
+  TOKEN_RPAREN,
   TOKEN_SEMICOLON,
-  TOKEN_COLON,    
+  TOKEN_COLON,
   TOKEN_QUESTION,
   TOKEN_QUESTION_QUESTION,
-  TOKEN_COMMA,  
-  TOKEN_ELLIPSIS, 
-  TOKEN_DOT,    
-  
-  TOKEN_NUMBER,   
-  TOKEN_SINGLE_LIT,  
+  TOKEN_COMMA,
+  TOKEN_ELLIPSIS,
+  TOKEN_DOT,
+
+  TOKEN_NUMBER,
+  TOKEN_SINGLE_LIT,
   TOKEN_STRING,
-  TOKEN_C_STRING, 
+  TOKEN_C_STRING,
   TOKEN_BYTE_STRING,
-  TOKEN_CHAR_LIT, 
-  TOKEN_IDENTIFIER, 
-  
+  TOKEN_CHAR_LIT,
+  TOKEN_IDENTIFIER,
+
   // Assignment
   TOKEN_ASSIGN,       // =
   TOKEN_PLUS_ASSIGN,  // +=
@@ -42,39 +42,39 @@ typedef enum {
   TOKEN_XOR_ASSIGN,   // ^=
   TOKEN_LSHIFT_ASSIGN,// <<=
   TOKEN_RSHIFT_ASSIGN,// >>=
-  
+
   // Assembly type shit
   TOKEN_ALIR,
 
-  TOKEN_IF,     
-  TOKEN_ELIF, 
-  TOKEN_THEN, 
-  TOKEN_ELSE,   
+  TOKEN_IF,
+  TOKEN_ELIF,
+  TOKEN_THEN,
+  TOKEN_ELSE,
   TOKEN_RETURN,
   TOKEN_PURGE,
   TOKEN_BREAK,
   TOKEN_CONTINUE,
   TOKEN_STOP,
-  TOKEN_SWITCH,   
-  TOKEN_CASE,     
-  TOKEN_DEFAULT,  
-  TOKEN_LEAK,     
+  TOKEN_SWITCH,
+  TOKEN_CASE,
+  TOKEN_DEFAULT,
+  TOKEN_LEAK,
   TOKEN_WASH, // error handling first, then run
   TOKEN_RESIDUE,
   TOKEN_UNTAINT, // run first, then error
-  TOKEN_DEFINE, 
-  TOKEN_AS,     
-  TOKEN_TYPEDEF, 
+  TOKEN_DEFINE,
+  TOKEN_AS,
+  TOKEN_TYPEDEF,
   TOKEN_META,
   TOKEN_POSTMETA,
   TOKEN_PREMETA,
 
   // OOP Keywords
-  TOKEN_UNION,  
-  TOKEN_IS,     
-  TOKEN_HAS,    
-  TOKEN_OPEN,   
-  TOKEN_CLOSED, 
+  TOKEN_UNION,
+  TOKEN_IS,
+  TOKEN_HAS,
+  TOKEN_OPEN,
+  TOKEN_CLOSED,
   TOKEN_PUBLIC,
   TOKEN_PRIVATE,
   TOKEN_FINAL,
@@ -90,16 +90,16 @@ typedef enum {
   // goated compo
   TOKEN_CLASS,
   TOKEN_STRUCT,
-  
+
   TOKEN_ACCEPT,
   TOKEN_REJECT,
 
   TOKEN_TYPEOF,
-  TOKEN_HASMETHOD,    
-  TOKEN_HASATTRIBUTE, 
+  TOKEN_HASMETHOD,
+  TOKEN_HASATTRIBUTE,
 
-  TOKEN_NAMESPACE, 
-  TOKEN_ENUM, 
+  TOKEN_NAMESPACE,
+  TOKEN_ENUM,
   TOKEN_ERRNUM,
 
   // Flux / Generator Support
@@ -115,12 +115,12 @@ typedef enum {
   TOKEN_METHOD,
   TOKEN_PRAGMA,
 
-  TOKEN_KW_VOID,   
-  TOKEN_KW_INT,  
-  TOKEN_KW_CHAR,   
-  TOKEN_KW_BOOL,   
-  TOKEN_KW_SINGLE, 
-  TOKEN_KW_DOUBLE, 
+  TOKEN_KW_VOID,
+  TOKEN_KW_INT,
+  TOKEN_KW_CHAR,
+  TOKEN_KW_BOOL,
+  TOKEN_KW_SINGLE,
+  TOKEN_KW_DOUBLE,
   TOKEN_KW_LET,
   TOKEN_KW_SIZEOF,
   TOKEN_KW_ALIGNOF,
@@ -142,17 +142,17 @@ typedef enum {
   TOKEN_LONG_DOUBLE_LIT,
   TOKEN_DOUBLE_LIT,
 
-  TOKEN_KW_MUT,    
-  TOKEN_KW_IMUT,   
+  TOKEN_KW_MUT,
+  TOKEN_KW_IMUT,
   TOKEN_CONST,
 
-  TOKEN_IMPORT,    
-  TOKEN_EXTERN,    
+  TOKEN_IMPORT,
+  TOKEN_EXTERN,
   TOKEN_LINK,
   TOKEN_REASON,
   TOKEN_COMPOUND,
 
-  TOKEN_TRUE,    
+  TOKEN_TRUE,
   TOKEN_FALSE,
 
   TOKEN_NOT,     // !
@@ -170,19 +170,20 @@ typedef enum {
   TOKEN_XOR,     // ^
   TOKEN_LSHIFT,  // <<
   TOKEN_RSHIFT,  // >>
-  // TODO add this using AI idk 
-  // but this operator maps to llvm.fshl and llvm.fshr
+  // TODO make this perfect
+  // but this operator should maps to llvm.fshl and llvm.fshr
+  //
   TOKEN_LROTATE,  // %>>
-  TOKEN_RROTATE,  // <<% 
-  
+  TOKEN_RROTATE,  // <<%
+
   TOKEN_AND_AND, // &&
   TOKEN_OR_OR,   // ||
-  
-  TOKEN_EQ,     
-  TOKEN_NEQ,    
-  TOKEN_LT,     
-  TOKEN_GT,     
-  TOKEN_LTE,    
+
+  TOKEN_EQ,
+  TOKEN_NEQ,
+  TOKEN_LT,
+  TOKEN_GT,
+  TOKEN_LTE,
   TOKEN_GTE,
 
   TOKEN_COVALENT,
@@ -197,12 +198,12 @@ typedef enum {
 
 typedef struct {
   TokenType type;
-  char *text;    
-  int int_val;   
-  unsigned long long long_val; 
-  double double_val; 
-  int line;      
-  int col;       
+  char *text;
+  int int_val;
+  unsigned long long long_val;
+  double double_val;
+  int line;
+  int col;
   int length;
   int has_space_before;
 } Token;
@@ -227,7 +228,7 @@ typedef struct {
 } LexerSettings;
 
 typedef struct {
-  CompilerContext *ctx; 
+  CompilerContext *ctx;
   LexerSettings settings;
   const char *src;
   const char *filename;
@@ -235,10 +236,10 @@ typedef struct {
   int pos;
   int line;
   int col;
-  
+
   int indent_stack[128];
   int indent_level;
-  
+
   Token pending_tokens[16];
   int pending_count;
   int last_calc_pos;
@@ -250,6 +251,7 @@ typedef struct {
 } KeywordDef;
 
 // NOTE: Must be strictly alphabetical for bsearch
+// TODO: Do we need b-search tho?
 static const KeywordDef keywords[] = {
     {"abstract", TOKEN_ABSTRACT},
     {"accept", TOKEN_ACCEPT},

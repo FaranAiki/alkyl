@@ -355,9 +355,13 @@ long long metalir_execute_parse(MetalirRunner *r, ASTNode *root,
             metalir_run_var_decl(r, (VarDeclNode*)curr, id++);
         } else if (curr->type == NODE_LINK) {
             metalir_run_link(r, (LinkNode*)curr);
-        } else if (curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE &&
-                   curr->type != NODE_ROOT && curr->type != NODE_LINK &&
-                   curr->type != NODE_FUNC_DEF && curr->type != NODE_VAR_DECL) {
+        } else if (curr->type == NODE_CLASS) {
+            metalir_run_class(r, curr, root);
+        } else if (curr->type == NODE_FUNC_DEF) {
+            metalir_run_func_def(r, curr);
+        } else if (curr->type == NODE_EXTERN) {
+        } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
+        } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT) {
             result = metalir_run_expr(r, curr, id++, 0, NULL);
         }
         curr = curr->next;

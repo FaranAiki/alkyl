@@ -2,6 +2,8 @@
 
 # Alkyl Test Runner
 # Usage: ./scripts/run_tests.sh [pattern] [--update]
+# TODO: maybe add a specific test case checker
+#     : add a library test case checker
 
 UPDATE=0
 PATTERN=""

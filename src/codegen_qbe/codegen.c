@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+// TODO: Make sure that when we use -DBACKEND=qbe
+// We link to this file instead of codegen_llvm!
+
 // TODO make this more proper!
 static char qbe_type(VarType t) {
     if (t.ptr_depth > 0) return 'l';
