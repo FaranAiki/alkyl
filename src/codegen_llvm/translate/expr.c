@@ -54,13 +54,23 @@ LLVMValueRef translate_expr(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         default: break;
                     }
                 } else {
+                    LLVMTypeRef t1 = LLVMTypeOf(op1);
+                    LLVMTypeRef t2 = LLVMTypeOf(op2);
+                    unsigned w1 = LLVMGetIntTypeWidth(t1);
+                    unsigned w2 = LLVMGetIntTypeWidth(t2);
+                    LLVMValueRef cmp1 = op1, cmp2 = op2;
+                    if (w1 > w2) {
+                        cmp2 = LLVMBuildZExt(ctx->builder, op2, t1, "zext_cmp");
+                    } else if (w2 > w1) {
+                        cmp1 = LLVMBuildZExt(ctx->builder, op1, t2, "zext_cmp");
+                    }
                     switch (inst->op) {
-                        case ALIR_OP_EQ: res = LLVMBuildICmp(ctx->builder, LLVMIntEQ, op1, op2, "eq"); break;
-                        case ALIR_OP_NEQ: res = LLVMBuildICmp(ctx->builder, LLVMIntNE, op1, op2, "neq"); break;
-                        case ALIR_OP_LT: res = LLVMBuildICmp(ctx->builder, LLVMIntSLT, op1, op2, "lt"); break;
-                        case ALIR_OP_LTE: res = LLVMBuildICmp(ctx->builder, LLVMIntSLE, op1, op2, "lte"); break;
-                        case ALIR_OP_GT: res = LLVMBuildICmp(ctx->builder, LLVMIntSGT, op1, op2, "gt"); break;
-                        case ALIR_OP_GTE: res = LLVMBuildICmp(ctx->builder, LLVMIntSGE, op1, op2, "gte"); break;
+                        case ALIR_OP_EQ: res = LLVMBuildICmp(ctx->builder, LLVMIntEQ, cmp1, cmp2, "eq"); break;
+                        case ALIR_OP_NEQ: res = LLVMBuildICmp(ctx->builder, LLVMIntNE, cmp1, cmp2, "neq"); break;
+                        case ALIR_OP_LT: res = LLVMBuildICmp(ctx->builder, LLVMIntSLT, cmp1, cmp2, "lt"); break;
+                        case ALIR_OP_LTE: res = LLVMBuildICmp(ctx->builder, LLVMIntSLE, cmp1, cmp2, "lte"); break;
+                        case ALIR_OP_GT: res = LLVMBuildICmp(ctx->builder, LLVMIntSGT, cmp1, cmp2, "gt"); break;
+                        case ALIR_OP_GTE: res = LLVMBuildICmp(ctx->builder, LLVMIntSGE, cmp1, cmp2, "gte"); break;
                         default: break;
                     }
                 }

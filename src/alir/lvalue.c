@@ -512,6 +512,14 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
             return alir_const_int(ctx->module, l->val.int_val == r->val.int_val ? 1 : 0);
         } else if (op == ALIR_OP_NEQ) {
             return alir_const_int(ctx->module, l->val.int_val != r->val.int_val ? 1 : 0);
+        } else if (op == ALIR_OP_LT) {
+            return alir_const_int(ctx->module, l->val.int_val < r->val.int_val ? 1 : 0);
+        } else if (op == ALIR_OP_GT) {
+            return alir_const_int(ctx->module, l->val.int_val > r->val.int_val ? 1 : 0);
+        } else if (op == ALIR_OP_LTE) {
+            return alir_const_int(ctx->module, l->val.int_val <= r->val.int_val ? 1 : 0);
+        } else if (op == ALIR_OP_GTE) {
+            return alir_const_int(ctx->module, l->val.int_val >= r->val.int_val ? 1 : 0);
         }
     }
 
@@ -1165,19 +1173,51 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_SIZEOF:
         case NODE_ALIGNOF: {
             SizeOfNode *sn = (SizeOfNode*)node;
-            AlirValue *dest = new_temp(ctx, sem_get_node_type(ctx->sem, node));
-            AlirValue *type_val = alir_alloc(ctx->module, sizeof(AlirValue));
-            type_val->kind = ALIR_VAL_TYPE; // tell LLVM it's a type
-
+            VarType op_type;
             if (sn->target_type.base == TYPE_UNKNOWN && sn->operand) {
-                type_val->type = sem_get_node_type(ctx->sem, sn->operand);
+                op_type = sem_get_node_type(ctx->sem, sn->operand);
             } else {
-                type_val->type = sn->target_type;
+                op_type = sn->target_type;
             }
 
-            AlirOpcode op = (node->type == NODE_ALIGNOF) ? ALIR_OP_ALIGNOF : ALIR_OP_SIZEOF;
-            emit(ctx, mk_inst(ctx->module, op, dest, type_val, NULL));
-            return dest;
+            long long size = 0;
+            if (op_type.base == TYPE_VOID) {
+                size = 0;
+            } else if (op_type.ptr_depth > 0) {
+                size = 8;
+            } else {
+                switch (op_type.base) {
+                    case TYPE_BOOL:
+                    case TYPE_CHAR:
+                    case TYPE_UNSIGNED_CHAR:
+                    case TYPE_SHORT:
+                    case TYPE_INT:
+                    case TYPE_UNSIGNED_INT:
+                    case TYPE_SINGLE:
+                        size = 4;
+                        break;
+                    case TYPE_LONG:
+                    case TYPE_LONG_LONG:
+                    case TYPE_UNSIGNED_LONG:
+                    case TYPE_UNSIGNED_LONG_LONG:
+                    case TYPE_DOUBLE:
+                    case TYPE_LONG_DOUBLE:
+                        size = 8;
+                        break;
+                    default:
+                        size = 8;
+                        break;
+                }
+                if (op_type.array_size > 0) {
+                    size *= op_type.array_size;
+                }
+            }
+
+            if (node->type == NODE_ALIGNOF) {
+                size = (op_type.base == TYPE_DOUBLE || op_type.base == TYPE_LONG || op_type.base == TYPE_LONG_LONG) ? 8 : 4;
+            }
+
+            return alir_const_int(ctx->module, size);
         }
                 case NODE_TYPEOF: {
             SizeOfNode *sn = (SizeOfNode*)node;

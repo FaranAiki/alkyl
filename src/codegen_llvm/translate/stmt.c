@@ -71,6 +71,8 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             case ALIR_OP_GET_PTR: {
                 if (!op1) break;
                 
+                if (LLVMIsNull(op1)) break;
+                
                 // Validate GEP input strictly
           
                 if (LLVMGetTypeKind(LLVMTypeOf(op1)) != LLVMPointerTypeKind) {
