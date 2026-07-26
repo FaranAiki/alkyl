@@ -4,25 +4,23 @@
 #include "../parser/parser.h"
 #include "../semantic/semantic.h"
 #include "../alir/alir.h"
+#include "../alick/alick.h"
+#include "../common/diagnostic.h"
 #include <meta/vm.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "codegen_llvm/codegen.h"
-// TODO: make sure we do not use any readlines nor
-// depends on the codegen_llvm!
+#include <string.h>
+#include <unistd.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #ifndef _WIN32
 #include <dlfcn.h>
 #endif
-#include "../common/diagnostic.h"
 
 // Global context for autocompletion
 static SemanticCtx *global_sem_ctx = NULL;
-
-#include <ctype.h>
 
 static const char* get_last_word(const char* line, int* word_len) {
     int len = line ? strlen(line) : 0;
@@ -82,31 +80,29 @@ static char* ethyl_generator(const char* text, int state) {
                                 cls = cls->next;
                             }
                         } else if (ns->kind == SYM_CLASS && ns->inner_scope) {
-                            // Static class members
                             sym = ns->inner_scope->symbols;
                         }
                         break;
                     }
                     ns = ns->next;
                 }
-                kw_idx = 999; // Don't autocomplete keywords after a dot
+                kw_idx = 999;
             }
         }
     }
 
     while (sym) {
         char *name = sym->name;
-        sym = sym->next; // advance for next call
+        sym = sym->next;
 
-        if (!name) continue; // Prevent segfault on NULL names
+        if (!name) continue;
 
-        // Only use prefix match for autocomplete
         if (word_len == 0 || strncmp(name, word, word_len) == 0) {
             return strdup(name);
         }
     }
 
-    int num_keywords = sizeof(keywords) / sizeof(keywords[0]) - 1; // -1 for NULL
+    int num_keywords = sizeof(keywords) / sizeof(keywords[0]) - 1;
     while (kw_idx < num_keywords && keywords[kw_idx]) {
         const char *name = keywords[kw_idx++];
         if (word_len == 0 || strncmp(name, word, word_len) == 0) {
@@ -120,7 +116,7 @@ static char* ethyl_generator(const char* text, int state) {
 static char** ethyl_completion(const char* text, int start, int end) {
     (void)start;
     (void)end;
-    rl_attempted_completion_over = 1; // Don't fall back to filename completion
+    rl_attempted_completion_over = 1;
     return rl_completion_matches(text, ethyl_generator);
 }
 
@@ -134,13 +130,13 @@ static void display_matches_hook(char **matches, int num_matches, int max_length
 static void ethyl_redisplay(void) {
     rl_redisplay();
 
-    printf("\033[s"); // Save cursor
+    printf("\033[s");
 
     int len = rl_line_buffer ? (int)strlen(rl_line_buffer) : 0;
     if (len > rl_point) {
-        printf("\033[%dC", len - rl_point); // Move to end of line
+        printf("\033[%dC", len - rl_point);
     }
-    printf("\033[K"); // Clear trailing ghost text
+    printf("\033[K");
 
     if (rl_line_buffer && rl_point == len && rl_point > 0) {
         int word_len = 0;
@@ -179,7 +175,7 @@ static void ethyl_redisplay(void) {
         }
     }
 
-    printf("\033[u"); // Restore cursor
+    printf("\033[u");
     fflush(stdout);
 }
 
@@ -271,7 +267,7 @@ static void handle_sigint(int sig) {
     (void)sig;
     if (rl_line_buffer) {
         rl_point = rl_end;
-        rl_redisplay(); // This will trigger ethyl_redisplay which clears the ghost text
+        rl_redisplay();
     }
     printf("^C\n");
     rl_on_new_line();
@@ -293,7 +289,6 @@ int run_repl(void) {
     CompilerContext ctx;
     context_init(&ctx, &ast_arena);
 
-    // Initialize global parser state (we will share the types_map across REPL lines)
     Lexer dummy_l;
     LexerSettings dummy_settings = {0};
     dummy_settings.scope_style = SCOPE_INDENTATION;
@@ -313,14 +308,12 @@ int run_repl(void) {
     sem_init(&sem, &ctx, &sem_settings);
     global_sem_ctx = &sem;
 
-    // We keep one AlirModule appending stuff.
     AlirModule *module = alir_create_module(&ctx, "ethyl_repl");
 
     Arena vm_arena;
     arena_init(&vm_arena);
     MetaVM *vm = meta_vm_init(&vm_arena);
 
-    // Setup readline autocomplete
     rl_catch_signals = 0;
     signal(SIGINT, handle_sigint);
     rl_attempted_completion_function = ethyl_completion;
@@ -380,11 +373,10 @@ int run_repl(void) {
         }
 
         if (ctx.semantic_error_count > 0) {
-            ctx.semantic_error_count = 0; // reset for next line
+            ctx.semantic_error_count = 0;
             continue;
         }
 
-        // First pass: ALIR compile all declarations (functions, classes) in the current line
         curr = root;
         while(curr) {
             if (curr->type == NODE_FUNC_DEF) {
@@ -400,13 +392,12 @@ int run_repl(void) {
                 memset(&alir_ctx, 0, sizeof(AlirCtx));
                 alir_ctx.sem = &sem;
                 alir_ctx.module = module;
-                pass1_register(&alir_ctx, curr); pass2_populate(&alir_ctx, root, curr);
-                // The methods will be compiled after semantic analysis in the second pass
+                pass1_register(&alir_ctx, curr);
+                pass2_populate(&alir_ctx, root, curr);
             }
             curr = curr->next;
         }
 
-        // Evaluate top level expressions using MetaVM
         curr = root;
         while(curr) {
             if (curr->type == NODE_VAR_DECL) {
@@ -428,7 +419,6 @@ int run_repl(void) {
                     ret->value = vd->initializer;
                     fn->body = (ASTNode*)ret;
 
-
                     AlirCtx alir_ctx;
                     memset(&alir_ctx, 0, sizeof(AlirCtx));
                     alir_ctx.sem = &sem;
@@ -447,7 +437,6 @@ int run_repl(void) {
                     }
                 }
 
-                // Add to MetaVM global memory map
                 VMGlobal *vg = arena_alloc(&vm_arena, sizeof(VMGlobal));
                 vg->name = arena_strdup(&vm_arena, vd->name);
 
@@ -468,10 +457,8 @@ int run_repl(void) {
                 vm->globals = vg;
 
             } else if (curr->type == NODE_CLASS) {
-                // Class definitions go straight to the current sem context
                 sem_check_node(&sem, curr);
 
-                // Register in ALIR module
                 AlirCtx alir_ctx;
                 memset(&alir_ctx, 0, sizeof(AlirCtx));
                 alir_ctx.sem = &sem;
@@ -490,8 +477,6 @@ int run_repl(void) {
                     alir_gen_function_def(&alir_ctx, (FuncDefNode*)curr, NULL);
                 }
             } else if (curr->type == NODE_LINK) {
-// TODO make sure so that WIN32 knows things, but this is significantly difficult: don't care lmao
-// TODO self-hosting means alkyl must have proper define: e.g. if defined(os.linux) or if os.name == "Linux" in meta
 #ifndef _WIN32
                 LinkNode *ln = (LinkNode*)curr;
                 char libname[256];
@@ -523,7 +508,6 @@ int run_repl(void) {
                 char *func_name = arena_alloc(&ast_arena, 64);
                 static int repl_expr_count = 0; sprintf(func_name, "__repl_expr_%d", ++repl_expr_count);
 
-                // Wrap in a synthetic function
                 FuncDefNode *fn = arena_alloc(&ast_arena, sizeof(FuncDefNode));
                 memset(fn, 0, sizeof(FuncDefNode));
                 fn->base.type = NODE_FUNC_DEF;
@@ -545,13 +529,11 @@ int run_repl(void) {
                     fn->body = (ASTNode*)ret;
                 }
 
-
                 AlirCtx alir_ctx;
                 memset(&alir_ctx, 0, sizeof(AlirCtx));
                 alir_ctx.sem = &sem;
                 alir_ctx.module = module;
 
-                // Hack: generate the function
                 alir_gen_function_def(&alir_ctx, fn, NULL);
 
                 AlirFunction *compiled_fn = module->functions;
@@ -560,7 +542,6 @@ int run_repl(void) {
                     compiled_fn = compiled_fn->next;
                 }
 
-                // TODO make this more MECE & orthgonal
                 if (compiled_fn) {
                     alir_emit_to_file(module, "repl_debug.alir");
                     long long exit_code = meta_vm_execute(vm, module, compiled_fn, &sem, NULL, 0);
@@ -657,6 +638,312 @@ int run_repl(void) {
     return 0;
 }
 
-int main() {
-  return run_repl();
+// New function: interpret a file directly (like alkyl but interpreted)
+int run_file(const char *filename) {
+    char *code = read_file(filename);
+    if (!code) {
+        fprintf(stderr, "Could not read file: %s\n", filename);
+        return 1;
+    }
+
+    Arena ast_arena;
+    arena_init(&ast_arena);
+
+    CompilerContext ctx;
+    context_init(&ctx, &ast_arena);
+
+    Lexer l;
+    LexerSettings settings = {0};
+    settings.scope_style = SCOPE_INDENTATION;
+    settings.import_require_double_quotes = 0;
+    lexer_init(&l, &ctx, filename, code, &settings);
+
+    Parser p;
+    parser_init(&p, &l, NULL);
+    p.settings.function_call_require_comma = 1;
+    p.settings.array_separator_with_space = 1;
+
+    ASTNode *root = parse_program(&p);
+    if (!root || p.has_error) {
+        free(code);
+        arena_free(&ast_arena);
+        return 1;
+    }
+
+    SemanticSettings sem_settings = {0};
+    sem_settings.implicit_let = true;
+    sem_settings.replace_variable = true;
+    sem_settings.namespace_auto_search = true;
+    sem_settings.namespace_ausearch_warning = true;
+    SemanticCtx sem;
+    sem_init(&sem, &ctx, &sem_settings);
+    sem.current_source = code;
+    sem.current_filename = filename;
+
+    ASTNode **tail = &root;
+    while (*tail && (*tail)->next) tail = &(*tail)->next;
+    if (*tail) sem.ast_tail = &(*tail)->next;
+    else sem.ast_tail = tail;
+
+    sem_scan_top_level(&sem, root);
+    ASTNode *curr = root;
+    while (curr) {
+        if (curr->type == NODE_VAR_DECL) {
+            sem_check_var_decl(&sem, (VarDeclNode*)curr, 0);
+        } else {
+            sem_check_node(&sem, curr);
+        }
+        curr = curr->next;
+    }
+
+    if (ctx.semantic_error_count > 0) {
+        sem_cleanup(&sem);
+        free(code);
+        arena_free(&ast_arena);
+        return 1;
+    }
+
+    AlirModule *module = alir_create_module(&ctx, "ethyl_file");
+
+    curr = root;
+    while(curr) {
+        if (curr->type == NODE_FUNC_DEF) {
+            if (((FuncDefNode*)curr)->has_body && !((FuncDefNode*)curr)->is_macro) {
+                AlirCtx alir_ctx;
+                memset(&alir_ctx, 0, sizeof(AlirCtx));
+                alir_ctx.sem = &sem;
+                alir_ctx.module = module;
+                alir_gen_function_def(&alir_ctx, (FuncDefNode*)curr, NULL);
+            }
+        } else if (curr->type == NODE_CLASS) {
+            AlirCtx alir_ctx;
+            memset(&alir_ctx, 0, sizeof(AlirCtx));
+            alir_ctx.sem = &sem;
+            alir_ctx.module = module;
+            pass1_register(&alir_ctx, curr);
+            pass2_populate(&alir_ctx, root, curr);
+        }
+        curr = curr->next;
+    }
+
+    int alick_error = alick_check_module(module);
+    if (alick_error > 0) {
+        printf("Error occurred in alick.\n");
+        sem_cleanup(&sem);
+        free(code);
+        arena_free(&ast_arena);
+        return 1;
+    }
+
+    Arena vm_arena;
+    arena_init(&vm_arena);
+    MetaVM *vm = meta_vm_init(&vm_arena);
+
+    curr = root;
+    while(curr) {
+        if (curr->type == NODE_VAR_DECL) {
+            VarDeclNode *vd = (VarDeclNode*)curr;
+            long long initial_val = 0;
+
+            if (vd->initializer) {
+                char *func_name = arena_alloc(&ast_arena, 64);
+                sprintf(func_name, "__file_init_%p", (void*)curr);
+
+                FuncDefNode *fn = arena_alloc(&ast_arena, sizeof(FuncDefNode));
+                fn->base.type = NODE_FUNC_DEF;
+                fn->name = func_name;
+                fn->ret_type = sem_get_node_type(&sem, vd->initializer);
+                fn->has_body = 1;
+
+                ReturnNode *ret = arena_alloc(&ast_arena, sizeof(ReturnNode));
+                ret->base.type = NODE_RETURN;
+                ret->value = vd->initializer;
+                fn->body = (ASTNode*)ret;
+
+                AlirCtx alir_ctx;
+                memset(&alir_ctx, 0, sizeof(AlirCtx));
+                alir_ctx.sem = &sem;
+                alir_ctx.module = module;
+
+                alir_gen_function_def(&alir_ctx, fn, NULL);
+
+                AlirFunction *compiled_fn = module->functions;
+                while (compiled_fn) {
+                    if (strcmp(compiled_fn->name, func_name) == 0) break;
+                    compiled_fn = compiled_fn->next;
+                }
+
+                if (compiled_fn) {
+                    initial_val = meta_vm_execute(vm, module, compiled_fn, &sem, NULL, 0);
+                }
+            }
+
+            VMGlobal *vg = arena_alloc(&vm_arena, sizeof(VMGlobal));
+            vg->name = arena_strdup(&vm_arena, vd->name);
+
+            VarType vt = vd->var_type;
+            if (vt.base == TYPE_UNKNOWN && vd->initializer) vt = sem_get_node_type(&sem, vd->initializer);
+
+            if (vt.array_size > 0) {
+                if (initial_val) {
+                    vg->ptr_val = (void*)(intptr_t)initial_val;
+                } else {
+                    vg->ptr_val = arena_alloc(&vm_arena, vt.array_size * 8);
+                }
+            } else {
+                vg->ptr_val = arena_alloc(&vm_arena, 1024);
+                *((long long*)vg->ptr_val) = initial_val;
+            }
+            vg->next = vm->globals;
+            vm->globals = vg;
+
+        } else if (curr->type == NODE_CLASS) {
+            sem_check_node(&sem, curr);
+
+            AlirCtx alir_ctx;
+            memset(&alir_ctx, 0, sizeof(AlirCtx));
+            alir_ctx.sem = &sem;
+            alir_ctx.module = module;
+
+            pass1_register(&alir_ctx, curr);
+            pass2_populate(&alir_ctx, root, curr);
+            alir_gen_functions_recursive(&alir_ctx, curr);
+
+        } else if (curr->type == NODE_FUNC_DEF) {
+            if (((FuncDefNode*)curr)->has_body && !((FuncDefNode*)curr)->is_macro) {
+                AlirCtx alir_ctx;
+                memset(&alir_ctx, 0, sizeof(AlirCtx));
+                alir_ctx.sem = &sem;
+                alir_ctx.module = module;
+                alir_gen_function_def(&alir_ctx, (FuncDefNode*)curr, NULL);
+            }
+        } else if (curr->type == NODE_LINK) {
+            // Skip link in interpreted mode - not supported
+            fprintf(stderr, "\033[33mWarning: Dynamic linking not supported in interpreted mode\033[0m\n");
+        }
+        curr = curr->next;
+    }
+
+    // Look for a main function to execute
+    AlirFunction *main_fn = module->functions;
+    while (main_fn) {
+        if (strcmp(main_fn->name, "main") == 0) break;
+        main_fn = main_fn->next;
+    }
+
+    int exit_code = 0;
+    if (main_fn) {
+        exit_code = meta_vm_execute(vm, module, main_fn, &sem, NULL, 0);
+    } else {
+        // No main - execute top-level expressions (like REPL does)
+        curr = root;
+        while(curr) {
+            if (curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
+                curr->type != NODE_LINK && curr->type != NODE_FUNC_DEF && curr->type != NODE_VAR_DECL) {
+                char *func_name = arena_alloc(&ast_arena, 64);
+                sprintf(func_name, "__file_expr_%p", (void*)curr);
+
+                FuncDefNode *fn = arena_alloc(&ast_arena, sizeof(FuncDefNode));
+                memset(fn, 0, sizeof(FuncDefNode));
+                fn->base.type = NODE_FUNC_DEF;
+                fn->name = func_name;
+
+                VarType ret_type = sem_get_node_type(&sem, curr);
+                fn->ret_type = ret_type;
+                fn->has_body = 1;
+
+                if (curr->type == NODE_IF || curr->type == NODE_WHILE || curr->type == NODE_FOR_IN ||
+                    curr->type == NODE_LOOP || curr->type == NODE_SWITCH || curr->type == NODE_BREAK ||
+                    curr->type == NODE_CONTINUE || curr->type == NODE_RETURN || curr->type == NODE_DEFER) {
+                    fn->body = curr;
+                } else {
+                    ReturnNode *ret = arena_alloc(&ast_arena, sizeof(ReturnNode));
+                    memset(ret, 0, sizeof(ReturnNode));
+                    ret->base.type = NODE_RETURN;
+                    ret->value = curr;
+                    fn->body = (ASTNode*)ret;
+                }
+
+                AlirCtx alir_ctx;
+                memset(&alir_ctx, 0, sizeof(AlirCtx));
+                alir_ctx.sem = &sem;
+                alir_ctx.module = module;
+
+                alir_gen_function_def(&alir_ctx, fn, NULL);
+
+                AlirFunction *compiled_fn = module->functions;
+                while (compiled_fn) {
+                    if (strcmp(compiled_fn->name, func_name) == 0) break;
+                    compiled_fn = compiled_fn->next;
+                }
+
+                if (compiled_fn) {
+                    long long result = meta_vm_execute(vm, module, compiled_fn, &sem, NULL, 0);
+                    // Print result if not void
+                    if (ret_type.base != TYPE_VOID) {
+                        printf("%lld\n", result);
+                    }
+                    exit_code = (int)result;
+                }
+            }
+            curr = curr->next;
+        }
+    }
+
+    meta_vm_free(vm);
+    arena_free(&vm_arena);
+    sem_cleanup(&sem);
+    free(code);
+    arena_free(&ast_arena);
+
+    return exit_code;
+}
+
+// New function: import a module
+int import_module(const char *module_name) {
+    printf("Importing module: %s\n", module_name);
+    // Module import would typically resolve and load a module
+    // For now, just print a message
+    return 0;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc == 1) {
+        // No arguments - start REPL
+        return run_repl();
+    }
+
+    // Check for -m or --module flag
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--module") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "Error: -m/--module requires a module name\n");
+                return 1;
+            }
+            return import_module(argv[i + 1]);
+        }
+    }
+
+    // First non-flag argument is treated as a file to interpret
+    // (skip any flags that might be present)
+    char *filename = NULL;
+    for (int i = 1; i < argc; i++) {
+        if (argv[i][0] != '-') {
+            filename = argv[i];
+            break;
+        }
+    }
+
+    if (filename) {
+        if (access(filename, F_OK) != -1) {
+            return run_file(filename);
+        } else {
+            fprintf(stderr, "Error: File '%s' not found\n", filename);
+            return 1;
+        }
+    }
+
+    // If we get here, no valid file was provided
+    fprintf(stderr, "Usage: %s [file.aky] | -m <module> | --module <module>\n", argv[0]);
+    return 1;
 }

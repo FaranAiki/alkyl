@@ -35,6 +35,8 @@ include_directories(
   # src/old/codegen/ # fallback
     include/
 
+    include/meta
+
     include/lexer
 
     include/parser
@@ -48,6 +50,7 @@ include_directories(
     include/semantic
     include/semantic/modifier
     include/semantic/fragment
+    include/meta
 
     include/driver
 
@@ -211,7 +214,7 @@ set(ETHYL_SOURCES
   ${HELPER_SOURCES}
 )
 
-add_executable(ethyl src/meta/vm.c 
+add_executable(ethyl src/meta/vm.c
     src/meta/eval_mem.c
     src/meta/eval_math.c
     src/meta/eval_flow.c
