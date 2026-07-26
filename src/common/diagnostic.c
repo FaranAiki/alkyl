@@ -20,34 +20,34 @@ const char* diag_get_namespace(CompilerContext *ctx) {
 }
 
 static void get_short_path(const char *in, char *out, size_t size) {
-    if (!in || strlen(in) == 0) { 
-        out[0] = 0; 
-        return; 
+    if (!in || strlen(in) == 0) {
+        out[0] = 0;
+        return;
     }
-    
+
     int slashes = 0;
     const char *p = in;
     while(*p) { if (*p == '/' || *p == '\\') slashes++; p++; }
-    
+
     if (slashes <= 2) {
         strncpy(out, in, size);
         out[size-1] = '\0';
         return;
     }
-    
+
     int count = 0;
     p = in + strlen(in) - 1;
     while(p > in) {
         if (*p == '/' || *p == '\\') {
             count++;
             if (count == 3) {
-                p++; 
+                p++;
                 break;
             }
         }
         p--;
     }
-    
+
     snprintf(out, size, ".../%s", p);
 }
 
@@ -71,15 +71,15 @@ int levenshtein_dist(const char *s1, const char *s2) {
         for (int j = 1; j <= len2; j++) {
             int cost = (s1[i - 1] == s2[j - 1]) ? 0 : 1;
             int res = min3(
-                matrix[i - 1][j] + 1,      
-                matrix[i][j - 1] + 1,      
-                matrix[i - 1][j - 1] + cost 
+                matrix[i - 1][j] + 1,
+                matrix[i][j - 1] + 1,
+                matrix[i - 1][j - 1] + cost
             );
 
-            if (i > 1 && j > 1 && 
-                s1[i - 1] == s2[j - 2] && 
+            if (i > 1 && j > 1 &&
+                s1[i - 1] == s2[j - 2] &&
                 s1[i - 2] == s2[j - 1]) {
-                int trans = matrix[i - 2][j - 2] + 1; 
+                int trans = matrix[i - 2][j - 2] + 1;
                 if (trans < res) res = trans;
             }
             matrix[i][j] = res;
@@ -90,24 +90,24 @@ int levenshtein_dist(const char *s1, const char *s2) {
 
 const char* find_closest_keyword(const char *ident) {
     const char *keywords[] = {
-        "int", "void", "char", "bool", "single", "double", "return", 
+        "int", "void", "char", "bool", "single", "double", "return",
         "if", "else", "while", "loop", "break", "continue", "class", "struct",
         "namespace", "import", "link", "extern", "define", "has", "is",
         "open", "closed", "public", "private", "final", "naked", "reactive", "inert",
         "pure", "impure", "tainted", "clean", "wash", "untaint", "vector",
-        "let", "mut", "imut", "const", "typeof", 
+        "let", "mut", "imut", "const", "typeof",
         "switch", "case", "default", "leak",
-        // TODO add more keyword 
-        "accept", "reject", "then",
+        // TODO add more keyword
+        "then",
         NULL
     };
-    
+
     const char *best = NULL;
     int min_dist = 100;
-    
+
     for (int i = 0; keywords[i] != NULL; i++) {
         int d = levenshtein_dist(ident, keywords[i]);
-        if (d < min_dist && d < 3) { 
+        if (d < min_dist && d < 3) {
             min_dist = d;
             best = keywords[i];
         }
@@ -120,17 +120,17 @@ static void print_source_snippet(Lexer *l, Token t) {
 
     const char *line_start = l->src;
     int current_line = 1;
-    
+
     while (*line_start && current_line < t.line) {
         if (*line_start == '\n') current_line++;
         line_start++;
     }
-    
+
     const char *line_end = line_start;
     while (*line_end && *line_end != '\n') line_end++;
-    
+
     int line_len = (int)(line_end - line_start);
-    
+
     fprintf(stderr, "  %s|%s %.*s\n", DIAG_GREY, DIAG_RESET, line_len, line_start);
     fprintf(stderr, "  %s|%s ", DIAG_GREY, DIAG_RESET);
     for (int i = 1; i < t.col; i++) fprintf(stderr, " ");
@@ -146,23 +146,23 @@ static void report_generic(Lexer *l, Token t, const char *label, const char *col
         strncpy(ctx->last_reported_namespace, ctx->current_namespace, 255);
         ctx->last_reported_namespace[255] = '\0';
     }
-    
+
     if (l->filename) {
         if (strcmp(l->filename, ctx->last_reported_filename) != 0) {
             char short_path[256];
             get_short_path(l->filename, short_path, sizeof(short_path));
             fprintf(stderr, "in %s%s%s:\n", DIAG_PURPLE, short_path, DIAG_RESET);
-            
+
             strncpy(ctx->last_reported_filename, l->filename, 1023);
             ctx->last_reported_filename[1023] = '\0';
         }
     }
-    
-    fprintf(stderr, "%d:%d: %s%s%s: %s\n", 
-            t.line, t.col, 
-            color, label, DIAG_RESET, 
+
+    fprintf(stderr, "%d:%d: %s%s%s: %s\n",
+            t.line, t.col,
+            color, label, DIAG_RESET,
             msg);
-            
+
     print_source_snippet(l, t);
 }
 
@@ -176,7 +176,7 @@ void report_warning(Lexer *l, Token t, const char *msg) {
 }
 
 void report_hint(Lexer *l, Token t, const char *msg) {
-    (void)l; (void)t; 
+    (void)l; (void)t;
     fprintf(stderr, "%shint:%s %s\n", DIAG_YELLOW, DIAG_RESET, msg);
 }
 
@@ -189,6 +189,7 @@ void report_reason(Lexer *l, Token t, const char *msg) {
     if (l) print_source_snippet(l, t);
 }
 
+// TODO use ENUMS!
 const char* token_type_to_string(TokenType type) {
     switch (type) {
         case TOKEN_EOF: return "EOF";

@@ -330,6 +330,17 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
         }
     }
 
+    // Special Enum Handling: bare enum variant references resolve to their constant value
+    if (ptr) {
+        VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
+        if (t.base == TYPE_ENUM && t.class_name) {
+            long val = 0;
+            if (alir_get_enum_value(ctx->module, t.class_name, vn->name, &val)) {
+                return alir_const_int(ctx->module, val);
+            }
+        }
+    }
+
     // Get precise type from Semantics
     VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
 

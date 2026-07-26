@@ -394,6 +394,12 @@ int run_repl(void) {
                 alir_ctx.module = module;
                 pass1_register(&alir_ctx, curr);
                 pass2_populate(&alir_ctx, root, curr);
+            } else if (curr->type == NODE_ENUM) {
+                AlirCtx alir_ctx;
+                memset(&alir_ctx, 0, sizeof(AlirCtx));
+                alir_ctx.sem = &sem;
+                alir_ctx.module = module;
+                pass1_register(&alir_ctx, curr);
             }
             curr = curr->next;
         }
@@ -722,6 +728,12 @@ int run_file(const char *filename) {
             alir_ctx.module = module;
             pass1_register(&alir_ctx, curr);
             pass2_populate(&alir_ctx, root, curr);
+        } else if (curr->type == NODE_ENUM) {
+            AlirCtx alir_ctx;
+            memset(&alir_ctx, 0, sizeof(AlirCtx));
+            alir_ctx.sem = &sem;
+            alir_ctx.module = module;
+            pass1_register(&alir_ctx, curr);
         }
         curr = curr->next;
     }
