@@ -35,7 +35,7 @@ include_directories(
   # src/old/codegen/ # fallback
     include/
 
-    include/meta
+    include/metalir
 
     include/lexer
 
@@ -50,7 +50,7 @@ include_directories(
     include/semantic
     include/semantic/modifier
     include/semantic/fragment
-    include/meta
+    include/metalir
 
     include/driver
 
@@ -165,12 +165,12 @@ set(COMMON_SOURCES
   ${HELPER_SOURCES}
 )
 
-add_executable(alkyl src/meta/vm.c
-    src/meta/eval_mem.c
-    src/meta/eval_math.c
-    src/meta/eval_flow.c
-    src/meta/eval_call.c
-    src/meta/eval_misc.c
+add_executable(alkyl src/metalir/vm.c
+    src/metalir/eval_mem.c
+    src/metalir/eval_math.c
+    src/metalir/eval_flow.c
+    src/metalir/eval_call.c
+    src/metalir/eval_misc.c
     src/driver/main.c ${COMMON_SOURCES})
 
 if(WIN32)
@@ -214,12 +214,13 @@ set(ETHYL_SOURCES
   ${HELPER_SOURCES}
 )
 
-add_executable(ethyl src/meta/vm.c
-    src/meta/eval_mem.c
-    src/meta/eval_math.c
-    src/meta/eval_flow.c
-    src/meta/eval_call.c
-    src/meta/eval_misc.c
+add_executable(ethyl src/metalir/vm.c
+    src/metalir/eval_mem.c
+    src/metalir/eval_math.c
+    src/metalir/eval_flow.c
+    src/metalir/eval_call.c
+    src/metalir/eval_misc.c
+    src/metalir/metalir.c
     src/metarse/metarse.c
     src/driver/cli.c ${ETHYL_SOURCES})
 target_include_directories(ethyl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)

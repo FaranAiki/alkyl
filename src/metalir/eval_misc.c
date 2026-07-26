@@ -1,4 +1,4 @@
-#include "meta/vm_internal.h"
+#include "vm_internal.h"
 #include "semantic/semantic.h"
 #include <string.h>
 
@@ -121,9 +121,9 @@ case ALIR_OP_BITCAST: {
             else if (inst->op1->type.base == TYPE_DOUBLE) ctx->registers[inst->dest->temp_id].as.single_val = inst->op1->val.double_val;
             else ctx->registers[inst->dest->temp_id].as.int_val = inst->op1->val.long_long_val;
         } else if (inst->op1->kind == ALIR_VAL_VAR) {
-            ctx->registers[inst->dest->temp_id].as.int_val = meta_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+            ctx->registers[inst->dest->temp_id].as.int_val = metalir_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
         } else if (inst->op1->kind == ALIR_VAL_GLOBAL && ctx->module) {
-            long long ptr = meta_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+            long long ptr = metalir_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
             ctx->registers[inst->dest->temp_id].as.int_val = ptr;
         }
     }

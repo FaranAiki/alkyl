@@ -1,4 +1,4 @@
-#include "meta/vm_internal.h"
+#include "vm_internal.h"
 #include "semantic/semantic.h"
 #include <string.h>
 #include "common/diagnostic.h"
@@ -42,7 +42,7 @@ void vm_eval_math(VMContext *ctx, AlirInst *inst) {
                     if (inst->op1->type.base == TYPE_SINGLE || inst->op1->type.base == TYPE_DOUBLE) { f1 = ctx->registers[inst->op1->temp_id].as.single_val; v1 = (long long)f1; }
                     else { v1 = ctx->registers[inst->op1->temp_id].as.int_val; f1 = v1; }
                 } else if (inst->op1->kind == ALIR_VAL_VAR) {
-                    v1 = meta_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                    v1 = metalir_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                     f1 = v1; // Variables resolving to float not fully supported this way, but fallback
                 } else {
                     if (inst->op1->type.base == TYPE_SINGLE || inst->op1->type.base == TYPE_DOUBLE) {
@@ -60,7 +60,7 @@ void vm_eval_math(VMContext *ctx, AlirInst *inst) {
                     if (inst->op2->type.base == TYPE_SINGLE || inst->op2->type.base == TYPE_DOUBLE) { f2 = ctx->registers[inst->op2->temp_id].as.single_val; v2 = (long long)f2; }
                     else { v2 = ctx->registers[inst->op2->temp_id].as.int_val; f2 = v2; }
                 } else if (inst->op2->kind == ALIR_VAL_VAR) {
-                    v2 = meta_vm_resolve_var(inst->op2, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                    v2 = metalir_vm_resolve_var(inst->op2, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                     f2 = v2;
                 } else {
                     if (inst->op2->type.base == TYPE_SINGLE || inst->op2->type.base == TYPE_DOUBLE) {

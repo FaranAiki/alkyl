@@ -1,6 +1,6 @@
 #include "alir.h"
 #include "semantic/semantic.h"
-#include "meta/vm.h"
+#include "metalir/vm.h"
 
 void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
     if (!node) return;
@@ -205,8 +205,8 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             // Execute the meta block
             Arena meta_arena;
             arena_init(&meta_arena);
-            MetaVM *vm = meta_vm_init(&meta_arena);
-            int meta_err = meta_vm_execute(vm, ctx->module, meta_func, ctx->sem, NULL, 0);
+            MetalirVM *vm = metalir_vm_init(&meta_arena);
+            int meta_err = metalir_vm_execute(vm, ctx->module, meta_func, ctx->sem, NULL, 0);
 
             if (meta_err) {
                 // The VM already reported the specific error at the exact line via sem_error.
@@ -220,7 +220,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             // Clean up the global constants added by the meta block so they don't persist in ALIR
             ctx->module->globals = old_globals;
 
-            meta_vm_free(vm);
+            metalir_vm_free(vm);
             arena_reset(&meta_arena);
 
             // Restore state

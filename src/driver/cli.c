@@ -1,6 +1,5 @@
 #include "cli.h"
-#include "../metarse/metarse.h"
-#include "../common/arena.h"
+#include "../metalir/metalir.h"
 #include "../alick/alick.h"
 #include "../common/common.h"
 
@@ -281,11 +280,10 @@ int run_repl(void) {
     rl_completion_display_matches_hook = display_matches_hook;
     rl_redisplay_function = ethyl_redisplay;
 
-    Executor e;
     SemanticSettings sem_settings = default_sem_settings();
     sem_settings.namespace_ausearch_warning = false;
-    executor_init(&e, "ethyl_repl", &sem_settings, 0);
-    global_sem_ctx = &e.sem;
+    MetalirRunner *r = metalir_runner_create("ethyl_repl", &sem_settings, 0);
+    global_sem_ctx = &r->sem;
 
     rl_catch_signals = 0;
     signal(SIGINT, handle_sigint);
@@ -295,7 +293,7 @@ int run_repl(void) {
     int cmd_count = 0;
 
     while (1) {
-        char *buffer = get_smart_input(&e.ast_arena, cmd_count);
+        char *buffer = get_smart_input(&r->ast_arena, cmd_count);
         if (!buffer) break;
 
         int len = strlen(buffer);
@@ -306,36 +304,36 @@ int run_repl(void) {
             break;
         }
 
-        ASTNode *root = executor_parse_source(&e, buffer, "REPL", NULL);
-        if (!root || e.p.has_error) continue;
+        ASTNode *root = metalir_parse(r, buffer, "REPL", NULL);
+        if (!root || r->parser.has_error) continue;
 
-        e.sem.current_source = buffer;
-        e.sem.current_filename = "REPL";
-        int sem_errs = sem_check_program(&e.sem, root);
+        r->sem.current_source = buffer;
+        r->sem.current_filename = "REPL";
+        int sem_errs = sem_check_program(&r->sem, root);
         if (sem_errs > 0) {
-            e.ctx.semantic_error_count = 0;
+            r->ctx.semantic_error_count = 0;
             continue;
         }
 
-        executor_alir_generate(&e, root);
+        metalir_alir_generate(r, root);
 
         ASTNode *curr = root;
         int id = 0;
         while (curr) {
             if (curr->type == NODE_VAR_DECL) {
-                exec_var_decl(&e, (VarDeclNode*)curr, id++, "repl");
+                metalir_run_var_decl(r, (VarDeclNode*)curr, id++);
             } else if (curr->type == NODE_LINK) {
-                exec_link(&e, (LinkNode*)curr, 1);
+                metalir_run_link(r, (LinkNode*)curr);
             } else if (curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
                        curr->type != NODE_LINK && curr->type != NODE_FUNC_DEF && curr->type != NODE_VAR_DECL) {
-                exec_expr(&e, curr, id++, "repl", 1, NULL);
+                metalir_run_expr(r, curr, id++, 1, NULL);
             }
             curr = curr->next;
         }
 
         cmd_count++;
     }
-    executor_cleanup(&e);
+    metalir_runner_destroy(r);
     return 0;
 }
 
@@ -346,33 +344,32 @@ int run_file(const char *filename) {
         return 1;
     }
 
-    Executor e;
     SemanticSettings sem_settings = default_sem_settings();
-    executor_init(&e, "ethyl_file", &sem_settings, 1);
+    MetalirRunner *r = metalir_runner_create("ethyl_file", &sem_settings, 1);
 
-    ASTNode *root = executor_parse_source(&e, code, filename, NULL);
-    if (!root || e.p.has_error) {
+    ASTNode *root = metalir_parse(r, code, filename, NULL);
+    if (!root || r->parser.has_error) {
         free(code);
-        executor_cleanup(&e);
+        metalir_runner_destroy(r);
         return 1;
     }
 
-    e.sem.current_source = code;
-    e.sem.current_filename = filename;
-    int sem_errs = sem_check_program(&e.sem, root);
+    r->sem.current_source = code;
+    r->sem.current_filename = filename;
+    int sem_errs = sem_check_program(&r->sem, root);
     if (sem_errs > 0) {
         free(code);
-        executor_cleanup(&e);
+        metalir_runner_destroy(r);
         return 1;
     }
 
-    executor_alir_generate(&e, root);
+    metalir_alir_generate(r, root);
 
-    int alick_error = alick_check_module(e.module);
+    int alick_error = alick_check_module(r->module);
     if (alick_error > 0) {
         printf("Error occurred in alick.\n");
         free(code);
-        executor_cleanup(&e);
+        metalir_runner_destroy(r);
         return 1;
     }
 
@@ -380,28 +377,33 @@ int run_file(const char *filename) {
     int id = 0;
     while (curr) {
         if (curr->type == NODE_VAR_DECL) {
-            exec_var_decl(&e, (VarDeclNode*)curr, id++, "file");
+            metalir_run_var_decl(r, (VarDeclNode*)curr, id++);
         } else if (curr->type == NODE_CLASS) {
-            exec_class(&e, curr, root);
+            metalir_run_class(r, curr, root);
         } else if (curr->type == NODE_FUNC_DEF) {
-            exec_func_def(&e, curr);
+            metalir_run_func_def(r, curr);
         } else if (curr->type == NODE_LINK) {
-            exec_link(&e, (LinkNode*)curr, 0);
+            metalir_run_link(r, (LinkNode*)curr);
         }
         curr = curr->next;
     }
 
-    AlirFunction *main_fn = alir_find_function(e.module, "main");
+    AlirFunction *main_fn = r->module->functions;
+    while (main_fn) {
+        if (strcmp(main_fn->name, "main") == 0) break;
+        main_fn = main_fn->next;
+    }
+
     int exit_code = 0;
     if (main_fn) {
-        exit_code = (int)meta_vm_execute(e.vm, e.module, main_fn, &e.sem, NULL, 0);
+        exit_code = (int)metalir_vm_execute(r->vm, r->module, main_fn, &r->sem, NULL, 0);
     } else {
         curr = root;
         while (curr) {
             if (curr->type != NODE_CLASS && curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
                 curr->type != NODE_LINK && curr->type != NODE_FUNC_DEF && curr->type != NODE_VAR_DECL) {
                 VarType rt;
-                long long res = exec_expr(&e, curr, id++, "file", 0, &rt);
+                long long res =                 metalir_run_expr(r, curr, id++, 0, &rt);
                 if (rt.base != TYPE_VOID) {
                     printf("%lld\n", res);
                 }
@@ -412,7 +414,7 @@ int run_file(const char *filename) {
     }
 
     free(code);
-    executor_cleanup(&e);
+    metalir_runner_destroy(r);
     return exit_code;
 }
 

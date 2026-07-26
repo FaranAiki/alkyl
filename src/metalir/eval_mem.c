@@ -1,4 +1,4 @@
-#include "meta/vm_internal.h"
+#include "vm_internal.h"
 #include <string.h>
 #include "common/arena.h"
 
@@ -16,7 +16,7 @@ case ALIR_OP_STORE: {
                         long long val = 0;
                         if (inst->op1->kind == ALIR_VAL_CONST) val = inst->op1->val.long_long_val;
                         else if (inst->op1->kind == ALIR_VAL_TEMP) val = ctx->registers[inst->op1->temp_id].as.int_val;
-                        else if (inst->op1->kind == ALIR_VAL_VAR) val = meta_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                        else if (inst->op1->kind == ALIR_VAL_VAR) val = metalir_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                         else if (inst->op1->kind == ALIR_VAL_GLOBAL && ctx->module) {
                             AlirGlobal *g = ctx->module->globals;
                             while(g) {
@@ -48,12 +48,12 @@ case ALIR_OP_STORE: {
                                 ptr = vg->ptr_val;
                             }
                         }
-                        else if (inst->op2->kind == ALIR_VAL_VAR) ptr = (void*)(intptr_t)meta_vm_resolve_var(inst->op2, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                        else if (inst->op2->kind == ALIR_VAL_VAR) ptr = (void*)(intptr_t)metalir_vm_resolve_var(inst->op2, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                         
                         void *src_ptr = NULL;
                         if (inst->op1->type.base == TYPE_CLASS && inst->op1->type.ptr_depth == 0) {
                             if (inst->op1->kind == ALIR_VAL_TEMP) src_ptr = ctx->registers[inst->op1->temp_id].as.ptr_val;
-                            else if (inst->op1->kind == ALIR_VAL_VAR) src_ptr = (void*)(intptr_t)meta_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                            else if (inst->op1->kind == ALIR_VAL_VAR) src_ptr = (void*)(intptr_t)metalir_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                         }
                         
                         if (ptr) {
@@ -71,7 +71,7 @@ case ALIR_OP_LOAD: {
                     if (inst->dest && inst->op1) { // dest = value, op1 = ptr
                         void *ptr = NULL;
                         if (inst->op1->kind == ALIR_VAL_TEMP) ptr = ctx->registers[inst->op1->temp_id].as.ptr_val;
-                        else if (inst->op1->kind == ALIR_VAL_VAR) ptr = (void*)(intptr_t)meta_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                        else if (inst->op1->kind == ALIR_VAL_VAR) ptr = (void*)(intptr_t)metalir_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                         else if (inst->op1->kind == ALIR_VAL_GLOBAL) {
                             VMGlobal *g = ctx->vm->globals;
                             while(g) {
@@ -109,7 +109,7 @@ case ALIR_OP_GET_PTR: {
                     if (inst->dest && inst->op1 && inst->op2) {
                         void *base_ptr = NULL;
                         if (inst->op1->kind == ALIR_VAL_TEMP) base_ptr = ctx->registers[inst->op1->temp_id].as.ptr_val;
-                        else if (inst->op1->kind == ALIR_VAL_VAR) base_ptr = (void*)(intptr_t)meta_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                        else if (inst->op1->kind == ALIR_VAL_VAR) base_ptr = (void*)(intptr_t)metalir_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                         else if (inst->op1->kind == ALIR_VAL_GLOBAL) {
                             VMGlobal *g = ctx->vm->globals;
                             while(g) {
@@ -121,7 +121,7 @@ case ALIR_OP_GET_PTR: {
                         long long offset = 0;
                         if (inst->op2->kind == ALIR_VAL_CONST) offset = inst->op2->val.long_long_val;
                         else if (inst->op2->kind == ALIR_VAL_TEMP) offset = ctx->registers[inst->op2->temp_id].as.int_val;
-                        else if (inst->op2->kind == ALIR_VAL_VAR) offset = meta_vm_resolve_var(inst->op2, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                        else if (inst->op2->kind == ALIR_VAL_VAR) offset = metalir_vm_resolve_var(inst->op2, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                         
 // fprintf(stderr, "DEBUG: ALIR_OP_GET_PTR offset=%lld\n", offset);
                         

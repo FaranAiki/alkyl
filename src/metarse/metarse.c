@@ -19,7 +19,7 @@ void executor_init(Executor *e, const char *module_name,
     parser_init(&e->p, &dummy, &ps);
 
     arena_init(&e->vm_arena);
-    e->vm = meta_vm_init(&e->vm_arena);
+    e->vm = metalir_vm_init(&e->vm_arena);
 
     SemanticSettings ss = {0};
     if (sem_settings) memcpy(&ss, sem_settings, sizeof(SemanticSettings));
@@ -34,7 +34,7 @@ void executor_init(Executor *e, const char *module_name,
 }
 
 void executor_cleanup(Executor *e) {
-    meta_vm_free(e->vm);
+    metalir_vm_free(e->vm);
     arena_free(&e->vm_arena);
     sem_cleanup(&e->sem);
     arena_free(&e->ast_arena);
@@ -103,7 +103,7 @@ long long exec_var_decl(Executor *e, VarDeclNode *vd, int seq, const char *prefi
         alir_gen_function_def(&a, fn, NULL);
 
         AlirFunction *cfn = alir_find_function(e->module, fname);
-        if (cfn) initial_val = meta_vm_execute(e->vm, e->module, cfn, &e->sem, NULL, 0);
+        if (cfn) initial_val = metalir_vm_execute(e->vm, e->module, cfn, &e->sem, NULL, 0);
     }
 
     VMGlobal *vg = arena_alloc(&e->vm_arena, sizeof(VMGlobal));
@@ -287,7 +287,7 @@ long long exec_expr(Executor *e, ASTNode *curr, int seq, const char *prefix,
         alir_emit_to_file(e->module, "repl_debug.alir");
     }
 
-    long long result = meta_vm_execute(e->vm, e->module, cfn, &e->sem, NULL, 0);
+    long long result = metalir_vm_execute(e->vm, e->module, cfn, &e->sem, NULL, 0);
 
     if (curr->type == NODE_ASSIGN && ((AssignNode*)curr)->is_implicit_let) {
         if (fn->ret_type.array_size > 0) {

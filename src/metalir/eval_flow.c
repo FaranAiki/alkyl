@@ -1,4 +1,4 @@
-#include "meta/vm_internal.h"
+#include "vm_internal.h"
 
 void vm_eval_flow(VMContext *ctx, AlirInst *inst) {
     switch(inst->op) {

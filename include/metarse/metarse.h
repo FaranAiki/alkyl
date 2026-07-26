@@ -15,7 +15,7 @@ typedef struct {
     SemanticCtx sem;
     AlirModule *module;
     Arena vm_arena;
-    MetaVM *vm;
+    MetalirVM *vm;
 } Executor;
 
 void executor_init(Executor *e, const char *module_name,
@@ -23,8 +23,8 @@ void executor_init(Executor *e, const char *module_name,
                    int function_call_require_comma);
 void executor_cleanup(Executor *e);
 ASTNode* executor_parse_source(Executor *e, const char *source,
-                              const char *filename,
-                              const LexerSettings *settings);
+                               const char *filename,
+                               const LexerSettings *settings);
 void executor_alir_generate(Executor *e, ASTNode *root);
 AlirFunction* alir_find_function(AlirModule *module, const char *name);
 

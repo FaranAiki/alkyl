@@ -1,5 +1,5 @@
-#ifndef META_VM_H
-#define META_VM_H
+#ifndef METALIR_VM_H
+#define METALIR_VM_H
 
 #include "alir/alir.h"
 #include "common/arena.h"
@@ -10,22 +10,16 @@ typedef struct VMGlobal {
     struct VMGlobal *next;
 } VMGlobal;
 
-// VM State context
-typedef struct MetaVM {
+typedef struct MetalirVM {
     Arena *arena;
-    void *registers; // Pointer to VMValue array
+    void *registers;
     VMGlobal *globals;
     int status;
-} MetaVM;
+} MetalirVM;
 
-// Initialize the ALIR Virtual Machine context
-MetaVM* meta_vm_init(Arena *arena);
+MetalirVM* metalir_vm_init(Arena *arena);
+void metalir_vm_free(MetalirVM *vm);
+long long metalir_vm_execute(MetalirVM *vm, struct AlirModule *module, struct AlirFunction *func, void *sem_ctx_ptr, long long *args, int arg_count);
+long long metalir_vm_resolve_var(AlirValue *val, AlirModule *module, MetalirVM *vm, long long *args, int arg_count);
 
-// Clean up the VM context
-void meta_vm_free(MetaVM *vm);
-
-// Execute an ALIR function at compile-time (used for meta and postmeta blocks).
-// Returns 0 on success, non-zero on error.
-long long meta_vm_execute(MetaVM *vm, struct AlirModule *module, struct AlirFunction *func, void *sem_ctx_ptr, long long *args, int arg_count);
-
-#endif // META_VM_H
+#endif

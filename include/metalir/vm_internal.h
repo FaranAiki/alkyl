@@ -1,7 +1,7 @@
 #ifndef VM_INTERNAL_H
 #define VM_INTERNAL_H
 
-#include "meta/vm.h"
+#include "vm.h"
 #include "alir/alir.h"
 #include "semantic/semantic.h"
 
@@ -16,7 +16,7 @@ typedef struct {
 } VMValue;
 
 typedef struct {
-    MetaVM *vm;
+    MetalirVM *vm;
     AlirModule *module;
     AlirFunction *func;
     SemanticCtx *sem_ctx;
@@ -29,7 +29,7 @@ typedef struct {
     int should_return;
 } VMContext;
 
-long long meta_vm_resolve_var(AlirValue *val, AlirModule *module, MetaVM *vm, long long *args, int arg_count);
+long long metalir_vm_resolve_var(AlirValue *val, AlirModule *module, MetalirVM *vm, long long *args, int arg_count);
 
 void vm_eval_mem(VMContext *ctx, AlirInst *inst);
 void vm_eval_math(VMContext *ctx, AlirInst *inst);

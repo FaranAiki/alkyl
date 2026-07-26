@@ -1,5 +1,5 @@
-#include "meta/vm.h"
-#include "meta/vm_internal.h"
+#include "vm.h"
+#include "vm_internal.h"
 #include "alir/alir.h"
 #include "common/diagnostic.h"
 #include <stdio.h>
@@ -15,9 +15,8 @@
 
 #define MAX_VM_STACK 1024
 
-// Represents a value in the ALIR Virtual Machine memory
-MetaVM* meta_vm_init(Arena *arena) {
-    MetaVM *vm = arena_alloc(arena, sizeof(MetaVM));
+MetalirVM* metalir_vm_init(Arena *arena) {
+    MetalirVM *vm = arena_alloc(arena, sizeof(MetalirVM));
     vm->arena = arena;
     vm->registers = arena_alloc(arena, MAX_VM_STACK * sizeof(VMValue));
     vm->globals = NULL;
@@ -25,12 +24,10 @@ MetaVM* meta_vm_init(Arena *arena) {
     return vm;
 }
 
-void meta_vm_free(MetaVM *vm) {
+void metalir_vm_free(MetalirVM *vm) {
     (void)vm;
-    // Handled by Arena
 }
 
-// Very basic linear executor for an ALIR Block
 AlirBlock* find_block(AlirFunction *func, const char *label) {
     AlirBlock *curr = func->blocks;
     while(curr) {
@@ -40,7 +37,7 @@ AlirBlock* find_block(AlirFunction *func, const char *label) {
     return NULL;
 }
 
-long long meta_vm_resolve_var(AlirValue *val, AlirModule *module, MetaVM *vm, long long *args, int arg_count) {
+long long metalir_vm_resolve_var(AlirValue *val, AlirModule *module, MetalirVM *vm, long long *args, int arg_count) {
     if (!val) return 0;
     if (val->kind == ALIR_VAL_VAR) {
         const char *name = val->val.str_val;
@@ -81,7 +78,8 @@ long long meta_vm_resolve_var(AlirValue *val, AlirModule *module, MetaVM *vm, lo
     }
     return 0;
 }
-long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, void *sem_ctx_ptr, long long *args, int arg_count) {
+
+long long metalir_vm_execute(MetalirVM *vm, AlirModule *module, AlirFunction *func, void *sem_ctx_ptr, long long *args, int arg_count) {
     if (!vm || !func) return 0;
 
     if (strcmp(func->name, "Vector_as_int") == 0) {
@@ -103,11 +101,10 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
 
     AlirBlock *curr_block = func->blocks;
     while (curr_block) {
-        AlirBlock *next_block = curr_block->next; // Default fallthrough
+        AlirBlock *next_block = curr_block->next;
         AlirInst *inst = curr_block->head;
         while (inst) {
 
-            // TODO don't do this
             VMContext ctx = {
                 .vm = vm,
                 .module = module,
@@ -181,7 +178,6 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
                 default: break;
             }
             if (inst->op == ALIR_OP_PANIC) {
-                // Compile-time panic
                 if (inst->op1) {
                     if (inst->op1->kind == ALIR_VAL_GLOBAL && inst->op1->val.str_val && module) {
                         AlirGlobal *g = module->globals;
@@ -213,7 +209,6 @@ long long meta_vm_execute(MetaVM *vm, AlirModule *module, AlirFunction *func, vo
         curr_block = next_block;
     }
     ret_val = vm->status;
-
 
     vm->registers = old_registers;
     return ret_val;
