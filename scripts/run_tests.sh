@@ -46,26 +46,26 @@ for AKY_FILE in $FILES; do
     REL_PATH=${AKY_FILE#test/code/}
     FEATURE=$(dirname "$REL_PATH")
     NAME=$(basename "$REL_PATH" .aky)
-    
+
     TOTAL=$((TOTAL + 1))
-    
+
     EXPECTED_LOG="test/log/$FEATURE/$NAME.log"
     EXPECTED_OUT="test/output/$FEATURE/$NAME.out"
     INPUT_FILE="test/input/$FEATURE/$NAME.in"
     LOGDIFF="test/logdiff/$FEATURE/$NAME.logdiff"
     RUN_DIFF="test/diff/$FEATURE/$NAME.diff"
-    
+
     ACTUAL_LOG="/tmp/alkyl_actual_comp.log"
     ACTUAL_OUT="/tmp/alkyl_actual_run.out"
-    
+
     mkdir -p "test/log/$FEATURE" "test/output/$FEATURE" "test/logdiff/$FEATURE" "test/diff/$FEATURE"
-    
+
     # [NEW] Clean logs (strip ANSI escape codes) for a cleaner diff
     CLEAN_ACTUAL_LOG="/tmp/alkyl_actual_comp_clean.log"
     CLEAN_EXPECTED_LOG="/tmp/alkyl_expected_comp_clean.log"
 
-    echo -n "Testing [$FEATURE] $NAME ... "
-    
+    echo -n "Testing [$FEATURE] $NAME in test/code/$FEATURE/$NAME.aky ... "
+
     # 1. Compilation
     # Extract flags if specified on the first line of the file (e.g. // FLAGS: --some-flag)
     FIRST_LINE=$(head -n 1 "$AKY_FILE")
@@ -78,7 +78,7 @@ for AKY_FILE in $FILES; do
 
     build/alkyl "${FLAGS[@]}" "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
     COMP_RET=$?
-    
+
     # Strip colors for diffing
     sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$ACTUAL_LOG" > "$CLEAN_ACTUAL_LOG"
 
@@ -96,13 +96,13 @@ for AKY_FILE in $FILES; do
     if [ $COMP_RET -ne 0 ]; then
         # Compilation failed (non-zero exit code)
         rm -f build/out
-        
+
         if [ ! -f "$EXPECTED_LOG" ]; then
             echo -e "${COLOR_RED}FAILED (Compilation failed with exit code $COMP_RET but no expected log exists)${COLOR_RESET}"
             FAILED=$((FAILED + 1))
             continue
         fi
-        
+
         # Check compilation log against expected
         sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$EXPECTED_LOG" > "$CLEAN_EXPECTED_LOG"
         if ! diff "$CLEAN_EXPECTED_LOG" "$CLEAN_ACTUAL_LOG" > "$LOGDIFF"; then
@@ -112,13 +112,13 @@ for AKY_FILE in $FILES; do
         else
             rm -f "$LOGDIFF"
         fi
-        
+
         # If it matched expected log, negative test passes
         echo -e "${COLOR_GREEN}PASSED${COLOR_RESET}"
         PASSED=$((PASSED + 1))
         continue
     fi
-    
+
     # 2. Execution (if compiled successfully)
     if [ -f "build/out" ]; then
         if [ -f "$INPUT_FILE" ]; then
@@ -127,14 +127,14 @@ for AKY_FILE in $FILES; do
             ./build/out > "$ACTUAL_OUT" 2>&1
         fi
         RUN_RET=$?
-        
+
         if [ $RUN_RET -ne 0 ]; then
             echo -e "${COLOR_RED}FAILED (Execution failed with exit code $RUN_RET)${COLOR_RESET}"
             FAILED=$((FAILED + 1))
             rm -f build/out
             continue
         fi
-        
+
         if [ $UPDATE -eq 1 ]; then
             cp "$ACTUAL_OUT" "$EXPECTED_OUT"
         fi
@@ -164,7 +164,7 @@ for AKY_FILE in $FILES; do
                 rm -f "$LOGDIFF"
             fi
         fi
-        
+
         rm -f build/out
     else
         # If no ./out but compilation exit code was 0
@@ -172,7 +172,7 @@ for AKY_FILE in $FILES; do
         FAILED=$((FAILED + 1))
         continue
     fi
-    
+
     echo -e "${COLOR_GREEN}PASSED${COLOR_RESET}"
     PASSED=$((PASSED + 1))
 done

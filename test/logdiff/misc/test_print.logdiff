@@ -54,903 +54,903 @@
 11c46,942
 < ==610437==ERROR: LeakSanitizer: detected memory leaks
 ---
-> ==89841==ERROR: LeakSanitizer: detected memory leaks
+> ==232331==ERROR: LeakSanitizer: detected memory leaks
 > 
 > Direct leak of 152 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e741f2 in LLVMCreateBuilderInContext (/usr/lib/libLLVM.so.22.1+0xa741f2) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x562c47308e19 in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:13
->     #3 0x562c47308e19 in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #4 0x562c47308e19 in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba741f2 in LLVMCreateBuilderInContext (/usr/lib/libLLVM.so.22.1+0xa741f2) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x55a510ff0e19 in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:13
+>     #3 0x55a510ff0e19 in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #4 0x55a510ff0e19 in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 8192 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e05023218 in llvm::Value::setValueName(llvm::StringMapEntry<llvm::Value*>*) (/usr/lib/libLLVM.so.22.1+0xc23218) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023b7f in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23b7f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e72b1c in LLVMAppendBasicBlockInContext (/usr/lib/libLLVM.so.22.1+0xa72b1c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473e0de4 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:354
->     #7 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #8 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc23218 in llvm::Value::setValueName(llvm::StringMapEntry<llvm::Value*>*) (/usr/lib/libLLVM.so.22.1+0xc23218) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23b7f in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23b7f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba72b1c in LLVMAppendBasicBlockInContext (/usr/lib/libLLVM.so.22.1+0xa72b1c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110c9e24 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:354
+>     #7 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #8 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 7232 byte(s) in 40 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e05021a26 in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAndDescriptorAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc21a26) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e7a024 in LLVMBuildCall2 (/usr/lib/libLLVM.so.22.1+0xa7a024) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e3435 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:118
->     #4 0x562c473e3435 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
->     #5 0x562c473e3435 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #6 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #7 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc21a26 in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAndDescriptorAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc21a26) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba7a024 in LLVMBuildCall2 (/usr/lib/libLLVM.so.22.1+0xa7a024) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110cc475 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:118
+>     #4 0x55a5110cc475 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
+>     #5 0x55a5110cc475 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #6 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #7 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 6720 byte(s) in 84 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e72b02 in LLVMAppendBasicBlockInContext (/usr/lib/libLLVM.so.22.1+0xa72b02) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x562c473e0de4 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:354
->     #3 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #4 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba72b02 in LLVMAppendBasicBlockInContext (/usr/lib/libLLVM.so.22.1+0xa72b02) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x55a5110c9e24 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:354
+>     #3 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #4 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 6272 byte(s) in 56 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e776f8 in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa776f8) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473df8ca in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba776f8 in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa776f8) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110c890a in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
 > 
 > Indirect leak of 5096 byte(s) in 49 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e755de in LLVMBuildBr (/usr/lib/libLLVM.so.22.1+0xa755de) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e1b38 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:11
->     #4 0x562c473e1b38 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
->     #5 0x562c473e1b38 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #6 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #7 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba755de in LLVMBuildBr (/usr/lib/libLLVM.so.22.1+0xa755de) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110cab78 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:11
+>     #4 0x55a5110cab78 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
+>     #5 0x55a5110cab78 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #6 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #7 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 4704 byte(s) in 28 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e75766 in LLVMBuildCondBr (/usr/lib/libLLVM.so.22.1+0xa75766) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e1c9f in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:18
->     #4 0x562c473e1c9f in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
->     #5 0x562c473e1c9f in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #6 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #7 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba75766 in LLVMBuildCondBr (/usr/lib/libLLVM.so.22.1+0xa75766) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110cacdf in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:18
+>     #4 0x55a5110cacdf in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
+>     #5 0x55a5110cacdf in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #6 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #7 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 4096 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0500dff4  (/usr/lib/libLLVM.so.22.1+0xc0dff4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05014951 in llvm::ArrayType::get(llvm::Type*, unsigned long) (/usr/lib/libLLVM.so.22.1+0xc14951) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e4feae in llvm::ConstantDataArray::getString(llvm::LLVMContext&, llvm::StringRef, bool) (/usr/lib/libLLVM.so.22.1+0xa4feae) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c473e0474 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:233
->     #6 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #7 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc0dff4  (/usr/lib/libLLVM.so.22.1+0xc0dff4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc14951 in llvm::ArrayType::get(llvm::Type*, unsigned long) (/usr/lib/libLLVM.so.22.1+0xc14951) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba4feae in llvm::ConstantDataArray::getString(llvm::LLVMContext&, llvm::StringRef, bool) (/usr/lib/libLLVM.so.22.1+0xa4feae) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a5110c94b4 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:233
+>     #6 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #7 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 4032 byte(s) in 36 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e77ae5 in LLVMBuildLoad2 (/usr/lib/libLLVM.so.22.1+0xa77ae5) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473df253 in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:47
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba77ae5 in LLVMBuildLoad2 (/usr/lib/libLLVM.so.22.1+0xa77ae5) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110c8293 in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:47
 > 
 > Indirect leak of 3456 byte(s) in 24 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e77cc1 in LLVMBuildStore (/usr/lib/libLLVM.so.22.1+0xa77cc1) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473dee89 in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:32
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba77cc1 in LLVMBuildStore (/usr/lib/libLLVM.so.22.1+0xa77cc1) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110c7ec9 in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:32
 > 
 > Indirect leak of 3120 byte(s) in 4 object(s) allocated from:
->     #0 0x7f4e0eb2bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ceea27 in llvm::StringMapImpl::RehashTable(unsigned int) (/usr/lib/libLLVM.so.22.1+0x8eea27) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502adf5 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adf5) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e0502b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x7f4e04e7a260 in LLVMBuildCall2 (/usr/lib/libLLVM.so.22.1+0xa7a260) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #7 0x562c473e3435 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:118
->     #8 0x562c473e3435 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
->     #9 0x562c473e3435 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #10 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #11 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8eea27 in llvm::StringMapImpl::RehashTable(unsigned int) (/usr/lib/libLLVM.so.22.1+0x8eea27) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2adf5 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adf5) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc2b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x7fd1dba7a260 in LLVMBuildCall2 (/usr/lib/libLLVM.so.22.1+0xa7a260) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #7 0x55a5110cc475 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:118
+>     #8 0x55a5110cc475 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
+>     #9 0x55a5110cc475 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #10 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #11 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 3088 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04f6d939 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6d939) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #4 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #5 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbb6d939 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6d939) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #4 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #5 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 1959 byte(s) in 84 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e72b1c in LLVMAppendBasicBlockInContext (/usr/lib/libLLVM.so.22.1+0xa72b1c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473e0de4 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:354
->     #7 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #8 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba72b1c in LLVMAppendBasicBlockInContext (/usr/lib/libLLVM.so.22.1+0xa72b1c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110c9e24 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:354
+>     #7 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #8 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 1632 byte(s) in 12 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e79a7f in LLVMBuildICmp (/usr/lib/libLLVM.so.22.1+0xa79a7f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e5824 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:60
->     #4 0x562c473e5824 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #5 0x562c473e5824 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #6 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #7 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba79a7f in LLVMBuildICmp (/usr/lib/libLLVM.so.22.1+0xa79a7f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110ce864 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:60
+>     #4 0x55a5110ce864 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #5 0x55a5110ce864 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #6 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #7 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 1560 byte(s) in 2 object(s) allocated from:
->     #0 0x7f4e0eb2bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ceea27 in llvm::StringMapImpl::RehashTable(unsigned int) (/usr/lib/libLLVM.so.22.1+0x8eea27) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502adf5 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adf5) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e0502b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x7f4e04e7777c in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa7777c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #7 0x562c473df8ca in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
+>     #0 0x7fd1e572bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8eea27 in llvm::StringMapImpl::RehashTable(unsigned int) (/usr/lib/libLLVM.so.22.1+0x8eea27) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2adf5 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adf5) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc2b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x7fd1dba7777c in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa7777c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #7 0x55a5110c890a in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
 > 
 > Indirect leak of 1548 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ceea27 in llvm::StringMapImpl::RehashTable(unsigned int) (/usr/lib/libLLVM.so.22.1+0x8eea27) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502b278 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b278) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e7777c in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa7777c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473df8ca in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
+>     #0 0x7fd1e572bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8eea27 in llvm::StringMapImpl::RehashTable(unsigned int) (/usr/lib/libLLVM.so.22.1+0x8eea27) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2b278 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b278) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba7777c in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa7777c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110c890a in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
 > 
 > Indirect leak of 1536 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e05014682 in llvm::ArrayType::get(llvm::Type*, unsigned long) (/usr/lib/libLLVM.so.22.1+0xc14682) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e4feae in llvm::ConstantDataArray::getString(llvm::LLVMContext&, llvm::StringRef, bool) (/usr/lib/libLLVM.so.22.1+0xa4feae) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c473e0474 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:233
->     #5 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #6 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc14682 in llvm::ArrayType::get(llvm::Type*, unsigned long) (/usr/lib/libLLVM.so.22.1+0xc14682) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba4feae in llvm::ConstantDataArray::getString(llvm::LLVMContext&, llvm::StringRef, bool) (/usr/lib/libLLVM.so.22.1+0xa4feae) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a5110c94b4 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:233
+>     #5 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #6 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 1536 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e4c3f4  (/usr/lib/libLLVM.so.22.1+0xa4c3f4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e4c8b6 in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c8b6) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c473e13c3 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:13
->     #6 0x562c473e13c3 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #7 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #8 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba4c3f4  (/usr/lib/libLLVM.so.22.1+0xa4c3f4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba4c8b6 in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c8b6) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a5110ca403 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:13
+>     #6 0x55a5110ca403 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #7 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #8 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 1440 byte(s) in 10 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e05021a51 in llvm::User::operator new(unsigned long, llvm::User::HungOffOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc21a51) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e71752 in LLVMAddFunction (/usr/lib/libLLVM.so.22.1+0xa71752) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e07e5 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:298
->     #4 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #5 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc21a51 in llvm::User::operator new(unsigned long, llvm::User::HungOffOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc21a51) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba71752 in LLVMAddFunction (/usr/lib/libLLVM.so.22.1+0xa71752) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110c9825 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:298
+>     #4 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #5 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 1307 byte(s) in 47 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f6e07f in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e07f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #5 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #6 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb6e07f in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e07f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #5 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #6 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 1200 byte(s) in 10 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e711d6 in LLVMAddGlobal (/usr/lib/libLLVM.so.22.1+0xa711d6) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e0510 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:265
->     #4 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #5 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba711d6 in LLVMAddGlobal (/usr/lib/libLLVM.so.22.1+0xa711d6) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110c9550 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:265
+>     #4 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #5 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 1152 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e6b881 in LLVMModuleCreateWithNameInContext (/usr/lib/libLLVM.so.22.1+0xa6b881) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x562c47308ddb in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:12
->     #3 0x562c47308ddb in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #4 0x562c47308ddb in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba6b881 in LLVMModuleCreateWithNameInContext (/usr/lib/libLLVM.so.22.1+0xa6b881) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x55a510ff0ddb in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:12
+>     #3 0x55a510ff0ddb in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #4 0x55a510ff0ddb in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 1143 byte(s) in 49 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502adb4 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adb4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e0502b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x7f4e04e7777c in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa7777c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #7 0x562c473df8ca in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2adb4 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adb4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc2b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x7fd1dba7777c in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa7777c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #7 0x55a5110c890a in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
 > 
 > Indirect leak of 1024 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e4c215  (/usr/lib/libLLVM.so.22.1+0xa4c215) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e4cb9a in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4cb9a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c473e13c3 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:13
->     #6 0x562c473e13c3 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #7 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #8 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba4c215  (/usr/lib/libLLVM.so.22.1+0xa4c215) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba4cb9a in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4cb9a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a5110ca403 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:13
+>     #6 0x55a5110ca403 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #7 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #8 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 1024 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e4fff5  (/usr/lib/libLLVM.so.22.1+0xa4fff5) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e502c9 in llvm::ConstantPointerNull::get(llvm::PointerType*) (/usr/lib/libLLVM.so.22.1+0xa502c9) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6330e in llvm::ConstantExpr::getSizeOf(llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa6330e) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c473e28fb in translate_misc /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/misc.c:15
->     #6 0x562c473e28fb in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:67
->     #7 0x562c473e28fb in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #8 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #9 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba4fff5  (/usr/lib/libLLVM.so.22.1+0xa4fff5) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba502c9 in llvm::ConstantPointerNull::get(llvm::PointerType*) (/usr/lib/libLLVM.so.22.1+0xa502c9) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6330e in llvm::ConstantExpr::getSizeOf(llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa6330e) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a5110cb93b in translate_misc /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/misc.c:15
+>     #6 0x55a5110cb93b in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:67
+>     #7 0x55a5110cb93b in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #8 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #9 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 1024 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e4c215  (/usr/lib/libLLVM.so.22.1+0xa4c215) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e4cb6a in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4cb6a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04f5ba4d in llvm::AllocaInst::AllocaInst(llvm::Type*, unsigned int, llvm::Value*, llvm::Align, llvm::Twine const&, llvm::InsertPosition) (/usr/lib/libLLVM.so.22.1+0xb5ba4d) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x7f4e04e77721 in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa77721) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #7 0x562c473df8ca in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba4c215  (/usr/lib/libLLVM.so.22.1+0xa4c215) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba4cb6a in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4cb6a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dbb5ba4d in llvm::AllocaInst::AllocaInst(llvm::Type*, unsigned int, llvm::Value*, llvm::Align, llvm::Twine const&, llvm::InsertPosition) (/usr/lib/libLLVM.so.22.1+0xb5ba4d) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x7fd1dba77721 in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa77721) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #7 0x55a5110c890a in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
 > 
 > Indirect leak of 816 byte(s) in 6 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f609f8 in llvm::BinaryOperator::Create(llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, llvm::Twine const&, llvm::InsertPosition) (/usr/lib/libLLVM.so.22.1+0xb609f8) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e80c17 in LLVMBuildSub (/usr/lib/libLLVM.so.22.1+0xa80c17) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c473e4f56 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:31
->     #5 0x562c473e4f56 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #6 0x562c473e4f56 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #7 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #8 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb609f8 in llvm::BinaryOperator::Create(llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, llvm::Twine const&, llvm::InsertPosition) (/usr/lib/libLLVM.so.22.1+0xb609f8) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba80c17 in LLVMBuildSub (/usr/lib/libLLVM.so.22.1+0xa80c17) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a5110cdf96 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:31
+>     #5 0x55a5110cdf96 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #6 0x55a5110cdf96 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #7 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #8 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 816 byte(s) in 6 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f609f8 in llvm::BinaryOperator::Create(llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, llvm::Twine const&, llvm::InsertPosition) (/usr/lib/libLLVM.so.22.1+0xb609f8) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e80477 in LLVMBuildAdd (/usr/lib/libLLVM.so.22.1+0xa80477) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c473e4f92 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:30
->     #5 0x562c473e4f92 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #6 0x562c473e4f92 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #7 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #8 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb609f8 in llvm::BinaryOperator::Create(llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, llvm::Twine const&, llvm::InsertPosition) (/usr/lib/libLLVM.so.22.1+0xb609f8) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba80477 in LLVMBuildAdd (/usr/lib/libLLVM.so.22.1+0xa80477) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a5110cdfd2 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:30
+>     #5 0x55a5110cdfd2 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #6 0x55a5110cdfd2 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #7 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #8 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 816 byte(s) in 6 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f609f8 in llvm::BinaryOperator::Create(llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, llvm::Twine const&, llvm::InsertPosition) (/usr/lib/libLLVM.so.22.1+0xb609f8) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e7fb27 in LLVMBuildAShr (/usr/lib/libLLVM.so.22.1+0xa7fb27) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c473e24c4 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:122
->     #5 0x562c473e24c4 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #6 0x562c473e24c4 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #7 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #8 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb609f8 in llvm::BinaryOperator::Create(llvm::Instruction::BinaryOps, llvm::Value*, llvm::Value*, llvm::Twine const&, llvm::InsertPosition) (/usr/lib/libLLVM.so.22.1+0xb609f8) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba7fb27 in LLVMBuildAShr (/usr/lib/libLLVM.so.22.1+0xa7fb27) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a5110cb504 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:122
+>     #5 0x55a5110cb504 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #6 0x55a5110cb504 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #7 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #8 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 780 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ceea27 in llvm::StringMapImpl::RehashTable(unsigned int) (/usr/lib/libLLVM.so.22.1+0x8eea27) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f6e0c2 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e0c2) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #5 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #6 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8eea27 in llvm::StringMapImpl::RehashTable(unsigned int) (/usr/lib/libLLVM.so.22.1+0x8eea27) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb6e0c2 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e0c2) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #5 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #6 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 680 byte(s) in 17 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e13c3 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:13
->     #4 0x562c473e13c3 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #5 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #6 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110ca403 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:13
+>     #4 0x55a5110ca403 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #5 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #6 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 670 byte(s) in 30 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502adb4 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adb4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e0502b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x7f4e04e77c45 in LLVMBuildLoad2 (/usr/lib/libLLVM.so.22.1+0xa77c45) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #7 0x562c473df253 in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:47
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2adb4 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adb4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc2b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x7fd1dba77c45 in LLVMBuildLoad2 (/usr/lib/libLLVM.so.22.1+0xa77c45) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #7 0x55a5110c8293 in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:47
 > 
 > Indirect leak of 611 byte(s) in 27 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502adb4 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adb4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e0502b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x7f4e04e7a260 in LLVMBuildCall2 (/usr/lib/libLLVM.so.22.1+0xa7a260) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #7 0x562c473e3435 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:118
->     #8 0x562c473e3435 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
->     #9 0x562c473e3435 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #10 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #11 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2adb4 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adb4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc2b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x7fd1dba7a260 in LLVMBuildCall2 (/usr/lib/libLLVM.so.22.1+0xa7a260) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #7 0x55a5110cc475 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:118
+>     #8 0x55a5110cc475 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
+>     #9 0x55a5110cc475 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #10 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #11 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 520 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04c75fe1 in llvm::FoldingSetBase::FoldingSetBase(unsigned int) (/usr/lib/libLLVM.so.22.1+0x875fe1) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f71b9e in llvm::LLVMContextImpl::LLVMContextImpl(llvm::LLVMContext&) (/usr/lib/libLLVM.so.22.1+0xb71b9e) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6d948 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6d948) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db875fe1 in llvm::FoldingSetBase::FoldingSetBase(unsigned int) (/usr/lib/libLLVM.so.22.1+0x875fe1) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb71b9e in llvm::LLVMContextImpl::LLVMContextImpl(llvm::LLVMContext&) (/usr/lib/libLLVM.so.22.1+0xb71b9e) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6d948 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6d948) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 520 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04c75fe1 in llvm::FoldingSetBase::FoldingSetBase(unsigned int) (/usr/lib/libLLVM.so.22.1+0x875fe1) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f71b7a in llvm::LLVMContextImpl::LLVMContextImpl(llvm::LLVMContext&) (/usr/lib/libLLVM.so.22.1+0xb71b7a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6d948 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6d948) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db875fe1 in llvm::FoldingSetBase::FoldingSetBase(unsigned int) (/usr/lib/libLLVM.so.22.1+0x875fe1) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb71b7a in llvm::LLVMContextImpl::LLVMContextImpl(llvm::LLVMContext&) (/usr/lib/libLLVM.so.22.1+0xb71b7a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6d948 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6d948) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 520 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04c75fe1 in llvm::FoldingSetBase::FoldingSetBase(unsigned int) (/usr/lib/libLLVM.so.22.1+0x875fe1) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f71b8c in llvm::LLVMContextImpl::LLVMContextImpl(llvm::LLVMContext&) (/usr/lib/libLLVM.so.22.1+0xb71b8c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6d948 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6d948) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db875fe1 in llvm::FoldingSetBase::FoldingSetBase(unsigned int) (/usr/lib/libLLVM.so.22.1+0x875fe1) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb71b8c in llvm::LLVMContextImpl::LLVMContextImpl(llvm::LLVMContext&) (/usr/lib/libLLVM.so.22.1+0xb71b8c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6d948 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6d948) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 512 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e5a2b2  (/usr/lib/libLLVM.so.22.1+0xa5a2b2) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e5b37f  (/usr/lib/libLLVM.so.22.1+0xa5b37f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e62dd0 in llvm::ConstantExpr::getGetElementPtr(llvm::Type*, llvm::Constant*, llvm::ArrayRef<llvm::Value*>, llvm::GEPNoWrapFlags, std::optional<llvm::ConstantRange>, llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa62dd0) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e63346 in llvm::ConstantExpr::getSizeOf(llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa63346) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473e28fb in translate_misc /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/misc.c:15
->     #7 0x562c473e28fb in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:67
->     #8 0x562c473e28fb in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #9 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #10 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba5a2b2  (/usr/lib/libLLVM.so.22.1+0xa5a2b2) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba5b37f  (/usr/lib/libLLVM.so.22.1+0xa5b37f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba62dd0 in llvm::ConstantExpr::getGetElementPtr(llvm::Type*, llvm::Constant*, llvm::ArrayRef<llvm::Value*>, llvm::GEPNoWrapFlags, std::optional<llvm::ConstantRange>, llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa62dd0) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba63346 in llvm::ConstantExpr::getSizeOf(llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa63346) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110cb93b in translate_misc /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/misc.c:15
+>     #7 0x55a5110cb93b in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:67
+>     #8 0x55a5110cb93b in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #9 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #10 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 512 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0501986e in llvm::FunctionType::get(llvm::Type*, llvm::ArrayRef<llvm::Type*>, bool) (/usr/lib/libLLVM.so.22.1+0xc1986e) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e07a3 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:297
->     #4 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #5 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc1986e in llvm::FunctionType::get(llvm::Type*, llvm::ArrayRef<llvm::Type*>, bool) (/usr/lib/libLLVM.so.22.1+0xc1986e) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110c97e3 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:297
+>     #4 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #5 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 480 byte(s) in 6 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e74ddc in LLVMBuildRetVoid (/usr/lib/libLLVM.so.22.1+0xa74ddc) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e48e6 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:157
->     #4 0x562c473e48e6 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
->     #5 0x562c473e48e6 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #6 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #7 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba74ddc in LLVMBuildRetVoid (/usr/lib/libLLVM.so.22.1+0xa74ddc) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110cd926 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:157
+>     #4 0x55a5110cd926 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
+>     #5 0x55a5110cd926 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #6 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #7 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 480 byte(s) in 6 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04f1dd32 in llvm::Function::BuildLazyArguments() const (/usr/lib/libLLVM.so.22.1+0xb1dd32) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e71fd4 in LLVMGetParam (/usr/lib/libLLVM.so.22.1+0xa71fd4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e0cef in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:345
->     #4 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #5 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbb1dd32 in llvm::Function::BuildLazyArguments() const (/usr/lib/libLLVM.so.22.1+0xb1dd32) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba71fd4 in LLVMGetParam (/usr/lib/libLLVM.so.22.1+0xa71fd4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110c9d2f in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:345
+>     #4 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #5 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 400 byte(s) in 10 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e4fa65 in llvm::ConstantDataSequential::getImpl(llvm::StringRef, llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa4fa65) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e4febc in llvm::ConstantDataArray::getString(llvm::LLVMContext&, llvm::StringRef, bool) (/usr/lib/libLLVM.so.22.1+0xa4febc) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e0474 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:233
->     #4 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #5 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba4fa65 in llvm::ConstantDataSequential::getImpl(llvm::StringRef, llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa4fa65) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba4febc in llvm::ConstantDataArray::getString(llvm::LLVMContext&, llvm::StringRef, bool) (/usr/lib/libLLVM.so.22.1+0xa4febc) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110c94b4 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:233
+>     #4 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #5 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 396 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ceea27 in llvm::StringMapImpl::RehashTable(unsigned int) (/usr/lib/libLLVM.so.22.1+0x8eea27) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f1d470 in llvm::Function::Function(llvm::FunctionType*, llvm::GlobalValue::LinkageTypes, unsigned int, llvm::Twine const&, llvm::Module*) (/usr/lib/libLLVM.so.22.1+0xb1d470) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e71770 in LLVMAddFunction (/usr/lib/libLLVM.so.22.1+0xa71770) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c473e07e5 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:298
->     #5 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #6 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8eea27 in llvm::StringMapImpl::RehashTable(unsigned int) (/usr/lib/libLLVM.so.22.1+0x8eea27) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb1d470 in llvm::Function::Function(llvm::FunctionType*, llvm::GlobalValue::LinkageTypes, unsigned int, llvm::Twine const&, llvm::Module*) (/usr/lib/libLLVM.so.22.1+0xb1d470) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba71770 in LLVMAddFunction (/usr/lib/libLLVM.so.22.1+0xa71770) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a5110c9825 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:298
+>     #5 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #6 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 355 byte(s) in 10 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e05023dc7 in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23dc7) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04f1d3db in llvm::Function::Function(llvm::FunctionType*, llvm::GlobalValue::LinkageTypes, unsigned int, llvm::Twine const&, llvm::Module*) (/usr/lib/libLLVM.so.22.1+0xb1d3db) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e71770 in LLVMAddFunction (/usr/lib/libLLVM.so.22.1+0xa71770) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473e07e5 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:298
->     #7 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #8 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc23dc7 in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23dc7) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbb1d3db in llvm::Function::Function(llvm::FunctionType*, llvm::GlobalValue::LinkageTypes, unsigned int, llvm::Twine const&, llvm::Module*) (/usr/lib/libLLVM.so.22.1+0xb1d3db) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba71770 in LLVMAddFunction (/usr/lib/libLLVM.so.22.1+0xa71770) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110c9825 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:298
+>     #7 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #8 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 320 byte(s) in 10 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04f1d51a in llvm::Function::Function(llvm::FunctionType*, llvm::GlobalValue::LinkageTypes, unsigned int, llvm::Twine const&, llvm::Module*) (/usr/lib/libLLVM.so.22.1+0xb1d51a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e71770 in LLVMAddFunction (/usr/lib/libLLVM.so.22.1+0xa71770) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e07e5 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:298
->     #4 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #5 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbb1d51a in llvm::Function::Function(llvm::FunctionType*, llvm::GlobalValue::LinkageTypes, unsigned int, llvm::Twine const&, llvm::Module*) (/usr/lib/libLLVM.so.22.1+0xb1d51a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba71770 in LLVMAddFunction (/usr/lib/libLLVM.so.22.1+0xa71770) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110c9825 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:298
+>     #4 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #5 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 304 byte(s) in 2 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e7832a in LLVMBuildGEP2 (/usr/lib/libLLVM.so.22.1+0xa7832a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473df91f in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:110
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba7832a in LLVMBuildGEP2 (/usr/lib/libLLVM.so.22.1+0xa7832a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110c895f in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:110
 > 
 > Indirect leak of 220 byte(s) in 10 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e05023dc7 in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23dc7) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04f28b30 in llvm::GlobalVariable::GlobalVariable(llvm::Module&, llvm::Type*, bool, llvm::GlobalValue::LinkageTypes, llvm::Constant*, llvm::Twine const&, llvm::GlobalVariable*, llvm::GlobalValue::ThreadLocalMode, std::optional<unsigned int>, bool) (/usr/lib/libLLVM.so.22.1+0xb28b30) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e71221 in LLVMAddGlobal (/usr/lib/libLLVM.so.22.1+0xa71221) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473e0510 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:265
->     #7 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #8 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc23dc7 in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23dc7) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbb28b30 in llvm::GlobalVariable::GlobalVariable(llvm::Module&, llvm::Type*, bool, llvm::GlobalValue::LinkageTypes, llvm::Constant*, llvm::Twine const&, llvm::GlobalVariable*, llvm::GlobalValue::ThreadLocalMode, std::optional<unsigned int>, bool) (/usr/lib/libLLVM.so.22.1+0xb28b30) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba71221 in LLVMAddGlobal (/usr/lib/libLLVM.so.22.1+0xa71221) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110c9550 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:265
+>     #7 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #8 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 211 byte(s) in 10 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e4f959 in llvm::ConstantDataSequential::getImpl(llvm::StringRef, llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa4f959) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e4febc in llvm::ConstantDataArray::getString(llvm::LLVMContext&, llvm::StringRef, bool) (/usr/lib/libLLVM.so.22.1+0xa4febc) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c473e0474 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:233
->     #5 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #6 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba4f959 in llvm::ConstantDataSequential::getImpl(llvm::StringRef, llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa4f959) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba4febc in llvm::ConstantDataArray::getString(llvm::LLVMContext&, llvm::StringRef, bool) (/usr/lib/libLLVM.so.22.1+0xa4febc) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a5110c94b4 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:233
+>     #5 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #6 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 204 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04cee452 in llvm::StringMapImpl::LookupBucketFor(llvm::StringRef, unsigned int) (/usr/lib/libLLVM.so.22.1+0x8ee452) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e4f8c0 in llvm::ConstantDataSequential::getImpl(llvm::StringRef, llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa4f8c0) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e4febc in llvm::ConstantDataArray::getString(llvm::LLVMContext&, llvm::StringRef, bool) (/usr/lib/libLLVM.so.22.1+0xa4febc) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c473e0474 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:233
->     #5 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #6 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8ee452 in llvm::StringMapImpl::LookupBucketFor(llvm::StringRef, unsigned int) (/usr/lib/libLLVM.so.22.1+0x8ee452) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba4f8c0 in llvm::ConstantDataSequential::getImpl(llvm::StringRef, llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa4f8c0) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba4febc in llvm::ConstantDataArray::getString(llvm::LLVMContext&, llvm::StringRef, bool) (/usr/lib/libLLVM.so.22.1+0xa4febc) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a5110c94b4 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:233
+>     #5 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #6 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 204 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04cee452 in llvm::StringMapImpl::LookupBucketFor(llvm::StringRef, unsigned int) (/usr/lib/libLLVM.so.22.1+0x8ee452) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f72b98 in llvm::LLVMContextImpl::getOrInsertSyncScopeID(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb72b98) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e217 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e217) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8ee452 in llvm::StringMapImpl::LookupBucketFor(llvm::StringRef, unsigned int) (/usr/lib/libLLVM.so.22.1+0x8ee452) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb72b98 in llvm::LLVMContextImpl::getOrInsertSyncScopeID(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb72b98) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e217 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e217) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 204 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04cee452 in llvm::StringMapImpl::LookupBucketFor(llvm::StringRef, unsigned int) (/usr/lib/libLLVM.so.22.1+0x8ee452) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f72848 in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb72848) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e114 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e114) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572bea9 in calloc (/usr/lib/libasan.so.8+0x12bea9) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8ee452 in llvm::StringMapImpl::LookupBucketFor(llvm::StringRef, unsigned int) (/usr/lib/libLLVM.so.22.1+0x8ee452) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb72848 in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb72848) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e114 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e114) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 154 byte(s) in 7 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e7777c in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa7777c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473df8ca in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba7777c in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa7777c) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110c890a in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
 > 
 > Indirect leak of 147 byte(s) in 7 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e7a260 in LLVMBuildCall2 (/usr/lib/libLLVM.so.22.1+0xa7a260) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473e3435 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:118
->     #7 0x562c473e3435 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
->     #8 0x562c473e3435 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #9 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #10 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba7a260 in LLVMBuildCall2 (/usr/lib/libLLVM.so.22.1+0xa7a260) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110cc475 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:118
+>     #7 0x55a5110cc475 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
+>     #8 0x55a5110cc475 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #9 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #10 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 144 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e49ffc  (/usr/lib/libLLVM.so.22.1+0xa49ffc) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e5b0d9  (/usr/lib/libLLVM.so.22.1+0xa5b0d9) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e62dd0 in llvm::ConstantExpr::getGetElementPtr(llvm::Type*, llvm::Constant*, llvm::ArrayRef<llvm::Value*>, llvm::GEPNoWrapFlags, std::optional<llvm::ConstantRange>, llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa62dd0) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e63346 in llvm::ConstantExpr::getSizeOf(llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa63346) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473e28fb in translate_misc /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/misc.c:15
->     #7 0x562c473e28fb in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:67
->     #8 0x562c473e28fb in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #9 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #10 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba49ffc  (/usr/lib/libLLVM.so.22.1+0xa49ffc) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba5b0d9  (/usr/lib/libLLVM.so.22.1+0xa5b0d9) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba62dd0 in llvm::ConstantExpr::getGetElementPtr(llvm::Type*, llvm::Constant*, llvm::ArrayRef<llvm::Value*>, llvm::GEPNoWrapFlags, std::optional<llvm::ConstantRange>, llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa62dd0) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba63346 in llvm::ConstantExpr::getSizeOf(llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa63346) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110cb93b in translate_misc /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/misc.c:15
+>     #7 0x55a5110cb93b in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:67
+>     #8 0x55a5110cb93b in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #9 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #10 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 136 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e79a7f in LLVMBuildICmp (/usr/lib/libLLVM.so.22.1+0xa79a7f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e561c in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:58
->     #4 0x562c473e561c in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #5 0x562c473e561c in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #6 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #7 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba79a7f in LLVMBuildICmp (/usr/lib/libLLVM.so.22.1+0xa79a7f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110ce65c in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:58
+>     #4 0x55a5110ce65c in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #5 0x55a5110ce65c in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #6 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #7 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 126 byte(s) in 6 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502adb4 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adb4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e0502b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x7f4e04e79bcd in LLVMBuildICmp (/usr/lib/libLLVM.so.22.1+0xa79bcd) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #7 0x562c473e5824 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:60
->     #8 0x562c473e5824 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #9 0x562c473e5824 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #10 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #11 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2adb4 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adb4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc2b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x7fd1dba79bcd in LLVMBuildICmp (/usr/lib/libLLVM.so.22.1+0xa79bcd) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #7 0x55a5110ce864 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:60
+>     #8 0x55a5110ce864 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #9 0x55a5110ce864 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #10 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #11 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 126 byte(s) in 6 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e77c45 in LLVMBuildLoad2 (/usr/lib/libLLVM.so.22.1+0xa77c45) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473df253 in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:47
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba77c45 in LLVMBuildLoad2 (/usr/lib/libLLVM.so.22.1+0xa77c45) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110c8293 in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:47
 > 
 > Indirect leak of 120 byte(s) in 6 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e7f21d  (/usr/lib/libLLVM.so.22.1+0xa7f21d) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x7f4e04e80c26 in LLVMBuildSub (/usr/lib/libLLVM.so.22.1+0xa80c26) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #7 0x562c473e4f56 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:31
->     #8 0x562c473e4f56 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #9 0x562c473e4f56 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #10 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #11 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba7f21d  (/usr/lib/libLLVM.so.22.1+0xa7f21d) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x7fd1dba80c26 in LLVMBuildSub (/usr/lib/libLLVM.so.22.1+0xa80c26) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #7 0x55a5110cdf96 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:31
+>     #8 0x55a5110cdf96 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #9 0x55a5110cdf96 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #10 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #11 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 120 byte(s) in 3 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04f1dd32 in llvm::Function::BuildLazyArguments() const (/usr/lib/libLLVM.so.22.1+0xb1dd32) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0505213f  (/usr/lib/libLLVM.so.22.1+0xc5213f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e050632de  (/usr/lib/libLLVM.so.22.1+0xc632de) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05065599  (/usr/lib/libLLVM.so.22.1+0xc65599) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e05066b72 in llvm::verifyModule(llvm::Module const&, llvm::raw_ostream*, bool*) (/usr/lib/libLLVM.so.22.1+0xc66b72) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x7f4e07070762 in LLVMVerifyModule (/usr/lib/libLLVM.so.22.1+0x2c70762) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #7 0x562c473e3a65 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:392
->     #8 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #9 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbb1dd32 in llvm::Function::BuildLazyArguments() const (/usr/lib/libLLVM.so.22.1+0xb1dd32) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc5213f  (/usr/lib/libLLVM.so.22.1+0xc5213f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc632de  (/usr/lib/libLLVM.so.22.1+0xc632de) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc65599  (/usr/lib/libLLVM.so.22.1+0xc65599) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dbc66b72 in llvm::verifyModule(llvm::Module const&, llvm::raw_ostream*, bool*) (/usr/lib/libLLVM.so.22.1+0xc66b72) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x7fd1ddc70762 in LLVMVerifyModule (/usr/lib/libLLVM.so.22.1+0x2c70762) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #7 0x55a5110ccaa5 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:392
+>     #8 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #9 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 120 byte(s) in 3 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e5f017 in llvm::ConstantInt::get(llvm::Type*, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa5f017) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e1a12e  (/usr/lib/libLLVM.so.22.1+0xa1a12e) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e7d970 in LLVMBuildSExt (/usr/lib/libLLVM.so.22.1+0xa7d970) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c473e5927 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:170
->     #6 0x562c473e5927 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #7 0x562c473e5927 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #8 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #9 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba5f017 in llvm::ConstantInt::get(llvm::Type*, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa5f017) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba1a12e  (/usr/lib/libLLVM.so.22.1+0xa1a12e) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba7d970 in LLVMBuildSExt (/usr/lib/libLLVM.so.22.1+0xa7d970) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a5110ce967 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:170
+>     #6 0x55a5110ce967 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #7 0x55a5110ce967 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #8 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #9 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 120 byte(s) in 6 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e7f21d  (/usr/lib/libLLVM.so.22.1+0xa7f21d) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x7f4e04e80486 in LLVMBuildAdd (/usr/lib/libLLVM.so.22.1+0xa80486) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #7 0x562c473e4f92 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:30
->     #8 0x562c473e4f92 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #9 0x562c473e4f92 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #10 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #11 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba7f21d  (/usr/lib/libLLVM.so.22.1+0xa7f21d) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x7fd1dba80486 in LLVMBuildAdd (/usr/lib/libLLVM.so.22.1+0xa80486) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #7 0x55a5110cdfd2 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:30
+>     #8 0x55a5110cdfd2 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #9 0x55a5110cdfd2 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #10 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #11 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 114 byte(s) in 6 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e79bcd in LLVMBuildICmp (/usr/lib/libLLVM.so.22.1+0xa79bcd) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473e5824 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:60
->     #7 0x562c473e5824 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #8 0x562c473e5824 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #9 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #10 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba79bcd in LLVMBuildICmp (/usr/lib/libLLVM.so.22.1+0xa79bcd) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110ce864 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:60
+>     #7 0x55a5110ce864 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #8 0x55a5110ce864 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #9 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #10 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 110 byte(s) in 5 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502adb4 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adb4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e0502b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x7f4e04e7f21d  (/usr/lib/libLLVM.so.22.1+0xa7f21d) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #7 0x7f4e04e7fb36 in LLVMBuildAShr (/usr/lib/libLLVM.so.22.1+0xa7fb36) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #8 0x562c473e24c4 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:122
->     #9 0x562c473e24c4 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #10 0x562c473e24c4 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #11 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #12 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2adb4 in llvm::ValueSymbolTable::makeUniqueName(llvm::Value*, llvm::SmallString<256u>&) (/usr/lib/libLLVM.so.22.1+0xc2adb4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc2b205 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b205) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x7fd1dba7f21d  (/usr/lib/libLLVM.so.22.1+0xa7f21d) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #7 0x7fd1dba7fb36 in LLVMBuildAShr (/usr/lib/libLLVM.so.22.1+0xa7fb36) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #8 0x55a5110cb504 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:122
+>     #9 0x55a5110cb504 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #10 0x55a5110cb504 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #11 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #12 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 104 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e74f59 in LLVMBuildRet (/usr/lib/libLLVM.so.22.1+0xa74f59) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e1549 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:149
->     #4 0x562c473e1549 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
->     #5 0x562c473e1549 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #6 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #7 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba74f59 in LLVMBuildRet (/usr/lib/libLLVM.so.22.1+0xa74f59) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110ca589 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:149
+>     #4 0x55a5110ca589 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
+>     #5 0x55a5110ca589 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #6 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #7 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 80 byte(s) in 2 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e13e6 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:14
->     #4 0x562c473e13e6 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #5 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #6 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110ca426 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:14
+>     #4 0x55a5110ca426 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #5 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #6 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 80 byte(s) in 2 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e5f0c0 in llvm::ConstantInt::get(llvm::Type*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa5f0c0) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e79a38 in LLVMBuildICmp (/usr/lib/libLLVM.so.22.1+0xa79a38) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c473e561c in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:58
->     #5 0x562c473e561c in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #6 0x562c473e561c in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #7 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #8 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba5f0c0 in llvm::ConstantInt::get(llvm::Type*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa5f0c0) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba79a38 in LLVMBuildICmp (/usr/lib/libLLVM.so.22.1+0xa79a38) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a5110ce65c in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:58
+>     #5 0x55a5110ce65c in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #6 0x55a5110ce65c in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #7 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #8 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 56 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e0502196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e4a136  (/usr/lib/libLLVM.so.22.1+0xa4a136) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e5b0d9  (/usr/lib/libLLVM.so.22.1+0xa5b0d9) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e5b718  (/usr/lib/libLLVM.so.22.1+0xa5b718) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c473e28fb in translate_misc /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/misc.c:15
->     #6 0x562c473e28fb in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:67
->     #7 0x562c473e28fb in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #8 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #9 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbc2196f in llvm::User::operator new(unsigned long, llvm::User::IntrusiveOperandsAllocMarker) (/usr/lib/libLLVM.so.22.1+0xc2196f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba4a136  (/usr/lib/libLLVM.so.22.1+0xa4a136) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba5b0d9  (/usr/lib/libLLVM.so.22.1+0xa5b0d9) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba5b718  (/usr/lib/libLLVM.so.22.1+0xa5b718) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a5110cb93b in translate_misc /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/misc.c:15
+>     #6 0x55a5110cb93b in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:67
+>     #7 0x55a5110cb93b in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #8 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #9 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 48 byte(s) in 2 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e784d8 in LLVMBuildGEP2 (/usr/lib/libLLVM.so.22.1+0xa784d8) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473df91f in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:110
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba784d8 in LLVMBuildGEP2 (/usr/lib/libLLVM.so.22.1+0xa784d8) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110c895f in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:110
 > 
 > Indirect leak of 40 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e31f6 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:76
->     #4 0x562c473e31f6 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
->     #5 0x562c473e31f6 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #6 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #7 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110cc236 in translate_flow /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/flow.c:76
+>     #4 0x55a5110cc236 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:63
+>     #5 0x55a5110cc236 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #6 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #7 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 40 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e5f0c0 in llvm::ConstantInt::get(llvm::Type*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa5f0c0) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e796e0 in LLVMBuildZExt (/usr/lib/libLLVM.so.22.1+0xa796e0) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c473e4e5f in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:170
->     #5 0x562c473e4e5f in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #6 0x562c473e4e5f in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #7 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #8 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba5f0c0 in llvm::ConstantInt::get(llvm::Type*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa5f0c0) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba796e0 in LLVMBuildZExt (/usr/lib/libLLVM.so.22.1+0xa796e0) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a5110cde9f in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:170
+>     #5 0x55a5110cde9f in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #6 0x55a5110cde9f in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #7 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #8 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 40 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f5ba4d in llvm::AllocaInst::AllocaInst(llvm::Type*, unsigned int, llvm::Value*, llvm::Align, llvm::Twine const&, llvm::InsertPosition) (/usr/lib/libLLVM.so.22.1+0xb5ba4d) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e77721 in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa77721) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c473df8ca in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba4c7fa in llvm::ConstantInt::get(llvm::LLVMContext&, llvm::APInt const&) (/usr/lib/libLLVM.so.22.1+0xa4c7fa) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba4cd24 in llvm::ConstantInt::get(llvm::IntegerType*, unsigned long, bool, bool) (/usr/lib/libLLVM.so.22.1+0xa4cd24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb5ba4d in llvm::AllocaInst::AllocaInst(llvm::Type*, unsigned int, llvm::Value*, llvm::Align, llvm::Twine const&, llvm::InsertPosition) (/usr/lib/libLLVM.so.22.1+0xb5ba4d) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba77721 in LLVMBuildAlloca (/usr/lib/libLLVM.so.22.1+0xa77721) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a5110c890a in translate_stmt /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/stmt.c:19
 > 
 > Indirect leak of 39 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e199 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e199) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e199 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e199) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 36 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e202 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e202) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e202 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e202) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 32 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e1d8 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e1d8) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e1d8 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e1d8) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 32 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04fbe8f6 in llvm::Module::Module(llvm::StringRef, llvm::LLVMContext&) (/usr/lib/libLLVM.so.22.1+0xbbe8f6) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e6b8a6 in LLVMModuleCreateWithNameInContext (/usr/lib/libLLVM.so.22.1+0xa6b8a6) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c47308ddb in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:12
->     #4 0x562c47308ddb in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #5 0x562c47308ddb in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbbbe8f6 in llvm::Module::Module(llvm::StringRef, llvm::LLVMContext&) (/usr/lib/libLLVM.so.22.1+0xbbe8f6) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba6b8a6 in LLVMModuleCreateWithNameInContext (/usr/lib/libLLVM.so.22.1+0xa6b8a6) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a510ff0ddb in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:12
+>     #4 0x55a510ff0ddb in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #5 0x55a510ff0ddb in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 32 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04f71a24 in llvm::LLVMContextImpl::LLVMContextImpl(llvm::LLVMContext&) (/usr/lib/libLLVM.so.22.1+0xb71a24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f6d948 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6d948) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #5 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #6 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dbb71a24 in llvm::LLVMContextImpl::LLVMContextImpl(llvm::LLVMContext&) (/usr/lib/libLLVM.so.22.1+0xb71a24) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb6d948 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6d948) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #5 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #6 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 30 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e15a in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e15a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e15a in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e15a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 30 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e145 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e145) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e145 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e145) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 29 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f72bea in llvm::LLVMContextImpl::getOrInsertSyncScopeID(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb72bea) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e217 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e217) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb72bea in llvm::LLVMContextImpl::getOrInsertSyncScopeID(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb72bea) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e217 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e217) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 29 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e16f in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e16f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e16f in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e16f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 24 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e130 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e130) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e130 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e130) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 24 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e1ae in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e1ae) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e1ae in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e1ae) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 24 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e5026f in llvm::ConstantPointerNull::get(llvm::PointerType*) (/usr/lib/libLLVM.so.22.1+0xa5026f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04e6330e in llvm::ConstantExpr::getSizeOf(llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa6330e) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x562c473e28fb in translate_misc /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/misc.c:15
->     #4 0x562c473e28fb in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:67
->     #5 0x562c473e28fb in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #6 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #7 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba5026f in llvm::ConstantPointerNull::get(llvm::PointerType*) (/usr/lib/libLLVM.so.22.1+0xa5026f) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dba6330e in llvm::ConstantExpr::getSizeOf(llvm::Type*) (/usr/lib/libLLVM.so.22.1+0xa6330e) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x55a5110cb93b in translate_misc /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/misc.c:15
+>     #4 0x55a5110cb93b in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:67
+>     #5 0x55a5110cb93b in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #6 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #7 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 24 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e184 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e184) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e184 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e184) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 22 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e1ed in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e1ed) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e1ed in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e1ed) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 22 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e114 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e114) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e114 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e114) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 21 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04f6e1c3 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e1c3) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #6 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #7 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb7289a in llvm::LLVMContextImpl::getOrInsertBundleTag(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb7289a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbb6e1c3 in llvm::LLVMContext::LLVMContext() (/usr/lib/libLLVM.so.22.1+0xb6e1c3) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #6 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #7 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 20 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e7f21d  (/usr/lib/libLLVM.so.22.1+0xa7f21d) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x7f4e04e7fb36 in LLVMBuildAShr (/usr/lib/libLLVM.so.22.1+0xa7fb36) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #7 0x562c473e24c4 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:122
->     #8 0x562c473e24c4 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #9 0x562c473e24c4 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #10 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #11 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba7f21d  (/usr/lib/libLLVM.so.22.1+0xa7f21d) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x7fd1dba7fb36 in LLVMBuildAShr (/usr/lib/libLLVM.so.22.1+0xa7fb36) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #7 0x55a5110cb504 in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:122
+>     #8 0x55a5110cb504 in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #9 0x55a5110cb504 in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #10 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #11 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 19 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e0502b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e05023c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x7f4e05023e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #5 0x7f4e04e79bcd in LLVMBuildICmp (/usr/lib/libLLVM.so.22.1+0xa79bcd) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #6 0x562c473e561c in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:58
->     #7 0x562c473e561c in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
->     #8 0x562c473e561c in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
->     #9 0x562c47308efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
->     #10 0x562c47308efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbc2b244 in llvm::ValueSymbolTable::createValueName(llvm::StringRef, llvm::Value*) (/usr/lib/libLLVM.so.22.1+0xc2b244) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dbc23c4a in llvm::Value::setNameImpl(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23c4a) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x7fd1dbc23e94 in llvm::Value::setName(llvm::Twine const&) (/usr/lib/libLLVM.so.22.1+0xc23e94) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #5 0x7fd1dba79bcd in LLVMBuildICmp (/usr/lib/libLLVM.so.22.1+0xa79bcd) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #6 0x55a5110ce65c in translate_expr /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/expr.c:58
+>     #7 0x55a5110ce65c in translate_inst /home/faranaiki/Git/alkyl/src/codegen_llvm/translate/core.c:52
+>     #8 0x55a5110ce65c in codegen_generate /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:367
+>     #9 0x55a510ff0efe in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:17
+>     #10 0x55a510ff0efe in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 > 
 > Indirect leak of 17 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04ca1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x7f4e04f72bea in llvm::LLVMContextImpl::getOrInsertSyncScopeID(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb72bea) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #3 0x7f4e04e6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #4 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #5 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #6 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572dbc1 in operator new(unsigned long, std::align_val_t, std::nothrow_t const&) (/usr/lib/libasan.so.8+0x12dbc1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1db8a1ab4 in llvm::allocate_buffer(unsigned long, unsigned long) (/usr/lib/libLLVM.so.22.1+0x8a1ab4) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x7fd1dbb72bea in llvm::LLVMContextImpl::getOrInsertSyncScopeID(llvm::StringRef) (/usr/lib/libLLVM.so.22.1+0xb72bea) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #3 0x7fd1dba6b033 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b033) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #4 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #5 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #6 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 13,16c944,949
 < Direct leak of 131120 byte(s) in 2 object(s) allocated from:
 <     #0 0x7fc29f72c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
@@ -958,11 +958,11 @@
 <     #2 0x55fb4fb4d3c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
 ---
 > Indirect leak of 8 byte(s) in 1 object(s) allocated from:
->     #0 0x7f4e0eb2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x7f4e04e6b026 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b026) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
->     #2 0x562c47308d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
->     #3 0x562c47308d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
->     #4 0x562c47308d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:187
+>     #0 0x7fd1e572d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x7fd1dba6b026 in LLVMContextCreate (/usr/lib/libLLVM.so.22.1+0xa6b026) (BuildId: a27a4753e27d53cc51f3b87ffe771ffee4ea1bce)
+>     #2 0x55a510ff0d8c in codegen_init /home/faranaiki/Git/alkyl/src/codegen_llvm/codegen.c:11
+>     #3 0x55a510ff0d8c in backend_run /home/faranaiki/Git/alkyl/src/codegen_llvm/driver.c:16
+>     #4 0x55a510ff0d8c in main /home/faranaiki/Git/alkyl/src/driver/main.c:191
 18c951
 < SUMMARY: AddressSanitizer: 131120 byte(s) leaked in 2 allocation(s).
 ---
