@@ -24,11 +24,6 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    arena_init(&arena);
-    arena_init(&arena_debug);
-    context_init(&comp_ctx, &arena);
-    context_init(&comp_ctx_debug, &arena_debug);
-
     char *filename = NULL;
     char link_flags[1024] = {0};
     int emit_alir = 0;
@@ -70,6 +65,11 @@ int main(int argc, char *argv[]) {
 
     char *code = read_file(filename);
     if (!code) { fprintf(stderr, "Could not read file: %s\n", filename); return 1; }
+
+    arena_init(&arena);
+    arena_init(&arena_debug);
+    context_init(&comp_ctx, &arena);
+    context_init(&comp_ctx_debug, &arena_debug);
 
     Lexer l;
     lexer_init(&l, &comp_ctx, filename, code, NULL);
@@ -122,6 +122,8 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Semantic analysis failed with %d errors.\n", sem_errors);
         sem_cleanup(&sem_ctx);
         free(code);
+        arena_free(&arena);
+        arena_free(&arena_debug);
         return 1;
     }
 
@@ -157,13 +159,21 @@ int main(int argc, char *argv[]) {
     int alick_error = alick_check_module(alir_module);
     if (alick_error > 0) {
       printf("Error occured in alick.\n");
-      exit(1);
+      sem_cleanup(&sem_ctx);
+      free(code);
+      arena_free(&arena);
+      arena_free(&arena_debug);
+      return 1;
     }
 
     sem_cleanup(&sem_ctx);
 
     if (comp_ctx.error_count > 0) {
         fprintf(stderr, "Compilation aborted due to previous errors.\n");
+        sem_cleanup(&sem_ctx);
+        free(code);
+        arena_free(&arena);
+        arena_free(&arena_debug);
         return 1;
     }
 

@@ -1,20 +1,23 @@
-8c8
+0a1,2
+> DEBUG hashmap: found node=0x7ed51982aae0, type.base=16, ptr_depth=1
+> DEBUG var_decl 'c': init_type.base=16 (Clib*), node->sem_type.base=16, initializer type=2
+8c10
 < ==609871==ERROR: LeakSanitizer: detected memory leaks
 ---
-> ==611852==ERROR: LeakSanitizer: detected memory leaks
-11,13c11,13
+> ==45942==ERROR: LeakSanitizer: detected memory leaks
+11,13c13,15
 <     #0 0x7fc04892c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
 <     #1 0x55e56f7db3c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
 <     #2 0x55e56f7db3c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
 ---
->     #0 0x7fa4ca92c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x55aca3fe23c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
->     #2 0x55aca3fe23c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
-16,18c16,18
+>     #0 0x7fc52792c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x555abbe07081 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+>     #2 0x555abbe07081 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+16,18c18,20
 <     #0 0x7fc04892c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
 <     #1 0x55e56f7db3c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
 <     #2 0x55e56f7db3c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
 ---
->     #0 0x7fa4ca92c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x55aca3fe23c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
->     #2 0x55aca3fe23c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+>     #0 0x7fc52792c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x555abbe07081 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+>     #2 0x555abbe07081 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47

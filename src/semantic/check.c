@@ -665,7 +665,6 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     SemSymbol *member = class_sym->inner_scope->symbols;
                     while (member) {
                         if (member->kind == SYM_FUNC && strcmp(member->name, as_name) == 0) {
-                            // Found custom cast operator!
                             char mangled[512];
                             snprintf(mangled, sizeof(mangled), "%s_%s", op_t.class_name, as_name);
                             cn->custom_cast_method = arena_strdup(ctx->compiler_ctx->arena, mangled);

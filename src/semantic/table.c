@@ -40,15 +40,15 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
 VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     
-    if (node->sem_type.base != TYPE_UNKNOWN) {
-        return node->sem_type;
-    }
-    
     unsigned int idx = hash_ptr(node);
     TypeEntry *curr = ctx->type_buckets[idx];
     while (curr) {
         if (curr->node == node && curr->type.base != TYPE_UNKNOWN) return curr->type;
         curr = curr->next;
+    }
+
+    if (node->sem_type.base != TYPE_UNKNOWN) {
+        return node->sem_type;
     }
 
     return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};

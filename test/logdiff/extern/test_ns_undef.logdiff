@@ -1,20 +1,20 @@
 11c11
 < ==609910==ERROR: LeakSanitizer: detected memory leaks
 ---
-> ==611887==ERROR: LeakSanitizer: detected memory leaks
+> ==5939==ERROR: LeakSanitizer: detected memory leaks
 14,16c14,16
 <     #0 0x7f382512c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
 <     #1 0x55783bf8c3c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
 <     #2 0x55783bf8c3c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
 ---
->     #0 0x7f404ff2c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x563314dae3c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
->     #2 0x563314dae3c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+>     #0 0x7f403b12c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x55a23a04a941 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+>     #2 0x55a23a04a941 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
 19,21c19,21
 <     #0 0x7f382512c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
 <     #1 0x55783bf8c3c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
 <     #2 0x55783bf8c3c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
 ---
->     #0 0x7f404ff2c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
->     #1 0x563314dae3c1 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
->     #2 0x563314dae3c1 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
+>     #0 0x7f403b12c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b28f87d70f4aadfdfe6abce3776c226f5569bd6a)
+>     #1 0x55a23a04a941 in arena_create_block /home/faranaiki/Git/alkyl/src/common/arena.c:25
+>     #2 0x55a23a04a941 in arena_alloc_slow /home/faranaiki/Git/alkyl/src/common/arena.c:47
