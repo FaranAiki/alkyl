@@ -220,6 +220,7 @@ add_executable(ethyl src/meta/vm.c
     src/meta/eval_flow.c
     src/meta/eval_call.c
     src/meta/eval_misc.c
+    src/metarse/metarse.c
     src/driver/cli.c ${ETHYL_SOURCES})
 target_include_directories(ethyl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 if(READLINE_FOUND)
