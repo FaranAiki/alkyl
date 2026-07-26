@@ -1,4 +1,7 @@
-import "std/alias";
+// or import std.alias if we enable it in the parser/lexer setting
+// import "std/alias";
+
+import "std/print";
 
 extern int printf(char*, ...) as cprintf;
 
@@ -21,7 +24,7 @@ exact method class Person has Identity, Communication {
   }
 
   void introduce() {
-    cprintf "Greetings, my name is %s and I am %d years old\n", this.name, this.age;
+    print "Greetings, my name is ", this.name, " and I am ", this.age, " years old\n";
   }
 }
 

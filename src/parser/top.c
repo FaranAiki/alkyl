@@ -581,10 +581,22 @@ ASTNode* parse_top_level_internal(Parser *p) {
       eat(p, TOKEN_FLUX);
   }
 
+  char *saved_type_name = NULL;
+  if (p->current_token.type == TOKEN_IDENTIFIER) {
+      saved_type_name = parser_strdup(p, p->current_token.text);
+  }
+
   VarType vtype = parse_type(p);
   if (vtype.base == TYPE_UNKNOWN) {
       if (modifiers) parser_fail(p, "Modifiers not allowed on statement");
       return parse_single_statement_or_block(p);
+  }
+
+  if (vtype.base == TYPE_ENUM && saved_type_name && p->current_token.type != TOKEN_IDENTIFIER) {
+      VarRefNode *vn = parser_alloc(p, sizeof(VarRefNode));
+      vn->base.type = NODE_VAR_REF;
+      vn->name = saved_type_name;
+      return (ASTNode*)vn;
   }
 
   if (started_with_union && p->current_token.type == TOKEN_IDENTIFIER && parser_peek_token(p).type == TOKEN_SEMICOLON) {
