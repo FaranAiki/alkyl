@@ -27,33 +27,33 @@
 <     #22 0x7f8873627878 in __libc_start_main (/usr/lib/libc.so.6+0x27878) (BuildId: d8ceb52a8c6e1fefece4ca75f7396d1d5bffc565)
 <     #23 0x56324f151c24 in _start (/home/faranaiki/Git/alkyl/build/alkyl+0x25c24) (BuildId: f55af328e19629c395f137579eeb6acb99f5592f)
 ---
-> ==6244==ERROR: AddressSanitizer: SEGV on unknown address (pc 0x55692e8ad3f8 bp 0x7f078ec30ec0 sp 0x7ffebfd82550 T0)
-> ==6244==The signal is caused by a READ memory access.
-> ==6244==Hint: this fault was caused by a dereference of a high value address (see register values below).  Disassemble the provided pc to learn which register was used.
->     #0 0x55692e8ad3f8 in hash_string /home/faranaiki/Git/alkyl/src/common/hashmap.c:17
->     #1 0x55692e8ad3f8 in hashmap_intern /home/faranaiki/Git/alkyl/src/common/hashmap.c:171
->     #2 0x55692e8ad3f8 in hashmap_intern /home/faranaiki/Git/alkyl/src/common/hashmap.c:162
->     #3 0x55692e8ad3f8 in context_intern /home/faranaiki/Git/alkyl/src/common/context.c:39
->     #4 0x55692e8ad3f8 in alir_strdup /home/faranaiki/Git/alkyl/src/alir/core.c:19
->     #5 0x55692e8b0b28 in alir_val_var /home/faranaiki/Git/alkyl/src/alir/const.c:94
->     #6 0x55692e8c3c05 in alir_gen_cast /home/faranaiki/Git/alkyl/src/alir/lvalue.c:675
->     #7 0x55692e8c3c05 in alir_gen_expr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:1162
->     #8 0x55692e8d29ca in alir_gen_array_lit /home/faranaiki/Git/alkyl/src/alir/lvalue.c:1077
->     #9 0x55692e8d352a in alir_gen_addr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:225
->     #10 0x55692e8d6b4e in alir_gen_addr_index_access /home/faranaiki/Git/alkyl/src/alir/lvalue.c:54
->     #11 0x55692e8c5998 in alir_gen_expr_index_access /home/faranaiki/Git/alkyl/src/alir/lvalue.c:130
->     #12 0x55692e8c5998 in alir_gen_expr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:1302
->     #13 0x55692e8dac85 in alir_gen_call_std /home/faranaiki/Git/alkyl/src/alir/lvalue.c:800
->     #14 0x55692e8c76ed in alir_gen_call /home/faranaiki/Git/alkyl/src/alir/lvalue.c:914
->     #15 0x55692e8c76ed in alir_gen_expr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:1304
->     #16 0x55692e8e9bba in alir_gen_stmt /home/faranaiki/Git/alkyl/src/alir/stmt.c:179
->     #17 0x55692e8b432a in alir_gen_function_def /home/faranaiki/Git/alkyl/src/alir/generator.c:499
->     #18 0x55692e8bd162 in alir_gen_functions_recursive /home/faranaiki/Git/alkyl/src/alir/generator.c:603
->     #19 0x55692e828942 in alir_generate /home/faranaiki/Git/alkyl/src/alir/generator.c:652
->     #20 0x55692e828942 in main /home/faranaiki/Git/alkyl/src/driver/main.c:150
->     #21 0x7ff792227740  (/usr/lib/libc.so.6+0x27740) (BuildId: d8ceb52a8c6e1fefece4ca75f7396d1d5bffc565)
->     #22 0x7ff792227878 in __libc_start_main (/usr/lib/libc.so.6+0x27878) (BuildId: d8ceb52a8c6e1fefece4ca75f7396d1d5bffc565)
->     #23 0x55692e82ec24 in _start (/home/faranaiki/Git/alkyl/build/alkyl+0x25c24) (BuildId: 87995c03b30ad75c3b6d47740f89e9dd55aa305b)
+> ==89664==ERROR: AddressSanitizer: SEGV on unknown address (pc 0x558de16df6b8 bp 0x7ece71c30ec0 sp 0x7ffdefc74280 T0)
+> ==89664==The signal is caused by a READ memory access.
+> ==89664==Hint: this fault was caused by a dereference of a high value address (see register values below).  Disassemble the provided pc to learn which register was used.
+>     #0 0x558de16df6b8 in hash_string /home/faranaiki/Git/alkyl/src/common/hashmap.c:17
+>     #1 0x558de16df6b8 in hashmap_intern /home/faranaiki/Git/alkyl/src/common/hashmap.c:171
+>     #2 0x558de16df6b8 in hashmap_intern /home/faranaiki/Git/alkyl/src/common/hashmap.c:162
+>     #3 0x558de16df6b8 in context_intern /home/faranaiki/Git/alkyl/src/common/context.c:39
+>     #4 0x558de16df6b8 in alir_strdup /home/faranaiki/Git/alkyl/src/alir/core.c:19
+>     #5 0x558de16e2de8 in alir_val_var /home/faranaiki/Git/alkyl/src/alir/const.c:94
+>     #6 0x558de16f6042 in alir_gen_cast /home/faranaiki/Git/alkyl/src/alir/lvalue.c:651
+>     #7 0x558de16f6042 in alir_gen_expr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:1138
+>     #8 0x558de170548a in alir_gen_array_lit /home/faranaiki/Git/alkyl/src/alir/lvalue.c:1053
+>     #9 0x558de17060ba in alir_gen_addr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:225
+>     #10 0x558de1709713 in alir_gen_addr_index_access /home/faranaiki/Git/alkyl/src/alir/lvalue.c:54
+>     #11 0x558de16f9d58 in alir_gen_expr_index_access /home/faranaiki/Git/alkyl/src/alir/lvalue.c:130
+>     #12 0x558de16f9d58 in alir_gen_expr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:1278
+>     #13 0x558de170d875 in alir_gen_call_std /home/faranaiki/Git/alkyl/src/alir/lvalue.c:776
+>     #14 0x558de16fa85d in alir_gen_call /home/faranaiki/Git/alkyl/src/alir/lvalue.c:890
+>     #15 0x558de16fa85d in alir_gen_expr /home/faranaiki/Git/alkyl/src/alir/lvalue.c:1280
+>     #16 0x558de171a57a in alir_gen_stmt /home/faranaiki/Git/alkyl/src/alir/stmt.c:179
+>     #17 0x558de16e65ea in alir_gen_function_def /home/faranaiki/Git/alkyl/src/alir/generator.c:499
+>     #18 0x558de16ef422 in alir_gen_functions_recursive /home/faranaiki/Git/alkyl/src/alir/generator.c:603
+>     #19 0x558de165aa84 in alir_generate /home/faranaiki/Git/alkyl/src/alir/generator.c:652
+>     #20 0x558de165aa84 in main /home/faranaiki/Git/alkyl/src/driver/main.c:152
+>     #21 0x7fbe75227740  (/usr/lib/libc.so.6+0x27740) (BuildId: d8ceb52a8c6e1fefece4ca75f7396d1d5bffc565)
+>     #22 0x7fbe75227878 in __libc_start_main (/usr/lib/libc.so.6+0x27878) (BuildId: d8ceb52a8c6e1fefece4ca75f7396d1d5bffc565)
+>     #23 0x558de1661034 in _start (/home/faranaiki/Git/alkyl/build/alkyl+0x26034) (BuildId: d67bc94eb2686352fdd04336ef5e975bc8697fe8)
 31,35c31,35
 < ==610269==Register values:
 < rax = 0x17d7d7d7d7d7d7d7  rbx = 0x00007b886f3f3098  rcx = 0x0000000000000000  rdx = 0x0000000000000006  
@@ -61,12 +61,12 @@
 <  r8 = 0x00000fd38dffe449   r9 = 0x00000fd38dffe448  r10 = 0x0000000000000048  r11 = 0x00007e9870032208  
 < r12 = 0xbebebebebebebebe  r13 = 0x00007b886f3f0758  r14 = 0x00007b886f3f2a70  r15 = 0x00007b886f3f07d4  
 ---
-> ==6244==Register values:
-> rax = 0x17d7d7d7d7d7d7d7  rbx = 0x00007bf78dff3098  rcx = 0x0000000000000000  rdx = 0x0000000000000006  
-> rdi = 0x00007bf78dff309c  rsi = 0xbebebebebebebebe  rbp = 0x00007f078ec30ec0  rsp = 0x00007ffebfd82550  
->  r8 = 0x00000fe171d7e449   r9 = 0x00000fe171d7e448  r10 = 0x0000000000000048  r11 = 0x00007f078ec32208  
-> r12 = 0xbebebebebebebebe  r13 = 0x00007bf78dff0758  r14 = 0x00007bf78dff2a70  r15 = 0x00007bf78dff07d4  
+> ==89664==Register values:
+> rax = 0x17d7d7d7d7d7d7d7  rbx = 0x00007bbe70ff3098  rcx = 0x0000000000000000  rdx = 0x0000000000000006  
+> rdi = 0x00007bbe70ff309c  rsi = 0xbebebebebebebebe  rbp = 0x00007ece71c30ec0  rsp = 0x00007ffdefc74280  
+>  r8 = 0x00000fda4e37e449   r9 = 0x00000fda4e37e448  r10 = 0x0000000000000048  r11 = 0x00007ece71c32208  
+> r12 = 0xbebebebebebebebe  r13 = 0x00007bbe70ff0758  r14 = 0x00007bbe70ff2a70  r15 = 0x00007bbe70ff07d4  
 38c38
 < ==610269==ABORTING
 ---
-> ==6244==ABORTING
+> ==89664==ABORTING

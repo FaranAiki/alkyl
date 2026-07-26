@@ -334,30 +334,6 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
     VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
 
     AlirSymbol *asym = alir_find_symbol(ctx, vn->name);
-    if (!asym && vn->is_class_member) {
-        // [FIX] Field Access Rewrite
-        MemberAccessNode *ma = arena_alloc_type(ctx->sem->compiler_ctx->arena, MemberAccessNode);
-        ma->base.type = NODE_MEMBER_ACCESS;
-        ma->base.line = vn->base.line;
-        ma->base.col = vn->base.col;
-        VarRefNode *th = arena_alloc_type(ctx->sem->compiler_ctx->arena, VarRefNode);
-        th->base.type = NODE_VAR_REF;
-        th->name = arena_strdup(ctx->sem->compiler_ctx->arena, "this");
-        ma->object = (ASTNode*)th;
-        ma->member_name = vn->name;
-        AlirValue *res = alir_gen_addr(ctx, (ASTNode*)ma);
-
-        // WE MUST LOAD THE VALUE, BECAUSE alir_gen_var_ref IS SUPPOSED TO RETURN THE R-VALUE (loaded value)
-        VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
-        if (t.base == TYPE_UNKNOWN && res) {
-            t = res->type;
-            if (t.ptr_depth > 0) t.ptr_depth--;
-        }
-        if (t.array_size > 0) return res;
-        AlirValue *val = new_temp(ctx, t);
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, val, res, NULL));
-        return val;
-    }
     if (asym && asym->ptr == ptr) {
         // Address came directly from an ALLOCA. Type is intact.
         if (asym->type.base != TYPE_UNKNOWN && asym->type.base != TYPE_AUTO) {

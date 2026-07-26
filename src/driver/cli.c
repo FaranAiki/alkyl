@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "codegen_llvm/codegen.h"
+// TODO: make sure we do not use any readlines nor
+// depends on the codegen_llvm!
 #include <readline/readline.h>
 #include <readline/history.h>
 #ifndef _WIN32
@@ -41,8 +43,8 @@ static char* ethyl_generator(const char* text, int state) {
     static int word_len = 0;
     static const char *word = NULL;
     static const char *keywords[] = {
-        "let", "mut", "if", "else", "while", "for", "in", "return", "switch", "case", 
-        "break", "continue", "func", "class", "struct", "union", "enum", "errnum", 
+        "let", "mut", "if", "else", "while", "for", "in", "return", "switch", "case",
+        "break", "continue", "func", "class", "struct", "union", "enum", "errnum",
         "import", "namespace", "true", "false", "null", "void", "extern", "pure", "pristine", NULL
     };
     static int kw_idx = 0;
@@ -53,7 +55,7 @@ static char* ethyl_generator(const char* text, int state) {
         kw_idx = 0;
 
         word = get_last_word(rl_line_buffer, &word_len);
-        
+
         int word_start_idx = word - rl_line_buffer;
         if (word_start_idx > 0 && rl_line_buffer[word_start_idx - 1] == '.') {
             int i = word_start_idx - 2;
@@ -63,7 +65,7 @@ static char* ethyl_generator(const char* text, int state) {
             if (ns_len > 0) {
                 char ns_name[256];
                 snprintf(ns_name, ns_len + 1, "%s", rl_line_buffer + i);
-                
+
                 sym = NULL;
                 SemSymbol *ns = global_sem_ctx->global_scope->symbols;
                 while(ns) {
@@ -133,7 +135,7 @@ static void ethyl_redisplay(void) {
     rl_redisplay();
 
     printf("\033[s"); // Save cursor
-    
+
     int len = rl_line_buffer ? (int)strlen(rl_line_buffer) : 0;
     if (len > rl_point) {
         printf("\033[%dC", len - rl_point); // Move to end of line
@@ -158,8 +160,8 @@ static void ethyl_redisplay(void) {
             }
             if (!best_match) {
                 static const char *keywords[] = {
-                    "let", "mut", "if", "else", "while", "for", "in", "return", "switch", "case", 
-                    "break", "continue", "func", "class", "struct", "union", "enum", "errnum", 
+                    "let", "mut", "if", "else", "while", "for", "in", "return", "switch", "case",
+                    "break", "continue", "func", "class", "struct", "union", "enum", "errnum",
                     "import", "namespace", "true", "false", "null", "void", "extern", "pure", "pristine", NULL
                 };
                 for (int i = 0; keywords[i]; i++) {
@@ -202,11 +204,11 @@ char* get_smart_input(Arena* arena, int cmd_count) {
             line = readline(prompt);
         }
         if (!line) return NULL;
-        
+
         int line_len = strlen(line);
         char *trimmed = line;
         while(*trimmed == ' ' || *trimmed == '\t') trimmed++;
-        
+
         if (!first_line && in_indent_block && *trimmed == '\0') {
             free(line);
             break;
@@ -230,7 +232,7 @@ char* get_smart_input(Arena* arena, int cmd_count) {
                 if (line[i] == '}') brace_depth--;
             }
         }
-        
+
         if (first_line && brace_depth == 0) {
             if (strncmp(trimmed, "if ", 3) == 0 || strncmp(trimmed, "if(", 3) == 0 ||
                 strncmp(trimmed, "while ", 6) == 0 || strncmp(trimmed, "while(", 6) == 0 ||
@@ -244,7 +246,7 @@ char* get_smart_input(Arena* arena, int cmd_count) {
                 }
             }
         }
-        
+
         free(line);
         if (brace_depth <= 0 && !in_indent_block) break;
         first_line = 0;
@@ -448,10 +450,10 @@ int run_repl(void) {
                 // Add to MetaVM global memory map
                 VMGlobal *vg = arena_alloc(&vm_arena, sizeof(VMGlobal));
                 vg->name = arena_strdup(&vm_arena, vd->name);
-                
+
                 VarType vt = vd->var_type;
                 if (vt.base == TYPE_UNKNOWN && vd->initializer) vt = sem_get_node_type(&sem, vd->initializer);
-                
+
                 if (vt.array_size > 0) {
                     if (initial_val) {
                         vg->ptr_val = (void*)(intptr_t)initial_val;
@@ -562,7 +564,7 @@ int run_repl(void) {
                 if (compiled_fn) {
                     alir_emit_to_file(module, "repl_debug.alir");
                     long long exit_code = meta_vm_execute(vm, module, compiled_fn, &sem, NULL, 0);
-                    
+
                     if (curr->type == NODE_ASSIGN && ((AssignNode*)curr)->is_implicit_let) {
                         if (ret_type.array_size > 0) {
                             VMGlobal *g = vm->globals;
@@ -581,9 +583,9 @@ int run_repl(void) {
                     }
                     else if (ret_type.base != TYPE_UNKNOWN) {
                         if ((ret_type.base == TYPE_INT || ret_type.base == TYPE_LONG || ret_type.base == TYPE_LONG_LONG || ret_type.base == TYPE_UNSIGNED_INT || ret_type.base == TYPE_UNSIGNED_LONG || ret_type.base == TYPE_UNSIGNED_LONG_LONG) && ret_type.ptr_depth == 0 && ret_type.array_size == 0) {
-                            if (ret_type.is_unsigned || ret_type.base == TYPE_UNSIGNED_INT || ret_type.base == TYPE_UNSIGNED_LONG || ret_type.base == TYPE_UNSIGNED_LONG_LONG || ret_type.base == TYPE_UNSIGNED_CHAR) 
+                            if (ret_type.is_unsigned || ret_type.base == TYPE_UNSIGNED_INT || ret_type.base == TYPE_UNSIGNED_LONG || ret_type.base == TYPE_UNSIGNED_LONG_LONG || ret_type.base == TYPE_UNSIGNED_CHAR)
                                 printf("-> %llu (%s)\n", (unsigned long long)exit_code, sem_type_to_str(ret_type));
-                            else 
+                            else
                                 printf("-> %lld (%s)\n", exit_code, sem_type_to_str(ret_type));
                         }
                         else if (ret_type.base == TYPE_SINGLE && ret_type.ptr_depth == 0 && ret_type.array_size == 0) {
