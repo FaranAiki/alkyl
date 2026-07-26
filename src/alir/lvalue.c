@@ -516,7 +516,21 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     }
 
     AlirValue *dest = new_temp(ctx, res_type);
-    emit(ctx, mk_inst(ctx->module, op, dest, l, r));
+    if (op == ALIR_OP_NEQ) {
+        AlirValue *eq = new_temp(ctx, res_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, eq, l, r));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_SUB, dest, alir_const_int(ctx->module, 1), eq));
+    } else if (op == ALIR_OP_LTE) {
+        AlirValue *gt = new_temp(ctx, res_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_GT, gt, l, r));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_SUB, dest, alir_const_int(ctx->module, 1), gt));
+    } else if (op == ALIR_OP_GTE) {
+        AlirValue *lt = new_temp(ctx, res_type);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_LT, lt, l, r));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_SUB, dest, alir_const_int(ctx->module, 1), lt));
+    } else {
+        emit(ctx, mk_inst(ctx->module, op, dest, l, r));
+    }
     return dest;
 }
 
@@ -1236,42 +1250,60 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
                         AlirBlock *end_bb = alir_add_block(ctx->module, ctx->current_func, "enum_str_end");
                         AlirBlock *default_bb = alir_add_block(ctx->module, ctx->current_func, "enum_str_def");
 
-                        AlirInst *sw = mk_inst(ctx->module, ALIR_OP_SWITCH, NULL, cond, alir_val_label(ctx->module, default_bb->label));
-                        sw->cases = NULL;
-                        AlirSwitchCase **tail = &sw->cases;
-
+                        // Build enum case blocks
+                        int num_cases = 0;
                         SemSymbol *item = enum_sym->inner_scope->symbols;
-                        while(item) {
-                            AlirBlock *case_bb = alir_add_block(ctx->module, ctx->current_func, "enum_str_case");
-                            AlirSwitchCase *sc = alir_alloc(ctx->module, sizeof(AlirSwitchCase));
-                            sc->label = case_bb->label;
-                            long val = 0;
-                            alir_get_enum_value(ctx->module, enum_name, item->name, &val);
-                            sc->value = val;
+                        while(item) { num_cases++; item = item->next; }
 
-                            *tail = sc;
-                            tail = &sc->next;
+                        AlirBlock **case_blocks = alir_alloc(ctx->module, sizeof(AlirBlock*) * num_cases);
+                        long *case_values = alir_alloc(ctx->module, sizeof(long) * num_cases);
+                        item = enum_sym->inner_scope->symbols;
+                        for (int i = 0; i < num_cases && item; i++) {
+                            case_blocks[i] = alir_add_block(ctx->module, ctx->current_func, "enum_str_case");
+                            alir_get_enum_value(ctx->module, enum_name, item->name, &case_values[i]);
                             item = item->next;
                         }
-                        emit(ctx, sw);
 
-                        item = enum_sym->inner_scope->symbols;
-                        AlirSwitchCase *sc_iter = sw->cases;
-                        while(item && sc_iter) {
-                            AlirBlock *case_bb = NULL;
-                            AlirBlock *search = ctx->current_func->blocks;
-                            while(search) {
-                                if (strcmp(search->label, sc_iter->label) == 0) { case_bb = search; break; }
-                                search = search->next;
+                        // Emit cascading if/else: eq + conditional branch
+                        // Pre-create fallthrough check blocks so their actual unique labels are used
+                        AlirBlock **check_blocks = alir_alloc(ctx->module, sizeof(AlirBlock*) * num_cases);
+                        for (int j = 1; j < num_cases; j++) {
+                            char hint[64];
+                            snprintf(hint, sizeof(hint), "switch_check_%d", num_cases - j);
+                            check_blocks[j] = alir_add_block(ctx->module, ctx->current_func, hint);
+                        }
+
+                        for (int i = 0; i < num_cases; i++) {
+                            AlirValue *cmp = new_temp(ctx, (VarType){TYPE_BOOL, 0});
+                            emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, cmp, cond, alir_const_int(ctx->module, case_values[i])));
+
+                            AlirValue *target = alir_val_label(ctx->module, case_blocks[i]->label);
+                            AlirValue *fallthrough;
+                            if (i + 1 < num_cases) {
+                                fallthrough = alir_val_label(ctx->module, check_blocks[i + 1]->label);
+                            } else {
+                                fallthrough = alir_val_label(ctx->module, default_bb->label);
                             }
 
-                            ctx->current_block = case_bb;
+                            AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, cmp, target);
+                            br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
+                            br->args[0] = fallthrough;
+                            br->arg_count = 1;
+                            emit(ctx, br);
+
+                            if (i + 1 < num_cases) {
+                                ctx->current_block = check_blocks[i + 1];
+                            }
+                        }
+
+                        // Emit case bodies
+                        item = enum_sym->inner_scope->symbols;
+                        for (int i = 0; i < num_cases && item; i++) {
+                            ctx->current_block = case_blocks[i];
                             AlirValue *glob = alir_module_add_string_literal(ctx->module, item->name, str_type, ctx->str_counter++);
                             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, glob, dest));
                             emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, end_bb->label), NULL));
-
                             item = item->next;
-                            sc_iter = sc_iter->next;
                         }
 
                         ctx->current_block = default_bb;

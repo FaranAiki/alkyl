@@ -244,84 +244,97 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
     
     if (sn->default_case) default_bb = alir_add_block(ctx->module, ctx->current_func, "switch_default");
 
-    AlirInst *sw = mk_inst(ctx->module, ALIR_OP_SWITCH, NULL, cond, alir_val_label(ctx->module, default_bb->label));
-    sw->cases = NULL;
-    AlirSwitchCase **tail = &sw->cases;
-
+    // Build case blocks first so labels are available for jumps
+    typedef struct { AlirBlock *bb; long value; } CaseBlock;
+    CaseBlock case_blocks[64]; 
+    int num_cases = 0;
     ASTNode *c = sn->cases;
     while(c) {
         CaseNode *cn = (CaseNode*)c;
         AlirBlock *case_bb = alir_add_block(ctx->module, ctx->current_func, "case");
         
-        // Handle multiple cases grouped in an array literal (e.g. case Ayam, Daging:)
+        // Handle multiple cases grouped in an array literal (e.g. case 1, 2:)
         if (cn->value && cn->value->type == NODE_ARRAY_LIT) {
             ArrayLitNode *al = (ArrayLitNode*)cn->value;
             ASTNode *elem = al->elements;
-            while(elem) {
-                AlirSwitchCase *sc = alir_alloc(ctx->module, sizeof(AlirSwitchCase));
-                sc->label = case_bb->label;
-                sc->value = alir_eval_constant_int(ctx, elem);
-                *tail = sc;
-                tail = &sc->next;
+            while(elem && num_cases < 64) {
+                case_blocks[num_cases].bb = case_bb;
+                case_blocks[num_cases].value = alir_eval_constant_int(ctx, elem);
+                num_cases++;
                 elem = elem->next;
             }
         } else {
-            AlirSwitchCase *sc = alir_alloc(ctx->module, sizeof(AlirSwitchCase));
-            sc->label = case_bb->label;
-            sc->value = alir_eval_constant_int(ctx, cn->value);
-            
-            *tail = sc;
-            tail = &sc->next;
+            if (num_cases < 64) {
+                case_blocks[num_cases].bb = case_bb;
+                case_blocks[num_cases].value = alir_eval_constant_int(ctx, cn->value);
+                num_cases++;
+            }
         }
         c = c->next;
     }
-    emit(ctx, sw); 
+
+    // Emit cascading if/else chain: eq + conditional branch to case, else check next
+    // Pre-create all fallthrough check blocks so we can use their actual unique labels
+    AlirBlock *check_blocks[64];
+    for (int i = 1; i < num_cases; i++) {
+        char hint[64];
+        snprintf(hint, sizeof(hint), "switch_check_%d", num_cases - i);
+        check_blocks[i] = alir_add_block(ctx->module, ctx->current_func, hint);
+    }
+
+    for (int i = 0; i < num_cases; i++) {
+        AlirValue *cmp = new_temp(ctx, (VarType){TYPE_BOOL, 0});
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, cmp, cond, alir_const_int(ctx->module, case_blocks[i].value)));
+
+        AlirValue *target = alir_val_label(ctx->module, case_blocks[i].bb->label);
+        AlirValue *fallthrough;
+        if (i + 1 < num_cases) {
+            fallthrough = alir_val_label(ctx->module, check_blocks[i + 1]->label);
+        } else {
+            fallthrough = alir_val_label(ctx->module, default_bb->label);
+        }
+
+        AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, cmp, target);
+        br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
+        br->args[0] = fallthrough;
+        br->arg_count = 1;
+        emit(ctx, br);
+
+        if (i + 1 < num_cases) {
+            ctx->current_block = check_blocks[i + 1];
+        }
+    }
 
     c = sn->cases;
-    AlirSwitchCase *sc_iter = sw->cases;
+    int case_idx = 0;
     while(c) {
         CaseNode *cn = (CaseNode*)c;
         AlirBlock *case_bb = NULL;
-        AlirBlock *search = ctx->current_func->blocks;
-        while(search) { 
-            if (sc_iter && strcmp(search->label, sc_iter->label) == 0) { case_bb = search; break; }
-            search = search->next;
+        if (case_idx < num_cases) {
+            case_bb = case_blocks[case_idx].bb;
         }
         
-        ctx->current_block = case_bb;
-        push_loop(ctx, NULL, end_bb);
-        
-        ASTNode *stmt = cn->body;
-        while(stmt) { alir_gen_stmt(ctx, stmt); stmt = stmt->next; }
-        
-        pop_loop(ctx);
-        
-        // Advance sc_iter correctly depending on if it was an array literal of multiple cases
-        AlirSwitchCase *next_sc_iter = sc_iter;
-        if (cn->value && cn->value->type == NODE_ARRAY_LIT) {
-            ArrayLitNode *al = (ArrayLitNode*)cn->value;
-            ASTNode *elem = al->elements;
-            while(elem && next_sc_iter) {
-                next_sc_iter = next_sc_iter->next;
-                elem = elem->next;
-            }
-        } else {
-            if (next_sc_iter) next_sc_iter = next_sc_iter->next;
-        }
-        
-        AlirInst *tail = ctx->current_block->tail;
-        if (!tail || !is_terminator(tail->op)) {
-            if (!cn->is_leak) {
-                emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, end_bb->label), NULL));
-            } else {
-                char *target_label = default_bb->label;
-                if (next_sc_iter) target_label = next_sc_iter->label;
-                emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, target_label), NULL));
+        if (case_bb) {
+            ctx->current_block = case_bb;
+            push_loop(ctx, NULL, end_bb);
+            
+            ASTNode *stmt = cn->body;
+            while(stmt) { alir_gen_stmt(ctx, stmt); stmt = stmt->next; }
+            pop_loop(ctx);
+            
+            AlirInst *tail = ctx->current_block->tail;
+            if (!tail || !is_terminator(tail->op)) {
+                if (!cn->is_leak) {
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, end_bb->label), NULL));
+                } else {
+                    char *target_label = default_bb->label;
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, target_label), NULL));
+                }
             }
         }
         
         c = c->next;
-        sc_iter = next_sc_iter;
+        case_idx++;
     }
     
     if (sn->default_case) {
@@ -383,7 +396,9 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
     AlirValue *this_ptr = new_temp(ctx, this_t);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, this_ptr, NULL, NULL));
     alir_add_symbol(ctx, "this", this_ptr, this_t);
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_val_var(ctx->module, "p0"), this_ptr));
+    AlirValue *p0 = alir_val_var(ctx->module, "p0");
+    p0->type = this_t;
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, p0, this_ptr));
 
     if (st && !cn->is_union) {
         int param_idx = 1;

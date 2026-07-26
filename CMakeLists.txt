@@ -35,7 +35,7 @@ set(CODEGEN_QBE_SOURCES
 
 if (BACKEND_LOWER STREQUAL "llvm")
     set(CODEGEN_SOURCES ${CODEGEN_LLVM_SOURCES})
-    add_definitions(-DBACKEND=llvm)
+    add_definitions(-DBACKEND=LLVM)
 
     find_package(LLVM REQUIRED CONFIG)
     message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")

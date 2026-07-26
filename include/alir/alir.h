@@ -223,7 +223,7 @@ typedef struct AlirCtx {
     AlirValue *flux_ctx_ptr;       // The %ctx pointer in Resume
     char *flux_struct_name;        // Name of the struct
     int flux_yield_count;
-    AlirInst *flux_resume_switch;  // The switch instruction being built
+    AlirSwitchCase *flux_resume_cases;  // Pending if/else chain for flux dispatch
 
     int current_line;
     int current_col;

@@ -8,6 +8,10 @@
 
 #define BASENAME "build/out"
 
+#define str(s) #s
+#define xstr(s) str(s)
+#define BACKEND_STRING xstr(BACKEND)
+
 #include "driver/lsp.h"
 
 int main(int argc, char *argv[]) {
@@ -185,7 +189,7 @@ int main(int argc, char *argv[]) {
         alir_write_binary(alir_module, BASENAME ".balir");
     }
 
-    debug_step("Finished alir check and analysis. Start Codegen using LLVM Codegen");
+    debug_step("Finished alir check and analysis. Start Codegen using " BACKEND_STRING " Codegen");
     arena_reset(&arena);
 
     int final_ret = backend_run(alir_module, BASENAME, link_flags);

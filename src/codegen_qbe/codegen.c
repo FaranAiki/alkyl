@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 static char qbe_type(VarType t) {
     if (t.ptr_depth > 0) return 'l';
@@ -46,6 +47,14 @@ static void print_val(FILE *out, AlirValue *v) {
             fprintf(out, "%%t%d", v->temp_id);
             break;
         case ALIR_VAL_VAR:
+            if (v->val.str_val) {
+                if (v->val.str_val[0] == 'p' && isdigit((unsigned char)v->val.str_val[1])) {
+                    fprintf(out, "%%%s", v->val.str_val);
+                } else {
+                    fprintf(out, "$%s", v->val.str_val);
+                }
+            }
+            break;
         case ALIR_VAL_GLOBAL:
             if (v->val.str_val)
                 fprintf(out, "$%s", v->val.str_val);
@@ -100,11 +109,14 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
         case ALIR_OP_GET_PTR: {
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =l getptr ");
+            fprintf(out, " =l add ");
             print_val(out, inst->op1);
             if (inst->op2) {
                 int idx = (int)(intptr_t)inst->op2->val.long_val;
-                fprintf(out, ", %d", idx * qbe_type_size(qbe_type(inst->dest->type)));
+                VarType elem_type = inst->dest->type;
+                elem_type.ptr_depth--;
+                int elem_size = qbe_type_size(qbe_type(elem_type));
+                fprintf(out, ", %d", idx * elem_size);
             }
             fprintf(out, "\n");
             break;
@@ -164,7 +176,13 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
-            if (next_block && next_block->label) {
+            if (inst->args && inst->arg_count > 0 && inst->args[0]) {
+                if (inst->args[0]->kind == ALIR_VAL_LABEL) {
+                    fprintf(out, ", @%s", inst->args[0]->val.str_val);
+                } else {
+                    print_val(out, inst->args[0]);
+                }
+            } else if (next_block && next_block->label) {
                 fprintf(out, ", @%s", next_block->label);
             } else {
                 fprintf(out, ", @L");

@@ -232,13 +232,10 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     AlirBlock *start_bb = alir_add_block(ctx->module, ctx->current_func, "flux_start");
     AlirBlock *end_bb = alir_add_block(ctx->module, ctx->current_func, "flux_end");
     
-    AlirInst *sw = mk_inst(ctx->module, ALIR_OP_SWITCH, NULL, current_state, alir_val_label(ctx->module, end_bb->label));
-    ctx->flux_resume_switch = sw;
-    
+    // Build pending if/else chain for flux dispatch
     AlirSwitchCase *c0 = alir_alloc(ctx->module, sizeof(AlirSwitchCase));
     c0->value = 0; c0->label = start_bb->label;
-    sw->cases = c0;
-    emit(ctx, sw);
+    ctx->flux_resume_cases = c0;
     
     ctx->current_block = start_bb;
     
@@ -252,6 +249,49 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 1), p_fin));
         emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
     }
+
+    // Emit pending if/else chain for flux dispatch
+    {
+        AlirSwitchCase *cases = ctx->flux_resume_cases;
+        int num_cases = 0;
+        while (cases) { num_cases++; cases = cases->next; }
+
+        // Pre-create fallthrough check blocks so their actual labels are used
+        AlirBlock **check_blocks = alir_alloc(ctx->module, sizeof(AlirBlock*) * num_cases);
+        for (int i = 1; i < num_cases; i++) {
+            char hint[64];
+            snprintf(hint, sizeof(hint), "switch_check_%d", num_cases - i);
+            check_blocks[i] = alir_add_block(ctx->module, ctx->current_func, hint);
+        }
+
+        cases = ctx->flux_resume_cases;
+        int case_idx = 0;
+        while (cases) {
+            AlirValue *cmp = new_temp(ctx, (VarType){TYPE_BOOL, 0});
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, cmp, current_state, alir_const_int(ctx->module, cases->value)));
+
+            AlirValue *target = alir_val_label(ctx->module, cases->label);
+            AlirValue *fallthrough;
+            if (case_idx + 1 < num_cases) {
+                fallthrough = alir_val_label(ctx->module, check_blocks[case_idx + 1]->label);
+            } else {
+                fallthrough = alir_val_label(ctx->module, end_bb->label);
+            }
+
+            AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, cmp, target);
+            br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
+            br->args[0] = fallthrough;
+            br->arg_count = 1;
+            emit(ctx, br);
+
+            if (case_idx + 1 < num_cases) {
+                ctx->current_block = check_blocks[case_idx + 1];
+            }
+
+            cases = cases->next;
+            case_idx++;
+        }
+    }
     
     ctx->current_block = end_bb;
     if (!ctx->current_block->tail || !is_terminator_op(ctx->current_block->tail->op)) {
@@ -260,7 +300,7 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     
     ctx->in_flux_resume = 0;
     ctx->flux_vars = NULL;
-    ctx->flux_resume_switch = NULL;
+    ctx->flux_resume_cases = NULL;
 }
 
 void alir_gen_flux_yield(AlirCtx *ctx, EmitNode *en) {
@@ -289,8 +329,8 @@ void alir_gen_flux_yield(AlirCtx *ctx, EmitNode *en) {
         AlirSwitchCase *nc = alir_alloc(ctx->module, sizeof(AlirSwitchCase));
         nc->value = next_state;
         nc->label = resume_bb->label;
-        nc->next = ctx->flux_resume_switch->cases;
-        ctx->flux_resume_switch->cases = nc;
+        nc->next = ctx->flux_resume_cases;
+        ctx->flux_resume_cases = nc;
         
     } else {
         AlirValue *val = alir_gen_expr(ctx, en->value);

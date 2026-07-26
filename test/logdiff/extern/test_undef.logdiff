@@ -1,0 +1,12 @@
+1,2c1,2
+< /usr/bin/ld: build/out.o: in function `main':
+< main_module:(.text+0xe): undefined reference to `foo'
+---
+> /usr/bin/ld: /tmp/ccsDwFA2.o: in function `main':
+> (.text+0x9): undefined reference to `foo'
+3a4
+> GCC linking failed with code 256
+10,12d10
+< Compiled to build/out.o
+< Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+< Linking failed.
