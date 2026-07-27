@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 
-static AlirValue* alir_fold_const_expr(AlirCtx *ctx, ASTNode *node, VarType target) {
+AlirValue* alir_fold_const_expr(AlirCtx *ctx, ASTNode *node, VarType target) {
     if (!node) return NULL;
     AlirValue *val = alir_gen_expr(ctx, node);
     if (!val || val->kind != ALIR_VAL_CONST) return NULL;
@@ -24,7 +24,7 @@ static AlirValue* alir_fold_const_expr(AlirCtx *ctx, ASTNode *node, VarType targ
     return val;
 }
 
-static void scan_and_fold_consts(AlirCtx *ctx, ASTNode *node) {
+void scan_and_fold_consts(AlirCtx *ctx, ASTNode *node) {
     while (node) {
         if (node->type == NODE_NAMESPACE) {
             scan_and_fold_consts(ctx, ((NamespaceNode*)node)->body);

@@ -8,6 +8,8 @@ void pop_loop(AlirCtx *ctx);
 int is_terminator(AlirOpcode op); 
 
 long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node);
+AlirValue* alir_fold_const_expr(AlirCtx *ctx, ASTNode *node, VarType target);
+void scan_and_fold_consts(AlirCtx *ctx, ASTNode *root);
 // TODO change this class node 
 ClassNode* find_class_node(ASTNode *root, const char *name);
 void build_struct_fields(AlirCtx *ctx, ASTNode *root, ClassNode *cn, AlirStruct *st);

@@ -444,6 +444,7 @@ int run_file(const char *filename) {
 
 int import_module(const char *module_name) {
     printf("Importing module: %s\n", module_name);
+    // here is metalir_load_module(r, module_name);
     return 0;
 }
 
