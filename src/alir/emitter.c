@@ -82,7 +82,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
           fprintf(f, ")\n");
 
       } else {
-          fprintf(f, "\n%s ", func->is_flux ? "flux" : "func");
+          fprintf(f, "\n");
           alir_fprint_type(f, func->ret_type);
           fprintf(f, " @%s(", func->name);
 
@@ -98,11 +98,11 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
               if (func->param_count > 0) fprintf(f, ", ");
               fprintf(f, "...");
           }
-          fprintf(f, "):\n");
+          fprintf(f, ")\n");
 
           AlirBlock *b = func->blocks;
           while(b) {
-              fprintf(f, "  %s:\n", b->label);
+              fprintf(f, "  block %s\n", b->label);
 
               AlirInst *inst = b->head;
               while(inst) {
@@ -138,10 +138,10 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                       fprintf(f, "if ");
                       if (inst->op1) alir_fprint_val(f, inst->op1);
                       else fprintf(f, "undef");
-                      fprintf(f, " then ");
+                      fprintf(f, " ");
                       if (inst->op2) alir_fprint_val(f, inst->op2);
                       else fprintf(f, "undef");
-                      fprintf(f, " else ");
+                      fprintf(f, " ");
                       if (inst->arg_count > 0 && inst->args[0]) alir_fprint_val(f, inst->args[0]);
                       else fprintf(f, "undef");
                       fprintf(f, " ");

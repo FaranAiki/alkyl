@@ -1,49 +1,6 @@
-Both operands to ICmp instruction are not of the same type!
-  %eq = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
-Both operands to a binary operator are not of the same type!
-  %shr = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 2
-Both operands to a binary operator are not of the same type!
-  %shr15 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 2
-Both operands to a binary operator are not of the same type!
-  %shr16 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 3
-Both operands to a binary operator are not of the same type!
-  %shr17 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 3
-Both operands to a binary operator are not of the same type!
-  %shr18 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 2
-Both operands to a binary operator are not of the same type!
-  %shr19 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 3
-Both operands to ICmp instruction are not of the same type!
-  %eq = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
-Both operands to a binary operator are not of the same type!
-  %shr = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 2
-Both operands to a binary operator are not of the same type!
-  %shr15 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 2
-Both operands to a binary operator are not of the same type!
-  %shr16 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 3
-Both operands to a binary operator are not of the same type!
-  %shr17 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 3
-Both operands to a binary operator are not of the same type!
-  %shr18 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 2
-Both operands to a binary operator are not of the same type!
-  %shr19 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 3
-LLVM Verification Error: Both operands to ICmp instruction are not of the same type!
-  %eq = icmp eq i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 1
-Both operands to a binary operator are not of the same type!
-  %shr = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 2
-Both operands to a binary operator are not of the same type!
-  %shr15 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 2
-Both operands to a binary operator are not of the same type!
-  %shr16 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 3
-Both operands to a binary operator are not of the same type!
-  %shr17 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 3
-Both operands to a binary operator are not of the same type!
-  %shr18 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 2
-Both operands to a binary operator are not of the same type!
-  %shr19 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 3
-
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+step: Finished alir check and analysis. Start Codegen using qbe Codegen

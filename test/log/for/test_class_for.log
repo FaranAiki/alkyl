@@ -1,12 +1,14 @@
+[Alick Error] in func '@Range_iterate_Resume' block 'entry' -> Block lacks a terminator. Last instruction is 'getptr', expected branch/return.
+  Instruction Context: getptr
+at namespace main:
+11:16: error: [ALIR: @Range_iterate_Resume -> while_end] Early terminator '->' found. Instructions following this in the same block are unreachable.
+  |         return 999;
+  |                ^
+ALICK Verification Failed: 2 errors, 0 warnings found.
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 DEBUG: FluxCtx ptr_depth = 0
 step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-LLVMStructSetBody for FluxCtx_Range_iterate with 6 fields
-LLVMStructSetBody for Range with 1 fields
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out
+Error occured in alick.

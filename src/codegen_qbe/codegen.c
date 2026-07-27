@@ -471,7 +471,14 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             fprintf(out, "\t# SWITCH unhandled\n");
             break;
         case ALIR_OP_PANIC:
-            fprintf(out, "\t# PANIC unhandled\n");
+            if (inst->op1) {
+                fprintf(out, "\tcall $printf(l ");
+                print_val(out, inst->op1);
+                fprintf(out, ", w ");
+                print_val(out, inst->op2);
+                fprintf(out, ")\n");
+            }
+            fprintf(out, "\tcall $exit(l 1)\n");
             break;
         case ALIR_OP_FALLBACK:
             fprintf(out, "\t# FALLBACK (ternary/null-coalescing) unhandled\n");

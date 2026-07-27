@@ -1,26 +1,6 @@
-Cannot allocate unsized type
-  %alloc = alloca %ns.Clib, align 8
-GEP into unsized type!
-  %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
-GEP into unsized type!
-  %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
-Cannot allocate unsized type
-  %alloc = alloca %ns.Clib, align 8
-GEP into unsized type!
-  %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
-GEP into unsized type!
-  %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
-LLVM Verification Error: Cannot allocate unsized type
-  %alloc = alloca %ns.Clib, align 8
-GEP into unsized type!
-  %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
-GEP into unsized type!
-  %struct_gep1 = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
-
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-LLVMStructSetBody for Clib with 1 fields
+step: Finished alir check and analysis. Start Codegen using qbe Codegen
