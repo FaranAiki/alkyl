@@ -183,6 +183,8 @@ void exec_link(Executor *e, LinkNode *ln, int is_repl) {
 #endif
 }
 
+// TODO make sure this is possible to use the
+// import std.print okay
 static void print_repl_value(VarType rt, long long result) {
     if (rt.base == TYPE_VOID) {
         printf("-> (void)\n");

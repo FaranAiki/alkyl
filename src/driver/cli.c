@@ -285,6 +285,8 @@ int run_repl(void) {
     MetalirRunner *r = metalir_runner_create("ethyl_repl", &sem_settings, 0);
     global_sem_ctx = &r->sem;
 
+    metalir_load_module(r, "lib/std/print.aky");
+
     rl_catch_signals = 0;
     signal(SIGINT, handle_sigint);
     rl_bind_key('\r', accept_line_clear_hint);
@@ -293,6 +295,9 @@ int run_repl(void) {
     int cmd_count = 0;
 
     while (1) {
+        r->ctx.semantic_error_count = 0;
+        r->ctx.error_count = 0;
+
         char *buffer = get_smart_input(&r->ast_arena, cmd_count);
         if (!buffer) break;
 
@@ -312,6 +317,7 @@ int run_repl(void) {
         int sem_errs = sem_check_program(&r->sem, root);
         if (sem_errs > 0) {
             r->ctx.semantic_error_count = 0;
+            r->ctx.error_count = 0;
             continue;
         }
 

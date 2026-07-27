@@ -39,6 +39,7 @@ long long metalir_execute_parse(MetalirRunner *r, ASTNode *root,
                                 const char *source, const char *filename);
 long long metalir_execute_string(MetalirRunner *r, const char *source,
                                  const char *filename);
+int metalir_load_module(MetalirRunner *r, const char *path);
 
 long long metalir_run_var_decl(MetalirRunner *r, VarDeclNode *vd, int seq);
 void metalir_run_class(MetalirRunner *r, ASTNode *curr, ASTNode *root);

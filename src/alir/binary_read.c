@@ -79,16 +79,6 @@ static AlirInst* br_inst(AlirModule *m, FILE *f) {
         }
     }
     
-    uint32_t num_cases = br_u32(f);
-    AlirSwitchCase **c_tail = &i->cases;
-    for (uint32_t j = 0; j < num_cases; j++) {
-        AlirSwitchCase *c = alir_alloc(m, sizeof(AlirSwitchCase));
-        c->value = br_u64(f);
-        c->label = br_str(m, f);
-        *c_tail = c;
-        c_tail = &c->next;
-    }
-    
     i->line = br_u32(f);
     i->col = br_u32(f);
     return i;

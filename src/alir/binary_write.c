@@ -57,18 +57,6 @@ static void bw_inst(FILE *f, AlirInst *i) {
         bw_value(f, i->args[j]);
     }
     
-    // cases
-    uint32_t num_cases = 0;
-    AlirSwitchCase *c = i->cases;
-    while(c) { num_cases++; c = c->next; }
-    bw_u32(f, num_cases);
-    c = i->cases;
-    while(c) {
-        bw_u64(f, c->value);
-        bw_str(f, c->label);
-        c = c->next;
-    }
-    
     bw_u32(f, i->line);
     bw_u32(f, i->col);
 }

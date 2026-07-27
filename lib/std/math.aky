@@ -1,0 +1,36 @@
+
+// TODO abstract this!
+/*closed*/ namespace __raw_math {
+  extern double sin(double);
+  extern double cos(double);
+
+  extern single sinf(single);
+  extern single cosf(single);
+}
+
+/* static define */
+define _r_sin as __raw_math.sin;
+define _r_cos as __raw_math.cos;
+
+define _r_sinf as __raw_math.sinf;
+define _r_cosf as __raw_math.cosf;
+
+namespace math {
+
+const double pi = 3.14159265358;
+
+single sin(single n) {
+  return _r_sinf(n);
+}
+single cos(single n) {
+  return _r_cosf(n);
+}
+
+double sin(double n) {
+  return _r_sin(n);
+}
+double cos(double n) {
+  return _r_cos(n);
+}
+
+}

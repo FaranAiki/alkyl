@@ -34,8 +34,10 @@ void alir_fprint_val(FILE *f, AlirValue *v) {
     if (!v) { fprintf(f, "void"); return; }
     switch(v->kind) {
         case ALIR_VAL_CONST:
-            if (v->type.base == TYPE_SINGLE || v->type.base == TYPE_DOUBLE)
+            if (v->type.base == TYPE_SINGLE)
                 fprintf(f, "%.2f", v->val.single_val);
+            else if (v->type.base == TYPE_DOUBLE)
+                fprintf(f, "%.2f", v->val.double_val);
             else
                 fprintf(f, "%ld", v->val.long_val);
             break;

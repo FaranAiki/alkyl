@@ -1,5 +1,6 @@
 #include "metalir.h"
 #include "../metarse/metarse.h"
+#include "../common/common.h"
 #include <dlfcn.h>
 
 MetalirRunner* metalir_runner_create(const char *module_name,
@@ -342,6 +343,7 @@ long long metalir_execute_parse(MetalirRunner *r, ASTNode *root,
     int errs = sem_check_program(&r->sem, root);
     if (errs > 0) {
         r->ctx.semantic_error_count = 0;
+        r->ctx.error_count = 0;
         return 0;
     }
 
@@ -376,4 +378,14 @@ long long metalir_execute_string(MetalirRunner *r, const char *source,
     ASTNode *root = metalir_parse(r, source, filename, NULL);
     if (!root || r->parser.has_error) return 0;
     return metalir_execute_parse(r, root, source, filename);
+}
+
+int metalir_load_module(MetalirRunner *r, const char *path) {
+    char *src = read_file(path);
+    if (!src) return -1;
+    metalir_execute_string(r, src, path);
+    free(src);
+    r->ctx.semantic_error_count = 0;
+    r->ctx.error_count = 0;
+    return 0;
 }

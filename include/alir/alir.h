@@ -69,9 +69,6 @@ typedef struct AlirInst {
     AlirValue **args;
     int arg_count;
 
-    // For Switches (Cases map to labels)
-    struct AlirSwitchCase *cases;
-
     struct AlirInst *next;
 
     // Source mapping context
@@ -152,6 +149,12 @@ typedef struct AlirGlobal {
     struct AlirGlobal *next;
 } AlirGlobal;
 
+typedef struct AlirConstFoldEntry {
+    char *name;
+    AlirValue *value;
+    struct AlirConstFoldEntry *next;
+} AlirConstFoldEntry;
+
 typedef struct AlirModule {
     char *name;
     AlirGlobal *globals;    // Global constants (strings)
@@ -206,6 +209,8 @@ typedef struct AlirCtx {
 
     int current_line;
     int current_col;
+
+    AlirConstFoldEntry *const_folds;
 } AlirCtx;
 
 // Struct & Enum Registry

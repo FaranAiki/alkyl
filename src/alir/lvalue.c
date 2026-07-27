@@ -302,6 +302,14 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
         return alir_const_int(ctx->module, vn->error_id);
     }
 
+    AlirConstFoldEntry *fold = ctx->const_folds;
+    while (fold) {
+        if (strcmp(fold->name, vn->name) == 0) {
+            return fold->value;
+        }
+        fold = fold->next;
+    }
+
     AlirValue *ptr = alir_gen_addr(ctx, (ASTNode*)vn);
     if (!ptr) {
         // If it's a global function or global variable
@@ -512,18 +520,38 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     if (op == ALIR_OP_EQ || op == ALIR_OP_LT || op == ALIR_OP_GT || op == ALIR_OP_LTE || op == ALIR_OP_GTE || op == ALIR_OP_NEQ) res_type = (VarType){TYPE_BOOL, 0};
 
     if (l->kind == ALIR_VAL_CONST && r->kind == ALIR_VAL_CONST) {
-        if (op == ALIR_OP_EQ) {
-            return alir_const_int(ctx->module, l->val.int_val == r->val.int_val ? 1 : 0);
-        } else if (op == ALIR_OP_NEQ) {
-            return alir_const_int(ctx->module, l->val.int_val != r->val.int_val ? 1 : 0);
-        } else if (op == ALIR_OP_LT) {
-            return alir_const_int(ctx->module, l->val.int_val < r->val.int_val ? 1 : 0);
-        } else if (op == ALIR_OP_GT) {
-            return alir_const_int(ctx->module, l->val.int_val > r->val.int_val ? 1 : 0);
-        } else if (op == ALIR_OP_LTE) {
-            return alir_const_int(ctx->module, l->val.int_val <= r->val.int_val ? 1 : 0);
-        } else if (op == ALIR_OP_GTE) {
-            return alir_const_int(ctx->module, l->val.int_val >= r->val.int_val ? 1 : 0);
+        if (l->type.base == TYPE_DOUBLE || r->type.base == TYPE_DOUBLE) {
+            double lv = l->val.double_val;
+            double rv = r->val.double_val;
+            if (op == ALIR_OP_EQ) return alir_const_int(ctx->module, lv == rv ? 1 : 0);
+            if (op == ALIR_OP_NEQ) return alir_const_int(ctx->module, lv != rv ? 1 : 0);
+            if (op == ALIR_OP_LT) return alir_const_int(ctx->module, lv < rv ? 1 : 0);
+            if (op == ALIR_OP_GT) return alir_const_int(ctx->module, lv > rv ? 1 : 0);
+            if (op == ALIR_OP_LTE) return alir_const_int(ctx->module, lv <= rv ? 1 : 0);
+            if (op == ALIR_OP_GTE) return alir_const_int(ctx->module, lv >= rv ? 1 : 0);
+        } else if (l->type.base == TYPE_SINGLE || r->type.base == TYPE_SINGLE) {
+            float lv = l->val.single_val;
+            float rv = r->val.single_val;
+            if (op == ALIR_OP_EQ) return alir_const_int(ctx->module, lv == rv ? 1 : 0);
+            if (op == ALIR_OP_NEQ) return alir_const_int(ctx->module, lv != rv ? 1 : 0);
+            if (op == ALIR_OP_LT) return alir_const_int(ctx->module, lv < rv ? 1 : 0);
+            if (op == ALIR_OP_GT) return alir_const_int(ctx->module, lv > rv ? 1 : 0);
+            if (op == ALIR_OP_LTE) return alir_const_int(ctx->module, lv <= rv ? 1 : 0);
+            if (op == ALIR_OP_GTE) return alir_const_int(ctx->module, lv >= rv ? 1 : 0);
+        } else {
+            if (op == ALIR_OP_EQ) {
+                return alir_const_int(ctx->module, l->val.int_val == r->val.int_val ? 1 : 0);
+            } else if (op == ALIR_OP_NEQ) {
+                return alir_const_int(ctx->module, l->val.int_val != r->val.int_val ? 1 : 0);
+            } else if (op == ALIR_OP_LT) {
+                return alir_const_int(ctx->module, l->val.int_val < r->val.int_val ? 1 : 0);
+            } else if (op == ALIR_OP_GT) {
+                return alir_const_int(ctx->module, l->val.int_val > r->val.int_val ? 1 : 0);
+            } else if (op == ALIR_OP_LTE) {
+                return alir_const_int(ctx->module, l->val.int_val <= r->val.int_val ? 1 : 0);
+            } else if (op == ALIR_OP_GTE) {
+                return alir_const_int(ctx->module, l->val.int_val >= r->val.int_val ? 1 : 0);
+            }
         }
     }
 

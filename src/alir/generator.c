@@ -3,6 +3,48 @@
 #include <string.h>
 #include <stdio.h>
 
+static AlirValue* alir_fold_const_expr(AlirCtx *ctx, ASTNode *node, VarType target) {
+    if (!node) return NULL;
+    AlirValue *val = alir_gen_expr(ctx, node);
+    if (!val || val->kind != ALIR_VAL_CONST) return NULL;
+    if (target.base == TYPE_UNKNOWN || target.base == TYPE_AUTO) return val;
+    if (val->type.base == target.base && val->type.ptr_depth == target.ptr_depth) return val;
+    if (val->type.base == TYPE_INT && target.base == TYPE_DOUBLE)
+        return alir_const_double(ctx->module, (double)val->val.int_val);
+    if (val->type.base == TYPE_INT && target.base == TYPE_SINGLE)
+        return alir_const_float(ctx->module, (float)val->val.int_val);
+    if (val->type.base == TYPE_DOUBLE && target.base == TYPE_INT)
+        return alir_const_int(ctx->module, (long)val->val.double_val);
+    if (val->type.base == TYPE_DOUBLE && target.base == TYPE_SINGLE)
+        return alir_const_float(ctx->module, (float)val->val.double_val);
+    if (val->type.base == TYPE_SINGLE && target.base == TYPE_INT)
+        return alir_const_int(ctx->module, (long)val->val.single_val);
+    if (val->type.base == TYPE_SINGLE && target.base == TYPE_DOUBLE)
+        return alir_const_double(ctx->module, (double)val->val.single_val);
+    return val;
+}
+
+static void scan_and_fold_consts(AlirCtx *ctx, ASTNode *node) {
+    while (node) {
+        if (node->type == NODE_NAMESPACE) {
+            scan_and_fold_consts(ctx, ((NamespaceNode*)node)->body);
+        } else if (node->type == NODE_VAR_DECL) {
+            VarDeclNode *vn = (VarDeclNode*)node;
+            if (vn->is_const && vn->initializer) {
+                AlirValue *folded = alir_fold_const_expr(ctx, vn->initializer, vn->var_type);
+                if (folded) {
+                    AlirConstFoldEntry *entry = alir_alloc(ctx->module, sizeof(AlirConstFoldEntry));
+                    entry->name = alir_strdup(ctx->module, vn->name);
+                    entry->value = folded;
+                    entry->next = ctx->const_folds;
+                    ctx->const_folds = entry;
+                }
+            }
+        }
+        node = node->next;
+    }
+}
+
 // Loop Stack
 void push_loop(AlirCtx *ctx, AlirBlock *cont, AlirBlock *brk) {
     AlirCtx *node = alir_alloc(ctx->module, sizeof(AlirCtx));
@@ -660,7 +702,10 @@ AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
     
     // 1. SCAN AND REGISTER CLASSES & ENUMS
     alir_scan_and_register_classes(&ctx, root);
-    
+
+    // 1.5. FOLD TOP-LEVEL CONST DECLARATIONS WITH CONSTANT INITIALIZERS
+    scan_and_fold_consts(&ctx, root);
+
     // 2. GEN FUNCTIONS (Recursively to handle classes & namespaces)
     alir_gen_functions_recursive(&ctx, root);
     
