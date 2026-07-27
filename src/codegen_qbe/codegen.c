@@ -157,6 +157,26 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
+        case ALIR_OP_SHL:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c shl ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_SHR: {
+            int is_unsigned = inst->op1 && inst->op1->type.is_unsigned;
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c %s ", dt, is_unsigned ? "shr" : "sar");
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        }
         case ALIR_OP_RET:
             if (inst->op1) {
                 fprintf(out, "\tret ");
