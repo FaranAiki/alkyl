@@ -3,16 +3,16 @@
 #include <stdio.h>
 
 // Helper to construct a temporary lexer for reporting
-static void setup_report_lexer(Lexer *l, SemanticCtx *ctx) {
+static void setup_report_lexer(Lexer *l, SemanticCtx *ctx, const char *filename, const char *source) {
     if (ctx->compiler_ctx) {
-        // Initialize with the context and source
-        // We assume lexer_init handles basic setup
-        lexer_init(l, ctx->compiler_ctx, ctx->current_filename, ctx->current_source, NULL);
+        lexer_init(l, ctx->compiler_ctx, 
+            filename ? filename : ctx->current_filename, 
+            source ? source : ctx->current_source, 
+            NULL);
     } else {
-        // Fallback if no compiler context (shouldn't happen in proper flow)
         l->ctx = NULL;
-        l->src = ctx->current_source;
-        l->filename = (char*)ctx->current_filename;
+        l->src = source ? source : ctx->current_source;
+        l->filename = (char*)(filename ? filename : ctx->current_filename);
     }
 }
 
@@ -23,19 +23,21 @@ void sem_hint(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     vsnprintf(msg, sizeof(msg), fmt, args);
     va_end(args);
 
-    if (ctx->current_source && node) {
+    if (node && ctx->current_source) {
         Lexer l;
-        setup_report_lexer(&l, ctx);
+        setup_report_lexer(&l, ctx, node->filename, node->source);
         
         Token t;
         t.line = node->line;
         t.col = node->col;
         t.type = TOKEN_UNKNOWN; 
         t.text = NULL;
+        t.int_val = 0; 
+        t.double_val = 0.0;
         
         report_hint(&l, t, msg);
     } else {
-        fprintf(stderr, "[Semantic Hint] %s\n", msg);
+        fprintf(stderr, "%shint:%s %s\n", DIAG_YELLOW, DIAG_RESET, msg);
     }
 }
 
@@ -50,9 +52,9 @@ void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     vsnprintf(msg, sizeof(msg), fmt, args);
     va_end(args);
 
-    if (ctx->current_source && node) {
+    if (node && ctx->current_source) {
         Lexer l;
-        setup_report_lexer(&l, ctx);
+        setup_report_lexer(&l, ctx, node->filename, node->source);
         
         Token t;
         t.line = node->line;
@@ -116,9 +118,9 @@ void sem_warning(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     vsnprintf(msg, sizeof(msg), fmt, args);
     va_end(args);
 
-    if (ctx->current_source && node) {
+    if (node && ctx->current_source) {
         Lexer l;
-        setup_report_lexer(&l, ctx);
+        setup_report_lexer(&l, ctx, node->filename, node->source);
         
         Token t;
         t.line = node->line;
@@ -145,13 +147,15 @@ void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
 
     if (ctx->current_source && node) {
         Lexer l;
-        setup_report_lexer(&l, ctx);
+        setup_report_lexer(&l, ctx, node->filename, node->source);
         
         Token t;
         t.line = node->line;
         t.col = node->col;
         t.type = TOKEN_UNKNOWN; 
         t.text = NULL;
+        t.int_val = 0; 
+        t.double_val = 0.0;
         
         report_info(&l, t, msg);
     } else {

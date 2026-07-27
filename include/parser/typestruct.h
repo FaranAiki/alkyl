@@ -118,6 +118,8 @@ typedef struct ASTNode {
   char *reason;
   VarType sem_type;
   bool is_macro_arg : 1;
+  char *filename;
+  char *source;
 } ASTNode;
 
 typedef struct Parameter {

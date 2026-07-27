@@ -50,7 +50,13 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
 void* parser_alloc(Parser *p, size_t size) {
     if (!p || !p->ctx || !p->ctx->arena) return calloc(1, size);
     void *ptr = arena_alloc(p->ctx->arena, size);
-    if (ptr) memset(ptr, 0, size);
+    if (ptr) {
+        memset(ptr, 0, size);
+        if (p->l) {
+            ((ASTNode*)ptr)->filename = p->l->filename;
+            ((ASTNode*)ptr)->source = p->l->src;
+        }
+    }
     return ptr;
 }
 
