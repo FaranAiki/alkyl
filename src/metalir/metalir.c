@@ -84,6 +84,7 @@ void metalir_alir_generate(MetalirRunner *r, ASTNode *root) {
     a.sem = &r->sem;
     a.module = r->module;
     alir_scan_and_register_classes(&a, root);
+    scan_and_fold_consts(&a, root);
     alir_gen_functions_recursive(&a, root);
     r->module->src = r->sem.current_source;
     r->module->filename = r->sem.current_filename;
@@ -202,6 +203,15 @@ long long metalir_run_var_decl(MetalirRunner *r, VarDeclNode *vd, int seq) {
 
         AlirFunction *cfn = find_func(r, fname);
         if (cfn) initial_val = metalir_vm_execute(r->vm, r->module, cfn, &r->sem, NULL, 0);
+
+        VarType init_type = sem_get_node_type(&r->sem, vd->initializer);
+        if (vd->var_type.base == TYPE_DOUBLE && init_type.base != TYPE_DOUBLE) {
+            double d = (double)initial_val;
+            memcpy(&initial_val, &d, sizeof(d));
+        } else if (vd->var_type.base == TYPE_SINGLE && init_type.base != TYPE_SINGLE) {
+            float f = (float)initial_val;
+            memcpy(&initial_val, &f, sizeof(f));
+        }
     }
 
     VMGlobal *vg = arena_alloc(&r->vm_arena, sizeof(VMGlobal));

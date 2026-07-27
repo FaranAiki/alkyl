@@ -7,7 +7,21 @@ define trait as abstract method class;
 define struct as abstract container class;
 define impl as exact method class;
 
-//
+// Mutability
 define immutable as imut;
 define mutable as mut;
 define auto as let;
+
+// Type definitions
+typedef i0 as void;
+typedef u0 as void;
+typedef i32 as int;
+typedef u32 as unsigned int;
+typedef i64 as long;
+typedef u64 as unsigned long;
+typedef i128 as long long;
+typedef u128 as unsigned long long;
+typedef f32 as single;
+typedef f64 as double;
+
+typedef float as single;

@@ -34,12 +34,12 @@ case ALIR_OP_BITCAST: {
 
         if (dst_base == TYPE_DOUBLE) {
             if (src_base == TYPE_DOUBLE) {
-                memcpy(&ctx->registers[inst->dest->temp_id].as.double_val, &raw, sizeof(double));
+                memcpy(&ctx->registers[inst->dest->temp_id].as.single_val, &raw, sizeof(double));
             } else if (src_base == TYPE_SINGLE) {
                 float f; memcpy(&f, &raw, sizeof(f));
-                ctx->registers[inst->dest->temp_id].as.double_val = (double)f;
+                ctx->registers[inst->dest->temp_id].as.single_val = (double)f;
             } else {
-                ctx->registers[inst->dest->temp_id].as.double_val = (double)raw;
+                ctx->registers[inst->dest->temp_id].as.single_val = (double)raw;
             }
         } else if (dst_base == TYPE_SINGLE) {
             if (src_base == TYPE_DOUBLE) {

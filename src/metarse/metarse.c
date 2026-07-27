@@ -104,6 +104,15 @@ long long exec_var_decl(Executor *e, VarDeclNode *vd, int seq, const char *prefi
 
         AlirFunction *cfn = alir_find_function(e->module, fname);
         if (cfn) initial_val = metalir_vm_execute(e->vm, e->module, cfn, &e->sem, NULL, 0);
+
+        VarType init_type = sem_get_node_type(&e->sem, vd->initializer);
+        if (vd->var_type.base == TYPE_DOUBLE && init_type.base != TYPE_DOUBLE) {
+            double d = (double)initial_val;
+            memcpy(&initial_val, &d, sizeof(d));
+        } else if (vd->var_type.base == TYPE_SINGLE && init_type.base != TYPE_SINGLE) {
+            float f = (float)initial_val;
+            memcpy(&initial_val, &f, sizeof(f));
+        }
     }
 
     VMGlobal *vg = arena_alloc(&e->vm_arena, sizeof(VMGlobal));
