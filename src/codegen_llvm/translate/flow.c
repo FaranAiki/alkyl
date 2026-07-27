@@ -18,21 +18,6 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             if (then_bb && else_bb && op1) LLVMBuildCondBr(ctx->builder, op1, then_bb, else_bb);
             break;
         }
-        case ALIR_OP_SWITCH: {
-            LLVMBasicBlockRef default_bb = hashmap_get(&ctx->block_map, inst->op2->val.str_val);
-            int num_cases = 0;
-            for(AlirSwitchCase *c = inst->cases; c; c = c->next) num_cases++;
-            
-            if (op1 && default_bb) {
-                res = LLVMBuildSwitch(ctx->builder, op1, default_bb, num_cases);
-                for(AlirSwitchCase *c = inst->cases; c; c = c->next) {
-                    LLVMValueRef case_val = LLVMConstInt(get_llvm_type(ctx, inst->op1->type), c->value, 0);
-                    LLVMBasicBlockRef case_bb = hashmap_get(&ctx->block_map, c->label);
-                    if (case_bb) LLVMAddCase(res, case_val, case_bb);
-                }
-            }
-            break;
-        }
         case ALIR_OP_CALL: {
             LLVMValueRef func = get_llvm_value(ctx, inst->op1);
             LLVMTypeRef func_ty = NULL;

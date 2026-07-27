@@ -6,30 +6,9 @@ case ALIR_OP_JUMP: {
                     if (inst->op1 && inst->op1->kind == ALIR_VAL_LABEL) {
                         (*ctx->next_block) = find_block(ctx->func, inst->op1->val.str_val);
                     }
-                    break;
-                }
-                    break;
-case ALIR_OP_SWITCH: {
-                    long long cond = 0;
-                    if (inst->op1->kind == ALIR_VAL_TEMP) cond = ctx->registers[inst->op1->temp_id].as.int_val;
-                    else if (inst->op1->kind == ALIR_VAL_CONST) cond = inst->op1->val.long_long_val;
-                    
-                    AlirSwitchCase *c = inst->cases;
-                    int matched = 0;
-                    while (c) {
-                        if (c->value == cond) {
-                            (*ctx->next_block) = find_block(ctx->func, c->label);
-                            matched = 1;
-                            break;
-                        }
-                        c = c->next;
-                    }
-                    if (!matched && inst->op2 && inst->op2->kind == ALIR_VAL_LABEL) {
-                        (*ctx->next_block) = find_block(ctx->func, inst->op2->val.str_val);
-                    }
-                    break;
-                }
-                    break;
+                     break;
+                 }
+                     break;
 case ALIR_OP_CONDI: {
                     long long cond = 0;
                     if (inst->op1->kind == ALIR_VAL_TEMP) cond = ctx->registers[inst->op1->temp_id].as.int_val;
@@ -94,14 +73,10 @@ case ALIR_OP_RET: {
                             }
                         }
                     }
-                    (*ctx->ret_val) = 0; ctx->should_return = 1; return;
-                }
-                    break;
-        
-case ALIR_OP_YIELD:
-    // Yield not fully implemented in MetaVM, treat as a break/return for now
-    break;
-
+                     (*ctx->ret_val) = 0; ctx->should_return = 1; return;
+                 }
+                     break;
+         
 default: break;
     }
 }

@@ -151,28 +151,16 @@ long long metalir_vm_execute(MetalirVM *vm, AlirModule *module, AlirFunction *fu
                     vm_eval_math(&ctx, inst);
                     break;
                 case ALIR_OP_JUMP:
-                case ALIR_OP_SWITCH:
                 case ALIR_OP_CONDI:
                 case ALIR_OP_RET:
-                case ALIR_OP_YIELD:
                     vm_eval_flow(&ctx, inst);
                     break;
                 case ALIR_OP_CALL:
                     vm_eval_call(&ctx, inst);
                     break;
-                case ALIR_OP_DEFINED:
-                case ALIR_OP_SIZEOF:
-                case ALIR_OP_ALIGNOF:
-                case ALIR_OP_TYPEOF:
                 case ALIR_OP_CAST:
                 case ALIR_OP_BITCAST:
-                case ALIR_OP_MOV:
-                case ALIR_OP_PHI:
                 case ALIR_OP_FALLBACK:
-                case ALIR_OP_ITER_INIT:
-                case ALIR_OP_ITER_VALID:
-                case ALIR_OP_ITER_NEXT:
-                case ALIR_OP_ITER_GET:
                     vm_eval_misc(&ctx, inst);
                     break;
                 default: break;

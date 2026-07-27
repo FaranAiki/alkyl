@@ -48,21 +48,6 @@ void alick_check_cfg(AlickCtx *ctx, AlirFunction *func) {
                 alick_error(ctx, func, b, term, "CONDI false-branch label '%s' does not exist.", term->args[0]->val.str_val);
             }
         } 
-        else if (term->op == ALIR_OP_SWITCH) {
-            if (!term->op2 || term->op2->kind != ALIR_VAL_LABEL) {
-                alick_error(ctx, func, b, term, "SWITCH default-branch target must be a label in op2.");
-            } else if (!find_block(func, term->op2->val.str_val)) {
-                alick_error(ctx, func, b, term, "SWITCH default-branch label '%s' does not exist.", term->op2->val.str_val);
-            }
-            
-            AlirSwitchCase *c = term->cases;
-            while (c) {
-                if (!find_block(func, c->label)) {
-                    alick_error(ctx, func, b, term, "SWITCH case target label '%s' does not exist.", c->label);
-                }
-                c = c->next;
-            }
-        }
 
         // 4. Ensure no unreachable instructions exist AFTER the terminator
         AlirInst *i = b->head;

@@ -36,15 +36,6 @@ typedef enum {
     ALIR_OP_GET_PTR,    // Generic GEP (Get Element Ptr) for Arrays/Structs
     ALIR_OP_BITCAST,    // Replaces raw casting logic
 
-    // New Memory Ops for Lowering
-    // THESE SHOULD NOT EXISTS IN ALIR!
-    // BECAUSE THIS IS SEMANTIC ONLY!
-    // TODO: REMOVE THESE
-    ALIR_OP_SIZEOF,     // sizeof(T)
-    ALIR_OP_ALIGNOF,    // alignof(T)
-    ALIR_OP_TYPEOF,     // typeof(T)
-    ALIR_OP_DEFINED,    // defined(T)
-
     // Arithmetic
     ALIR_OP_ADD, ALIR_OP_SUB, ALIR_OP_MUL, ALIR_OP_DIV, ALIR_OP_MOD,
     ALIR_OP_FADD, ALIR_OP_FSUB, ALIR_OP_FMUL, ALIR_OP_FDIV,
@@ -59,25 +50,13 @@ typedef enum {
     // Control Flow
     ALIR_OP_JUMP,         // Unconditional Branch
     ALIR_OP_CONDI,    // Conditional Branch
-    ALIR_OP_SWITCH,     // Switch (Complex Flow)
     ALIR_OP_CALL,
     ALIR_OP_RET,
     ALIR_OP_PANIC,
     ALIR_OP_FALLBACK,
 
-    // Flux / Coroutines
-    ALIR_OP_YIELD,      // High-level yield (lowers to state machine)
-
-    // Iteration (High Level)
-    ALIR_OP_ITER_INIT,  // Initialize iterator from collection
-    ALIR_OP_ITER_VALID, // Check if iterator is valid
-    ALIR_OP_ITER_NEXT,  // Advance iterator
-    ALIR_OP_ITER_GET,   // Get current value from iterator
-
     // Misc
     ALIR_OP_CAST,
-    ALIR_OP_PHI,
-    ALIR_OP_MOV
 } AlirOpcode;
 
 typedef struct AlirInst {

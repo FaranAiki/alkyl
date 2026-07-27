@@ -54,8 +54,6 @@ void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
             
         case ALIR_OP_JUMP:
         case ALIR_OP_CONDI:
-        case ALIR_OP_SWITCH:
-        case ALIR_OP_PHI:
         case ALIR_OP_CALL:
         case ALIR_OP_RET:
         case ALIR_OP_FALLBACK:

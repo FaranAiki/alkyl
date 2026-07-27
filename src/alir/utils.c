@@ -61,9 +61,7 @@ AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *
     if (!st) return NULL; 
 
     // 1. Sizeof
-    AlirValue *size_val = new_temp(ctx, (VarType){TYPE_INT, 0});
-    AlirInst *i_size = mk_inst(ctx->module, ALIR_OP_SIZEOF, size_val, alir_val_type(ctx->module, class_name), NULL);
-    emit(ctx, i_size);
+    AlirValue *size_val = alir_const_int(ctx->module, 8);
 
     // 2. Alloc Stack (Alloca)
     AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1}); // char*

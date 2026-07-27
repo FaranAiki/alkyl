@@ -295,8 +295,6 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             fprintf(out, "\n");
             break;
         }
-        case ALIR_OP_FREE_STACK:
-            break;
         case ALIR_OP_BITCAST:
             fprintf(out, "\t");
             print_val(out, inst->dest);
@@ -304,29 +302,7 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             print_val(out, inst->op1);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_SIZEOF: {
-            int sz = qbe_type_size(dt);
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =w copy %d\n", sz);
-            break;
-        }
-        case ALIR_OP_ALIGNOF: {
-            int align = (dt == 'l') ? 8 : (dt == 's' || dt == 'd') ? 4 : 4;
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =w copy %d\n", align);
-            break;
-        }
-        case ALIR_OP_TYPEOF:
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =w copy 0\n");
-            break;
-        case ALIR_OP_DEFINED:
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =w copy 1\n");
+        case ALIR_OP_FREE_STACK:
             break;
         case ALIR_OP_MOD:
             fprintf(out, "\t");
@@ -467,9 +443,6 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             print_val(out, inst->dest);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_SWITCH:
-            fprintf(out, "\t# SWITCH unhandled\n");
-            break;
         case ALIR_OP_PANIC:
             if (inst->op1) {
                 fprintf(out, "\tcall $printf(l ");
@@ -482,31 +455,6 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             break;
         case ALIR_OP_FALLBACK:
             fprintf(out, "\t# FALLBACK (ternary/null-coalescing) unhandled\n");
-            break;
-        case ALIR_OP_YIELD:
-            fprintf(out, "\t# YIELD unhandled\n");
-            break;
-        case ALIR_OP_ITER_INIT:
-            fprintf(out, "\t# ITER_INIT unhandled\n");
-            break;
-        case ALIR_OP_ITER_VALID:
-            fprintf(out, "\t# ITER_VALID unhandled\n");
-            break;
-        case ALIR_OP_ITER_NEXT:
-            fprintf(out, "\t# ITER_NEXT unhandled\n");
-            break;
-        case ALIR_OP_ITER_GET:
-            fprintf(out, "\t# ITER_GET unhandled\n");
-            break;
-        case ALIR_OP_PHI:
-            fprintf(out, "\t# PHI unhandled\n");
-            break;
-        case ALIR_OP_MOV:
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =%c copy ", dt);
-            print_val(out, inst->op1);
-            fprintf(out, "\n");
             break;
         default:
             fprintf(out, "\t# UNHANDLED OP %d\n", inst->op);

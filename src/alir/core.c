@@ -216,9 +216,6 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_LOAD: return "load";
         case ALIR_OP_GET_PTR: return "getptr";
         case ALIR_OP_BITCAST: return "bitcast";
-        case ALIR_OP_SIZEOF: return "sizeof";
-        case ALIR_OP_ALIGNOF: return "alignof";
-        case ALIR_OP_TYPEOF: return "typeof";
 
         case ALIR_OP_ADD: return "add";
         case ALIR_OP_SUB: return "sub";
@@ -232,17 +229,9 @@ const char* alir_op_str(AlirOpcode op) {
 
         case ALIR_OP_JUMP: return "jump";
         case ALIR_OP_CONDI: return "condition";
-        case ALIR_OP_SWITCH: return "jumpint";
         case ALIR_OP_CALL: return "call";
         case ALIR_OP_RET: return "->";
         case ALIR_OP_PANIC: return "panic";
-
-        // Added flux/iterator support strings
-        case ALIR_OP_YIELD: return "yield";
-        case ALIR_OP_ITER_INIT: return "iter_init";
-        case ALIR_OP_ITER_VALID: return "iter_valid";
-        case ALIR_OP_ITER_NEXT: return "iter_next";
-        case ALIR_OP_ITER_GET: return "iter_get";
 
         case ALIR_OP_CAST: return "cast";
         case ALIR_OP_NOT: return "not";
@@ -261,9 +250,6 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_SHR: return "shr";
         case ALIR_OP_ROTR: return "rotr";
         case ALIR_OP_ROTL: return "rotl";
-
-        case ALIR_OP_MOV: return "mov";
-        case ALIR_OP_PHI: return "phi";
 
         default: return "op";
     }

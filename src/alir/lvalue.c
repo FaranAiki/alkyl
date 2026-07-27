@@ -1247,25 +1247,8 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
             while ((c = *str++)) hash = ((hash << 5) + hash) + c;
             return alir_const_int(ctx->module, hash);
         }
-        case NODE_DEFINED: {
-            UnaryOpNode *un = (UnaryOpNode*)node;
-            VarType t = { .base = TYPE_BOOL };
-            AlirValue *dest = new_temp(ctx, t);
-
-            // For defined(x), x is usually parsed as a VarRefNode. We extract its name.
-            char *symbol_name = "";
-            if (un->operand->type == NODE_VAR_REF) {
-                symbol_name = ((VarRefNode*)un->operand)->name;
-            }
-
-            AlirValue *operand = alir_alloc(ctx->module, sizeof(AlirValue));
-            operand->kind = ALIR_VAL_VAR;
-            operand->val.str_val = alir_strdup(ctx->module, symbol_name);
-            operand->type.base = TYPE_UNKNOWN;
-
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_DEFINED, dest, operand, NULL));
-            return dest;
-        }
+        case NODE_DEFINED:
+            return alir_const_int(ctx->module, 1);
         case NODE_MEMBER_ACCESS: return alir_gen_access(ctx, node);
         case NODE_INDEX_ACCESS: {
             IndexAccessNode *aa = (IndexAccessNode*)node;

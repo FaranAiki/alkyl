@@ -165,31 +165,20 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                           fprintf(f, "void");
                       }
 
-                      if (inst->op == ALIR_OP_SWITCH) {
-                          fprintf(f, " {");
-                          AlirSwitchCase *c = inst->cases;
-                          while(c) {
-                              fprintf(f, " %ld: %s, ", c->value, c->label);
-                              c = c->next;
-                          }
-                          fprintf(f, "} default ");
-                          if (inst->op2) alir_fprint_val(f, inst->op2);
-                      } else {
-                          if (inst->op2) {
-                              fprintf(f, ", ");
-                              alir_fprint_val(f, inst->op2);
-                          }
-
-                          if (inst->args) {
-                              fprintf(f, " (");
-                              for(int k=0; k<inst->arg_count; k++) {
-                                  if (k > 0) fprintf(f, ", ");
-                                  alir_fprint_val(f, inst->args[k]);
-                              }
-                              fprintf(f, ")");
-                          }
+                      if (inst->op2) {
+                          fprintf(f, ", ");
+                          alir_fprint_val(f, inst->op2);
                       }
-                  }
+
+                       if (inst->args) {
+                           fprintf(f, " (");
+                               for(int k=0; k<inst->arg_count; k++) {
+                                   if (k > 0) fprintf(f, ", ");
+                                   alir_fprint_val(f, inst->args[k]);
+                               }
+                               fprintf(f, ")");
+                           }
+                   }
 
                   fprintf(f, "\n");
                   inst = inst->next;

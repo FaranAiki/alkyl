@@ -28,8 +28,6 @@ int is_terminator(AlirOpcode op) {
     return op == ALIR_OP_RET || 
            op == ALIR_OP_JUMP || 
            op == ALIR_OP_CONDI || 
-           op == ALIR_OP_SWITCH || 
-           op == ALIR_OP_YIELD ||
            op == ALIR_OP_PANIC;
 }
 

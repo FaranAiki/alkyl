@@ -1,7 +1,7 @@
 #include "alir.h"
 
 static int is_terminator_op(AlirOpcode op) {
-    return op == ALIR_OP_RET || op == ALIR_OP_JUMP || op == ALIR_OP_CONDI || op == ALIR_OP_SWITCH || op == ALIR_OP_YIELD || op == ALIR_OP_PANIC;
+    return op == ALIR_OP_RET || op == ALIR_OP_JUMP || op == ALIR_OP_CONDI || op == ALIR_OP_PANIC;
 }
 
 // TODO should this use parser tho?
@@ -129,8 +129,7 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     
     ctx->current_block = alir_add_block(ctx->module, ctx->current_func, "entry");
     
-    AlirValue *size_val = new_temp(ctx, (VarType){TYPE_INT});
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_SIZEOF, size_val, alir_val_type(ctx->module, struct_name), NULL));
+    AlirValue *size_val = alir_const_int(ctx->module, 8);
     
     AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1});
     emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, raw_mem, size_val, NULL));
@@ -333,7 +332,6 @@ void alir_gen_flux_yield(AlirCtx *ctx, EmitNode *en) {
         ctx->flux_resume_cases = nc;
         
     } else {
-        AlirValue *val = alir_gen_expr(ctx, en->value);
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_YIELD, NULL, val, NULL));
+        alir_gen_expr(ctx, en->value);
     }
 }
