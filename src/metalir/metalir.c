@@ -18,6 +18,10 @@ MetalirRunner* metalir_runner_create(const char *module_name,
     ParserSettings ps = {0};
     ps.function_call_require_comma = function_call_require_comma;
     ps.array_separator_with_space = 1;
+    if (module_name && strstr(module_name, "repl")) {
+        ps.multiplication_if_digit_word = 1;
+        ps.exponentation_if_word_digit = 1;
+    }
     parser_init(&r->parser, &dummy, &ps);
 
     arena_init(&r->vm_arena);

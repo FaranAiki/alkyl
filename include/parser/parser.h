@@ -25,6 +25,8 @@ typedef struct {
     int namespace_ausearch_warning;// default 1
     int function_call_require_comma; // default 1
     int array_separator_with_space; // default 0
+    int multiplication_if_digit_word; // default 0: 2pi -> 2*pi
+    int exponentation_if_word_digit;  // default 0: pi2 -> pi**2 (future)
 } ParserSettings;
 
 typedef struct Parser {

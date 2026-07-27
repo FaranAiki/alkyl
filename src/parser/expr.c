@@ -634,6 +634,43 @@ ASTNode* parse_factor(Parser *p) {
     return NULL; 
   }
   
+  if (p->settings.multiplication_if_digit_word &&
+      node && node->type == NODE_LITERAL) {
+      VarType lt = ((LiteralNode*)node)->var_type;
+      int is_numeric = (lt.base == TYPE_INT || lt.base == TYPE_LONG ||
+                        lt.base == TYPE_LONG_LONG || lt.base == TYPE_UNSIGNED_INT ||
+                        lt.base == TYPE_UNSIGNED_LONG || lt.base == TYPE_UNSIGNED_LONG_LONG ||
+                        lt.base == TYPE_SINGLE || lt.base == TYPE_DOUBLE || lt.base == TYPE_LONG_DOUBLE);
+      if (is_numeric &&
+          p->current_token.type == TOKEN_IDENTIFIER &&
+          !p->current_token.has_space_before) {
+          char *name = parser_strdup(p, p->current_token.text);
+          eat(p, TOKEN_IDENTIFIER);
+          VarRefNode *vr = parser_alloc(p, sizeof(VarRefNode));
+          vr->base.type = NODE_VAR_REF;
+          vr->name = name;
+          BinaryOpNode *bn = parser_alloc(p, sizeof(BinaryOpNode));
+          bn->base.type = NODE_BINARY_OP;
+          bn->op = TOKEN_STAR;
+          bn->left = node;
+          bn->right = (ASTNode*)vr;
+          set_loc((ASTNode*)bn, line, col);
+          node = (ASTNode*)bn;
+      }
+  }
+
+  if (p->settings.exponentation_if_word_digit &&
+      node && node->type == NODE_VAR_REF &&
+      !p->current_token.has_space_before) {
+      TokenType t = p->current_token.type;
+      int is_num = (t == TOKEN_NUMBER || t == TOKEN_UINT_LIT || t == TOKEN_LONG_LIT ||
+                    t == TOKEN_ULONG_LIT || t == TOKEN_LONG_LONG_LIT || t == TOKEN_ULONG_LONG_LIT ||
+                    t == TOKEN_SINGLE_LIT || t == TOKEN_DOUBLE_LIT || t == TOKEN_LONG_DOUBLE_LIT);
+      if (is_num) {
+          // TODO: implement ** operator for exponentiation
+      }
+  }
+
   return parse_postfix(p, node);
 }
 
