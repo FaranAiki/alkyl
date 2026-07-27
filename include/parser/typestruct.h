@@ -52,7 +52,8 @@ typedef enum {
   NODE_PURGE,
   NODE_COMPOUND,
   NODE_TEMPLATE_INSTANTIATION,
-  NODE_NAMED_ARG
+  NODE_NAMED_ARG,
+  NODE_IMPORT
 } NodeType;
 
 typedef enum {
@@ -522,5 +523,11 @@ typedef struct {
   char *name;
   ASTNode *value;
 } NamedArgNode;
+
+typedef struct {
+  ASTNode base;
+  char *path;
+  ASTNode *resolved_body;
+} ImportNode;
 
 #endif // PARSER_TYPESTRUCT_H

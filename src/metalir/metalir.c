@@ -12,9 +12,9 @@ MetalirRunner* metalir_runner_create(const char *module_name,
     arena_init(&r->ast_arena);
     context_init(&r->ctx, &r->ast_arena);
 
-    Lexer dummy; LexerSettings ds = {0};
+    LexerSettings ds = {0};
     ds.scope_style = SCOPE_INDENTATION;
-    lexer_init(&dummy, &r->ctx, module_name, "", &ds);
+    lexer_init(&r->lexer, &r->ctx, module_name, "", &ds);
     ParserSettings ps = {0};
     ps.function_call_require_comma = function_call_require_comma;
     ps.array_separator_with_space = 1;
@@ -22,7 +22,8 @@ MetalirRunner* metalir_runner_create(const char *module_name,
         ps.multiplication_if_digit_word = 1;
         ps.exponentation_if_word_digit = 1;
     }
-    parser_init(&r->parser, &dummy, &ps);
+    r->parser.l = &r->lexer;
+    parser_init(&r->parser, &r->lexer, &ps);
 
     arena_init(&r->vm_arena);
     r->vm = metalir_vm_init(&r->vm_arena);
@@ -49,11 +50,10 @@ void metalir_runner_destroy(MetalirRunner *r) {
 
 ASTNode* metalir_parse(MetalirRunner *r, const char *source,
                        const char *filename, const LexerSettings *settings) {
-    Lexer l;
     LexerSettings s = {0};
     if (settings) memcpy(&s, settings, sizeof(LexerSettings));
-    lexer_init(&l, &r->ctx, filename, source, &s);
-    r->parser.l = &l;
+    lexer_init(&r->lexer, &r->ctx, filename, source, &s);
+    r->parser.l = &r->lexer;
     r->parser.has_error = 0;
     r->parser.token_pos = 0;
     r->parser.tokens = NULL;
@@ -402,4 +402,138 @@ int metalir_load_module(MetalirRunner *r, const char *path) {
     r->ctx.semantic_error_count = 0;
     r->ctx.error_count = 0;
     return 0;
+}
+
+typedef struct {
+    const char **paths;
+    int count;
+    int capacity;
+} ImportStack;
+
+static int import_stack_contains(ImportStack *stack, const char *path) {
+    for (int i = 0; i < stack->count; i++) {
+        if (strcmp(stack->paths[i], path) == 0) return 1;
+    }
+    return 0;
+}
+
+static void import_stack_push(ImportStack *stack, const char *path) {
+    if (stack->count >= stack->capacity) {
+        stack->capacity = stack->capacity == 0 ? 16 : stack->capacity * 2;
+        stack->paths = (const char**)realloc(stack->paths, stack->capacity * sizeof(char*));
+    }
+    stack->paths[stack->count++] = path;
+}
+
+static void import_stack_pop(ImportStack *stack) {
+    if (stack->count > 0) stack->count--;
+}
+
+static ASTNode* metalir_resolve_imports_node(MetalirRunner *r, ASTNode *node, ImportStack *stack) {
+    if (!node) return NULL;
+    
+    if (node->type == NODE_IMPORT) {
+        ImportNode *in = (ImportNode*)node;
+        const char *path = in->path;
+        
+        if (import_stack_contains(stack, path)) {
+            return NULL;
+        }
+        
+        import_stack_push(stack, path);
+        
+        ASTNode *resolved = parse_import_internal(&r->parser, path);
+        
+        import_stack_pop(stack);
+        
+        if (resolved) {
+            resolved = metalir_resolve_imports_node(r, resolved, stack);
+        }
+        
+        in->resolved_body = resolved;
+        
+        if (resolved) {
+            ASTNode *last = resolved;
+            while (last->next) last = last->next;
+            last->next = node->next;
+        }
+        
+        return resolved;
+    }
+    
+    if (node->type == NODE_NAMESPACE) {
+        ASTNode **curr = &((NamespaceNode*)node)->body;
+        while (*curr) {
+            ASTNode *next = (*curr)->next;
+            ASTNode *resolved = metalir_resolve_imports_node(r, *curr, stack);
+            if (resolved) {
+                *curr = resolved;
+                while (resolved->next) resolved = resolved->next;
+                resolved->next = next;
+            }
+            curr = &(*curr)->next;
+        }
+    } else if (node->type == NODE_CLASS) {
+        ASTNode **curr = &((ClassNode*)node)->members;
+        while (*curr) {
+            ASTNode *next = (*curr)->next;
+            ASTNode *resolved = metalir_resolve_imports_node(r, *curr, stack);
+            if (resolved) {
+                *curr = resolved;
+                while (resolved->next) resolved = resolved->next;
+                resolved->next = next;
+            }
+            curr = &(*curr)->next;
+        }
+    } else if (node->type == NODE_FUNC_DEF) {
+        ASTNode **curr = &((FuncDefNode*)node)->body;
+        while (*curr) {
+            ASTNode *next = (*curr)->next;
+            ASTNode *resolved = metalir_resolve_imports_node(r, *curr, stack);
+            if (resolved) {
+                *curr = resolved;
+                while (resolved->next) resolved = resolved->next;
+                resolved->next = next;
+            }
+            curr = &(*curr)->next;
+        }
+    } else if (node->type == NODE_COMPOUND) {
+        ASTNode **curr = &((CompoundNode*)node)->body;
+        while (*curr) {
+            ASTNode *next = (*curr)->next;
+            ASTNode *resolved = metalir_resolve_imports_node(r, *curr, stack);
+            if (resolved) {
+                *curr = resolved;
+                while (resolved->next) resolved = resolved->next;
+                resolved->next = next;
+            }
+            curr = &(*curr)->next;
+        }
+    } else {
+        if (node->next) {
+            node->next = metalir_resolve_imports_node(r, node->next, stack);
+        }
+    }
+    
+    return node;
+}
+
+void metalir_resolve_imports(MetalirRunner *r, ASTNode **root_ptr) {
+    if (!root_ptr || !*root_ptr) return;
+    
+    ImportStack stack = {0};
+    
+    ASTNode **curr = root_ptr;
+    while (*curr) {
+        ASTNode *next = (*curr)->next;
+        ASTNode *resolved = metalir_resolve_imports_node(r, *curr, &stack);
+        if (resolved) {
+            *curr = resolved;
+            while (resolved->next) resolved = resolved->next;
+            resolved->next = next;
+        }
+        curr = &(*curr)->next;
+    }
+    
+    free(stack.paths);
 }

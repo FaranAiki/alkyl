@@ -17,6 +17,7 @@ extern "C" {
 typedef struct MetalirRunner {
     Arena ast_arena;
     CompilerContext ctx;
+    Lexer lexer;
     Parser parser;
     SemanticCtx sem;
     AlirModule *module;
@@ -40,6 +41,7 @@ long long metalir_execute_parse(MetalirRunner *r, ASTNode *root,
 long long metalir_execute_string(MetalirRunner *r, const char *source,
                                  const char *filename);
 int metalir_load_module(MetalirRunner *r, const char *path);
+void metalir_resolve_imports(MetalirRunner *r, ASTNode **root);
 
 long long metalir_run_var_decl(MetalirRunner *r, VarDeclNode *vd, int seq);
 void metalir_run_class(MetalirRunner *r, ASTNode *curr, ASTNode *root);

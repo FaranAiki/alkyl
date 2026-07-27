@@ -318,6 +318,9 @@ int run_repl(void) {
 
         r->sem.current_source = buffer;
         r->sem.current_filename = "REPL";
+        
+        metalir_resolve_imports(r, &root);
+        
         int sem_errs = sem_check_program(&r->sem, root);
         if (sem_errs > 0) {
             r->ctx.semantic_error_count = 0;
@@ -371,6 +374,9 @@ int run_file(const char *filename) {
 
     r->sem.current_source = code;
     r->sem.current_filename = filename;
+    
+    metalir_resolve_imports(r, &root);
+    
     int sem_errs = sem_check_program(&r->sem, root);
     if (sem_errs > 0) {
         free(code);
