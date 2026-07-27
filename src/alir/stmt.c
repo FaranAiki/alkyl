@@ -280,7 +280,13 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             if (ctx->in_flux_resume) {
                 if (rn->value) {
                     AlirValue *val = alir_gen_expr(ctx, rn->value);
-                    if (!val) val = alir_const_int(ctx->module, 0);
+                    if (!val) {
+                        char buf[256];
+                        snprintf(buf, sizeof(buf), "Unresolved flux expression");
+                        AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, (VarType){TYPE_CLASS, 1, (char*)"string"}, ctx->str_counter++);
+                        emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, NULL));
+                        return;
+                    }
                     VarType res_t = val->type; res_t.ptr_depth++;
                     AlirValue *res_ptr = new_temp(ctx, res_t); 
                     emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, res_ptr, ctx->flux_ctx_ptr, alir_const_int(ctx->module, 2)));
@@ -294,7 +300,13 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                 AlirValue *v = NULL;
                 if (rn->value) {
                     v = alir_gen_expr(ctx, rn->value);
-                    if (!v) v = alir_const_int(ctx->module, 0); // Safety net
+                    if (!v) {
+                        char buf[256];
+                        snprintf(buf, sizeof(buf), "Unresolved expression");
+                        AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, (VarType){TYPE_CLASS, 1, (char*)"string"}, ctx->str_counter++);
+                        emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, NULL));
+                        return;
+                    }
                 }
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, v, NULL));
             }

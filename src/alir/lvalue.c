@@ -310,6 +310,14 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
         fold = fold->next;
     }
 
+    fold = ctx->module->const_folds;
+    while (fold) {
+        if (strcmp(fold->name, vn->name) == 0) {
+            return fold->value;
+        }
+        fold = fold->next;
+    }
+
     AlirValue *ptr = alir_gen_addr(ctx, (ASTNode*)vn);
     if (!ptr) {
         // If it's a global function or global variable
@@ -386,6 +394,33 @@ AlirValue* alir_gen_access(AlirCtx *ctx, ASTNode *node) {
             long val = 0;
             if (alir_get_enum_value(ctx->module, obj_t.class_name, ma->member_name, &val)) {
                 return alir_const_int(ctx->module, val);
+            }
+        }
+        
+        // Special Namespace Handling: If member access resolves to a Namespace Const
+        if (obj_t.base == TYPE_NAMESPACE && ma->object->type == NODE_VAR_REF) {
+            SemSymbol *ns_sym = sem_symbol_lookup(ctx->sem, ((VarRefNode*)ma->object)->name, NULL);
+            if (ns_sym && ns_sym->inner_scope) {
+                SemSymbol *member_sym = ns_sym->inner_scope->symbols;
+                while (member_sym) {
+                    if (strcmp(member_sym->name, ma->member_name) == 0 && member_sym->kind == SYM_VAR) {
+                        AlirConstFoldEntry *fold = ctx->const_folds;
+                        while (fold) {
+                            if (strcmp(fold->name, ma->member_name) == 0) {
+                                return fold->value;
+                            }
+                            fold = fold->next;
+                        }
+                        fold = ctx->module->const_folds;
+                        while (fold) {
+                            if (strcmp(fold->name, ma->member_name) == 0) {
+                                return fold->value;
+                            }
+                            fold = fold->next;
+                        }
+                    }
+                    member_sym = member_sym->next;
+                }
             }
         }
     }

@@ -38,6 +38,11 @@ void scan_and_fold_consts(AlirCtx *ctx, ASTNode *node) {
                     entry->value = folded;
                     entry->next = ctx->const_folds;
                     ctx->const_folds = entry;
+                    AlirConstFoldEntry *mod_entry = alir_alloc(ctx->module, sizeof(AlirConstFoldEntry));
+                    mod_entry->name = entry->name;
+                    mod_entry->value = entry->value;
+                    mod_entry->next = ctx->module->const_folds;
+                    ctx->module->const_folds = mod_entry;
                 }
             }
         }

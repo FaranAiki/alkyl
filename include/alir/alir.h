@@ -163,6 +163,7 @@ typedef struct AlirModule {
     AlirEnum *enums;        // Registry of enum definitions
     CompilerContext *compiler_ctx; // Reference for Arena
     int str_counter;        // For naming global strings across the module
+    AlirConstFoldEntry *const_folds; // Persistent const fold entries
 
     // Diagnostics tracing
     const char *src;
