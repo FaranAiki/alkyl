@@ -45,7 +45,7 @@ case ALIR_OP_CALL: {
                                 }
                             }
                             
-                            if (target_fn) {
+                            if (target_fn && !target_fn->is_extern) {
                                 int __na_sz = inst->arg_count > 0 ? inst->arg_count : 1; long long new_args[__na_sz];
                                 for (int i = 0; i < inst->arg_count; i++) {
                                     AlirValue *arg = inst->args[i];

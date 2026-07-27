@@ -43,5 +43,9 @@
 <   %shr74 = ashr i64 ptrtoint (ptr getelementptr ([3 x i32], ptr null, i32 1) to i64), i32 3
 < 
 ---
-> qbe:build/out.ssa:578: invalid type for first operand %t57 in ceqw
+> qbe:build/out.ssa:554: invalid type for first operand %t70 in arg
 > QBE failed with code 256
+49c8
+< step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+---
+> step: Finished alir check and analysis. Start Codegen using qbe Codegen

@@ -202,8 +202,11 @@
 <   %shr143 = ashr i64 ptrtoint (ptr getelementptr (ptr, ptr null, i32 1) to i64), i32 3
 < 
 ---
-> qbe:build/out.ssa:1046: invalid type for first operand %t34 in ceqw
+> qbe:build/out.ssa:978: invalid type for first operand %t39 in arg
 > QBE failed with code 256
-225,226d24
+224,226c24
+< step: Finished alir check and analysis. Start Codegen using LLVM Codegen
 < LLVMStructSetBody for Person with 2 fields
 < LLVMStructSetBody for Identity with 2 fields
+---
+> step: Finished alir check and analysis. Start Codegen using qbe Codegen

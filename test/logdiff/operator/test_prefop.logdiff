@@ -1,8 +1,11 @@
 0a1,2
 > qbe:build/out.ssa:81: invalid type for first operand %t17 in copy
 > QBE failed with code 256
-7,10d8
+6,10c8
+< step: Finished alir check and analysis. Start Codegen using LLVM Codegen
 < LLVMStructSetBody for BooleanWrapper with 1 fields
 < Compiled to build/out.o
 < Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
 < Linked to build/out
+---
+> step: Finished alir check and analysis. Start Codegen using qbe Codegen
