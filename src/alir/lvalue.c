@@ -1228,9 +1228,11 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
                 size = 8;
             } else {
                 switch (op_type.base) {
-                    case TYPE_BOOL:
                     case TYPE_CHAR:
                     case TYPE_UNSIGNED_CHAR:
+                        size = 1;
+                        break;
+                    case TYPE_BOOL:
                     case TYPE_SHORT:
                     case TYPE_INT:
                     case TYPE_UNSIGNED_INT:
@@ -1255,7 +1257,20 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
             }
 
             if (node->type == NODE_ALIGNOF) {
-                size = (op_type.base == TYPE_DOUBLE || op_type.base == TYPE_LONG || op_type.base == TYPE_LONG_LONG) ? 8 : 4;
+                switch (op_type.base) {
+                    case TYPE_CHAR:
+                    case TYPE_UNSIGNED_CHAR:
+                        size = 1;
+                        break;
+                    case TYPE_DOUBLE:
+                    case TYPE_LONG:
+                    case TYPE_LONG_LONG:
+                        size = 8;
+                        break;
+                    default:
+                        size = 4;
+                        break;
+                }
             }
 
             return alir_const_int(ctx->module, size);
