@@ -468,10 +468,13 @@ static ASTNode* metalir_resolve_imports_node(MetalirRunner *r, ASTNode *node, Im
             ASTNode *resolved = metalir_resolve_imports_node(r, *curr, stack);
             if (resolved) {
                 *curr = resolved;
-                while (resolved->next) resolved = resolved->next;
-                resolved->next = next;
+                ASTNode *tail = resolved;
+                while (tail->next) tail = tail->next;
+                tail->next = next;
+                curr = &tail->next;
+            } else {
+                curr = &(*curr)->next;
             }
-            curr = &(*curr)->next;
         }
     } else if (node->type == NODE_CLASS) {
         ASTNode **curr = &((ClassNode*)node)->members;
@@ -480,10 +483,13 @@ static ASTNode* metalir_resolve_imports_node(MetalirRunner *r, ASTNode *node, Im
             ASTNode *resolved = metalir_resolve_imports_node(r, *curr, stack);
             if (resolved) {
                 *curr = resolved;
-                while (resolved->next) resolved = resolved->next;
-                resolved->next = next;
+                ASTNode *tail = resolved;
+                while (tail->next) tail = tail->next;
+                tail->next = next;
+                curr = &tail->next;
+            } else {
+                curr = &(*curr)->next;
             }
-            curr = &(*curr)->next;
         }
     } else if (node->type == NODE_FUNC_DEF) {
         ASTNode **curr = &((FuncDefNode*)node)->body;
@@ -492,10 +498,13 @@ static ASTNode* metalir_resolve_imports_node(MetalirRunner *r, ASTNode *node, Im
             ASTNode *resolved = metalir_resolve_imports_node(r, *curr, stack);
             if (resolved) {
                 *curr = resolved;
-                while (resolved->next) resolved = resolved->next;
-                resolved->next = next;
+                ASTNode *tail = resolved;
+                while (tail->next) tail = tail->next;
+                tail->next = next;
+                curr = &tail->next;
+            } else {
+                curr = &(*curr)->next;
             }
-            curr = &(*curr)->next;
         }
     } else if (node->type == NODE_COMPOUND) {
         ASTNode **curr = &((CompoundNode*)node)->body;
@@ -504,10 +513,13 @@ static ASTNode* metalir_resolve_imports_node(MetalirRunner *r, ASTNode *node, Im
             ASTNode *resolved = metalir_resolve_imports_node(r, *curr, stack);
             if (resolved) {
                 *curr = resolved;
-                while (resolved->next) resolved = resolved->next;
-                resolved->next = next;
+                ASTNode *tail = resolved;
+                while (tail->next) tail = tail->next;
+                tail->next = next;
+                curr = &tail->next;
+            } else {
+                curr = &(*curr)->next;
             }
-            curr = &(*curr)->next;
         }
     } else {
         if (node->next) {
@@ -529,10 +541,13 @@ void metalir_resolve_imports(MetalirRunner *r, ASTNode **root_ptr) {
         ASTNode *resolved = metalir_resolve_imports_node(r, *curr, &stack);
         if (resolved) {
             *curr = resolved;
-            while (resolved->next) resolved = resolved->next;
-            resolved->next = next;
+            ASTNode *tail = resolved;
+            while (tail->next) tail = tail->next;
+            tail->next = next;
+            curr = &tail->next;
+        } else {
+            curr = &(*curr)->next;
         }
-        curr = &(*curr)->next;
     }
     
     free(stack.paths);
