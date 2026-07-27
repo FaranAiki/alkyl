@@ -52,7 +52,7 @@ static void print_val(FILE *out, AlirValue *v) {
             fprintf(out, "%ld", v->val.long_val);
             break;
         case ALIR_VAL_SINGLE:
-            fprintf(out, "%ff", v->val.single_val);
+            fprintf(out, "%f", (double)v->val.single_val);
             break;
         case ALIR_VAL_DOUBLE:
             fprintf(out, "%lf", v->val.double_val);
@@ -304,33 +304,29 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             print_val(out, inst->op1);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_SIZEOF:
+        case ALIR_OP_SIZEOF: {
+            int sz = qbe_type_size(dt);
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =w copy ");
-            print_val(out, inst->op1);
-            fprintf(out, "\n");
+            fprintf(out, " =w copy %d\n", sz);
             break;
-        case ALIR_OP_ALIGNOF:
+        }
+        case ALIR_OP_ALIGNOF: {
+            int align = (dt == 'l') ? 8 : (dt == 's' || dt == 'd') ? 4 : 4;
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =w copy ");
-            print_val(out, inst->op1);
-            fprintf(out, "\n");
+            fprintf(out, " =w copy %d\n", align);
             break;
+        }
         case ALIR_OP_TYPEOF:
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =w copy ");
-            print_val(out, inst->op1);
-            fprintf(out, "\n");
+            fprintf(out, " =w copy 0\n");
             break;
         case ALIR_OP_DEFINED:
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =w copy ");
-            print_val(out, inst->op1);
-            fprintf(out, "\n");
+            fprintf(out, " =w copy 1\n");
             break;
         case ALIR_OP_MOD:
             fprintf(out, "\t");
@@ -407,9 +403,9 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
         case ALIR_OP_NOT:
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c not ", dt);
+            fprintf(out, " =w ceqw ");
             print_val(out, inst->op1);
-            fprintf(out, "\n");
+            fprintf(out, ", 0\n");
             break;
         case ALIR_OP_ROTR:
             fprintf(out, "\t");
@@ -478,13 +474,7 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             fprintf(out, "\t# PANIC unhandled\n");
             break;
         case ALIR_OP_FALLBACK:
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =%c add ", dt);
-            print_val(out, inst->op1);
-            fprintf(out, ", ");
-            print_val(out, inst->op2);
-            fprintf(out, "\n");
+            fprintf(out, "\t# FALLBACK (ternary/null-coalescing) unhandled\n");
             break;
         case ALIR_OP_YIELD:
             fprintf(out, "\t# YIELD unhandled\n");

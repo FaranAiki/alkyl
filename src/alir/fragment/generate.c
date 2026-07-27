@@ -267,7 +267,9 @@ void alir_stmt_assign(AlirCtx *ctx, ASTNode *node) {
                 case TOKEN_XOR_ASSIGN: bin_op = ALIR_OP_XOR; break;
                 case TOKEN_LSHIFT_ASSIGN: bin_op = ALIR_OP_SHL; break;
                 case TOKEN_RSHIFT_ASSIGN: bin_op = ALIR_OP_SHR; break;
-                default: break;
+                default:
+                    bin_op = ALIR_OP_ADD;
+                    break;
             }
 
             AlirValue *new_val = new_temp(ctx, target_type);

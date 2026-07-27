@@ -259,6 +259,8 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
                 return alir_const_char(ctx->module, ln->val.char_val);
             case TYPE_UNSIGNED_CHAR:
                 return alir_const_unsigned_char(ctx->module, ln->val.unsigned_char_val);
+            case TYPE_BOOL:
+                return alir_const_int(ctx->module, ln->val.long_val);
             default: break; // TODO here
         }
     }
@@ -456,7 +458,8 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     }
 
     int is_float = (l_type.base == TYPE_SINGLE || l_type.base == TYPE_DOUBLE ||
-                    r_type.base == TYPE_SINGLE || r_type.base == TYPE_DOUBLE);
+                    r_type.base == TYPE_SINGLE || r_type.base == TYPE_DOUBLE ||
+                    l_type.base == TYPE_LONG_DOUBLE || r_type.base == TYPE_LONG_DOUBLE);
 
     VarType res_type = (VarType){TYPE_INT, 0};
 
@@ -501,6 +504,7 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
         case TOKEN_RSHIFT: op = ALIR_OP_SHR; break;
         case TOKEN_LROTATE: op = ALIR_OP_ROTL; break;
         case TOKEN_RROTATE: op = ALIR_OP_ROTR; break;
+        case TOKEN_MOD: op = ALIR_OP_MOD; break;
         // ... add other cases
     }
 
@@ -589,9 +593,16 @@ AlirValue* alir_gen_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
             emit(ctx, mk_inst(ctx->module, op, dest, zero, operand));
             return dest;
         }
-        case TOKEN_NOT:
-            op = ALIR_OP_NOT;
-            break;
+        case TOKEN_NOT: {
+            AlirValue *dest = new_temp(ctx, res_type);
+            if (operand->type.ptr_depth > 0 || operand->type.base == TYPE_BOOL) {
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_NOT, dest, operand, NULL));
+            } else {
+                AlirValue *zero = alir_const_int(ctx->module, 0);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, dest, operand, zero));
+            }
+            return dest;
+        }
         case TOKEN_BIT_NOT:
             // ALIR doesn't have an explicit BIT_NOT, usually lowered to XOR -1
             op = ALIR_OP_XOR;
@@ -1154,7 +1165,9 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
                         case TOKEN_XOR_ASSIGN: bin_op = ALIR_OP_XOR; break;
                         case TOKEN_LSHIFT_ASSIGN: bin_op = ALIR_OP_SHL; break;
                         case TOKEN_RSHIFT_ASSIGN: bin_op = ALIR_OP_SHR; break;
-                        default: break;
+                        default:
+                            bin_op = ALIR_OP_ADD;
+                            break;
                     }
 
                     AlirValue *new_val = new_temp(ctx, target_type);
