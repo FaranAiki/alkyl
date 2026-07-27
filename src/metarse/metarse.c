@@ -1,5 +1,6 @@
 #include "../metarse/metarse.h"
 #include "../semantic/typestruct.h"
+#include "../parser/link.h"
 
 #include <string.h>
 #include <dlfcn.h>
@@ -318,4 +319,153 @@ long long exec_expr(Executor *e, ASTNode *curr, int seq, const char *prefix,
     }
 
     return result;
+}
+
+typedef struct {
+    const char **paths;
+    int count;
+    int capacity;
+} ImportStack;
+
+static int import_stack_contains(ImportStack *stack, const char *path) {
+    for (int i = 0; i < stack->count; i++) {
+        if (strcmp(stack->paths[i], path) == 0) return 1;
+    }
+    return 0;
+}
+
+static void import_stack_push(ImportStack *stack, const char *path) {
+    if (stack->count >= stack->capacity) {
+        stack->capacity = stack->capacity == 0 ? 16 : stack->capacity * 2;
+        stack->paths = (const char**)realloc(stack->paths, stack->capacity * sizeof(char*));
+    }
+    stack->paths[stack->count++] = path;
+}
+
+static void import_stack_pop(ImportStack *stack) {
+    if (stack->count > 0) stack->count--;
+}
+
+static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stack) {
+    if (!node) return NULL;
+    
+    if (node->type == NODE_IMPORT) {
+        ImportNode *in = (ImportNode*)node;
+        const char *path = in->path;
+        
+        if (import_stack_contains(stack, path)) {
+            return NULL;
+        }
+        
+        import_stack_push(stack, path);
+        
+        ASTNode *resolved = parse_import_internal(p, path);
+        
+        import_stack_pop(stack);
+        
+        if (resolved) {
+            resolved = resolve_imports_node(p, resolved, stack);
+        }
+        
+        in->resolved_body = resolved;
+        
+        if (resolved) {
+            ASTNode *last = resolved;
+            while (last->next) last = last->next;
+            last->next = node->next;
+        }
+        
+        return resolved;
+    }
+    
+    if (node->type == NODE_NAMESPACE) {
+        ASTNode **curr = &((NamespaceNode*)node)->body;
+        while (*curr) {
+            ASTNode *next = (*curr)->next;
+            ASTNode *resolved = resolve_imports_node(p, *curr, stack);
+            if (resolved) {
+                *curr = resolved;
+                ASTNode *tail = resolved;
+                while (tail->next) tail = tail->next;
+                tail->next = next;
+                curr = &tail->next;
+            } else {
+                curr = &(*curr)->next;
+            }
+        }
+    } else if (node->type == NODE_CLASS) {
+        ASTNode **curr = &((ClassNode*)node)->members;
+        while (*curr) {
+            ASTNode *next = (*curr)->next;
+            ASTNode *resolved = resolve_imports_node(p, *curr, stack);
+            if (resolved) {
+                *curr = resolved;
+                ASTNode *tail = resolved;
+                while (tail->next) tail = tail->next;
+                tail->next = next;
+                curr = &tail->next;
+            } else {
+                curr = &(*curr)->next;
+            }
+        }
+    } else if (node->type == NODE_FUNC_DEF) {
+        ASTNode **curr = &((FuncDefNode*)node)->body;
+        while (*curr) {
+            ASTNode *next = (*curr)->next;
+            ASTNode *resolved = resolve_imports_node(p, *curr, stack);
+            if (resolved) {
+                *curr = resolved;
+                ASTNode *tail = resolved;
+                while (tail->next) tail = tail->next;
+                tail->next = next;
+                curr = &tail->next;
+            } else {
+                curr = &(*curr)->next;
+            }
+        }
+    } else if (node->type == NODE_COMPOUND) {
+        ASTNode **curr = &((CompoundNode*)node)->body;
+        while (*curr) {
+            ASTNode *next = (*curr)->next;
+            ASTNode *resolved = resolve_imports_node(p, *curr, stack);
+            if (resolved) {
+                *curr = resolved;
+                ASTNode *tail = resolved;
+                while (tail->next) tail = tail->next;
+                tail->next = next;
+                curr = &tail->next;
+            } else {
+                curr = &(*curr)->next;
+            }
+        }
+    } else {
+        if (node->next) {
+            node->next = resolve_imports_node(p, node->next, stack);
+        }
+    }
+    
+    return node;
+}
+
+void resolve_imports(Parser *p, ASTNode **root_ptr) {
+    if (!root_ptr || !*root_ptr) return;
+    
+    ImportStack stack = {0};
+    
+    ASTNode **curr = root_ptr;
+    while (*curr) {
+        ASTNode *next = (*curr)->next;
+        ASTNode *resolved = resolve_imports_node(p, *curr, &stack);
+        if (resolved) {
+            *curr = resolved;
+            ASTNode *tail = resolved;
+            while (tail->next) tail = tail->next;
+            tail->next = next;
+            curr = &tail->next;
+        } else {
+            curr = &(*curr)->next;
+        }
+    }
+    
+    free(stack.paths);
 }

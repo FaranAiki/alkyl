@@ -1,14 +1,53 @@
-[Alick Error] in func '@random_generator_i32_Resume' block 'entry' -> Block lacks a terminator. Last instruction is 'getptr', expected branch/return.
-  Instruction Context: getptr
 at namespace main:
-9:12: error: [ALIR: @random_generator_i32_Resume -> while_end] Early terminator '->' found. Instructions following this in the same block are unreachable.
-  |     return 999;
-  |            ^
-ALICK Verification Failed: 2 errors, 0 warnings found.
+in .../code/for/test_for2.aky:
+13:5: error: Undefined variable 'clib'
+  |     clib.printf(c"Testing array\n");
+  |     ^
+13:9: error: Unknown type
+  |     clib.printf(c"Testing array\n");
+  |         ^
+16:9: error: Undefined variable 'clib'
+  |         clib.printf(c"%d\n", varname);
+  |         ^
+16:13: error: Unknown type
+  |         clib.printf(c"%d\n", varname);
+  |             ^
+19:5: error: Undefined variable 'clib'
+  |     clib.printf(c"Testing integer\n");
+  |     ^
+19:9: error: Unknown type
+  |     clib.printf(c"Testing integer\n");
+  |         ^
+21:9: error: Undefined variable 'clib'
+  |         clib.printf(c"%d\n", i);
+  |         ^
+21:13: error: Unknown type
+  |         clib.printf(c"%d\n", i);
+  |             ^
+24:5: error: Undefined variable 'clib'
+  |     clib.printf(c"Testing char*\n");
+  |     ^
+24:9: error: Unknown type
+  |     clib.printf(c"Testing char*\n");
+  |         ^
+27:9: error: Undefined variable 'clib'
+  |         clib.printf(c"%c\n", ch);
+  |         ^
+27:13: error: Unknown type
+  |         clib.printf(c"%c\n", ch);
+  |             ^
+30:5: error: Undefined variable 'clib'
+  |     clib.printf(c"Testing generator\n");
+  |     ^
+30:9: error: Unknown type
+  |     clib.printf(c"Testing generator\n");
+  |         ^
+32:9: error: Undefined variable 'clib'
+  |         clib.printf(c"%d\n", t);
+  |         ^
+32:13: error: Unknown type
+  |         clib.printf(c"%d\n", t);
+  |             ^
+Semantic analysis failed with 16 errors.
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-DEBUG: FluxCtx ptr_depth = 0
-step: Finished alir. Start alir check and analysis.
-Error occured in alick.

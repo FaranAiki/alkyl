@@ -1,9 +1,23 @@
+at namespace main:
+in .../code/print/test_meta_print.aky:
+4:5: error: Undefined variable 'print'
+  |     print("Hello, World!");
+  |     ^
+4:10: error: Undefined function or class 'print'
+  |     print("Hello, World!");
+  |          ^
+5:5: error: Undefined variable 'print'
+  |     print("My age is ", 10);
+  |     ^
+5:10: error: Undefined function or class 'print'
+  |     print("My age is ", 10);
+  |          ^
+6:5: error: Undefined variable 'print'
+  |     print("A float: ", 3.14159f, " and a char: ", 'X');
+  |     ^
+6:10: error: Undefined function or class 'print'
+  |     print("A float: ", 3.14159f, " and a char: ", 'X');
+  |          ^
+Semantic analysis failed with 6 errors.
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

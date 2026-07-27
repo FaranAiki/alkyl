@@ -1,9 +1,41 @@
+at namespace main:
+in .../code/case/case.aky:
+34:3: error: Undefined variable 'clib'
+  |   clib.printf "%s is %d\n", Makanan[sarapan], sarapan;
+  |   ^
+34:15: error: Unknown type
+  |   clib.printf "%s is %d\n", Makanan[sarapan], sarapan;
+  |               ^
+36:3: error: Undefined variable 'clib'
+  |   clib.printf "%s is %d\n", Makanan[sarapan], sarapan;
+  |   ^
+36:15: error: Unknown type
+  |   clib.printf "%s is %d\n", Makanan[sarapan], sarapan;
+  |               ^
+42:7: error: Undefined variable 'clib'
+  |       clib.printf "Ayam ato ngak daging!\n";
+  |       ^
+42:19: error: Unknown type
+  |       clib.printf "Ayam ato ngak daging!\n";
+  |                   ^
+46:7: error: Undefined variable 'clib'
+  |       clib.printf "Yeay!\n";
+  |       ^
+46:19: error: Unknown type
+  |       clib.printf "Yeay!\n";
+  |                   ^
+48:7: error: Undefined variable 'clib'
+  |       clib.printf "Huh!\n";
+  |       ^
+48:19: error: Unknown type
+  |       clib.printf "Huh!\n";
+  |                   ^
+50:3: error: Undefined variable 'clib'
+  |   clib.printf "anjay aman bosku!\n";
+  |   ^
+50:15: error: Unknown type
+  |   clib.printf "anjay aman bosku!\n";
+  |               ^
+Semantic analysis failed with 12 errors.
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

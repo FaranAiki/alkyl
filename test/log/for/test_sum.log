@@ -1,9 +1,11 @@
+at namespace main:
+in .../code/for/test_sum.aky:
+5:5: error: Undefined variable 'clib'
+  |     clib.printf c"%d\n", t;
+  |     ^
+5:17: error: Unknown type
+  |     clib.printf c"%d\n", t;
+  |                 ^
+Semantic analysis failed with 2 errors.
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out
