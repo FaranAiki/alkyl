@@ -21,7 +21,15 @@ static char qbe_type(VarType t) {
         case TYPE_UNSIGNED_LONG_LONG:
             return 'l';
         case TYPE_SINGLE: return 's';
-        case TYPE_DOUBLE: return 'd';
+        case TYPE_DOUBLE:
+        case TYPE_LONG_DOUBLE: return 'd';
+        case TYPE_ARRAY: return 'l';
+        case TYPE_AUTO:
+        case TYPE_ENUM: return 'w';
+        case TYPE_CLASS:
+        case TYPE_NAMESPACE:
+        case TYPE_ERROR:
+        case TYPE_UNKNOWN: return 'l';
         default: return 'l';
     }
 }
@@ -43,6 +51,12 @@ static void print_val(FILE *out, AlirValue *v) {
         case ALIR_VAL_CONST:
             fprintf(out, "%ld", v->val.long_val);
             break;
+        case ALIR_VAL_SINGLE:
+            fprintf(out, "%ff", v->val.single_val);
+            break;
+        case ALIR_VAL_DOUBLE:
+            fprintf(out, "%lf", v->val.double_val);
+            break;
         case ALIR_VAL_TEMP:
             fprintf(out, "%%t%d", v->temp_id);
             break;
@@ -62,6 +76,10 @@ static void print_val(FILE *out, AlirValue *v) {
         case ALIR_VAL_LABEL:
             if (v->val.str_val)
                 fprintf(out, "@%s", v->val.str_val);
+            break;
+        case ALIR_VAL_VOID:
+        case ALIR_VAL_TYPE:
+            fprintf(out, "0");
             break;
         default:
             fprintf(out, "0");
@@ -277,6 +295,222 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             fprintf(out, "\n");
             break;
         }
+        case ALIR_OP_FREE_STACK:
+            break;
+        case ALIR_OP_BITCAST:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c bitcast ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_SIZEOF:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =w copy ");
+            print_val(out, inst->op1);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_ALIGNOF:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =w copy ");
+            print_val(out, inst->op1);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_TYPEOF:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =w copy ");
+            print_val(out, inst->op1);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_DEFINED:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =w copy ");
+            print_val(out, inst->op1);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_MOD:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c mod ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_FADD:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c fadd ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_FSUB:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c fsub ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_FMUL:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c fmul ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_FDIV:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c fdiv ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_AND:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c and ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_OR:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c or ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_XOR:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c xor ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_NOT:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c not ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_ROTR:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c rotr ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_ROTL:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c rotl ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_LTE:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =w csltw ");
+            print_val(out, inst->op2);
+            fprintf(out, ", ");
+            print_val(out, inst->op1);
+            fprintf(out, "\n");
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =w not ");
+            print_val(out, inst->dest);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_GTE:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =w csltw ");
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =w not ");
+            print_val(out, inst->dest);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_NEQ:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =w ceqw ");
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =w not ");
+            print_val(out, inst->dest);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_SWITCH:
+            fprintf(out, "\t# SWITCH unhandled\n");
+            break;
+        case ALIR_OP_PANIC:
+            fprintf(out, "\t# PANIC unhandled\n");
+            break;
+        case ALIR_OP_FALLBACK:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c add ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+            break;
+        case ALIR_OP_YIELD:
+            fprintf(out, "\t# YIELD unhandled\n");
+            break;
+        case ALIR_OP_ITER_INIT:
+            fprintf(out, "\t# ITER_INIT unhandled\n");
+            break;
+        case ALIR_OP_ITER_VALID:
+            fprintf(out, "\t# ITER_VALID unhandled\n");
+            break;
+        case ALIR_OP_ITER_NEXT:
+            fprintf(out, "\t# ITER_NEXT unhandled\n");
+            break;
+        case ALIR_OP_ITER_GET:
+            fprintf(out, "\t# ITER_GET unhandled\n");
+            break;
+        case ALIR_OP_PHI:
+            fprintf(out, "\t# PHI unhandled\n");
+            break;
+        case ALIR_OP_MOV:
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c copy ", dt);
+            print_val(out, inst->op1);
+            fprintf(out, "\n");
+            break;
         default:
             fprintf(out, "\t# UNHANDLED OP %d\n", inst->op);
             break;
