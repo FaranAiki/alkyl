@@ -375,7 +375,9 @@ int run_file(const char *filename) {
     r->sem.current_source = code;
     r->sem.current_filename = filename;
     
+    fprintf(stderr, "[cli] calling metalir_resolve_imports, root=%p\n", (void*)root);
     metalir_resolve_imports(r, &root);
+    fprintf(stderr, "[cli] after metalir_resolve_imports, root=%p\n", (void*)root);
     
     int sem_errs = sem_check_program(&r->sem, root);
     if (sem_errs > 0) {

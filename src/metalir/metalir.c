@@ -351,9 +351,13 @@ long long metalir_run_expr(MetalirRunner *r, ASTNode *curr, int seq,
 }
 
 long long metalir_execute_parse(MetalirRunner *r, ASTNode *root,
-                                const char *source, const char *filename) {
+                                 const char *source, const char *filename) {
+    if (!root) return 0;
     r->sem.current_source = source;
     r->sem.current_filename = filename;
+    
+    metalir_resolve_imports(r, &root);
+    
     int errs = sem_check_program(&r->sem, root);
     if (errs > 0) {
         r->ctx.semantic_error_count = 0;

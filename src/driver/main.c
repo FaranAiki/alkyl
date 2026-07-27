@@ -6,6 +6,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "../metarse/metarse.h"
+
 #define BASENAME "build/out"
 
 #define str(s) #s
@@ -94,6 +96,8 @@ int main(int argc, char *argv[]) {
     parser_init(&p, &l, &parser_settings);
 
     ASTNode *root = parse_program(&p);
+
+    resolve_imports(&p, &root);
 
     ASTNode *r = root;
     while (r) {
