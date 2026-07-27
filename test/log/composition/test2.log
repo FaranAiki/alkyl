@@ -5,8 +5,6 @@ at namespace main:
 22:4: warning: speak is from Identity, consider p[Identity].speak
   |   p.speak();
   |    ^
-qbe:build/out.ssa:25: unknown keyword bitcast
-QBE failed with code 256
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 DEBUG: sem_check_index_access: trait_name=Identity, class=Person, trait_count=1
@@ -14,4 +12,9 @@ DEBUG: checking trait Identity == Identity
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start Codegen using qbe Codegen
+step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+LLVMStructSetBody for Person with 2 fields
+LLVMStructSetBody for Identity with 2 fields
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

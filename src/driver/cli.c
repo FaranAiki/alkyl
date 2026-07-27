@@ -285,7 +285,11 @@ int run_repl(void) {
     MetalirRunner *r = metalir_runner_create("ethyl_repl", &sem_settings, 0);
     global_sem_ctx = &r->sem;
 
+    // This is the REPL's loaded module
+    // make sure so that REPL's functionality is very good so
+    // that users do not have to import many libraries
     metalir_load_module(r, "lib/std/print.aky");
+    metalir_load_module(r, "lib/std/math.aky");
 
     rl_catch_signals = 0;
     signal(SIGINT, handle_sigint);
