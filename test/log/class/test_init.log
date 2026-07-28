@@ -1,11 +1,18 @@
-/usr/bin/ld: /tmp/ccSuT2am.o: in function `main':
-(.text+0x41): undefined reference to `Point'
-collect2: error: ld returned 1 exit status
-GCC linking failed with code 256
+Call parameter type does not match function signature!
+  %alloc = alloca %Point, align 8
+ %Point = type { double, double }  call void @Point(ptr %alloc, double 5.000000e+00, double 6.500000e+00)
+Call parameter type does not match function signature!
+  %alloc = alloca %Point, align 8
+ %Point = type { double, double }  call void @Point(ptr %alloc, double 5.000000e+00, double 6.500000e+00)
+LLVM Verification Error: Call parameter type does not match function signature!
+  %alloc = alloca %Point, align 8
+ %Point = type { double, double }  call void @Point(ptr %alloc, double 5.000000e+00, double 6.500000e+00)
+
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+LLVMStructSetBody for Point with 2 fields

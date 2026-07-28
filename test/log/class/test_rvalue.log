@@ -1,7 +1,15 @@
+Invalid InsertValueInst operands!
+  %0 = insertvalue %Somefunc zeroinitializer, ptr %alloc, 1
+Invalid InsertValueInst operands!
+  %0 = insertvalue %Somefunc zeroinitializer, ptr %alloc, 1
+LLVM Verification Error: Invalid InsertValueInst operands!
+  %0 = insertvalue %Somefunc zeroinitializer, ptr %alloc, 1
+
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+LLVMStructSetBody for Somefunc with 1 fields

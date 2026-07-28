@@ -1,7 +1,19 @@
+Call parameter type does not match function signature!
+i0 0
+ ptr  call void @B(ptr %alloc, i0 0, i32 20)
+Call parameter type does not match function signature!
+i0 0
+ ptr  call void @B(ptr %alloc, i0 0, i32 20)
+LLVM Verification Error: Call parameter type does not match function signature!
+i0 0
+ ptr  call void @B(ptr %alloc, i0 0, i32 20)
+
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+LLVMStructSetBody for B with 2 fields
+LLVMStructSetBody for A with 2 fields

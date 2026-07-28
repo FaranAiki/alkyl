@@ -1,11 +1,20 @@
-/usr/bin/ld: /tmp/ccSY5w33.o: in function `main':
-(.text+0x16): undefined reference to `ns.Clib'
-collect2: error: ld returned 1 exit status
-GCC linking failed with code 256
+Call parameter type does not match function signature!
+  %alloc = alloca %ns.Clib, align 8
+ %ns.Clib = type { i32 }  call void @ns.Clib(ptr %alloc, i32 1)
+Call parameter type does not match function signature!
+  %alloc = alloca %ns.Clib, align 8
+ %ns.Clib = type { i32 }  call void @ns.Clib(ptr %alloc, i32 1)
+LLVM Verification Error: Call parameter type does not match function signature!
+  %alloc = alloca %ns.Clib, align 8
+ %ns.Clib = type { i32 }  call void @ns.Clib(ptr %alloc, i32 1)
+
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+LLVMStructSetBody for ns.Clib with 1 fields
+DEBUG CALL DECL func=ns.Clib param[0] type=%ns.Clib = type { i32 }
+DEBUG CALL DECL func=ns.Clib param[1] type=i32

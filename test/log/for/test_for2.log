@@ -5,4 +5,8 @@ step: Finished macro linking. Start generating Alkyl Intermediate Representation
 DEBUG: FluxCtx ptr_depth = 0
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+LLVMStructSetBody for FluxCtx_main_random_generator_i32 with 6 fields
+Compiled to build/opt_out.o
+Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
+Linked to build/opt_out

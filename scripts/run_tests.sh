@@ -1,14 +1,18 @@
 #!/bin/bash
 
 # Alkyl Test Runner
-# Usage: ./scripts/run_tests.sh [pattern] [--update] [--opt] [--unopt]
+# Usage: ./scripts/run_tests.sh [pattern] [--update] [--opt] [--unopt] [--llvm|--qbe|--ethyl]
 #   --opt    : run only optimized ALIR tests (output: build/opt_out)
 #   --unopt  : run only unoptimized ALIR tests (output: build/out)
-#   default  : run both (unopt first, then opt)
+#   --llvm   : use build/alkyl_llvm as compiler
+#   --qbe    : use build/alkyl_qbe as compiler
+#   --ethyl  : use build/ethyl as compiler
+#   default  : run both (unopt first, then opt) with build/alkyl symlink
 
 UPDATE=0
 RUN_OPT=0
 RUN_UNOPT=0
+COMPILER="build/alkyl"
 
 # Parse the script runner
 for arg in "$@"; do
@@ -18,6 +22,12 @@ for arg in "$@"; do
         RUN_OPT=1
     elif [ "$arg" == "--unopt" ]; then
         RUN_UNOPT=1
+    elif [ "$arg" == "--llvm" ]; then
+        COMPILER="build/alkyl_llvm"
+    elif [ "$arg" == "--qbe" ]; then
+        COMPILER="build/alkyl_qbe"
+    elif [ "$arg" == "--ethyl" ]; then
+        COMPILER="build/ethyl"
     fi
 done
 
@@ -48,8 +58,6 @@ echo -e "${COLOR_BLUE}Starting Alkyl Tests...${COLOR_RESET}"
 
 # Find all .aky files
 FILES=$(find test/code -name "*.aky" | sort)
-
-COMPILER="build/alkyl"
 
 for AKY_FILE in $FILES; do
     # Extract feature and name

@@ -1,11 +1,18 @@
-/usr/bin/ld: /tmp/ccDkNDPd.o: in function `main':
-(.text+0x11): undefined reference to `ns_Clib'
-collect2: error: ld returned 1 exit status
-GCC linking failed with code 256
+Call parameter type does not match function signature!
+  %alloc = alloca i32, align 4
+ i32  %call = call %ns.Clib @ns_Clib(ptr %alloc)
+Call parameter type does not match function signature!
+  %alloc = alloca i32, align 4
+ i32  %call = call %ns.Clib @ns_Clib(ptr %alloc)
+LLVM Verification Error: Call parameter type does not match function signature!
+  %alloc = alloca i32, align 4
+ i32  %call = call %ns.Clib @ns_Clib(ptr %alloc)
+
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+LLVMStructSetBody for ns.Clib with 1 fields
