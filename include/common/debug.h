@@ -51,6 +51,8 @@
   #define to_sem_out(p, f)
 #endif // DEBUG_PARSER_OUT
 
+// If we want to see how the underlying programs work
+// use this
 #define DEBUG_ANY
 #ifdef DEBUG_ANY
   #define debug_any(msg, ...) printf(msg "\n", __VA_ARGS__)

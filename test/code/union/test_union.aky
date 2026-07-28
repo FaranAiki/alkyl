@@ -4,6 +4,7 @@ int main() {
     return 0;
 }
 /*
+TODO_ERROR:
 3:7: error: Invalid assignment. Cannot assign 'double' to '__Union_hex_value_float'
   |     t = 1.0;
   |       ^
@@ -11,4 +12,6 @@ Semantic analysis failed with 1 errors.
 
 Check semantic compatible, this should be possible
 as we can assign 1.0 as a float, not a double!
+
+Fix
 */

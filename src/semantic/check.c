@@ -308,7 +308,9 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     if (sym->kind == SYM_FUNC) {
         SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, sym, (ASTNode*)node);
         if (resolved) {
-            node->mangled_name = resolved->mangled_name;
+            if (!resolved->is_macro) {
+                node->mangled_name = resolved->mangled_name;
+            }
             sym = resolved; // Update sym to the resolved one
         }
     }

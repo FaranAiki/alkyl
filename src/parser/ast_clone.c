@@ -11,7 +11,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
             int len = bracket - t.class_name;
             strncpy(base_name, t.class_name, len);
             base_name[len] = '\0';
-            
+
             char mangled[1024];
             strcpy(mangled, base_name);
             for (int i = 0; i < num_renames; i++) {
@@ -20,7 +20,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
                     break;
                 }
             }
-            
+
             VarType new_t = t;
             new_t.class_name = arena_strdup(ctx->arena, mangled);
             return new_t;
@@ -44,7 +44,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
     }
     VarType res = t;
     if (t.class_name) res.class_name = arena_strdup(ctx->arena, t.class_name);
-    
+
     if (t.is_func_ptr && t.fp_ret_type) {
         res.fp_ret_type = arena_alloc(ctx->arena, sizeof(VarType));
         *res.fp_ret_type = clone_var_type(ctx, *t.fp_ret_type, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
@@ -60,9 +60,9 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
 
 ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarType *replace_with, int num_params, char **rename_from, char **rename_to, int num_renames) {
     if (!ctx || !node) return NULL;
-    
+
     ASTNode *clone = NULL;
-    
+
     switch (node->type) {
         case NODE_LITERAL: {
             LiteralNode *orig = (LiteralNode*)node;
@@ -135,7 +135,7 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
                 }
             }
             n->ret_type = clone_var_type(ctx, orig->ret_type, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
-            
+
             Parameter *orig_p = orig->params;
             Parameter *new_p_head = NULL;
             Parameter **new_p_curr = &new_p_head;
@@ -176,7 +176,7 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
                     int len = bracket - orig->name;
                     strncpy(base_name, orig->name, len);
                     base_name[len] = '\0';
-                    
+
                     char mangled[1024];
                     strcpy(mangled, base_name);
                     for (int i = 0; i < num_renames; i++) {
@@ -376,24 +376,25 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
         case NODE_ERRNUM:
             // Top level constructs are typically not cloned in template instantiation
             return NULL;
+        // random node, try to fix this
         default:
             clone = arena_alloc(ctx->arena, sizeof(ASTNode));
             *clone = *node;
             break;
     }
-    
+
     if (node->next) {
         clone->next = ast_clone(ctx, node->next, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
     } else {
         clone->next = NULL;
     }
-    
+
     return clone;
 }
 
 ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs_head, char **param_names, ASTNode **param_args, int num_params) {
     if (!node) return NULL;
-    
+
     // Check for parameter replacement
     if (node->type == NODE_VAR_REF) {
         VarRefNode *vn = (VarRefNode*)node;
@@ -410,7 +411,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
             }
         }
     }
-    
+
     // Check for ...[N]
     if (node->type == NODE_INDEX_ACCESS) {
         IndexAccessNode *aa = (IndexAccessNode*)node;
@@ -420,7 +421,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
                 if (aa->index && aa->index->type == NODE_LITERAL) {
                     LiteralNode *ln = (LiteralNode*)aa->index;
                     int idx = (int)ln->val.long_val;
-                    
+
                     // Traverse varargs to find the N-th argument
                     ASTNode *curr = varargs_head;
                     for (int i=0; i<idx && curr; i++) {
@@ -439,7 +440,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
             }
         }
     }
-    
+
     // Recurse down the tree
     // We modify the cloned AST in place!
     switch (node->type) {
@@ -504,7 +505,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
             if (fn->collection && fn->collection->type == NODE_VAR_REF && ((VarRefNode*)fn->collection)->name && strcmp(((VarRefNode*)fn->collection)->name, "...") == 0) {
                 ASTNode *expanded_head = NULL;
                 ASTNode *expanded_tail = NULL;
-                
+
                 ASTNode *curr_arg = varargs_head;
                 while (curr_arg) {
                     char **new_names = arena_alloc(ctx->arena, sizeof(char*) * (num_params + 1));
@@ -515,23 +516,23 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
                     }
                     new_names[num_params] = fn->var_name;
                     new_args[num_params] = curr_arg;
-                    
+
                     ASTNode *cloned_body = ast_clone(ctx, fn->body, NULL, NULL, 0, NULL, NULL, 0);
                     cloned_body = ast_rewrite_macro(ctx, cloned_body, varargs_head, new_names, new_args, num_params + 1);
-                    
+
                     if (!expanded_head) expanded_head = cloned_body;
                     else expanded_tail->next = cloned_body;
-                    
+
                     ASTNode *iter = cloned_body;
                     while (iter && iter->next) iter = iter->next;
                     expanded_tail = iter;
-                    
+
                     curr_arg = curr_arg->next;
                 }
-                
+
                 if (expanded_tail) expanded_tail->next = ast_rewrite_macro(ctx, fn->base.next, varargs_head, param_names, param_args, num_params);
                 else expanded_head = ast_rewrite_macro(ctx, fn->base.next, varargs_head, param_names, param_args, num_params);
-                
+
                 return expanded_head;
             }
             fn->collection = ast_rewrite_macro(ctx, fn->collection, varargs_head, param_names, param_args, num_params);
@@ -558,9 +559,9 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
         default:
             break;
     }
-    
+
     // Also rewrite next nodes in the list!
     node->next = ast_rewrite_macro(ctx, node->next, varargs_head, param_names, param_args, num_params);
-    
+
     return node;
 }
