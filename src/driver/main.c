@@ -13,6 +13,7 @@
 #define BACKEND_STRING xstr(BACKEND)
 
 #include "driver/lsp.h"
+#include "metarse/metarse.h"
 
 int main(int argc, char *argv[]) {
     Arena arena, arena_debug;
@@ -94,6 +95,9 @@ int main(int argc, char *argv[]) {
     parser_init(&p, &l, &parser_settings);
 
     ASTNode *root = parse_program(&p);
+    
+    // Resolve imports for AOT compiler
+    resolve_imports(&p, &root);
 
     ASTNode *r = root;
     while (r) {

@@ -364,7 +364,14 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
         import_stack_pop(stack);
         
         if (resolved) {
-            resolved = resolve_imports_node(p, resolved, stack);
+            ASTNode **curr = &resolved;
+            while (*curr) {
+                ASTNode *res_node = resolve_imports_node(p, *curr, stack);
+                if (res_node) {
+                    *curr = res_node;
+                }
+                curr = &(*curr)->next;
+            }
         }
         
         in->resolved_body = resolved;
@@ -381,67 +388,34 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
     if (node->type == NODE_NAMESPACE) {
         ASTNode **curr = &((NamespaceNode*)node)->body;
         while (*curr) {
-            ASTNode *next = (*curr)->next;
             ASTNode *resolved = resolve_imports_node(p, *curr, stack);
-            if (resolved) {
-                *curr = resolved;
-                ASTNode *tail = resolved;
-                while (tail->next) tail = tail->next;
-                tail->next = next;
-                curr = &tail->next;
-            } else {
-                curr = &(*curr)->next;
-            }
+            if (resolved) *curr = resolved;
+            curr = &(*curr)->next;
         }
     } else if (node->type == NODE_CLASS) {
         ASTNode **curr = &((ClassNode*)node)->members;
         while (*curr) {
-            ASTNode *next = (*curr)->next;
             ASTNode *resolved = resolve_imports_node(p, *curr, stack);
-            if (resolved) {
-                *curr = resolved;
-                ASTNode *tail = resolved;
-                while (tail->next) tail = tail->next;
-                tail->next = next;
-                curr = &tail->next;
-            } else {
-                curr = &(*curr)->next;
-            }
+            if (resolved) *curr = resolved;
+            curr = &(*curr)->next;
         }
     } else if (node->type == NODE_FUNC_DEF) {
         ASTNode **curr = &((FuncDefNode*)node)->body;
         while (*curr) {
-            ASTNode *next = (*curr)->next;
             ASTNode *resolved = resolve_imports_node(p, *curr, stack);
-            if (resolved) {
-                *curr = resolved;
-                ASTNode *tail = resolved;
-                while (tail->next) tail = tail->next;
-                tail->next = next;
-                curr = &tail->next;
-            } else {
-                curr = &(*curr)->next;
-            }
+            if (resolved) *curr = resolved;
+            curr = &(*curr)->next;
         }
     } else if (node->type == NODE_COMPOUND) {
         ASTNode **curr = &((CompoundNode*)node)->body;
         while (*curr) {
-            ASTNode *next = (*curr)->next;
             ASTNode *resolved = resolve_imports_node(p, *curr, stack);
-            if (resolved) {
-                *curr = resolved;
-                ASTNode *tail = resolved;
-                while (tail->next) tail = tail->next;
-                tail->next = next;
-                curr = &tail->next;
-            } else {
-                curr = &(*curr)->next;
-            }
+            if (resolved) *curr = resolved;
+            curr = &(*curr)->next;
         }
     } else {
-        if (node->next) {
-            node->next = resolve_imports_node(p, node->next, stack);
-        }
+        // Do NOT recursively process node->next here!
+        // The caller iterates through the linked list.
     }
     
     return node;
@@ -454,17 +428,9 @@ void resolve_imports(Parser *p, ASTNode **root_ptr) {
     
     ASTNode **curr = root_ptr;
     while (*curr) {
-        ASTNode *next = (*curr)->next;
         ASTNode *resolved = resolve_imports_node(p, *curr, &stack);
-        if (resolved) {
-            *curr = resolved;
-            ASTNode *tail = resolved;
-            while (tail->next) tail = tail->next;
-            tail->next = next;
-            curr = &tail->next;
-        } else {
-            curr = &(*curr)->next;
-        }
+        if (resolved) *curr = resolved;
+        curr = &(*curr)->next;
     }
     
     free(stack.paths);
