@@ -35,11 +35,9 @@ void codegen_dispose(CodegenCtx *ctx) {
 
 LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
     LLVMTypeRef base = NULL;
-    if (t.ptr_depth > 0 || t.is_func_ptr || t.array_depth > 0) {
-        base = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
-    } else {
-        switch (t.base) {
-            case TYPE_VOID: base = LLVMVoidTypeInContext(ctx->llvm_ctx); break;
+
+    switch (t.base) {
+        case TYPE_VOID: base = LLVMVoidTypeInContext(ctx->llvm_ctx); break;
         case TYPE_ERROR: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
         case TYPE_INT: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
         case TYPE_SHORT: base = LLVMInt16TypeInContext(ctx->llvm_ctx); break;
@@ -65,8 +63,14 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
         }
         case TYPE_ENUM: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
 
-        // TODO don't default
         default: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
+    }
+
+    if (t.ptr_depth > 0 || t.is_func_ptr || t.array_depth > 0) {
+        if (t.base == TYPE_CLASS && t.class_name && !t.is_func_ptr && t.array_depth == 0) {
+            base = LLVMPointerType(base, 0);
+        } else {
+            base = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
         }
     }
 
@@ -74,12 +78,10 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
         base = LLVMArrayType(base, t.array_size);
     }
 
-    // Make sure that qbe has this too
-    // & maybe don't do it here, but somewhere else?
     if (t.is_tainted) {
         LLVMTypeRef elements[] = {
-            LLVMInt32TypeInContext(ctx->llvm_ctx),  // i32 error_id
-            base                                    // actual value
+            LLVMInt32TypeInContext(ctx->llvm_ctx),
+            base
         };
         if (t.base == TYPE_VOID && t.ptr_depth == 0) {
             return LLVMStructTypeInContext(ctx->llvm_ctx, elements, 1, 0);
@@ -302,6 +304,11 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                 if (func->is_extern) p_ty.is_tainted = 0;
                 if (p_ty.array_size > 0) { p_ty.array_size = 0; p_ty.ptr_depth++; }
                 param_tys[i] = get_llvm_type(ctx, p_ty);
+                char *ty_str = LLVMPrintTypeToString(param_tys[i]);
+                if (strcmp(func->name, "ns.Clib") == 0) {
+                    printf("DEBUG PROTO func=%s param[%d] name=%s type=%s ptr_depth=%d class_name=%s\n", func->name, i, p->name, ty_str, p->type.ptr_depth, p->type.class_name ? p->type.class_name : "(null)");
+                }
+                LLVMDisposeMessage(ty_str);
                 i++;
                 p = p->next;
             }
@@ -309,6 +316,11 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
 
         LLVMTypeRef func_ty = LLVMFunctionType(ret_ty, param_tys, func->param_count, func->is_varargs);
         LLVMValueRef llvm_func = LLVMAddFunction(ctx->llvm_mod, func->name, func_ty);
+        if (strcmp(func->name, "ns.Clib") == 0) {
+            char *ft = LLVMPrintTypeToString(func_ty);
+            printf("DEBUG PROTO ADD func=%s type=%s\n", func->name, ft);
+            LLVMDisposeMessage(ft);
+        }
 
         if (func->cconv) {
             if (strcmp(func->cconv, "stdcall") == 0 || strcmp(func->cconv, "\"stdcall\"") == 0) {

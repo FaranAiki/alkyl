@@ -54,21 +54,28 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     func = LLVMGetNamedFunction(ctx->llvm_mod, inst->op1->val.str_val);
                     if (func) {
                         func_ty = LLVMGlobalGetValueType(func);
-                    } else {
-                        // Create a declaration with concrete parameter types from the call args
-                        LLVMTypeRef ret_ty = inst->dest ? get_llvm_type(ctx, inst->dest->type) : LLVMVoidTypeInContext(ctx->llvm_ctx);
-                        int param_count = inst->arg_count;
-                        int __pt_sz = param_count > 0 ? param_count : 1; LLVMTypeRef param_types[__pt_sz];
-                        for (int i=0; i<param_count; i++) {
-                            if (inst->args[i]) {
-                                param_types[i] = get_llvm_type(ctx, inst->args[i]->type);
-                            } else {
-                                param_types[i] = LLVMInt64TypeInContext(ctx->llvm_ctx);
-                            }
+                } else {
+                    // Create a declaration with concrete parameter types from the call args
+                    LLVMTypeRef ret_ty = inst->dest ? get_llvm_type(ctx, inst->dest->type) : LLVMVoidTypeInContext(ctx->llvm_ctx);
+                    int param_count = inst->arg_count;
+                    int __pt_sz = param_count > 0 ? param_count : 1; LLVMTypeRef param_types[__pt_sz];
+                    for (int i=0; i<param_count; i++) {
+                        if (inst->args[i]) {
+                            param_types[i] = get_llvm_type(ctx, inst->args[i]->type);
+                        } else {
+                            param_types[i] = LLVMInt64TypeInContext(ctx->llvm_ctx);
                         }
-                        func_ty = LLVMFunctionType(ret_ty, param_types, param_count, 0);
-                        func = LLVMAddFunction(ctx->llvm_mod, inst->op1->val.str_val, func_ty);
                     }
+                    if (strcmp(inst->op1->val.str_val, "ns.Clib") == 0) {
+                        for (int i = 0; i < param_count; i++) {
+                            char *ts = LLVMPrintTypeToString(param_types[i]);
+                            printf("DEBUG CALL DECL func=%s param[%d] type=%s\n", inst->op1->val.str_val, i, ts);
+                            LLVMDisposeMessage(ts);
+                        }
+                    }
+                    func_ty = LLVMFunctionType(ret_ty, param_types, param_count, 0);
+                    func = LLVMAddFunction(ctx->llvm_mod, inst->op1->val.str_val, func_ty);
+                }
                 }
             }
 

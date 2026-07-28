@@ -11,6 +11,7 @@
 #include "optlir/local.h"
 
 #define BASENAME "build/out"
+#define BASENAME_OPT "build/opt_out"
 
 #define str(s) #s
 #define xstr(s) str(s)
@@ -36,6 +37,8 @@ int main(int argc, char *argv[]) {
     char link_flags[1024] = {0};
     int emit_alir = 0;
     int emit_balir = 0;
+    int unopt_mode = 0;
+    int opt_mode = 0;
 
     ParserSettings parser_settings = {0};
     // This is the default setting
@@ -63,6 +66,10 @@ int main(int argc, char *argv[]) {
             emit_balir = 1;
         } else if (strcmp(argv[i], "--allow-vector-init") == 0) {
             parser_settings.allow_vector_initialization = 1;
+        } else if (strcmp(argv[i], "--unopt") == 0) {
+            unopt_mode = 1;
+        } else if (strcmp(argv[i], "--opt") == 0) {
+            opt_mode = 1;
         } else {
             filename = argv[i];
         }
@@ -185,29 +192,32 @@ int main(int argc, char *argv[]) {
 
     debug_step("Finished alir check and analysis. Start alir optimization.");
 
-    optlir_remove_unused(alir_module);
+    if (!unopt_mode) {
+        optlir_remove_unused(alir_module);
 
-    optlir_local_optimize(alir_module);
+        optlir_local_optimize(alir_module);
 
-    optlir_remove_unused(alir_module);
+        optlir_remove_unused(alir_module);
 
-    int alick_error_post = alick_check_module(alir_module);
-    if (alick_error_post > 0) {
-      printf("Error occured in alick after optimization.\n");
-      sem_cleanup(&sem_ctx);
-      free(code);
-      arena_free(&arena);
-      return 1;
-    }
+        int alick_error_post = alick_check_module(alir_module);
+        if (alick_error_post > 0) {
+          printf("Error occured in alick after optimization.\n");
+          sem_cleanup(&sem_ctx);
+          free(code);
+          arena_free(&arena);
+          return 1;
+        }
 
-    if (emit_alir) {
-        alir_emit_to_file(alir_module, BASENAME ".opt.alir");
+        if (emit_alir) {
+            alir_emit_to_file(alir_module, BASENAME ".opt.alir");
+        }
     }
 
     debug_step("Finished alir optimization. Start code generation using " BACKEND_STRING " codegen");
     arena_reset(&arena);
 
-    int final_ret = backend_run(alir_module, BASENAME, link_flags);
+    const char *output_basename = opt_mode ? BASENAME_OPT : BASENAME;
+    int final_ret = backend_run(alir_module, output_basename, link_flags);
     free(code);
 
     arena_free(&arena);

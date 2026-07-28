@@ -1,30 +1,31 @@
 #!/bin/bash
 
 # Alkyl Test Runner
-# Usage: ./scripts/run_tests.sh [pattern] [--update]
-# TODO: maybe add a specific test case checker
-#     : add a library test case checker
-# TODO: maybe use Alkyl instead of this test case runner
+# Usage: ./scripts/run_tests.sh [pattern] [--update] [--opt] [--unopt]
+#   --opt    : run only optimized ALIR tests (output: build/opt_out)
+#   --unopt  : run only unoptimized ALIR tests (output: build/out)
+#   default  : run both (unopt first, then opt)
 
 UPDATE=0
-#PATTERN=""
+RUN_OPT=0
+RUN_UNOPT=0
 
-RUN_COMMAND=build/alkyl
 # Parse the script runner
 for arg in "$@"; do
     if [ "$arg" == "--update" ]; then
         UPDATE=1
-    else
-      if [[ -z "$arg" ]]; then
-        RUN_COMMAND=build/alkyl
-      elif [[ "$arg" == "ethyl" ]]; then
-        RUN_COMMAND=build/ethyl
-      else
-        RUN_COMMAND=build/alkyl_$arg
-      fi
-#        PATTERN="$arg"
+    elif [ "$arg" == "--opt" ]; then
+        RUN_OPT=1
+    elif [ "$arg" == "--unopt" ]; then
+        RUN_UNOPT=1
     fi
 done
+
+# If neither --opt nor --unopt specified, run both
+if [ $RUN_OPT -eq 0 ] && [ $RUN_UNOPT -eq 0 ]; then
+    RUN_OPT=1
+    RUN_UNOPT=1
+fi
 
 COLOR_RESET="\033[0m"
 COLOR_RED="\033[1;31m"
@@ -48,18 +49,13 @@ echo -e "${COLOR_BLUE}Starting Alkyl Tests...${COLOR_RESET}"
 # Find all .aky files
 FILES=$(find test/code -name "*.aky" | sort)
 
-#if [ -n "$PATTERN" ]; then
-#    FILES=$(echo "$FILES" | grep "$PATTERN")
-#fi
+COMPILER="build/alkyl"
 
 for AKY_FILE in $FILES; do
     # Extract feature and name
-    # Path: test/code/FEATURE/NAME.aky
     REL_PATH=${AKY_FILE#test/code/}
     FEATURE=$(dirname "$REL_PATH")
     NAME=$(basename "$REL_PATH" .aky)
-
-    TOTAL=$((TOTAL + 1))
 
     EXPECTED_LOG="test/log/$FEATURE/$NAME.log"
     EXPECTED_OUT="test/output/$FEATURE/$NAME.out"
@@ -76,9 +72,6 @@ for AKY_FILE in $FILES; do
     CLEAN_ACTUAL_LOG="/tmp/alkyl_actual_comp_clean.log"
     CLEAN_EXPECTED_LOG="/tmp/alkyl_expected_comp_clean.log"
 
-    echo -n "${RUN_COMMAND} test/code/$FEATURE/$NAME.aky ... "
-
-    # 1. Compilation
     # Extract flags if specified on the first line of the file (e.g. // FLAGS: --some-flag)
     FIRST_LINE=$(head -n 1 "$AKY_FILE")
     FLAGS=()
@@ -88,91 +81,114 @@ for AKY_FILE in $FILES; do
         read -r -a FLAGS <<< "$FLAGS_STR"
     fi
 
-    ${RUN_COMMAND} "${FLAGS[@]}" "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
-    COMP_RET=$?
+    # Determine which modes to run for this test
+    MODES=()
+    if [ $RUN_UNOPT -eq 1 ]; then
+        MODES+=("unopt")
+    fi
+    if [ $RUN_OPT -eq 1 ]; then
+        MODES+=("opt")
+    fi
 
-    # Strip colors for diffing
-    sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$ACTUAL_LOG" > "$CLEAN_ACTUAL_LOG"
+    TEST_PASSED=1
 
-    if [ $UPDATE -eq 1 ]; then
-        if [ $COMP_RET -ne 0 ]; then
-            sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$ACTUAL_LOG" > "$EXPECTED_LOG"
+    for MODE in "${MODES[@]}"; do
+        if [ "$MODE" == "unopt" ]; then
+            MODE_LABEL="unopt"
+            COMPILER_FLAGS=("--unopt")
+            OUTPUT_BIN="build/out"
         else
-            if [ -f "$EXPECTED_LOG" ] || [ ! -f "$EXPECTED_OUT" ]; then
+            MODE_LABEL="opt"
+            COMPILER_FLAGS=("--opt")
+            OUTPUT_BIN="build/opt_out"
+        fi
+
+        echo -n "${COMPILER} ${COMPILER_FLAGS[*]} $AKY_FILE ... "
+
+        # 1. Compilation
+        ${COMPILER} "${COMPILER_FLAGS[@]}" "${FLAGS[@]}" "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
+        COMP_RET=$?
+
+        # Strip colors for diffing
+        sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$ACTUAL_LOG" > "$CLEAN_ACTUAL_LOG"
+
+        if [ $UPDATE -eq 1 ]; then
+            if [ $COMP_RET -ne 0 ]; then
                 sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$ACTUAL_LOG" > "$EXPECTED_LOG"
+            else
+                if [ -f "$EXPECTED_LOG" ] || [ ! -f "$EXPECTED_OUT" ]; then
+                    sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$ACTUAL_LOG" > "$EXPECTED_LOG"
+                fi
             fi
         fi
-    fi
 
-    # Check compilation success/failure
-    # This is to make alkyl more robust & not prone to error
-    if [ $COMP_RET -ne 0 ]; then
-        # Compilation failed (non-zero exit code)
-        rm -f build/out
-
-        # If it matched expected log, negative test passes
-        echo -e "${COLOR_RED}FAILED (Compilation failed with exit code $COMP_RET)${COLOR_RESET}"
-        FAILED=$((FAILED + 1))
-        continue
-    fi
-
-    # 2. Execution (if compiled successfully)
-    if [ -f "build/out" ]; then
-        if [ -f "$INPUT_FILE" ]; then
-            ./build/out < "$INPUT_FILE" > "$ACTUAL_OUT" 2>&1
-        else
-            ./build/out > "$ACTUAL_OUT" 2>&1
-        fi
-        RUN_RET=$?
-
-        if [ $RUN_RET -ne 0 ]; then
-            echo -e "${COLOR_RED}FAILED (Execution failed with exit code $RUN_RET)${COLOR_RESET}"
+        # Check compilation success/failure
+        if [ $COMP_RET -ne 0 ]; then
+            rm -f "$OUTPUT_BIN"
+            echo -e "${COLOR_RED}FAILED ($MODE_LABEL: Compilation failed with exit code $COMP_RET)${COLOR_RESET}"
             FAILED=$((FAILED + 1))
-            rm -f build/out
+            TEST_PASSED=0
             continue
         fi
 
-        if [ $UPDATE -eq 1 ]; then
-            cp "$ACTUAL_OUT" "$EXPECTED_OUT"
-        fi
-
-        # Check output if expected exists
-        if [ -f "$EXPECTED_OUT" ]; then
-            # Simple diff for output as well
-            if ! diff "$EXPECTED_OUT" "$ACTUAL_OUT" > "$RUN_DIFF"; then
-                echo -e "${COLOR_RED}FAILED (Output Mismatch)${COLOR_RESET}"
-                FAILED=$((FAILED + 1))
-                rm -f build/out
-                continue
+        # 2. Execution (if compiled successfully)
+        if [ -f "$OUTPUT_BIN" ]; then
+            if [ -f "$INPUT_FILE" ]; then
+                ./"$OUTPUT_BIN" < "$INPUT_FILE" > "$ACTUAL_OUT" 2>&1
             else
-                rm -f "$RUN_DIFF"
+                ./"$OUTPUT_BIN" > "$ACTUAL_OUT" 2>&1
             fi
-        fi
+            RUN_RET=$?
 
-        # Check compilation log if expected exists for positive tests
-        if [ -f "$EXPECTED_LOG" ]; then
-            sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$EXPECTED_LOG" > "$CLEAN_EXPECTED_LOG"
-            if ! diff "$CLEAN_EXPECTED_LOG" "$CLEAN_ACTUAL_LOG" > "$LOGDIFF"; then
-                echo -e "${COLOR_RED}FAILED (Log Mismatch)${COLOR_RESET}"
+            if [ $RUN_RET -ne 0 ]; then
+                echo -e "${COLOR_RED}FAILED ($MODE_LABEL: Execution failed with exit code $RUN_RET)${COLOR_RESET}"
                 FAILED=$((FAILED + 1))
-                rm -f build/out
+                rm -f "$OUTPUT_BIN"
+                TEST_PASSED=0
                 continue
-            else
-                rm -f "$LOGDIFF"
             fi
+
+            if [ $UPDATE -eq 1 ]; then
+                cp "$ACTUAL_OUT" "$EXPECTED_OUT"
+            fi
+
+            # Check output if expected exists
+            if [ -f "$EXPECTED_OUT" ]; then
+                if ! diff "$EXPECTED_OUT" "$ACTUAL_OUT" > "$RUN_DIFF"; then
+                    echo -e "${COLOR_RED}FAILED ($MODE_LABEL: Output Mismatch)${COLOR_RESET}"
+                    FAILED=$((FAILED + 1))
+                    rm -f "$OUTPUT_BIN"
+                    TEST_PASSED=0
+                    continue
+                else
+                    rm -f "$RUN_DIFF"
+                fi
+            fi
+
+            # Check compilation log if expected exists for positive tests
+            if [ -f "$EXPECTED_LOG" ]; then
+                sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$EXPECTED_LOG" > "$CLEAN_EXPECTED_LOG"
+                if ! diff "$CLEAN_EXPECTED_LOG" "$CLEAN_ACTUAL_LOG" > "$LOGDIFF"; then
+                    echo -e "${COLOR_RED}FAILED ($MODE_LABEL: Log Mismatch)${COLOR_RESET}"
+                    FAILED=$((FAILED + 1))
+                    rm -f "$OUTPUT_BIN"
+                    TEST_PASSED=0
+                    continue
+                else
+                    rm -f "$LOGDIFF"
+                fi
+            fi
+
+            rm -f "$OUTPUT_BIN"
         fi
 
-        rm -f build/out
-        # If no ./out but compilation exit code was 0
-        # if [[ "${RUN_COMMAND}" != "build/alkyl" ]]; then
-        #  echo -e "${COLOR_RED}FAILED (No executable produced but compilation succeeded)${COLOR_RESET}"
-        #  FAILED=$((FAILED + 1))
-        #  continue
-        # fi
+        echo -e "${COLOR_GREEN}PASSED ($MODE_LABEL)${COLOR_RESET}"
+    done
+
+    if [ $TEST_PASSED -eq 1 ]; then
+        PASSED=$((PASSED + 1))
     fi
-
-    echo -e "${COLOR_GREEN}PASSED${COLOR_RESET}"
-    PASSED=$((PASSED + 1))
+    TOTAL=$((TOTAL + 1))
 done
 
 echo "------------------------------------------------"

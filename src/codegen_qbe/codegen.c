@@ -7,6 +7,84 @@
 
 int s_next_qbe_temp = 0;
 
+static int get_qbe_type_size_for_var(VarType t) {
+    if (t.ptr_depth > 0) return 8;
+    if (t.array_size > 0) return 8;
+    switch (t.base) {
+        case TYPE_VOID: return 0;
+        case TYPE_BOOL:
+        case TYPE_CHAR:
+        case TYPE_UNSIGNED_CHAR: return 1;
+        case TYPE_SHORT: return 2;
+        case TYPE_INT:
+        case TYPE_UNSIGNED_INT:
+        case TYPE_SINGLE: return 4;
+        case TYPE_LONG:
+        case TYPE_LONG_LONG:
+        case TYPE_UNSIGNED_LONG:
+        case TYPE_UNSIGNED_LONG_LONG:
+        case TYPE_DOUBLE:
+        case TYPE_LONG_DOUBLE: return 8;
+        default: return 8;
+    }
+}
+
+static int get_qbe_type_align_for_var(VarType t) {
+    if (t.ptr_depth > 0) return 8;
+    if (t.array_size > 0) return 8;
+    switch (t.base) {
+        case TYPE_BOOL:
+        case TYPE_CHAR:
+        case TYPE_UNSIGNED_CHAR: return 1;
+        case TYPE_SHORT: return 2;
+        case TYPE_INT:
+        case TYPE_UNSIGNED_INT:
+        case TYPE_SINGLE: return 4;
+        case TYPE_LONG:
+        case TYPE_LONG_LONG:
+        case TYPE_UNSIGNED_LONG:
+        case TYPE_UNSIGNED_LONG_LONG:
+        case TYPE_DOUBLE:
+        case TYPE_LONG_DOUBLE: return 8;
+        default: return 8;
+    }
+}
+
+static int get_struct_field_offset(AlirModule *module, const char *struct_name, int field_index) {
+    AlirStruct *st = alir_find_struct(module, struct_name);
+    if (!st || !st->fields) return field_index * 8;
+    
+    int offset = 0;
+    AlirField *f = st->fields;
+    while (f) {
+        int size = get_qbe_type_size_for_var(f->type);
+        int align = get_qbe_type_align_for_var(f->type);
+        offset = (offset + align - 1) & ~(align - 1);
+        if (f->index == field_index) {
+            return offset;
+        }
+        offset += size;
+        f = f->next;
+    }
+    return field_index * 8;
+}
+
+static int get_struct_size(AlirModule *module, const char *struct_name) {
+    AlirStruct *st = alir_find_struct(module, struct_name);
+    if (!st || !st->fields) return 8;
+    
+    int offset = 0;
+    AlirField *f = st->fields;
+    while (f) {
+        int size = get_qbe_type_size_for_var(f->type);
+        int align = get_qbe_type_align_for_var(f->type);
+        offset = (offset + align - 1) & ~(align - 1);
+        offset += size;
+        f = f->next;
+    }
+    return (offset + 7) & ~7;
+}
+
 int find_max_temp(AlirModule *module) {
     int max_temp = 0;
     for (AlirFunction *f = module->functions; f; f = f->next) {
@@ -41,6 +119,8 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
                 sz = (int)inst->op1->val.long_val;
             } else if (inst->op1 && inst->op1->kind == ALIR_VAL_INT) {
                 sz = (int)inst->op1->val.long_val;
+            } else if (inst->dest && inst->dest->type.base == TYPE_CLASS && inst->dest->type.class_name) {
+                sz = get_struct_size(module, inst->dest->type.class_name);
             } else {
                 sz = qbe_type_size(dt);
             }
@@ -74,13 +154,24 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             print_val(out, inst->dest);
             fprintf(out, " =l add ");
             print_val(out, inst->op1);
+            
+            int offset = 0;
             if (inst->op2) {
-                int idx = (int)(intptr_t)inst->op2->val.long_val;
-                VarType elem_type = inst->dest->type;
-                elem_type.ptr_depth--;
-                int elem_size = qbe_type_size(qbe_type(elem_type));
-                fprintf(out, ", %d", idx * elem_size);
+                VarType base_type = inst->op1->type;
+                if (base_type.ptr_depth > 0) base_type.ptr_depth--;
+                else if (base_type.array_size > 0) base_type.array_size = 0;
+                
+                if (base_type.base == TYPE_CLASS && base_type.class_name && inst->op2->kind == ALIR_VAL_CONST) {
+                    offset = get_struct_field_offset(module, base_type.class_name, (int)inst->op2->val.long_val);
+                } else {
+                    int idx = (int)(intptr_t)inst->op2->val.long_val;
+                    VarType elem_type = inst->dest->type;
+                    elem_type.ptr_depth--;
+                    int elem_size = qbe_type_size(qbe_type(elem_type));
+                    offset = idx * elem_size;
+                }
             }
+            fprintf(out, ", %d", offset);
             fprintf(out, "\n");
             break;
         }
