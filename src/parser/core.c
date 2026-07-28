@@ -815,13 +815,22 @@ ASTNode* parse_program(Parser *p) {
   ASTNode **current = &head;
   
   while (p->current_token.type != TOKEN_EOF) {
+    static int prog_iter = 0;
+    TokenType before = p->current_token.type;
+    prog_iter++;
+    if (prog_iter > 100) {
+        fprintf(stderr, "parse_program loop iter=%d, token=%d, has_error=%d\n", prog_iter, p->current_token.type, p->has_error);
+    }
     if (p->has_error) {
         p->has_error = 0;
         parser_sync(p);
         if (p->current_token.type == TOKEN_EOF) break;
     }
-   
+    
     ASTNode *node = parse_top_level(p);
+    if (before == p->current_token.type && !node) {
+        fprintf(stderr, "parse_program: token did not advance! token=%d (%s)\n", p->current_token.type, token_type_to_string(p->current_token.type));
+    }
     if (node) {
         if (!*current) *current = node; 
         

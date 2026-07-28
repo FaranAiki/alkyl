@@ -25,7 +25,7 @@
 
 #define DEBUG_STEP
 #ifdef DEBUG_STEP
-  #define debug_step(msg, ...) printf(DIAG_CYAN "step: " DIAG_RESET msg, ##__VA_ARGS__); putchar('\n');
+  #define debug_step(msg, ...) fprintf(stderr, "step: " msg "\n", ##__VA_ARGS__)
 #else
   #define debug_step(msg, ...)
 #endif // DEBUG_STEP
@@ -57,5 +57,12 @@
 #else
   #define debug_any(msg, ...)
 #endif // DEBUG_ANY
+
+#define DEBUG_ERR
+#ifdef DEBUG_ERR
+  #define debug_err(msg, ...) fprintf(stderr, "err: " msg "\n", ##__VA_ARGS__)
+#else
+  #define debug_err(msg, ...)
+#endif // DEBUG_ERR
 
 #endif // COMPILER_DEBUG_H

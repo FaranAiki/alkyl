@@ -241,6 +241,11 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
 ASTNode* parse_top_level_internal(Parser *p);
 
 ASTNode* parse_top_level(Parser *p) {
+    static int call_count = 0;
+    call_count++;
+    if (call_count > 5000) {
+        fprintf(stderr, "parse_top_level called %d times, token=%d\n", call_count, p->current_token.type);
+    }
     char *reason_str = NULL;
     if (p->current_token.type == TOKEN_REASON) {
         eat(p, TOKEN_REASON);

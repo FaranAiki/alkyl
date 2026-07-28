@@ -572,6 +572,12 @@ static int lex_word(Lexer *l, Token *t) {
 
 
 Token lexer_next(Lexer *l) {
+  static int call_count = 0;
+  call_count++;
+  if (call_count > 100000) {
+      fprintf(stderr, "lexer_next called %d times, pos=%d, pending=%d, token=%d\n", 
+              call_count, l->pos, l->pending_count, l->pending_count > 0 ? l->pending_tokens[0].type : -1);
+  }
   if (l->pending_count > 0) {
       Token t = l->pending_tokens[0];
       for (int i = 1; i < l->pending_count; i++) {

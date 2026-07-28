@@ -1,4 +1,5 @@
 #include "parser_internal.h"
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -70,10 +71,18 @@ static int is_unambiguous_expr_start(Parser *p) {
 }
 
 static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
+  static int call_count = 0;
+  call_count++;
+  if (call_count > 5000) {
+      fprintf(stderr, "parse_space_separated_call called %d times, token=%d\n", call_count, p->current_token.type);
+  }
   ASTNode *args_head = NULL;
   ASTNode **curr_arg = &args_head;
+  int iter = 0;
+  debug_err("ENTER parse_space_separated_call token=%d", p->current_token.type);
 
   while (1) {
+    debug_err("parse_space_separated_call iter=%d token=%d", iter++, p->current_token.type);
     if (p->current_token.type == TOKEN_SEMICOLON ||
         p->current_token.type == TOKEN_RPAREN ||
         p->current_token.type == TOKEN_RBRACKET ||
@@ -81,16 +90,20 @@ static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
         p->current_token.type == TOKEN_ELSE ||
         p->current_token.type == TOKEN_ELIF ||
         p->current_token.type == TOKEN_EOF) {
+        debug_err("parse_space_separated_call: break on terminator");
         break;
     }
 
     if (!is_unambiguous_expr_start(p)) {
+        debug_err("parse_space_separated_call: break on !unambiguous");
         break;
     }
 
     p->in_space_separated_call++;
+    debug_err("parse_space_separated_call: calling parse_expression");
     ASTNode *expr = parse_expression(p);
     p->in_space_separated_call--;
+    debug_err("parse_space_separated_call: parse_expression returned %p token=%d", (void*)expr, p->current_token.type);
 
     if (!expr) break;
 
@@ -126,13 +139,21 @@ static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
   node->name = name;
   node->target = target;
   node->args = args_head;
+  debug_err("EXIT parse_space_separated_call token=%d", p->current_token.type);
   return (ASTNode*)node;
 }
 
 ASTNode* parse_postfix(Parser *p, ASTNode *node) {
+    static int call_count = 0;
+    call_count++;
+    if (call_count > 5000) {
+        fprintf(stderr, "parse_postfix called %d times, token=%d, node_type=%d\n", call_count, p->current_token.type, node ? node->type : -1);
+    }
+    int iter = 0;
     while (1) { if (p->has_error) break;
         int line = p->current_token.line;
         int col = p->current_token.col;
+        debug_err("parse_postfix iter=%d token=%d in_space=%d disable_space=%d", iter++, p->current_token.type, p->in_space_separated_call, p->disable_space_call);
 
         if (p->current_token.type == TOKEN_DOT) {
             eat(p, TOKEN_DOT);
@@ -406,6 +427,12 @@ ASTNode* parse_factor(Parser *p) {
       set_loc(node, line, col);
   }
   else if (p->current_token.type == TOKEN_LBRACKET) {
+    static int arr_count = 0;
+    arr_count++;
+    if (arr_count > 50000) {
+        fprintf(stderr, "parse_factor array literal called %d times, token=%d\n", arr_count, p->current_token.type);
+    }
+    debug_err("parse_factor: array literal start");
     eat(p, TOKEN_LBRACKET);
     ASTNode *elems_head = NULL;
     ASTNode **curr_elem = &elems_head;
@@ -417,7 +444,9 @@ ASTNode* parse_factor(Parser *p) {
     }
 
     if (p->current_token.type != TOKEN_RBRACKET) {
+      debug_err("parse_factor: parsing first element");
       *curr_elem = parse_expression(p);
+      debug_err("parse_factor: first element done, token=%d", p->current_token.type);
       curr_elem = &(*curr_elem)->next;
       while (p->current_token.type == TOKEN_COMMA || (p->settings.array_separator_with_space && p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF)) { 
         if (p->has_error) break;
@@ -425,7 +454,9 @@ ASTNode* parse_factor(Parser *p) {
             eat(p, TOKEN_COMMA);
         }
         if (p->current_token.type == TOKEN_RBRACKET) break;
+        debug_err("parse_factor: parsing next element");
         *curr_elem = parse_expression(p);
+        debug_err("parse_factor: next element done, token=%d", p->current_token.type);
         curr_elem = &(*curr_elem)->next;
       }
     }
@@ -441,6 +472,7 @@ ASTNode* parse_factor(Parser *p) {
     an->is_vector = p->settings.allow_vector_initialization;
     node = (ASTNode*)an;
     set_loc(node, line, col);
+    debug_err("parse_factor: array literal done, token=%d", p->current_token.type);
   }
   else if (p->current_token.type == TOKEN_NUMBER || 
            p->current_token.type == TOKEN_UINT_LIT ||
@@ -675,6 +707,11 @@ ASTNode* parse_factor(Parser *p) {
 }
 
 ASTNode* parse_unary(Parser *p) {
+  static int call_count = 0;
+  call_count++;
+  if (call_count > 5000) {
+      fprintf(stderr, "parse_unary called %d times, token=%d\n", call_count, p->current_token.type);
+  }
   if (p->has_error) return NULL;
   int line = p->current_token.line;
   int col = p->current_token.col;
@@ -718,6 +755,11 @@ ASTNode* parse_unary(Parser *p) {
 }
 
 static ASTNode* parse_binary_op(Parser *p, ASTNode* (*sub_parser)(Parser*), TokenType* ops, int num_ops) {
+  static int call_count = 0;
+  call_count++;
+  if (call_count > 5000) {
+      fprintf(stderr, "parse_binary_op called %d times, token=%d\n", call_count, p->current_token.type);
+  }
   ASTNode *left = sub_parser(p);
   while (1) { if (p->has_error) break;
     int found = 0;
@@ -904,6 +946,11 @@ ASTNode* parse_assignment(Parser *p) {
 }
 
 ASTNode* parse_expression(Parser *p) {
+  static int call_count = 0;
+  call_count++;
+  if (call_count > 5000) {
+      fprintf(stderr, "parse_expression called %d times, token=%d\n", call_count, p->current_token.type);
+  }
   if (p->has_error) return NULL;
   return parse_assignment(p);
 }

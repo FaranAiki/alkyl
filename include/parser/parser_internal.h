@@ -3,6 +3,7 @@
 
 #include "parser.h"
 #include "../common/diagnostic.h"
+#include "../common/debug.h"
 #include <stdio.h>
 #include <stdlib.h>
 

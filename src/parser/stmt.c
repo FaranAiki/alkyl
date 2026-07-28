@@ -541,6 +541,11 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
 }
 
 ASTNode* parse_statements(Parser *p) {
+  static int stmt_count = 0;
+  stmt_count++;
+  if (stmt_count > 100) {
+      fprintf(stderr, "parse_statements called %d times, token=%d\n", stmt_count, p->current_token.type);
+  }
   ASTNode *head = NULL;
   ASTNode **current = &head;
   while (p->current_token.type != TOKEN_EOF && p->current_token.type != TOKEN_RBRACE) { if (p->has_error) break;

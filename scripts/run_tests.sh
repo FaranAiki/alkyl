@@ -96,28 +96,9 @@ for AKY_FILE in $FILES; do
 
     # Check compilation success/failure
     if [ $COMP_RET -ne 0 ]; then
-        # Compilation failed (non-zero exit code)
+        echo -e "${COLOR_RED}FAILED (Compilation failed with exit code $COMP_RET)${COLOR_RESET}"
+        FAILED=$((FAILED + 1))
         rm -f build/out
-
-        if [ ! -f "$EXPECTED_LOG" ]; then
-            echo -e "${COLOR_RED}FAILED (Compilation failed with exit code $COMP_RET but no expected log exists)${COLOR_RESET}"
-            FAILED=$((FAILED + 1))
-            continue
-        fi
-
-        # Check compilation log against expected
-        sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$EXPECTED_LOG" > "$CLEAN_EXPECTED_LOG"
-        if ! diff "$CLEAN_EXPECTED_LOG" "$CLEAN_ACTUAL_LOG" > "$LOGDIFF"; then
-            echo -e "${COLOR_RED}FAILED (Log Mismatch)${COLOR_RESET}"
-            FAILED=$((FAILED + 1))
-            continue
-        else
-            rm -f "$LOGDIFF"
-        fi
-
-        # If it matched expected log, negative test passes
-        echo -e "${COLOR_GREEN}PASSED${COLOR_RESET}"
-        PASSED=$((PASSED + 1))
         continue
     fi
 
