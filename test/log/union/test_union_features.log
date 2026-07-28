@@ -1,6 +1,3 @@
-/usr/bin/ld: build/out.o: in function `main':
-main_module:(.text+0x458): undefined reference to `main_print'
-collect2: error: ld returned 1 exit status
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
@@ -9,4 +6,4 @@ step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start Codegen using LLVM Codegen
 Compiled to build/out.o
 Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linking failed.
+Linked to build/out

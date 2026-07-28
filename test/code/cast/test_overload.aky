@@ -1,4 +1,4 @@
-import std.print
+import "std/print";
 
 namespace main {
 
@@ -6,12 +6,12 @@ import "lib/c"
 
 class Calculator {
     int x = 0;
-    
+
     public int add(int a, int b) {
         clib.printf "int add called\n";
         return a + b;
     }
-    
+
     public double add(double a, double b) {
         clib.printf "double add called\n";
         return a + b;
@@ -20,12 +20,12 @@ class Calculator {
 
 int main() {
     Calculator c;
-    
+
     int i_res = c.add(10, 20);
     double f_res = c.add(10.5, 20.5);
-    
+
     clib.printf "i_res = %d\n", i_res;
-    
+
     print (i_res);
   return 0;
 }
