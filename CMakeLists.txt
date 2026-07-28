@@ -84,6 +84,7 @@ set(ALIR_SOURCES
     src/alir/fragment/addr.c
 
     src/optlir/unused.c
+    src/optlir/local.c
 )
 
 set (ALICK_SOURCES

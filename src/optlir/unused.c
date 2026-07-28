@@ -3,15 +3,6 @@
 #include <string.h>
 #include <ctype.h>
 
-typedef struct AlirModule AlirModule;
-typedef struct AlirFunction AlirFunction;
-typedef struct AlirBlock AlirBlock;
-typedef struct AlirInst AlirInst;
-typedef struct AlirValue AlirValue;
-typedef struct AlirGlobal AlirGlobal;
-typedef struct AlirStruct AlirStruct;
-typedef struct AlirParam AlirParam;
-
 typedef struct UsedSet {
     char **names;
     int count;

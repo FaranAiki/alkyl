@@ -7,6 +7,8 @@
 #include <sys/types.h>
 
 #include "optlir/optlir.h"
+#include "optlir/unused.h"
+#include "optlir/local.h"
 
 #define BASENAME "build/out"
 
@@ -96,7 +98,7 @@ int main(int argc, char *argv[]) {
     parser_init(&p, &l, &parser_settings);
 
     ASTNode *root = parse_program(&p);
-    
+
     // Resolve imports for AOT compiler
     resolve_imports(&p, &root);
 
@@ -194,9 +196,23 @@ int main(int argc, char *argv[]) {
         alir_write_binary(alir_module, BASENAME ".balir");
     }
 
+    debug_step("Finished alir check and analysis. Start alir optimization.");
+
     optlir_remove_unused(alir_module);
 
-    debug_step("Finished alir check and analysis. Start Codegen using " BACKEND_STRING " Codegen");
+    optlir_local_optimize(alir_module);
+
+    int alick_error_post = alick_check_module(alir_module);
+    if (alick_error_post > 0) {
+      printf("Error occured in alick after optimization.\n");
+      sem_cleanup(&sem_ctx);
+      free(code);
+      arena_free(&arena);
+      arena_free(&arena_debug);
+      return 1;
+    }
+
+    debug_step("Finished alir optimization. Start code generation using " BACKEND_STRING " codegen");
     arena_reset(&arena);
 
     int final_ret = backend_run(alir_module, BASENAME, link_flags);
