@@ -39,17 +39,15 @@ AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
      if (mod->functions) {
          AlirFunction *curr = mod->functions;
          while(curr) {
-             if (strcmp(curr->name, name) == 0) {
-                 curr->ret_type = ret;
-                 curr->is_flux = is_flux;
-                 if (curr->block_count == 0) {
-                     curr->blocks = NULL;
-                     curr->block_count = 0;
-                     curr->params = NULL;
-                     curr->param_count = 0;
-                 }
-                 return curr;
-             }
+if (strcmp(curr->name, name) == 0) {
+                  curr->ret_type = ret;
+                  curr->is_flux = is_flux;
+                  curr->blocks = NULL;
+                  curr->block_count = 0;
+                  curr->params = NULL;
+                  curr->param_count = 0;
+                  return curr;
+              }
              curr = curr->next;
          }
      }
