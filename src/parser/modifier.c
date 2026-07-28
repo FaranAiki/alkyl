@@ -100,7 +100,11 @@ void apply_func_modifiers(FuncDefNode* node, int modifiers) {
     if (modifiers & MODIFIER_COVALENT) node->is_covalent = 1;
     
     // node is pure is TRUE by default unless proven otherwise (e.g. explicitly impure)
-    node->is_pure = !(modifiers & MODIFIER_IMPURE);
+    if (node->is_extern) {
+        node->is_pure = (modifiers & MODIFIER_PURE) != 0;
+    } else {
+        node->is_pure = !(modifiers & MODIFIER_IMPURE);
+    }
     node->has_explicit_pure = (modifiers & MODIFIER_PURE) != 0;
     
     // Extern functions are tainted by default unless explicitly marked pristine

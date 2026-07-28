@@ -275,6 +275,209 @@ static void fold_branches_function(AlirModule *module, AlirFunction *func) {
     }
 }
 
+typedef struct BlockSet {
+    AlirBlock **blocks;
+    int count;
+    int capacity;
+} BlockSet;
+
+static void block_set_init(BlockSet *set, int capacity) {
+    set->blocks = calloc(capacity, sizeof(AlirBlock*));
+    set->count = 0;
+    set->capacity = capacity;
+}
+
+static void block_set_add(BlockSet *set, AlirBlock *b) {
+    if (!b) return;
+    for (int i = 0; i < set->count; i++) {
+        if (set->blocks[i] == b) return;
+    }
+    if (set->count >= set->capacity) {
+        set->capacity *= 2;
+        set->blocks = realloc(set->blocks, set->capacity * sizeof(AlirBlock*));
+        memset(set->blocks + set->count, 0, (set->capacity - set->count) * sizeof(AlirBlock*));
+    }
+    set->blocks[set->count++] = b;
+}
+
+static int block_set_has(BlockSet *set, AlirBlock *b) {
+    if (!b) return 0;
+    for (int i = 0; i < set->count; i++) {
+        if (set->blocks[i] == b) return 1;
+    }
+    return 0;
+}
+
+static void block_set_free(BlockSet *set) {
+    free(set->blocks);
+    set->blocks = NULL;
+    set->count = 0;
+    set->capacity = 0;
+}
+
+static AlirBlock* find_block_by_label(AlirFunction *func, const char *label) {
+    if (!func || !label) return NULL;
+    AlirBlock *b = func->blocks;
+    while (b) {
+        if (b->label && strcmp(b->label, label) == 0) return b;
+        b = b->next;
+    }
+    return NULL;
+}
+
+static void mark_reachable_blocks(AlirFunction *func, BlockSet *reachable) {
+    if (!func || !func->blocks) return;
+    
+    block_set_init(reachable, func->block_count > 0 ? func->block_count : 8);
+    
+    AlirBlock *entry = func->blocks;
+    if (!entry) return;
+    
+    AlirBlock **stack = malloc(sizeof(AlirBlock*) * func->block_count);
+    int stack_top = 0;
+    stack[stack_top++] = entry;
+    block_set_add(reachable, entry);
+    
+    while (stack_top > 0) {
+        AlirBlock *b = stack[--stack_top];
+        AlirInst *i = b->head;
+        while (i) {
+            if (i->op == ALIR_OP_JUMP && i->op1 && i->op1->kind == ALIR_VAL_LABEL) {
+                AlirBlock *target = find_block_by_label(func, i->op1->val.str_val);
+                if (target && !block_set_has(reachable, target)) {
+                    block_set_add(reachable, target);
+                    stack[stack_top++] = target;
+                }
+            } else if (i->op == ALIR_OP_CONDI && i->op1 && i->op2 && i->op2->kind == ALIR_VAL_LABEL) {
+                AlirBlock *target = find_block_by_label(func, i->op2->val.str_val);
+                if (target && !block_set_has(reachable, target)) {
+                    block_set_add(reachable, target);
+                    stack[stack_top++] = target;
+                }
+                if (i->arg_count > 0 && i->args[0] && i->args[0]->kind == ALIR_VAL_LABEL) {
+                    target = find_block_by_label(func, i->args[0]->val.str_val);
+                    if (target && !block_set_has(reachable, target)) {
+                        block_set_add(reachable, target);
+                        stack[stack_top++] = target;
+                    }
+                }
+            }
+            i = i->next;
+        }
+    }
+    
+    free(stack);
+}
+
+static void remove_unreachable_blocks_function(AlirModule *module, AlirFunction *func) {
+    if (!func || !func->blocks) return;
+    
+    BlockSet reachable;
+    mark_reachable_blocks(func, &reachable);
+    
+    if (reachable.count == func->block_count) {
+        block_set_free(&reachable);
+        return;
+    }
+    
+    AlirBlock **new_blocks = calloc(reachable.count, sizeof(AlirBlock*));
+    int new_count = 0;
+    
+    AlirBlock *prev = NULL;
+    AlirBlock *b = func->blocks;
+    while (b) {
+        if (block_set_has(&reachable, b)) {
+            new_blocks[new_count++] = b;
+            prev = b;
+            b = b->next;
+        } else {
+            AlirBlock *to_remove = b;
+            b = b->next;
+            if (prev) prev->next = b;
+            else func->blocks = b;
+            func->block_count--;
+        }
+    }
+    
+    block_set_free(&reachable);
+    free(new_blocks);
+}
+
+static void merge_entry_jump_function(AlirModule *module, AlirFunction *func) {
+    if (!func || !func->blocks) return;
+    
+    AlirBlock *entry = func->blocks;
+    if (!entry || !entry->head) return;
+    
+    AlirInst *i = entry->head;
+    if (i->op != ALIR_OP_JUMP || i->op1 == NULL || i->op1->kind != ALIR_VAL_LABEL) return;
+    if (i->next != NULL) return;
+    
+    const char *target_label = i->op1->val.str_val;
+    AlirBlock *target = find_block_by_label(func, target_label);
+    if (!target) return;
+    
+    AlirBlock *prev = NULL;
+    AlirBlock *b = func->blocks;
+    while (b && b != target) {
+        prev = b;
+        b = b->next;
+    }
+    if (b != target) return;
+    
+    int pred_count = 0;
+    AlirBlock *check = func->blocks;
+    while (check) {
+        AlirInst *inst = check->head;
+        while (inst) {
+            if (inst->op == ALIR_OP_JUMP && inst->op1 && inst->op1->kind == ALIR_VAL_LABEL && strcmp(inst->op1->val.str_val, target_label) == 0) {
+                pred_count++;
+            } else if (inst->op == ALIR_OP_CONDI && inst->op2 && inst->op2->kind == ALIR_VAL_LABEL && strcmp(inst->op2->val.str_val, target_label) == 0) {
+                pred_count++;
+            } else if (inst->op == ALIR_OP_CONDI && inst->arg_count > 0 && inst->args[0] && inst->args[0]->kind == ALIR_VAL_LABEL && strcmp(inst->args[0]->val.str_val, target_label) == 0) {
+                pred_count++;
+            }
+            inst = inst->next;
+        }
+        check = check->next;
+    }
+    
+    if (pred_count != 1) return;
+    
+    if (func->blocks == entry) {
+        func->blocks = entry->next;
+    } else {
+        AlirBlock *prev_entry = func->blocks;
+        while (prev_entry && prev_entry->next != entry) prev_entry = prev_entry->next;
+        if (prev_entry) prev_entry->next = entry->next;
+    }
+    func->block_count--;
+    
+    AlirBlock *new_entry = target;
+    while (new_entry) {
+        AlirInst *inst = new_entry->head;
+        while (inst) {
+            if (inst->op == ALIR_OP_JUMP && inst->op1 && inst->op1->kind == ALIR_VAL_LABEL) {
+                AlirBlock *t = find_block_by_label(func, inst->op1->val.str_val);
+                if (!t) {
+                    inst->op1 = alir_val_label(module, "merge");
+                }
+            } else if (inst->op == ALIR_OP_CONDI) {
+                if (inst->op2 && inst->op2->kind == ALIR_VAL_LABEL) {
+                    AlirBlock *t = find_block_by_label(func, inst->op2->val.str_val);
+                    if (!t) inst->op2 = alir_val_label(module, "merge");
+                }
+                if (inst->arg_count > 0 && inst->args[0] && inst->args[0]->kind == ALIR_VAL_LABEL) {
+                    AlirBlock *t = find_block_by_label(func, inst->args[0]->val.str_val);
+                    if (!t) inst->args[0] = alir_val_label(module, "merge");
+                }
+            }
+            inst = inst->next;
+        }
+        new_entry = new_entry->next;
+    }
+}
+
 static int value_is_used_somewhere(AlirFunction *func, AlirValue *val) {
     if (!val || val->kind != ALIR_VAL_TEMP) return 1;
     
@@ -450,6 +653,8 @@ void optlir_local_optimize(AlirModule *module) {
         if (!func->is_extern) {
             constant_propagate_function(module, func);
             fold_branches_function(module, func);
+            merge_entry_jump_function(module, func);
+            remove_unreachable_blocks_function(module, func);
             remove_dead_stores_function(module, func);
             propagate_param_copies_function(module, func);
             eval_pure_call_function(module, func);

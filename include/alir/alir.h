@@ -110,6 +110,7 @@ typedef struct AlirFunction {
     int is_varargs;
     int is_extern;
     int is_pure;
+    char *reason;
     char *cconv;
     struct AlirFunction *next;
 } AlirFunction;

@@ -1,0 +1,7 @@
+reason "stdlib printf is pure wrt its format string"
+extern pure int printf(char* fmt, ...);
+
+int main() {
+  printf("hello\n");
+  return 0;
+}

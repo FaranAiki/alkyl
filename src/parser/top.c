@@ -244,9 +244,12 @@ ASTNode* parse_top_level(Parser *p) {
     char *reason_str = NULL;
     if (p->current_token.type == TOKEN_REASON) {
         eat(p, TOKEN_REASON);
-        if (p->current_token.type != TOKEN_STRING) parser_fail(p, "Expected string literal after reason");
+        if (p->current_token.type != TOKEN_STRING && p->current_token.type != TOKEN_C_STRING) {
+            parser_fail(p, "Expected string literal after reason");
+            return NULL;
+        }
         reason_str = parser_strdup(p, p->current_token.text);
-        eat(p, TOKEN_STRING);
+        eat(p, p->current_token.type);
     }
 
     ASTNode *node = parse_top_level_internal(p);

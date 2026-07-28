@@ -22,6 +22,16 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
         p = p->next;
     }
     
+    if (fd->is_extern && fd->is_pure && !node->reason) {
+        sem_error(ctx, (ASTNode*)node, "extern pure function requires a reason annotation");
+        sym->is_pure = 0;
+    } else if (fd->is_extern && fd->is_pure && node->reason) {
+        sym->is_pure = 1;
+        sym->reason = node->reason;
+    } else {
+        sym->is_pure = fd->is_pure && !fd->is_extern;
+    }
+
     if (fd->is_extern) {
         sym->is_pristine = 1;
         sym->type.is_tainted = 0;

@@ -62,6 +62,7 @@ typedef struct SemSymbol {
     bool has_errnum : 1;
     int num_err;
     char **err_names;
+    char *reason;
 } SemSymbol;
 
 typedef struct SemScope {
