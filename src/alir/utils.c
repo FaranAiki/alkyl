@@ -75,16 +75,21 @@ AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *
     // 4. Call Constructor or Implicit Member Initialization
     SemSymbol *sym = ctx->sem ? sem_symbol_lookup(ctx->sem, class_name, NULL) : NULL;
     int ctor_exists = 0;
+    const char *ctor_name = class_name;
     if (sym && sym->inner_scope) {
          SemSymbol *constructor = sym->inner_scope->symbols;
          while (constructor) {
-             if (strcmp(constructor->name, class_name) == 0 || strcmp(constructor->name, "init") == 0) { ctor_exists = 1; break; }
+             if (strcmp(constructor->name, class_name) == 0 || strcmp(constructor->name, "init") == 0) {
+                 ctor_exists = 1;
+                 if (constructor->mangled_name) ctor_name = constructor->mangled_name;
+                 break;
+             }
              constructor = constructor->next;
          }
     }
 
     if (ctor_exists) {
-        AlirInst *call_init = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_global(ctx->module, class_name, (VarType){TYPE_VOID, 0, NULL}), NULL);
+        AlirInst *call_init = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_global(ctx->module, ctor_name, (VarType){TYPE_VOID, 0, NULL}), NULL);
         int arg_count = 0; ASTNode *a = args; while(a) { arg_count++; a=a->next; }
         call_init->arg_count = arg_count + 1;
         call_init->args = alir_alloc(ctx->module, sizeof(AlirValue*) * (arg_count + 1));
