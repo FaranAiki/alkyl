@@ -277,13 +277,8 @@ add_custom_target(alkyl ALL
 
 add_executable(ethyl
     ${VM_META_SOURCES}
-    src/driver/cli.c ${ETHYL_SOURCES})
+    src/driver/cli.c src/driver/keyboard.c ${ETHYL_SOURCES})
 target_include_directories(ethyl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-if(READLINE_FOUND)
-    target_include_directories(ethyl PRIVATE ${READLINE_INCLUDE_DIRS})
-    target_link_libraries(ethyl PRIVATE ${READLINE_LIBRARIES})
-    target_compile_definitions(ethyl PRIVATE HAVE_READLINE)
-endif()
 
 if(LIBFFI_FOUND)
     target_include_directories(ethyl PRIVATE ${LIBFFI_INCLUDE_DIRS})
@@ -292,7 +287,7 @@ if(LIBFFI_FOUND)
 endif()
 
 if(UNIX)
-    target_link_libraries(ethyl PRIVATE m pthread dl z ncurses readline)
+    target_link_libraries(ethyl PRIVATE m pthread dl z ncurses)
 endif()
 
 add_custom_target(run-tests
