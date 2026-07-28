@@ -6,15 +6,3 @@ in .../code/composition/test2.aky:
 22:4: warning: speak is from Identity, consider p[Identity].speak
   |   p.speak();
   |    ^
-step: Finished lexing. Start parsing.
-step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-LLVMStructSetBody for Person with 2 fields
-LLVMStructSetBody for Identity with 2 fields
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

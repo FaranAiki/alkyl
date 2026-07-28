@@ -1,16 +1,12 @@
-step: Finished lexing. Start parsing.
-step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 --- Start Meta Execution ---
 Result of 10 + 25 = 
 35
 Branching works: 35 is greater than 30!
 --- End Meta Execution ---
 a
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out
+--- Start Meta Execution ---
+Result of 10 + 25 = 
+35
+Branching works: 35 is greater than 30!
+--- End Meta Execution ---
+a

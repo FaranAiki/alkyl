@@ -84,7 +84,14 @@ set(ALIR_SOURCES
     src/alir/fragment/addr.c
 
     src/optlir/unused.c
-    src/optlir/local.c
+    src/optlir/local/local_eval.c
+    src/optlir/local/local_constprop.c
+    src/optlir/local/local_branch.c
+    src/optlir/local/local_blockset.c
+    src/optlir/local/local_unreach.c
+    src/optlir/local/local_merge.c
+    src/optlir/local/local_dead.c
+    src/optlir/local/local_main.c
     src/optlir/pure.c
 )
 
