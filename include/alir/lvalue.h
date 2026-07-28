@@ -5,6 +5,7 @@
 
 AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node);
 
+AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node);
 AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln);
 AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn);
 AlirValue* alir_gen_access(AlirCtx *ctx, ASTNode *node);

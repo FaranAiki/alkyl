@@ -65,7 +65,7 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
         }
         case TYPE_ENUM: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
 
-        // TODO vector, hashmap, auto, unknown
+        // TODO don't default
         default: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
         }
     }
@@ -74,6 +74,8 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
         base = LLVMArrayType(base, t.array_size);
     }
 
+    // Make sure that qbe has this too
+    // & maybe don't do it here, but somewhere else?
     if (t.is_tainted) {
         LLVMTypeRef elements[] = {
             LLVMInt32TypeInContext(ctx->llvm_ctx),  // i32 error_id
@@ -298,8 +300,9 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
             while(p) {
                 VarType p_ty = p->type;
                 if (func->is_extern) p_ty.is_tainted = 0;
-                if (p_ty.array_size > 0) { p_ty.array_size = 0; p_ty.ptr_depth++; } // Parameter decay
-                param_tys[i++] = get_llvm_type(ctx, p_ty);
+                if (p_ty.array_size > 0) { p_ty.array_size = 0; p_ty.ptr_depth++; }
+                param_tys[i] = get_llvm_type(ctx, p_ty);
+                i++;
                 p = p->next;
             }
         }

@@ -83,8 +83,14 @@ set(ALIR_SOURCES
     src/alir/stmt.c
 
     src/alir/fragment/generate.c
+    src/alir/fragment/helper.c
+    src/alir/fragment/access.c
+    src/alir/fragment/operator.c
+    src/alir/fragment/function.c
     src/alir/fragment/addr.c
+)
 
+set(OPTIMIZE_ALIR_SOURCES
     src/optlir/unused.c
     src/optlir/local.c
     src/optlir/pure.c
@@ -110,6 +116,7 @@ set(COMMON_SOURCES
   ${FRONTEND_SOURCES}
   ${SEMANTIC_SOURCES}
   ${ALIR_SOURCES}
+  ${OPTIMIZE_ALIR_SOURCES}
   ${ALICK_SOURCES}
   ${HELPER_SOURCES}
 )

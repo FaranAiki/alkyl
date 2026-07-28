@@ -138,7 +138,7 @@ AlirEnum* alir_find_enum(AlirModule *mod, const char *name) {
 int alir_get_enum_value(AlirModule *mod, const char *enum_name, const char *entry_name, long *out_val) {
     AlirEnum *e = alir_find_enum(mod, enum_name);
     if (!e) return 0;
-    
+
     AlirEnumEntry *ent = e->entries;
     while(ent) {
         if (strcmp(ent->name, entry_name) == 0) {
@@ -149,3 +149,51 @@ int alir_get_enum_value(AlirModule *mod, const char *enum_name, const char *entr
     }
     return 0;
 }
+
+AlirValue* alir_fold_const_expr(AlirCtx *ctx, ASTNode *node, VarType target) {
+    if (!node) return NULL;
+    AlirValue *val = alir_gen_expr(ctx, node);
+    if (!val || val->kind != ALIR_VAL_CONST) return NULL;
+    if (target.base == TYPE_UNKNOWN || target.base == TYPE_AUTO) return val;
+    if (val->type.base == target.base && val->type.ptr_depth == target.ptr_depth) return val;
+    if (val->type.base == TYPE_INT && target.base == TYPE_DOUBLE)
+        return alir_const_double(ctx->module, (double)val->val.int_val);
+    if (val->type.base == TYPE_INT && target.base == TYPE_SINGLE)
+        return alir_const_float(ctx->module, (float)val->val.int_val);
+    if (val->type.base == TYPE_DOUBLE && target.base == TYPE_INT)
+        return alir_const_int(ctx->module, (long)val->val.double_val);
+    if (val->type.base == TYPE_DOUBLE && target.base == TYPE_SINGLE)
+        return alir_const_float(ctx->module, (float)val->val.double_val);
+    if (val->type.base == TYPE_SINGLE && target.base == TYPE_INT)
+        return alir_const_int(ctx->module, (long)val->val.single_val);
+    if (val->type.base == TYPE_SINGLE && target.base == TYPE_DOUBLE)
+        return alir_const_double(ctx->module, (double)val->val.single_val);
+    return val;
+}
+
+void scan_and_fold_consts(AlirCtx *ctx, ASTNode *node) {
+    while (node) {
+        if (node->type == NODE_NAMESPACE) {
+            scan_and_fold_consts(ctx, ((NamespaceNode*)node)->body);
+        } else if (node->type == NODE_VAR_DECL) {
+            VarDeclNode *vn = (VarDeclNode*)node;
+            if (vn->is_const && vn->initializer) {
+                AlirValue *folded = alir_fold_const_expr(ctx, vn->initializer, vn->var_type);
+                if (folded) {
+                    AlirConstFoldEntry *entry = alir_alloc(ctx->module, sizeof(AlirConstFoldEntry));
+                    entry->name = alir_strdup(ctx->module, vn->name);
+                    entry->value = folded;
+                    entry->next = ctx->const_folds;
+                    ctx->const_folds = entry;
+                    AlirConstFoldEntry *mod_entry = alir_alloc(ctx->module, sizeof(AlirConstFoldEntry));
+                    mod_entry->name = entry->name;
+                    mod_entry->value = entry->value;
+                    mod_entry->next = ctx->module->const_folds;
+                    ctx->module->const_folds = mod_entry;
+                }
+            }
+        }
+        node = node->next;
+    }
+}
+

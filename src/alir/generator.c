@@ -3,60 +3,13 @@
 #include <string.h>
 #include <stdio.h>
 
-AlirValue* alir_fold_const_expr(AlirCtx *ctx, ASTNode *node, VarType target) {
-    if (!node) return NULL;
-    AlirValue *val = alir_gen_expr(ctx, node);
-    if (!val || val->kind != ALIR_VAL_CONST) return NULL;
-    if (target.base == TYPE_UNKNOWN || target.base == TYPE_AUTO) return val;
-    if (val->type.base == target.base && val->type.ptr_depth == target.ptr_depth) return val;
-    if (val->type.base == TYPE_INT && target.base == TYPE_DOUBLE)
-        return alir_const_double(ctx->module, (double)val->val.int_val);
-    if (val->type.base == TYPE_INT && target.base == TYPE_SINGLE)
-        return alir_const_float(ctx->module, (float)val->val.int_val);
-    if (val->type.base == TYPE_DOUBLE && target.base == TYPE_INT)
-        return alir_const_int(ctx->module, (long)val->val.double_val);
-    if (val->type.base == TYPE_DOUBLE && target.base == TYPE_SINGLE)
-        return alir_const_float(ctx->module, (float)val->val.double_val);
-    if (val->type.base == TYPE_SINGLE && target.base == TYPE_INT)
-        return alir_const_int(ctx->module, (long)val->val.single_val);
-    if (val->type.base == TYPE_SINGLE && target.base == TYPE_DOUBLE)
-        return alir_const_double(ctx->module, (double)val->val.single_val);
-    return val;
-}
-
-void scan_and_fold_consts(AlirCtx *ctx, ASTNode *node) {
-    while (node) {
-        if (node->type == NODE_NAMESPACE) {
-            scan_and_fold_consts(ctx, ((NamespaceNode*)node)->body);
-        } else if (node->type == NODE_VAR_DECL) {
-            VarDeclNode *vn = (VarDeclNode*)node;
-            if (vn->is_const && vn->initializer) {
-                AlirValue *folded = alir_fold_const_expr(ctx, vn->initializer, vn->var_type);
-                if (folded) {
-                    AlirConstFoldEntry *entry = alir_alloc(ctx->module, sizeof(AlirConstFoldEntry));
-                    entry->name = alir_strdup(ctx->module, vn->name);
-                    entry->value = folded;
-                    entry->next = ctx->const_folds;
-                    ctx->const_folds = entry;
-                    AlirConstFoldEntry *mod_entry = alir_alloc(ctx->module, sizeof(AlirConstFoldEntry));
-                    mod_entry->name = entry->name;
-                    mod_entry->value = entry->value;
-                    mod_entry->next = ctx->module->const_folds;
-                    ctx->module->const_folds = mod_entry;
-                }
-            }
-        }
-        node = node->next;
-    }
-}
-
 // Loop Stack
 void push_loop(AlirCtx *ctx, AlirBlock *cont, AlirBlock *brk) {
     AlirCtx *node = alir_alloc(ctx->module, sizeof(AlirCtx));
     node->loop_continue = ctx->loop_continue;
     node->loop_break = ctx->loop_break;
     node->loop_parent = ctx->loop_parent;
-    
+
     ctx->loop_parent = node;
     ctx->loop_continue = cont;
     ctx->loop_break = brk;
@@ -72,26 +25,26 @@ void pop_loop(AlirCtx *ctx) {
 
 // Helper to check if an instruction is a block terminator
 int is_terminator(AlirOpcode op) {
-    return op == ALIR_OP_RET || 
-           op == ALIR_OP_JUMP || 
-           op == ALIR_OP_CONDI || 
+    return op == ALIR_OP_RET ||
+           op == ALIR_OP_JUMP ||
+           op == ALIR_OP_CONDI ||
            op == ALIR_OP_PANIC;
 }
 
 // Helper to extract constant integer from AST node (Literals or Enum Members)
 long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
     if (!node) return 0;
-    
+
     // maybe don't do this (?)
     if (node->type == NODE_LITERAL) {
         return ((LiteralNode*)node)->val.int_val;
     }
-    
+
     // Handle Enum.Member Access
     if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
         VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
-        
+
         if (obj_t.base == TYPE_ENUM && obj_t.class_name) {
             long val = 0;
             if (alir_get_enum_value(ctx->module, obj_t.class_name, ma->member_name, &val)) {
@@ -99,7 +52,7 @@ long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
             }
         }
     }
-    
+
     // Handle Unary Minus on literals
     if (node->type == NODE_UNARY_OP) {
         UnaryOpNode *u = (UnaryOpNode*)node;
@@ -112,7 +65,7 @@ long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
     if (node->type == NODE_VAR_REF) {
        VarRefNode *vr = (VarRefNode*)node;
        VarType t = sem_get_node_type(ctx->sem, node);
-       
+
        if (t.base == TYPE_ENUM && t.class_name) {
            long val = 0;
            if (alir_get_enum_value(ctx->module, t.class_name, vr->name, &val)) {
@@ -158,11 +111,11 @@ ClassNode* find_class_node(ASTNode *root, const char *name) {
 
 void build_struct_fields(AlirCtx *ctx, ASTNode *root, ClassNode *cn, AlirStruct *st) {
     if (st->field_count != -1) return; // Already built
-    
+
     int idx = 0;
     AlirField *head = NULL;
     AlirField **tail = &head;
-    
+
     // 1. Inherit Fields from Parent Class
     if (cn->parent_name) {
         AlirStruct *parent_st = alir_find_struct(ctx->module, cn->parent_name);
@@ -174,17 +127,17 @@ void build_struct_fields(AlirCtx *ctx, ASTNode *root, ClassNode *cn, AlirStruct 
             AlirField *pf = parent_st->fields;
             while(pf) {
                 AlirField *nf = alir_alloc(ctx->module, sizeof(AlirField));
-                nf->name = alir_strdup(ctx->module, pf->name); 
+                nf->name = alir_strdup(ctx->module, pf->name);
                 nf->type = pf->type;
                 nf->index = idx++;
-                
+
                 *tail = nf;
                 tail = &nf->next;
                 pf = pf->next;
             }
         }
     }
-    
+
     // 2. Inherit Fields from Traits
     for (int i = 0; i < cn->traits.count; i++) {
         AlirStruct *trait_st = alir_find_struct(ctx->module, cn->traits.names[i]);
@@ -199,7 +152,7 @@ void build_struct_fields(AlirCtx *ctx, ASTNode *root, ClassNode *cn, AlirStruct 
                 nf->name = alir_strdup(ctx->module, tf->name);
                 nf->type = tf->type;
                 nf->index = idx++;
-                
+
                 *tail = nf;
                 tail = &nf->next;
                 tf = tf->next;
@@ -215,21 +168,21 @@ void build_struct_fields(AlirCtx *ctx, ASTNode *root, ClassNode *cn, AlirStruct 
             AlirField *f = alir_alloc(ctx->module, sizeof(AlirField));
             f->name = alir_strdup(ctx->module, vd->name);
             f->type = vd->var_type;
-            
+
             // [FIX] Decay inline arrays to pointers to prevent struct bloat and truncation crashes
             if (f->type.array_size > 0) {
                 f->type.array_size = 0;
                 f->type.ptr_depth++;
             }
-            
+
             f->index = idx++;
-            
+
             *tail = f;
             tail = &f->next;
         }
         mem = mem->next;
     }
-    
+
     st->fields = head;
     st->field_count = idx;
 }
@@ -249,7 +202,7 @@ void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
             EnumNode *en = (EnumNode*)n;
             AlirEnumEntry *head = NULL;
             AlirEnumEntry **tail = &head;
-            
+
             EnumEntry *ent = en->entries;
             while(ent) {
                 AlirEnumEntry *ae = alir_alloc(ctx->module, sizeof(AlirEnumEntry));
@@ -311,19 +264,19 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
     if (!cond) cond = alir_const_int(ctx->module, 0); // Safety net for unresolvable conditions
 
     AlirBlock *end_bb = alir_add_block(ctx->module, ctx->current_func, "switch_end");
-    AlirBlock *default_bb = end_bb; 
-    
+    AlirBlock *default_bb = end_bb;
+
     if (sn->default_case) default_bb = alir_add_block(ctx->module, ctx->current_func, "switch_default");
 
     // Build case blocks first so labels are available for jumps
     typedef struct { AlirBlock *bb; long value; } CaseBlock;
-    CaseBlock case_blocks[64]; 
+    CaseBlock case_blocks[64];
     int num_cases = 0;
     ASTNode *c = sn->cases;
     while(c) {
         CaseNode *cn = (CaseNode*)c;
         AlirBlock *case_bb = alir_add_block(ctx->module, ctx->current_func, "case");
-        
+
         // Handle multiple cases grouped in an array literal (e.g. case 1, 2:)
         if (cn->value && cn->value->type == NODE_ARRAY_LIT) {
             ArrayLitNode *al = (ArrayLitNode*)cn->value;
@@ -384,15 +337,15 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
         if (case_idx < num_cases) {
             case_bb = case_blocks[case_idx].bb;
         }
-        
+
         if (case_bb) {
             ctx->current_block = case_bb;
             push_loop(ctx, NULL, end_bb);
-            
+
             ASTNode *stmt = cn->body;
             while(stmt) { alir_gen_stmt(ctx, stmt); stmt = stmt->next; }
             pop_loop(ctx);
-            
+
             AlirInst *tail = ctx->current_block->tail;
             if (!tail || !is_terminator(tail->op)) {
                 if (!cn->is_leak) {
@@ -403,38 +356,38 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
                 }
             }
         }
-        
+
         c = c->next;
         case_idx++;
     }
-    
+
     if (sn->default_case) {
         ctx->current_block = default_bb;
         push_loop(ctx, NULL, end_bb);
         ASTNode *stmt = sn->default_case;
         while(stmt) { alir_gen_stmt(ctx, stmt); stmt = stmt->next; }
         pop_loop(ctx);
-        
+
         AlirInst *tail = ctx->current_block->tail;
         if (!tail || !is_terminator(tail->op)) {
             emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, end_bb->label), NULL));
         }
     }
-    
+
     ctx->current_block = end_bb;
 }
 
-// This is for the implicit constructor 
+// This is for the implicit constructor
 // TODO learn this
 void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
     AlirFunction *af = alir_add_function(ctx->module, cn->name, (VarType){TYPE_VOID, 0}, 0);
     ctx->current_func = af;
-    
+
     VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, cn->name)};
     alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
 
     AlirStruct *st = alir_find_struct(ctx->module, cn->name);
-    
+
     Parameter *p_head = NULL;
     Parameter **p_tail = &p_head;
     if (ctx->sem) {
@@ -457,13 +410,13 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
             f = f->next;
         }
     }
-    
+
     // Removed: ALIR should not mutate the semantic symbol table with an implicit constructor
     // because it includes the hidden 'this' parameter, breaking argument counts in subsequent
     // REPL commands when sem_check_call_args sees it.
 
     ctx->current_block = alir_add_block(ctx->module, ctx->current_func, "entry");
-    
+
     AlirValue *this_ptr = new_temp(ctx, this_t);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, this_ptr, NULL, NULL));
     alir_add_symbol(ctx, "this", this_ptr, this_t);
@@ -479,7 +432,7 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
             snprintf(p_name, sizeof(p_name), "p%d", param_idx);
             AlirValue *arg_val = alir_val_var(ctx->module, p_name);
             arg_val->type = f->type;
-            
+
             AlirValue *loaded_this = new_temp(ctx, this_t);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_this, this_ptr, NULL));
 
@@ -487,7 +440,7 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
             AlirValue *field_ptr = new_temp(ctx, ft);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, loaded_this, alir_const_int(ctx->module, f->index)));
             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, arg_val, field_ptr));
-            
+
             param_idx++;
             f = f->next;
         }
@@ -496,141 +449,16 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
     emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
 }
 
-void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
-    if (fn->is_flux) {
-        alir_gen_flux_def(ctx, fn, class_name);
-        return;
-    }
-
-    char func_name[256];
-    if (fn->mangled_name) {
-        if (class_name && fn->class_name && strcmp(class_name, fn->class_name) != 0) {
-            // Inherited method: replace the original class name with the target class name
-            char search_str[256];
-            snprintf(search_str, sizeof(search_str), "_%s", fn->name);
-            char *pos = strstr(fn->mangled_name, search_str);
-            if (pos) {
-                char *class_start = pos;
-                while (class_start > fn->mangled_name && *(class_start - 1) != '_') {
-                    class_start--;
-                }
-                snprintf(func_name, sizeof(func_name), "%.*s%s%s",
-                    (int)(class_start - fn->mangled_name), fn->mangled_name,
-                    class_name,
-                    pos);
-            } else {
-                snprintf(func_name, sizeof(func_name), "%s", fn->mangled_name);
-            }
-        } else {
-            // Direct method or top-level function: use mangled name as-is
-            snprintf(func_name, sizeof(func_name), "%s", fn->mangled_name);
-        }
-    } else {
-        if (class_name) {
-            if (strcmp(fn->name, "init") == 0 || strcmp(fn->name, class_name) == 0) {
-                snprintf(func_name, sizeof(func_name), "%s", class_name);
-            } else {
-                snprintf(func_name, sizeof(func_name), "%s_%s", class_name, fn->name);
-            }
-        } else {
-            snprintf(func_name, sizeof(func_name), "%s", fn->name);
-        }
-    }
-
-    ctx->current_func = alir_add_function(ctx->module, func_name, fn->ret_type, 0);
-    ctx->current_func->is_varargs = fn->is_varargs;
-    ctx->current_func->is_extern = fn->is_extern;
-    ctx->current_func->is_pure = fn->is_pure;
-    ctx->current_func->reason = fn->base.reason ? alir_strdup(ctx->module, fn->base.reason) : NULL;
-    if (fn->cconv) ctx->current_func->cconv = alir_strdup(ctx->module, fn->cconv);
-
-    if (class_name) {
-        VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)};
-        alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
-    }
-
-    Parameter *p = fn->params;
-    while(p) {
-        alir_func_add_param(ctx->module, ctx->current_func, p->name, p->type);
-        p = p->next;
-    }
-
-    if (!fn->has_body) return;
-
-    ctx->current_block = alir_add_block(ctx->module, ctx->current_func, "entry");
-    ctx->temp_counter = 0;
-    ctx->symbols = NULL; 
-
-    int p_idx = 0;
-
-    if (class_name) {
-        VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)};
-        
-        char pname[16]; snprintf(pname, sizeof(pname), "p%d", p_idx++);
-        AlirValue *pval = alir_val_var(ctx->module, pname);
-        pval->type = this_t;
-        
-        // [FIX] Actually allocate a local pointer for `this` to preserve standard calling conventions
-        AlirValue *ptr = new_temp(ctx, this_t);
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
-        alir_add_symbol(ctx, "this", ptr, this_t);
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pval, ptr));
-    }
-
-    // For checking params
-    p = fn->params;
-    while(p) {
-        AlirValue *ptr = new_temp(ctx, p->type);
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
-        alir_add_symbol(ctx, p->name, ptr, p->type);
-        
-        char pname[16]; snprintf(pname, sizeof(pname), "p%d", p_idx++);
-        AlirValue *pval = alir_val_var(ctx->module, pname); 
-        pval->type = p->type;
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pval, ptr));
-        
-        p = p->next;
-    }
-    
-    ASTNode *stmt = fn->body;
-    while(stmt) { alir_gen_stmt(ctx, stmt); stmt = stmt->next; }
-
-    if (ctx->current_block) {
-        AlirInst *tail = ctx->current_block->tail;
-        int has_term = tail && is_terminator(tail->op);
-        
-        if (!has_term) {
-            ctx->current_line = fn->base.line;
-            ctx->current_col = fn->base.col;
-            
-            if (strcmp(func_name, "main") == 0) {
-                emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, alir_const_int(ctx->module, 0), NULL));
-            } else if (fn->ret_type.base == TYPE_VOID || (class_name && (strcmp(fn->name, "init") == 0 || strcmp(fn->name, class_name) == 0))) {
-                emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
-            } else {
-                // Fallback for non-void functions that missed a return
-                // Emit a dummy return to keep IR valid
-                AlirValue *dummy = NULL;
-                if (is_integer(fn->ret_type)) dummy = alir_const_int(ctx->module, 0);
-                else if (is_numeric(fn->ret_type)) dummy = alir_const_float(ctx->module, 0.0);
-                else if (is_pointer(fn->ret_type)) dummy = alir_const_int(ctx->module, 0); // null
-                
-                emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, dummy, NULL));
-            }
-        }
-    }
-}
-
 // Emits inherited methods from parent and traits down to the derived class scope
 void alir_gen_inherited_methods(AlirCtx *ctx, ASTNode *root, ClassNode *cn, const char *target_class) {
     if (!cn) return;
-    
+
     // 1. Traverse Parent
     if (cn->parent_name) {
         ClassNode *pcn = find_class_node(root, cn->parent_name);
         if (pcn) {
             alir_gen_inherited_methods(ctx, root, pcn, target_class); // Deepest first
-            
+
             ASTNode *mem = pcn->members;
             while (mem) {
                 if (mem->type == NODE_FUNC_DEF) {
@@ -656,13 +484,13 @@ void alir_gen_inherited_methods(AlirCtx *ctx, ASTNode *root, ClassNode *cn, cons
             }
         }
     }
-    
+
     // 2. Traverse Traits
     for (int i = 0; i < cn->traits.count; i++) {
         ClassNode *tcn = find_class_node(root, cn->traits.names[i]);
         if (tcn) {
             alir_gen_inherited_methods(ctx, root, tcn, target_class);
-            
+
             ASTNode *mem = tcn->members;
             while (mem) {
                 if (mem->type == NODE_FUNC_DEF) {
@@ -702,7 +530,7 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root) {
         } else if (curr->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)curr;
             int has_constructor = 0;
-            
+
             ASTNode *mem = cn->members;
             while(mem) {
                 if (mem->type == NODE_FUNC_DEF) {
@@ -717,7 +545,7 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root) {
 
             // Generate Inherited and Traited Methods for this specific Class
             alir_gen_inherited_methods(ctx, root, cn, cn->name);
-            
+
             // Emit an implicit constructor if the user hasn't explicitly supplied `init`
             if (!has_constructor) {
                 alir_gen_implicit_constructor(ctx, cn);
@@ -734,14 +562,14 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root) {
 AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
     AlirCtx ctx;
     memset(&ctx, 0, sizeof(AlirCtx));
-    ctx.sem = sem; 
+    ctx.sem = sem;
     ctx.module = alir_create_module(sem ? sem->compiler_ctx : NULL, "main_module");
 
     if (sem) {
         ctx.module->src = sem->current_source;
         ctx.module->filename = sem->current_filename;
     }
-    
+
     // 1. SCAN AND REGISTER CLASSES & ENUMS
     alir_scan_and_register_classes(&ctx, root);
 
@@ -750,6 +578,6 @@ AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
 
     // 2. GEN FUNCTIONS (Recursively to handle classes & namespaces)
     alir_gen_functions_recursive(&ctx, root);
-    
+
     return ctx.module;
 }

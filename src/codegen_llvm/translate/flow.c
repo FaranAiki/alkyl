@@ -82,7 +82,6 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             for(int i = 0; i < inst->arg_count; i++) {
                 args[i] = get_llvm_value(ctx, inst->args[i]);
                 if (!args[i]) {
-                    // Safety for unresolved arguments
                     args[i] = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvm_ctx), 0, 0);
                 }
                 
