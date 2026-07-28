@@ -1,9 +1,3 @@
-Call parameter type does not match function signature!
-  %load8 = load i32, ptr %ptr_gep, align 4
- ptr  %call9 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load8)
-Call parameter type does not match function signature!
-  %load8 = load i32, ptr %ptr_gep, align 4
- ptr  %call9 = call i32 (ptr, ptr, ...) @printf(ptr @str.3, i32 %load8)
 Called function requires more parameters than were provided!
   %call = call i32 (ptr, ptr, ...) @printf(ptr @str.8)
 Called function requires more parameters than were provided!
@@ -16,12 +10,6 @@ Call parameter type does not match function signature!
 Call parameter type does not match function signature!
   %load7 = load i32, ptr %alloc1, align 4
  ptr  %call8 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load7)
-Call parameter type does not match function signature!
-  %load8 = load i32, ptr %ptr_gep, align 4
- ptr  %call9 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load8)
-Call parameter type does not match function signature!
-  %load8 = load i32, ptr %ptr_gep, align 4
- ptr  %call9 = call i32 (ptr, ptr, ...) @printf(ptr @str.3, i32 %load8)
 Called function requires more parameters than were provided!
   %call = call i32 (ptr, ptr, ...) @printf(ptr @str.8)
 Called function requires more parameters than were provided!
@@ -34,13 +22,7 @@ Call parameter type does not match function signature!
 Call parameter type does not match function signature!
   %load7 = load i32, ptr %alloc1, align 4
  ptr  %call8 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load7)
-LLVM Verification Error: Call parameter type does not match function signature!
-  %load8 = load i32, ptr %ptr_gep, align 4
- ptr  %call9 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load8)
-Call parameter type does not match function signature!
-  %load8 = load i32, ptr %ptr_gep, align 4
- ptr  %call9 = call i32 (ptr, ptr, ...) @printf(ptr @str.3, i32 %load8)
-Called function requires more parameters than were provided!
+LLVM Verification Error: Called function requires more parameters than were provided!
   %call = call i32 (ptr, ptr, ...) @printf(ptr @str.8)
 Called function requires more parameters than were provided!
   %call = call i32 (ptr, ptr, ...) @printf(ptr @str.9)
@@ -73,4 +55,3 @@ Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start Codegen using LLVM Codegen
-LLVMStructSetBody for main.Calculator with 1 fields

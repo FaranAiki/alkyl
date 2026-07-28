@@ -82,6 +82,8 @@ set(ALIR_SOURCES
 
     src/alir/fragment/generate.c
     src/alir/fragment/addr.c
+
+    src/optlir/unused.c
 )
 
 set (ALICK_SOURCES
@@ -146,6 +148,8 @@ include_directories(
     include/alir
 
     include/alick
+
+    include/optlir
 
     include/codegen
 

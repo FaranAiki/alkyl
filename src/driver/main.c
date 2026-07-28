@@ -6,6 +6,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "optlir/optlir.h"
+
 #define BASENAME "build/out"
 
 #define str(s) #s
@@ -191,6 +193,8 @@ int main(int argc, char *argv[]) {
     if (emit_balir) {
         alir_write_binary(alir_module, BASENAME ".balir");
     }
+
+    optlir_remove_unused(alir_module);
 
     debug_step("Finished alir check and analysis. Start Codegen using " BACKEND_STRING " Codegen");
     arena_reset(&arena);
