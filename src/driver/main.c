@@ -166,7 +166,7 @@ int main(int argc, char *argv[]) {
     // Pass to ALIR
     AlirModule *alir_module = alir_generate(&sem_ctx, root);
     if (emit_alir) {
-        alir_emit_to_file(alir_module, BASENAME ".alir");
+        alir_emit_to_file(alir_module, BASENAME ".raw.alir");
     }
 
     debug_step("Finished alir. Start alir check and analysis.");
@@ -210,6 +210,10 @@ int main(int argc, char *argv[]) {
       arena_free(&arena);
       arena_free(&arena_debug);
       return 1;
+    }
+
+    if (emit_alir) {
+        alir_emit_to_file(alir_module, BASENAME ".opt.alir");
     }
 
     debug_step("Finished alir optimization. Start code generation using " BACKEND_STRING " codegen");

@@ -1062,7 +1062,37 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
          emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, this_val, NULL, NULL));
     }
 
-    char *cname = obj_t.class_name;
+    char *cname = NULL;
+
+    // For trait access (obj[Trait].method()), prefer the actual class of obj
+    int is_trait_access = 0;
+    if (mc->object->type == NODE_INDEX_ACCESS) {
+        IndexAccessNode *ia = (IndexAccessNode*)mc->object;
+        if (ia->target && ia->target->type == NODE_VAR_REF) {
+            AlirSymbol *sym = alir_find_symbol(ctx, ((VarRefNode*)ia->target)->name);
+            if (sym && sym->type.class_name) {
+                cname = sym->type.class_name;
+                is_trait_access = 1;
+            }
+        }
+    }
+    if (!cname && mc->object->type == NODE_MEMBER_ACCESS) {
+        MemberAccessNode *ma = (MemberAccessNode*)mc->object;
+        if (ma->object && ma->object->type == NODE_INDEX_ACCESS) {
+            IndexAccessNode *ia = (IndexAccessNode*)ma->object;
+            if (ia->target && ia->target->type == NODE_VAR_REF) {
+                AlirSymbol *sym = alir_find_symbol(ctx, ((VarRefNode*)ia->target)->name);
+                if (sym && sym->type.class_name) {
+                    cname = sym->type.class_name;
+                    is_trait_access = 1;
+                }
+            }
+        }
+    }
+    
+    if (!cname) {
+        cname = obj_t.class_name;
+    }
 
     // [BUGFIX] Mangling Failure Recovery: Check IR types and Local Symtable dynamically
     if (!cname && this_val && this_val->type.class_name) {
@@ -1074,8 +1104,24 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     }
 
     char func_name[256];
-    if (mc->mangled_name) {
+    if (mc->mangled_name && !is_trait_access) {
         snprintf(func_name, 256, "%s", mc->mangled_name);
+    } else if (mc->mangled_name && is_trait_access && cname) {
+        char search_str[256];
+        snprintf(search_str, sizeof(search_str), "_%s", mc->method_name);
+        char *pos = strstr(mc->mangled_name, search_str);
+        if (pos) {
+            char *class_start = pos;
+            while (class_start > mc->mangled_name && *(class_start - 1) != '_') {
+                class_start--;
+            }
+            snprintf(func_name, sizeof(func_name), "%.*s%s%s",
+                (int)(class_start - mc->mangled_name), mc->mangled_name,
+                cname,
+                pos);
+        } else {
+            snprintf(func_name, 256, "%s_%s", cname, mc->method_name);
+        }
     } else {
         if (cname) snprintf(func_name, 256, "%s_%s", cname, mc->method_name);
         else snprintf(func_name, 256, "%s", mc->method_name);
