@@ -116,14 +116,27 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
             }
         }
     }
+    if (ctx->current_func && strcmp(ctx->current_func->name, "main") == 0) {
+        printf("DEBUG VD: var=%s is_stack_ctor=%d actual_type_base=%d actual_ptr_depth=%d cn->name=%s\n",
+            vn->name, is_stack_ctor, actual_type.base, actual_type.ptr_depth,
+            (vn->initializer && vn->initializer->type == NODE_CALL) ? ((CallNode*)vn->initializer)->name : "(null)");
+    }
 
     if (is_stack_ctor == 2) {
+        VarType arg_t = {TYPE_UNKNOWN, 0, NULL};
+        if (ctx->sem && ((CallNode*)vn->initializer)->args) {
+            arg_t = sem_get_node_type(ctx->sem, ((CallNode*)vn->initializer)->args);
+        }
+        printf("DEBUG COPY CTOR: var=%s arg_t.base=%d arg_t.class_name=%s\n",
+            vn->name, arg_t.base, arg_t.class_name ? arg_t.class_name : "(null)");
         // Copy constructor
         AlirValue *ptr = new_temp(ctx, actual_type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
         alir_add_symbol(ctx, vn->name, ptr, actual_type);
         CallNode *cn = (CallNode*)vn->initializer;
         AlirValue *arg_val = alir_gen_expr(ctx, cn->args);
+        printf("DEBUG COPY CTOR: arg_val kind=%d type_base=%d ptr_depth=%d\n",
+            arg_val ? arg_val->kind : -1, arg_val ? arg_val->type.base : -1, arg_val ? arg_val->type.ptr_depth : -1);
         AlirValue *loaded = new_temp(ctx, actual_type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded, arg_val, NULL));
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, loaded, ptr));

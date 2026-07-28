@@ -17,7 +17,14 @@ void emit(AlirCtx *ctx, AlirInst *i) {
         i->line = ctx->current_line;
         i->col = ctx->current_col;
     }
-    if (ctx->current_func && strcmp(ctx->current_func->name, "Vector_as_int") == 0) {
+    if (ctx->current_func && strcmp(ctx->current_func->name, "main") == 0) {
+        printf("DEBUG EMIT: func=%s op=%d dest_kind=%d dest_type_base=%d op1_kind=%d op1_type_base=%d\n",
+            ctx->current_func->name,
+            i ? i->op : -1,
+            i && i->dest ? i->dest->kind : -1,
+            i && i->dest ? i->dest->type.base : -1,
+            i && i->op1 ? i->op1->kind : -1,
+            i && i->op1 ? i->op1->type.base : -1);
     }
     alir_append_inst(ctx->current_block, i);
 }

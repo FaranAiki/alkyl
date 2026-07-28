@@ -2,6 +2,11 @@ step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+DEBUG VD: var=x is_stack_ctor=0 actual_type_base=6 actual_ptr_depth=0 cn->name=(null)
+DEBUG EMIT: func=main op=35 dest_kind=5 dest_type_base=6 op1_kind=7 op1_type_base=1
+DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=6 op1_kind=-1 op1_type_base=-1
+DEBUG EMIT: func=main op=2 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=6
+DEBUG EMIT: func=main op=32 dest_kind=-1 dest_type_base=-1 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen

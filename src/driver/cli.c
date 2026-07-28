@@ -316,7 +316,7 @@ int run_repl(void) {
             break;
         }
 
-        ASTNode *root = metalir_parse(r, buffer, "REPL", NULL);
+        ASTNode *root = metalir_parse(r, buffer, "ethyl_repl", NULL);
         if (!root || r->parser.has_error) continue;
 
         r->sem.current_source = buffer;

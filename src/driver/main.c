@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
     Arena arena;
     CompilerContext comp_ctx;
 
+    // TODO add this;
     if (argc < 2) {
       printf("Usage: %s <file.aky> [-l<lib>] | --lsp\n", argv[0]);
       return 1;
@@ -197,6 +198,7 @@ int main(int argc, char *argv[]) {
 
         optlir_local_optimize(alir_module);
 
+        // is this necessary tho?
         optlir_remove_unused(alir_module);
 
         int alick_error_post = alick_check_module(alir_module);
