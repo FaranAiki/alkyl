@@ -4,5 +4,6 @@
 #include "../alir/alir.h"
 
 void optlir_remove_unused(AlirModule *module);
+void optlir_local_optimize(AlirModule *module);
 
 #endif

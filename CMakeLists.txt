@@ -85,6 +85,7 @@ set(ALIR_SOURCES
 
     src/optlir/unused.c
     src/optlir/local.c
+    src/optlir/pure.c
 )
 
 set (ALICK_SOURCES

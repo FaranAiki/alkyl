@@ -1,34 +1,3 @@
-Called function requires more parameters than were provided!
-  %call = call i32 (ptr, ptr, ...) @printf(ptr @str.8)
-Called function requires more parameters than were provided!
-  %call = call i32 (ptr, ptr, ...) @printf(ptr @str.9)
-Call parameter type does not match function signature!
-  %load = load i32, ptr %alloc1, align 4
- ptr  %call5 = call i32 (ptr, ptr, ...) @printf(ptr @str.10, i32 %load)
-Call parameter type does not match function signature!
-  %load7 = load i32, ptr %alloc1, align 4
- ptr  %call8 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load7)
-Called function requires more parameters than were provided!
-  %call = call i32 (ptr, ptr, ...) @printf(ptr @str.8)
-Called function requires more parameters than were provided!
-  %call = call i32 (ptr, ptr, ...) @printf(ptr @str.9)
-Call parameter type does not match function signature!
-  %load = load i32, ptr %alloc1, align 4
- ptr  %call5 = call i32 (ptr, ptr, ...) @printf(ptr @str.10, i32 %load)
-Call parameter type does not match function signature!
-  %load7 = load i32, ptr %alloc1, align 4
- ptr  %call8 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load7)
-LLVM Verification Error: Called function requires more parameters than were provided!
-  %call = call i32 (ptr, ptr, ...) @printf(ptr @str.8)
-Called function requires more parameters than were provided!
-  %call = call i32 (ptr, ptr, ...) @printf(ptr @str.9)
-Call parameter type does not match function signature!
-  %load = load i32, ptr %alloc1, align 4
- ptr  %call5 = call i32 (ptr, ptr, ...) @printf(ptr @str.10, i32 %load)
-Call parameter type does not match function signature!
-  %load7 = load i32, ptr %alloc1, align 4
- ptr  %call8 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load7)
-
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
@@ -49,3 +18,6 @@ step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
 LLVMStructSetBody for main.Calculator with 1 fields
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

@@ -20,6 +20,8 @@ typedef struct ConstVal {
     int is_float;
 } ConstVal;
 
+ConstVal eval_pure_function(AlirModule *module, AlirFunction *func, AlirValue **args, int arg_count, VarType ret_type);
+
 static ConstVal get_const_for_value(AlirValue *val) {
     ConstVal res = {0};
     if (!val) return res;
@@ -203,11 +205,71 @@ static void constant_propagate_function(AlirModule *module, AlirFunction *func) 
                     }
                 }
             }
+
+            if (!removed && i->op == ALIR_OP_CAST && i->op1) {
+                ConstVal v = get_const_for_value(i->op1);
+                if (v.is_const) {
+                    ConstVal res = v;
+                    if (v.is_float) {
+                        if (i->dest->type.base == TYPE_SINGLE) res.double_val = (float)v.double_val;
+                        else if (i->dest->type.base == TYPE_DOUBLE) res.double_val = v.double_val;
+                        else res.int_val = (long long)v.double_val;
+                    } else {
+                        if (i->dest->type.base == TYPE_SINGLE) res.double_val = (float)v.int_val;
+                        else if (i->dest->type.base == TYPE_DOUBLE) res.double_val = (double)v.int_val;
+                        else res.int_val = v.int_val;
+                    }
+                    res.is_const = 1;
+                    res.is_float = (i->dest->type.base == TYPE_SINGLE || i->dest->type.base == TYPE_DOUBLE);
+                    i->dest->kind = ALIR_VAL_CONST;
+                    if (res.is_float) {
+                        if (i->dest->type.base == TYPE_SINGLE) i->dest->val.single_val = (float)res.double_val;
+                        else i->dest->val.double_val = res.double_val;
+                    } else {
+                        i->dest->val.long_long_val = res.int_val;
+                    }
+                    remove_instruction(b, prev, i);
+                    removed = 1;
+                }
+            }
             
             if (!removed) {
                 prev = i;
             }
             i = next;
+        }
+        b = b->next;
+    }
+}
+
+static void fold_branches_function(AlirModule *module, AlirFunction *func) {
+    if (!func || !func->blocks) return;
+    
+    AlirBlock *b = func->blocks;
+    while (b) {
+        AlirInst *i = b->head;
+        while (i) {
+            if (i->op == ALIR_OP_CONDI && i->op1) {
+                ConstVal cond = get_const_for_value(i->op1);
+                if (cond.is_const) {
+                    const char *target_label = NULL;
+                    if (cond.int_val != 0 && i->op2) {
+                        target_label = i->op2->val.str_val;
+                    } else if (cond.int_val == 0 && i->arg_count > 0 && i->args[0]) {
+                        target_label = i->args[0]->val.str_val;
+                    }
+                    if (target_label) {
+                        i->op = ALIR_OP_JUMP;
+                        i->op1 = alir_val_label(module, target_label);
+                        i->op2 = NULL;
+                        if (i->args) {
+                            i->args = NULL;
+                            i->arg_count = 0;
+                        }
+                    }
+                }
+            }
+            i = i->next;
         }
         b = b->next;
     }
@@ -329,6 +391,57 @@ static void propagate_param_copies_function(AlirModule *module, AlirFunction *fu
     }
 }
 
+static int all_args_const(AlirInst *inst) {
+    if (!inst || inst->arg_count <= 0) return 1;
+    for (int i = 0; i < inst->arg_count; i++) {
+        if (!inst->args[i]) return 0;
+        if (inst->args[i]->kind != ALIR_VAL_CONST) return 0;
+    }
+    return 1;
+}
+
+static void eval_pure_call_function(AlirModule *module, AlirFunction *func) {
+    if (!func || !func->blocks || func->is_extern || !func->is_pure) return;
+    
+    AlirBlock *b = func->blocks;
+    while (b) {
+        AlirInst *prev = NULL;
+        AlirInst *i = b->head;
+        while (i) {
+            AlirInst *next = i->next;
+            int removed = 0;
+            
+            if (i->op == ALIR_OP_CALL && i->op1 && i->op1->kind == ALIR_VAL_VAR && i->dest && all_args_const(i)) {
+                AlirFunction *callee = module->functions;
+                while (callee) {
+                    if (strcmp(callee->name, i->op1->val.str_val) == 0 && callee->is_pure && !callee->is_extern && callee->block_count > 0) {
+                        ConstVal res = eval_pure_function(module, callee, i->args, i->arg_count, i->dest->type);
+                        if (res.is_const) {
+                            i->dest->kind = ALIR_VAL_CONST;
+                            if (res.is_float) {
+                                if (i->dest->type.base == TYPE_SINGLE) i->dest->val.single_val = (float)res.double_val;
+                                else i->dest->val.double_val = res.double_val;
+                            } else {
+                                i->dest->val.long_long_val = res.int_val;
+                            }
+                            remove_instruction(b, prev, i);
+                            removed = 1;
+                        }
+                        break;
+                    }
+                    callee = callee->next;
+                }
+            }
+            
+            if (!removed) {
+                prev = i;
+            }
+            i = next;
+        }
+        b = b->next;
+    }
+}
+
 void optlir_local_optimize(AlirModule *module) {
     if (!module) return;
     
@@ -336,8 +449,10 @@ void optlir_local_optimize(AlirModule *module) {
     while (func) {
         if (!func->is_extern) {
             constant_propagate_function(module, func);
+            fold_branches_function(module, func);
             remove_dead_stores_function(module, func);
             propagate_param_copies_function(module, func);
+            eval_pure_call_function(module, func);
         }
         func = func->next;
     }

@@ -109,6 +109,7 @@ typedef struct AlirFunction {
     int is_flux;
     int is_varargs;
     int is_extern;
+    int is_pure;
     char *cconv;
     struct AlirFunction *next;
 } AlirFunction;
