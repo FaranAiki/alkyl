@@ -669,7 +669,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                         if (member->kind == SYM_FUNC && strcmp(member->name, as_name) == 0) {
                             char mangled[512];
                             snprintf(mangled, sizeof(mangled), "%s_%s", op_t.class_name, as_name);
-                            cn->custom_cast_method = arena_strdup(ctx->compiler_ctx->arena, mangled);
+                            cn->custom_cast_method = arena_strdup(ctx->compiler_ctx->arena, member->mangled_name ? member->mangled_name : mangled);
                             break;
                         }
                         member = member->next;
