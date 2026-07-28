@@ -1,10 +1,3 @@
-Cannot allocate unsized type
-  %alloc = alloca %ns.Clib, align 8
-Cannot allocate unsized type
-  %alloc = alloca %ns.Clib, align 8
-LLVM Verification Error: Cannot allocate unsized type
-  %alloc = alloca %ns.Clib, align 8
-
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
@@ -12,3 +5,7 @@ step: Finished macro linking. Start generating Alkyl Intermediate Representation
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
+LLVMStructSetBody for ns.Clib with 0 fields (empty)
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

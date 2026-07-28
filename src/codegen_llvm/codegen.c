@@ -160,16 +160,18 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
     // 1.5. Populate Struct Bodies
     st = ctx->alir_mod->structs;
     while (st) {
-        if (st->field_count > 0) {
-            int __ft_sz = st->field_count > 0 ? st->field_count : 1; LLVMTypeRef field_tys[__ft_sz];
-            AlirField *f = st->fields;
-            while(f) {
-                field_tys[f->index] = get_llvm_type(ctx, f->type);
-                f = f->next;
-            }
+        if (st->field_count >= 0) {
             LLVMTypeRef struct_ty = hashmap_get(&ctx->struct_map, st->name);
 
             if (st->is_union) {
+                int __ft_sz = st->field_count > 0 ? st->field_count : 1;
+                LLVMTypeRef field_tys[__ft_sz];
+                AlirField *f = st->fields;
+                while(f) {
+                    field_tys[f->index] = get_llvm_type(ctx, f->type);
+                    f = f->next;
+                }
+
                 LLVMTargetDataRef td = LLVMCreateTargetData("");
                 unsigned long long max_size = 0;
                 unsigned long long max_align = 0;
@@ -194,7 +196,6 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                     }
                 }
 
-                // If there's no struct fields, default to something safe
                 if (!best_align_ty) {
                     best_align_ty = LLVMInt8TypeInContext(ctx->llvm_ctx);
                     max_align = 1;
@@ -217,11 +218,20 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                 }
 
                 LLVMDisposeTargetData(td);
+            } else if (st->field_count == 0) {
+                printf("LLVMStructSetBody for %s with 0 fields (empty)\n", st->name);
+                LLVMTypeRef empty_body[1] = { LLVMInt8TypeInContext(ctx->llvm_ctx) };
+                LLVMStructSetBody(struct_ty, empty_body, 1, 0);
             } else {
+                LLVMTypeRef field_tys[st->field_count];
+                AlirField *f = st->fields;
+                while(f) {
+                    field_tys[f->index] = get_llvm_type(ctx, f->type);
+                    f = f->next;
+                }
                 printf("LLVMStructSetBody for %s with %d fields\n", st->name, st->field_count);
                 LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
             }
-            
         }
         st = st->next;
     }
