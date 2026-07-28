@@ -234,11 +234,17 @@ void build_struct_fields(AlirCtx *ctx, ASTNode *root, ClassNode *cn, AlirStruct 
     st->field_count = idx;
 }
 
-void pass1_register(AlirCtx *ctx, ASTNode *n) {
+void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
     while(n) {
         if (n->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)n;
-            alir_register_struct(ctx->module, cn->name, NULL, cn->is_union);
+            char *fqn = cn->name;
+            if (current_ns && strlen(current_ns) > 0) {
+                char buf[512];
+                snprintf(buf, sizeof(buf), "%s.%s", current_ns, cn->name);
+                fqn = alir_strdup(ctx->module, buf);
+            }
+            alir_register_struct(ctx->module, fqn, NULL, cn->is_union);
         } else if (n->type == NODE_ENUM) {
             EnumNode *en = (EnumNode*)n;
             AlirEnumEntry *head = NULL;
@@ -255,28 +261,48 @@ void pass1_register(AlirCtx *ctx, ASTNode *n) {
             }
             alir_register_enum(ctx->module, en->name, head);
         } else if (n->type == NODE_NAMESPACE) {
-            pass1_register(ctx, ((NamespaceNode*)n)->body);
+            NamespaceNode *ns = (NamespaceNode*)n;
+            char *next_ns = ns->name;
+            if (current_ns && strlen(current_ns) > 0) {
+                char buf[512];
+                snprintf(buf, sizeof(buf), "%s.%s", current_ns, ns->name);
+                next_ns = alir_strdup(ctx->module, buf);
+            }
+            pass1_register(ctx, ns->body, next_ns);
         }
         n = n->next;
     }
 }
 
-void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n) {
+void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current_ns) {
     while(n) {
         if (n->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)n;
-            AlirStruct *st = alir_find_struct(ctx->module, cn->name);
+            char *fqn = cn->name;
+            if (current_ns && strlen(current_ns) > 0) {
+                char buf[512];
+                snprintf(buf, sizeof(buf), "%s.%s", current_ns, cn->name);
+                fqn = alir_strdup(ctx->module, buf);
+            }
+            AlirStruct *st = alir_find_struct(ctx->module, fqn);
             if (st) build_struct_fields(ctx, root, cn, st);
         } else if (n->type == NODE_NAMESPACE) {
-            pass2_populate(ctx, root, ((NamespaceNode*)n)->body);
+            NamespaceNode *ns = (NamespaceNode*)n;
+            char *next_ns = ns->name;
+            if (current_ns && strlen(current_ns) > 0) {
+                char buf[512];
+                snprintf(buf, sizeof(buf), "%s.%s", current_ns, ns->name);
+                next_ns = alir_strdup(ctx->module, buf);
+            }
+            pass2_populate(ctx, root, ns->body, next_ns);
         }
         n = n->next;
     }
 }
 
 void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root) {
-    pass1_register(ctx, root);
-    pass2_populate(ctx, root, root);
+    pass1_register(ctx, root, NULL);
+    pass2_populate(ctx, root, root, NULL);
 }
 
 

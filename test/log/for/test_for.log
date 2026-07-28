@@ -1,41 +1,9 @@
-at namespace main:
-in .../code/for/test_for.aky:
-4:5: error: Undefined variable 'clib'
-  |     clib.printf c"Testing array\n";
-  |     ^
-4:17: error: Unknown type
-  |     clib.printf c"Testing array\n";
-  |                 ^
-7:9: error: Undefined variable 'clib'
-  |         clib.printf c"%d\n", varname;
-  |         ^
-7:21: error: Unknown type
-  |         clib.printf c"%d\n", varname;
-  |                     ^
-10:5: error: Undefined variable 'clib'
-  |     clib.printf c"Testing integer\n";
-  |     ^
-10:17: error: Unknown type
-  |     clib.printf c"Testing integer\n";
-  |                 ^
-12:9: error: Undefined variable 'clib'
-  |         clib.printf c"%d\n", i;
-  |         ^
-12:21: error: Unknown type
-  |         clib.printf c"%d\n", i;
-  |                     ^
-15:5: error: Undefined variable 'clib'
-  |     clib.printf c"Testing char*\n";
-  |     ^
-15:17: error: Unknown type
-  |     clib.printf c"Testing char*\n";
-  |                 ^
-18:9: error: Undefined variable 'clib'
-  |         clib.printf c"%c\n", ch;
-  |         ^
-18:21: error: Unknown type
-  |         clib.printf c"%c\n", ch;
-  |                     ^
-Semantic analysis failed with 12 errors.
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

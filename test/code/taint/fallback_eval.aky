@@ -1,4 +1,6 @@
-import std.print
+import "std/print";
+
+// TODO expects 10, yet get 5?
 int main() {
     tainted int x = 10;
     int y = x ? 5;

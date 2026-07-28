@@ -1,41 +1,9 @@
-at namespace main:
-in .../code/purge/test_purge.aky:
-23:13: error: Undefined variable 'clib'
-  |             clib.printf("division by zero");
-  |             ^
-23:17: error: Unknown type
-  |             clib.printf("division by zero");
-  |                 ^
-29:5: error: Undefined variable 'clib'
-  |     clib.printf("%d\n", res_a);
-  |     ^
-29:9: error: Unknown type
-  |     clib.printf("%d\n", res_a);
-  |         ^
-37:9: error: Undefined variable 'clib'
-  |         clib.printf("%d", safe_b);
-  |         ^
-37:13: error: Unknown type
-  |         clib.printf("%d", safe_b);
-  |             ^
-39:9: error: Undefined variable 'clib'
-  |         clib.printf("%d and %d\n", err_b, ErrDivisionByZero);
-  |         ^
-39:13: error: Unknown type
-  |         clib.printf("%d and %d\n", err_b, ErrDivisionByZero);
-  |             ^
-41:13: error: Undefined variable 'clib'
-  |             clib.printf("Division by zero!")
-  |             ^
-41:17: error: Unknown type
-  |             clib.printf("Division by zero!")
-  |                 ^
-45:5: error: Undefined variable 'clib'
-  |     clib.printf("%d\n", res_b
-  |     ^
-45:9: error: Unknown type
-  |     clib.printf("%d\n", res_b
-  |         ^
-Semantic analysis failed with 12 errors.
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

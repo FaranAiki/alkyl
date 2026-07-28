@@ -35,6 +35,4 @@ void exec_link(Executor *e, LinkNode *ln, int is_repl);
 long long exec_expr(Executor *e, ASTNode *curr, int seq, const char *prefix,
                     int print_rich, VarType *out_type);
 
-void resolve_imports(Parser *p, ASTNode **root);
-
 #endif // METARSE_H

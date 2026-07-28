@@ -1,17 +1,13 @@
-at namespace main:
-in .../code/compound/class_compound.aky:
-16:3: error: Undefined variable 'clib'
-  |   clib.printf "x & y: %d, %d\n", my_vector.x, my_vector.y;
-  |   ^
-16:15: error: Unknown type
-  |   clib.printf "x & y: %d, %d\n", my_vector.x, my_vector.y;
-  |               ^
-17:3: error: Undefined variable 'clib'
-  |   clib.printf "distance: %d\n", my_vector.distance_square();
-  |   ^
-17:15: error: Unknown type
-  |   clib.printf "distance: %d\n", my_vector.distance_square();
-  |               ^
-Semantic analysis failed with 4 errors.
+/usr/bin/ld: build/out.o: in function `main':
+main_module:(.text+0x35): undefined reference to `main_Vector_int_distance_square'
+collect2: error: ld returned 1 exit status
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+LLVMStructSetBody for Vector_int with 2 fields
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linking failed.

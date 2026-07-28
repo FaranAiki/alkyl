@@ -1,17 +1,9 @@
-at namespace main:
-in .../code/compound/function_compound.aky:
-10:3: error: Undefined variable 'clib'
-  |   clib.printf "%d squared is %d\n", my_num, square[int](my_num);
-  |   ^
-10:15: error: Unknown type
-  |   clib.printf "%d squared is %d\n", my_num, square[int](my_num);
-  |               ^
-14:3: error: Undefined variable 'clib'
-  |   clib.printf "%lf squared is %lf\n", my_dnum, square[double](my_dnum);
-  |   ^
-14:15: error: Unknown type
-  |   clib.printf "%lf squared is %lf\n", my_dnum, square[double](my_dnum);
-  |               ^
-Semantic analysis failed with 4 errors.
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

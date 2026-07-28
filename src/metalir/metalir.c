@@ -246,8 +246,8 @@ void metalir_run_class(MetalirRunner *r, ASTNode *curr, ASTNode *root) {
     AlirCtx a = {0};
     a.sem = &r->sem;
     a.module = r->module;
-    pass1_register(&a, curr);
-    pass2_populate(&a, root, curr);
+    pass1_register(&a, curr, NULL);
+    pass2_populate(&a, root, curr, NULL);
     alir_gen_functions_recursive(&a, curr);
 }
 

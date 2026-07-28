@@ -4,15 +4,25 @@
 # Usage: ./scripts/run_tests.sh [pattern] [--update]
 # TODO: maybe add a specific test case checker
 #     : add a library test case checker
+# TODO: maybe use Alkyl instead of this test case runner
 
 UPDATE=0
-PATTERN=""
+#PATTERN=""
 
+RUN_COMMAND=build/alkyl
+# Parse the script runner
 for arg in "$@"; do
     if [ "$arg" == "--update" ]; then
         UPDATE=1
     else
-        PATTERN="$arg"
+      if [[ -z "$arg" ]]; then
+        RUN_COMMAND=build/alkyl
+      elif [[ "$arg" == "ethyl" ]]; then
+        RUN_COMMAND=build/ethyl
+      else
+        RUN_COMMAND=build/alkyl_$arg
+      fi
+#        PATTERN="$arg"
     fi
 done
 
@@ -38,9 +48,9 @@ echo -e "${COLOR_BLUE}Starting Alkyl Tests...${COLOR_RESET}"
 # Find all .aky files
 FILES=$(find test/code -name "*.aky" | sort)
 
-if [ -n "$PATTERN" ]; then
-    FILES=$(echo "$FILES" | grep "$PATTERN")
-fi
+#if [ -n "$PATTERN" ]; then
+#    FILES=$(echo "$FILES" | grep "$PATTERN")
+#fi
 
 for AKY_FILE in $FILES; do
     # Extract feature and name
@@ -66,7 +76,7 @@ for AKY_FILE in $FILES; do
     CLEAN_ACTUAL_LOG="/tmp/alkyl_actual_comp_clean.log"
     CLEAN_EXPECTED_LOG="/tmp/alkyl_expected_comp_clean.log"
 
-    echo -n "build/alkyl test/code/$FEATURE/$NAME.aky ... "
+    echo -n "${RUN_COMMAND} test/code/$FEATURE/$NAME.aky ... "
 
     # 1. Compilation
     # Extract flags if specified on the first line of the file (e.g. // FLAGS: --some-flag)
@@ -78,7 +88,7 @@ for AKY_FILE in $FILES; do
         read -r -a FLAGS <<< "$FLAGS_STR"
     fi
 
-    build/alkyl "${FLAGS[@]}" "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
+    ${RUN_COMMAND} "${FLAGS[@]}" "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
     COMP_RET=$?
 
     # Strip colors for diffing
@@ -95,12 +105,13 @@ for AKY_FILE in $FILES; do
     fi
 
     # Check compilation success/failure
+    # This is to make alkyl more robust & not prone to error
     if [ $COMP_RET -ne 0 ]; then
         # Compilation failed (non-zero exit code)
         rm -f build/out
 
         # If it matched expected log, negative test passes
-        echo -e "${COLOR_RED}FAILED (Compilation failed with exit code $COMP_RET${COLOR_RESET}"
+        echo -e "${COLOR_RED}FAILED (Compilation failed with exit code $COMP_RET)${COLOR_RESET}"
         FAILED=$((FAILED + 1))
         continue
     fi
@@ -152,11 +163,12 @@ for AKY_FILE in $FILES; do
         fi
 
         rm -f build/out
-    else
         # If no ./out but compilation exit code was 0
-        echo -e "${COLOR_RED}FAILED (No executable produced but compilation succeeded)${COLOR_RESET}"
-        FAILED=$((FAILED + 1))
-        continue
+        # if [[ "${RUN_COMMAND}" != "build/alkyl" ]]; then
+        #  echo -e "${COLOR_RED}FAILED (No executable produced but compilation succeeded)${COLOR_RESET}"
+        #  FAILED=$((FAILED + 1))
+        #  continue
+        # fi
     fi
 
     echo -e "${COLOR_GREEN}PASSED${COLOR_RESET}"

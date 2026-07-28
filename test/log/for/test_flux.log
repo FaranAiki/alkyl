@@ -1,17 +1,14 @@
+[Alick Error] in func '@main_random_generator_i32_Resume' block 'entry' -> Block lacks a terminator. Last instruction is 'getptr', expected branch/return.
+  Instruction Context: getptr
 at namespace main:
-in .../code/for/test_flux.aky:
-7:9: error: Undefined variable 'clib'
-  |         clib.printf c"generator: todo = %d, limit = %d\n", todo, limit;
-  |         ^
-7:21: error: Unknown type
-  |         clib.printf c"generator: todo = %d, limit = %d\n", todo, limit;
-  |                     ^
-15:9: error: Undefined variable 'clib'
-  |         clib.printf c"Got: %d\n", t;
-  |         ^
-15:21: error: Unknown type
-  |         clib.printf c"Got: %d\n", t;
-  |                     ^
-Semantic analysis failed with 4 errors.
+10:12: error: [ALIR: @main_random_generator_i32_Resume -> while_end] Early terminator '->' found. Instructions following this in the same block are unreachable.
+  |     return 100;
+  |            ^
+ALICK Verification Failed: 2 errors, 0 warnings found.
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+DEBUG: FluxCtx ptr_depth = 0
+step: Finished alir. Start alir check and analysis.
+Error occured in alick.

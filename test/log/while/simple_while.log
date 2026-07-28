@@ -1,17 +1,9 @@
-at namespace main:
-in .../code/while/simple_while.aky:
-6:5: error: Undefined variable 'clib'
-  |     clib.printf "%d\n", i;
-  |     ^
-6:17: error: Unknown type
-  |     clib.printf "%d\n", i;
-  |                 ^
-13:5: error: Undefined variable 'clib'
-  |     clib.printf "%d: %d\n", i, y;
-  |     ^
-13:17: error: Unknown type
-  |     clib.printf "%d: %d\n", i, y;
-  |                 ^
-Semantic analysis failed with 4 errors.
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start Codegen using LLVM Codegen
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

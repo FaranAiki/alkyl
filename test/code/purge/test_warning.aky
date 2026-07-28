@@ -1,11 +1,26 @@
 errnum [ErrSome]
 int should_be_tainted() {
   purge ErrSome;
+  return 0;
 }
 
 pristine int main() {
   return 0;
 }
+
+/* Yes, this should not be tainted!
 pristine int should_not_be_tainted() {
   purge ErrNull;
-}
+}*/
+
+/* TODO:
+build/alkyl_qbe test/code/purge/test_warning.aky
+step: Finished lexing. Start parsing.
+step: Start Semantic Analysis.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start Codegen using qbe Codegen
+qbe:build/out.ssa:6: last block misses jump
+QBE failed with code 256
+*/

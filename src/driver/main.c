@@ -13,7 +13,6 @@
 #define BACKEND_STRING xstr(BACKEND)
 
 #include "driver/lsp.h"
-#include "metarse/metarse.h"
 
 int main(int argc, char *argv[]) {
     Arena arena, arena_debug;

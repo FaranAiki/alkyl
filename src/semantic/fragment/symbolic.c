@@ -31,7 +31,20 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
     if (fd->is_extern) {
         if (fd->extern_name) mangled = fd->extern_name;
     } else if (strcmp(fd->name, "main") != 0) {
-        mangled = sem_mangle_func_name(ctx, fd->class_name, fd->name, fd->params);
+        const char *current_ns = diag_get_namespace(ctx->compiler_ctx);
+        char *ns_class = NULL;
+        if (current_ns && strlen(current_ns) > 0) {
+            if (fd->class_name) {
+                char buf[512];
+                snprintf(buf, sizeof(buf), "%s_%s", current_ns, fd->class_name);
+                ns_class = arena_strdup(ctx->compiler_ctx->arena, buf);
+            } else {
+                ns_class = (char*)current_ns;
+            }
+        } else {
+            ns_class = fd->class_name;
+        }
+        mangled = sem_mangle_func_name(ctx, ns_class, fd->name, fd->params);
     }
     sym->mangled_name = mangled;
     fd->mangled_name = mangled;
