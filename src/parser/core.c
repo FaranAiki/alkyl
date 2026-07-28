@@ -70,7 +70,7 @@ void register_typename(Parser *p, const char *name, int is_enum) {
     hashmap_put(&p->types_map, name, (void*)(intptr_t)(is_enum ? 2 : 1));
 
     const char *current_ns = diag_get_namespace(p->ctx);
-    if (current_ns && strlen(current_ns) > 0 && strcmp(current_ns, "main") != 0) {
+    if (current_ns && strlen(current_ns) > 0) {
         char full_name[512];
         snprintf(full_name, sizeof(full_name), "%s.%s", current_ns, name);
         hashmap_put(&p->types_map, full_name, (void*)(intptr_t)(is_enum ? 2 : 1));

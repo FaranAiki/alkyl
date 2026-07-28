@@ -1,4 +1,10 @@
-import "lib/c";
+
+/* closed */ namespace my {
+  extern void *malloc(unsigned int);
+  extern void free(void*);
+
+  const void *nil = 0;
+}
 
 namespace heap {
     abstract method class Allocator {
@@ -14,11 +20,11 @@ namespace heap {
     public tainted:
         void* alloc(long size) {
             if size < 0 { purge ErrOutOfMemory; }
-            return malloc(size);
+            return my.malloc(size);
         }
 
         void free(tainted void* ptr) {
-            free(ptr); // from lib/c
+            my.free(ptr); // from lib/c
         }
     }
 
@@ -36,19 +42,19 @@ namespace heap {
 
     exact container class ArenaBlock {
     public:
-        void* data = null;
+        void* data = my.nil;
         long capacity = 0;
         long used = 0;
-        ArenaBlock* next = null;
+        ArenaBlock* next = my.nil;
     }
 
     open class ArenaAllocator {
     public:
-        ArenaBlock* head = null;
+        ArenaBlock* head = my.nil;
         long default_block_size = 65536;
 
         ArenaAllocator() {
-            this.head = null;
+            this.head = my.nil;
             this.default_block_size = 65536;
         }
 
@@ -58,9 +64,9 @@ namespace heap {
         }
 
         void* alloc_aligned(long size, long align) {
-            if size < 0 || align <= 0 then return null;
+            if size < 0 || align <= 0 then return my.nil;
 
-            if this.head == null {
+            if this.head == my.nil {
                 return this.new_block_and_alloc(size, align);
             }
 
@@ -89,10 +95,10 @@ namespace heap {
             if size + align > cap then cap = size + align;
 
             ArenaBlock* new_block = default_allocator.alloc(sizeof(ArenaBlock)) as ArenaBlock*;
-            if new_block == null purge ErrOutOfMemory;
+            if new_block == my.nil purge ErrOutOfMemory;
 
             void* raw_data = default_allocator.alloc(cap);
-            if raw_data == null {
+            if raw_data == my.nil {
                 default_allocator.free(new_block as void*);
                 purge ErrOutOfMemory;
             }
@@ -118,20 +124,20 @@ namespace heap {
         // free() returns all memory back to the OS/default allocator
         void free() {
             ArenaBlock* curr = this.head;
-            while curr != null {
+            while curr != my.nil {
                 ArenaBlock* next = curr.next;
                 default_allocator.free(curr.data);
                 default_allocator.free(curr as void*);
                 curr = next;
             }
-            this.head = null;
+            this.head = my.nil;
         }
 
         // reset() keeps the allocated memory blocks but marks them as completely empty,
         // allowing extremely fast O(1) bulk deallocation and reuse across loop iterations.
         void reset() {
             ArenaBlock* curr = this.head;
-            while curr != null {
+            while curr != my.nil {
                 curr.used = 0;
                 curr = curr.next;
             }

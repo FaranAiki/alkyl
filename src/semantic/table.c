@@ -289,6 +289,23 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
             ctx->current_scope = old;
             return res;
         }
+        // If the base symbol was found but has no inner_scope (e.g., a function
+        // shadows a namespace), continue searching in parent scopes for a
+        // namespace/class base symbol that can resolve the dotted member.
+        if (base_sym && !base_sym->inner_scope && found_scope) {
+            SemScope *parent_scope = found_scope->parent;
+            while (parent_scope) {
+                SemSymbol *parent_sym = find_in_scope_direct(parent_scope, base_name);
+                if (parent_sym && parent_sym->inner_scope) {
+                    SemScope *old = ctx->current_scope;
+                    ctx->current_scope = parent_sym->inner_scope;
+                    SemSymbol *res = sem_symbol_lookup(ctx, dot + 1, out_scope);
+                    ctx->current_scope = old;
+                    return res;
+                }
+                parent_scope = parent_scope->parent;
+            }
+        }
         return NULL;
     }
     if (strcmp(name, "ArenaAllocator") == 0) {

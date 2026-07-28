@@ -19,8 +19,8 @@
 #include "driver/lsp.h"
 
 int main(int argc, char *argv[]) {
-    Arena arena, arena_debug;
-    CompilerContext comp_ctx, comp_ctx_debug;
+    Arena arena;
+    CompilerContext comp_ctx;
 
     if (argc < 2) {
       printf("Usage: %s <file.aky> [-l<lib>] | --lsp\n", argv[0]);
@@ -71,7 +71,6 @@ int main(int argc, char *argv[]) {
     if (!filename) {
         fprintf(stderr, "No input file specified\n");
         arena_free(&arena);
-        arena_free(&arena_debug);
         return 1;
     }
 
@@ -79,20 +78,12 @@ int main(int argc, char *argv[]) {
     if (!code) { fprintf(stderr, "Could not read file: %s\n", filename); return 1; }
 
     arena_init(&arena);
-    arena_init(&arena_debug);
     context_init(&comp_ctx, &arena);
-    context_init(&comp_ctx_debug, &arena_debug);
 
     Lexer l;
     lexer_init(&l, &comp_ctx, filename, code, NULL);
 
     debug_step("Finished lexing. Start parsing.");
-
-    // generate for debugging
-    Lexer l_debug;
-    lexer_init(&l_debug, &comp_ctx_debug, filename, code, NULL);
-
-    to_token_out(&l_debug, BASENAME ".tok");
 
     Parser p;
     parser_init(&p, &l, &parser_settings);
@@ -116,7 +107,6 @@ int main(int argc, char *argv[]) {
     if (comp_ctx.error_count > 0) {
         free(code);
         arena_free(&arena);
-        arena_free(&arena_debug);
         return 1;
     }
 
@@ -138,7 +128,6 @@ int main(int argc, char *argv[]) {
         sem_cleanup(&sem_ctx);
         free(code);
         arena_free(&arena);
-        arena_free(&arena_debug);
         return 1;
     }
 
@@ -177,7 +166,6 @@ int main(int argc, char *argv[]) {
       sem_cleanup(&sem_ctx);
       free(code);
       arena_free(&arena);
-      arena_free(&arena_debug);
       return 1;
     }
 
@@ -188,7 +176,6 @@ int main(int argc, char *argv[]) {
         sem_cleanup(&sem_ctx);
         free(code);
         arena_free(&arena);
-        arena_free(&arena_debug);
         return 1;
     }
 
@@ -208,7 +195,6 @@ int main(int argc, char *argv[]) {
       sem_cleanup(&sem_ctx);
       free(code);
       arena_free(&arena);
-      arena_free(&arena_debug);
       return 1;
     }
 
@@ -223,7 +209,6 @@ int main(int argc, char *argv[]) {
     free(code);
 
     arena_free(&arena);
-    arena_free(&arena_debug);
 
     return final_ret;
 }

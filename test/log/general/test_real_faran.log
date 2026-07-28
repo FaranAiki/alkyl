@@ -9,6 +9,40 @@ in .../code/general/test_real_faran.aky:
 32:26: warning: no initialization from Person, using Identity as a constructor
   |   let imut Faran = Person("Faran Aiki", 19);
   |                          ^
+Call parameter type does not match function signature!
+  %load8 = load i32, ptr %ptr_gep, align 4
+ ptr  %call9 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load8)
+Call parameter type does not match function signature!
+  %load8 = load i32, ptr %ptr_gep, align 4
+ ptr  %call9 = call i32 (ptr, ptr, ...) @printf(ptr @str.3, i32 %load8)
+Called function requires more parameters than were provided!
+  %call = call i32 (ptr, ptr, ...) @printf(ptr @str.8)
+Call parameter type does not match function signature!
+  %load91 = load i32, ptr %struct_gep90, align 4
+ ptr  %call92 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load91)
+Call parameter type does not match function signature!
+  %load8 = load i32, ptr %ptr_gep, align 4
+ ptr  %call9 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load8)
+Call parameter type does not match function signature!
+  %load8 = load i32, ptr %ptr_gep, align 4
+ ptr  %call9 = call i32 (ptr, ptr, ...) @printf(ptr @str.3, i32 %load8)
+Called function requires more parameters than were provided!
+  %call = call i32 (ptr, ptr, ...) @printf(ptr @str.8)
+Call parameter type does not match function signature!
+  %load91 = load i32, ptr %struct_gep90, align 4
+ ptr  %call92 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load91)
+LLVM Verification Error: Call parameter type does not match function signature!
+  %load8 = load i32, ptr %ptr_gep, align 4
+ ptr  %call9 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load8)
+Call parameter type does not match function signature!
+  %load8 = load i32, ptr %ptr_gep, align 4
+ ptr  %call9 = call i32 (ptr, ptr, ...) @printf(ptr @str.3, i32 %load8)
+Called function requires more parameters than were provided!
+  %call = call i32 (ptr, ptr, ...) @printf(ptr @str.8)
+Call parameter type does not match function signature!
+  %load91 = load i32, ptr %struct_gep90, align 4
+ ptr  %call92 = call i32 (ptr, ptr, ...) @printf(ptr @str.0, i32 %load91)
+
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
@@ -18,4 +52,5 @@ Warning: Implicitly resolved 'printf' to '__c_lib.printf'
 Warning: Implicitly resolved 'printf' to '__c_lib.printf'
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+LLVMStructSetBody for Person with 2 fields

@@ -87,7 +87,27 @@ static void print_val(FILE *out, AlirValue *v) {
     }
 }
 
-static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
+static int s_next_qbe_temp = 0;
+
+static int find_max_temp(AlirModule *module) {
+    int max_temp = 0;
+    for (AlirFunction *f = module->functions; f; f = f->next) {
+        for (AlirBlock *b = f->blocks; b; b = b->next) {
+            for (AlirInst *i = b->head; i; i = i->next) {
+                if (i->dest && i->dest->kind == ALIR_VAL_TEMP && i->dest->temp_id >= max_temp) {
+                    max_temp = i->dest->temp_id + 1;
+                }
+            }
+        }
+    }
+    return max_temp;
+}
+
+static int alloc_qbe_temp(void) {
+    return s_next_qbe_temp++;
+}
+
+static void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_block) {
     if (!inst) return;
 
     char dt = 'w';
@@ -236,10 +256,20 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             break;
         }
         case ALIR_OP_CALL: {
+            char call_dt = dt;
+            if (inst->op1 && inst->op1->kind == ALIR_VAL_VAR && inst->op1->val.str_val) {
+                for (AlirFunction *f = module->functions; f; f = f->next) {
+                    if (f->name && strcmp(f->name, inst->op1->val.str_val) == 0) {
+                        char rt = qbe_type(f->ret_type);
+                        if (rt != 'v') call_dt = rt;
+                        break;
+                    }
+                }
+            }
             if (inst->dest) {
                 fprintf(out, "\t");
                 print_val(out, inst->dest);
-                fprintf(out, " =%c ", dt);
+                fprintf(out, " =%c ", call_dt);
             } else {
                 fprintf(out, "\t");
             }
@@ -337,7 +367,7 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
         case ALIR_OP_FADD:
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c fadd ", dt);
+            fprintf(out, " =%c add ", dt);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
@@ -346,7 +376,7 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
         case ALIR_OP_FSUB:
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c fsub ", dt);
+            fprintf(out, " =%c sub ", dt);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
@@ -355,7 +385,7 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
         case ALIR_OP_FMUL:
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c fmul ", dt);
+            fprintf(out, " =%c mul ", dt);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
@@ -364,7 +394,7 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
         case ALIR_OP_FDIV:
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c fdiv ", dt);
+            fprintf(out, " =%c div ", dt);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
@@ -404,24 +434,62 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             print_val(out, inst->op1);
             fprintf(out, ", 0\n");
             break;
-        case ALIR_OP_ROTR:
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =%c rotr ", dt);
+        case ALIR_OP_ROTR: {
+            int t_bits_minus_y = alloc_qbe_temp();
+            int t_shr = alloc_qbe_temp();
+            int t_shl = alloc_qbe_temp();
+
+            fprintf(out, "\t%%t%d =%c sub %d, ", t_bits_minus_y, dt);
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+
+            fprintf(out, "\t%%t%d =%c shr ", t_shr, dt);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
-            break;
-        case ALIR_OP_ROTL:
+
+            fprintf(out, "\t%%t%d =%c shl ", t_shl, dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            fprintf(out, "%%t%d", t_bits_minus_y);
+            fprintf(out, "\n");
+
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c rotl ", dt);
+            fprintf(out, " =%c or ", dt);
+            fprintf(out, "%%t%d, %%t%d", t_shr, t_shl);
+            fprintf(out, "\n");
+            break;
+        }
+        case ALIR_OP_ROTL: {
+            int t_shl = alloc_qbe_temp();
+            int t_bits_minus_y = alloc_qbe_temp();
+            int t_shr = alloc_qbe_temp();
+
+            fprintf(out, "\t%%t%d =%c shl ", t_shl, dt);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
+
+            fprintf(out, "\t%%t%d =%c sub %d, ", t_bits_minus_y, dt);
+            print_val(out, inst->op2);
+            fprintf(out, "\n");
+
+            fprintf(out, "\t%%t%d =%c shr ", t_shr, dt);
+            print_val(out, inst->op1);
+            fprintf(out, ", ");
+            fprintf(out, "%%t%d", t_bits_minus_y);
+            fprintf(out, "\n");
+
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c or ", dt);
+            fprintf(out, "%%t%d, %%t%d", t_shl, t_shr);
+            fprintf(out, "\n");
             break;
+        }
         case ALIR_OP_LTE:
             fprintf(out, "\t");
             print_val(out, inst->dest);
@@ -492,6 +560,8 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
         return 1;
     }
 
+    s_next_qbe_temp = find_max_temp(module);
+
     for (AlirGlobal *g = module->globals; g; g = g->next) {
         if (g->string_content) {
             fprintf(out, "data $%s = { b \"", g->name);
@@ -535,7 +605,7 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
             AlirBlock *next_block = curr_block->next;
             fprintf(out, "\t@%s\n", curr_block->label ? curr_block->label : "L");
             for (AlirInst *i = curr_block->head; i; i = i->next) {
-                emit_inst(out, i, next_block);
+                emit_inst(out, module, i, next_block);
             }
             curr_block = next_block;
         }
