@@ -1,95 +1,13 @@
 #include "codegen/codegen.h"
+#include "codegen_qbe/codegen.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-static char qbe_type(VarType t) {
-    if (t.ptr_depth > 0) return 'l';
-    switch (t.base) {
-        case TYPE_VOID: return 'v';
-        case TYPE_INT:
-        case TYPE_UNSIGNED_INT:
-        case TYPE_SHORT:
-        case TYPE_CHAR:
-        case TYPE_UNSIGNED_CHAR:
-        case TYPE_BOOL:
-            return 'w';
-        case TYPE_LONG:
-        case TYPE_LONG_LONG:
-        case TYPE_UNSIGNED_LONG:
-        case TYPE_UNSIGNED_LONG_LONG:
-            return 'l';
-        case TYPE_SINGLE: return 's';
-        case TYPE_DOUBLE:
-        case TYPE_LONG_DOUBLE: return 'd';
-        case TYPE_ARRAY: return 'l';
-        case TYPE_AUTO:
-        case TYPE_ENUM: return 'w';
-        case TYPE_CLASS:
-        case TYPE_NAMESPACE:
-        case TYPE_ERROR:
-        case TYPE_UNKNOWN: return 'l';
-        default: return 'l';
-    }
-}
+int s_next_qbe_temp = 0;
 
-static int qbe_type_size(char qtype) {
-    switch (qtype) {
-        case 'w': return 4;
-        case 'l': return 8;
-        case 's': return 4;
-        case 'd': return 8;
-        default: return 8;
-    }
-}
-
-static void print_val(FILE *out, AlirValue *v) {
-    if (!v) return;
-    switch (v->kind) {
-        case ALIR_VAL_INT:
-        case ALIR_VAL_CONST:
-            fprintf(out, "%ld", v->val.long_val);
-            break;
-        case ALIR_VAL_SINGLE:
-            fprintf(out, "%f", (double)v->val.single_val);
-            break;
-        case ALIR_VAL_DOUBLE:
-            fprintf(out, "%lf", v->val.double_val);
-            break;
-        case ALIR_VAL_TEMP:
-            fprintf(out, "%%t%d", v->temp_id);
-            break;
-        case ALIR_VAL_VAR:
-            if (v->val.str_val) {
-                if (v->val.str_val[0] == 'p' && isdigit((unsigned char)v->val.str_val[1])) {
-                    fprintf(out, "%%%s", v->val.str_val);
-                } else {
-                    fprintf(out, "$%s", v->val.str_val);
-                }
-            }
-            break;
-        case ALIR_VAL_GLOBAL:
-            if (v->val.str_val)
-                fprintf(out, "$%s", v->val.str_val);
-            break;
-        case ALIR_VAL_LABEL:
-            if (v->val.str_val)
-                fprintf(out, "@%s", v->val.str_val);
-            break;
-        case ALIR_VAL_VOID:
-        case ALIR_VAL_TYPE:
-            fprintf(out, "0");
-            break;
-        default:
-            fprintf(out, "0");
-            break;
-    }
-}
-
-static int s_next_qbe_temp = 0;
-
-static int find_max_temp(AlirModule *module) {
+int find_max_temp(AlirModule *module) {
     int max_temp = 0;
     for (AlirFunction *f = module->functions; f; f = f->next) {
         for (AlirBlock *b = f->blocks; b; b = b->next) {
@@ -103,11 +21,11 @@ static int find_max_temp(AlirModule *module) {
     return max_temp;
 }
 
-static int alloc_qbe_temp(void) {
+int alloc_qbe_temp(void) {
     return s_next_qbe_temp++;
 }
 
-static void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_block) {
+void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_block) {
     if (!inst) return;
 
     char dt = 'w';
@@ -439,7 +357,7 @@ static void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *
             int t_shr = alloc_qbe_temp();
             int t_shl = alloc_qbe_temp();
 
-            fprintf(out, "\t%%t%d =%c sub %d, ", t_bits_minus_y, dt);
+            fprintf(out, "\t%%t%d =%c sub ", t_bits_minus_y, dt);
             print_val(out, inst->op2);
             fprintf(out, "\n");
 
@@ -473,7 +391,7 @@ static void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *
             print_val(out, inst->op2);
             fprintf(out, "\n");
 
-            fprintf(out, "\t%%t%d =%c sub %d, ", t_bits_minus_y, dt);
+            fprintf(out, "\t%%t%d =%c sub ", t_bits_minus_y, dt);
             print_val(out, inst->op2);
             fprintf(out, "\n");
 
@@ -551,83 +469,3 @@ static void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *
     }
 }
 
-int backend_run(AlirModule *module, const char *basename, const char *link_flags) {
-    char outname[256];
-    snprintf(outname, sizeof(outname), "%s.ssa", basename);
-    FILE *out = fopen(outname, "w");
-    if (!out) {
-        perror("fopen");
-        return 1;
-    }
-
-    s_next_qbe_temp = find_max_temp(module);
-
-    for (AlirGlobal *g = module->globals; g; g = g->next) {
-        if (g->string_content) {
-            fprintf(out, "data $%s = { b \"", g->name);
-            for (int i = 0; g->string_content[i]; i++) {
-                char c = g->string_content[i];
-                if (c == '\n') fprintf(out, "\\n");
-                else if (c == '\r') fprintf(out, "\\r");
-                else if (c == '\t') fprintf(out, "\\t");
-                else if (c == '\"') fprintf(out, "\\\"");
-                else if (c == '\\') fprintf(out, "\\\\");
-                else fprintf(out, "%c", c);
-            }
-            fprintf(out, "\", b 0 }\n");
-        } else {
-            fprintf(out, "data $%s = { z 8 }\n", g->name);
-        }
-    }
-
-    for (AlirFunction *f = module->functions; f; f = f->next) {
-        if (!f->blocks) continue;
-        char ret_t = qbe_type(f->ret_type);
-        if (ret_t == 'v') {
-            fprintf(out, "export function $%s(", f->name);
-        } else {
-            fprintf(out, "export function %c $%s(", ret_t, f->name);
-        }
-
-        int p_idx = 0;
-        AlirParam *p = f->params;
-        while (p) {
-            char pt = qbe_type(p->type);
-            if (pt == 'v') pt = 'w';
-            fprintf(out, "%c %%p%d", pt, p_idx++);
-            p = p->next;
-            if (p) fprintf(out, ", ");
-        }
-        fprintf(out, ") {\n");
-
-        AlirBlock *curr_block = f->blocks;
-        while (curr_block) {
-            AlirBlock *next_block = curr_block->next;
-            fprintf(out, "\t@%s\n", curr_block->label ? curr_block->label : "L");
-            for (AlirInst *i = curr_block->head; i; i = i->next) {
-                emit_inst(out, module, i, next_block);
-            }
-            curr_block = next_block;
-        }
-        fprintf(out, "}\n");
-    }
-
-    fclose(out);
-
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "qbe %s.ssa -o %s.s", basename, basename);
-    int qbe_ret = system(cmd);
-    if (qbe_ret != 0) {
-        fprintf(stderr, "QBE failed with code %d\n", qbe_ret);
-        return 1;
-    }
-
-    snprintf(cmd, sizeof(cmd), "gcc %s.s %s -o %s", basename, link_flags ? link_flags : "", basename);
-    int gcc_ret = system(cmd);
-    if (gcc_ret != 0) {
-        fprintf(stderr, "GCC linking failed with code %d\n", gcc_ret);
-        return 1;
-    }
-
-    return 0;
-}

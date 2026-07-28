@@ -3,12 +3,6 @@
 #include <string.h>
 #include <ctype.h>
 
-typedef struct UsedSet {
-    char **names;
-    int count;
-    int capacity;
-} UsedSet;
-
 static void used_set_init(UsedSet *set) {
     set->names = NULL;
     set->count = 0;
@@ -228,6 +222,7 @@ void optlir_remove_unused_variable(AlirModule *module) {
     used_set_free(&used_globals);
 }
 
+// This is the most used
 void optlir_remove_unused(AlirModule *module) {
     optlir_remove_unused_function(module);
     optlir_remove_unused_struct(module);

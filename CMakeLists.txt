@@ -32,6 +32,8 @@ set(CODEGEN_LLVM_SOURCES
 
 set(CODEGEN_QBE_SOURCES
     src/codegen_qbe/codegen.c
+    src/codegen_qbe/value.c
+    src/codegen_qbe/driver.c
 )
 
 set(FRONTEND_SOURCES

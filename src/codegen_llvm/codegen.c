@@ -287,8 +287,8 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
         VarType real_ret_ty = func->ret_type;
         if (func->is_extern) real_ret_ty.is_tainted = 0;
         LLVMTypeRef ret_ty = get_llvm_type(ctx, real_ret_ty);
-        int __pt2_sz = func->param_count > 0 ? func->param_count : 1; 
-        LLVMTypeRef __pt2_arr[__pt2_sz]; 
+        int __pt2_sz = func->param_count > 0 ? func->param_count : 1;
+        LLVMTypeRef __pt2_arr[__pt2_sz];
         LLVMTypeRef *param_tys = NULL;
 
         if (func->param_count > 0) {
@@ -407,19 +407,3 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
     return ctx->llvm_mod;
 }
 
-void codegen_emit_to_file(CodegenCtx *ctx, const char *filename) {
-    if (!ctx || !ctx->llvm_mod) return;
-    char *err_msg = NULL;
-    LLVMPrintModuleToFile(ctx->llvm_mod, filename, &err_msg);
-    if (err_msg) {
-        fprintf(stderr, "LLVM File Emission Error: %s\n", err_msg);
-        LLVMDisposeMessage(err_msg);
-    }
-}
-
-void codegen_print(CodegenCtx *ctx) {
-    if (!ctx || !ctx->llvm_mod) return;
-    char *ir = LLVMPrintModuleToString(ctx->llvm_mod);
-    printf("%s", ir);
-    LLVMDisposeMessage(ir);
-}

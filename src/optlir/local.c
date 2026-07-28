@@ -4,28 +4,12 @@
 #include <string.h>
 #include <stdio.h>
 
-typedef struct AlirModule AlirModule;
-typedef struct AlirFunction AlirFunction;
-typedef struct AlirBlock AlirBlock;
-typedef struct AlirInst AlirInst;
-typedef struct AlirValue AlirValue;
-typedef struct AlirGlobal AlirGlobal;
-typedef struct AlirStruct AlirStruct;
-typedef struct AlirParam AlirParam;
-
-typedef struct ConstVal {
-    long long int_val;
-    double double_val;
-    int is_const;
-    int is_float;
-} ConstVal;
-
 ConstVal eval_pure_function(AlirModule *module, AlirFunction *func, AlirValue **args, int arg_count, VarType ret_type);
 
 static ConstVal get_const_for_value(AlirValue *val) {
     ConstVal res = {0};
     if (!val) return res;
-    
+
     if (val->kind == ALIR_VAL_CONST) {
         res.is_const = 1;
         res.is_float = (val->type.base == TYPE_SINGLE || val->type.base == TYPE_DOUBLE);
@@ -37,14 +21,15 @@ static ConstVal get_const_for_value(AlirValue *val) {
         }
         return res;
     }
-    
+
     return res;
 }
 
+// TODO: should we use VM executor? no?
 static ConstVal eval_const_binary(int op, ConstVal l, ConstVal r, VarType type) {
     ConstVal res = {0};
     res.is_float = (type.base == TYPE_SINGLE || type.base == TYPE_DOUBLE);
-    
+
     if (l.is_float || r.is_float) {
         double d1 = l.is_float ? l.double_val : (double)l.int_val;
         double d2 = r.is_float ? r.double_val : (double)r.int_val;
@@ -62,7 +47,7 @@ static ConstVal eval_const_binary(int op, ConstVal l, ConstVal r, VarType type) 
         res.is_const = 1;
         return res;
     }
-    
+
     long long v1 = l.int_val, v2 = r.int_val;
     switch (op) {
         case ALIR_OP_ADD: res.int_val = v1 + v2; break;
@@ -75,6 +60,24 @@ static ConstVal eval_const_binary(int op, ConstVal l, ConstVal r, VarType type) 
         case ALIR_OP_XOR: res.int_val = v1 ^ v2; break;
         case ALIR_OP_SHL: res.int_val = v1 << v2; break;
         case ALIR_OP_SHR: res.int_val = v1 >> v2; break;
+        case ALIR_OP_ROTR: {
+            int shift = (int)(v2 & 63);
+            if (shift == 0) {
+                res.int_val = v1;
+            } else {
+                res.int_val = (v1 >> shift) | (v1 << (64 - shift));
+            }
+            break;
+        }
+        case ALIR_OP_ROTL: {
+            int shift = (int)(v2 & 63);
+            if (shift == 0) {
+                res.int_val = v1;
+            } else {
+                res.int_val = (v1 << shift) | (v1 >> (64 - shift));
+            }
+            break;
+        }
         case ALIR_OP_LT:  res.int_val = v1 < v2; break;
         case ALIR_OP_GT:  res.int_val = v1 > v2; break;
         case ALIR_OP_LTE: res.int_val = v1 <= v2; break;
@@ -90,7 +93,7 @@ static ConstVal eval_const_binary(int op, ConstVal l, ConstVal r, VarType type) 
 static ConstVal eval_const_unary(int op, ConstVal v, VarType type) {
     ConstVal res = {0};
     res.is_float = (type.base == TYPE_SINGLE || type.base == TYPE_DOUBLE);
-    
+
     if (res.is_float) {
         double d = v.is_float ? v.double_val : (double)v.int_val;
         switch (op) {
@@ -100,7 +103,7 @@ static ConstVal eval_const_unary(int op, ConstVal v, VarType type) {
         res.is_const = 1;
         return res;
     }
-    
+
     switch (op) {
         case ALIR_OP_NOT: res.int_val = ~v.int_val; break;
         default: res.is_const = 0; return res;
@@ -214,7 +217,7 @@ static void build_pred_succ(AlirFunction *func) {
 static void constant_propagate_function(AlirModule *module, AlirFunction *func) {
     (void)module;
     if (!func || !func->blocks) return;
-    
+
     AlirBlock *b = func->blocks;
     while (b) {
         AlirInst *prev = NULL;
@@ -222,11 +225,11 @@ static void constant_propagate_function(AlirModule *module, AlirFunction *func) 
         while (i) {
             AlirInst *next = i->next;
             int removed = 0;
-            
+
             if (i->dest && i->op >= ALIR_OP_ADD && i->op <= ALIR_OP_NEQ) {
                 ConstVal l = get_const_for_value(i->op1);
                 ConstVal r = get_const_for_value(i->op2);
-                
+
                 if (l.is_const && r.is_const) {
                     ConstVal res = eval_const_binary(i->op, l, r, i->dest->type);
                     if (res.is_const) {
@@ -265,7 +268,7 @@ static void constant_propagate_function(AlirModule *module, AlirFunction *func) 
                     removed = 1;
                 }
             }
-            
+
             if (!removed && i->op == ALIR_OP_NOT && i->op1) {
                 ConstVal v = get_const_for_value(i->op1);
                 if (v.is_const) {
@@ -310,7 +313,7 @@ static void constant_propagate_function(AlirModule *module, AlirFunction *func) 
                     removed = 1;
                 }
             }
-            
+
             if (!removed) {
                 prev = i;
             }
@@ -322,7 +325,7 @@ static void constant_propagate_function(AlirModule *module, AlirFunction *func) 
 
 static void fold_branches_function(AlirModule *module, AlirFunction *func) {
     if (!func || !func->blocks) return;
-    
+
     AlirBlock *b = func->blocks;
     while (b) {
         AlirInst *i = b->head;
@@ -405,17 +408,17 @@ static AlirBlock* find_block_by_label(AlirFunction *func, const char *label) {
 
 static void mark_reachable_blocks(AlirFunction *func, BlockSet *reachable) {
     if (!func || !func->blocks) return;
-    
+
     block_set_init(reachable, func->block_count > 0 ? func->block_count : 8);
-    
+
     AlirBlock *entry = func->blocks;
     if (!entry) return;
-    
+
     AlirBlock **stack = malloc(sizeof(AlirBlock*) * func->block_count);
     int stack_top = 0;
     stack[stack_top++] = entry;
     block_set_add(reachable, entry);
-    
+
     while (stack_top > 0) {
         AlirBlock *b = stack[--stack_top];
         AlirInst *i = b->head;
@@ -443,24 +446,24 @@ static void mark_reachable_blocks(AlirFunction *func, BlockSet *reachable) {
             i = i->next;
         }
     }
-    
+
     free(stack);
 }
 
 static void remove_unreachable_blocks_function(AlirModule *module, AlirFunction *func) {
     if (!func || !func->blocks) return;
-    
+
     BlockSet reachable;
     mark_reachable_blocks(func, &reachable);
-    
+
     if (reachable.count == func->block_count) {
         block_set_free(&reachable);
         return;
     }
-    
+
     AlirBlock **new_blocks = calloc(reachable.count, sizeof(AlirBlock*));
     int new_count = 0;
-    
+
     AlirBlock *prev = NULL;
     AlirBlock *b = func->blocks;
     while (b) {
@@ -478,7 +481,7 @@ static void remove_unreachable_blocks_function(AlirModule *module, AlirFunction 
             free_edges(to_remove->succ);
         }
     }
-    
+
     block_set_free(&reachable);
     free(new_blocks);
 }
@@ -534,7 +537,7 @@ static int merge_entry_jump_function(AlirModule *module, AlirFunction *func) {
 
 static int value_is_used_somewhere(AlirFunction *func, AlirValue *val) {
     if (!val || val->kind != ALIR_VAL_TEMP) return 1;
-    
+
     AlirBlock *b = func->blocks;
     while (b) {
         AlirInst *i = b->head;
@@ -559,7 +562,7 @@ static int value_is_used_somewhere(AlirFunction *func, AlirValue *val) {
 static void remove_dead_stores_function(AlirModule *module, AlirFunction *func) {
     (void)module;
     if (!func || !func->blocks) return;
-    
+
     AlirBlock *b = func->blocks;
     while (b) {
         AlirInst **pip = &b->head;
@@ -579,7 +582,7 @@ static void remove_dead_stores_function(AlirModule *module, AlirFunction *func) 
 
 static int is_temp_used_except_in_load(AlirFunction *func, AlirValue *temp, AlirInst *exclude_load) {
     if (!func || !temp || temp->kind != ALIR_VAL_TEMP) return 1;
-    
+
     AlirBlock *b = func->blocks;
     while (b) {
         AlirInst *i = b->head;
@@ -604,10 +607,10 @@ static int is_temp_used_except_in_load(AlirFunction *func, AlirValue *temp, Alir
 static void propagate_param_copies_function(AlirModule *module, AlirFunction *func) {
     (void)module;
     if (!func || !func->blocks) return;
-    
+
     AlirBlock *entry = func->blocks;
     if (!entry) return;
-    
+
     AlirInst *i = entry->head;
     while (i) {
         if (i->op == ALIR_OP_ALLOCA && i->dest) {
@@ -617,17 +620,17 @@ static void propagate_param_copies_function(AlirModule *module, AlirFunction *fu
                 if (next2 && next2->op == ALIR_OP_LOAD && next2->op1 == i->dest) {
                     if (!is_temp_used_except_in_load(func, i->dest, next2)) {
                         char *param_name = strdup(next->op1->val.str_val);
-                        
+
                         next2->op = 0;
                         next2->dest->kind = ALIR_VAL_VAR;
                         next2->dest->val.str_val = param_name;
                         next2->op1 = NULL;
                         next2->op2 = NULL;
-                        
+
                         AlirInst *to_remove[2];
                         to_remove[0] = i;
                         to_remove[1] = next;
-                        
+
                         for (int r = 0; r < 2; r++) {
                             AlirInst *inst = to_remove[r];
                             AlirInst *prev = NULL;
@@ -659,7 +662,7 @@ static int all_args_const(AlirInst *inst) {
 
 static void eval_pure_call_function(AlirModule *module, AlirFunction *func) {
     if (!func || !func->blocks || func->is_extern || !func->is_pure) return;
-    
+
     AlirBlock *b = func->blocks;
     while (b) {
         AlirInst *prev = NULL;
@@ -667,7 +670,7 @@ static void eval_pure_call_function(AlirModule *module, AlirFunction *func) {
         while (i) {
             AlirInst *next = i->next;
             int removed = 0;
-            
+
             if (i->op == ALIR_OP_CALL && i->op1 && i->op1->kind == ALIR_VAL_VAR && i->dest && all_args_const(i)) {
                 AlirFunction *callee = module->functions;
                 while (callee) {
@@ -689,7 +692,7 @@ static void eval_pure_call_function(AlirModule *module, AlirFunction *func) {
                     callee = callee->next;
                 }
             }
-            
+
             if (!removed) {
                 prev = i;
             }
@@ -701,7 +704,7 @@ static void eval_pure_call_function(AlirModule *module, AlirFunction *func) {
 
 void optlir_local_optimize(AlirModule *module) {
     if (!module) return;
-    
+
     AlirFunction *func = module->functions;
     while (func) {
         if (!func->is_extern) {
@@ -713,7 +716,7 @@ void optlir_local_optimize(AlirModule *module) {
             propagate_param_copies_function(module, func);
             eval_pure_call_function(module, func);
         }
-        
+
         {
             AlirBlock *b = func->blocks;
             while (b) {

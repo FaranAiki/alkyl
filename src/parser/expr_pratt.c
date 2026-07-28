@@ -6,6 +6,7 @@
 ASTNode* parse_expression_pratt(Parser *p);
 static ASTNode* parse_precedence(Parser *p, int precedence);
 
+// TODO make it so that we can actually add other precedence
 typedef enum {
     PREC_NONE,
     PREC_ASSIGN,      // =, +=, -=, etc.
@@ -45,14 +46,14 @@ static ParseRule* get_rule(TokenType type) {
 static ASTNode* parse_precedence(Parser *p, int precedence) {
     TokenType type = p->current_token.type;
     ParsePrefixFn prefix_rule = get_rule(type)->prefix;
-    
+
     if (prefix_rule == NULL) {
         parser_fail(p, "Expected expression");
         return NULL;
     }
-    
+
     ASTNode *left = prefix_rule(p);
-    
+
     while (precedence <= get_rule(p->current_token.type)->precedence) {
         type = p->current_token.type;
         ParseInfixFn infix_rule = get_rule(type)->infix;
@@ -62,7 +63,7 @@ static ASTNode* parse_precedence(Parser *p, int precedence) {
             break;
         }
     }
-    
+
     return left;
 }
 
