@@ -504,16 +504,25 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
 
     char func_name[256];
     if (fn->mangled_name) {
-        if (class_name) {
+        if (class_name && fn->class_name && strcmp(class_name, fn->class_name) != 0) {
+            // Inherited method: replace the original class name with the target class name
             char search_str[256];
             snprintf(search_str, sizeof(search_str), "_%s", fn->name);
             char *pos = strstr(fn->mangled_name, search_str);
             if (pos) {
-                snprintf(func_name, sizeof(func_name), "%s%s", class_name, pos);
+                char *class_start = pos;
+                while (class_start > fn->mangled_name && *(class_start - 1) != '_') {
+                    class_start--;
+                }
+                snprintf(func_name, sizeof(func_name), "%.*s%s%s",
+                    (int)(class_start - fn->mangled_name), fn->mangled_name,
+                    class_name,
+                    pos);
             } else {
                 snprintf(func_name, sizeof(func_name), "%s", fn->mangled_name);
             }
         } else {
+            // Direct method or top-level function: use mangled name as-is
             snprintf(func_name, sizeof(func_name), "%s", fn->mangled_name);
         }
     } else {

@@ -15,7 +15,13 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             if (LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(ctx->builder)) != NULL) break;
             LLVMBasicBlockRef then_bb = hashmap_get(&ctx->block_map, inst->op2->val.str_val);
             LLVMBasicBlockRef else_bb = hashmap_get(&ctx->block_map, inst->args[0]->val.str_val);
-            if (then_bb && else_bb && op1) LLVMBuildCondBr(ctx->builder, op1, then_bb, else_bb);
+            if (then_bb && else_bb && op1) {
+                LLVMValueRef cond = op1;
+                if (LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMIntegerTypeKind && LLVMGetIntTypeWidth(LLVMTypeOf(op1)) > 1) {
+                    cond = LLVMBuildTrunc(ctx->builder, op1, LLVMInt1TypeInContext(ctx->llvm_ctx), "trunc_cond");
+                }
+                LLVMBuildCondBr(ctx->builder, cond, then_bb, else_bb);
+            }
             break;
         }
         case ALIR_OP_CALL: {
@@ -44,9 +50,25 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 func_ty = hashmap_get(&ctx->func_type_map, inst->op1->val.str_val);
                 
                 if (!func) {
-                    LLVMTypeRef ret_ty = inst->dest ? get_llvm_type(ctx, inst->dest->type) : LLVMVoidTypeInContext(ctx->llvm_ctx);
-                    func_ty = LLVMFunctionType(ret_ty, NULL, 0, 1); // Vararg fallback
-                    func = LLVMAddFunction(ctx->llvm_mod, inst->op1->val.str_val, func_ty);
+                    // Try to find the function in the module directly
+                    func = LLVMGetNamedFunction(ctx->llvm_mod, inst->op1->val.str_val);
+                    if (func) {
+                        func_ty = LLVMGlobalGetValueType(func);
+                    } else {
+                        // Create a declaration with concrete parameter types from the call args
+                        LLVMTypeRef ret_ty = inst->dest ? get_llvm_type(ctx, inst->dest->type) : LLVMVoidTypeInContext(ctx->llvm_ctx);
+                        int param_count = inst->arg_count;
+                        int __pt_sz = param_count > 0 ? param_count : 1; LLVMTypeRef param_types[__pt_sz];
+                        for (int i=0; i<param_count; i++) {
+                            if (inst->args[i]) {
+                                param_types[i] = get_llvm_type(ctx, inst->args[i]->type);
+                            } else {
+                                param_types[i] = LLVMInt64TypeInContext(ctx->llvm_ctx);
+                            }
+                        }
+                        func_ty = LLVMFunctionType(ret_ty, param_types, param_count, 0);
+                        func = LLVMAddFunction(ctx->llvm_mod, inst->op1->val.str_val, func_ty);
+                    }
                 }
             }
 

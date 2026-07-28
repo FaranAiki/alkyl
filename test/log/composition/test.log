@@ -6,10 +6,6 @@ in .../code/composition/test.aky:
 23:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-/usr/bin/ld: build/out.o: in function `main':
-main_module:(.text+0xe2): undefined reference to `main_Identity_speak'
-/usr/bin/ld: main_module:(.text+0xec): undefined reference to `main_Person_intro'
-collect2: error: ld returned 1 exit status
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 DEBUG: sem_check_index_access: trait_name=Identity, class=Person, trait_count=1
@@ -24,4 +20,4 @@ LLVMStructSetBody for Person with 2 fields
 LLVMStructSetBody for Identity with 2 fields
 Compiled to build/out.o
 Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linking failed.
+Linked to build/out

@@ -594,15 +594,15 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     if (op == ALIR_OP_NEQ) {
         AlirValue *eq = new_temp(ctx, res_type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, eq, l, r));
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_SUB, dest, alir_const_int(ctx->module, 1), eq));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_NOT, dest, eq, NULL));
     } else if (op == ALIR_OP_LTE) {
         AlirValue *gt = new_temp(ctx, res_type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_GT, gt, l, r));
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_SUB, dest, alir_const_int(ctx->module, 1), gt));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_NOT, dest, gt, NULL));
     } else if (op == ALIR_OP_GTE) {
         AlirValue *lt = new_temp(ctx, res_type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_LT, lt, l, r));
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_SUB, dest, alir_const_int(ctx->module, 1), lt));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_NOT, dest, lt, NULL));
     } else {
         emit(ctx, mk_inst(ctx->module, op, dest, l, r));
     }

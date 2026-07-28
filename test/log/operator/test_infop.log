@@ -1,34 +1,3 @@
-Both operands to a binary operator are not of the same type!
-  %sub = sub i32 1, i1 %eq
-Branch condition is not 'i1' type!
-  br i32 %sub, label %then, label %merge
-  %sub = sub i32 1, i1 %eq
-Both operands to a binary operator are not of the same type!
-  %sub8 = sub i32 1, i1 %eq7
-Branch condition is not 'i1' type!
-  br i32 %sub8, label %then2, label %merge2
-  %sub8 = sub i32 1, i1 %eq7
-Both operands to a binary operator are not of the same type!
-  %sub = sub i32 1, i1 %eq
-Branch condition is not 'i1' type!
-  br i32 %sub, label %then, label %merge
-  %sub = sub i32 1, i1 %eq
-Both operands to a binary operator are not of the same type!
-  %sub8 = sub i32 1, i1 %eq7
-Branch condition is not 'i1' type!
-  br i32 %sub8, label %then2, label %merge2
-  %sub8 = sub i32 1, i1 %eq7
-LLVM Verification Error: Both operands to a binary operator are not of the same type!
-  %sub = sub i32 1, i1 %eq
-Branch condition is not 'i1' type!
-  br i32 %sub, label %then, label %merge
-  %sub = sub i32 1, i1 %eq
-Both operands to a binary operator are not of the same type!
-  %sub8 = sub i32 1, i1 %eq7
-Branch condition is not 'i1' type!
-  br i32 %sub8, label %then2, label %merge2
-  %sub8 = sub i32 1, i1 %eq7
-
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
@@ -36,3 +5,6 @@ step: Finished macro linking. Start generating Alkyl Intermediate Representation
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start Codegen using LLVM Codegen
 LLVMStructSetBody for Vector with 2 fields
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

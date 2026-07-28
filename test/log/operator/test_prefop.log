@@ -1,33 +1,21 @@
-Both operands to a binary operator are not of the same type!
-  %sub = sub i32 1, i1 %eq
-Branch condition is not 'i1' type!
-  br i32 %sub, label %then, label %merge
-  %sub = sub i32 1, i1 %eq
-Both operands to a binary operator are not of the same type!
-  %sub6 = sub i32 1, i1 %eq5
-Branch condition is not 'i1' type!
-  br i32 %sub6, label %then2, label %merge2
-  %sub6 = sub i32 1, i1 %eq5
-Both operands to a binary operator are not of the same type!
-  %sub = sub i32 1, i1 %eq
-Branch condition is not 'i1' type!
-  br i32 %sub, label %then, label %merge
-  %sub = sub i32 1, i1 %eq
-Both operands to a binary operator are not of the same type!
-  %sub6 = sub i32 1, i1 %eq5
-Branch condition is not 'i1' type!
-  br i32 %sub6, label %then2, label %merge2
-  %sub6 = sub i32 1, i1 %eq5
-LLVM Verification Error: Both operands to a binary operator are not of the same type!
-  %sub = sub i32 1, i1 %eq
-Branch condition is not 'i1' type!
-  br i32 %sub, label %then, label %merge
-  %sub = sub i32 1, i1 %eq
-Both operands to a binary operator are not of the same type!
-  %sub6 = sub i32 1, i1 %eq5
-Branch condition is not 'i1' type!
-  br i32 %sub6, label %then2, label %merge2
-  %sub6 = sub i32 1, i1 %eq5
+Call parameter type does not match function signature!
+  %alloc1 = alloca %BooleanWrapper, align 8
+ %BooleanWrapper = type { i1 }  %call7 = call i32 @BooleanWrapper_as_int(ptr %alloc1)
+Call parameter type does not match function signature!
+  %alloc1 = alloca %BooleanWrapper, align 8
+ %BooleanWrapper = type { i1 }  %call9 = call i32 @BooleanWrapper_as_int(ptr %alloc1)
+Call parameter type does not match function signature!
+  %alloc1 = alloca %BooleanWrapper, align 8
+ %BooleanWrapper = type { i1 }  %call7 = call i32 @BooleanWrapper_as_int(ptr %alloc1)
+Call parameter type does not match function signature!
+  %alloc1 = alloca %BooleanWrapper, align 8
+ %BooleanWrapper = type { i1 }  %call9 = call i32 @BooleanWrapper_as_int(ptr %alloc1)
+LLVM Verification Error: Call parameter type does not match function signature!
+  %alloc1 = alloca %BooleanWrapper, align 8
+ %BooleanWrapper = type { i1 }  %call7 = call i32 @BooleanWrapper_as_int(ptr %alloc1)
+Call parameter type does not match function signature!
+  %alloc1 = alloca %BooleanWrapper, align 8
+ %BooleanWrapper = type { i1 }  %call9 = call i32 @BooleanWrapper_as_int(ptr %alloc1)
 
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.

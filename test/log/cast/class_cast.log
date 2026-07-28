@@ -1,3 +1,6 @@
+/usr/bin/ld: build/out.o: in function `main':
+main_module:(.text+0x1e): undefined reference to `Vector_int_as_int'
+collect2: error: ld returned 1 exit status
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
@@ -7,4 +10,4 @@ step: Finished alir check and analysis. Start Codegen using LLVM Codegen
 LLVMStructSetBody for Vector_int with 2 fields
 Compiled to build/out.o
 Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out
+Linking failed.
