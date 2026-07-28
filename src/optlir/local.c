@@ -501,40 +501,17 @@ static int merge_entry_jump_function(AlirModule *module, AlirFunction *func) {
     AlirBlock *entry = func->blocks;
     if (!entry || !entry->head) return 0;
 
-    AlirInst *term = entry->tail;
-    if (term->op != ALIR_OP_JUMP || term->op1 == NULL || term->op1->kind != ALIR_VAL_LABEL) return 0;
+    AlirInst *i = entry->head;
+    if (i->op != ALIR_OP_JUMP || i->op1 == NULL || i->op1->kind != ALIR_VAL_LABEL) return 0;
+    if (i->next != NULL) return 0;
 
-    const char *target_label = term->op1->val.str_val;
+    const char *target_label = i->op1->val.str_val;
     AlirBlock *target = find_block_by_label(func, target_label);
     if (!target || target == entry) return 0;
 
     int pred_count = 0;
     for (BlockEdge *e = target->pred; e; e = e->next) pred_count++;
     if (pred_count != 1) return 0;
-
-    if (term != entry->head) {
-        AlirInst *first = entry->head;
-        AlirInst *last_non_term = NULL;
-        AlirInst *cur = first;
-        while (cur && cur != term) {
-            last_non_term = cur;
-            cur = cur->next;
-        }
-        if (last_non_term) {
-            last_non_term->next = NULL;
-
-            if (target->head) {
-                last_non_term->next = target->head;
-            } else {
-                target->tail = last_non_term;
-            }
-            target->head = first;
-        }
-    }
-
-    if (strcmp(entry->label, target_label) != 0) {
-        redirect_label_in_all_blocks(module, func, entry->label, target_label);
-    }
 
     if (func->blocks == entry) {
         func->blocks = entry->next;
@@ -544,6 +521,10 @@ static int merge_entry_jump_function(AlirModule *module, AlirFunction *func) {
         if (prev_entry) prev_entry->next = entry->next;
     }
     func->block_count--;
+
+    if (strcmp(entry->label, target_label) != 0) {
+        redirect_label_in_all_blocks(module, func, entry->label, target_label);
+    }
 
     free_edges(entry->pred);
     free_edges(entry->succ);
