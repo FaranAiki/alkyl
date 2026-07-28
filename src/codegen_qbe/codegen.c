@@ -98,7 +98,14 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
 
     switch (inst->op) {
         case ALIR_OP_ALLOCA: {
-            int sz = qbe_type_size(dt);
+            int sz;
+            if (inst->op1 && inst->op1->kind == ALIR_VAL_CONST) {
+                sz = (int)inst->op1->val.long_val;
+            } else if (inst->op1 && inst->op1->kind == ALIR_VAL_INT) {
+                sz = (int)inst->op1->val.long_val;
+            } else {
+                sz = qbe_type_size(dt);
+            }
             fprintf(out, "\t");
             print_val(out, inst->dest);
             fprintf(out, " =l alloc4 %d\n", sz);
@@ -295,13 +302,27 @@ static void emit_inst(FILE *out, AlirInst *inst, AlirBlock *next_block) {
             fprintf(out, "\n");
             break;
         }
-        case ALIR_OP_BITCAST:
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =%c bitcast ", dt);
-            print_val(out, inst->op1);
-            fprintf(out, "\n");
+        case ALIR_OP_BITCAST: {
+            char src_t = 'l';
+            if (inst->op1) {
+                src_t = qbe_type(inst->op1->type);
+                if (src_t == 'v') src_t = 'l';
+            }
+            if (dt == 'l' && src_t == 'l') {
+                fprintf(out, "\t");
+                print_val(out, inst->dest);
+                fprintf(out, " =l copy ");
+                print_val(out, inst->op1);
+                fprintf(out, "\n");
+            } else {
+                fprintf(out, "\t");
+                print_val(out, inst->dest);
+                fprintf(out, " =%c copy ", dt);
+                print_val(out, inst->op1);
+                fprintf(out, "\n");
+            }
             break;
+        }
         case ALIR_OP_FREE_STACK:
             break;
         case ALIR_OP_MOD:

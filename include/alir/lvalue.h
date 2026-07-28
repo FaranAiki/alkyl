@@ -21,6 +21,8 @@ AlirValue* alir_gen_addr_index_access(AlirCtx *ctx, IndexAccessNode *aa);
 
 int alir_get_type_size(VarType t);
 
+int alir_get_struct_size(AlirModule *mod, const char *struct_name);
+
 // [BUGFIX] Added robust fallback helper for broken semantic analysis
 int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char *field_name);
 

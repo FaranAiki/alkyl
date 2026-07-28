@@ -1,22 +1,3 @@
-Call parameter type does not match function signature!
-  %alloc1 = alloca %BooleanWrapper, align 8
- %BooleanWrapper = type { i1 }  %call7 = call i32 @BooleanWrapper_as_int(ptr %alloc1)
-Call parameter type does not match function signature!
-  %alloc1 = alloca %BooleanWrapper, align 8
- %BooleanWrapper = type { i1 }  %call9 = call i32 @BooleanWrapper_as_int(ptr %alloc1)
-Call parameter type does not match function signature!
-  %alloc1 = alloca %BooleanWrapper, align 8
- %BooleanWrapper = type { i1 }  %call7 = call i32 @BooleanWrapper_as_int(ptr %alloc1)
-Call parameter type does not match function signature!
-  %alloc1 = alloca %BooleanWrapper, align 8
- %BooleanWrapper = type { i1 }  %call9 = call i32 @BooleanWrapper_as_int(ptr %alloc1)
-LLVM Verification Error: Call parameter type does not match function signature!
-  %alloc1 = alloca %BooleanWrapper, align 8
- %BooleanWrapper = type { i1 }  %call7 = call i32 @BooleanWrapper_as_int(ptr %alloc1)
-Call parameter type does not match function signature!
-  %alloc1 = alloca %BooleanWrapper, align 8
- %BooleanWrapper = type { i1 }  %call9 = call i32 @BooleanWrapper_as_int(ptr %alloc1)
-
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
@@ -24,3 +5,6 @@ step: Finished macro linking. Start generating Alkyl Intermediate Representation
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start Codegen using LLVM Codegen
 LLVMStructSetBody for BooleanWrapper with 1 fields
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

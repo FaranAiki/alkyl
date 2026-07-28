@@ -27,6 +27,44 @@ int alir_get_type_size(VarType t) {
     }
 }
 
+static int alir_get_type_align(VarType t) {
+    if (t.ptr_depth > 0) return 8;
+    if (t.array_size > 0) return 8;
+    switch (t.base) {
+        case TYPE_BOOL:
+        case TYPE_CHAR:
+        case TYPE_UNSIGNED_CHAR: return 1;
+        case TYPE_SHORT: return 2;
+        case TYPE_INT:
+        case TYPE_UNSIGNED_INT:
+        case TYPE_SINGLE:
+        case TYPE_ENUM: return 4;
+        case TYPE_LONG:
+        case TYPE_LONG_LONG:
+        case TYPE_UNSIGNED_LONG:
+        case TYPE_UNSIGNED_LONG_LONG:
+        case TYPE_DOUBLE:
+        case TYPE_LONG_DOUBLE: return 8;
+        default: return 8;
+    }
+}
+
+int alir_get_struct_size(AlirModule *mod, const char *struct_name) {
+    AlirStruct *st = alir_find_struct(mod, struct_name);
+    if (!st || !st->fields) return 8;
+
+    int offset = 0;
+    AlirField *f = st->fields;
+    while (f) {
+        int size = alir_get_type_size(f->type);
+        int align = alir_get_type_align(f->type);
+        offset = (offset + align - 1) & ~(align - 1);
+        offset += size;
+        f = f->next;
+    }
+    return (offset + 7) & ~7;
+}
+
 int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char *field_name) {
     int idx = -1;
     if (hint_class) {

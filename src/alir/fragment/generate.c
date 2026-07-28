@@ -585,7 +585,9 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
         if (col->type.ptr_depth == 0) {
             VarType pt = col->type;
             pt.ptr_depth = 1;
-            AlirValue *size_val = alir_const_int(ctx->module, 8);
+            int struct_size = alir_get_struct_size(ctx->module, col->type.class_name);
+            if (struct_size < 8) struct_size = 8;
+            AlirValue *size_val = alir_const_int(ctx->module, struct_size);
             AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1});
             emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, raw_mem, size_val, NULL));
             AlirValue *col_ptr = new_temp(ctx, pt);
