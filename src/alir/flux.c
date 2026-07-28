@@ -229,6 +229,7 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     }
     
     AlirBlock *start_bb = alir_add_block(ctx->module, ctx->current_func, "flux_start");
+    AlirBlock *dispatch_bb = alir_add_block(ctx->module, ctx->current_func, "dispatch");
     AlirBlock *end_bb = alir_add_block(ctx->module, ctx->current_func, "flux_end");
     
     // Build pending if/else chain for flux dispatch
@@ -236,20 +237,25 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     c0->value = 0; c0->label = start_bb->label;
     ctx->flux_resume_cases = c0;
     
-    ctx->current_block = start_bb;
+    // Branch from entry to dispatch
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, dispatch_bb->label), NULL));
     
+    // Emit body in start_bb first so yields can register their resume blocks/cases
+    ctx->current_block = start_bb;
     ASTNode *stmt = fn->body;
     while(stmt) { alir_gen_stmt(ctx, stmt); stmt = stmt->next; }
     
-    // Prevent LLVM unreachable exceptions by ONLY dropping a closing ret if the block doesn't naturally terminate via jumps/rets
+    // After body, if no terminator, set finished and branch to end
     if (!ctx->current_block->tail || !is_terminator_op(ctx->current_block->tail->op)) {
         AlirValue *p_fin = new_temp(ctx, (VarType){TYPE_BOOL, 1});
         emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, p_fin, ctx->flux_ctx_ptr, alir_const_int(ctx->module, 1)));
         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, alir_const_int(ctx->module, 1), p_fin));
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, end_bb->label), NULL));
     }
-
-    // Emit pending if/else chain for flux dispatch
+    
+    // Emit dispatch chain in dispatch_bb after body so all yield states are known
+    ctx->current_block = dispatch_bb;
+    
     {
         AlirSwitchCase *cases = ctx->flux_resume_cases;
         int num_cases = 0;
