@@ -1,5 +1,6 @@
 #include "optlir.h"
 #include "optlir/local.h"
+#include "common/arena.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -25,7 +26,6 @@ static ConstVal get_const_for_value(AlirValue *val) {
     return res;
 }
 
-// TODO: should we use VM executor? no?
 static ConstVal eval_const_binary(int op, ConstVal l, ConstVal r, VarType type) {
     ConstVal res = {0};
     res.is_float = (type.base == TYPE_SINGLE || type.base == TYPE_DOUBLE);
@@ -137,11 +137,7 @@ static void remove_instruction(AlirBlock *block, AlirInst *prev, AlirInst *inst)
 }
 
 static void free_edges(BlockEdge *e) {
-    while (e) {
-        BlockEdge *next = e->next;
-        free(e);
-        e = next;
-    }
+    (void)e;
 }
 
 static void redirect_label_to(AlirModule *module, AlirBlock *b, const char *old_label, const char *new_label) {
@@ -175,7 +171,7 @@ static void redirect_label_in_all_blocks(AlirModule *module, AlirFunction *func,
 
 static AlirBlock* find_block_by_label(AlirFunction *func, const char *label);
 
-static void build_pred_succ(AlirFunction *func) {
+static void build_pred_succ(AlirFunction *func, Arena *arena) {
     if (!func || !func->blocks) return;
     AlirBlock *b = func->blocks;
     while (b) {
@@ -199,11 +195,11 @@ static void build_pred_succ(AlirFunction *func) {
                 }
             }
             if (t && t != b) {
-                BlockEdge *se = malloc(sizeof(BlockEdge));
+                BlockEdge *se = arena_alloc_type(arena, BlockEdge);
                 se->block = t;
                 se->next = b->succ;
                 b->succ = se;
-                BlockEdge *pe = malloc(sizeof(BlockEdge));
+                BlockEdge *pe = arena_alloc_type(arena, BlockEdge);
                 pe->block = b;
                 pe->next = t->pred;
                 t->pred = pe;
@@ -362,21 +358,27 @@ typedef struct BlockSet {
     int capacity;
 } BlockSet;
 
-static void block_set_init(BlockSet *set, int capacity) {
-    set->blocks = calloc(capacity, sizeof(AlirBlock*));
+static void block_set_init(BlockSet *set, int capacity, Arena *arena) {
+    set->blocks = arena_alloc(arena, sizeof(AlirBlock *) * capacity);
+    memset(set->blocks, 0, sizeof(AlirBlock *) * capacity);
     set->count = 0;
     set->capacity = capacity;
 }
 
-static void block_set_add(BlockSet *set, AlirBlock *b) {
+static void block_set_add(BlockSet *set, AlirBlock *b, Arena *arena) {
     if (!b) return;
     for (int i = 0; i < set->count; i++) {
         if (set->blocks[i] == b) return;
     }
     if (set->count >= set->capacity) {
-        set->capacity *= 2;
-        set->blocks = realloc(set->blocks, set->capacity * sizeof(AlirBlock*));
-        memset(set->blocks + set->count, 0, (set->capacity - set->count) * sizeof(AlirBlock*));
+        int new_cap = set->capacity * 2;
+        AlirBlock **new_blocks = arena_alloc(arena, sizeof(AlirBlock *) * new_cap);
+        memset(new_blocks + set->count, 0, (new_cap - set->count) * sizeof(AlirBlock *));
+        if (set->blocks) {
+            memcpy(new_blocks, set->blocks, set->count * sizeof(AlirBlock *));
+        }
+        set->blocks = new_blocks;
+        set->capacity = new_cap;
     }
     set->blocks[set->count++] = b;
 }
@@ -390,7 +392,6 @@ static int block_set_has(BlockSet *set, AlirBlock *b) {
 }
 
 static void block_set_free(BlockSet *set) {
-    free(set->blocks);
     set->blocks = NULL;
     set->count = 0;
     set->capacity = 0;
@@ -406,18 +407,18 @@ static AlirBlock* find_block_by_label(AlirFunction *func, const char *label) {
     return NULL;
 }
 
-static void mark_reachable_blocks(AlirFunction *func, BlockSet *reachable) {
+static void mark_reachable_blocks(AlirFunction *func, BlockSet *reachable, Arena *arena) {
     if (!func || !func->blocks) return;
 
-    block_set_init(reachable, func->block_count > 0 ? func->block_count : 8);
+    block_set_init(reachable, func->block_count > 0 ? func->block_count : 8, arena);
 
     AlirBlock *entry = func->blocks;
     if (!entry) return;
 
-    AlirBlock **stack = malloc(sizeof(AlirBlock*) * func->block_count);
+    AlirBlock **stack = arena_alloc(arena, sizeof(AlirBlock *) * func->block_count);
     int stack_top = 0;
     stack[stack_top++] = entry;
-    block_set_add(reachable, entry);
+    block_set_add(reachable, entry, arena);
 
     while (stack_top > 0) {
         AlirBlock *b = stack[--stack_top];
@@ -426,19 +427,19 @@ static void mark_reachable_blocks(AlirFunction *func, BlockSet *reachable) {
             if (i->op == ALIR_OP_JUMP && i->op1 && i->op1->kind == ALIR_VAL_LABEL) {
                 AlirBlock *target = find_block_by_label(func, i->op1->val.str_val);
                 if (target && !block_set_has(reachable, target)) {
-                    block_set_add(reachable, target);
+                    block_set_add(reachable, target, arena);
                     stack[stack_top++] = target;
                 }
             } else if (i->op == ALIR_OP_CONDI && i->op1 && i->op2 && i->op2->kind == ALIR_VAL_LABEL) {
                 AlirBlock *target = find_block_by_label(func, i->op2->val.str_val);
                 if (target && !block_set_has(reachable, target)) {
-                    block_set_add(reachable, target);
+                    block_set_add(reachable, target, arena);
                     stack[stack_top++] = target;
                 }
                 if (i->arg_count > 0 && i->args[0] && i->args[0]->kind == ALIR_VAL_LABEL) {
                     target = find_block_by_label(func, i->args[0]->val.str_val);
                     if (target && !block_set_has(reachable, target)) {
-                        block_set_add(reachable, target);
+                        block_set_add(reachable, target, arena);
                         stack[stack_top++] = target;
                     }
                 }
@@ -446,22 +447,22 @@ static void mark_reachable_blocks(AlirFunction *func, BlockSet *reachable) {
             i = i->next;
         }
     }
-
-    free(stack);
 }
 
 static void remove_unreachable_blocks_function(AlirModule *module, AlirFunction *func) {
     if (!func || !func->blocks) return;
 
+    Arena *arena = module->compiler_ctx ? module->compiler_ctx->arena : NULL;
     BlockSet reachable;
-    mark_reachable_blocks(func, &reachable);
+    mark_reachable_blocks(func, &reachable, arena);
 
     if (reachable.count == func->block_count) {
         block_set_free(&reachable);
         return;
     }
 
-    AlirBlock **new_blocks = calloc(reachable.count, sizeof(AlirBlock*));
+    AlirBlock **new_blocks = arena_alloc(arena, sizeof(AlirBlock *) * reachable.count);
+    memset(new_blocks, 0, sizeof(AlirBlock *) * reachable.count);
     int new_count = 0;
 
     AlirBlock *prev = NULL;
@@ -483,12 +484,12 @@ static void remove_unreachable_blocks_function(AlirModule *module, AlirFunction 
     }
 
     block_set_free(&reachable);
-    free(new_blocks);
 }
 
 static int merge_entry_jump_function(AlirModule *module, AlirFunction *func) {
     if (!func || !func->blocks) return 0;
 
+    Arena *arena = module->compiler_ctx ? module->compiler_ctx->arena : NULL;
     {
         AlirBlock *b = func->blocks;
         while (b) {
@@ -498,7 +499,7 @@ static int merge_entry_jump_function(AlirModule *module, AlirFunction *func) {
             b->succ = NULL;
             b = b->next;
         }
-        build_pred_succ(func);
+        build_pred_succ(func, arena);
     }
 
     AlirBlock *entry = func->blocks;
@@ -605,6 +606,7 @@ static int is_temp_used_except_in_load(AlirFunction *func, AlirValue *temp, Alir
 }
 
 static void propagate_param_copies_function(AlirModule *module, AlirFunction *func) {
+    Arena *arena = module->compiler_ctx ? module->compiler_ctx->arena : NULL;
     (void)module;
     if (!func || !func->blocks) return;
 
@@ -619,7 +621,7 @@ static void propagate_param_copies_function(AlirModule *module, AlirFunction *fu
                 AlirInst *next2 = next->next;
                 if (next2 && next2->op == ALIR_OP_LOAD && next2->op1 == i->dest) {
                     if (!is_temp_used_except_in_load(func, i->dest, next2)) {
-                        char *param_name = strdup(next->op1->val.str_val);
+                        char *param_name = arena_strdup(arena, next->op1->val.str_val);
 
                         next2->op = 0;
                         next2->dest->kind = ALIR_VAL_VAR;

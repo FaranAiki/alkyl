@@ -1,8 +1,18 @@
-at namespace main:
-in .../code/extern/test_nested_class.aky:
-8:3: error: Type mismatch in declaration of 'c'. Expected 'ns.Clib', got 'Clib*'
-  |   ns.Clib c(1);
-  |   ^
-Semantic analysis failed with 1 errors.
+Call parameter type does not match function signature!
+  %alloc = alloca %ns.Clib, align 8
+ %ns.Clib = type { i32 }  call void @ns.Clib(ptr %alloc, i32 1)
+Call parameter type does not match function signature!
+  %alloc = alloca %ns.Clib, align 8
+ %ns.Clib = type { i32 }  call void @ns.Clib(ptr %alloc, i32 1)
+LLVM Verification Error: Call parameter type does not match function signature!
+  %alloc = alloca %ns.Clib, align 8
+ %ns.Clib = type { i32 }  call void @ns.Clib(ptr %alloc, i32 1)
+
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen
+LLVMStructSetBody for ns.Clib with 1 fields

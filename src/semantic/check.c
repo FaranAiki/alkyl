@@ -328,7 +328,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     }
 
     if (sym->kind == SYM_CLASS) {
-        VarType instance = {TYPE_CLASS, 1, arena_strdup(ctx->compiler_ctx->arena, sym->name), 0, 0, NULL, NULL, 0, 0, 0, 0}; 
+        VarType instance = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, node->name), 0, 0, NULL, NULL, 0, 0, 0, 0}; 
         sem_set_node_type(ctx, (ASTNode*)node, instance);
 
         // Find constructor

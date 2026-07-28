@@ -178,6 +178,7 @@ static void ethyl_redisplay(void) {
     fflush(stdout);
 }
 
+// TODO: this is why we should implement it ourself!
 char* get_smart_input(Arena* arena, int cmd_count) {
     char prompt[128];
     sprintf(prompt, "\033[32mIn [%d]:\033[0m ", cmd_count);
@@ -228,6 +229,8 @@ char* get_smart_input(Arena* arena, int cmd_count) {
             }
         }
 
+        // TODO: make sure that this is possible to do something like
+        // enum [ ... without even the need of trimmed! so yes, detect if there is an unclosed brackets!
         if (first_line && brace_depth == 0) {
             if (strncmp(trimmed, "if ", 3) == 0 || strncmp(trimmed, "if(", 3) == 0 ||
                 strncmp(trimmed, "while ", 6) == 0 || strncmp(trimmed, "while(", 6) == 0 ||
@@ -317,10 +320,10 @@ int run_repl(void) {
         if (!root || r->parser.has_error) continue;
 
         r->sem.current_source = buffer;
-        r->sem.current_filename = "REPL";
-        
+        r->sem.current_filename = "ethyl_repl";
+
         metalir_resolve_imports(r, &root);
-        
+
         int sem_errs = sem_check_program(&r->sem, root);
         if (sem_errs > 0) {
             r->ctx.semantic_error_count = 0;
@@ -374,9 +377,9 @@ int run_file(const char *filename) {
 
     r->sem.current_source = code;
     r->sem.current_filename = filename;
-    
+
     metalir_resolve_imports(r, &root);
-    
+
     int sem_errs = sem_check_program(&r->sem, root);
     if (sem_errs > 0) {
         free(code);

@@ -1,3 +1,10 @@
+IntToPtr source must be an integral
+  %load_cast = inttoptr %Vector_int %load to ptr
+IntToPtr source must be an integral
+  %load_cast = inttoptr %Vector_int %load to ptr
+LLVM Verification Error: IntToPtr source must be an integral
+  %load_cast = inttoptr %Vector_int %load to ptr
+
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
@@ -6,6 +13,3 @@ step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
 LLVMStructSetBody for Vector_int with 2 fields
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

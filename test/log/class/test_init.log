@@ -1,3 +1,13 @@
+Call parameter type does not match function signature!
+  %alloc = alloca %Point, align 8
+ %Point = type { double, double }  call void @Point(ptr %alloc, double 5.000000e+00, double 6.500000e+00)
+Call parameter type does not match function signature!
+  %alloc = alloca %Point, align 8
+ %Point = type { double, double }  call void @Point(ptr %alloc, double 5.000000e+00, double 6.500000e+00)
+LLVM Verification Error: Call parameter type does not match function signature!
+  %alloc = alloca %Point, align 8
+ %Point = type { double, double }  call void @Point(ptr %alloc, double 5.000000e+00, double 6.500000e+00)
+
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
@@ -6,6 +16,3 @@ step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
 LLVMStructSetBody for Point with 2 fields
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

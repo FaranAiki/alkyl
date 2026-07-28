@@ -64,6 +64,13 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                         sem_set_node_type(ctx, (ASTNode*)node, *member->type.fp_ret_type);
                         found = 1;
                     }
+                    else if (member->kind == SYM_CLASS) {
+                        char full_name[512];
+                        snprintf(full_name, sizeof(full_name), "%s.%s", obj_type.class_name, member->name);
+                        VarType instance = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, full_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+                        sem_set_node_type(ctx, (ASTNode*)node, instance);
+                        found = 1;
+                    }
 
                     if (found) {
                         if (member->kind == SYM_FUNC) {

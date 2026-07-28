@@ -82,12 +82,14 @@ long long metalir_vm_resolve_var(AlirValue *val, AlirModule *module, MetalirVM *
 long long metalir_vm_execute(MetalirVM *vm, AlirModule *module, AlirFunction *func, void *sem_ctx_ptr, long long *args, int arg_count) {
     if (!vm || !func) return 0;
 
+    // What the fuck is this
+    /*
     if (strcmp(func->name, "Vector_as_int") == 0) {
         AlirInst *i = func->blocks ? func->blocks->head : NULL;
         while(i) {
             i = i->next;
         }
-    }
+    }*/
     SemanticCtx *sem_ctx = (SemanticCtx *)sem_ctx_ptr;
 
     VMValue local_registers[MAX_VM_STACK];

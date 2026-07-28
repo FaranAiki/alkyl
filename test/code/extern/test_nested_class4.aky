@@ -7,5 +7,6 @@ namespace ns {
 int main() {
   ns.Clib c;
   c.x = 1;
-  return c.x;
+  if c.x == 1 { return 0; }
+  return 1;
 }
