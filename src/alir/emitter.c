@@ -71,11 +71,11 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
           alir_fprint_type(f, func->ret_type);
           fprintf(f, " @%s(", func->name);
 
-          AlirParam *p = func->params;
-          while(p) {
-              alir_fprint_type(f, p->type);
-              if (p->next) fprintf(f, ", ");
-              p = p->next;
+          AlirParam *ep = func->params;
+          while(ep) {
+              alir_fprint_type(f, ep->type);
+              if (ep->next) fprintf(f, ", ");
+              ep = ep->next;
           }
           if (func->is_varargs) {
               if (func->param_count > 0) fprintf(f, ", ");

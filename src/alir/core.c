@@ -35,39 +35,43 @@ AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
     return m;
 }
 
-AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, int is_flux) {
-    if (mod->functions) {
-        AlirFunction *curr = mod->functions;
-        while(curr) {
-            if (strcmp(curr->name, name) == 0) {
-                curr->ret_type = ret;
-                curr->is_flux = is_flux;
-                curr->blocks = NULL;
-                curr->block_count = 0;
-                return curr;
-            }
-            curr = curr->next;
-        }
-    }
+ AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, int is_flux) {
+     if (mod->functions) {
+         AlirFunction *curr = mod->functions;
+         while(curr) {
+             if (strcmp(curr->name, name) == 0) {
+                 curr->ret_type = ret;
+                 curr->is_flux = is_flux;
+                 if (curr->block_count == 0) {
+                     curr->blocks = NULL;
+                     curr->block_count = 0;
+                     curr->params = NULL;
+                     curr->param_count = 0;
+                 }
+                 return curr;
+             }
+             curr = curr->next;
+         }
+     }
 
-    AlirFunction *f = alir_alloc(mod, sizeof(AlirFunction));
-    f->name = alir_strdup(mod, name);
-    f->ret_type = ret;
-    f->block_count = 0;
-    f->is_flux = is_flux;
-    f->is_varargs = 0;
-    f->is_extern = 0;
-    f->cconv = NULL;
+     AlirFunction *f = alir_alloc(mod, sizeof(AlirFunction));
+     f->name = alir_strdup(mod, name);
+     f->ret_type = ret;
+     f->block_count = 0;
+     f->is_flux = is_flux;
+     f->is_varargs = 0;
+     f->is_extern = 0;
+     f->cconv = NULL;
 
-    if (!mod->functions) {
-        mod->functions = f;
-    } else {
-        AlirFunction *curr = mod->functions;
-        while(curr->next) curr = curr->next;
-        curr->next = f;
-    }
-    return f;
-}
+     if (!mod->functions) {
+         mod->functions = f;
+     } else {
+         AlirFunction *curr = mod->functions;
+         while(curr->next) curr = curr->next;
+         curr->next = f;
+     }
+     return f;
+ }
 
 void alir_func_add_param(AlirModule *mod, AlirFunction *func, const char *name, VarType type) {
     AlirParam *p = alir_alloc(mod, sizeof(AlirParam));
