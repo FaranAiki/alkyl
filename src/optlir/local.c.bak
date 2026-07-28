@@ -170,8 +170,6 @@ static void redirect_label_in_all_blocks(AlirModule *module, AlirFunction *func,
     }
 }
 
-static AlirBlock* find_block_by_label(AlirFunction *func, const char *label);
-
 static void build_pred_succ(AlirFunction *func) {
     if (!func || !func->blocks) return;
     AlirBlock *b = func->blocks;
@@ -474,8 +472,6 @@ static void remove_unreachable_blocks_function(AlirModule *module, AlirFunction 
             if (prev) prev->next = b;
             else func->blocks = b;
             func->block_count--;
-            free_edges(to_remove->pred);
-            free_edges(to_remove->succ);
         }
     }
     
@@ -485,33 +481,37 @@ static void remove_unreachable_blocks_function(AlirModule *module, AlirFunction 
 
 static int merge_entry_jump_function(AlirModule *module, AlirFunction *func) {
     if (!func || !func->blocks) return 0;
-
-    {
-        AlirBlock *b = func->blocks;
-        while (b) {
-            free_edges(b->pred);
-            free_edges(b->succ);
-            b->pred = NULL;
-            b->succ = NULL;
-            b = b->next;
-        }
-        build_pred_succ(func);
-    }
-
+    
     AlirBlock *entry = func->blocks;
     if (!entry || !entry->head) return 0;
-
+    
     AlirInst *term = entry->tail;
     if (term->op != ALIR_OP_JUMP || term->op1 == NULL || term->op1->kind != ALIR_VAL_LABEL) return 0;
-
+    
     const char *target_label = term->op1->val.str_val;
     AlirBlock *target = find_block_by_label(func, target_label);
-    if (!target || target == entry) return 0;
-
+    if (!target) return 0;
+    if (target == entry) return 0;
+    
     int pred_count = 0;
-    for (BlockEdge *e = target->pred; e; e = e->next) pred_count++;
+    AlirBlock *check = func->blocks;
+    while (check) {
+        AlirInst *inst = check->head;
+        while (inst) {
+            if (inst->op == ALIR_OP_JUMP && inst->op1 && inst->op1->kind == ALIR_VAL_LABEL && strcmp(inst->op1->val.str_val, target_label) == 0) {
+                pred_count++;
+            } else if (inst->op == ALIR_OP_CONDI && inst->op2 && inst->op2->kind == ALIR_VAL_LABEL && strcmp(inst->op2->val.str_val, target_label) == 0) {
+                pred_count++;
+            } else if (inst->op == ALIR_OP_CONDI && inst->arg_count > 0 && inst->args[0] && inst->args[0]->kind == ALIR_VAL_LABEL && strcmp(inst->args[0]->val.str_val, target_label) == 0) {
+                pred_count++;
+            }
+            inst = inst->next;
+        }
+        check = check->next;
+    }
+    
     if (pred_count != 1) return 0;
-
+    
     if (term != entry->head) {
         AlirInst *first = entry->head;
         AlirInst *last_non_term = NULL;
@@ -522,20 +522,16 @@ static int merge_entry_jump_function(AlirModule *module, AlirFunction *func) {
         }
         if (last_non_term) {
             last_non_term->next = NULL;
-
-            if (target->head) {
-                last_non_term->next = target->head;
-            } else {
-                target->tail = last_non_term;
-            }
-            target->head = first;
         }
+        
+        if (target->head) {
+            last_non_term->next = target->head;
+        } else {
+            target->tail = last_non_term;
+        }
+        target->head = first;
     }
-
-    if (strcmp(entry->label, target_label) != 0) {
-        redirect_label_in_all_blocks(module, func, entry->label, target_label);
-    }
-
+    
     if (func->blocks == entry) {
         func->blocks = entry->next;
     } else {
@@ -544,10 +540,31 @@ static int merge_entry_jump_function(AlirModule *module, AlirFunction *func) {
         if (prev_entry) prev_entry->next = entry->next;
     }
     func->block_count--;
-
-    free_edges(entry->pred);
-    free_edges(entry->succ);
-
+    
+    AlirBlock *new_entry = target;
+    while (new_entry) {
+        AlirInst *inst = new_entry->head;
+        while (inst) {
+            if (inst->op == ALIR_OP_JUMP && inst->op1 && inst->op1->kind == ALIR_VAL_LABEL) {
+                AlirBlock *t = find_block_by_label(func, inst->op1->val.str_val);
+                if (!t) {
+                    inst->op1 = alir_val_label(module, "merge");
+                }
+            } else if (inst->op == ALIR_OP_CONDI) {
+                if (inst->op2 && inst->op2->kind == ALIR_VAL_LABEL) {
+                    AlirBlock *t = find_block_by_label(func, inst->op2->val.str_val);
+                    if (!t) inst->op2 = alir_val_label(module, "merge");
+                }
+                if (inst->arg_count > 0 && inst->args[0] && inst->args[0]->kind == ALIR_VAL_LABEL) {
+                    AlirBlock *t = find_block_by_label(func, inst->args[0]->val.str_val);
+                    if (!t) inst->args[0] = alir_val_label(module, "merge");
+                }
+            }
+            inst = inst->next;
+        }
+        new_entry = new_entry->next;
+    }
+    
     return 1;
 }
 
@@ -726,22 +743,13 @@ void optlir_local_optimize(AlirModule *module) {
         if (!func->is_extern) {
             constant_propagate_function(module, func);
             fold_branches_function(module, func);
-            merge_entry_jump_function(module, func);
             remove_unreachable_blocks_function(module, func);
+            while (merge_entry_jump_function(module, func)) {
+            fprintf(stderr, "DEBUG: merged entry for %s\n", func->name);
+        }
             remove_dead_stores_function(module, func);
             propagate_param_copies_function(module, func);
             eval_pure_call_function(module, func);
-        }
-        
-        {
-            AlirBlock *b = func->blocks;
-            while (b) {
-                free_edges(b->pred);
-                free_edges(b->succ);
-                b->pred = NULL;
-                b->succ = NULL;
-                b = b->next;
-            }
         }
         func = func->next;
     }

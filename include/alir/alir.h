@@ -82,12 +82,19 @@ typedef struct AlirSwitchCase {
     struct AlirSwitchCase *next;
 } AlirSwitchCase;
 
+typedef struct BlockEdge {
+    struct AlirBlock *block;
+    struct BlockEdge *next;
+} BlockEdge;
+
 typedef struct AlirBlock {
     int id;                 // Block ID (L1, L2...)
     char *label;            // Human readable label
     AlirInst *head;
     AlirInst *tail;
     struct AlirBlock *next;
+    BlockEdge *pred;
+    BlockEdge *succ;
 } AlirBlock;
 
 typedef struct AlirParam {

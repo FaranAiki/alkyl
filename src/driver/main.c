@@ -189,6 +189,8 @@ int main(int argc, char *argv[]) {
 
     optlir_local_optimize(alir_module);
 
+    optlir_remove_unused(alir_module);
+
     int alick_error_post = alick_check_module(alir_module);
     if (alick_error_post > 0) {
       printf("Error occured in alick after optimization.\n");
