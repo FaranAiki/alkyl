@@ -53,7 +53,7 @@
 // Unified debug macro - use debug_any for all debugging output
 #define DEBUG_ANY
 #ifdef DEBUG_ANY
-  #define debug_any(msg, ...) fprintf(stderr, DIAG_CYAN "step: " DIAG_RESET msg "\n", ##__VA_ARGS__)
+  #define debug_any(msg, ...) fprintf(stderr, DIAG_CYAN "step: " DIAG_RESET msg "", ##__VA_ARGS__)
 #else
   #define debug_any(msg, ...)
 #endif // DEBUG_ANY

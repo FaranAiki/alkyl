@@ -8,34 +8,21 @@ in .../code/composition/test.aky:
 23:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-step: sem_lookup_class_call for 'Identity', class_sym=0x55e08a3cbd88
-
-step: sem_lookup_class_call for 'Person', class_sym=0x55e08a3cc2b0
-
+step: sem_lookup_class_call for 'Identity', class_sym=0x555a1f0b4d88
+step: sem_lookup_class_call for 'Person', class_sym=0x555a1f0b52b0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 step: alir_gen_function_def fn->name=cprintf class_name=NULL fn->mangled_name=printf -> func_name=printf
-
 step: alir_gen_function_def fn->name=speak class_name=Identity fn->mangled_name=main_Identity_speak -> func_name=main_Identity_speak
-
 step: alir_gen_function_def fn->name=intro class_name=Person fn->mangled_name=main_Person_intro -> func_name=main_Person_intro
-
 step: alir_gen_function_def fn->name=speak class_name=Person fn->mangled_name=main_Identity_speak -> func_name=main_Person_speak
-
 step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-
 step: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
-
 step: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
-
 step: func=main op=5 dest_kind=5 dest_type_base=16 op1_kind=5 op1_type_base=16
-
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-
 step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen

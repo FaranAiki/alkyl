@@ -248,6 +248,7 @@ void metalir_run_class(MetalirRunner *r, ASTNode *curr, ASTNode *root) {
     AlirCtx a = {0};
     a.sem = &r->sem;
     a.module = r->module;
+    hashmap_init(&a.class_map, a.module->compiler_ctx ? a.module->compiler_ctx->arena : NULL, 64);
     pass1_register(&a, curr, NULL);
     pass2_populate(&a, root, curr, NULL);
     alir_gen_functions_recursive(&a, curr, NULL);

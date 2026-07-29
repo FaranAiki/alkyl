@@ -56,13 +56,11 @@ case ALIR_OP_STORE: {
                             else if (inst->op1->kind == ALIR_VAL_VAR) src_ptr = (void*)(intptr_t)metalir_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                         }
                         
-                        if (ptr) {
-                            if (src_ptr) {
+                        if (ptr && src_ptr) {
                                 memcpy(ptr, src_ptr, 1024);
-                            } else {
+                            } else if (ptr) {
                                 *((long long*)ptr) = val;
                             }
-                        }
                     }
                     break;
                 }
