@@ -109,14 +109,18 @@ LLVMValueRef get_llvm_value(CodegenCtx *ctx, AlirValue *v) {
     switch (v->kind) {
         case ALIR_VAL_CONST: {
             LLVMTypeRef ty = get_llvm_type(ctx, v->type);
-            if (v->type.base == TYPE_SINGLE) {
+            if (v->type.base == TYPE_SINGLE && v->type.ptr_depth == 0) {
                 return LLVMConstReal(ty, v->val.single_val);
-            } else if (v->type.base == TYPE_DOUBLE) {
+            } else if (v->type.base == TYPE_DOUBLE && v->type.ptr_depth == 0) {
                 return LLVMConstReal(ty, v->val.double_val);
-            } else if (v->type.base == TYPE_LONG) {
-                return LLVMConstInt(ty, v->val.long_val, !v->type.is_unsigned);
             } else {
-                return LLVMConstInt(ty, v->val.int_val, !v->type.is_unsigned);
+                long long val = (v->type.base == TYPE_LONG || v->type.base == TYPE_LONG_LONG || v->type.base == TYPE_UNSIGNED_LONG_LONG) 
+                                ? v->val.long_long_val : v->val.int_val;
+                if (LLVMGetTypeKind(ty) == LLVMPointerTypeKind) {
+                    if (val == 0) return LLVMConstNull(ty);
+                    return LLVMConstIntToPtr(LLVMConstInt(LLVMInt64TypeInContext(ctx->llvm_ctx), val, 0), ty);
+                }
+                return LLVMConstInt(ty, val, !v->type.is_unsigned);
             }
         }
         case ALIR_VAL_TEMP:
