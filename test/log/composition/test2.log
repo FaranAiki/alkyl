@@ -3,17 +3,16 @@ debug: after parse_type, vt.base=8, token.type=23
 debug: after parse_type, vt.base=1, token.type=23
 debug: after parse_type, vt.base=1, token.type=23
 debug: after parse_type, vt.base=1, token.type=23
-step: Start Semantic Analysis.
 at namespace main:
 in .../code/composition/test2.aky:
 21:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-debug: sem_lookup_class_call for 'Person', class_sym=0x5611dabc1920
+debug: sem_lookup_class_call for 'Person', class_sym=0x55ef44f3e5f8
 22:4: warning: speak is from Identity, consider p[Identity].speak
   |   p.speak();
   |    ^
-debug: sem_lookup_class_call for 'Person', class_sym=0x5611dabc1920
+debug: sem_lookup_class_call for 'Person', class_sym=0x55ef44f3e5f8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir_gen_function_def fn->name=cprintf class_name=NULL fn->mangled_name=printf -> func_name=printf
@@ -29,8 +28,3 @@ debug: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
-LLVMStructSetBody for Person with 2 fields
-LLVMStructSetBody for Identity with 2 fields
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

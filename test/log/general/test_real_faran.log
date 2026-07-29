@@ -5,7 +5,6 @@ debug: after parse_type, vt.base=0, token.type=23
 debug: after parse_type, vt.base=0, token.type=23
 debug: after parse_type, vt.base=0, token.type=23
 debug: after parse_type, vt.base=0, token.type=23
-step: Start Semantic Analysis.
 at namespace main:
 in .../code/general/test_real_faran.aky:
 27:41: warning: name is from Identity, consider this[Identity]
@@ -17,8 +16,8 @@ in .../code/general/test_real_faran.aky:
 32:26: warning: no initialization from Person, using Identity as a constructor
   |   let imut Faran = Person("Faran Aiki", 19);
   |                          ^
-debug: sem_lookup_class_call for 'Communication', class_sym=0x55e10549cd60
-debug: sem_lookup_class_call for 'Person', class_sym=0x55e10549d208
+debug: sem_lookup_class_call for 'Communication', class_sym=0x562539fd0da0
+debug: sem_lookup_class_call for 'Person', class_sym=0x562539fd1248
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
@@ -192,9 +191,3 @@ step: Finished alir optimization. Start code generation using LLVM codegen
 Warning: Implicitly resolved 'printf' to '__c_lib.printf'
 Warning: Implicitly resolved 'printf' to '__c_lib.printf'
 Warning: Implicitly resolved 'printf' to '__c_lib.printf'
-LLVMStructSetBody for Person with 2 fields
-LLVMStructSetBody for Communication with 0 fields (empty)
-LLVMStructSetBody for Identity with 2 fields
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

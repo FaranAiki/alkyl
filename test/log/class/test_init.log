@@ -3,8 +3,7 @@ debug: after parse_type, vt.base=12, token.type=23
 debug: after parse_type, vt.base=12, token.type=23
 debug: after parse_type, vt.base=0, token.type=23
 debug: after parse_type, vt.base=0, token.type=23
-step: Start Semantic Analysis.
-debug: sem_lookup_class_call for 'Point', class_sym=0x564ab8c72a48
+debug: sem_lookup_class_call for 'Point', class_sym=0x55f85f474a48
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
@@ -18,7 +17,3 @@ debug: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
-LLVMStructSetBody for Point with 2 fields
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

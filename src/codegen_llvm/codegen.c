@@ -227,7 +227,6 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
 
                 LLVMDisposeTargetData(td);
             } else if (st->field_count == 0) {
-                printf("LLVMStructSetBody for %s with 0 fields (empty)\n", st->name);
                 LLVMTypeRef empty_body[1] = { LLVMInt8TypeInContext(ctx->llvm_ctx) };
                 LLVMStructSetBody(struct_ty, empty_body, 1, 0);
             } else {
@@ -237,7 +236,6 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                     field_tys[f->index] = get_llvm_type(ctx, f->type);
                     f = f->next;
                 }
-                printf("LLVMStructSetBody for %s with %d fields\n", st->name, st->field_count);
                 LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
             }
         }
@@ -308,11 +306,6 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                 if (func->is_extern) p_ty.is_tainted = 0;
                 if (p_ty.array_size > 0) { p_ty.array_size = 0; p_ty.ptr_depth++; }
                 param_tys[i] = get_llvm_type(ctx, p_ty);
-                char *ty_str = LLVMPrintTypeToString(param_tys[i]);
-                if (strcmp(func->name, "ns.Clib") == 0) {
-                    printf("DEBUG PROTO func=%s param[%d] name=%s type=%s ptr_depth=%d class_name=%s\n", func->name, i, p->name, ty_str, p->type.ptr_depth, p->type.class_name ? p->type.class_name : "(null)");
-                }
-                LLVMDisposeMessage(ty_str);
                 i++;
                 p = p->next;
             }
@@ -320,11 +313,6 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
 
         LLVMTypeRef func_ty = LLVMFunctionType(ret_ty, param_tys, func->param_count, func->is_varargs);
         LLVMValueRef llvm_func = LLVMAddFunction(ctx->llvm_mod, func->name, func_ty);
-        if (strcmp(func->name, "ns.Clib") == 0) {
-            char *ft = LLVMPrintTypeToString(func_ty);
-            printf("DEBUG PROTO ADD func=%s type=%s\n", func->name, ft);
-            LLVMDisposeMessage(ft);
-        }
 
         if (func->cconv) {
             if (strcmp(func->cconv, "stdcall") == 0 || strcmp(func->cconv, "\"stdcall\"") == 0) {

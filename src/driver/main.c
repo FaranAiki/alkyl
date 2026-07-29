@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
 
     char *filename = NULL;
     char link_flags[1024] = {0};
+    char custom_output_basename[1024] = {0};
     int emit_alir = 0;
     int emit_balir = 0;
     int unopt_mode = 0;
@@ -71,10 +72,17 @@ int main(int argc, char *argv[]) {
             unopt_mode = 1;
         } else if (strcmp(argv[i], "--opt") == 0) {
             opt_mode = 1;
+        } else if (strcmp(argv[i], "-o") == 0) {
+            if (i + 1 < argc) {
+                strncpy(custom_output_basename, argv[++i], sizeof(custom_output_basename) - 1);
+                custom_output_basename[sizeof(custom_output_basename) - 1] = '\0';
+            }
         } else {
             filename = argv[i];
         }
     }
+
+    const char *output_basename_ptr = custom_output_basename[0] ? custom_output_basename : ((opt_mode && !unopt_mode) ? BASENAME_OPT : BASENAME);
 
     if (!filename) {
         fprintf(stderr, "No input file specified\n");
@@ -101,30 +109,11 @@ int main(int argc, char *argv[]) {
     // Resolve imports for AOT compiler
     resolve_imports(&p, &root);
 
-    ASTNode *r = root;
-    while (r) {
-        if (r->type == NODE_COMPOUND) {
-            ASTNode *cb = ((CompoundNode*)r)->body;
-            while (cb) {
-                cb = cb->next;
-            }
-        }
-        r = r->next;
-    }
-
     if (comp_ctx.error_count > 0) {
         free(code);
         arena_free(&arena);
         return 1;
     }
-
-    // Parser p_debug;
-    // parser_init(&p_debug, &l_debug, NULL);
-    // ASTNode *root_debug = parse_program(&p_debug);
-
-    to_ast_out(&p, root, BASENAME ".ast");
-
-    debug_step("Start Semantic Analysis.");
 
     SemanticCtx sem_ctx;
     sem_init(&sem_ctx, &comp_ctx, NULL);
@@ -138,8 +127,6 @@ int main(int argc, char *argv[]) {
         arena_free(&arena);
         return 1;
     }
-
-    to_sem_out(&sem_ctx, BASENAME ".semc");
 
     // We keep sem_ctx alive if we want to use the Side Table for Codegen later.
     // For now, we clean it up as Codegen currently recalculates types (but safely now!)
@@ -218,8 +205,8 @@ int main(int argc, char *argv[]) {
     debug_step("Finished alir optimization. Start code generation using " BACKEND_STRING " codegen");
     arena_reset(&arena);
 
-    const char *output_basename = opt_mode ? BASENAME_OPT : BASENAME;
-    int final_ret = backend_run(alir_module, output_basename, link_flags);
+    const char *active_output_basename = output_basename_ptr ? output_basename_ptr : (opt_mode ? BASENAME_OPT : BASENAME);
+    int final_ret = backend_run(alir_module, active_output_basename, link_flags);
     free(code);
 
     arena_free(&arena);

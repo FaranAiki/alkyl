@@ -14,7 +14,6 @@ debug: after parse_type, vt.base=1, token.type=23
 debug: after parse_type, vt.base=1, token.type=23
 debug: after parse_type, vt.base=1, token.type=23
 debug: after parse_type, vt.base=1, token.type=23
-step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir_gen_function_def fn->name=fun class_name=AbstractClass fn->mangled_name=main_AbstractClass_fun -> func_name=main_AbstractClass_fun
@@ -29,12 +28,3 @@ debug: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
-LLVMStructSetBody for FrameClass with 2 fields
-LLVMStructSetBody for PragmaClass with 2 fields
-LLVMStructSetBody for ContainerClass with 2 fields
-LLVMStructSetBody for MethodClass with 0 fields (empty)
-LLVMStructSetBody for ExactClass with 1 fields
-LLVMStructSetBody for AbstractClass with 1 fields
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out

@@ -1,7 +1,6 @@
 step: Finished lexing. Start parsing.
 debug: after parse_type, vt.base=1, token.type=23
-step: Start Semantic Analysis.
-debug: sem_lookup_class_call for 'Range', class_sym=0x55fdc4124100
+debug: sem_lookup_class_call for 'Range', class_sym=0x5591429d7d40
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
@@ -32,8 +31,3 @@ debug: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
-LLVMStructSetBody for FluxCtx_main_Range_iterate with 6 fields
-LLVMStructSetBody for Range with 1 fields
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out
