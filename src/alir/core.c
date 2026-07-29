@@ -32,24 +32,22 @@ AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
 
     m->compiler_ctx = ctx;
     m->name = alir_strdup(m, name);
+    hashmap_init(&m->struct_map, ctx ? ctx->arena : NULL, 256);
+    hashmap_init(&m->enum_map, ctx ? ctx->arena : NULL, 64);
+    hashmap_init(&m->func_map, ctx ? ctx->arena : NULL, 64);
     return m;
 }
 
  AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, int is_flux) {
-     if (mod->functions) {
-         AlirFunction *curr = mod->functions;
-         while(curr) {
-if (strcmp(curr->name, name) == 0) {
-                  curr->ret_type = ret;
-                  curr->is_flux = is_flux;
-                  curr->blocks = NULL;
-                  curr->block_count = 0;
-                  curr->params = NULL;
-                  curr->param_count = 0;
-                  return curr;
-              }
-             curr = curr->next;
-         }
+     AlirFunction *existing = hashmap_get(&mod->func_map, name);
+     if (existing) {
+         existing->ret_type = ret;
+         existing->is_flux = is_flux;
+         existing->blocks = NULL;
+         existing->block_count = 0;
+         existing->params = NULL;
+         existing->param_count = 0;
+         return existing;
      }
 
      AlirFunction *f = alir_alloc(mod, sizeof(AlirFunction));
@@ -68,6 +66,7 @@ if (strcmp(curr->name, name) == 0) {
          while(curr->next) curr = curr->next;
          curr->next = f;
      }
+     hashmap_put(&mod->func_map, name, f);
      return f;
  }
 
@@ -186,13 +185,19 @@ void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields, 
 
     st->next = mod->structs;
     mod->structs = st;
+    hashmap_put(&mod->struct_map, name, st);
 }
 
 AlirStruct* alir_find_struct(AlirModule *mod, const char *name) {
-    AlirStruct *curr = mod->structs;
-    while(curr) {
-        if (strcmp(curr->name, name) == 0) return curr;
-        curr = curr->next;
+    AlirStruct *st = hashmap_get(&mod->struct_map, name);
+    if (st) return st;
+    st = mod->structs;
+    while(st) {
+        if (strcmp(st->name, name) == 0) {
+            hashmap_put(&mod->struct_map, name, st);
+            return st;
+        }
+        st = st->next;
     }
     return NULL;
 }

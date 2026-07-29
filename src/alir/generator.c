@@ -96,20 +96,7 @@ long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
     return -42; // Fallback / Error
 }
 
-ClassNode* find_class_node(ASTNode *root, const char *name) {
-    ASTNode *curr = root;
-    while(curr) {
-        if (curr->type == NODE_CLASS && strcmp(((ClassNode*)curr)->name, name) == 0) return (ClassNode*)curr;
-        if (curr->type == NODE_NAMESPACE) {
-            ClassNode *cn = find_class_node(((NamespaceNode*)curr)->body, name);
-            if (cn) return cn;
-        }
-        curr = curr->next;
-    }
-    return NULL;
-}
-
-void build_struct_fields(AlirCtx *ctx, ASTNode *root, ClassNode *cn, AlirStruct *st) {
+void build_struct_fields(AlirCtx *ctx, ClassNode *cn, AlirStruct *st) {
     if (st->field_count != -1) return; // Already built
 
     int idx = 0;
@@ -121,8 +108,8 @@ void build_struct_fields(AlirCtx *ctx, ASTNode *root, ClassNode *cn, AlirStruct 
         AlirStruct *parent_st = alir_find_struct(ctx->module, cn->parent_name);
         if (parent_st) {
             if (parent_st->field_count == -1) {
-                ClassNode *pcn = find_class_node(root, cn->parent_name);
-                if (pcn) build_struct_fields(ctx, root, pcn, parent_st);
+                ClassNode *pcn = hashmap_get(&ctx->class_map, cn->parent_name);
+                if (pcn) build_struct_fields(ctx, pcn, parent_st);
             }
             AlirField *pf = parent_st->fields;
             while(pf) {
@@ -143,8 +130,8 @@ void build_struct_fields(AlirCtx *ctx, ASTNode *root, ClassNode *cn, AlirStruct 
         AlirStruct *trait_st = alir_find_struct(ctx->module, cn->traits.names[i]);
         if (trait_st) {
             if (trait_st->field_count == -1) {
-                ClassNode *tcn = find_class_node(root, cn->traits.names[i]);
-                if (tcn) build_struct_fields(ctx, root, tcn, trait_st);
+                ClassNode *tcn = hashmap_get(&ctx->class_map, cn->traits.names[i]);
+                if (tcn) build_struct_fields(ctx, tcn, trait_st);
             }
             AlirField *tf = trait_st->fields;
             while(tf) {
@@ -198,6 +185,7 @@ void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
                 fqn = alir_strdup(ctx->module, buf);
             }
             alir_register_struct(ctx->module, fqn, NULL, cn->is_union);
+            hashmap_put(&ctx->class_map, cn->name, cn);
         } else if (n->type == NODE_ENUM) {
             EnumNode *en = (EnumNode*)n;
             AlirEnumEntry *head = NULL;
@@ -238,7 +226,7 @@ void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current
                 fqn = alir_strdup(ctx->module, buf);
             }
             AlirStruct *st = alir_find_struct(ctx->module, fqn);
-            if (st) build_struct_fields(ctx, root, cn, st);
+            if (st) build_struct_fields(ctx, cn, st);
         } else if (n->type == NODE_NAMESPACE) {
             NamespaceNode *ns = (NamespaceNode*)n;
             char *next_ns = ns->name;
@@ -254,6 +242,7 @@ void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current
 }
 
 void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root) {
+    hashmap_init(&ctx->class_map, ctx->module->compiler_ctx ? ctx->module->compiler_ctx->arena : NULL, 64);
     pass1_register(ctx, root, NULL);
     pass2_populate(ctx, root, root, NULL);
 }
@@ -450,21 +439,21 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn, const char *fqn)
 }
 
 // Emits inherited methods from parent and traits down to the derived class scope
-void alir_gen_inherited_methods(AlirCtx *ctx, ASTNode *root, ClassNode *cn, const char *target_class) {
+void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_class) {
     if (!cn) return;
 
     // 1. Traverse Parent
     if (cn->parent_name) {
-        ClassNode *pcn = find_class_node(root, cn->parent_name);
+        ClassNode *pcn = hashmap_get(&ctx->class_map, cn->parent_name);
         if (pcn) {
-            alir_gen_inherited_methods(ctx, root, pcn, target_class); // Deepest first
+            alir_gen_inherited_methods(ctx, pcn, target_class); // Deepest first
 
             ASTNode *mem = pcn->members;
             while (mem) {
                 if (mem->type == NODE_FUNC_DEF) {
                     FuncDefNode *fn = (FuncDefNode*)mem;
                     if (strcmp(fn->name, pcn->name) != 0 && strcmp(fn->name, "init") != 0) {
-                        ClassNode *tcn = find_class_node(root, target_class);
+                        ClassNode *tcn = hashmap_get(&ctx->class_map, target_class);
                         int is_overridden = 0;
                         if (tcn) {
                             ASTNode *tmem = tcn->members;
@@ -487,16 +476,16 @@ void alir_gen_inherited_methods(AlirCtx *ctx, ASTNode *root, ClassNode *cn, cons
 
     // 2. Traverse Traits
     for (int i = 0; i < cn->traits.count; i++) {
-        ClassNode *tcn = find_class_node(root, cn->traits.names[i]);
+        ClassNode *tcn = hashmap_get(&ctx->class_map, cn->traits.names[i]);
         if (tcn) {
-            alir_gen_inherited_methods(ctx, root, tcn, target_class);
+            alir_gen_inherited_methods(ctx, tcn, target_class);
 
             ASTNode *mem = tcn->members;
             while (mem) {
                 if (mem->type == NODE_FUNC_DEF) {
                     FuncDefNode *fn = (FuncDefNode*)mem;
                     if (strcmp(fn->name, tcn->name) != 0 && strcmp(fn->name, "init") != 0) {
-                        ClassNode *target_node = find_class_node(root, target_class);
+                        ClassNode *target_node = hashmap_get(&ctx->class_map, target_class);
                         int is_overridden = 0;
                         if (target_node) {
                             ASTNode *tmem = target_node->members;
@@ -551,7 +540,7 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
             }
 
             // Generate Inherited and Traited Methods for this specific Class
-            alir_gen_inherited_methods(ctx, root, cn, fqn);
+            alir_gen_inherited_methods(ctx, cn, fqn);
 
             // Emit an implicit constructor if the user hasn't explicitly supplied `init`
             if (!has_constructor) {

@@ -1,6 +1,7 @@
 #ifndef ALIR_H
 #define ALIR_H
 
+#include "../common/hashmap.h"
 #include "../semantic/semantic.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -174,6 +175,11 @@ typedef struct AlirModule {
     int str_counter;        // For naming global strings across the module
     AlirConstFoldEntry *const_folds; // Persistent const fold entries
 
+    // Fast lookup maps
+    HashMap struct_map;
+    HashMap enum_map;
+    HashMap func_map;
+
     // Diagnostics tracing
     const char *src;
     const char *filename;
@@ -221,6 +227,8 @@ typedef struct AlirCtx {
     int current_col;
 
     AlirConstFoldEntry *const_folds;
+
+    HashMap class_map;      // class name -> ClassNode*
 } AlirCtx;
 
 // Struct & Enum Registry

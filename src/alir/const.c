@@ -1,4 +1,5 @@
 #include "alir.h"
+#include "../common/hashmap.h"
 
 AlirValue* alir_const_int(AlirModule *mod, long val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
@@ -124,13 +125,19 @@ void alir_register_enum(AlirModule *mod, const char *name, AlirEnumEntry *entrie
     e->entries = entries;
     e->next = mod->enums;
     mod->enums = e;
+    hashmap_put(&mod->enum_map, name, e);
 }
 
 AlirEnum* alir_find_enum(AlirModule *mod, const char *name) {
-    AlirEnum *curr = mod->enums;
-    while(curr) {
-        if (strcmp(curr->name, name) == 0) return curr;
-        curr = curr->next;
+    AlirEnum *e = hashmap_get(&mod->enum_map, name);
+    if (e) return e;
+    e = mod->enums;
+    while(e) {
+        if (strcmp(e->name, name) == 0) {
+            hashmap_put(&mod->enum_map, name, e);
+            return e;
+        }
+        e = e->next;
     }
     return NULL;
 }

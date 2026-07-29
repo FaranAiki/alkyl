@@ -1,4 +1,5 @@
 #include "alir.h"
+#include "common.h"
 
 AlirInst* mk_inst(AlirModule *mod, AlirOpcode op, AlirValue *dest, AlirValue *op1, AlirValue *op2) {
     AlirInst *i = alir_alloc(mod, sizeof(AlirInst));
@@ -18,7 +19,7 @@ void emit(AlirCtx *ctx, AlirInst *i) {
         i->col = ctx->current_col;
     }
     if (ctx->current_func && strcmp(ctx->current_func->name, "main") == 0) {
-        printf("DEBUG EMIT: func=%s op=%d dest_kind=%d dest_type_base=%d op1_kind=%d op1_type_base=%d\n",
+        debug_any("func=%s op=%d dest_kind=%d dest_type_base=%d op1_kind=%d op1_type_base=%d\n",
             ctx->current_func->name,
             i ? i->op : -1,
             i && i->dest ? i->dest->kind : -1,
@@ -36,7 +37,7 @@ AlirValue* new_temp(AlirCtx *ctx, VarType t) {
 AlirValue* promote(AlirCtx *ctx, AlirValue *v, VarType target) {
     // Basic Promotion Logic: Check base types
     if (v->type.base == target.base && v->type.ptr_depth == target.ptr_depth) return v;
-    
+
     AlirValue *dest = new_temp(ctx, target);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_CAST, dest, v, NULL));
     return dest;
@@ -65,7 +66,7 @@ AlirSymbol* alir_find_symbol(AlirCtx *ctx, const char *name) {
 AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *args) {
     // Verify struct exists in IR
     AlirStruct *st = alir_find_struct(ctx->module, class_name);
-    if (!st) return NULL; 
+    if (!st) return NULL;
 
     // 1. Sizeof
     AlirValue *size_val = alir_const_int(ctx->module, 8);
@@ -125,6 +126,6 @@ AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *
             a = a->next;
         }
     }
-    
+
     return obj_ptr;
 }

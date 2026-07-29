@@ -21,7 +21,6 @@ void alir_fprint_type(FILE *f, VarType t) {
         case TYPE_AUTO: fprintf(f, "any"); break;
         case TYPE_UNKNOWN: fprintf(f, "unknown"); break;
 
-        // TODO add ll, ld, array, vector, hashmap, auto, unknown
         default: fprintf(f, "def"); break;
     }
     // [FIX] Correct pointer depth logic.

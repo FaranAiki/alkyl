@@ -2,32 +2,51 @@ step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-DEBUG: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
-DEBUG: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=16 op1_kind=9 op1_type_base=1
-DEBUG: FluxCtx ptr_depth = 0
-DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=7 op1_type_base=1
-DEBUG EMIT: func=main op=5 dest_kind=5 dest_type_base=16 op1_kind=5 op1_type_base=8
-DEBUG EMIT: func=main op=2 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=16
-DEBUG EMIT: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
-DEBUG EMIT: func=main op=31 dest_kind=-1 dest_type_base=-1 op1_kind=9 op1_type_base=0
-DEBUG EMIT: func=main op=4 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=16
-DEBUG EMIT: func=main op=3 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
-DEBUG EMIT: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
-DEBUG EMIT: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
-DEBUG EMIT: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
-DEBUG EMIT: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
-DEBUG EMIT: func=main op=2 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=1
-DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
-DEBUG EMIT: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-DEBUG EMIT: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
-DEBUG EMIT: func=main op=32 dest_kind=-1 dest_type_base=-1 op1_kind=7 op1_type_base=1
+step: func=main op=31 dest_kind=5 dest_type_base=16 op1_kind=9 op1_type_base=1
+
+step: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=7 op1_type_base=1
+
+step: func=main op=5 dest_kind=5 dest_type_base=16 op1_kind=5 op1_type_base=8
+
+step: func=main op=2 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=16
+
+step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+
+step: func=main op=31 dest_kind=-1 dest_type_base=-1 op1_kind=9 op1_type_base=0
+
+step: func=main op=4 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=16
+
+step: func=main op=3 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
+
+step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
+
+step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+
+step: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+
+step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+
+step: func=main op=2 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=1
+
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+
+step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+
+step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+
+step: func=main op=32 dest_kind=-1 dest_type_base=-1 op1_kind=7 op1_type_base=1
+
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
+DEBUG: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+DEBUG: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+DEBUG: FluxCtx ptr_depth = 0
 LLVMStructSetBody for FluxCtx_main_random_generator_i32 with 6 fields
-Compiled to build/opt_out.o
-Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
-Linked to build/opt_out
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

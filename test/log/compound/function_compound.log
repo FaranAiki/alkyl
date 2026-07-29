@@ -2,29 +2,45 @@ step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-DEBUG: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
-DEBUG: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
-DEBUG EMIT: func=main op=2 dest_kind=-1 dest_type_base=-1 op1_kind=7 op1_type_base=1
-DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
-DEBUG EMIT: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-DEBUG EMIT: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-DEBUG EMIT: func=main op=35 dest_kind=5 dest_type_base=12 op1_kind=7 op1_type_base=1
-DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=12 op1_kind=-1 op1_type_base=-1
-DEBUG EMIT: func=main op=2 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=12
-DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
-DEBUG EMIT: func=main op=3 dest_kind=5 dest_type_base=12 op1_kind=5 op1_type_base=12
-DEBUG EMIT: func=main op=3 dest_kind=5 dest_type_base=12 op1_kind=5 op1_type_base=12
-DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=12 op1_kind=4 op1_type_base=0
-DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-DEBUG EMIT: func=main op=32 dest_kind=-1 dest_type_base=-1 op1_kind=7 op1_type_base=1
-DEBUG: alir_gen_function_def fn->name=square_int class_name=NULL fn->mangled_name=main_square_int_i32 -> func_name=main_square_int_i32
-DEBUG: alir_gen_function_def fn->name=square_double class_name=NULL fn->mangled_name=main_square_double_f64 -> func_name=main_square_double_f64
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+
+step: func=main op=2 dest_kind=-1 dest_type_base=-1 op1_kind=7 op1_type_base=1
+
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+
+step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+
+step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+
+step: func=main op=35 dest_kind=5 dest_type_base=12 op1_kind=7 op1_type_base=1
+
+step: func=main op=0 dest_kind=5 dest_type_base=12 op1_kind=-1 op1_type_base=-1
+
+step: func=main op=2 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=12
+
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+
+step: func=main op=3 dest_kind=5 dest_type_base=12 op1_kind=5 op1_type_base=12
+
+step: func=main op=3 dest_kind=5 dest_type_base=12 op1_kind=5 op1_type_base=12
+
+step: func=main op=31 dest_kind=5 dest_type_base=12 op1_kind=4 op1_type_base=0
+
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+
+step: func=main op=32 dest_kind=-1 dest_type_base=-1 op1_kind=7 op1_type_base=1
+
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
-Compiled to build/opt_out.o
-Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
-Linked to build/opt_out
+DEBUG: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+DEBUG: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+DEBUG: alir_gen_function_def fn->name=square_int class_name=NULL fn->mangled_name=main_square_int_i32 -> func_name=main_square_int_i32
+DEBUG: alir_gen_function_def fn->name=square_double class_name=NULL fn->mangled_name=main_square_double_f64 -> func_name=main_square_double_f64
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out
