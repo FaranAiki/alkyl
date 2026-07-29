@@ -5,12 +5,12 @@ in .../code/composition/has_compo.aky:
 18:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-step: sem_lookup_class_call for 'Person', class_sym=0x55aa87aac718
+step: sem_lookup_class_call for 'Person', class_sym=0x5560cd521720
 
 19:4: warning: speak is from Identity, consider p[Identity].speak
   |   p.speak();
   |    ^
-step: sem_lookup_class_call for 'Person', class_sym=0x55aa87aac718
+step: sem_lookup_class_call for 'Person', class_sym=0x5560cd521720
 
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
