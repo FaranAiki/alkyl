@@ -250,6 +250,18 @@ static AlirValue* fold_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     if (op == TOKEN_RSHIFT) {
         return alir_const_int(ctx->module, left->val.int_val >> right->val.int_val);
     }
+    if (op == TOKEN_LROTATE) {
+        unsigned long long x = (unsigned long long)left->val.int_val;
+        int n = right->val.int_val & 63;
+        unsigned long long result = (x << n) | (x >> (64 - n));
+        return alir_const_int(ctx->module, (long)result);
+    }
+    if (op == TOKEN_RROTATE) {
+        unsigned long long x = (unsigned long long)left->val.int_val;
+        int n = right->val.int_val & 63;
+        unsigned long long result = (x >> n) | (x << (64 - n));
+        return alir_const_int(ctx->module, (long)result);
+    }
     if (op == TOKEN_EQ) {
         long result = (left->val.int_val == right->val.int_val);
         return alir_const_int(ctx->module, result);
