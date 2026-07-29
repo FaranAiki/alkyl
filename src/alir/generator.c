@@ -379,14 +379,14 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
 
 // This is for the implicit constructor
 // TODO learn this
-void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn) {
-    AlirFunction *af = alir_add_function(ctx->module, cn->name, (VarType){TYPE_VOID, 0}, 0);
+void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn, const char *fqn) {
+    AlirFunction *af = alir_add_function(ctx->module, fqn, (VarType){TYPE_VOID, 0}, 0);
     ctx->current_func = af;
 
-    VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, cn->name)};
+    VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, fqn)};
     alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
 
-    AlirStruct *st = alir_find_struct(ctx->module, cn->name);
+    AlirStruct *st = alir_find_struct(ctx->module, fqn);
 
     Parameter *p_head = NULL;
     Parameter **p_tail = &p_head;
@@ -519,7 +519,7 @@ void alir_gen_inherited_methods(AlirCtx *ctx, ASTNode *root, ClassNode *cn, cons
 }
 
 // Deeply scan AST for Class/Methods and Standard Functions
-void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root) {
+void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *current_ns) {
     ASTNode *curr = root;
     while(curr) {
         if (curr->type == NODE_FUNC_DEF) {
@@ -530,6 +530,13 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root) {
         } else if (curr->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)curr;
             int has_constructor = 0;
+            
+            const char *fqn = cn->name;
+            if (current_ns && strlen(current_ns) > 0) {
+                char buf[512];
+                snprintf(buf, sizeof(buf), "%s.%s", current_ns, cn->name);
+                fqn = alir_strdup(ctx->module, buf);
+            }
 
             ASTNode *mem = cn->members;
             while(mem) {
@@ -538,20 +545,27 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root) {
                     if (strcmp(fn->name, cn->name) == 0 || strcmp(fn->name, "init") == 0) {
                         has_constructor = 1;
                     }
-                    alir_gen_function_def(ctx, fn, cn->name);
+                    alir_gen_function_def(ctx, fn, fqn);
                 }
                 mem = mem->next;
             }
 
             // Generate Inherited and Traited Methods for this specific Class
-            alir_gen_inherited_methods(ctx, root, cn, cn->name);
+            alir_gen_inherited_methods(ctx, root, cn, fqn);
 
             // Emit an implicit constructor if the user hasn't explicitly supplied `init`
             if (!has_constructor) {
-                alir_gen_implicit_constructor(ctx, cn);
+                alir_gen_implicit_constructor(ctx, cn, fqn);
             }
         } else if (curr->type == NODE_NAMESPACE) {
-            alir_gen_functions_recursive(ctx, ((NamespaceNode*)curr)->body);
+            NamespaceNode *ns = (NamespaceNode*)curr;
+            const char *next_ns = ns->name;
+            if (current_ns && strlen(current_ns) > 0) {
+                char buf[512];
+                snprintf(buf, sizeof(buf), "%s.%s", current_ns, ns->name);
+                next_ns = alir_strdup(ctx->module, buf);
+            }
+            alir_gen_functions_recursive(ctx, ns->body, next_ns);
         } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
             alir_gen_stmt(ctx, curr);
         }
@@ -577,7 +591,7 @@ AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
     scan_and_fold_consts(&ctx, root);
 
     // 2. GEN FUNCTIONS (Recursively to handle classes & namespaces)
-    alir_gen_functions_recursive(&ctx, root);
+    alir_gen_functions_recursive(&ctx, root, NULL);
 
     return ctx.module;
 }

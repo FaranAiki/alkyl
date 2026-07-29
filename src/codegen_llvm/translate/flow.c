@@ -61,7 +61,12 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     int __pt_sz = param_count > 0 ? param_count : 1; LLVMTypeRef param_types[__pt_sz];
                     for (int i=0; i<param_count; i++) {
                         if (inst->args[i]) {
-                            param_types[i] = get_llvm_type(ctx, inst->args[i]->type);
+                            LLVMValueRef arg_val = get_llvm_value(ctx, inst->args[i]);
+                            if (arg_val) {
+                                param_types[i] = LLVMTypeOf(arg_val);
+                            } else {
+                                param_types[i] = get_llvm_type(ctx, inst->args[i]->type);
+                            }
                         } else {
                             param_types[i] = LLVMInt64TypeInContext(ctx->llvm_ctx);
                         }

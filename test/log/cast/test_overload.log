@@ -1,3 +1,7 @@
+/usr/bin/ld: build/opt_out.o: in function `main':
+main_module:(.text+0x1b): undefined reference to `main_Calculator_add_i32_i32'
+/usr/bin/ld: main_module:(.text+0x36): undefined reference to `main_Calculator_add_f64_f64'
+collect2: error: ld returned 1 exit status
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
@@ -10,13 +14,10 @@ Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
-DEBUG VD: var=c is_stack_ctor=0 actual_type_base=16 actual_ptr_depth=0 cn->name=(null)
 DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=-1 op1_type_base=-1
-DEBUG VD: var=i_res is_stack_ctor=0 actual_type_base=1 actual_ptr_depth=0 cn->name=(null)
 DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
 DEBUG EMIT: func=main op=2 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=1
-DEBUG VD: var=f_res is_stack_ctor=0 actual_type_base=12 actual_ptr_depth=0 cn->name=(null)
 DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 DEBUG EMIT: func=main op=35 dest_kind=5 dest_type_base=12 op1_kind=5 op1_type_base=1
 DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=12 op1_kind=-1 op1_type_base=-1
@@ -44,4 +45,4 @@ step: Finished alir optimization. Start code generation using LLVM codegen
 LLVMStructSetBody for main.Calculator with 1 fields
 Compiled to build/opt_out.o
 Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
-Linked to build/opt_out
+Linking failed.

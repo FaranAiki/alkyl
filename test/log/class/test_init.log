@@ -1,18 +1,10 @@
-Call parameter type does not match function signature!
-  %alloc = alloca %Point, align 8
- %Point = type { double, double }  call void @Point(ptr %alloc, double 5.000000e+00, double 6.500000e+00)
-Call parameter type does not match function signature!
-  %alloc = alloca %Point, align 8
- %Point = type { double, double }  call void @Point(ptr %alloc, double 5.000000e+00, double 6.500000e+00)
-LLVM Verification Error: Call parameter type does not match function signature!
-  %alloc = alloca %Point, align 8
- %Point = type { double, double }  call void @Point(ptr %alloc, double 5.000000e+00, double 6.500000e+00)
-
+/usr/bin/ld: build/opt_out.o: in function `main':
+main_module:(.text+0x3c): undefined reference to `Point'
+collect2: error: ld returned 1 exit status
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-DEBUG VD: var=p is_stack_ctor=1 actual_type_base=16 actual_ptr_depth=0 cn->name=Point
 DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=-1 op1_type_base=-1
 DEBUG EMIT: func=main op=31 dest_kind=-1 dest_type_base=-1 op1_kind=9 op1_type_base=0
 DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
@@ -21,3 +13,6 @@ step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
 LLVMStructSetBody for Point with 2 fields
+Compiled to build/opt_out.o
+Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
+Linking failed.

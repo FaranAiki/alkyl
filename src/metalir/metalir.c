@@ -89,7 +89,7 @@ void metalir_alir_generate(MetalirRunner *r, ASTNode *root) {
     a.module = r->module;
     alir_scan_and_register_classes(&a, root);
     scan_and_fold_consts(&a, root);
-    alir_gen_functions_recursive(&a, root);
+    alir_gen_functions_recursive(&a, root, NULL);
     r->module->src = r->sem.current_source;
     r->module->filename = r->sem.current_filename;
 }
@@ -248,7 +248,7 @@ void metalir_run_class(MetalirRunner *r, ASTNode *curr, ASTNode *root) {
     a.module = r->module;
     pass1_register(&a, curr, NULL);
     pass2_populate(&a, root, curr, NULL);
-    alir_gen_functions_recursive(&a, curr);
+    alir_gen_functions_recursive(&a, curr, NULL);
 }
 
 void metalir_run_func_def(MetalirRunner *r, ASTNode *curr) {

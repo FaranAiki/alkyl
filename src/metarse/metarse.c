@@ -62,7 +62,7 @@ void executor_alir_generate(Executor *e, ASTNode *root) {
     a.sem = &e->sem;
     a.module = e->module;
     alir_scan_and_register_classes(&a, root);
-    alir_gen_functions_recursive(&a, root);
+    alir_gen_functions_recursive(&a, root, NULL);
     if (e->module) {
         e->module->src = e->sem.current_source;
         e->module->filename = e->sem.current_filename;
@@ -146,7 +146,7 @@ void exec_class(Executor *e, ASTNode *curr, ASTNode *root) {
     a.module = e->module;
     pass1_register(&a, curr, NULL);
     pass2_populate(&a, root, curr, NULL);
-    alir_gen_functions_recursive(&a, curr);
+    alir_gen_functions_recursive(&a, curr, NULL);
 }
 
 void exec_func_def(Executor *e, ASTNode *curr) {
