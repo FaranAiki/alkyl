@@ -116,6 +116,8 @@ static AlirFunction* find_func(MetalirRunner *r, const char *name) {
 static void print_repl_value(VarType rt, long long result) {
     if (rt.base == TYPE_VOID) {
         printf("-> (void)\n");
+    } else if (rt.base == TYPE_BOOL && rt.ptr_depth == 0 && rt.array_size == 0) {
+        printf("-> %s (bool)\n", result ? "true" : "false");
     } else if (rt.base != TYPE_UNKNOWN) {
         if ((rt.base == TYPE_INT || rt.base == TYPE_LONG || rt.base == TYPE_LONG_LONG || rt.base == TYPE_UNSIGNED_INT || rt.base == TYPE_UNSIGNED_LONG || rt.base == TYPE_UNSIGNED_LONG_LONG) && rt.ptr_depth == 0 && rt.array_size == 0) {
             if (rt.is_unsigned || rt.base == TYPE_UNSIGNED_INT || rt.base == TYPE_UNSIGNED_LONG || rt.base == TYPE_UNSIGNED_LONG_LONG || rt.base == TYPE_UNSIGNED_CHAR)
