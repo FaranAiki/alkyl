@@ -136,7 +136,8 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         alir_add_symbol(ctx, vn->name, ptr, actual_type);
 
         CallNode *cn = (CallNode*)vn->initializer;
-        AlirInst *call_init = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_global(ctx->module, cn->name, (VarType){TYPE_VOID, 0, NULL}), NULL);
+        const char *ctor_name = cn->mangled_name ? cn->mangled_name : cn->name;
+        AlirInst *call_init = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_global(ctx->module, ctor_name, (VarType){TYPE_VOID, 0, NULL}), NULL);
 
         int arg_count = 0; ASTNode *a = cn->args; while(a) { arg_count++; a=a->next; }
         call_init->arg_count = arg_count + 1;

@@ -1,19 +1,28 @@
-/usr/bin/ld: build/opt_out.o: in function `main':
-main_module:(.text+0x1b): undefined reference to `main_Calculator_add_i32_i32'
-/usr/bin/ld: main_module:(.text+0x36): undefined reference to `main_Calculator_add_f64_f64'
-collect2: error: ld returned 1 exit status
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+DEBUG: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+DEBUG: alir_gen_function_def fn->name=putchar class_name=NULL fn->mangled_name=putchar -> func_name=putchar
+DEBUG: alir_gen_function_def fn->name=puts class_name=NULL fn->mangled_name=puts -> func_name=puts
+DEBUG: alir_gen_function_def fn->name=print_int_array class_name=NULL fn->mangled_name=main_print_int_array_i32_p_i64 -> func_name=main_print_int_array_i32_p_i64
+DEBUG: alir_gen_function_def fn->name=print_uint_array class_name=NULL fn->mangled_name=main_print_uint_array_i32_p_i64 -> func_name=main_print_uint_array_i32_p_i64
+DEBUG: alir_gen_function_def fn->name=print_long_array class_name=NULL fn->mangled_name=main_print_long_array_void_p_i64 -> func_name=main_print_long_array_void_p_i64
+DEBUG: alir_gen_function_def fn->name=print_ulong_array class_name=NULL fn->mangled_name=main_print_ulong_array_void_p_i64 -> func_name=main_print_ulong_array_void_p_i64
+DEBUG: alir_gen_function_def fn->name=print_single_array class_name=NULL fn->mangled_name=main_print_single_array_void_p_i64 -> func_name=main_print_single_array_void_p_i64
+DEBUG: alir_gen_function_def fn->name=print_double_array class_name=NULL fn->mangled_name=main_print_double_array_void_p_i64 -> func_name=main_print_double_array_void_p_i64
+DEBUG: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+DEBUG: alir_gen_function_def fn->name=add class_name=main.Calculator fn->mangled_name=main_Calculator_add_i32_i32 -> func_name=main_Calculator_add_i32_i32
 Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
+DEBUG: alir_gen_function_def fn->name=add class_name=main.Calculator fn->mangled_name=main_Calculator_add_f64_f64 -> func_name=main_Calculator_add_f64_f64
 Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
 Warning: Implicitly resolved 'clib' to 'main.clib'
+DEBUG: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=-1 op1_type_base=-1
 DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
@@ -45,4 +54,4 @@ step: Finished alir optimization. Start code generation using LLVM codegen
 LLVMStructSetBody for main.Calculator with 1 fields
 Compiled to build/opt_out.o
 Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
-Linking failed.
+Linked to build/opt_out

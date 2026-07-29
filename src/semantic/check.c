@@ -333,15 +333,26 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
 
         // Find constructor
         int ctor_found = 0;
+        SemSymbol *constructor_head = NULL;
         if (sym->inner_scope) {
-            SemSymbol *constructor = sym->inner_scope->symbols;
-            while (constructor) {
-                if (strcmp(constructor->name, sym->name) == 0 || strcmp(constructor->name, "init") == 0) {
-                     sem_check_call_args(ctx, node, constructor);
-                     ctor_found = 1;
+            SemSymbol *s = sym->inner_scope->symbols;
+            while (s) {
+                if (strcmp(s->name, sym->name) == 0 || strcmp(s->name, "init") == 0) {
+                     constructor_head = s;
                      break;
                 }
-                constructor = constructor->next;
+                s = s->next;
+            }
+        }
+        
+        if (constructor_head) {
+            SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, constructor_head, (ASTNode*)node);
+            if (resolved) {
+                node->mangled_name = resolved->mangled_name;
+                ctor_found = 1;
+            } else {
+                // sem_resolve_overload emits an error if it fails
+                ctor_found = 1; // Mark as found so we don't try implicit fallback
             }
         }
 
@@ -353,18 +364,25 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
             for (int i = 0; i < sym->trait_count; i++) {
                 SemSymbol *trait_sym = sem_symbol_lookup(ctx, sym->traits[i], NULL);
                 if (trait_sym && trait_sym->inner_scope) {
-                    SemSymbol *constructor = trait_sym->inner_scope->symbols;
-                    while (constructor) {
-                        if (strcmp(constructor->name, trait_sym->name) == 0 || strcmp(constructor->name, "init") == 0) {
-                            sem_check_call_args(ctx, node, constructor);
+                    SemSymbol *s = trait_sym->inner_scope->symbols;
+                    while (s) {
+                        if (strcmp(s->name, trait_sym->name) == 0 || strcmp(s->name, "init") == 0) {
+                            constructor_head = s;
+                            break;
+                        }
+                        s = s->next;
+                    }
+                    if (constructor_head) {
+                        SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, constructor_head, (ASTNode*)node);
+                        if (resolved) {
+                            node->mangled_name = resolved->mangled_name;
                             ctor_found = 1;
                             sem_warning(ctx, (ASTNode*)node, "no initialization from %s, using %s as a constructor", sym->name, trait_sym->name);
                             break;
                         }
-                        constructor = constructor->next;
                     }
-                    if (ctor_found) break;
                 }
+                if (ctor_found) break;
             }
         }
 

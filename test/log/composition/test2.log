@@ -10,6 +10,11 @@ step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+DEBUG: alir_gen_function_def fn->name=cprintf class_name=NULL fn->mangled_name=printf -> func_name=printf
+DEBUG: alir_gen_function_def fn->name=speak class_name=Identity fn->mangled_name=main_Identity_speak -> func_name=main_Identity_speak
+DEBUG: alir_gen_function_def fn->name=intro class_name=Person fn->mangled_name=main_Person_intro -> func_name=main_Person_intro
+DEBUG: alir_gen_function_def fn->name=speak class_name=Person fn->mangled_name=main_Identity_speak -> func_name=main_Person_speak
+DEBUG: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=-1 op1_type_base=-1
 DEBUG EMIT: func=main op=31 dest_kind=-1 dest_type_base=-1 op1_kind=9 op1_type_base=0
 DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0

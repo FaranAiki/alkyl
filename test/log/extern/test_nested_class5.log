@@ -1,18 +1,11 @@
-Call parameter type does not match function signature!
-  %alloc = alloca i32, align 4
- i32  %call = call %ns.Clib @ns_Clib(ptr %alloc)
-Call parameter type does not match function signature!
-  %alloc = alloca i32, align 4
- i32  %call = call %ns.Clib @ns_Clib(ptr %alloc)
-LLVM Verification Error: Call parameter type does not match function signature!
-  %alloc = alloca i32, align 4
- i32  %call = call %ns.Clib @ns_Clib(ptr %alloc)
-
+/usr/bin/ld: build/opt_out.o: in function `main':
+main_module:(.text+0x7): undefined reference to `main_ns_Clib'
+collect2: error: ld returned 1 exit status
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-DEBUG VD: var=c is_stack_ctor=0 actual_type_base=16 actual_ptr_depth=0 cn->name=(null)
+DEBUG: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
 DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=16 op1_kind=4 op1_type_base=0
 DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=-1 op1_type_base=-1
@@ -24,3 +17,6 @@ step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
 LLVMStructSetBody for ns.Clib with 1 fields
+Compiled to build/opt_out.o
+Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
+Linking failed.

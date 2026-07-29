@@ -163,23 +163,55 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
         char search_str[256];
         snprintf(search_str, sizeof(search_str), "_%s", mc->method_name);
         char *pos = strstr(mc->mangled_name, search_str);
-        if (pos) {
-            char *class_start = pos;
-            while (class_start > mc->mangled_name && *(class_start - 1) != '_') {
-                class_start--;
+        char safe_cname[256] = {0};
+        if (cname) {
+            snprintf(safe_cname, sizeof(safe_cname), "%s", cname);
+            for (int i = 0; safe_cname[i]; i++) {
+                if (safe_cname[i] == '.') safe_cname[i] = '_';
             }
-            snprintf(func_name, sizeof(func_name), "%.*s%s%s",
-                (int)(class_start - mc->mangled_name), mc->mangled_name,
-                cname,
-                pos);
+        }
+        if (pos) {
+            if (cname && strchr(cname, '.')) {
+                snprintf(func_name, sizeof(func_name), "%s%s", safe_cname, pos);
+            } else {
+                const char *top_ns = "main";
+                if (ctx->module && ctx->module->compiler_ctx) {
+                    const char *dns = diag_get_namespace(ctx->module->compiler_ctx);
+                    if (dns && strlen(dns) > 0) top_ns = dns;
+                }
+                snprintf(func_name, sizeof(func_name), "%s_%s%s", top_ns, safe_cname, pos);
+            }
         } else {
-            snprintf(func_name, 256, "%s_%s", cname, mc->method_name);
+            if (cname && strchr(cname, '.')) {
+                snprintf(func_name, 256, "%s_%s", safe_cname, mc->method_name);
+            } else {
+                const char *top_ns = "main";
+                if (ctx->module && ctx->module->compiler_ctx) {
+                    const char *dns = diag_get_namespace(ctx->module->compiler_ctx);
+                    if (dns && strlen(dns) > 0) top_ns = dns;
+                }
+                snprintf(func_name, 256, "%s_%s_%s", top_ns, cname ? safe_cname : "Unknown", mc->method_name);
+            }
         }
     } else {
-        if (cname) snprintf(func_name, 256, "%s_%s", cname, mc->method_name);
-        else snprintf(func_name, 256, "%s", mc->method_name);
+        if (cname && strchr(cname, '.')) {
+            char safe_cname[256] = {0};
+            snprintf(safe_cname, sizeof(safe_cname), "%s", cname);
+            for (int i = 0; safe_cname[i]; i++) {
+                if (safe_cname[i] == '.') safe_cname[i] = '_';
+            }
+            snprintf(func_name, 256, "%s_%s", safe_cname, mc->method_name);
+        } else if (cname) {
+            const char *top_ns = "main";
+            if (ctx->module && ctx->module->compiler_ctx) {
+                const char *dns = diag_get_namespace(ctx->module->compiler_ctx);
+                if (dns && strlen(dns) > 0) top_ns = dns;
+            }
+            snprintf(func_name, 256, "%s_%s_%s", top_ns, cname, mc->method_name);
+        } else {
+            snprintf(func_name, 256, "%s", mc->method_name);
+        }
     }
-
     AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, func_name), NULL);
 
     int count = 0; ASTNode *a = mc->args; while(a) { count++; a=a->next; }

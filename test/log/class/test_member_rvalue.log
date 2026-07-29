@@ -2,6 +2,16 @@ step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+DEBUG: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+DEBUG: alir_gen_function_def fn->name=putchar class_name=NULL fn->mangled_name=putchar -> func_name=putchar
+DEBUG: alir_gen_function_def fn->name=puts class_name=NULL fn->mangled_name=puts -> func_name=puts
+DEBUG: alir_gen_function_def fn->name=print_int_array class_name=NULL fn->mangled_name=main_print_int_array_i32_p_i64 -> func_name=main_print_int_array_i32_p_i64
+DEBUG: alir_gen_function_def fn->name=print_uint_array class_name=NULL fn->mangled_name=main_print_uint_array_i32_p_i64 -> func_name=main_print_uint_array_i32_p_i64
+DEBUG: alir_gen_function_def fn->name=print_long_array class_name=NULL fn->mangled_name=main_print_long_array_void_p_i64 -> func_name=main_print_long_array_void_p_i64
+DEBUG: alir_gen_function_def fn->name=print_ulong_array class_name=NULL fn->mangled_name=main_print_ulong_array_void_p_i64 -> func_name=main_print_ulong_array_void_p_i64
+DEBUG: alir_gen_function_def fn->name=print_single_array class_name=NULL fn->mangled_name=main_print_single_array_void_p_i64 -> func_name=main_print_single_array_void_p_i64
+DEBUG: alir_gen_function_def fn->name=print_double_array class_name=NULL fn->mangled_name=main_print_double_array_void_p_i64 -> func_name=main_print_double_array_void_p_i64
+DEBUG: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=7 op1_type_base=1
 DEBUG EMIT: func=main op=5 dest_kind=5 dest_type_base=16 op1_kind=5 op1_type_base=8
 DEBUG EMIT: func=main op=4 dest_kind=5 dest_type_base=15 op1_kind=5 op1_type_base=16

@@ -8,7 +8,17 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
 
     char func_name[256];
     if (fn->mangled_name) {
-        if (class_name && fn->class_name && strcmp(class_name, fn->class_name) != 0) {
+        int is_inherited = 0;
+        if (class_name && fn->class_name) {
+            if (strcmp(class_name, fn->class_name) != 0) {
+                const char *dot = strrchr(class_name, '.');
+                if (!dot || strcmp(dot + 1, fn->class_name) != 0) {
+                    is_inherited = 1;
+                }
+            }
+        }
+        
+        if (is_inherited) {
             // Inherited method: replace the original class name with the target class name
             char search_str[256];
             snprintf(search_str, sizeof(search_str), "_%s", fn->name);
@@ -18,10 +28,23 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
                 while (class_start > fn->mangled_name && *(class_start - 1) != '_') {
                     class_start--;
                 }
-                snprintf(func_name, sizeof(func_name), "%.*s%s%s",
-                    (int)(class_start - fn->mangled_name), fn->mangled_name,
-                    class_name,
-                    pos);
+                
+                char mangled_target[256];
+                snprintf(mangled_target, sizeof(mangled_target), "%s", class_name);
+                for (int i = 0; mangled_target[i]; i++) {
+                    if (mangled_target[i] == '.') mangled_target[i] = '_';
+                }
+                
+                if (strchr(class_name, '.')) {
+                    snprintf(func_name, sizeof(func_name), "%s%s", mangled_target, pos);
+                } else {
+                    const char *top_ns = "main";
+                    if (ctx->module && ctx->module->compiler_ctx) {
+                    const char *dns = diag_get_namespace(ctx->module->compiler_ctx);
+                        if (dns && strlen(dns) > 0) top_ns = dns;
+                    }
+                    snprintf(func_name, sizeof(func_name), "%s_%s%s", top_ns, mangled_target, pos);
+                }
             } else {
                 snprintf(func_name, sizeof(func_name), "%s", fn->mangled_name);
             }
@@ -40,6 +63,8 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
             snprintf(func_name, sizeof(func_name), "%s", fn->name);
         }
     }
+
+    printf("DEBUG: alir_gen_function_def fn->name=%s class_name=%s fn->mangled_name=%s -> func_name=%s\n", fn->name, class_name ? class_name : "NULL", fn->mangled_name ? fn->mangled_name : "NULL", func_name);
 
     ctx->current_func = alir_add_function(ctx->module, func_name, fn->ret_type, 0);
     ctx->current_func->is_varargs = fn->is_varargs;

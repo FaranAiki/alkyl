@@ -2,6 +2,9 @@ step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+DEBUG: alir_gen_function_def fn->name=cprintf class_name=NULL fn->mangled_name=printf -> func_name=printf
+DEBUG: alir_gen_function_def fn->name=m1 class_name=Foo fn->mangled_name=main_Foo_m1 -> func_name=main_Foo_m1
+DEBUG: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=-1 op1_type_base=-1
 DEBUG EMIT: func=main op=35 dest_kind=5 dest_type_base=8 op1_kind=7 op1_type_base=1
 DEBUG EMIT: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
