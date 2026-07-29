@@ -67,9 +67,31 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                     else if (member->kind == SYM_CLASS) {
                         char full_name[512];
                         snprintf(full_name, sizeof(full_name), "%s.%s", obj_type.class_name, member->name);
-                        VarType instance = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, full_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
-                        sem_set_node_type(ctx, (ASTNode*)node, instance);
-                        found = 1;
+
+                        ASTNode *saved_args = node->args;
+                        int saved_line = node->base.line;
+                        int saved_col = node->base.col;
+                        
+                        CallNode *call = (CallNode*)node;
+                        call->base.type = NODE_CALL;
+                        call->base.line = saved_line;
+                        call->base.col = saved_col;
+                        
+                        VarRefNode *target = arena_alloc_type(ctx->compiler_ctx->arena, VarRefNode);
+                        target->base.type = NODE_VAR_REF;
+                        target->base.line = saved_line;
+                        target->base.col = saved_col;
+                        target->name = arena_strdup(ctx->compiler_ctx->arena, full_name);
+                        target->is_class_member = 0;
+                        
+                        call->name = target->name;
+                        call->mangled_name = NULL;
+                        call->args = saved_args;
+                        call->target = (ASTNode*)target;
+
+                        extern void sem_check_call(SemanticCtx *ctx, CallNode *node);
+                        sem_check_call(ctx, call);
+                        return;
                     }
 
                     if (found) {

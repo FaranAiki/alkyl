@@ -156,7 +156,20 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             LLVMTypeRef ret_ty = LLVMGetReturnType(LLVMGlobalGetValueType(current_func));
             
             if (op1) {
-                if (LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind && LLVMGetTypeKind(LLVMTypeOf(op1)) != LLVMStructTypeKind) {
+                if (LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) {
+                    if (inst->op1 && inst->op1->type.base == TYPE_CLASS) {
+                        VarType base_t = inst->op1->type;
+                        base_t.ptr_depth = 0;
+                        LLVMTypeRef struct_ty = get_llvm_type(ctx, base_t);
+                        if (struct_ty) {
+                            op1 = LLVMBuildLoad2(ctx->builder, struct_ty, op1, "load_ret");
+                        }
+                    }
+                }
+
+                if (ret_ty == LLVMTypeOf(op1)) {
+                    LLVMBuildRet(ctx->builder, op1);
+                } else if (LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind) {
                     LLVMValueRef ret_struct = LLVMGetUndef(ret_ty);
                     ret_struct = LLVMBuildInsertValue(ctx->builder, ret_struct, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), 0, "");
                     ret_struct = LLVMBuildInsertValue(ctx->builder, ret_struct, op1, 1, "");

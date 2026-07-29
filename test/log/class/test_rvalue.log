@@ -1,10 +1,3 @@
-Invalid InsertValueInst operands!
-  %0 = insertvalue %Somefunc zeroinitializer, ptr %alloc, 1
-Invalid InsertValueInst operands!
-  %0 = insertvalue %Somefunc zeroinitializer, ptr %alloc, 1
-LLVM Verification Error: Invalid InsertValueInst operands!
-  %0 = insertvalue %Somefunc zeroinitializer, ptr %alloc, 1
-
 step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
@@ -20,6 +13,7 @@ DEBUG: alir_gen_function_def fn->name=print_single_array class_name=NULL fn->man
 DEBUG: alir_gen_function_def fn->name=print_double_array class_name=NULL fn->mangled_name=main_print_double_array_void_p_i64 -> func_name=main_print_double_array_void_p_i64
 DEBUG: alir_gen_function_def fn->name=something class_name=Somefunc fn->mangled_name=main_Somefunc_something -> func_name=main_Somefunc_something
 DEBUG: alir_gen_function_def fn->name=thing class_name=NULL fn->mangled_name=main_thing -> func_name=main_thing
+Found struct Somefunc
 DEBUG: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 DEBUG EMIT: func=main op=31 dest_kind=5 dest_type_base=16 op1_kind=9 op1_type_base=16
 DEBUG EMIT: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=-1 op1_type_base=-1
@@ -41,3 +35,6 @@ step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
 LLVMStructSetBody for Somefunc with 1 fields
+Compiled to build/opt_out.o
+Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
+Linked to build/opt_out

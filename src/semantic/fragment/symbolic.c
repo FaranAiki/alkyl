@@ -74,6 +74,7 @@ void sem_symbolic_var_decl(SemanticCtx *ctx, ASTNode *node) {
     sym->must_pure = vd->has_explicit_pure;
     sym->is_pristine = vd->is_pristine;
     sym->must_pristine = vd->has_explicit_pristine;
+    sym->node_ptr = node;
 }
 
 void sem_symbolic_node_enum(SemanticCtx *ctx, ASTNode *node) {

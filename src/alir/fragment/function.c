@@ -151,7 +151,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
 }
 
 AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
-    const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
+    const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name; 
     if (!target_name && cn->target) {
         if (cn->target->type == NODE_VAR_REF) {
             target_name = ((VarRefNode*)cn->target)->name;
@@ -297,9 +297,9 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
 }
 
 AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
-    const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
+    const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name; 
     // Check if it's a constructor call via Struct Registry
-    if (alir_find_struct(ctx->module, target_name)) {
+    if (alir_find_struct(ctx->module, target_name)) { printf("Found struct %s\n", target_name);
         int count = 0; ASTNode *a = cn->args; while(a) { count++; a=a->next; }
         if (count == 1 && ctx->sem) {
             VarType arg_t = sem_get_node_type(ctx->sem, cn->args);

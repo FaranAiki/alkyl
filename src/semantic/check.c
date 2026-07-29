@@ -126,6 +126,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             sym->is_pure = cn->is_pure && !cn->is_extern;
             sym->must_pure = cn->has_explicit_pure;
             sym->is_union = cn->is_union;
+            sym->node_ptr = node;
             if (cn->parent_name) {
                 sym->parent_name = arena_strdup(ctx->compiler_ctx->arena, cn->parent_name);
             }
@@ -196,6 +197,103 @@ static int sem_count_class_fields(SemanticCtx *ctx, SemSymbol *sym) {
         }
     }
     return count;
+}
+
+static int sem_count_required_class_fields(SemanticCtx *ctx, SemSymbol *sym) {
+    if (!sym || sym->kind != SYM_CLASS) return 0;
+    int count = 0;
+    if (sym->parent_name) {
+        SemSymbol *p = sem_symbol_lookup(ctx, sym->parent_name, NULL);
+        if (p) count += sem_count_required_class_fields(ctx, p);
+    }
+    for (int i=0; i<sym->trait_count; i++) {
+        SemSymbol *t = sem_symbol_lookup(ctx, sym->traits[i], NULL);
+        if (t) count += sem_count_required_class_fields(ctx, t);
+    }
+    if (sym->inner_scope) {
+        SemSymbol *s = sym->inner_scope->symbols;
+        while(s) {
+            if (s->kind == SYM_VAR) {
+                if (s->node_ptr && s->node_ptr->type == NODE_VAR_DECL) {
+                    VarDeclNode *vd = (VarDeclNode*)s->node_ptr;
+                    if (!vd->initializer) {
+                        count++;
+                    }
+                } else {
+                    count++;
+                }
+            }
+            s = s->next;
+        }
+    }
+    return count;
+}
+
+static void sem_collect_class_fields(SemanticCtx *ctx, SemSymbol *sym, VarDeclNode **fields, int *idx) {
+    if (!sym || sym->kind != SYM_CLASS) return;
+    if (sym->parent_name) {
+        SemSymbol *p = sem_symbol_lookup(ctx, sym->parent_name, NULL);
+        if (p) sem_collect_class_fields(ctx, p, fields, idx);
+    }
+    for (int i=0; i<sym->trait_count; i++) {
+        SemSymbol *t = sem_symbol_lookup(ctx, sym->traits[i], NULL);
+        if (t) sem_collect_class_fields(ctx, t, fields, idx);
+    }
+    if (sym->inner_scope) {
+        // Collect in reverse, then reverse? 
+        // Wait, inner_scope->symbols are linked list prepended, so it's reversed.
+        // We should count them and insert at the end.
+        SemSymbol *s = sym->inner_scope->symbols;
+        int local_count = 0;
+        while(s) { if (s->kind == SYM_VAR) local_count++; s = s->next; }
+        
+        s = sym->inner_scope->symbols;
+        int local_idx = *idx + local_count - 1;
+        while(s) {
+            if (s->kind == SYM_VAR) {
+                if (s->node_ptr && s->node_ptr->type == NODE_VAR_DECL) {
+                    fields[local_idx--] = (VarDeclNode*)s->node_ptr;
+                } else {
+                    fields[local_idx--] = NULL; // fallback
+                }
+            }
+            s = s->next;
+        }
+        *idx += local_count;
+    }
+}
+
+extern ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarType *replace_with, int num_params, char **rename_from, char **rename_to, int num_renames);
+
+static void sem_inject_default_class_args(SemanticCtx *ctx, CallNode *node, SemSymbol *sym, int arg_count, int total_fields) {
+    VarDeclNode **fields = arena_alloc(ctx->compiler_ctx->arena, sizeof(VarDeclNode*) * total_fields);
+    int idx = 0;
+    sem_collect_class_fields(ctx, sym, fields, &idx);
+    
+    ASTNode *last_arg = node->args;
+    if (last_arg) {
+        while(last_arg->next) last_arg = last_arg->next;
+    }
+    
+    for (int i = arg_count; i < total_fields; i++) {
+        ASTNode *injected = NULL;
+        if (fields[i] && fields[i]->initializer) {
+            injected = ast_clone(ctx->compiler_ctx, fields[i]->initializer, NULL, NULL, 0, NULL, NULL, 0);
+            injected->next = NULL; // important! ast_clone copies the next chain!
+        }
+        // If we don't have an initializer, maybe an error should have been thrown, but we'll try to inject something (like 0) or just let it crash later if required.
+        // But since required_fields is checked, fields[i] WILL have an initializer here if valid.
+        if (injected) {
+            sem_check_expr(ctx, injected);
+            if (last_arg) {
+                last_arg->next = injected;
+                last_arg = injected;
+            } else {
+                node->args = injected;
+                last_arg = injected;
+            }
+        }
+    }
 }
 
 static void sem_check_call_args(SemanticCtx *ctx, CallNode *node, SemSymbol *sym) {
@@ -392,6 +490,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
              }
              // Basic validation for implicit constructor: should match number of fields
              int total_fields = sem_count_class_fields(ctx, sym);
+             int required_fields = sem_count_required_class_fields(ctx, sym);
              int arg_count = 0;
              ASTNode *a = node->args;
              while(a) {
@@ -399,7 +498,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                  a = a->next;
                  arg_count++;
              }
-             if (arg_count != total_fields) {
+             if (arg_count < required_fields || arg_count > total_fields) {
                  int is_copy = 0;
                  if (arg_count == 1) {
                      VarType arg_type = sem_get_node_type(ctx, node->args);
@@ -409,8 +508,14 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                      }
                  }
                  if (!is_copy) {
-                     sem_error(ctx, (ASTNode*)node, "Expected %d argument(s) for implicit constructor of '%s', got %d", total_fields, sym->name, arg_count);
+                     if (required_fields == total_fields) {
+                         sem_error(ctx, (ASTNode*)node, "Expected %d argument(s) for implicit constructor of '%s', got %d", total_fields, sym->name, arg_count);
+                     } else {
+                         sem_error(ctx, (ASTNode*)node, "Expected between %d and %d argument(s) for implicit constructor of '%s', got %d", required_fields, total_fields, sym->name, arg_count);
+                     }
                  }
+             } else if (arg_count < total_fields) {
+                 sem_inject_default_class_args(ctx, node, sym, arg_count, total_fields);
              }
         }
     }

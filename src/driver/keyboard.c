@@ -10,6 +10,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
+struct SemanticCtx;
+struct SemSymbol;
+SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_scope);
+
 #define MAX_HISTORY 100
 #define MAX_INPUT_LEN 4096
 
@@ -35,7 +39,7 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
     if (*last_cursor_row > 0) {
         printf("\033[%dA", *last_cursor_row);
     }
-    printf("\r\033[J"); // clear from cursor to end of screen
+    printf("\r\033[K\033[J"); // clear line and from cursor to end of screen
 
     int base_prompt_len = strlen(base_prompt_no_color);
     
@@ -182,6 +186,30 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                 if (suggestion == NULL && sem_ctx != NULL) {
                     SemanticCtx *sem = (SemanticCtx*)sem_ctx;
                     SemScope *scope = sem->current_scope;
+                    
+                    if (word_start > 0 && input_buffer[word_start - 1] == '.') {
+                        int prefix_start = 0;
+                        for (int i = word_start - 2; i >= current_line_start; i--) {
+                            if (!isalnum(input_buffer[i]) && input_buffer[i] != '_') {
+                                prefix_start = i + 1;
+                                break;
+                            }
+                        }
+                        if (prefix_start < word_start - 1) {
+                            char prefix[128] = {0};
+                            int p_len = word_start - 1 - prefix_start;
+                            if (p_len < 127) strncpy(prefix, input_buffer + prefix_start, p_len);
+                            SemSymbol *ns_sym = sem_symbol_lookup(sem, prefix, NULL);
+                            if (ns_sym && ns_sym->inner_scope) {
+                                scope = ns_sym->inner_scope;
+                            } else {
+                                scope = NULL;
+                            }
+                        } else {
+                            scope = NULL;
+                        }
+                    }
+
                     while (scope) {
                         SemSymbol *sym = scope->symbols;
                         while (sym) {
@@ -193,6 +221,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                             sym = sym->next;
                         }
                         if (suggestion != NULL) break;
+                        if (word_start > 0 && input_buffer[word_start - 1] == '.') break; // only search the exact namespace/class
                         scope = scope->parent;
                     }
                 }
@@ -291,33 +320,22 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
             }
         } else if (c == 27) {
             char seq1 = getchar();
-            if (seq1 == '[') {
+            if (seq1 == '[' || seq1 == 'O') {
                 char seq2 = getchar();
                 if (seq2 == 'D') { // Left
                     if (pos > 0) pos--;
                 } else if (seq2 == 'C') { // Right
                     if (pos < len) pos++;
-                } else if (seq2 == 'A') { // Up
-                    int prev_line_start = -1;
-                    for (int i = pos - 1; i >= 0; i--) {
-                        if (input_buffer[i] == '\n') {
-                            prev_line_start = i;
-                            break;
+                    else if (pos == len && suggestion != NULL) {
+                        strcpy(input_buffer + word_start, suggestion);
+                        int added_len = strlen(suggestion) - word_len;
+                        if (len + added_len < MAX_INPUT_LEN - 1) {
+                            len += added_len;
+                            pos = len;
                         }
                     }
-                    if (prev_line_start != -1) {
-                        int prev_prev = 0;
-                        for (int i = prev_line_start - 1; i >= 0; i--) {
-                            if (input_buffer[i] == '\n') {
-                                prev_prev = i + 1;
-                                break;
-                            }
-                        }
-                        int col = pos - current_line_start;
-                        int prev_len = prev_line_start - prev_prev;
-                        if (col > prev_len) col = prev_len;
-                        pos = prev_prev + col;
-                    } else if (history_view_idx > 0) {
+                } else if (seq2 == 'A') { // Up
+                    if (history_view_idx > 0) {
                         if (history_view_idx == cmd_history_count) {
                             strcpy(temp_buffer, input_buffer);
                         }
@@ -327,26 +345,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                         pos = len;
                     }
                 } else if (seq2 == 'B') { // Down
-                    int next_line_start = -1;
-                    for (int i = pos; i < len; i++) {
-                        if (input_buffer[i] == '\n') {
-                            next_line_start = i + 1;
-                            break;
-                        }
-                    }
-                    if (next_line_start != -1) {
-                        int next_line_end = len;
-                        for (int i = next_line_start; i < len; i++) {
-                            if (input_buffer[i] == '\n') {
-                                next_line_end = i;
-                                break;
-                            }
-                        }
-                        int col = pos - current_line_start;
-                        int next_len = next_line_end - next_line_start;
-                        if (col > next_len) col = next_len;
-                        pos = next_line_start + col;
-                    } else if (history_view_idx < cmd_history_count) {
+                    if (history_view_idx < cmd_history_count) {
                         history_view_idx++;
                         if (history_view_idx == cmd_history_count) {
                             strcpy(input_buffer, temp_buffer);
