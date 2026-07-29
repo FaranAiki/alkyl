@@ -17,7 +17,7 @@ void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current
 void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root);
 void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn);
 void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn, const char *fqn);
-void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *class_name);
+void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *class_name, ClassNode *target_node);
 void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *current_ns);
 void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name);
 AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root);

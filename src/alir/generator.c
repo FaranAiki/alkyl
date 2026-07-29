@@ -439,33 +439,36 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn, const char *fqn)
 }
 
 // Emits inherited methods from parent and traits down to the derived class scope
-void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_class) {
+void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_class_fqn, ClassNode *target_node) {
     if (!cn) return;
 
     // 1. Traverse Parent
     if (cn->parent_name) {
         ClassNode *pcn = hashmap_get(&ctx->class_map, cn->parent_name);
         if (pcn) {
-            alir_gen_inherited_methods(ctx, pcn, target_class); // Deepest first
+            alir_gen_inherited_methods(ctx, pcn, target_class_fqn, target_node); // Deepest first
 
             ASTNode *mem = pcn->members;
             while (mem) {
                 if (mem->type == NODE_FUNC_DEF) {
                     FuncDefNode *fn = (FuncDefNode*)mem;
                     if (strcmp(fn->name, pcn->name) != 0 && strcmp(fn->name, "init") != 0) {
-                        ClassNode *tcn = hashmap_get(&ctx->class_map, target_class);
                         int is_overridden = 0;
-                        if (tcn) {
-                            ASTNode *tmem = tcn->members;
+                        if (target_node) {
+                            ASTNode *tmem = target_node->members;
                             while(tmem) {
-                                if (tmem->type == NODE_FUNC_DEF && strcmp(((FuncDefNode*)tmem)->name, fn->name) == 0) {
-                                    is_overridden = 1; break;
+                                if (tmem->type == NODE_FUNC_DEF) {
+                                    fprintf(stderr, "DEBUG COMPARE target_node=%s fn->name='%s' tmem->name='%s'\n", target_node->name, fn->name, ((FuncDefNode*)tmem)->name);
+                                    if (strcmp(((FuncDefNode*)tmem)->name, fn->name) == 0) {
+                                        is_overridden = 1; break;
+                                    }
                                 }
                                 tmem = tmem->next;
                             }
                         }
                         if (!is_overridden) {
-                            alir_gen_function_def(ctx, fn, target_class);
+                            fprintf(stderr, "DEBUG NOT OVERRIDDEN target_node=%s fn->name='%s'\n", target_node ? target_node->name : "NULL", fn->name);
+                            alir_gen_function_def(ctx, fn, target_class_fqn);
                         }
                     }
                 }
@@ -478,14 +481,13 @@ void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_
     for (int i = 0; i < cn->traits.count; i++) {
         ClassNode *tcn = hashmap_get(&ctx->class_map, cn->traits.names[i]);
         if (tcn) {
-            alir_gen_inherited_methods(ctx, tcn, target_class);
+            alir_gen_inherited_methods(ctx, tcn, target_class_fqn, target_node);
 
             ASTNode *mem = tcn->members;
             while (mem) {
                 if (mem->type == NODE_FUNC_DEF) {
                     FuncDefNode *fn = (FuncDefNode*)mem;
                     if (strcmp(fn->name, tcn->name) != 0 && strcmp(fn->name, "init") != 0) {
-                        ClassNode *target_node = hashmap_get(&ctx->class_map, target_class);
                         int is_overridden = 0;
                         if (target_node) {
                             ASTNode *tmem = target_node->members;
@@ -497,7 +499,7 @@ void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_
                             }
                         }
                         if (!is_overridden) {
-                            alir_gen_function_def(ctx, fn, target_class);
+                            alir_gen_function_def(ctx, fn, target_class_fqn);
                         }
                     }
                 }
@@ -540,7 +542,7 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
             }
 
             // Generate Inherited and Traited Methods for this specific Class
-            alir_gen_inherited_methods(ctx, cn, fqn);
+            alir_gen_inherited_methods(ctx, cn, fqn, cn);
 
             // Emit an implicit constructor if the user hasn't explicitly supplied `init`
             if (!has_constructor) {

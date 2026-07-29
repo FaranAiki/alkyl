@@ -1,7 +1,7 @@
 step: Finished lexing. Start parsing.
 debug: after parse_type, vt.base=1, token.type=23
 step: Start Semantic Analysis.
-debug: sem_lookup_class_call for 'ns.Clib', class_sym=0x55b672d6efd8
+debug: sem_lookup_class_call for 'ns.Clib', class_sym=0x563bec6adfd8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir_gen_function_def fn->name=foo class_name=ns.Clib fn->mangled_name=ns_Clib_foo -> func_name=ns_Clib_foo
@@ -13,6 +13,8 @@ step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
 LLVMStructSetBody for ns.Clib with 0 fields (empty)
-Compiled to build/opt_out.o
-Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
-Linked to build/opt_out
+DEBUG PROTO func=ns.Clib param[0] name=this type=ptr ptr_depth=1 class_name=ns.Clib
+DEBUG PROTO ADD func=ns.Clib type=void (ptr)
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

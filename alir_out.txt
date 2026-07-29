@@ -1,0 +1,153 @@
+[1;36mstep: [0mFinished lexing. Start parsing.
+[1;36mdebug: [0mafter parse_type, vt.base=0, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=0, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=16, token.type=8
+[1;36mdebug: [0mconstructor check: vt.class_name='CAllocator', class_name='CAllocator'
+[1;36mdebug: [0mafter parse_type, vt.base=0, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=0, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=0, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=4, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=4, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=16, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=16, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=4, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=16, token.type=8
+[1;36mdebug: [0mconstructor check: vt.class_name='ArenaAllocator', class_name='ArenaAllocator'
+[1;36mdebug: [0mafter parse_type, vt.base=0, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=0, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=0, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=0, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=0, token.type=23
+[1;36mstep: [0mStart Semantic Analysis.
+[1;36mdebug: [0msem_lookup_class_call for 'CAllocator', class_sym=0x55b745d16ec0
+[1;36mdebug: [0msem_lookup_class_call for 'CAllocator', class_sym=0x55b745d16ec0
+[1;36mdebug: [0msem_lookup_class_call for 'ArenaAllocator', class_sym=0x55b745d17cd0
+[1;36mdebug: [0msem_lookup_class_call for 'ArenaAllocator', class_sym=0x55b745d17cd0
+[1;36mdebug: [0msem_lookup_class_call for 'ArenaAllocator', class_sym=0x55b745d17cd0
+[1;36mdebug: [0msem_lookup_class_call for 'CAllocator', class_sym=0x55b745d16ec0
+[1;36mdebug: [0msem_lookup_class_call for 'CAllocator', class_sym=0x55b745d16ec0
+[1;36mdebug: [0msem_lookup_class_call for 'CAllocator', class_sym=0x55b745d16ec0
+[1;36mdebug: [0msem_lookup_class_call for 'CAllocator', class_sym=0x55b745d16ec0
+[1;36mdebug: [0msem_lookup_class_call for 'CAllocator', class_sym=0x55b745d16ec0
+[1;36mstep: [0mFinished Semantic Analysis. Start macro-linking.
+[1;36mstep: [0mFinished macro linking. Start generating Alkyl Intermediate Representation (alir).
+[1;36mdebug: [0malir_gen_function_def fn->name=malloc class_name=NULL fn->mangled_name=malloc -> func_name=malloc
+[1;36mdebug: [0malir_gen_function_def fn->name=free class_name=NULL fn->mangled_name=free -> func_name=free
+[1;36mdebug: [0malir_gen_function_def fn->name=alloc class_name=heap.Allocator fn->mangled_name=heap_Allocator_alloc_i64 -> func_name=heap_Allocator_alloc_i64
+[1;36mdebug: [0malir_gen_function_def fn->name=free class_name=heap.Allocator fn->mangled_name=heap_Allocator_free_void_p -> func_name=heap_Allocator_free_void_p
+[1;36mdebug: [0malir_gen_function_def fn->name=CAllocator class_name=heap.CAllocator fn->mangled_name=heap_CAllocator_CAllocator -> func_name=heap_CAllocator_CAllocator
+[1;36mdebug: [0malir_gen_function_def fn->name=alloc class_name=heap.CAllocator fn->mangled_name=heap_CAllocator_alloc_i64 -> func_name=heap_CAllocator_alloc_i64
+[1;36mdebug: [0malir_gen_function_def fn->name=free class_name=heap.CAllocator fn->mangled_name=heap_CAllocator_free_void_p -> func_name=heap_CAllocator_free_void_p
+[1;36mdebug: [0malir_gen_function_def fn->name=alloc class_name=heap.CAllocator fn->mangled_name=heap_Allocator_alloc_i64 -> func_name=heap_CAllocator_alloc_i64
+[1;36mdebug: [0malir_gen_function_def fn->name=free class_name=heap.CAllocator fn->mangled_name=heap_Allocator_free_void_p -> func_name=heap_CAllocator_free_void_p
+[1;36mdebug: [0malir_gen_function_def fn->name=alloc class_name=NULL fn->mangled_name=heap_alloc_i64 -> func_name=heap_alloc_i64
+[1;36mdebug: [0malir_gen_function_def fn->name=free class_name=NULL fn->mangled_name=heap_free_void_p -> func_name=heap_free_void_p
+[1;36mdebug: [0malir_gen_function_def fn->name=ArenaAllocator class_name=heap.ArenaAllocator fn->mangled_name=heap_ArenaAllocator_ArenaAllocator -> func_name=heap_ArenaAllocator_ArenaAllocator
+[1;36mdebug: [0malir_gen_function_def fn->name=alloc class_name=heap.ArenaAllocator fn->mangled_name=heap_ArenaAllocator_alloc_i64 -> func_name=heap_ArenaAllocator_alloc_i64
+[1;36mdebug: [0malir_gen_function_def fn->name=alloc_aligned class_name=heap.ArenaAllocator fn->mangled_name=heap_ArenaAllocator_alloc_aligned_i64_i64 -> func_name=heap_ArenaAllocator_alloc_aligned_i64_i64
+[1;36mdebug: [0malir_gen_function_def fn->name=new_block_and_alloc class_name=heap.ArenaAllocator fn->mangled_name=heap_ArenaAllocator_new_block_and_alloc_i64_i64 -> func_name=heap_ArenaAllocator_new_block_and_alloc_i64_i64
+[1;36mdebug: [0malir_gen_function_def fn->name=free class_name=heap.ArenaAllocator fn->mangled_name=heap_ArenaAllocator_free -> func_name=heap_ArenaAllocator_free
+[1;36mdebug: [0malir_gen_function_def fn->name=reset class_name=heap.ArenaAllocator fn->mangled_name=heap_ArenaAllocator_reset -> func_name=heap_ArenaAllocator_reset
+[1;36mdebug: [0malir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+[1;36mdebug: [0malir_gen_function_def fn->name=putchar class_name=NULL fn->mangled_name=putchar -> func_name=putchar
+[1;36mdebug: [0malir_gen_function_def fn->name=puts class_name=NULL fn->mangled_name=puts -> func_name=puts
+[1;36mdebug: [0malir_gen_function_def fn->name=print_int_array class_name=NULL fn->mangled_name=main_print_int_array_i32_p_i64 -> func_name=main_print_int_array_i32_p_i64
+[1;36mdebug: [0malir_gen_function_def fn->name=print_uint_array class_name=NULL fn->mangled_name=main_print_uint_array_i32_p_i64 -> func_name=main_print_uint_array_i32_p_i64
+[1;36mdebug: [0malir_gen_function_def fn->name=print_long_array class_name=NULL fn->mangled_name=main_print_long_array_void_p_i64 -> func_name=main_print_long_array_void_p_i64
+[1;36mdebug: [0malir_gen_function_def fn->name=print_ulong_array class_name=NULL fn->mangled_name=main_print_ulong_array_void_p_i64 -> func_name=main_print_ulong_array_void_p_i64
+[1;36mdebug: [0malir_gen_function_def fn->name=print_single_array class_name=NULL fn->mangled_name=main_print_single_array_void_p_i64 -> func_name=main_print_single_array_void_p_i64
+[1;36mdebug: [0malir_gen_function_def fn->name=print_double_array class_name=NULL fn->mangled_name=main_print_double_array_void_p_i64 -> func_name=main_print_double_array_void_p_i64
+[1;36mstep: [0mFinished alir. Start alir check and analysis.
+[1;36mstep: [0mFinished alir check and analysis. Start alir optimization.
+[1;36mstep: [0mFinished alir optimization. Start code generation using LLVM codegen
+Call parameter type does not match function signature!
+i64 0
+ ptr  %call = call { i32, ptr } @heap_CAllocator_alloc_i64(i64 0, i64 ptrtoint (ptr getelementptr (%ArenaBlock, ptr null, i32 1) to i64))
+Invalid bitcast
+  %bitcast = bitcast { i32, ptr } %call to ptr
+ZExt only operates on integer
+  %zext_cmp = zext ptr %load12 to i32
+Call parameter type does not match function signature!
+i64 0
+ ptr  %call14 = call { i32, ptr } @heap_CAllocator_alloc_i64(i64 0, i64 %load13)
+ZExt only operates on integer
+  %zext_cmp17 = zext ptr %load16 to i32
+Call parameter type does not match function signature!
+i64 0
+ ptr  %call20 = call { i32 } @heap_CAllocator_free_void_p(i64 0, ptr %load19)
+GEP into unsized type!
+  %struct_gep33 = getelementptr inbounds nuw %ArenaBlock, ptr %load32, i32 0, i32 0
+GEP into unsized type!
+  %struct_gep36 = getelementptr inbounds nuw %ArenaBlock, ptr %load35, i32 0, i32 1
+GEP into unsized type!
+  %struct_gep41 = getelementptr inbounds nuw %ArenaBlock, ptr %load40, i32 0, i32 2
+GEP into unsized type!
+  %struct_gep46 = getelementptr inbounds nuw %ArenaBlock, ptr %load45, i32 0, i32 3
+Call parameter type does not match function signature!
+i64 0
+ ptr  %call = call { i32, ptr } @heap_CAllocator_alloc_i64(i64 0, i64 ptrtoint (ptr getelementptr (%ArenaBlock, ptr null, i32 1) to i64))
+Invalid bitcast
+  %bitcast = bitcast { i32, ptr } %call to ptr
+ZExt only operates on integer
+  %zext_cmp = zext ptr %load12 to i32
+Call parameter type does not match function signature!
+i64 0
+ ptr  %call14 = call { i32, ptr } @heap_CAllocator_alloc_i64(i64 0, i64 %load13)
+ZExt only operates on integer
+  %zext_cmp17 = zext ptr %load16 to i32
+Call parameter type does not match function signature!
+i64 0
+ ptr  %call20 = call { i32 } @heap_CAllocator_free_void_p(i64 0, ptr %load19)
+GEP into unsized type!
+  %struct_gep33 = getelementptr inbounds nuw %ArenaBlock, ptr %load32, i32 0, i32 0
+GEP into unsized type!
+  %struct_gep36 = getelementptr inbounds nuw %ArenaBlock, ptr %load35, i32 0, i32 1
+GEP into unsized type!
+  %struct_gep41 = getelementptr inbounds nuw %ArenaBlock, ptr %load40, i32 0, i32 2
+GEP into unsized type!
+  %struct_gep46 = getelementptr inbounds nuw %ArenaBlock, ptr %load45, i32 0, i32 3
+LLVM Verification Error: Call parameter type does not match function signature!
+i64 0
+ ptr  %call = call { i32, ptr } @heap_CAllocator_alloc_i64(i64 0, i64 ptrtoint (ptr getelementptr (%ArenaBlock, ptr null, i32 1) to i64))
+Invalid bitcast
+  %bitcast = bitcast { i32, ptr } %call to ptr
+ZExt only operates on integer
+  %zext_cmp = zext ptr %load12 to i32
+Call parameter type does not match function signature!
+i64 0
+ ptr  %call14 = call { i32, ptr } @heap_CAllocator_alloc_i64(i64 0, i64 %load13)
+ZExt only operates on integer
+  %zext_cmp17 = zext ptr %load16 to i32
+Call parameter type does not match function signature!
+i64 0
+ ptr  %call20 = call { i32 } @heap_CAllocator_free_void_p(i64 0, ptr %load19)
+GEP into unsized type!
+  %struct_gep33 = getelementptr inbounds nuw %ArenaBlock, ptr %load32, i32 0, i32 0
+GEP into unsized type!
+  %struct_gep36 = getelementptr inbounds nuw %ArenaBlock, ptr %load35, i32 0, i32 1
+GEP into unsized type!
+  %struct_gep41 = getelementptr inbounds nuw %ArenaBlock, ptr %load40, i32 0, i32 2
+GEP into unsized type!
+  %struct_gep46 = getelementptr inbounds nuw %ArenaBlock, ptr %load45, i32 0, i32 3
+
+[33mWarning:[0m Implicitly resolved 'puts' to '__c_lib.puts'
+[33mWarning:[0m Implicitly resolved 'puts' to '__c_lib.puts'
+[33mWarning:[0m Implicitly resolved 'default_allocator' to 'heap.default_allocator'
+[33mWarning:[0m Implicitly resolved 'CAllocator' to 'heap.CAllocator'
+[33mWarning:[0m Implicitly resolved 'default_allocator' to 'heap.default_allocator'
+[33mWarning:[0m Implicitly resolved 'CAllocator' to 'heap.CAllocator'
+[33mWarning:[0m Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
+[33mWarning:[0m Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
+[33mWarning:[0m Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
+[33mWarning:[0m Implicitly resolved 'default_allocator' to 'heap.default_allocator'
+[33mWarning:[0m Implicitly resolved 'CAllocator' to 'heap.CAllocator'
+[33mWarning:[0m Implicitly resolved 'default_allocator' to 'heap.default_allocator'
+[33mWarning:[0m Implicitly resolved 'CAllocator' to 'heap.CAllocator'
+[33mWarning:[0m Implicitly resolved 'default_allocator' to 'heap.default_allocator'
+[33mWarning:[0m Implicitly resolved 'CAllocator' to 'heap.CAllocator'
+[33mWarning:[0m Implicitly resolved 'default_allocator' to 'heap.default_allocator'
+[33mWarning:[0m Implicitly resolved 'CAllocator' to 'heap.CAllocator'
+[33mWarning:[0m Implicitly resolved 'default_allocator' to 'heap.default_allocator'
+[33mWarning:[0m Implicitly resolved 'CAllocator' to 'heap.CAllocator'
+LLVMStructSetBody for heap.ArenaAllocator with 2 fields
+LLVMStructSetBody for heap.CAllocator with 0 fields (empty)

@@ -2,7 +2,7 @@ step: Finished lexing. Start parsing.
 debug: after parse_type, vt.base=16, token.type=23
 debug: after parse_type, vt.base=16, token.type=23
 step: Start Semantic Analysis.
-debug: sem_lookup_class_call for 'Vector_int', class_sym=0x5602ae3c8538
+debug: sem_lookup_class_call for 'Vector_int', class_sym=0x565383c9b538
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
@@ -24,6 +24,6 @@ step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
 LLVMStructSetBody for Vector_int with 2 fields
-Compiled to build/opt_out.o
-Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
-Linked to build/opt_out
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out

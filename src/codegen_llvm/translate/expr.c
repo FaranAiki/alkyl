@@ -128,8 +128,14 @@ LLVMValueRef translate_expr(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             case ALIR_OP_AND: res = LLVMBuildAnd(ctx->builder, op1, op2, "and"); break;
             case ALIR_OP_OR:  res = LLVMBuildOr(ctx->builder, op1, op2, "or"); break;
             case ALIR_OP_XOR: res = LLVMBuildXor(ctx->builder, op1, op2, "xor"); break;
-            case ALIR_OP_SHL: res = LLVMBuildShl(ctx->builder, op1, op2, "shl"); break;
-            case ALIR_OP_SHR: res = LLVMBuildAShr(ctx->builder, op1, op2, "shr"); break;
+            case ALIR_OP_SHL: 
+                if (LLVMTypeOf(op1) != LLVMTypeOf(op2)) op2 = LLVMBuildIntCast(ctx->builder, op2, LLVMTypeOf(op1), "cast");
+                res = LLVMBuildShl(ctx->builder, op1, op2, "shl"); 
+                break;
+            case ALIR_OP_SHR: 
+                if (LLVMTypeOf(op1) != LLVMTypeOf(op2)) op2 = LLVMBuildIntCast(ctx->builder, op2, LLVMTypeOf(op1), "cast");
+                res = LLVMBuildAShr(ctx->builder, op1, op2, "shr"); 
+                break;
             case ALIR_OP_NOT: res = (LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) ? LLVMBuildIsNull(ctx->builder, op1, "isnull") : LLVMBuildNot(ctx->builder, op1, "not"); break;
             case ALIR_OP_ROTL:
             case ALIR_OP_ROTR: {
@@ -147,6 +153,7 @@ LLVMValueRef translate_expr(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 if (!func) {
                     func = LLVMAddFunction(ctx->llvm_mod, name, fty);
                 }
+                if (LLVMTypeOf(op2) != ty) op2 = LLVMBuildIntCast(ctx->builder, op2, ty, "cast");
                 LLVMValueRef call_args[] = { op1, op1, op2 };
                 res = LLVMBuildCall2(ctx->builder, fty, func, call_args, 3, "rot");
                 break;

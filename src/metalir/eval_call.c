@@ -13,6 +13,9 @@ void vm_eval_call(VMContext *ctx, AlirInst *inst) {
     switch(inst->op) {
 case ALIR_OP_CALL: {
                     if (inst->op1 && (inst->op1->kind == ALIR_VAL_VAR || inst->op1->kind == ALIR_VAL_GLOBAL)) {
+                        if (inst->op1->val.str_val) {
+                            // printf("DEBUG VM CALL: %s\n", inst->op1->val.str_val);
+                        }
                         if (inst->op1->val.str_val && strcmp(inst->op1->val.str_val, "print") == 0) {
                             for (int i = 0; i < inst->arg_count; i++) {
                                 AlirValue *arg = inst->args[i];
@@ -76,6 +79,10 @@ case ALIR_OP_CALL: {
                                         if (strcmp(curr->name, inst->op1->val.str_val) == 0) { ext_func = curr; break; }
                                         curr = curr->next;
                                     }
+                                }
+
+                                if (strcmp(inst->op1->val.str_val, "malloc") == 0) {
+                                    printf("DEBUG DLSYM MALLOC: %p\n", func_ptr);
                                 }
 
                                 if (func_ptr) {
@@ -162,6 +169,9 @@ case ALIR_OP_CALL: {
                                             else if (inst->dest->type.base == TYPE_SINGLE) rc = &rc_float;
                                         }
                                         ffi_call(&cif, func_ptr, rc, arg_values);
+                                        if (strcmp(inst->op1->val.str_val, "malloc") == 0) {
+                                            printf("DEBUG MALLOC FFI RETURN: %lld\n", rc_int);
+                                        }
                                         if (inst->dest) {
                                             if (inst->dest->type.base == TYPE_DOUBLE) ctx->registers[inst->dest->temp_id].as.single_val = rc_double;
                                             else if (inst->dest->type.base == TYPE_SINGLE) ctx->registers[inst->dest->temp_id].as.single_val = (double)rc_float;

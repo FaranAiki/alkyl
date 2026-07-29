@@ -9,11 +9,11 @@ in .../code/composition/test2.aky:
 21:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-debug: sem_lookup_class_call for 'Person', class_sym=0x561282a95920
+debug: sem_lookup_class_call for 'Person', class_sym=0x5611dabc1920
 22:4: warning: speak is from Identity, consider p[Identity].speak
   |   p.speak();
   |    ^
-debug: sem_lookup_class_call for 'Person', class_sym=0x561282a95920
+debug: sem_lookup_class_call for 'Person', class_sym=0x5611dabc1920
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir_gen_function_def fn->name=cprintf class_name=NULL fn->mangled_name=printf -> func_name=printf
@@ -31,6 +31,6 @@ step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
 LLVMStructSetBody for Person with 2 fields
 LLVMStructSetBody for Identity with 2 fields
-Compiled to build/opt_out.o
-Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
-Linked to build/opt_out
+Compiled to build/out.o
+Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
+Linked to build/out
