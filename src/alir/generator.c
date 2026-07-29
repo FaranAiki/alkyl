@@ -442,6 +442,19 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn, const char *fqn)
 void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_class_fqn, ClassNode *target_node) {
     if (!cn) return;
 
+    HashMap target_methods;
+    hashmap_init(&target_methods, ctx->module->compiler_ctx ? ctx->module->compiler_ctx->arena : NULL, 16);
+
+    if (target_node) {
+        ASTNode *tmem = target_node->members;
+        while (tmem) {
+            if (tmem->type == NODE_FUNC_DEF) {
+                hashmap_put(&target_methods, ((FuncDefNode*)tmem)->name, (void*)1);
+            }
+            tmem = tmem->next;
+        }
+    }
+
     // 1. Traverse Parent
     if (cn->parent_name) {
         ClassNode *pcn = hashmap_get(&ctx->class_map, cn->parent_name);
@@ -454,20 +467,10 @@ void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_
                     FuncDefNode *fn = (FuncDefNode*)mem;
                     if (strcmp(fn->name, pcn->name) != 0 && strcmp(fn->name, "init") != 0) {
                         int is_overridden = 0;
-                        if (target_node) {
-                            ASTNode *tmem = target_node->members;
-                            while(tmem) {
-                                if (tmem->type == NODE_FUNC_DEF) {
-                                    fprintf(stderr, "DEBUG COMPARE target_node=%s fn->name='%s' tmem->name='%s'\n", target_node->name, fn->name, ((FuncDefNode*)tmem)->name);
-                                    if (strcmp(((FuncDefNode*)tmem)->name, fn->name) == 0) {
-                                        is_overridden = 1; break;
-                                    }
-                                }
-                                tmem = tmem->next;
-                            }
+                        if (target_node && hashmap_has(&target_methods, fn->name)) {
+                            is_overridden = 1;
                         }
                         if (!is_overridden) {
-                            fprintf(stderr, "DEBUG NOT OVERRIDDEN target_node=%s fn->name='%s'\n", target_node ? target_node->name : "NULL", fn->name);
                             alir_gen_function_def(ctx, fn, target_class_fqn);
                         }
                     }
@@ -489,14 +492,8 @@ void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_
                     FuncDefNode *fn = (FuncDefNode*)mem;
                     if (strcmp(fn->name, tcn->name) != 0 && strcmp(fn->name, "init") != 0) {
                         int is_overridden = 0;
-                        if (target_node) {
-                            ASTNode *tmem = target_node->members;
-                            while(tmem) {
-                                if (tmem->type == NODE_FUNC_DEF && strcmp(((FuncDefNode*)tmem)->name, fn->name) == 0) {
-                                    is_overridden = 1; break;
-                                }
-                                tmem = tmem->next;
-                            }
+                        if (target_node && hashmap_has(&target_methods, fn->name)) {
+                            is_overridden = 1;
                         }
                         if (!is_overridden) {
                             alir_gen_function_def(ctx, fn, target_class_fqn);
@@ -569,6 +566,7 @@ AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
     memset(&ctx, 0, sizeof(AlirCtx));
     ctx.sem = sem;
     ctx.module = alir_create_module(sem ? sem->compiler_ctx : NULL, "main_module");
+    hashmap_init(&ctx.const_fold_map, ctx.module->compiler_ctx ? ctx.module->compiler_ctx->arena : NULL, 64);
 
     if (sem) {
         ctx.module->src = sem->current_source;

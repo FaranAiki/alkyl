@@ -35,6 +35,7 @@ AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
     hashmap_init(&m->struct_map, ctx ? ctx->arena : NULL, 256);
     hashmap_init(&m->enum_map, ctx ? ctx->arena : NULL, 64);
     hashmap_init(&m->func_map, ctx ? ctx->arena : NULL, 64);
+    hashmap_init(&m->const_fold_map, ctx ? ctx->arena : NULL, 64);
     return m;
 }
 

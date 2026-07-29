@@ -167,6 +167,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
 
     // 1.5. Populate Struct Bodies
     st = ctx->alir_mod->structs;
+    LLVMTargetDataRef td = LLVMCreateTargetData("");
     while (st) {
         if (st->field_count >= 0) {
             LLVMTypeRef struct_ty = hashmap_get(&ctx->struct_map, st->name);
@@ -180,7 +181,6 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                     f = f->next;
                 }
 
-                LLVMTargetDataRef td = LLVMCreateTargetData("");
                 unsigned long long max_size = 0;
                 unsigned long long max_align = 0;
 
@@ -224,8 +224,6 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                     union_body[0] = best_align_ty;
                     LLVMStructSetBody(struct_ty, union_body, 1, 0);
                 }
-
-                LLVMDisposeTargetData(td);
             } else if (st->field_count == 0) {
                 LLVMTypeRef empty_body[1] = { LLVMInt8TypeInContext(ctx->llvm_ctx) };
                 LLVMStructSetBody(struct_ty, empty_body, 1, 0);
@@ -241,6 +239,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
         }
         st = st->next;
     }
+    LLVMDisposeTargetData(td);
 
     // 2. Global Strings / Variables
     AlirGlobal *g = ctx->alir_mod->globals;

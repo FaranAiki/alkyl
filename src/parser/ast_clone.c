@@ -81,7 +81,6 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
                 for (int i = 0; i < num_renames; i++) {
                     if (strcmp(orig->name, rename_from[i]) == 0) {
                         n->name = arena_strdup(ctx->arena, rename_to[i]);
-                        printf("Cloned VarRef: %s -> %s\n", orig->name, n->name);
                         break;
                     }
                 }

@@ -190,26 +190,16 @@ AlirValue* alir_gen_access(AlirCtx *ctx, ASTNode *node) {
         // Special Namespace Handling: If member access resolves to a Namespace Const
         if (obj_t.base == TYPE_NAMESPACE && ma->object->type == NODE_VAR_REF) {
             SemSymbol *ns_sym = sem_symbol_lookup(ctx->sem, ((VarRefNode*)ma->object)->name, NULL);
-            if (ns_sym && ns_sym->inner_scope) {
-                SemSymbol *member_sym = ns_sym->inner_scope->symbols;
-                while (member_sym) {
-                    if (strcmp(member_sym->name, ma->member_name) == 0 && member_sym->kind == SYM_VAR) {
-                        AlirConstFoldEntry *fold = ctx->const_folds;
-                        while (fold) {
-                            if (strcmp(fold->name, ma->member_name) == 0) {
-                                return fold->value;
-                            }
-                            fold = fold->next;
-                        }
-                        fold = ctx->module->const_folds;
-                        while (fold) {
-                            if (strcmp(fold->name, ma->member_name) == 0) {
-                                return fold->value;
-                            }
-                            fold = fold->next;
-                        }
+            if (ns_sym && ns_sym->inner_scope && ns_sym->inner_scope->symbol_map) {
+                SemSymbol *member_sym = hashmap_get((HashMap*)ns_sym->inner_scope->symbol_map, ma->member_name);
+                if (member_sym && member_sym->kind == SYM_VAR) {
+                    AlirValue *val = hashmap_get(&ctx->const_fold_map, ma->member_name);
+                    if (!val) {
+                        val = hashmap_get(&ctx->module->const_fold_map, ma->member_name);
                     }
-                    member_sym = member_sym->next;
+                    if (val) {
+                        return val;
+                    }
                 }
             }
         }

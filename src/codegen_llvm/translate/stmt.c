@@ -60,8 +60,6 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     if (LLVMGetTypeKind(ty) == LLVMPointerTypeKind && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) {
                         res = op1; // Opaque pointers: no bitcast needed!
                     } else {
-                        // Print the types
-                        printf("BITCAST TO NON-POINTER: ptr_depth=%d\n", inst->dest->type.ptr_depth);
                         res = LLVMBuildBitCast(ctx->builder, op1, ty, "bitcast");
                     }
                 }

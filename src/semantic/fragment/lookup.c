@@ -33,22 +33,11 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
     }
 
     int found = 0;
-
     // TODO fix this parsing for current_class!
     while (current_class) {
-        if (current_class->inner_scope) {
-            SemSymbol *member = NULL;
-            if (current_class->inner_scope->symbol_map) {
-                member = hashmap_get((HashMap*)current_class->inner_scope->symbol_map, node->method_name);
-            } else {
-                member = current_class->inner_scope->symbols;
-                while (member && strcmp(member->name, node->method_name) != 0) {
-                    member = member->next;
-                }
-            }
+        if (current_class->inner_scope && current_class->inner_scope->symbol_map) {
+            SemSymbol *member = hashmap_get((HashMap*)current_class->inner_scope->symbol_map, node->method_name);
             if (member) {
-
-
                     if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
                         if (member->kind == SYM_FUNC && !member->is_pure) {
                             if (ctx->current_func_sym->must_pure) sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot call impure method '%s'", ctx->current_func_sym->name, member->name);
@@ -111,66 +100,63 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
             if (current_class->trait_count > 0) {
                 for (int i = 0; i < current_class->trait_count; i++) {
                     SemSymbol *trait_sym = sem_symbol_lookup(ctx, current_class->traits[i], NULL);
-                    if (trait_sym && trait_sym->inner_scope) {
-                        SemSymbol *member = trait_sym->inner_scope->symbols;
-                        while (member) {
-                            if (strcmp(member->name, node->method_name) == 0) {
-                                if (member->kind == SYM_FUNC) {
-                                    sem_set_node_type(ctx, (ASTNode*)node, member->type);
-                                    node->owner_class = current_class->name; // or trait_sym->name? Let's use current_class for inheritance flattening
-                                    found = 1;
-                                } else if (member->kind == SYM_VAR && member->type.is_func_ptr) {
-                                    sem_set_node_type(ctx, (ASTNode*)node, *member->type.fp_ret_type);
-                                    found = 1;
-                                }
-                                if (found) {
-                                    char *obj_name = "obj";
-                                    int should_warn = 1;
-                                    if (node->object) {
-                                        if (node->object->type == NODE_VAR_REF) {
-                                            obj_name = ((VarRefNode*)node->object)->name;
-                                        } else if (node->object->type == NODE_INDEX_ACCESS) {
-                                            IndexAccessNode *aa = (IndexAccessNode*)node->object;
-                                            if (aa->index->type == NODE_VAR_REF) {
-                                                VarRefNode *vr = (VarRefNode*)aa->index;
-                                                if (strcmp(vr->name, trait_sym->name) == 0) {
-                                                    should_warn = 0; // Explicitly qualified
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if (should_warn) {
-                                        sem_warning(ctx, (ASTNode*)node, "%s is from %s, consider %s[%s].%s", node->method_name, trait_sym->name, obj_name, trait_sym->name, node->method_name);
-                                    }
-                                    int arg_count = 0;
-                                    ASTNode **curr_arg = &node->args;
-                                    while(*curr_arg) {
-                                        sem_check_expr(ctx, *curr_arg);
-
-                                        if (member->kind == SYM_FUNC && member->params && arg_count < member->param_count) {
-                                            sem_insert_implicit_cast(ctx, curr_arg, member->params[arg_count].type);
-                                        }
-
-                                        curr_arg = &(*curr_arg)->next;
-                                        arg_count++;
-                                    }
-                                    if (member->kind == SYM_FUNC) {
-                                        SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, member, (ASTNode*)node);
-                                        if (resolved && resolved->mangled_name) {
-                                            int prefix_len = strlen(trait_sym->name);
-                                            if (strncmp(resolved->mangled_name, trait_sym->name, prefix_len) == 0 && resolved->mangled_name[prefix_len] == '_') {
-                                                char buf[512];
-                                                snprintf(buf, sizeof(buf), "%s%s", actual_class_name, resolved->mangled_name + prefix_len);
-                                                node->mangled_name = arena_strdup(ctx->compiler_ctx->arena, buf);
-                                            } else {
-                                                node->mangled_name = resolved->mangled_name;
-                                            }
-                                        }
-                                    }
-                                    goto done_method_search;
-                                }
+                    if (trait_sym && trait_sym->inner_scope && trait_sym->inner_scope->symbol_map) {
+                        SemSymbol *member = hashmap_get((HashMap*)trait_sym->inner_scope->symbol_map, node->method_name);
+                        if (member) {
+                            if (member->kind == SYM_FUNC) {
+                                sem_set_node_type(ctx, (ASTNode*)node, member->type);
+                                node->owner_class = current_class->name; // or trait_sym->name? Let's use current_class for inheritance flattening
+                                found = 1;
+                            } else if (member->kind == SYM_VAR && member->type.is_func_ptr) {
+                                sem_set_node_type(ctx, (ASTNode*)node, *member->type.fp_ret_type);
+                                found = 1;
                             }
-                            member = member->next;
+                            if (found) {
+                                char *obj_name = "obj";
+                                int should_warn = 1;
+                                if (node->object) {
+                                    if (node->object->type == NODE_VAR_REF) {
+                                        obj_name = ((VarRefNode*)node->object)->name;
+                                    } else if (node->object->type == NODE_INDEX_ACCESS) {
+                                        IndexAccessNode *aa = (IndexAccessNode*)node->object;
+                                        if (aa->index->type == NODE_VAR_REF) {
+                                            VarRefNode *vr = (VarRefNode*)aa->index;
+                                            if (strcmp(vr->name, trait_sym->name) == 0) {
+                                                should_warn = 0; // Explicitly qualified
+                                            }
+                                        }
+                                    }
+                                }
+                                if (should_warn) {
+                                    sem_warning(ctx, (ASTNode*)node, "%s is from %s, consider %s[%s].%s", node->method_name, trait_sym->name, obj_name, trait_sym->name, node->method_name);
+                                }
+                                int arg_count = 0;
+                                ASTNode **curr_arg = &node->args;
+                                while(*curr_arg) {
+                                    sem_check_expr(ctx, *curr_arg);
+
+                                    if (member->kind == SYM_FUNC && member->params && arg_count < member->param_count) {
+                                        sem_insert_implicit_cast(ctx, curr_arg, member->params[arg_count].type);
+                                    }
+
+                                    curr_arg = &(*curr_arg)->next;
+                                    arg_count++;
+                                }
+                                if (member->kind == SYM_FUNC) {
+                                    SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, member, (ASTNode*)node);
+                                    if (resolved && resolved->mangled_name) {
+                                        int prefix_len = strlen(trait_sym->name);
+                                        if (strncmp(resolved->mangled_name, trait_sym->name, prefix_len) == 0 && resolved->mangled_name[prefix_len] == '_') {
+                                            char buf[512];
+                                            snprintf(buf, sizeof(buf), "%s%s", actual_class_name, resolved->mangled_name + prefix_len);
+                                            node->mangled_name = arena_strdup(ctx->compiler_ctx->arena, buf);
+                                        } else {
+                                            node->mangled_name = resolved->mangled_name;
+                                        }
+                                    }
+                                }
+                                goto done_method_search;
+                            }
                         }
                     }
                 }

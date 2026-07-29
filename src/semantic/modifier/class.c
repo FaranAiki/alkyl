@@ -36,52 +36,46 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
         int found = 0;
         
         while (current_class) {
-            if (current_class->inner_scope) {
-                SemSymbol *member = current_class->inner_scope->symbols;
-                while (member) {
-                    if (strcmp(member->name, node->member_name) == 0) {
-                        sem_set_node_type(ctx, (ASTNode*)node, member->type);
-                        found = 1;
-                        if (sem_get_node_tainted(ctx, node->object) && !member->is_pristine) {
-                            sem_set_node_tainted(ctx, (ASTNode*)node, 1);
-                        } else if (member->is_pristine) {
-                            sem_set_node_tainted(ctx, (ASTNode*)node, 0);
-                        }
-                        goto done_search;
+            if (current_class->inner_scope && current_class->inner_scope->symbol_map) {
+                SemSymbol *member = hashmap_get((HashMap*)current_class->inner_scope->symbol_map, node->member_name);
+                if (member) {
+                    sem_set_node_type(ctx, (ASTNode*)node, member->type);
+                    found = 1;
+                    if (sem_get_node_tainted(ctx, node->object) && !member->is_pristine) {
+                        sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+                    } else if (member->is_pristine) {
+                        sem_set_node_tainted(ctx, (ASTNode*)node, 0);
                     }
-                    member = member->next;
+                    goto done_search;
                 }
             }
             if (current_class->trait_count > 0) {
                 for (int i = 0; i < current_class->trait_count; i++) {
                     SemSymbol *trait_sym = sem_symbol_lookup(ctx, current_class->traits[i], NULL);
-                    if (trait_sym && trait_sym->inner_scope) {
-                        SemSymbol *member = trait_sym->inner_scope->symbols;
-                        while (member) {
-                            if (strcmp(member->name, node->member_name) == 0) {
-                                sem_set_node_type(ctx, (ASTNode*)node, member->type);
-                                found = 1;
-                                char *obj_name = "obj";
-                                int should_warn = 1;
-                                if (node->object) {
-                                    if (node->object->type == NODE_VAR_REF) {
-                                        obj_name = ((VarRefNode*)node->object)->name;
-                                    } else if (node->object->type == NODE_INDEX_ACCESS) {
-                                        IndexAccessNode *aa = (IndexAccessNode*)node->object;
-                                        if (aa->index->type == NODE_VAR_REF) {
-                                            VarRefNode *vr = (VarRefNode*)aa->index;
-                                            if (strcmp(vr->name, trait_sym->name) == 0) {
-                                                should_warn = 0; // Explicitly qualified
-                                            }
+                    if (trait_sym && trait_sym->inner_scope && trait_sym->inner_scope->symbol_map) {
+                        SemSymbol *member = hashmap_get((HashMap*)trait_sym->inner_scope->symbol_map, node->member_name);
+                        if (member) {
+                            sem_set_node_type(ctx, (ASTNode*)node, member->type);
+                            found = 1;
+                            char *obj_name = "obj";
+                            int should_warn = 1;
+                            if (node->object) {
+                                if (node->object->type == NODE_VAR_REF) {
+                                    obj_name = ((VarRefNode*)node->object)->name;
+                                } else if (node->object->type == NODE_INDEX_ACCESS) {
+                                    IndexAccessNode *aa = (IndexAccessNode*)node->object;
+                                    if (aa->index->type == NODE_VAR_REF) {
+                                        VarRefNode *vr = (VarRefNode*)aa->index;
+                                        if (strcmp(vr->name, trait_sym->name) == 0) {
+                                            should_warn = 0;
                                         }
                                     }
                                 }
-                                if (should_warn) {
-                                    sem_warning(ctx, (ASTNode*)node, "%s is from %s, consider %s[%s]", node->member_name, trait_sym->name, obj_name, trait_sym->name);
-                                }
-                                goto done_search;
                             }
-                            member = member->next;
+                            if (should_warn) {
+                                sem_warning(ctx, (ASTNode*)node, "%s is from %s, consider %s[%s]", node->member_name, trait_sym->name, obj_name, trait_sym->name);
+                            }
+                            goto done_search;
                         }
                     }
                 }

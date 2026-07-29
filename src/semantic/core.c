@@ -245,14 +245,12 @@ int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
     
     // Cycle Detection for Class Sizes
     if (ctx->global_scope) {
+        SemSymbol *r = ctx->global_scope->symbols;
+        while(r) { r->must_pure = 0; r->must_pristine = 0; r = r->next; }
         SemSymbol *gsym = ctx->global_scope->symbols;
         while (gsym) {
             if (gsym->kind == SYM_CLASS) {
-                // Clear visit state
-                SemSymbol *r = ctx->global_scope->symbols;
-                while(r) { r->must_pure = 0; r->must_pristine = 0; r = r->next; }
                 if (!check_class_size_cycle(ctx, gsym)) {
-                    // Stop checking further classes if error is hit
                     break;
                 }
             }

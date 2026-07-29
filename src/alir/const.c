@@ -349,22 +349,17 @@ static AlirValue* fold_const_expr_ahead(AlirCtx *ctx, ASTNode *node) {
                     return alir_const_int(ctx->module, val);
                 }
             }
-            if (ctx->sem && ctx->sem->compiler_ctx && strncmp(vr->name, "Err", 3) == 0) {
+            if (strcmp(vr->name, "Err") == 0) {
                 void *err_val = hashmap_get(&ctx->sem->compiler_ctx->error_table, vr->name);
                 if (err_val) {
                     return alir_const_int(ctx->module, (long)(intptr_t)err_val);
                 }
             }
-            AlirConstFoldEntry *e = ctx->const_folds;
-            while (e) {
-                if (strcmp(e->name, vr->name) == 0) return e->value;
-                e = e->next;
+            AlirValue *val = hashmap_get(&ctx->const_fold_map, vr->name);
+            if (!val) {
+                val = hashmap_get(&ctx->module->const_fold_map, vr->name);
             }
-            e = ctx->module->const_folds;
-            while (e) {
-                if (strcmp(e->name, vr->name) == 0) return e->value;
-                e = e->next;
-            }
+            if (val) return val;
             return NULL;
         }
 
@@ -435,6 +430,8 @@ void scan_and_fold_consts(AlirCtx *ctx, ASTNode *node) {
                     mod_entry->value = entry->value;
                     mod_entry->next = ctx->module->const_folds;
                     ctx->module->const_folds = mod_entry;
+                    hashmap_put(&ctx->const_fold_map, entry->name, entry->value);
+                    hashmap_put(&ctx->module->const_fold_map, entry->name, entry->value);
                 }
             }
         }

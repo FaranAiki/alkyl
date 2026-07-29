@@ -336,21 +336,11 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
         return alir_const_int(ctx->module, vn->error_id);
     }
 
-    AlirConstFoldEntry *fold = ctx->const_folds;
-    while (fold) {
-        if (strcmp(fold->name, vn->name) == 0) {
-            return fold->value;
-        }
-        fold = fold->next;
+    AlirValue *fold_val = hashmap_get(&ctx->const_fold_map, vn->name);
+    if (!fold_val) {
+        fold_val = hashmap_get(&ctx->module->const_fold_map, vn->name);
     }
-
-    fold = ctx->module->const_folds;
-    while (fold) {
-        if (strcmp(fold->name, vn->name) == 0) {
-            return fold->value;
-        }
-        fold = fold->next;
-    }
+    if (fold_val) return fold_val;
 
     AlirValue *ptr = alir_gen_addr(ctx, (ASTNode*)vn);
     if (!ptr) {

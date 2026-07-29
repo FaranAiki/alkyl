@@ -177,6 +177,8 @@ typedef struct AlirModule {
     int str_counter;        // For naming global strings across the module
     AlirConstFoldEntry *const_folds; // Persistent const fold entries
 
+    HashMap const_fold_map;        // name -> AlirValue*
+
     // Fast lookup maps
     HashMap struct_map;
     HashMap enum_map;
@@ -229,6 +231,8 @@ typedef struct AlirCtx {
     int current_col;
 
     AlirConstFoldEntry *const_folds;
+
+    HashMap const_fold_map;
 
     HashMap class_map;      // class name -> ClassNode*
 } AlirCtx;
