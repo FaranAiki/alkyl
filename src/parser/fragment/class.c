@@ -329,9 +329,13 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   eat(p, op_type);
                   eat(p, TOKEN_RBRACKET);
               } else {
-                  if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected member name in class body");
-                  mem_name = parser_strdup(p, p->current_token.text);
-                  eat(p, TOKEN_IDENTIFIER);
+                  if (p->current_token.type != TOKEN_IDENTIFIER) {
+                      parser_fail(p, "Expected member name in class body");
+                      mem_name = parser_strdup(p, "__error_name");
+                  } else {
+                      mem_name = parser_strdup(p, p->current_token.text);
+                      eat(p, TOKEN_IDENTIFIER);
+                  }
               }
               if (p->current_token.type == TOKEN_LPAREN) {
                   eat(p, TOKEN_LPAREN);

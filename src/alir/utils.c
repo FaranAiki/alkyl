@@ -127,5 +127,9 @@ AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *
         }
     }
 
-    return obj_ptr;
+    VarType cls_val_type = {TYPE_CLASS, 0, alir_strdup(ctx->module, class_name)};
+    AlirValue *obj_val = new_temp(ctx, cls_val_type);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, obj_val, obj_ptr, NULL));
+
+    return obj_val;
 }

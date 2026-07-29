@@ -577,7 +577,11 @@ char* sem_type_to_str(VarType t) {
     if (t.is_unsigned) pos += snprintf(buf + pos, 256 - pos, "unsigned ");
     pos += snprintf(buf + pos, 256 - pos, "%s", base);
 
-    for(int i=0; i<t.ptr_depth; i++) {
+    int ptrs = t.ptr_depth;
+    if (t.array_size > 0) ptrs--;
+    if (t.array_depth > 0) ptrs--;
+    
+    for(int i=0; i<ptrs; i++) {
         if(pos < 255) buf[pos++] = '*';
     }
     if (t.array_size > 0) {

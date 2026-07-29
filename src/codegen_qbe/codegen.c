@@ -175,56 +175,73 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             fprintf(out, "\n");
             break;
         }
-        case ALIR_OP_ADD:
+        case ALIR_OP_ADD: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c add ", dt);
+            fprintf(out, " =%c add ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_SUB:
+        }
+        case ALIR_OP_SUB: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c sub ", dt);
+            fprintf(out, " =%c sub ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_MUL:
+        }
+        case ALIR_OP_MUL: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c mul ", dt);
+            fprintf(out, " =%c mul ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_DIV:
+        }
+        case ALIR_OP_DIV: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c div ", dt);
+            fprintf(out, " =%c div ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_SHL:
+        }
+        case ALIR_OP_SHL: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c shl ", dt);
+            fprintf(out, " =%c shl ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
+        }
         case ALIR_OP_SHR: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             int is_unsigned = inst->op1 && inst->op1->type.is_unsigned;
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c %s ", dt, is_unsigned ? "shr" : "sar");
+            fprintf(out, " =%c %s ", op_t, is_unsigned ? "shr" : "sar");
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
@@ -296,32 +313,42 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             break;
         }
         case ALIR_OP_LT:
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =w csltw ");
-            print_val(out, inst->op1);
-            fprintf(out, ", ");
-            print_val(out, inst->op2);
-            fprintf(out, "\n");
-            break;
         case ALIR_OP_GT:
+        case ALIR_OP_EQ: {
+            char t1 = 'w';
+            int is_unsigned = 0;
+            if (inst->op1) {
+                t1 = qbe_type(inst->op1->type);
+                if (t1 == 'v') t1 = 'w';
+                is_unsigned = inst->op1->type.is_unsigned;
+            }
+            const char *op_str = "";
+            switch (inst->op) {
+                case ALIR_OP_EQ:
+                    if (t1 == 's' || t1 == 'd') op_str = (t1 == 's') ? "ceqs" : "ceqd";
+                    else op_str = (t1 == 'l') ? "ceql" : "ceqw";
+                    break;
+                case ALIR_OP_LT:
+                    if (t1 == 's' || t1 == 'd') op_str = (t1 == 's') ? "clts" : "cltd";
+                    else if (is_unsigned) op_str = (t1 == 'l') ? "cultl" : "cultw";
+                    else op_str = (t1 == 'l') ? "csltl" : "csltw";
+                    break;
+                case ALIR_OP_GT:
+                    if (t1 == 's' || t1 == 'd') op_str = (t1 == 's') ? "cgts" : "cgtd";
+                    else if (is_unsigned) op_str = (t1 == 'l') ? "cugtl" : "cugtw";
+                    else op_str = (t1 == 'l') ? "csgtl" : "csgtw";
+                    break;
+                default: break;
+            }
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =w csgtw ");
+            fprintf(out, " =w %s ", op_str);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_EQ:
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =w ceqw ");
-            print_val(out, inst->op1);
-            fprintf(out, ", ");
-            print_val(out, inst->op2);
-            fprintf(out, "\n");
-            break;
+        }
         case ALIR_OP_CAST: {
             fprintf(out, "\t");
             print_val(out, inst->dest);
@@ -339,6 +366,28 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             }
             print_val(out, inst->op1);
             fprintf(out, "\n");
+            break;
+        }
+        case ALIR_OP_SIZEOF: {
+            int sz = 8;
+            if (inst->op1) {
+                if (inst->op1->type.base == TYPE_CLASS && inst->op1->type.class_name && inst->op1->type.ptr_depth == 0) {
+                    sz = get_struct_size(module, inst->op1->type.class_name);
+                } else {
+                    sz = get_qbe_type_size_for_var(inst->op1->type);
+                }
+            }
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c copy %d\n", dt, sz);
+            break;
+        }
+        case ALIR_OP_ALIGNOF: {
+            int align = 8;
+            if (inst->op1) align = get_qbe_type_align_for_var(inst->op1->type);
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c copy %d\n", dt, align);
             break;
         }
         case ALIR_OP_BITCAST: {
@@ -364,85 +413,129 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
         }
         case ALIR_OP_FREE_STACK:
             break;
-        case ALIR_OP_MOD:
+        case ALIR_OP_MOD: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c mod ", dt);
+            fprintf(out, " =%c mod ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_FADD:
+        }
+        case ALIR_OP_FADD: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c add ", dt);
+            fprintf(out, " =%c add ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_FSUB:
+        }
+        case ALIR_OP_FSUB: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c sub ", dt);
+            fprintf(out, " =%c sub ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_FMUL:
+        }
+        case ALIR_OP_FMUL: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c mul ", dt);
+            fprintf(out, " =%c mul ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_FDIV:
+        }
+        case ALIR_OP_FDIV: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c div ", dt);
+            fprintf(out, " =%c div ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_AND:
+        }
+        case ALIR_OP_AND: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c and ", dt);
+            fprintf(out, " =%c and ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_OR:
+        }
+        case ALIR_OP_OR: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c or ", dt);
+            fprintf(out, " =%c or ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_XOR:
+        }
+        case ALIR_OP_XOR: {
+            char op_t = (inst->op1) ? qbe_type(inst->op1->type) : dt;
+            if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c xor ", dt);
+            fprintf(out, " =%c xor ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
             break;
-        case ALIR_OP_NOT:
+        }
+        case ALIR_OP_NOT: {
+            char t1 = 'w';
+            if (inst->op1) {
+                t1 = qbe_type(inst->op1->type);
+                if (t1 == 'v') t1 = 'w';
+            }
+            const char *op_str = "ceqw";
+            if (t1 == 'l') op_str = "ceql";
+            else if (t1 == 's') op_str = "ceqs";
+            else if (t1 == 'd') op_str = "ceqd";
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =w ceqw ");
-            print_val(out, inst->op1);
-            fprintf(out, ", 0\n");
+            if (t1 == 's') {
+                fprintf(out, " =w %s ", op_str);
+                print_val(out, inst->op1);
+                fprintf(out, ", s_0.0\n"); /* Single precision 0.0 */
+            } else if (t1 == 'd') {
+                fprintf(out, " =w %s ", op_str);
+                print_val(out, inst->op1);
+                fprintf(out, ", d_0.0\n"); /* Double precision 0.0 */
+            } else {
+                fprintf(out, " =w %s ", op_str);
+                print_val(out, inst->op1);
+                fprintf(out, ", 0\n");
+            }
             break;
+        }
         case ALIR_OP_ROTR: {
             int t_bits_minus_y = alloc_qbe_temp();
             int t_shr = alloc_qbe_temp();
@@ -500,47 +593,42 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             break;
         }
         case ALIR_OP_LTE:
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =w csltw ");
-            print_val(out, inst->op2);
-            fprintf(out, ", ");
-            print_val(out, inst->op1);
-            fprintf(out, "\n");
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =w not ");
-            print_val(out, inst->dest);
-            fprintf(out, "\n");
-            break;
         case ALIR_OP_GTE:
+        case ALIR_OP_NEQ: {
+            char t1 = 'w';
+            int is_unsigned = 0;
+            if (inst->op1) {
+                t1 = qbe_type(inst->op1->type);
+                if (t1 == 'v') t1 = 'w';
+                is_unsigned = inst->op1->type.is_unsigned;
+            }
+            const char *op_str = "";
+            switch (inst->op) {
+                case ALIR_OP_NEQ:
+                    if (t1 == 's' || t1 == 'd') op_str = (t1 == 's') ? "cnes" : "cned";
+                    else op_str = (t1 == 'l') ? "cnel" : "cnew";
+                    break;
+                case ALIR_OP_LTE:
+                    if (t1 == 's' || t1 == 'd') op_str = (t1 == 's') ? "cles" : "cled";
+                    else if (is_unsigned) op_str = (t1 == 'l') ? "culel" : "culew";
+                    else op_str = (t1 == 'l') ? "cslel" : "cslew";
+                    break;
+                case ALIR_OP_GTE:
+                    if (t1 == 's' || t1 == 'd') op_str = (t1 == 's') ? "cges" : "cged";
+                    else if (is_unsigned) op_str = (t1 == 'l') ? "cugel" : "cugew";
+                    else op_str = (t1 == 'l') ? "csgel" : "csgew";
+                    break;
+                default: break;
+            }
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =w csltw ");
+            fprintf(out, " =w %s ", op_str);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
             fprintf(out, "\n");
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =w not ");
-            print_val(out, inst->dest);
-            fprintf(out, "\n");
             break;
-        case ALIR_OP_NEQ:
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =w ceqw ");
-            print_val(out, inst->op1);
-            fprintf(out, ", ");
-            print_val(out, inst->op2);
-            fprintf(out, "\n");
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =w not ");
-            print_val(out, inst->dest);
-            fprintf(out, "\n");
-            break;
+        }
         case ALIR_OP_PANIC:
             if (inst->op1) {
                 fprintf(out, "\tcall $printf(l ");
@@ -550,6 +638,7 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
                 fprintf(out, ")\n");
             }
             fprintf(out, "\tcall $exit(l 1)\n");
+            fprintf(out, "\thlt\n");
             break;
         case ALIR_OP_FALLBACK:
             fprintf(out, "\t# FALLBACK (ternary/null-coalescing) unhandled\n");

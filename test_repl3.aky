@@ -1,0 +1,5 @@
+class vector { int x, y; int set(int a, int b) { printf("%p\n", this); this.x = a; this.y = b; } }
+let p = vector(1, 2);
+p.set(3, 4);
+printf("%p\n", &p);
+p.x;

@@ -232,6 +232,16 @@ long long metalir_run_var_decl(MetalirRunner *r, VarDeclNode *vd, int seq) {
         } else {
             vg->ptr_val = arena_alloc(&r->vm_arena, vt.array_size * 8);
         }
+    } else if (vt.base == TYPE_CLASS && vt.ptr_depth == 0) {
+        vg->ptr_val = arena_alloc(&r->vm_arena, 1024);
+        if (initial_val) {
+            int struct_size = 1024;
+            if (r->module && vt.class_name) {
+                struct_size = alir_get_struct_size(r->module, vt.class_name);
+                if (struct_size < 8) struct_size = 8;
+            }
+            memcpy(vg->ptr_val, (void*)(intptr_t)initial_val, struct_size);
+        }
     } else {
         vg->ptr_val = arena_alloc(&r->vm_arena, 1024);
         *((long long*)vg->ptr_val) = initial_val;

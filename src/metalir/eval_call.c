@@ -47,7 +47,7 @@ case ALIR_OP_CALL: {
                                     f = f->next;
                                 }
                             }
-                            
+
                             if (target_fn && !target_fn->is_extern) {
                                 int __na_sz = inst->arg_count > 0 ? inst->arg_count : 1; long long new_args[__na_sz];
                                 for (int i = 0; i < inst->arg_count; i++) {
@@ -66,7 +66,7 @@ case ALIR_OP_CALL: {
                                 long long rc = metalir_vm_execute(ctx->vm, ctx->module, target_fn, ctx->sem_ctx, new_args, inst->arg_count);
                                 if (strcmp(target_fn->name, "Vector_as_int") == 0) {
                                 }
-                                
+
                                 if (inst->dest) {
                                     ctx->registers[inst->dest->temp_id].as.int_val = rc;
                                 }
@@ -82,7 +82,7 @@ case ALIR_OP_CALL: {
                                 }
 
                                 if (strcmp(inst->op1->val.str_val, "malloc") == 0) {
-                                    printf("DEBUG DLSYM MALLOC: %p\n", func_ptr);
+                                    debug_any("DLSYM MALLOC: %p\n", func_ptr);
                                 }
 
                                 if (func_ptr) {
@@ -90,7 +90,7 @@ case ALIR_OP_CALL: {
                                     int __at_sz = inst->arg_count > 0 ? inst->arg_count : 1; ffi_type *arg_types[__at_sz];
                                     int __av_sz = inst->arg_count > 0 ? inst->arg_count : 1; void *arg_values[__av_sz];
                                     uint64_t arg_data[__av_sz];
-                                    
+
                                     for (int i = 0; i < inst->arg_count; i++) {
                                         AlirValue *arg = inst->args[i];
                                         if ((arg->type.base == TYPE_INT || arg->type.base == TYPE_BOOL ||
@@ -145,14 +145,14 @@ case ALIR_OP_CALL: {
                                             arg_values[i] = NULL;
                                         }
                                     }
-                                    
+
                                     ffi_type *ret_type = &ffi_type_void;
                                     if (inst->dest) {
                                         if (inst->dest->type.base == TYPE_DOUBLE) ret_type = &ffi_type_double;
                                         else if (inst->dest->type.base == TYPE_SINGLE) ret_type = &ffi_type_float;
                                         else ret_type = &ffi_type_sint64;
                                     }
-                                    
+
                                     int prep_status = FFI_OK;
                                     if (ext_func && ext_func->is_varargs) {
                                         prep_status = ffi_prep_cif_var(&cif, FFI_DEFAULT_ABI, ext_func->param_count, inst->arg_count, ret_type, arg_types);
@@ -170,7 +170,7 @@ case ALIR_OP_CALL: {
                                         }
                                         ffi_call(&cif, func_ptr, rc, arg_values);
                                         if (strcmp(inst->op1->val.str_val, "malloc") == 0) {
-                                            printf("DEBUG MALLOC FFI RETURN: %lld\n", rc_int);
+                                            debug_any("MALLOC FFI RETURN: %lld\n", rc_int);
                                         }
                                         if (inst->dest) {
                                             if (inst->dest->type.base == TYPE_DOUBLE) ctx->registers[inst->dest->temp_id].as.single_val = rc_double;

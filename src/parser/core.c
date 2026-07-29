@@ -674,6 +674,22 @@ VarType parse_type(Parser *p) {
     if (p->has_error) return (VarType){0};
   }
 
+  while (p->current_token.type == TOKEN_LBRACKET) { if (p->has_error) break;
+      eat(p, TOKEN_LBRACKET);
+      if (p->current_token.type != TOKEN_RBRACKET) {
+          ASTNode *sz = parse_expression(p);
+          if (sz && sz->type == NODE_LITERAL && ((LiteralNode*)sz)->var_type.base == TYPE_INT) {
+              t.array_size = ((LiteralNode*)sz)->val.int_val;
+          } else {
+              t.array_size = 1;
+          }
+      } else {
+          t.array_size = 1;
+      }
+      eat(p, TOKEN_RBRACKET);
+      t.ptr_depth++;
+  }
+
   return t;
 }
 

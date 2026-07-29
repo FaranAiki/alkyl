@@ -75,7 +75,7 @@ static uint32_t next_pow2(uint32_t n) {
 
 static void hashmap_resize(HashMap *map) {
     uint32_t old_cap = map->capacity;
-    uint32_t new_cap = old_cap * 2;
+    uint32_t new_cap = old_cap == 0 ? 8 : old_cap * 2;
     size_t new_limit = (size_t)new_cap * 2 / 3;
 
     int32_t *old_indices = (int32_t *)map->buckets;
@@ -239,7 +239,7 @@ const char* hashmap_intern(HashMap *map, const char *key) {
 }
 
 void* hashmap_get(HashMap *map, const char *key) {
-    if (!map || !key) return NULL;
+    if (!map || !key || !map->buckets) return NULL;
 
     uint32_t hash = hash_string(key);
     size_t mask = map->capacity - 1;
@@ -265,7 +265,7 @@ void* hashmap_get(HashMap *map, const char *key) {
 }
 
 void* hashmap_get_n(HashMap *map, const char *key, size_t len) {
-    if (!map || !key) return NULL;
+    if (!map || !key || !map->buckets) return NULL;
 
     uint32_t hash = hash_string_n(key, len);
     size_t mask = map->capacity - 1;
@@ -344,7 +344,7 @@ int hashmap_inc(HashMap *map, const char *key) {
 }
 
 int hashmap_remove(HashMap *map, const char *key) {
-    if (!map || !key) return 0;
+    if (!map || !key || !map->buckets) return 0;
 
     uint32_t hash = hash_string(key);
     size_t mask = map->capacity - 1;

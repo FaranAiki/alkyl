@@ -554,6 +554,14 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
                 next_ns = alir_strdup(ctx->module, buf);
             }
             alir_gen_functions_recursive(ctx, ns->body, next_ns);
+        } else if (curr->type == NODE_VAR_DECL) {
+            VarDeclNode *vd = (VarDeclNode*)curr;
+            printf("DEBUG: Found top-level VAR_DECL %s\n", vd->name);
+            AlirGlobal *g = alir_alloc(ctx->module, sizeof(AlirGlobal));
+            g->name = alir_strdup(ctx->module, vd->name);
+            g->type = vd->var_type;
+            g->next = ctx->module->globals;
+            ctx->module->globals = g;
         } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
             alir_gen_stmt(ctx, curr);
         }
