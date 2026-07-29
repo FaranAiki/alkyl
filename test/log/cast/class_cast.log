@@ -1,7 +1,4 @@
-step: Finished lexing. Start parsing.
-step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: after parse_type, vt.base=16, token.type=23
 step: alir_gen_function_def fn->name=cprintf class_name=NULL fn->mangled_name=printf -> func_name=printf
 step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 step: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
@@ -16,10 +13,20 @@ step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: alir_gen_function_def fn->name=as_int class_name=Vector_int fn->mangled_name=main_Vector_int_as_int -> func_name=main_Vector_int_as_int
 step: alir_gen_function_def fn->name=__op_155_129_int class_name=NULL fn->mangled_name=main___op_155_129_int_Vector_int_Vector_int -> func_name=main___op_155_129_int_Vector_int_Vector_int
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-LLVMStructSetBody for Vector_int with 2 fields
-Compiled to build/opt_out.o
-Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
-Linked to build/opt_out
+step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+step: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+step: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+step: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+step: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: alir_gen_function_def fn->name=as_int class_name=Vector_int fn->mangled_name=main_Vector_int_as_int -> func_name=main_Vector_int_as_int
+step: alir_gen_function_def fn->name=__op_155_129_int class_name=NULL fn->mangled_name=main___op_155_129_int_Vector_int_Vector_int -> func_name=main___op_155_129_int_Vector_int_Vector_int
+step: alir_gen_function_def fn->name=__op_155_129_int class_name=NULL fn->mangled_name=main___op_155_129_int_Vector_int_Vector_int -> func_name=main___op_155_129_int_Vector_int_Vector_int
+inside as_int: x=1, y=3
+10
+1, 3

@@ -31,4 +31,4 @@ const char* get_token_description(TokenType type);
 const char* find_closest_keyword(const char *ident);
 int levenshtein_dist(const char *s1, const char *s2);
 
-#endif
+#endif // DIAGNOSTIC_H

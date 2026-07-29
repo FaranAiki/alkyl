@@ -212,6 +212,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                     while (scope) {
                         SemSymbol *sym = scope->symbols;
                         while (sym) {
+                            if (!sym->name) { sym = sym->next; continue; }
                             int sym_len = strlen(sym->name);
                             if (sym_len > word_len && strncmp(input_buffer + word_start, sym->name, word_len) == 0) {
                                 suggestion = sym->name;

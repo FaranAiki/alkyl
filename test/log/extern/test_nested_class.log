@@ -1,18 +1,9 @@
-step: Finished lexing. Start parsing.
-step: Start Semantic Analysis.
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: after parse_type, vt.base=1, token.type=23
 step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 step: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
 step: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
 step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-LLVMStructSetBody for ns.Clib with 1 fields
-DEBUG PROTO func=ns.Clib param[0] name=this type=ptr ptr_depth=1 class_name=ns.Clib
-DEBUG PROTO func=ns.Clib param[1] name=i type=i32 ptr_depth=0 class_name=(null)
-DEBUG PROTO ADD func=ns.Clib type=void (ptr, i32)
-Compiled to build/opt_out.o
-Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
-Linked to build/opt_out
+step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+step: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+step: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1

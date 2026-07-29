@@ -1,6 +1,7 @@
 #include "vm_internal.h"
 #include <string.h>
 #include "common/arena.h"
+#include "alir/lvalue.h"
 
 void vm_eval_mem(VMContext *ctx, AlirInst *inst) {
     switch(inst->op) {
@@ -56,11 +57,16 @@ case ALIR_OP_STORE: {
                             else if (inst->op1->kind == ALIR_VAL_VAR) src_ptr = (void*)(intptr_t)metalir_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                         }
                         
-                        if (ptr && src_ptr) {
-                                memcpy(ptr, src_ptr, 1024);
-                            } else if (ptr) {
-                                *((long long*)ptr) = val;
+                        if (ptr && src_ptr && (uintptr_t)src_ptr > 0xFFF) {
+                            int struct_size = 1024;
+                            if (ctx->module && inst->op1->type.class_name) {
+                                struct_size = alir_get_struct_size(ctx->module, inst->op1->type.class_name);
+                                if (struct_size < 8) struct_size = 8;
                             }
+                            memcpy(ptr, src_ptr, struct_size);
+                        } else if (ptr) {
+                            *((long long*)ptr) = val;
+                        }
                     }
                     break;
                 }
@@ -92,11 +98,16 @@ case ALIR_OP_LOAD: {
                         }
                         if (ptr) {
                             if (inst->dest->type.base == TYPE_CLASS && inst->dest->type.ptr_depth == 0) {
-                                void *copy = arena_alloc(ctx->vm->arena, 1024);
-                                memcpy(copy, ptr, 1024);
+                                int struct_size = 1024;
+                                if (ctx->module && inst->dest->type.class_name) {
+                                    struct_size = alir_get_struct_size(ctx->module, inst->dest->type.class_name);
+                                    if (struct_size < 8) struct_size = 8;
+                                }
+                                void *copy = arena_alloc(ctx->vm->arena, struct_size);
+                                memcpy(copy, ptr, struct_size);
                                 ctx->registers[inst->dest->temp_id].as.ptr_val = copy;
                             } else {
-                                ctx->registers[inst->dest->temp_id].as.int_val = *((long long*)ptr);
+                                *((long long*)&ctx->registers[inst->dest->temp_id]) = *((long long*)ptr);
                             }
                         }
                     }

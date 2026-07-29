@@ -70,7 +70,7 @@ void sem_check_residue_exhaustive(SemanticCtx *ctx, ASTNode *where,
 void sem_insert_implicit_cast(SemanticCtx *ctx, ASTNode **node_ptr, VarType target_type) {
     if (!node_ptr || !*node_ptr) return;
     VarType current = sem_get_node_type(ctx, *node_ptr);
-    
+
     if (current.base == target_type.base && current.ptr_depth == target_type.ptr_depth) return;
     if (current.base == TYPE_UNKNOWN || target_type.base == TYPE_UNKNOWN) return;
     if (target_type.base == TYPE_VOID) return;
@@ -80,19 +80,19 @@ void sem_insert_implicit_cast(SemanticCtx *ctx, ASTNode **node_ptr, VarType targ
     cast->base.type = NODE_CAST;
     cast->base.line = (*node_ptr)->line;
     cast->base.col = (*node_ptr)->col;
-    
-    cast->base.next = (*node_ptr)->next; 
-    (*node_ptr)->next = NULL; 
-    
+
+    cast->base.next = (*node_ptr)->next;
+    (*node_ptr)->next = NULL;
+
     cast->var_type = target_type;
     cast->operand = *node_ptr;
-    
+
     sem_set_node_type(ctx, (ASTNode*)cast, target_type);
-    
+
     *node_ptr = (ASTNode*)cast;
 }
 
-// TODO split this into 
+// TODO split this into
 // multiple functions
 void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
@@ -240,13 +240,13 @@ static void sem_collect_class_fields(SemanticCtx *ctx, SemSymbol *sym, VarDeclNo
         if (t) sem_collect_class_fields(ctx, t, fields, idx);
     }
     if (sym->inner_scope) {
-        // Collect in reverse, then reverse? 
+        // Collect in reverse, then reverse?
         // Wait, inner_scope->symbols are linked list prepended, so it's reversed.
         // We should count them and insert at the end.
         SemSymbol *s = sym->inner_scope->symbols;
         int local_count = 0;
         while(s) { if (s->kind == SYM_VAR) local_count++; s = s->next; }
-        
+
         s = sym->inner_scope->symbols;
         int local_idx = *idx + local_count - 1;
         while(s) {
@@ -269,12 +269,12 @@ static void sem_inject_default_class_args(SemanticCtx *ctx, CallNode *node, SemS
     VarDeclNode **fields = arena_alloc(ctx->compiler_ctx->arena, sizeof(VarDeclNode*) * total_fields);
     int idx = 0;
     sem_collect_class_fields(ctx, sym, fields, &idx);
-    
+
     ASTNode *last_arg = node->args;
     if (last_arg) {
         while(last_arg->next) last_arg = last_arg->next;
     }
-    
+
     for (int i = arg_count; i < total_fields; i++) {
         ASTNode *injected = NULL;
         if (fields[i] && fields[i]->initializer) {
@@ -314,7 +314,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
             node->name = ((MemberAccessNode*)node->target)->member_name;
         }
     }
-    
+
     if (node->name) {
         char *bracket = strchr(node->name, '[');
         if (bracket) {
@@ -391,7 +391,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     }
 
     if (sym->kind == SYM_CLASS) {
-        VarType instance = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, node->name), 0, 0, NULL, NULL, 0, 0, 0, 0}; 
+        VarType instance = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, node->name), 0, 0, NULL, NULL, 0, 0, 0, 0};
         sem_set_node_type(ctx, (ASTNode*)node, instance);
 
         // Find constructor
@@ -407,7 +407,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                 s = s->next;
             }
         }
-        
+
         if (constructor_head) {
             SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, constructor_head, (ASTNode*)node);
             if (resolved) {
@@ -467,7 +467,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                  int is_copy = 0;
                  if (arg_count == 1) {
                      VarType arg_type = sem_get_node_type(ctx, node->args);
-                     // printf("DEBUG: copy check: base=%d expected=%d class_name=%s sym_name=%s\n", arg_type.base, TYPE_CLASS, arg_type.class_name ? arg_type.class_name : "(null)", sym->name);
+                     debug_any("copy check: base=%d expected=%d class_name=%s sym_name=%s\n", arg_type.base, TYPE_CLASS, arg_type.class_name ? arg_type.class_name : "(null)", sym->name);
                      if (arg_type.base == TYPE_CLASS && arg_type.class_name && strcmp(arg_type.class_name, sym->name) == 0) {
                          is_copy = 1;
                      }
@@ -507,10 +507,10 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
 void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     sem_check_expr(ctx, node->left);
     sem_check_expr(ctx, node->right);
-    
+
     VarType l = sem_get_node_type(ctx, node->left);
     VarType r = sem_get_node_type(ctx, node->right);
-    
+
     // Operator Overloading Check
     char name_buf[64];
     snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", TOKEN_INFOP, node->op);
@@ -558,19 +558,19 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         return;
     }
-    
+
     if (node->op == TOKEN_AND_AND || node->op == TOKEN_OR_OR) {
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_BOOL, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         return;
     }
-    
+
     if (node->op == TOKEN_QUESTION || node->op == TOKEN_QUESTION_QUESTION) {
         // Fallback uses the type of the left hand side, but preserve the taint state we just calculated
         int calculated_taint = sem_get_node_tainted(ctx, (ASTNode*)node);
         VarType res_ty = l;
         res_ty.is_tainted = calculated_taint;
         sem_set_node_type(ctx, (ASTNode*)node, res_ty);
-        
+
         // Register the error ID if it's a specific fallback
         if (node->fallback_err_name) {
             void *err_val = hashmap_get(&ctx->compiler_ctx->error_table, node->fallback_err_name);
@@ -582,12 +582,12 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
 
         return;
     }
-    
+
     // todo fix this casting!
-    if (node->op == TOKEN_EQ || node->op == TOKEN_NEQ || 
-        node->op == TOKEN_LT || node->op == TOKEN_GT || 
+    if (node->op == TOKEN_EQ || node->op == TOKEN_NEQ ||
+        node->op == TOKEN_LT || node->op == TOKEN_GT ||
         node->op == TOKEN_LTE || node->op == TOKEN_GTE) {
-        
+
         if (is_numeric(l) && is_numeric(r)) {
             VarType target_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
             if (l.base == TYPE_LONG_DOUBLE || r.base == TYPE_LONG_DOUBLE) target_type.base = TYPE_LONG_DOUBLE;
@@ -599,26 +599,26 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
             sem_insert_implicit_cast(ctx, &node->left, target_type);
             sem_insert_implicit_cast(ctx, &node->right, target_type);
         }
-        
+
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_BOOL, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         return;
     }
-    
+
     if (is_numeric(l) && is_numeric(r)) {
         VarType target_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-        
+
         if (l.base == TYPE_LONG_DOUBLE || r.base == TYPE_LONG_DOUBLE) target_type.base = TYPE_LONG_DOUBLE;
         else if (l.base == TYPE_DOUBLE || r.base == TYPE_DOUBLE) target_type.base = TYPE_DOUBLE;
         else if (l.base == TYPE_SINGLE || r.base == TYPE_SINGLE) target_type.base = TYPE_SINGLE;
         else if (l.base == TYPE_LONG || r.base == TYPE_LONG) target_type.base = TYPE_LONG;
         else if (l.base == TYPE_UNSIGNED_INT || r.base == TYPE_UNSIGNED_INT) target_type.base = TYPE_UNSIGNED_INT;
         if (l.is_tainted || r.is_tainted) target_type.is_tainted = 1;
-        
+
         sem_insert_implicit_cast(ctx, &node->left, target_type);
         sem_insert_implicit_cast(ctx, &node->right, target_type);
-        
+
         sem_set_node_type(ctx, (ASTNode*)node, target_type);
-    } 
+    }
     else if (is_pointer(l) && is_integer(r)) {
          sem_set_node_type(ctx, (ASTNode*)node, l);
     }
@@ -626,7 +626,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
          sem_set_node_type(ctx, (ASTNode*)node, r);
     }
     else if ((l.base == TYPE_CLASS && l.class_name && strcmp(l.class_name, "string") == 0) || (r.base == TYPE_CLASS && r.class_name && strcmp(r.class_name, "string") == 0)) {
-         if (node->op == TOKEN_PLUS) 
+         if (node->op == TOKEN_PLUS)
             sem_set_node_type(ctx, (ASTNode*)node, (VarType){ .base = TYPE_CLASS, .class_name = (char*)"string" });
          else {
             sem_error(ctx, (ASTNode*)node, "Invalid operation on strings");
@@ -642,7 +642,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
 void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
     if (node->is_macro_arg) return;
-    
+
     switch(node->type) {
         case NODE_LITERAL: {
             LiteralNode *lit = (LiteralNode*)node;
@@ -653,9 +653,9 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             IsCompatibleNode *icn = (IsCompatibleNode*)node;
             VarType t1 = icn->target_type;
             VarType t2 = icn->target_type2;
-            
+
             bool comp = sem_types_are_compatible(ctx, t2, t1);
-            
+
             if (!comp && t1.base == TYPE_CLASS && t1.class_name) {
                 char as_name[256];
                 if (t2.base == TYPE_CLASS || t2.base == TYPE_UNKNOWN) {
@@ -667,7 +667,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 } else {
                     snprintf(as_name, sizeof(as_name), "as_type%d", t2.base);
                 }
-                
+
                 SemSymbol *class_sym = sem_symbol_lookup(ctx, t1.class_name, NULL);
                 if (class_sym && class_sym->inner_scope) {
                     SemSymbol *member = class_sym->inner_scope->symbols;
@@ -680,7 +680,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     }
                 }
             }
-            
+
             node->type = NODE_LITERAL;
             LiteralNode *lit = (LiteralNode*)node;
             lit->var_type = (VarType){TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
@@ -728,16 +728,16 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             CastNode *cn = (CastNode*)node;
             cn->custom_cast_method = NULL;
             sem_check_expr(ctx, cn->operand);
-            
+
             if (sem_get_node_tainted(ctx, cn->operand)) {
                 sem_set_node_tainted(ctx, node, 1);
             }
-            
+
             VarType op_t = sem_get_node_type(ctx, cn->operand);
             if (op_t.base == TYPE_VOID && op_t.ptr_depth == 0) {
                 sem_error(ctx, node, "Cannot cast 'void' value");
             }
-            
+
             if (op_t.base == TYPE_CLASS && op_t.class_name) {
                 char as_name[256];
                 if (cn->var_type.base == TYPE_CLASS || cn->var_type.base == TYPE_UNKNOWN) {
@@ -749,7 +749,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 } else {
                     snprintf(as_name, sizeof(as_name), "as_type%d", cn->var_type.base);
                 }
-                
+
                 SemSymbol *class_sym = sem_symbol_lookup(ctx, op_t.class_name, NULL);
                 if (class_sym && class_sym->inner_scope) {
                     SemSymbol *member = class_sym->inner_scope->symbols;
@@ -764,7 +764,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     }
                 }
             }
-            
+
             if (!cn->custom_cast_method) {
                 if (op_t.base == TYPE_CLASS && op_t.class_name) {
                     SemSymbol *class_sym = sem_symbol_lookup(ctx, op_t.class_name, NULL);
@@ -780,7 +780,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                                 ma.base.col = node->col;
                                 ma.object = cn->operand;
                                 ma.member_name = arena_strdup(ctx->compiler_ctx->arena, f->name);
-                                
+
                                 sem_set_node_type(ctx, node, f->type);
                                 memcpy(node, &ma, sizeof(MemberAccessNode));
                                 return;
@@ -798,7 +798,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                                 ma.base.col = node->col;
                                 ma.object = cn->operand;
                                 ma.member_name = arena_strdup(ctx->compiler_ctx->arena, f->name);
-                                
+
                                 sem_set_node_type(ctx, node, f->type);
                                 memcpy(node, &ma, sizeof(MemberAccessNode));
                                 return;
@@ -826,7 +826,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             ArrayLitNode *al = (ArrayLitNode*)node;
             ASTNode *el = al->elements;
             VarType elem_type = {TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-            int count = 0; 
+            int count = 0;
 
             if (el) {
                 sem_check_expr(ctx, el);
@@ -841,7 +841,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     sem_error(ctx, el, "Array elements have incompatible types");
                 }
                 el = el->next;
-                count++; 
+                count++;
             }
             if (elem_type.array_size > 0) {
                 elem_type.array_depth = elem_type.array_size;
@@ -854,7 +854,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             IncDecNode *id = (IncDecNode*)node;
             sem_check_expr(ctx, id->target);
             VarType t = sem_get_node_type(ctx, id->target);
-            
+
             // Operator Overloading Check
             char name_buf[64];
             snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", id->is_prefix ? TOKEN_PREMUT : TOKEN_SUFMUT, id->op);
@@ -906,7 +906,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     VarType ptr_type = t;
                     ptr_type.ptr_depth++;
                     sem_set_node_type(ctx, (ASTNode*)addr_of, ptr_type);
-                    
+
                     ASTNode *args = (ASTNode*)addr_of;
                     args->next = NULL;
                     SemSymbol *resolved = sem_resolve_overload(ctx, &args, NULL, sym, NULL);
@@ -929,7 +929,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
         }
         case NODE_ASSIGN: {
             AssignNode *an = (AssignNode*)node;
-            sem_check_assign(ctx, an); 
+            sem_check_assign(ctx, an);
             VarType t;
             if (an->name) {
                 SemSymbol *sym = sem_symbol_lookup(ctx, an->name, NULL);
@@ -952,7 +952,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
         case NODE_HAS_METHOD:
         case NODE_HAS_ATTRIBUTE: {
             UnaryOpNode *un = (UnaryOpNode*)node;
-            
+
             // Do not check the operand because it might be a trait or class name which fails normally.
             // But wait, if it's a class name, it resolves to a type.
             // For now we will manually look it up.
@@ -965,11 +965,11 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 VarType obj_t = sem_get_node_type(ctx, ma->object);
                 if (obj_t.base == TYPE_CLASS && obj_t.class_name) target_name = obj_t.class_name;
             }
-            
+
             ASTNode *head = NULL;
             ASTNode **curr = &head;
             int count = 0;
-            
+
             if (target_name) {
                 SemSymbol *class_sym = sem_symbol_lookup(ctx, target_name, NULL);
                 if (class_sym && class_sym->inner_scope) {
@@ -978,7 +978,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                         bool match = false;
                         if (node->type == NODE_HAS_METHOD && s->kind == SYM_FUNC) match = true;
                         if (node->type == NODE_HAS_ATTRIBUTE && s->kind == SYM_VAR) match = true;
-                        
+
                         if (match) {
                             LiteralNode *ln = arena_alloc(ctx->compiler_ctx->arena, sizeof(LiteralNode));
                             ln->base.type = NODE_LITERAL;
@@ -1002,7 +1002,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     }
                 }
             }
-            
+
             // Insert the length at index 0
             ASTNode *len_ast = NULL;
             if (ctx->compiler_ctx->settings.double_quote_as_string) {
@@ -1024,7 +1024,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 int_node->var_type.ptr_depth = 0;
                 int_node->var_type.array_size = 0;
                 int_node->val.int_val = count;
-                
+
                 CastNode *cast_node = arena_alloc(ctx->compiler_ctx->arena, sizeof(CastNode));
                 cast_node->base.type = NODE_CAST;
                 cast_node->var_type.base = TYPE_CHAR;
@@ -1035,18 +1035,18 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 sem_set_node_type(ctx, (ASTNode*)cast_node, cast_node->var_type);
                 len_ast = (ASTNode*)cast_node;
             }
-            
+
             // Terminate the symbol list
             *curr = NULL;
-            
+
             len_ast->next = head;
             head = len_ast;
             count++;
-            
+
             node->type = NODE_ARRAY_LIT;
             ArrayLitNode *an = (ArrayLitNode*)node;
             an->elements = head;
-            
+
             VarType arr_t;
             if (ctx->compiler_ctx->settings.double_quote_as_string) {
                 arr_t = (VarType){ .base = TYPE_CLASS, .class_name = arena_strdup(ctx->compiler_ctx->arena, "string"), .ptr_depth = 0, .array_size = count };
@@ -1084,17 +1084,17 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     index_ln->val.long_val = ti->template_types[0].base;
                     index_ln->base.line = node->line;
                     index_ln->base.col = node->col;
-                    
+
                     IndexAccessNode *aa = (IndexAccessNode*)node;
                     aa->base.type = NODE_INDEX_ACCESS;
                     // aa->target is already ti->target, so we don't need to change it
                     aa->target = ti->target;
                     aa->index = (ASTNode*)index_ln;
-                    
+
                     sem_check_expr(ctx, node); // Check again as array access
                     break;
                 }
-                
+
                 sem_error(ctx, node, "'%s' is not a template", target_name);
                 break;
             }
@@ -1103,7 +1103,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 sem_error(ctx, node, "Template '%s' expects %d types, got %d", target_name, cn->num_type_params, ti->num_template_types);
                 break;
             }
-            
+
             for (int i = 0; i < ti->num_template_types; i++) {
                 if (cn->num_allowed && cn->num_allowed[i] > 0) {
                     int match = 0;
@@ -1129,7 +1129,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 strncat(mangled, "_", sizeof(mangled) - strlen(mangled) - 1);
                 strncat(mangled, t_str, sizeof(mangled) - strlen(mangled) - 1);
             }
-            
+
             SemSymbol *inst_sym = sem_symbol_lookup(ctx, mangled, NULL);
             if (!inst_sym) {
             // 1. Collect all top-level names in the block and their mangled names
@@ -1141,7 +1141,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 char *base_name = NULL;
                 if (cn_curr->type == NODE_FUNC_DEF) base_name = ((FuncDefNode*)cn_curr)->name;
                 else if (cn_curr->type == NODE_CLASS) base_name = ((ClassNode*)cn_curr)->name;
-                
+
                 if (base_name) {
                     if (num_renames >= 32) {
                         sem_error(ctx, node, "Template has too many top-level symbols to instantiate");
@@ -1162,14 +1162,14 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 }
                 cn_curr = cn_curr->next;
             }
-            
+
             for (int i = 0; i < num_renames; i++) {
                 // printf("Rename: %s -> %s\n", rename_from[i], rename_to[i]);
             }
-            
+
             // 2. Clone the body with replacements AND renames
             ASTNode *cloned_body = ast_clone(ctx->compiler_ctx, cn->body, cn->type_params, ti->template_types, ti->num_template_types, rename_from, rename_to, num_renames);
-                
+
                 // printf("DEBUG: &ctx->ast_tail=%p, ctx->ast_tail=%p, *ctx->ast_tail=%p\n", &ctx->ast_tail, ctx->ast_tail, ctx->ast_tail ? *ctx->ast_tail : NULL);
                 if (ctx->ast_tail) {
                     *ctx->ast_tail = cloned_body;
@@ -1177,7 +1177,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                         ctx->ast_tail = &(*ctx->ast_tail)->next;
                     }
                 }
-                
+
                 // Add to global AST? Just scan and check it now!
                 SemScope *old_scope = ctx->current_scope;
                 ctx->current_scope = found_in_scope ? found_in_scope : ctx->global_scope;
@@ -1191,7 +1191,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 ctx->current_scope = old_scope;
                 inst_sym = sem_symbol_lookup(ctx, mangled, NULL);
             }
-            
+
             // Replace the current node with a VarRef to the mangled name, so codegen just calls the instantiated function/class
             // Wait, this is an expression! A template instantiation `map[int]` resolves to the function name itself.
             // So its type should be the type of `inst_sym`.
@@ -1214,11 +1214,11 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
 void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
     if (node->is_macro_arg) return;
-    
+
     switch (node->type) {
         case NODE_PURGE: {
             PurgeNode *pn = (PurgeNode*)node;
-            
+
             if (ctx->current_func_sym) {
                 if (ctx->current_func_sym->has_explicit_pristine) {
                     sem_error(ctx, node, "Pristine function '%s' cannot use purge", ctx->current_func_sym->name);
@@ -1226,7 +1226,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                     sem_hint(ctx, node, "Function '%s' uses purge, consider marking it as tainted", ctx->current_func_sym->name);
                 }
             }
-            
+
             if (pn->msg->type == NODE_VAR_REF) {
                 VarRefNode *var = (VarRefNode*)pn->msg;
                 // It's an error identifier!
@@ -1247,7 +1247,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             if (rn->value) {
                 sem_check_expr(ctx, rn->value);
                 VarType val = sem_get_node_type(ctx, rn->value);
-                
+
                 if (ctx->current_func_sym && ctx->current_func_sym->must_pristine && sem_get_node_tainted(ctx, rn->value)) {
                     sem_error(ctx, node, "Pristine function '%s' cannot return a tainted value", ctx->current_func_sym->name);
                 }
@@ -1347,7 +1347,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_IF: {
             IfNode *ifn = (IfNode*)node;
             sem_check_expr(ctx, ifn->condition);
-            
+
             int cond_val = -1;
             if (ifn->condition->type == NODE_BINARY_OP) {
                 BinaryOpNode *bin = (BinaryOpNode*)ifn->condition;
@@ -1356,7 +1356,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                     ASTNode *r = bin->right;
                     if (l && l->type == NODE_CAST) l = ((CastNode*)l)->operand;
                     if (r && r->type == NODE_CAST) r = ((CastNode*)r)->operand;
-                    
+
                     if (l && r && l->type == NODE_TYPEOF && r->type == NODE_TYPEOF) {
                         SizeOfNode *sl = (SizeOfNode*)l;
                         SizeOfNode *sr = (SizeOfNode*)r;
@@ -1367,13 +1367,13 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                     }
                 }
             }
-            
+
             if (cond_val == -1 || cond_val == 1) {
                 sem_scope_enter(ctx, 0, (VarType){0});
                 sem_check_block(ctx, ifn->then_body);
                 sem_scope_exit(ctx);
             }
-            
+
             if (ifn->else_body && (cond_val == -1 || cond_val == 0)) {
                 sem_scope_enter(ctx, 0, (VarType){0});
                 if (ifn->else_body->type == NODE_IF) {
@@ -1388,7 +1388,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_SWITCH: {
             SwitchNode *sn = (SwitchNode*)node;
             sem_check_expr(ctx, sn->condition);
-            
+
             CaseNode *sc = (CaseNode*)sn->cases;
             while (sc) {
                 if (sc->value) {
@@ -1417,11 +1417,11 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             WhileNode *wn = (WhileNode*)node;
             sem_check_expr(ctx, wn->condition);
             ctx->in_loop++;
-            
+
             sem_scope_enter(ctx, 0, (VarType){0});
             sem_check_block(ctx, wn->body);
             sem_scope_exit(ctx);
-            
+
             ctx->in_loop--;
             break;
         }
@@ -1429,11 +1429,11 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             LoopNode *ln = (LoopNode*)node;
             sem_check_expr(ctx, ln->iterations);
             ctx->in_loop++;
-            
+
             sem_scope_enter(ctx, 0, (VarType){0});
             sem_check_block(ctx, ln->body);
             sem_scope_exit(ctx);
-            
+
             ctx->in_loop--;
             break;
         }
@@ -1462,7 +1462,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_TYPEOF:
         case NODE_SIZEOF:
         case NODE_ALIGNOF:
-            sem_check_expr(ctx, node); 
+            sem_check_expr(ctx, node);
             break;
         case NODE_EMIT: {
             EmitNode *en = (EmitNode*)node;
@@ -1491,7 +1491,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         HAS_METHOD
         HAS_ATTRIBUTE
         CAST
-        CLEAN 
+        CLEAN
       */
         default: break;
     }
@@ -1524,11 +1524,11 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
                 sem_error(ctx, node, "Undefined composition class '%s'", cn->traits.names[i]);
             }
         }
-        
+
         if (sym && sym->inner_scope) {
             SemScope *old = ctx->current_scope;
             ctx->current_scope = sym->inner_scope;
-            
+
             ASTNode *mem = cn->members;
             while(mem) {
                 if (mem->type == NODE_FUNC_DEF) {
@@ -1561,11 +1561,11 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
                         char buf[256]; snprintf(buf, sizeof(buf), "Variable '%s' must have default value in exact class '%s'", v->name, cn->name);
                         sem_error(ctx, mem, buf);
                     }
-                    sem_check_var_decl(ctx, v, 0); 
+                    sem_check_var_decl(ctx, v, 0);
                 }
                 mem = mem->next;
             }
-            
+
             ctx->current_scope = old;
         }
     }
@@ -1575,12 +1575,12 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
         if (sym && sym->inner_scope) {
             SemScope *old = ctx->current_scope;
             ctx->current_scope = sym->inner_scope;
-            
+
             const char *old_ns = arena_strdup(ctx->compiler_ctx->arena, diag_get_namespace(ctx->compiler_ctx));
             diag_set_namespace(ctx->compiler_ctx, ns->name);
-            
+
             sem_check_block(ctx, ns->body);
-            
+
             diag_set_namespace(ctx->compiler_ctx, old_ns);
             ctx->current_scope = old;
         }
@@ -1621,7 +1621,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
     SemSymbol *sym = first_sym;
     SemSymbol *best_match = NULL;
     int best_score = -1;
-    
+
     ASTNode **best_matched_args = NULL;
     ASTNode *best_varargs_head = NULL;
 
@@ -1630,13 +1630,13 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
         if (sym->param_count <= arg_count || sym->is_variadic || 1) { // 1 because of default args
             int match = 1;
             int exact_matches = 0;
-            
+
             ASTNode **matched_args = arena_alloc(ctx->compiler_ctx->arena, sizeof(ASTNode*) * (sym->param_count > 0 ? sym->param_count : 1));
             for (int i=0; i<sym->param_count; i++) matched_args[i] = NULL;
-            
+
             ASTNode *varargs_head = NULL;
             ASTNode **curr_vararg = &varargs_head;
-            
+
             int pos_idx = 0;
             curr_arg = *args;
             while(curr_arg) {
@@ -1663,7 +1663,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
                 }
                 curr_arg = curr_arg->next;
             }
-            
+
             if (match) {
                 Parameter *p = sym->params;
                 for (int i=0; i<sym->param_count; i++, p=p->next) {
@@ -1680,7 +1680,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
                     if (p->type.base == arg_t.base && p->type.ptr_depth == arg_t.ptr_depth) exact_matches++;
                 }
             }
-            
+
             if (match) {
                 int score = exact_matches;
                 if (score > best_score) {
@@ -1694,14 +1694,14 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
         }
         sym = sym->overload_next;
     }
-    
+
     if (!best_match) {
         if (err_node) {
             sem_error(ctx, err_node, "No matching overload found for function '%s'", first_sym->name);
         }
         return NULL;
     }
-    
+
     // Rebuild arguments list
     if (best_matched_args) {
         ASTNode *new_args_head = NULL;
@@ -1721,7 +1721,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
     // Apply implicit casts and reference downgrades
     ASTNode **p_curr = args;
     Parameter *curr_para = best_match->params;
-    
+
     ASTNode *arg_node = *args;
     while(arg_node) {
         if (!best_match->is_pristine && arg_node->type == NODE_UNARY_OP) {
@@ -1740,7 +1740,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
         }
         arg_node = arg_node->next;
     }
-    
+
     while(*p_curr && curr_para) {
         int arg_is_tainted = sem_get_node_tainted(ctx, *p_curr);
         int param_is_pristine = curr_para->is_pristine;
@@ -1755,7 +1755,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
         p_curr = &(*p_curr)->next;
         curr_para = curr_para->next;
     }
-    
+
     if (best_match->is_variadic) {
         while (*p_curr) {
             if (sem_get_node_tainted(ctx, *p_curr)) {
@@ -1764,6 +1764,6 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
             p_curr = &(*p_curr)->next;
         }
     }
-    
+
     return best_match;
 }

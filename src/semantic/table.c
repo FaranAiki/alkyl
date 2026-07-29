@@ -299,18 +299,10 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
         }
         return NULL;
     }
-    if (strcmp(name, "ArenaAllocator") == 0) {
-// printf("DEBUG: Looking up 'ArenaAllocator'...\n");
-    }
     SemScope *scope = ctx->current_scope;
     while (scope) {
-        if (strcmp(name, "ArenaAllocator") == 0) {
-// printf("DEBUG: Checking scope (is_func=%d, is_class=%d)\n", scope->is_function_scope, scope->is_class_scope);
-        }
-
         SemSymbol *sym = find_in_scope_direct(scope, name);
         if (sym) {
-// if (strcmp(name, "ArenaAllocator") == 0) printf("DEBUG: Found 'ArenaAllocator'!\n");
             if (out_scope) *out_scope = scope;
             return sym;
         }

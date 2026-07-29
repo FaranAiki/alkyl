@@ -5,4 +5,4 @@
 
 char* get_smart_input(void *arena, int cmd_count, void *sem_ctx);
 
-#endif
+#endif // KEYBOARD_H

@@ -49,10 +49,15 @@ case ALIR_OP_CALL: {
                                 int __na_sz = inst->arg_count > 0 ? inst->arg_count : 1; long long new_args[__na_sz];
                                 for (int i = 0; i < inst->arg_count; i++) {
                                     AlirValue *arg = inst->args[i];
-                                    if (arg->kind == ALIR_VAL_CONST) new_args[i] = arg->val.long_long_val;
-                                    else if (arg->kind == ALIR_VAL_TEMP) new_args[i] = ctx->registers[arg->temp_id].as.int_val;
-                                    else if (arg->kind == ALIR_VAL_VAR) new_args[i] = metalir_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
-                                    else new_args[i] = 0;
+                            if (arg->kind == ALIR_VAL_CONST) new_args[i] = arg->val.long_long_val;
+                            else if (arg->kind == ALIR_VAL_TEMP) {
+                                if (arg->type.ptr_depth > 0 || (arg->type.base == TYPE_CLASS && arg->type.class_name))
+                                    new_args[i] = (long long)(intptr_t)ctx->registers[arg->temp_id].as.ptr_val;
+                                else
+                                    new_args[i] = ctx->registers[arg->temp_id].as.int_val;
+                            }
+                            else if (arg->kind == ALIR_VAL_VAR) new_args[i] = metalir_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                            else new_args[i] = 0;
                                 }
                                 long long rc = metalir_vm_execute(ctx->vm, ctx->module, target_fn, ctx->sem_ctx, new_args, inst->arg_count);
                                 if (strcmp(target_fn->name, "Vector_as_int") == 0) {
@@ -120,7 +125,7 @@ case ALIR_OP_CALL: {
                                             void **val = (void**)&arg_data[i];
                                             *val = NULL;
                                             if (arg->kind == ALIR_VAL_CONST) *val = (void*)arg->val.str_val;
-                                            else if (arg->kind == ALIR_VAL_TEMP) *val = (void*)(intptr_t)ctx->registers[arg->temp_id].as.int_val;
+                                            else if (arg->kind == ALIR_VAL_TEMP) *val = ctx->registers[arg->temp_id].as.ptr_val;
                                             else if (arg->kind == ALIR_VAL_VAR) *val = (void*)(intptr_t)metalir_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                                             else if (arg->kind == ALIR_VAL_GLOBAL && ctx->module) {
                                                 long long ptr = metalir_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);

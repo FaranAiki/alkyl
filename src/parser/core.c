@@ -370,6 +370,40 @@ VarType parse_type(Parser *p) {
     if (p->has_error) return (VarType){0};
   }
 
+  if (p->current_token.type == TOKEN_ENUM) {
+      eat(p, TOKEN_ENUM);
+      char *enum_name;
+      if (p->current_token.type == TOKEN_IDENTIFIER) {
+          enum_name = parser_strdup(p, p->current_token.text);
+          eat(p, TOKEN_IDENTIFIER);
+      } else if (p->current_token.type == TOKEN_LBRACKET) {
+          static int anon_enum_counter = 0;
+          char buf[64];
+          snprintf(buf, sizeof(buf), "__AnonEnum_%d", anon_enum_counter++);
+          enum_name = parser_strdup(p, buf);
+      } else {
+          parser_fail(p, "Expected enum name or '[' for anonymous enum");
+          return t;
+      }
+      register_typename(p, enum_name, 1);
+      eat(p, TOKEN_LBRACKET);
+      while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
+          if (p->current_token.type != TOKEN_IDENTIFIER) { parser_fail(p, "Expected enum member name"); break; }
+          eat(p, TOKEN_IDENTIFIER);
+          if (p->current_token.type == TOKEN_ASSIGN) {
+              eat(p, TOKEN_ASSIGN);
+              if (p->current_token.type == TOKEN_MINUS) eat(p, TOKEN_MINUS);
+              if (p->current_token.type == TOKEN_NUMBER) eat(p, TOKEN_NUMBER);
+          }
+          if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
+          else if (p->current_token.type != TOKEN_RBRACKET) { parser_fail(p, "Expected ',' or ']' in enum"); break; }
+      }
+      eat(p, TOKEN_RBRACKET);
+      t.base = TYPE_ENUM;
+      t.class_name = enum_name;
+      return t;
+  }
+
   if (p->current_token.type == TOKEN_IDENTIFIER) {
       VarType *alias = get_alias(p, p->current_token.text);
       if (alias) {
@@ -578,20 +612,20 @@ VarType parse_type(Parser *p) {
                       cls->base.type = NODE_CLASS;
                       ASTNode *last_member = NULL;
                       
-                      while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
-                          VarType f_type = parse_type(p);
-                          if (p->current_token.type == TOKEN_IDENTIFIER) {
-                              char *f_name = parser_strdup(p, p->current_token.text);
-                              eat(p, TOKEN_IDENTIFIER);
-                              VarDeclNode *vd = parser_alloc(p, sizeof(VarDeclNode));
-                              vd->base.type = NODE_VAR_DECL;
-                              vd->name = f_name;
-                              vd->var_type = f_type;
-                              if (last_member) last_member->next = (ASTNode*)vd;
-                              else cls->members = (ASTNode*)vd;
-                              last_member = (ASTNode*)vd;
-                          }
-                          if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
+                       while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+                           VarType f_type = parse_type(p);
+                           if (p->current_token.type == TOKEN_IDENTIFIER) {
+                               char *f_name = parser_strdup(p, p->current_token.text);
+                               eat(p, TOKEN_IDENTIFIER);
+                               VarDeclNode *vd = parser_alloc(p, sizeof(VarDeclNode));
+                               vd->base.type = NODE_VAR_DECL;
+                               vd->name = f_name;
+                               vd->var_type = f_type;
+                               if (last_member) last_member->next = (ASTNode*)vd;
+                               else cls->members = (ASTNode*)vd;
+                               last_member = (ASTNode*)vd;
+                           }
+                           if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
                       }
                       eat(p, TOKEN_RBRACE);
                       t.base = TYPE_CLASS;

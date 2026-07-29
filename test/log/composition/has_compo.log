@@ -1,17 +1,17 @@
-step: Finished lexing. Start parsing.
-step: Start Semantic Analysis.
+step: after parse_type, vt.base=8, token.type=23
+step: after parse_type, vt.base=1, token.type=23
+step: after parse_type, vt.base=1, token.type=23
+step: after parse_type, vt.base=1, token.type=23
 at namespace main:
 in .../code/composition/has_compo.aky:
 18:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-step: sem_lookup_class_call for 'Person', class_sym=0x55fdd3fd1720
+step: sem_lookup_class_call for 'Person', class_sym=0x561b25ebcd20
 19:4: warning: speak is from Identity, consider p[Identity].speak
   |   p.speak();
   |    ^
-step: sem_lookup_class_call for 'Person', class_sym=0x55fdd3fd1720
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: sem_lookup_class_call for 'Person', class_sym=0x561b25ebcd20
 step: alir_gen_function_def fn->name=speak class_name=Identity fn->mangled_name=main_Identity_speak -> func_name=main_Identity_speak
 step: alir_gen_function_def fn->name=intro class_name=Person fn->mangled_name=main_Person_intro -> func_name=main_Person_intro
 step: alir_gen_function_def fn->name=speak class_name=Person fn->mangled_name=main_Identity_speak -> func_name=main_Person_speak
@@ -21,11 +21,25 @@ step: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-LLVMStructSetBody for Person with 2 fields
-LLVMStructSetBody for Identity with 2 fields
-Compiled to build/opt_out.o
-Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
-Linked to build/opt_out
+step: alir_gen_function_def fn->name=speak class_name=Identity fn->mangled_name=main_Identity_speak -> func_name=main_Identity_speak
+step: alir_gen_function_def fn->name=intro class_name=Person fn->mangled_name=main_Person_intro -> func_name=main_Person_intro
+step: alir_gen_function_def fn->name=speak class_name=Person fn->mangled_name=main_Identity_speak -> func_name=main_Person_speak
+step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+step: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+step: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: alir_gen_function_def fn->name=intro class_name=Person fn->mangled_name=main_Person_intro -> func_name=main_Person_intro
+step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+step: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+step: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+step: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+step: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
