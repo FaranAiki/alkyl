@@ -35,6 +35,123 @@ static void add_to_cmd_history(const char *line) {
     }
 }
 
+static int has_unbalanced_braces(const char *buffer, int len) {
+    int brace = 0;
+    int in_str = 0, in_char = 0;
+    for (int i = 0; i < len; i++) {
+        if (buffer[i] == '"' && !in_char) in_str = !in_str;
+        else if (buffer[i] == '\'' && !in_str) in_char = !in_char;
+        else if (!in_str && !in_char) {
+            if (buffer[i] == '{') brace++;
+            else if (buffer[i] == '}') brace--;
+        }
+    }
+    return brace > 0;
+}
+
+static void cursor_up(char *buffer, int len, int *pos) {
+    int current_line_start = 0;
+    for (int i = *pos - 1; i >= 0; i--) {
+        if (buffer[i] == '\n') {
+            current_line_start = i + 1;
+            break;
+        }
+    }
+    if (current_line_start == 0) return;
+
+    int prev_line_start = 0;
+    for (int i = current_line_start - 2; i >= 0; i--) {
+        if (buffer[i] == '\n') {
+            prev_line_start = i + 1;
+            break;
+        }
+    }
+
+    int col_offset = *pos - current_line_start;
+    int prev_line_end = current_line_start - 1;
+    int prev_line_len = prev_line_end - prev_line_start;
+    if (prev_line_len < 0) prev_line_len = 0;
+
+    if (col_offset <= prev_line_len) {
+        *pos = prev_line_start + col_offset;
+    } else {
+        *pos = prev_line_start + prev_line_len;
+    }
+}
+
+static void cursor_down(char *buffer, int len, int *pos) {
+    int current_line_start = 0;
+    for (int i = *pos - 1; i >= 0; i--) {
+        if (buffer[i] == '\n') {
+            current_line_start = i + 1;
+            break;
+        }
+    }
+
+    int next_newline = len;
+    for (int i = *pos; i < len; i++) {
+        if (buffer[i] == '\n') {
+            next_newline = i;
+            break;
+        }
+    }
+
+    if (next_newline >= len) return;
+
+    int next_line_start = next_newline + 1;
+    if (next_line_start >= len) return;
+
+    int col_offset = *pos - current_line_start;
+    int next_line_end = len;
+    for (int i = next_line_start; i < len; i++) {
+        if (buffer[i] == '\n') {
+            next_line_end = i;
+            break;
+        }
+    }
+    int next_line_len = next_line_end - next_line_start;
+
+    if (col_offset <= next_line_len) {
+        *pos = next_line_start + col_offset;
+    } else {
+        *pos = next_line_start + next_line_len;
+    }
+}
+
+static void insert_newline_line(char *buffer, int *len, int *pos) {
+    int current_brace = 0;
+    for (int i = 0; i < *pos; i++) {
+        if (buffer[i] == '{') current_brace++;
+        if (buffer[i] == '}') current_brace--;
+    }
+    if (current_brace < 0) current_brace = 0;
+
+    int insert_len = 1 + current_brace * 4;
+    if (*len + insert_len < MAX_INPUT_LEN - 1) {
+        for (int j = *len; j >= *pos; j--) buffer[j + insert_len] = buffer[j];
+        buffer[*pos] = '\n';
+        for (int j = 1; j <= current_brace * 4; j++) buffer[*pos + j] = ' ';
+        *len += insert_len;
+        *pos += insert_len;
+    }
+}
+
+static void cursor_word_left(char *buffer, int len, int *pos) {
+    if (*pos == 0) return;
+    int i = *pos - 1;
+    while (i >= 0 && !isalnum((unsigned char)buffer[i]) && buffer[i] != '_') i--;
+    while (i >= 0 && (isalnum((unsigned char)buffer[i]) || buffer[i] == '_')) i--;
+    *pos = i + 1;
+}
+
+static void cursor_word_right(char *buffer, int len, int *pos) {
+    if (*pos >= len) return;
+    int i = *pos;
+    while (i < len && !isalnum((unsigned char)buffer[i]) && buffer[i] != '_') i++;
+    while (i < len && (isalnum((unsigned char)buffer[i]) || buffer[i] == '_')) i++;
+    *pos = i;
+}
+
 static void redraw(const char *base_prompt, const char *base_prompt_no_color, const char *buffer, int len, int pos, const char *suggestion, int word_len, int *last_cursor_row) {
     if (*last_cursor_row > 0) {
         printf("\033[%dA", *last_cursor_row);
@@ -135,6 +252,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
     tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
     newt.c_lflag &= ~(ICANON | ECHO);
+    newt.c_iflag &= ~(ICRNL | INLCR | IGNCR);
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
     int len = 0;
@@ -169,27 +287,14 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
             }
             word_len = pos - word_start;
             if (word_len > 0) {
-                const char *keywords[] = {
-                    "let", "mut", "if", "else", "while", "for", "in", "return", "switch", "case",
-                    "break", "continue", "func", "class", "struct", "union", "enum", "errnum",
-                    "import", "namespace", "true", "false", "null", "void", "extern", "pure", "pristine", NULL
-                };
-                for (int j = 0; keywords[j]; j++) {
-                    int kw_len = strlen(keywords[j]);
-                    if (kw_len > word_len && strncmp(input_buffer + word_start, keywords[j], word_len) == 0) {
-                        suggestion = (char*)keywords[j];
-                        break;
-                    }
-                }
-                
-                if (suggestion == NULL && sem_ctx != NULL) {
+                if (sem_ctx != NULL) {
                     SemanticCtx *sem = (SemanticCtx*)sem_ctx;
                     SemScope *scope = sem->current_scope;
                     
                     if (word_start > 0 && input_buffer[word_start - 1] == '.') {
                         int prefix_start = 0;
                         for (int i = word_start - 2; i >= current_line_start; i--) {
-                            if (!isalnum(input_buffer[i]) && input_buffer[i] != '_') {
+                            if (!isalnum((unsigned char)input_buffer[i]) && input_buffer[i] != '_' && input_buffer[i] != '.') {
                                 prefix_start = i + 1;
                                 break;
                             }
@@ -225,6 +330,21 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                         scope = scope->parent;
                     }
                 }
+
+                if (suggestion == NULL) {
+                    const char *keywords[] = {
+                        "let", "mut", "if", "else", "while", "for", "in", "return", "switch", "case",
+                        "break", "continue", "func", "class", "struct", "union", "enum", "errnum",
+                        "import", "namespace", "true", "false", "null", "void", "extern", "pure", "pristine", NULL
+                    };
+                    for (int j = 0; keywords[j]; j++) {
+                        int kw_len = strlen(keywords[j]);
+                        if (kw_len > word_len && strncmp(input_buffer + word_start, keywords[j], word_len) == 0) {
+                            suggestion = (char*)keywords[j];
+                            break;
+                        }
+                    }
+                }
             }
         }
 
@@ -232,7 +352,12 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
 
         char c = getchar();
 
-        if (c == '\n' || c == '\r') {
+        if (c == '\n') {
+            insert_newline_line(input_buffer, &len, &pos);
+            if (history_view_idx == cmd_history_count) {
+                strcpy(temp_buffer, input_buffer);
+            }
+        } else if (c == '\r') {
             int paren = 0, bracket = 0, brace = 0;
             int in_str = 0, in_char = 0;
             for (int i = 0; i < len; i++) {
@@ -250,7 +375,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
 
             if (paren <= 0 && bracket <= 0 && brace <= 0 && !in_str && !in_char) {
                 redraw(base_prompt, base_prompt_no_color, input_buffer, len, pos, NULL, 0, &last_cursor_row);
-                
+
                 int total_rows = 1;
                 for(int i = 0; i < len; i++) if (input_buffer[i] == '\n') total_rows++;
                 int rows_down = (total_rows - 1) - last_cursor_row;
@@ -258,32 +383,21 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                     printf("\033[%dB", rows_down);
                 }
                 printf("\n");
-                
+
                 input_buffer[len] = '\0';
                 while (len > 0 && input_buffer[len - 1] == ' ') {
                     input_buffer[--len] = '\0';
                 }
-                
+
                 if (len > 0) {
                     add_to_cmd_history(input_buffer);
                 }
                 tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
                 return input_buffer;
             } else {
-                int current_brace = 0;
-                for(int i = 0; i < pos; i++) {
-                    if (input_buffer[i] == '{') current_brace++;
-                    if (input_buffer[i] == '}') current_brace--;
-                }
-                if (current_brace < 0) current_brace = 0;
-                
-                int insert_len = 1 + current_brace * 4;
-                if (len + insert_len < MAX_INPUT_LEN - 1) {
-                    for (int j = len; j >= pos; j--) input_buffer[j + insert_len] = input_buffer[j];
-                    input_buffer[pos] = '\n';
-                    for (int j = 1; j <= current_brace * 4; j++) input_buffer[pos + j] = ' ';
-                    len += insert_len;
-                    pos += insert_len;
+                insert_newline_line(input_buffer, &len, &pos);
+                if (history_view_idx == cmd_history_count) {
+                    strcpy(temp_buffer, input_buffer);
                 }
             }
         } else if (c == 127 || c == 8) {
@@ -320,9 +434,19 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
             }
         } else if (c == 27) {
             char seq1 = getchar();
-            if (seq1 == '[' || seq1 == 'O') {
+            if (seq1 == '\r' || seq1 == '\n') { // Alt+Enter
+                insert_newline_line(input_buffer, &len, &pos);
+                if (history_view_idx == cmd_history_count) {
+                    strcpy(temp_buffer, input_buffer);
+                }
+            } else if (seq1 == '[' || seq1 == 'O') {
                 char seq2 = getchar();
-                if (seq2 == 'D') { // Left
+                if (seq1 == 'O' && seq2 == 'M') { // Shift+Enter / Keypad Enter
+                    insert_newline_line(input_buffer, &len, &pos);
+                    if (history_view_idx == cmd_history_count) {
+                        strcpy(temp_buffer, input_buffer);
+                    }
+                } else if (seq2 == 'D') { // Left
                     if (pos > 0) pos--;
                 } else if (seq2 == 'C') { // Right
                     if (pos < len) pos++;
@@ -334,26 +458,68 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                             pos = len;
                         }
                     }
-                } else if (seq2 == 'A') { // Up
-                    if (history_view_idx > 0) {
-                        if (history_view_idx == cmd_history_count) {
-                            strcpy(temp_buffer, input_buffer);
+                } else if (seq2 == '1') {
+                    char seq3 = getchar();
+                    if (seq3 == ';') {
+                        char seq4 = getchar();
+                        if (seq4 == '5') {
+                            char seq5 = getchar();
+                            if (seq5 == 'D') { // Ctrl+Left
+                                cursor_word_left(input_buffer, len, &pos);
+                            } else if (seq5 == 'C') { // Ctrl+Right
+                                cursor_word_right(input_buffer, len, &pos);
+                            }
+                        } else if (seq4 == '2') {
+                            char seq5 = getchar();
+                            if (seq5 == 'A') { // Shift+Up
+                                cursor_up(input_buffer, len, &pos);
+                            } else if (seq5 == 'B') { // Shift+Down
+                                cursor_down(input_buffer, len, &pos);
+                            }
                         }
-                        history_view_idx--;
-                        strcpy(input_buffer, cmd_history[history_view_idx]);
-                        len = strlen(input_buffer);
-                        pos = len;
+                    } else if (seq3 == '3') {
+                        char seq4 = getchar();
+                        if (seq4 == ';') {
+                            char seq5 = getchar();
+                            if (seq5 == '2') {
+                                char seq6 = getchar();
+                                if (seq6 == 'u') { // Shift+Enter (\e[13;2u)
+                                    insert_newline_line(input_buffer, &len, &pos);
+                                    if (history_view_idx == cmd_history_count) {
+                                        strcpy(temp_buffer, input_buffer);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else if (seq2 == 'A') { // Up
+                    if (has_unbalanced_braces(input_buffer, len)) {
+                        cursor_up(input_buffer, len, &pos);
+                    } else {
+                        if (history_view_idx > 0) {
+                            if (history_view_idx == cmd_history_count) {
+                                strcpy(temp_buffer, input_buffer);
+                            }
+                            history_view_idx--;
+                            strcpy(input_buffer, cmd_history[history_view_idx]);
+                            len = strlen(input_buffer);
+                            pos = len;
+                        }
                     }
                 } else if (seq2 == 'B') { // Down
-                    if (history_view_idx < cmd_history_count) {
-                        history_view_idx++;
-                        if (history_view_idx == cmd_history_count) {
-                            strcpy(input_buffer, temp_buffer);
-                        } else {
-                            strcpy(input_buffer, cmd_history[history_view_idx]);
+                    if (has_unbalanced_braces(input_buffer, len)) {
+                        cursor_down(input_buffer, len, &pos);
+                    } else {
+                        if (history_view_idx < cmd_history_count) {
+                            history_view_idx++;
+                            if (history_view_idx == cmd_history_count) {
+                                strcpy(input_buffer, temp_buffer);
+                            } else {
+                                strcpy(input_buffer, cmd_history[history_view_idx]);
+                            }
+                            len = strlen(input_buffer);
+                            pos = len;
                         }
-                        len = strlen(input_buffer);
-                        pos = len;
                     }
                 } else if (seq2 == 'H') {
                     pos = current_line_start;

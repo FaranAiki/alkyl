@@ -18,6 +18,7 @@ void sem_scope_enter(SemanticCtx *ctx, int is_func, VarType ret_type);
 void sem_scope_exit(SemanticCtx *ctx);
 SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, VarType type);
 
+SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name);
 SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_scope);
 SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_count, SemSymbol *first_sym, ASTNode *err_node);
 

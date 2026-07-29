@@ -1,5 +1,9 @@
+step: Finished lexing. Start parsing.
 step: after parse_type, vt.base=1, token.type=23
 step: after parse_type, vt.base=1, token.type=23
+step: Start Semantic Analysis.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 step: alir_gen_function_def fn->name=cprintf class_name=NULL fn->mangled_name=printf -> func_name=printf
 step: alir_gen_function_def fn->name=fun class_name=MyClass fn->mangled_name=main_MyClass_fun -> func_name=main_MyClass_fun
 step: alir_gen_function_def fn->name=nofun class_name=MyClass fn->mangled_name=main_MyClass_nofun -> func_name=main_MyClass_nofun
@@ -16,32 +20,6 @@ step: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
 step: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-step: alir_gen_function_def fn->name=fun class_name=MyClass fn->mangled_name=main_MyClass_fun -> func_name=main_MyClass_fun
-step: alir_gen_function_def fn->name=nofun class_name=MyClass fn->mangled_name=main_MyClass_nofun -> func_name=main_MyClass_nofun
-step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-step: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=0 op1_type_base=0
-step: func=main op=35 dest_kind=5 dest_type_base=8 op1_kind=7 op1_type_base=1
-step: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
-step: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=8
-step: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
-step: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=8
-step: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
-step: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=8
-step: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
-step: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
-step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
-step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-step: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=0 op1_type_base=0
-step: func=main op=35 dest_kind=5 dest_type_base=8 op1_kind=7 op1_type_base=1
-step: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
-step: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=8
-step: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
-step: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=8
-step: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
-step: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=8
-step: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
-step: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
-step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
-step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-2
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using qbe codegen

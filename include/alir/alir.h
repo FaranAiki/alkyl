@@ -58,6 +58,8 @@ typedef enum {
 
     // Misc
     ALIR_OP_CAST,
+    ALIR_OP_SIZEOF,
+    ALIR_OP_ALIGNOF,
 } AlirOpcode;
 
 typedef struct AlirInst {

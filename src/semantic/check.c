@@ -1511,15 +1511,15 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
         ClassNode *cn = (ClassNode*)node;
         if (cn->is_abstract && cn->is_exact) sem_error(ctx, node, "Class cannot be both abstract and exact");
         if (cn->is_method_class && cn->is_container) sem_error(ctx, node, "Class cannot be both method and container");
-        SemSymbol *sym = sem_symbol_lookup(ctx, cn->name, NULL);
+        SemSymbol *sym = sem_symbol_lookup_type(ctx, cn->name);
         if (cn->parent_name) {
-            SemSymbol *ps = sem_symbol_lookup(ctx, cn->parent_name, NULL);
+            SemSymbol *ps = sem_symbol_lookup_type(ctx, cn->parent_name);
             if (!ps || ps->kind != SYM_CLASS) {
                 sem_error(ctx, node, "Undefined parent class '%s'", cn->parent_name);
             }
         }
         for (int i = 0; i < cn->traits.count; i++) {
-            SemSymbol *ts = sem_symbol_lookup(ctx, cn->traits.names[i], NULL);
+            SemSymbol *ts = sem_symbol_lookup_type(ctx, cn->traits.names[i]);
             if (!ts || ts->kind != SYM_CLASS) {
                 sem_error(ctx, node, "Undefined composition class '%s'", cn->traits.names[i]);
             }

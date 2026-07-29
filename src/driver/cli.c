@@ -18,6 +18,47 @@ static SemanticSettings default_sem_settings(void) {
     return s;
 }
 
+static void print_symbol_info(SemanticCtx *ctx, VarType rt) {
+    SemSymbol *sym = sem_symbol_lookup_type(ctx, rt.class_name);
+    if (sym && sym->inner_scope) {
+        printf("\033[36m%s\033[0m %s {\n", rt.base == TYPE_NAMESPACE ? "namespace" : "class", rt.class_name);
+        SemSymbol *mem = sym->inner_scope->symbols;
+        while(mem) {
+            if (mem->name) {
+                if (mem->kind == SYM_FUNC) {
+                    char *ret_str = sem_type_to_str(mem->type);
+                    printf("    \033[90mfunc\033[0m %s %s(", ret_str, mem->name);
+                    Parameter *p = mem->params;
+                    while (p) {
+                        char *p_str = sem_type_to_str(p->type);
+                        printf("%s", p_str);
+                        if (p->next) printf(", ");
+                        p = p->next;
+                    }
+                    if (mem->is_variadic) {
+                        if (mem->params) printf(", ");
+                        printf("...");
+                    }
+                    printf(")\n");
+                } else if (mem->kind == SYM_VAR) {
+                    char *type_str = sem_type_to_str(mem->type);
+                    printf("    \033[90mvar\033[0m %s %s\n", type_str, mem->name);
+                } else {
+                    const char *kind_str = "unknown";
+                    if (mem->kind == SYM_CLASS) kind_str = "class";
+                    else if (mem->kind == SYM_ENUM) kind_str = "enum";
+                    else if (mem->kind == SYM_NAMESPACE) kind_str = "namespace";
+                    printf("    \033[90m%s\033[0m %s\n", kind_str, mem->name);
+                }
+            }
+            mem = mem->next;
+        }
+        printf("}\n");
+    } else {
+        printf("%s %s\n", rt.base == TYPE_NAMESPACE ? "namespace" : "class", rt.class_name);
+    }
+}
+
 int run_repl(void) {
     printf("\033[36mEthyl (Alkyl interpreter) version 0.0.1 \033[0m\n");
     printf("Type \033[33m'exit'\033[0m or \033[33m'quit'\033[0m to leave.\n\n");
@@ -79,7 +120,12 @@ int run_repl(void) {
             } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
             } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
                        curr->type != NODE_ENUM && curr->type != NODE_ERRNUM) {
-                metalir_run_expr(r, curr, id++, 1, NULL);
+                VarType rt = sem_get_node_type(&r->sem, curr);
+                if (rt.base == TYPE_NAMESPACE || rt.base == TYPE_CLASS) {
+                    print_symbol_info(&r->sem, rt);
+                } else {
+                    metalir_run_expr(r, curr, id++, 1, NULL);
+                }
             }
             curr = curr->next;
         }
@@ -167,12 +213,17 @@ int run_file(const char *filename) {
             } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
             } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
                        curr->type != NODE_ENUM && curr->type != NODE_ERRNUM) {
-                VarType rt;
-                long long res =                 metalir_run_expr(r, curr, id++, 0, &rt);
-                if (rt.base != TYPE_VOID) {
-                    printf("%lld\n", res);
+                VarType chk = sem_get_node_type(&r->sem, curr);
+                if (chk.base == TYPE_NAMESPACE || chk.base == TYPE_CLASS) {
+                    print_symbol_info(&r->sem, chk);
+                } else {
+                    VarType rt;
+                    long long res = metalir_run_expr(r, curr, id++, 0, &rt);
+                    if (rt.base != TYPE_VOID) {
+                        printf("%lld\n", res);
+                    }
+                    exit_code = (int)res;
                 }
-                exit_code = (int)res;
             }
             curr = curr->next;
         }

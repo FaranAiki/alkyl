@@ -12,7 +12,7 @@ Alkyl supports C-style comments.
 
 ```alkyl
 // This is a single-line comment
-/* This is a 
+/* This is a
    multi-line comment */
 ```
 
@@ -40,10 +40,10 @@ Variables can be mutable or immutable.
 ```alkyl
 // Explicit typing
 int x = 10;
-string name = "Alkyl";
+char name = c"Alkyl";
 
 // Type inference (requires initializer)
-let y = 20.5; 
+let y = 20.5;
 
 // Mutability qualifiers
 mut int count = 0;   // Mutable
@@ -214,11 +214,11 @@ Math.add(1, 2); // (Current implementation usually flattens names or requires sp
 ### Enums
 
 ```alkyl
-enum Color {
+enum Color [
     Red,
     Green = 10,
     Blue
-}
+]
 ```
 
 ## 7. Modular Programming & FFI
@@ -261,9 +261,8 @@ Alkyl provides several intrinsics and helper functions:
     * `==` / `!=`: String content comparison.
 
 ```alkyl
-string s1 = "Hello";
-string s2 = " World";
-string s3 = s1 + s2; // "Hello World"
+char s1 = "Hello";
+char s2 = " World";
 ```
 
 ## 9. Error Handling

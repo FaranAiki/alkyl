@@ -425,59 +425,17 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
                 op_type = sn->target_type;
             }
 
-            long long size = 0;
-            if (op_type.base == TYPE_VOID) {
-                size = 0;
-            } else if (op_type.ptr_depth > 0) {
-                size = 8;
-            } else {
-                switch (op_type.base) {
-                    case TYPE_CHAR:
-                    case TYPE_UNSIGNED_CHAR:
-                        size = 1;
-                        break;
-                    case TYPE_BOOL:
-                    case TYPE_SHORT:
-                    case TYPE_INT:
-                    case TYPE_UNSIGNED_INT:
-                    case TYPE_SINGLE:
-                        size = 4;
-                        break;
-                    case TYPE_LONG:
-                    case TYPE_LONG_LONG:
-                    case TYPE_UNSIGNED_LONG:
-                    case TYPE_UNSIGNED_LONG_LONG:
-                    case TYPE_DOUBLE:
-                    case TYPE_LONG_DOUBLE:
-                        size = 8;
-                        break;
-                    default:
-                        size = 8;
-                        break;
-                }
-                if (op_type.array_size > 0) {
-                    size *= op_type.array_size;
-                }
-            }
-
-            if (node->type == NODE_ALIGNOF) {
-                switch (op_type.base) {
-                    case TYPE_CHAR:
-                    case TYPE_UNSIGNED_CHAR:
-                        size = 1;
-                        break;
-                    case TYPE_DOUBLE:
-                    case TYPE_LONG:
-                    case TYPE_LONG_LONG:
-                        size = 8;
-                        break;
-                    default:
-                        size = 4;
-                        break;
-                }
-            }
-
-            return alir_const_int(ctx->module, size);
+            AlirValue *dest = new_temp(ctx, (VarType){TYPE_UNSIGNED_LONG_LONG, 0, NULL, 0, 0, NULL, NULL, 1, 0, 0, 0});
+            AlirValue *op1 = alir_alloc(ctx->module, sizeof(AlirValue));
+            op1->kind = ALIR_VAL_TYPE;
+            op1->type = op_type;
+            
+            AlirInst *inst = mk_inst(ctx->module, node->type == NODE_SIZEOF ? ALIR_OP_SIZEOF : ALIR_OP_ALIGNOF, dest, op1, NULL);
+            inst->line = node->line;
+            inst->col = node->col;
+            emit(ctx, inst);
+            
+            return dest;
         }
                 case NODE_TYPEOF: {
             SizeOfNode *sn = (SizeOfNode*)node;

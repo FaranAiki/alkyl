@@ -14,8 +14,9 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
     }
     
     if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
-        SemSymbol *class_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
+        SemSymbol *class_sym = sem_symbol_lookup_type(ctx, obj_type.class_name);
         if (!class_sym || class_sym->kind != SYM_CLASS) {
+            if (class_sym) printf("DEBUG: '%s' kind is %d in class.c\n", obj_type.class_name, class_sym->kind);
             if (class_sym && class_sym->kind == SYM_TEMPLATE) {
                 CompoundNode *cn = class_sym->template_node;
                 char expected_types[256] = "";

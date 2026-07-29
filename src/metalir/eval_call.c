@@ -57,6 +57,7 @@ case ALIR_OP_CALL: {
                                     new_args[i] = ctx->registers[arg->temp_id].as.int_val;
                             }
                             else if (arg->kind == ALIR_VAL_VAR) new_args[i] = metalir_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
+                            else if (arg->kind == ALIR_VAL_GLOBAL) new_args[i] = metalir_vm_resolve_var(arg, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                             else new_args[i] = 0;
                                 }
                                 long long rc = metalir_vm_execute(ctx->vm, ctx->module, target_fn, ctx->sem_ctx, new_args, inst->arg_count);

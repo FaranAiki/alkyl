@@ -260,6 +260,60 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     return sym;
 }
 
+SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
+    if (!name) return NULL;
+    const char *dot = strchr(name, '.');
+    if (dot) {
+        char base_name[256];
+        int len = dot - name;
+        if (len >= (int)sizeof(base_name)) len = (int)sizeof(base_name) - 1;
+        strncpy(base_name, name, len);
+        base_name[len] = '\0';
+
+        SemSymbol *base_sym = sem_symbol_lookup_type(ctx, base_name);
+        if (base_sym && base_sym->inner_scope) {
+            SemScope *old = ctx->current_scope;
+            ctx->current_scope = base_sym->inner_scope;
+            SemSymbol *res = sem_symbol_lookup_type(ctx, dot + 1);
+            ctx->current_scope = old;
+            return res;
+        }
+        return NULL;
+    }
+    SemScope *scope = ctx->current_scope;
+    while (scope) {
+        SemSymbol *sym = find_in_scope_direct(scope, name);
+        if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM || sym->kind == SYM_NAMESPACE || sym->kind == SYM_TEMPLATE)) {
+            return sym;
+        }
+
+        // If we found a sym but it's not a type (e.g. constructor), keep searching upwards
+        scope = scope->parent;
+    }
+    
+    // Check global scope directly if not reached
+    SemSymbol *sym = find_in_scope_direct(ctx->global_scope, name);
+    if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM || sym->kind == SYM_NAMESPACE || sym->kind == SYM_TEMPLATE)) {
+        return sym;
+    }
+    if (ctx->settings.namespace_auto_search) {
+        SemSymbol *ns = ctx->global_scope->symbols;
+        while (ns) {
+            if (ns->kind == SYM_NAMESPACE && ns->inner_scope) {
+                SemSymbol *sym = find_in_scope_direct(ns->inner_scope, name);
+                if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM || sym->kind == SYM_NAMESPACE || sym->kind == SYM_TEMPLATE)) {
+                    if (ctx->settings.namespace_ausearch_warning) {
+                        printf("\033[33mWarning:\033[0m Implicitly resolved '%s' to '%s.%s'\n", name, ns->name, name);
+                    }
+                    return sym;
+                }
+            }
+            ns = ns->next;
+        }
+    }
+    
+    return NULL;
+}
 
 SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_scope) {
     if (!name) return NULL;
