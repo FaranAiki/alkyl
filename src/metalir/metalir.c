@@ -114,7 +114,7 @@ static AlirFunction* find_func(MetalirRunner *r, const char *name) {
 }
 
 static void print_repl_value(VarType rt, long long result) {
-    if (rt.base == TYPE_VOID) {
+    if (rt.base == TYPE_VOID && rt.ptr_depth == 0) {
         printf("-> (void)\n");
     } else if (rt.base == TYPE_BOOL && rt.ptr_depth == 0 && rt.array_size == 0) {
         printf("-> %s (bool)\n", result ? "true" : "false");

@@ -1,20 +1,24 @@
 step: Finished lexing. Start parsing.
-step: after parse_type, vt.base=12, token.type=23
-step: after parse_type, vt.base=12, token.type=23
-step: after parse_type, vt.base=0, token.type=23
-step: after parse_type, vt.base=0, token.type=23
+debug: after parse_type, vt.base=12, token.type=23
+debug: after parse_type, vt.base=12, token.type=23
+debug: after parse_type, vt.base=0, token.type=23
+debug: after parse_type, vt.base=0, token.type=23
 step: Start Semantic Analysis.
-step: sem_lookup_class_call for 'Point', class_sym=0x55975f597bd8
+debug: sem_lookup_class_call for 'Point', class_sym=0x55e3f540aa48
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-step: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
-step: alir_gen_function_def fn->name=init class_name=Point fn->mangled_name=main_Point_init_f64_f64 -> func_name=main_Point_init_f64_f64
-step: alir_gen_function_def fn->name=print_cords class_name=Point fn->mangled_name=main_Point_print_cords -> func_name=main_Point_print_cords
-step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-step: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
-step: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
-step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
-step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir_gen_function_def fn->name=init class_name=Point fn->mangled_name=main_Point_init_f64_f64 -> func_name=main_Point_init_f64_f64
+debug: alir_gen_function_def fn->name=print_cords class_name=Point fn->mangled_name=main_Point_print_cords -> func_name=main_Point_print_cords
+debug: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
+debug: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+LLVMStructSetBody for Point with 2 fields
+Compiled to build/opt_out.o
+Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
+Linked to build/opt_out

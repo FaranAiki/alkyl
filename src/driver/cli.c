@@ -67,8 +67,11 @@ int run_repl(void) {
     sem_settings.namespace_ausearch_warning = false;
     MetalirRunner *r = metalir_runner_create("ethyl_repl", &sem_settings, 0);
 
+    // TODO is this proper to hardcode it here?
+    // no, make sure that this is not the absolute path
     metalir_load_module(r, "lib/std/print.aky");
     metalir_load_module(r, "lib/std/math.aky");
+    metalir_load_module(r, "lib/std/heap.aky");
 
     signal(SIGINT, SIG_IGN);
 

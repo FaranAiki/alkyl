@@ -1,15 +1,18 @@
 step: Finished lexing. Start parsing.
-step: after parse_type, vt.base=16, token.type=23
-step: after parse_type, vt.base=1, token.type=23
-step: after parse_type, vt.base=1, token.type=23
-step: after parse_type, vt.base=16, token.type=23
-step: after parse_type, vt.base=1, token.type=23
+debug: after parse_type, vt.base=16, token.type=23
+debug: after parse_type, vt.base=1, token.type=23
+debug: after parse_type, vt.base=1, token.type=23
+debug: after parse_type, vt.base=16, token.type=23
+debug: after parse_type, vt.base=1, token.type=23
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-step: alir_gen_function_def fn->name=get_b_y class_name=A fn->mangled_name=main_A_get_b_y -> func_name=main_A_get_b_y
-step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir_gen_function_def fn->name=get_b_y class_name=A fn->mangled_name=main_A_get_b_y -> func_name=main_A_get_b_y
+debug: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+Compiled to build/opt_out.o
+Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
+Linked to build/opt_out

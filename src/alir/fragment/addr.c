@@ -255,6 +255,14 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     if (node->type == NODE_VECTOR_ACCESS) {
 
     }
+    
+    if (node->type == NODE_UNARY_OP) {
+        UnaryOpNode *un = (UnaryOpNode*)node;
+        if (un->op == TOKEN_STAR) {
+            // The address of `*ptr` is just the value of `ptr`.
+            return alir_gen_expr(ctx, un->operand);
+        }
+    }
 
     return NULL;
 }

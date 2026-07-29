@@ -2,49 +2,50 @@ step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-step: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
-step: alir_gen_function_def fn->name=divide class_name=NULL fn->mangled_name=main_divide_i32_i32 -> func_name=main_divide_i32_i32
-step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-step: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-step: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-step: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
-step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-step: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
-step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
-step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=6 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-step: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir_gen_function_def fn->name=divide class_name=NULL fn->mangled_name=main_divide_i32_i32 -> func_name=main_divide_i32_i32
+debug: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
+debug: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
+debug: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
+debug: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
+debug: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=6 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
+debug: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
-qbe:build/opt_out.ssa:65: invalid type for first operand %t27 in arg
-QBE failed with code 256
+step: Finished alir optimization. Start code generation using LLVM codegen
+Compiled to build/opt_out.o
+Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
+Linked to build/opt_out
