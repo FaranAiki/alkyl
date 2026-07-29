@@ -1,4 +1,7 @@
 #include "keyboard.h"
+#include <stdbool.h>
+#include "common/context.h"
+#include "semantic/typestruct.h"
 #include "../common/arena.h"
 #include <termios.h>
 #include <unistd.h>
@@ -28,16 +31,66 @@ static void add_to_cmd_history(const char *line) {
     }
 }
 
-static void redraw(const char *prompt, const char *buffer, int len, int pos, const char *suggestion) {
-    printf("\r\033[K%s%s", prompt, buffer);
-    int end_pos = (suggestion != NULL) ? (int)strlen(suggestion) : len;
-    int move_back = end_pos - pos;
-    if (move_back > 0) {
-        printf("\033[%dD", move_back);
+static void redraw(const char *base_prompt, const char *base_prompt_no_color, const char *buffer, int len, int pos, const char *suggestion, int word_len, int *last_cursor_row) {
+    if (*last_cursor_row > 0) {
+        printf("\033[%dA", *last_cursor_row);
     }
-    if (suggestion != NULL && pos == len && len > 0) {
-        printf("\033[90m%s\033[0m", suggestion + len);
+    printf("\r\033[J"); // clear from cursor to end of screen
+
+    int base_prompt_len = strlen(base_prompt_no_color);
+    
+    int row = 0;
+    int target_row = 0;
+    int target_col = 0;
+    
+    int line_start = 0;
+    int current_row = 0;
+    
+    for (int i = 0; i <= len; i++) {
+        if (i == pos) {
+            target_row = current_row;
+            target_col = i - line_start;
+        }
+        
+        if (i == len || buffer[i] == '\n') {
+            if (current_row == 0) {
+                printf("%s", base_prompt);
+            } else {
+                printf("... ");
+                int padding = base_prompt_len - 4;
+                for (int p = 0; p < padding; p++) printf(" ");
+            }
+            
+            for (int j = line_start; j < i; j++) {
+                putchar(buffer[j]);
+            }
+            
+            if (suggestion != NULL && pos == len && i == len && word_len > 0) {
+                printf("\033[90m%s\033[0m", suggestion + word_len);
+            }
+            
+            if (i < len) {
+                printf("\n");
+            }
+            
+            line_start = i + 1;
+            current_row++;
+        }
     }
+    
+    int total_rows = current_row;
+    
+    int rows_up = (total_rows - 1) - target_row;
+    if (rows_up > 0) {
+        printf("\033[%dA", rows_up);
+    }
+    
+    printf("\r");
+    if (base_prompt_len + target_col > 0) {
+        printf("\033[%dC", base_prompt_len + target_col);
+    }
+    
+    *last_cursor_row = target_row;
     fflush(stdout);
 }
 
@@ -64,13 +117,12 @@ static char* get_smart_input_piped(void *arena, int cmd_count) {
     return input_buffer;
 }
 
-char* get_smart_input(void *arena, int cmd_count) {
+char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
     if (!isatty(STDIN_FILENO)) {
         return get_smart_input_piped(arena, cmd_count);
     }
 
-    char prompt[128];
-    snprintf(prompt, sizeof(prompt), "\033[32mIn [%d]:\033[0m ", cmd_count);
+    history_view_idx = cmd_history_count;
 
     char *input_buffer = arena_alloc(arena, MAX_INPUT_LEN);
     if (!input_buffer) return NULL;
@@ -82,55 +134,129 @@ char* get_smart_input(void *arena, int cmd_count) {
     newt.c_lflag &= ~(ICANON | ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
-    int brace_depth = 0;
-    int in_indent_block = 0;
-    int first_line = 1;
     int len = 0;
     int pos = 0;
     char temp_buffer[MAX_INPUT_LEN] = "";
+    int last_cursor_row = 0;
+
+    char base_prompt[128];
+    snprintf(base_prompt, sizeof(base_prompt), "\033[32mIn [%d]:\033[0m ", cmd_count);
+    char base_prompt_no_color[128];
+    snprintf(base_prompt_no_color, sizeof(base_prompt_no_color), "In [%d]: ", cmd_count);
 
     while (1) {
-        char cur_prompt[192];
-        if (!first_line && in_indent_block) {
-            snprintf(cur_prompt, sizeof(cur_prompt), "... ");
-            for (int i = 0; i < brace_depth && i < 10; i++) {
-                strcat(cur_prompt, "    ");
+        int current_line_start = 0;
+        for (int i = pos - 1; i >= 0; i--) {
+            if (input_buffer[i] == '\n') {
+                current_line_start = i + 1;
+                break;
             }
-        } else {
-            snprintf(cur_prompt, sizeof(cur_prompt), "\033[32mIn [%d]:\033[0m ", cmd_count);
         }
 
+        int word_len = 0;
         char *suggestion = NULL;
-        if (len > 0 && pos == len && first_line) {
-            const char *keywords[] = {
-                "let", "mut", "if", "else", "while", "for", "in", "return", "switch", "case",
-                "break", "continue", "func", "class", "struct", "union", "enum", "errnum",
-                "import", "namespace", "true", "false", "null", "void", "extern", "pure", "pristine", NULL
-            };
-            for (int j = 0; keywords[j]; j++) {
-                int kw_len = strlen(keywords[j]);
-                if (kw_len > len && strncmp(input_buffer, keywords[j], len) == 0) {
-                    suggestion = keywords[j];
+        int word_start = current_line_start;
+        
+        if (pos == len) {
+            for (int i = pos - 1; i >= current_line_start; i--) {
+                if (!isalnum(input_buffer[i]) && input_buffer[i] != '_') {
+                    word_start = i + 1;
                     break;
+                }
+            }
+            word_len = pos - word_start;
+            if (word_len > 0) {
+                const char *keywords[] = {
+                    "let", "mut", "if", "else", "while", "for", "in", "return", "switch", "case",
+                    "break", "continue", "func", "class", "struct", "union", "enum", "errnum",
+                    "import", "namespace", "true", "false", "null", "void", "extern", "pure", "pristine", NULL
+                };
+                for (int j = 0; keywords[j]; j++) {
+                    int kw_len = strlen(keywords[j]);
+                    if (kw_len > word_len && strncmp(input_buffer + word_start, keywords[j], word_len) == 0) {
+                        suggestion = (char*)keywords[j];
+                        break;
+                    }
+                }
+                
+                if (suggestion == NULL && sem_ctx != NULL) {
+                    SemanticCtx *sem = (SemanticCtx*)sem_ctx;
+                    SemScope *scope = sem->current_scope;
+                    while (scope) {
+                        SemSymbol *sym = scope->symbols;
+                        while (sym) {
+                            int sym_len = strlen(sym->name);
+                            if (sym_len > word_len && strncmp(input_buffer + word_start, sym->name, word_len) == 0) {
+                                suggestion = sym->name;
+                                break;
+                            }
+                            sym = sym->next;
+                        }
+                        if (suggestion != NULL) break;
+                        scope = scope->parent;
+                    }
                 }
             }
         }
 
-        redraw(cur_prompt, input_buffer, len, pos, suggestion);
+        redraw(base_prompt, base_prompt_no_color, input_buffer, len, pos, suggestion, word_len, &last_cursor_row);
 
         char c = getchar();
 
         if (c == '\n' || c == '\r') {
-            input_buffer[len] = '\0';
-            while (len > 0 && input_buffer[len - 1] == ' ') {
-                input_buffer[--len] = '\0';
+            int paren = 0, bracket = 0, brace = 0;
+            int in_str = 0, in_char = 0;
+            for (int i = 0; i < len; i++) {
+                if (input_buffer[i] == '"' && !in_char) in_str = !in_str;
+                else if (input_buffer[i] == '\'' && !in_str) in_char = !in_char;
+                else if (!in_str && !in_char) {
+                    if (input_buffer[i] == '(') paren++;
+                    else if (input_buffer[i] == ')') paren--;
+                    else if (input_buffer[i] == '[') bracket++;
+                    else if (input_buffer[i] == ']') bracket--;
+                    else if (input_buffer[i] == '{') brace++;
+                    else if (input_buffer[i] == '}') brace--;
+                }
             }
-            printf("\n");
-            if (first_line && len > 0) {
-                add_to_cmd_history(input_buffer);
+
+            if (paren <= 0 && bracket <= 0 && brace <= 0 && !in_str && !in_char) {
+                redraw(base_prompt, base_prompt_no_color, input_buffer, len, pos, NULL, 0, &last_cursor_row);
+                
+                int total_rows = 1;
+                for(int i = 0; i < len; i++) if (input_buffer[i] == '\n') total_rows++;
+                int rows_down = (total_rows - 1) - last_cursor_row;
+                if (rows_down > 0) {
+                    printf("\033[%dB", rows_down);
+                }
+                printf("\n");
+                
+                input_buffer[len] = '\0';
+                while (len > 0 && input_buffer[len - 1] == ' ') {
+                    input_buffer[--len] = '\0';
+                }
+                
+                if (len > 0) {
+                    add_to_cmd_history(input_buffer);
+                }
+                tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+                return input_buffer;
+            } else {
+                int current_brace = 0;
+                for(int i = 0; i < pos; i++) {
+                    if (input_buffer[i] == '{') current_brace++;
+                    if (input_buffer[i] == '}') current_brace--;
+                }
+                if (current_brace < 0) current_brace = 0;
+                
+                int insert_len = 1 + current_brace * 4;
+                if (len + insert_len < MAX_INPUT_LEN - 1) {
+                    for (int j = len; j >= pos; j--) input_buffer[j + insert_len] = input_buffer[j];
+                    input_buffer[pos] = '\n';
+                    for (int j = 1; j <= current_brace * 4; j++) input_buffer[pos + j] = ' ';
+                    len += insert_len;
+                    pos += insert_len;
+                }
             }
-            tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-            return input_buffer;
         } else if (c == 127 || c == 8) {
             if (pos > 0) {
                 for (int j = pos - 1; j < len; j++) input_buffer[j] = input_buffer[j + 1];
@@ -140,26 +266,58 @@ char* get_smart_input(void *arena, int cmd_count) {
                     strcpy(temp_buffer, input_buffer);
                 }
             }
-        } else if (c == 9) {
+        } else if (c == 9) { // Tab
             if (suggestion != NULL) {
-                strcpy(input_buffer, suggestion);
-                len = strlen(input_buffer);
-                if (len < MAX_INPUT_LEN - 1) {
-                    input_buffer[len++] = ' ';
-                    input_buffer[len] = '\0';
+                strcpy(input_buffer + word_start, suggestion);
+                int added_len = strlen(suggestion) - word_len;
+                if (len + added_len + 1 < MAX_INPUT_LEN - 1) {
+                    for(int j = len; j >= pos; j--) input_buffer[j + added_len + 1] = input_buffer[j];
+                    input_buffer[pos + added_len] = ' ';
+                    len += added_len + 1;
+                    pos += added_len + 1;
                 }
-                pos = len;
+            } else {
+                if (len + 4 < MAX_INPUT_LEN - 1) {
+                    for (int i = 0; i < 4; i++) {
+                        for (int j = len; j > pos; j--) input_buffer[j] = input_buffer[j - 1];
+                        input_buffer[pos] = ' ';
+                        len++;
+                        pos++;
+                    }
+                    if (history_view_idx == cmd_history_count) {
+                        strcpy(temp_buffer, input_buffer);
+                    }
+                }
             }
         } else if (c == 27) {
             char seq1 = getchar();
             if (seq1 == '[') {
                 char seq2 = getchar();
-                if (seq2 == 'D') {
+                if (seq2 == 'D') { // Left
                     if (pos > 0) pos--;
-                } else if (seq2 == 'C') {
+                } else if (seq2 == 'C') { // Right
                     if (pos < len) pos++;
-                } else if (seq2 == 'A') {
-                    if (history_view_idx > 0) {
+                } else if (seq2 == 'A') { // Up
+                    int prev_line_start = -1;
+                    for (int i = pos - 1; i >= 0; i--) {
+                        if (input_buffer[i] == '\n') {
+                            prev_line_start = i;
+                            break;
+                        }
+                    }
+                    if (prev_line_start != -1) {
+                        int prev_prev = 0;
+                        for (int i = prev_line_start - 1; i >= 0; i--) {
+                            if (input_buffer[i] == '\n') {
+                                prev_prev = i + 1;
+                                break;
+                            }
+                        }
+                        int col = pos - current_line_start;
+                        int prev_len = prev_line_start - prev_prev;
+                        if (col > prev_len) col = prev_len;
+                        pos = prev_prev + col;
+                    } else if (history_view_idx > 0) {
                         if (history_view_idx == cmd_history_count) {
                             strcpy(temp_buffer, input_buffer);
                         }
@@ -168,8 +326,27 @@ char* get_smart_input(void *arena, int cmd_count) {
                         len = strlen(input_buffer);
                         pos = len;
                     }
-                } else if (seq2 == 'B') {
-                    if (history_view_idx < cmd_history_count) {
+                } else if (seq2 == 'B') { // Down
+                    int next_line_start = -1;
+                    for (int i = pos; i < len; i++) {
+                        if (input_buffer[i] == '\n') {
+                            next_line_start = i + 1;
+                            break;
+                        }
+                    }
+                    if (next_line_start != -1) {
+                        int next_line_end = len;
+                        for (int i = next_line_start; i < len; i++) {
+                            if (input_buffer[i] == '\n') {
+                                next_line_end = i;
+                                break;
+                            }
+                        }
+                        int col = pos - current_line_start;
+                        int next_len = next_line_end - next_line_start;
+                        if (col > next_len) col = next_len;
+                        pos = next_line_start + col;
+                    } else if (history_view_idx < cmd_history_count) {
                         history_view_idx++;
                         if (history_view_idx == cmd_history_count) {
                             strcpy(input_buffer, temp_buffer);
@@ -180,9 +357,16 @@ char* get_smart_input(void *arena, int cmd_count) {
                         pos = len;
                     }
                 } else if (seq2 == 'H') {
-                    pos = 0;
+                    pos = current_line_start;
                 } else if (seq2 == 'F') {
-                    pos = len;
+                    int next_newline = len;
+                    for (int i = pos; i < len; i++) {
+                        if (input_buffer[i] == '\n') {
+                            next_newline = i;
+                            break;
+                        }
+                    }
+                    pos = next_newline;
                 } else if (seq2 == '3') {
                     char seq3 = getchar();
                     if (seq3 == '~' && pos < len) {
@@ -192,6 +376,25 @@ char* get_smart_input(void *arena, int cmd_count) {
                 }
             }
         } else if (c >= 32 && c <= 126) {
+            if (c == '}' && pos > current_line_start) {
+                int only_spaces = 1;
+                for (int i = current_line_start; i < pos; i++) {
+                    if (input_buffer[i] != ' ') {
+                        only_spaces = 0;
+                        break;
+                    }
+                }
+                if (only_spaces) {
+                    int spaces = pos - current_line_start;
+                    int to_delete = spaces >= 4 ? 4 : spaces;
+                    if (to_delete > 0) {
+                        for (int j = pos; j < len; j++) input_buffer[j - to_delete] = input_buffer[j];
+                        len -= to_delete;
+                        pos -= to_delete;
+                    }
+                }
+            }
+
             if (len < MAX_INPUT_LEN - 1) {
                 for (int j = len; j > pos; j--) input_buffer[j] = input_buffer[j - 1];
                 input_buffer[pos] = c;
@@ -203,48 +406,5 @@ char* get_smart_input(void *arena, int cmd_count) {
                 }
             }
         }
-
-        if (first_line && !in_indent_block) {
-            int ld = 0;
-            int ins = 0;
-            int inc = 0;
-            for (int i = 0; i < len; i++) {
-                if (input_buffer[i] == '"' && !inc) ins = !ins;
-                if (input_buffer[i] == '\'' && !ins) inc = !inc;
-                if (!ins && !inc) {
-                    if (input_buffer[i] == '{') ld++;
-                    if (input_buffer[i] == '}') ld--;
-                }
-            }
-            brace_depth = ld;
-
-            if (brace_depth == 0 && !ins && !inc) {
-                const char *trimmed = input_buffer;
-                while (*trimmed == ' ' || *trimmed == '\t') trimmed++;
-                if (strncmp(trimmed, "if ", 3) == 0 || strncmp(trimmed, "if(", 3) == 0 ||
-                    strncmp(trimmed, "while ", 6) == 0 || strncmp(trimmed, "while(", 6) == 0 ||
-                    strncmp(trimmed, "for ", 4) == 0 || strncmp(trimmed, "for(", 4) == 0 ||
-                    strncmp(trimmed, "else", 4) == 0 ||
-                    strncmp(trimmed, "func ", 5) == 0 || strncmp(trimmed, "class ", 6) == 0 ||
-                    strncmp(trimmed, "struct ", 7) == 0 ||
-                    strncmp(trimmed, "flux ", 5) == 0) {
-                    if (len > 0 && trimmed[strlen(trimmed) - 1] != ';' && trimmed[strlen(trimmed) - 1] != '}') {
-                        in_indent_block = 1;
-                    }
-                }
-            }
-        }
-
-        if (first_line && brace_depth == 0 && !in_indent_block) {
-            tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-            return input_buffer;
-        }
-
-        if (!first_line && in_indent_block && len == 0) {
-            tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-            return input_buffer;
-        }
-
-        first_line = 0;
     }
 }
