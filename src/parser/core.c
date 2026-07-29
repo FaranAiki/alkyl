@@ -53,8 +53,8 @@ void* parser_alloc(Parser *p, size_t size) {
     if (ptr) {
         memset(ptr, 0, size);
         if (p->l) {
-            ((ASTNode*)ptr)->filename = p->l->filename;
-            ((ASTNode*)ptr)->source = p->l->src;
+            ((ASTNode*)ptr)->filename = (char*)p->l->filename;
+            ((ASTNode*)ptr)->source = (char*)p->l->src;
         }
     }
     return ptr;

@@ -2,6 +2,7 @@
 #include "../../semantic/semantic.h"
 
 LLVMValueRef translate_misc(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, LLVMValueRef op2, int is_float) {
+    (void)ctx;
     (void)op1;
     (void)op2;
     (void)is_float;

@@ -2,19 +2,39 @@ step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+step: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+
+step: alir_gen_function_def fn->name=putchar class_name=NULL fn->mangled_name=putchar -> func_name=putchar
+
+step: alir_gen_function_def fn->name=puts class_name=NULL fn->mangled_name=puts -> func_name=puts
+
+step: alir_gen_function_def fn->name=print_int_array class_name=NULL fn->mangled_name=main_print_int_array_i32_p_i64 -> func_name=main_print_int_array_i32_p_i64
+
+step: alir_gen_function_def fn->name=print_uint_array class_name=NULL fn->mangled_name=main_print_uint_array_i32_p_i64 -> func_name=main_print_uint_array_i32_p_i64
+
+step: alir_gen_function_def fn->name=print_long_array class_name=NULL fn->mangled_name=main_print_long_array_void_p_i64 -> func_name=main_print_long_array_void_p_i64
+
+step: alir_gen_function_def fn->name=print_ulong_array class_name=NULL fn->mangled_name=main_print_ulong_array_void_p_i64 -> func_name=main_print_ulong_array_void_p_i64
+
+step: alir_gen_function_def fn->name=print_single_array class_name=NULL fn->mangled_name=main_print_single_array_void_p_i64 -> func_name=main_print_single_array_void_p_i64
+
+step: alir_gen_function_def fn->name=print_double_array class_name=NULL fn->mangled_name=main_print_double_array_void_p_i64 -> func_name=main_print_double_array_void_p_i64
+
+step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -22,13 +42,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -36,13 +56,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -50,13 +70,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -64,13 +84,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -78,13 +98,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -92,13 +112,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -106,13 +126,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -120,13 +140,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -134,13 +154,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -148,13 +168,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -162,13 +182,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -176,13 +196,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -190,39 +210,39 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -230,13 +250,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -244,13 +264,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -258,13 +278,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -272,13 +292,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -286,13 +306,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -300,13 +320,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -314,13 +334,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -328,13 +348,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -342,13 +362,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -356,13 +376,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -370,13 +390,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -384,13 +404,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -398,13 +418,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -412,39 +432,39 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -452,15 +472,15 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -468,13 +488,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -482,13 +502,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -496,13 +516,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -510,13 +530,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -524,13 +544,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -538,13 +558,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -552,13 +572,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -566,13 +586,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -580,13 +600,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -594,13 +614,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -608,13 +628,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -622,13 +642,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -636,13 +656,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -650,39 +670,39 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -690,13 +710,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -704,13 +724,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -718,13 +738,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -732,13 +752,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -746,13 +766,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -760,13 +780,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -774,13 +794,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -788,13 +808,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -802,13 +822,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -816,13 +836,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -830,13 +850,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -844,13 +864,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -858,13 +878,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -872,39 +892,39 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -912,13 +932,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -926,13 +946,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -940,13 +960,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -954,13 +974,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -968,23 +988,23 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -992,13 +1012,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1006,13 +1026,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1020,13 +1040,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1034,13 +1054,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1048,13 +1068,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1062,13 +1082,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1076,13 +1096,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1090,13 +1110,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1104,13 +1124,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1118,13 +1138,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1132,13 +1152,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1146,13 +1166,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1160,13 +1180,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1174,39 +1194,39 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1214,13 +1234,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1228,13 +1248,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1242,13 +1262,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1256,13 +1276,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1270,13 +1290,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1284,13 +1304,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1298,41 +1318,41 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1340,13 +1360,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1354,13 +1374,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1368,13 +1388,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1382,13 +1402,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1396,13 +1416,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1410,13 +1430,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1424,13 +1444,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1438,13 +1458,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1452,13 +1472,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1466,13 +1486,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1480,13 +1500,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1494,13 +1514,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1508,13 +1528,13 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
 step: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
 step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
@@ -1522,55 +1542,45 @@ step: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 
 step: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
 
-step: func=main op=30 dest_kind=-1 dest_type_base=-1 op1_kind=5 op1_type_base=10
+step: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 
-step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=-1 op1_type_base=-1
+step: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 
 step: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=29 dest_kind=-1 dest_type_base=-1 op1_kind=6 op1_type_base=0
+step: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
 
-step: func=main op=32 dest_kind=-1 dest_type_base=-1 op1_kind=7 op1_type_base=1
+step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
-DEBUG: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
-DEBUG: alir_gen_function_def fn->name=putchar class_name=NULL fn->mangled_name=putchar -> func_name=putchar
-DEBUG: alir_gen_function_def fn->name=puts class_name=NULL fn->mangled_name=puts -> func_name=puts
-DEBUG: alir_gen_function_def fn->name=print_int_array class_name=NULL fn->mangled_name=main_print_int_array_i32_p_i64 -> func_name=main_print_int_array_i32_p_i64
-DEBUG: alir_gen_function_def fn->name=print_uint_array class_name=NULL fn->mangled_name=main_print_uint_array_i32_p_i64 -> func_name=main_print_uint_array_i32_p_i64
-DEBUG: alir_gen_function_def fn->name=print_long_array class_name=NULL fn->mangled_name=main_print_long_array_void_p_i64 -> func_name=main_print_long_array_void_p_i64
-DEBUG: alir_gen_function_def fn->name=print_ulong_array class_name=NULL fn->mangled_name=main_print_ulong_array_void_p_i64 -> func_name=main_print_ulong_array_void_p_i64
-DEBUG: alir_gen_function_def fn->name=print_single_array class_name=NULL fn->mangled_name=main_print_single_array_void_p_i64 -> func_name=main_print_single_array_void_p_i64
-DEBUG: alir_gen_function_def fn->name=print_double_array class_name=NULL fn->mangled_name=main_print_double_array_void_p_i64 -> func_name=main_print_double_array_void_p_i64
-DEBUG: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out
+Compiled to build/opt_out.o
+Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
+Linked to build/opt_out

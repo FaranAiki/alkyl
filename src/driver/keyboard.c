@@ -43,7 +43,6 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
 
     int base_prompt_len = strlen(base_prompt_no_color);
     
-    int row = 0;
     int target_row = 0;
     int target_col = 0;
     

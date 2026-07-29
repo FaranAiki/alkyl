@@ -116,12 +116,8 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
             }
         }
     }
-    if (is_stack_ctor == 2) {
-        VarType arg_t = {TYPE_UNKNOWN, 0, NULL};
-        if (ctx->sem && ((CallNode*)vn->initializer)->args) {
-            arg_t = sem_get_node_type(ctx->sem, ((CallNode*)vn->initializer)->args);
-        }
-        // Copy constructor
+     if (is_stack_ctor == 2) {
+         // Copy constructor
         AlirValue *ptr = new_temp(ctx, actual_type);
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
         alir_add_symbol(ctx, vn->name, ptr, actual_type);
@@ -136,7 +132,7 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
         alir_add_symbol(ctx, vn->name, ptr, actual_type);
 
         CallNode *cn = (CallNode*)vn->initializer;
-        const char *ctor_name = cn->mangled_name ? cn->mangled_name : cn->name; 
+        const char *ctor_name = cn->mangled_name ? cn->mangled_name : cn->name;
         AlirInst *call_init = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_global(ctx->module, ctor_name, (VarType){TYPE_VOID, 0, NULL}), NULL);
 
         int arg_count = 0; ASTNode *a = cn->args; while(a) { arg_count++; a=a->next; }
@@ -583,7 +579,7 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
     AlirValue *limit = alir_const_int(ctx->module, limit_val);
 
     if (col && col->type.base == TYPE_CLASS && col->type.class_name && strncmp(col->type.class_name, "FluxCtx_", 8) == 0) {
-        printf("DEBUG: FluxCtx ptr_depth = %d\n", col->type.ptr_depth);
+        debug_any("FluxCtx ptr_depth = %d\n", col->type.ptr_depth);
         if (col->type.ptr_depth == 0) {
             VarType pt = col->type;
             pt.ptr_depth = 1;

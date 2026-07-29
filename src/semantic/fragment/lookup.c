@@ -4,7 +4,7 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
     VarType obj_type = sem_get_node_type(ctx, node->object);
 
     SemSymbol *class_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
-// printf("DEBUG: sem_lookup_class_call for '%s', class_sym=%p\n", obj_type.class_name, class_sym);
+    debug_any("sem_lookup_class_call for '%s', class_sym=%p\n", obj_type.class_name, class_sym);
 // if (class_sym) printf("DEBUG: class_sym->kind=%d\n", class_sym->kind);
     if (!class_sym || class_sym->kind != SYM_CLASS) {
         if (class_sym && class_sym->kind == SYM_TEMPLATE) {
@@ -21,7 +21,7 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         return;
     }
-    
+
     SemSymbol *current_class = class_sym;
     char *actual_class_name = class_sym->name;
     if (node->object && node->object->type == NODE_INDEX_ACCESS) {
@@ -33,7 +33,7 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
     }
 
     int found = 0;
-   
+
     // TODO fix this parsing for current_class!
     while (current_class) {
         if (current_class->inner_scope) {
@@ -48,7 +48,7 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
             }
             if (member) {
 
-                    
+
                     if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
                         if (member->kind == SYM_FUNC && !member->is_pure) {
                             if (ctx->current_func_sym->must_pure) sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot call impure method '%s'", ctx->current_func_sym->name, member->name);
@@ -69,11 +69,11 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                             *flux_type.fp_ret_type = member->type; // Bind the underlying yield type natively!
                             sem_set_node_type(ctx, (ASTNode*)node, flux_type);
                         } else {
-                            sem_set_node_type(ctx, (ASTNode*)node, member->type); 
+                            sem_set_node_type(ctx, (ASTNode*)node, member->type);
                         }
-                        node->owner_class = current_class->name; 
+                        node->owner_class = current_class->name;
                         found = 1;
-                    } 
+                    }
                     else if (member->kind == SYM_VAR && member->type.is_func_ptr) {
                          sem_set_node_type(ctx, (ASTNode*)node, *member->type.fp_ret_type);
                          found = 1;
@@ -116,7 +116,7 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                         while (member) {
                             if (strcmp(member->name, node->method_name) == 0) {
                                 if (member->kind == SYM_FUNC) {
-                                    sem_set_node_type(ctx, (ASTNode*)node, member->type); 
+                                    sem_set_node_type(ctx, (ASTNode*)node, member->type);
                                     node->owner_class = current_class->name; // or trait_sym->name? Let's use current_class for inheritance flattening
                                     found = 1;
                                 } else if (member->kind == SYM_VAR && member->type.is_func_ptr) {
@@ -146,11 +146,11 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                                     ASTNode **curr_arg = &node->args;
                                     while(*curr_arg) {
                                         sem_check_expr(ctx, *curr_arg);
-                                        
+
                                         if (member->kind == SYM_FUNC && member->params && arg_count < member->param_count) {
                                             sem_insert_implicit_cast(ctx, curr_arg, member->params[arg_count].type);
                                         }
-                                        
+
                                         curr_arg = &(*curr_arg)->next;
                                         arg_count++;
                                     }
@@ -182,7 +182,7 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
             }
         }
 
-    
+
     done_method_search:
     if (!found) {
          sem_error(ctx, (ASTNode*)node, "Method '%s' not found in class '%s'", node->method_name, obj_type.class_name);

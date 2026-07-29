@@ -2,15 +2,15 @@ step: Finished lexing. Start parsing.
 step: Start Semantic Analysis.
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-step: func=main op=32 dest_kind=-1 dest_type_base=-1 op1_kind=7 op1_type_base=1
+step: alir_gen_function_def fn->name=get_b_y class_name=A fn->mangled_name=main_A_get_b_y -> func_name=main_A_get_b_y
+
+step: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+
+step: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
-DEBUG: alir_gen_function_def fn->name=get_b_y class_name=A fn->mangled_name=main_A_get_b_y -> func_name=main_A_get_b_y
-DEBUG: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-LLVMStructSetBody for B with 2 fields
-LLVMStructSetBody for A with 2 fields
-Compiled to build/out.o
-Linking: gcc -g -O0 build/out.o -o build/out -no-pie 
-Linked to build/out
+Compiled to build/opt_out.o
+Linking: gcc -g -O0 build/opt_out.o -o build/opt_out -no-pie 
+Linked to build/opt_out

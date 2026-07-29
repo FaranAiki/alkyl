@@ -45,7 +45,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             // TODO fix this
             snprintf(buf, sizeof(buf), "purge: %s\n", vr->name);
             VarType str_type = { .base = TYPE_CLASS, .class_name = (char*)"string", .ptr_depth = 0 };
-            AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, str_type, ctx->str_counter++);
+            AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, str_type);
             AlirValue *id_val = alir_const_int(ctx->module, err_id);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, id_val));
             break;
@@ -283,7 +283,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                     if (!val) {
                         char buf[256];
                         snprintf(buf, sizeof(buf), "Unresolved flux expression");
-                        AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, (VarType){TYPE_CLASS, 1, (char*)"string"}, ctx->str_counter++);
+                        AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, (VarType){TYPE_CLASS, 1, (char*)"string"});
                         emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, NULL));
                         return;
                     }
@@ -303,7 +303,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                     if (!v) {
                         char buf[256];
                         snprintf(buf, sizeof(buf), "Unresolved expression");
-                        AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, (VarType){TYPE_CLASS, 1, (char*)"string"}, ctx->str_counter++);
+                        AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, (VarType){TYPE_CLASS, 1, (char*)"string"});
                         emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, NULL));
                         return;
                     }

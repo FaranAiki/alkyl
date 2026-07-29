@@ -19,13 +19,13 @@ void emit(AlirCtx *ctx, AlirInst *i) {
         i->col = ctx->current_col;
     }
     if (ctx->current_func && strcmp(ctx->current_func->name, "main") == 0) {
-        debug_any("func=%s op=%d dest_kind=%d dest_type_base=%d op1_kind=%d op1_type_base=%d\n",
-            ctx->current_func->name,
-            i ? i->op : -1,
-            i && i->dest ? i->dest->kind : -1,
-            i && i->dest ? i->dest->type.base : -1,
-            i && i->op1 ? i->op1->kind : -1,
-            i && i->op1 ? i->op1->type.base : -1);
+         debug_any("func=%s op=%d dest_kind=%d dest_type_base=%d op1_kind=%d op1_type_base=%d\n",
+             ctx->current_func->name,
+             (int)(i ? i->op : 0),
+             (int)(i && i->dest ? i->dest->kind : 0),
+             (int)(i && i->dest ? i->dest->type.base : 0),
+             (int)(i && i->op1 ? i->op1->kind : 0),
+             (int)(i && i->op1 ? i->op1->type.base : 0));
     }
     alir_append_inst(ctx->current_block, i);
 }

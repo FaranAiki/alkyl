@@ -296,41 +296,6 @@ static void sem_inject_default_class_args(SemanticCtx *ctx, CallNode *node, SemS
     }
 }
 
-static void sem_check_call_args(SemanticCtx *ctx, CallNode *node, SemSymbol *sym) {
-    int arg_count = 0;
-    ASTNode **curr_arg = &node->args;
-    Parameter *curr_para = sym->params;
-    while(*curr_arg) {
-        sem_check_expr(ctx, *curr_arg);
-        if (curr_para) {
-            int arg_is_tainted = sem_get_node_tainted(ctx, *curr_arg);
-            int param_is_pristine = curr_para->is_pristine; 
-
-            if (arg_is_tainted && param_is_pristine) {
-                sem_error(ctx, *curr_arg, "Cannot pass tainted expression to pristine parameter '%s'", curr_para->name);
-            }
-
-            if (sem_types_are_compatible(ctx,curr_para->type, sem_get_node_type(ctx, *curr_arg))) {
-                sem_insert_implicit_cast(ctx, curr_arg, curr_para->type);
-            } else {
-                sem_error(ctx, *curr_arg, "Type '%s' is not compatible with '%s'", sem_type_to_str(sem_get_node_type(ctx, *curr_arg)), sem_type_to_str(curr_para->type));
-            }
-            curr_para = curr_para->next;
-        } else if (sym->is_variadic) { 
-            if (sem_get_node_tainted(ctx, *curr_arg)) {
-                sem_error(ctx, *curr_arg, "Cannot pass tainted expression to varargs (...) of function '%s'", sym->name);
-            }
-        }
-
-        curr_arg = &(*curr_arg)->next;
-        arg_count++;
-    }
-
-    if (sym->param_count != arg_count && !sym->is_variadic) {
-        sem_error(ctx, (ASTNode*)node, "Expected %d argument(s) for '%s', got %d", sym->param_count, sym->name, arg_count);
-    }
-}
-
 void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
 

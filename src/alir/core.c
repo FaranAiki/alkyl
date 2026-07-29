@@ -86,7 +86,7 @@ void alir_func_add_param(AlirModule *mod, AlirFunction *func, const char *name, 
 }
 
 // Update alir_module_add_string_literal (around line 52) to use the passed VarType
-AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, VarType type, int id_hint) {
+AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, VarType type) {
     AlirGlobal *curr = mod->globals;
     while (curr) {
         if (curr->string_content && strcmp(curr->string_content, content) == 0) {

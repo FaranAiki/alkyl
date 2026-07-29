@@ -583,14 +583,14 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
                         item = enum_sym->inner_scope->symbols;
                         for (int i = 0; i < num_cases && item; i++) {
                             ctx->current_block = case_blocks[i];
-                            AlirValue *glob = alir_module_add_string_literal(ctx->module, item->name, str_type, ctx->str_counter++);
+                            AlirValue *glob = alir_module_add_string_literal(ctx->module, item->name, str_type);
                             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, glob, dest));
                             emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, end_bb->label), NULL));
                             item = item->next;
                         }
 
                         ctx->current_block = default_bb;
-                        AlirValue *glob_def = alir_module_add_string_literal(ctx->module, "Unknown", str_type, ctx->str_counter++);
+                        AlirValue *glob_def = alir_module_add_string_literal(ctx->module, "Unknown", str_type);
                         emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, glob_def, dest));
                         emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL, alir_val_label(ctx->module, end_bb->label), NULL));
 

@@ -296,7 +296,7 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
             return alir_const_int(ctx->module, ln->val.long_val);
         }
 
-        AlirValue *glob = alir_module_add_string_literal(ctx->module, ln->val.str_val, ln->var_type, ctx->str_counter++);
+        AlirValue *glob = alir_module_add_string_literal(ctx->module, ln->val.str_val, ln->var_type);
         if (ln->var_type.base == TYPE_CLASS && strcmp(ln->var_type.class_name, "string") == 0) {
             AlirValue *val = new_temp(ctx, ln->var_type);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, val, glob, NULL));

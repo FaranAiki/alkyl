@@ -161,6 +161,7 @@ void exec_func_def(Executor *e, ASTNode *curr) {
 
 void exec_link(Executor *e, LinkNode *ln, int is_repl) {
     (void)e;
+    (void)is_repl;
 #ifndef _WIN32
     char libname[256];
 #ifdef __APPLE__

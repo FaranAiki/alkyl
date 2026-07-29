@@ -17,7 +17,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
                 }
             }
         }
-        
+
         if (is_inherited) {
             // Inherited method: replace the original class name with the target class name
             char search_str[256];
@@ -28,13 +28,13 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
                 while (class_start > fn->mangled_name && *(class_start - 1) != '_') {
                     class_start--;
                 }
-                
+
                 char mangled_target[256];
                 snprintf(mangled_target, sizeof(mangled_target), "%s", class_name);
                 for (int i = 0; mangled_target[i]; i++) {
                     if (mangled_target[i] == '.') mangled_target[i] = '_';
                 }
-                
+
                 if (strchr(class_name, '.')) {
                     snprintf(func_name, sizeof(func_name), "%s%s", mangled_target, pos);
                 } else {
@@ -64,7 +64,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
         }
     }
 
-    printf("DEBUG: alir_gen_function_def fn->name=%s class_name=%s fn->mangled_name=%s -> func_name=%s\n", fn->name, class_name ? class_name : "NULL", fn->mangled_name ? fn->mangled_name : "NULL", func_name);
+    debug_any("alir_gen_function_def fn->name=%s class_name=%s fn->mangled_name=%s -> func_name=%s\n", fn->name, class_name ? class_name : "NULL", fn->mangled_name ? fn->mangled_name : "NULL", func_name);
 
     ctx->current_func = alir_add_function(ctx->module, func_name, fn->ret_type, 0);
     ctx->current_func->is_varargs = fn->is_varargs;
@@ -151,7 +151,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
 }
 
 AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
-    const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name; 
+    const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
     if (!target_name && cn->target) {
         if (cn->target->type == NODE_VAR_REF) {
             target_name = ((VarRefNode*)cn->target)->name;
@@ -297,7 +297,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
 }
 
 AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
-    const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name; 
+    const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
     // Check if it's a constructor call via Struct Registry
     if (alir_find_struct(ctx->module, target_name)) { printf("Found struct %s\n", target_name);
         int count = 0; ASTNode *a = cn->args; while(a) { count++; a=a->next; }
