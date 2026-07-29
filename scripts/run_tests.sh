@@ -177,22 +177,22 @@ FAIL_COUNT=0
 
 if [ $PARALLEL -eq 1 ]; then
     echo -e "${COLOR_YELLOW}Running tests in parallel with $CORES jobs...${COLOR_RESET}"
-    
+
     # For each test, generate the modes to run
     while IFS= read -r AKY_FILE; do
         REL_PATH=${AKY_FILE#test/code/}
         FEATURE=$(dirname "$REL_PATH")
         NAME=$(basename "$REL_PATH" .aky)
-        
+
         MODES=""
         [ $RUN_UNOPT -eq 1 ] && MODES="${MODES} unopt"
         [ $RUN_OPT -eq 1 ] && MODES="${MODES} opt"
-        
+
         for MODE in $MODES; do
             echo "${AKY_FILE}|${FEATURE}|${NAME}|${MODE}|${COMPILER}|${UPDATE}"
         done
     done <<< "$FILES" > build/tmp/test_configs.txt
-    
+
     # Run tests in parallel
     if command -v parallel >/dev/null 2>&1; then
         cat build/tmp/test_configs.txt | parallel --colsep '|' --jobs "$CORES" scripts/run_single.sh {1} {2} {3} {4} {5} {6} >> "$RESULT_FILE"
@@ -203,7 +203,7 @@ if [ $PARALLEL -eq 1 ]; then
             scripts/run_single.sh "$AKY_FILE" "$FEATURE" "$NAME" "$MODE" "$COMPILER" "$UPDATE"
         ' _ {} >> "$RESULT_FILE" 2>&1
     fi
-    
+
     while IFS= read -r line; do
         [ -z "$line" ] && continue
         TOTAL=$((TOTAL + 1))
@@ -261,8 +261,6 @@ else
         [ $RUN_OPT -eq 1 ] && MODES+=("opt")
 
         for MODE in "${MODES[@]}"; do
-            echo -n "${COMPILER} "
-
             if [ "$MODE" == "unopt" ]; then
                 COMPILER_FLAGS="--unopt"
                 OUTPUT_BIN_PATH="build/tmp/alkyl_${FEATURE}_${NAME}_unopt"
@@ -292,7 +290,7 @@ else
             if [ $COMP_RET -ne 0 ]; then
                 rm -f "$OUTPUT_BIN_PATH"
                 echo ""
-                echo -e "${COLOR_RED}FAILED ($MODE: Compilation failed with exit code $COMP_RET)${COLOR_RESET}"
+                echo -e "${COMPILER} ${AKY_FILE} --${MODE}: ${COLOR_RED}FAIL:compilation${COLOR_RESET}"
                 FAILED=$((FAILED + 1))
                 TEST_PASSED=0
                 continue
@@ -309,7 +307,7 @@ else
 
                 if [ $RUN_RET -ne 0 ]; then
                     echo ""
-                    echo -e "${COLOR_RED}FAILED ($MODE: Execution failed with exit code $RUN_RET)${COLOR_RESET}"
+                    echo -e "${COMPILER} ${AKY_FILE} --${MODE}: ${COLOR_RED}FAIL:execution${COLOR_RESET}"
                     FAILED=$((FAILED + 1))
                     rm -f "$OUTPUT_BIN_PATH"
                     TEST_PASSED=0
@@ -324,7 +322,7 @@ else
                 if [ -f "$EXPECTED_OUT" ]; then
                     if ! diff "$EXPECTED_OUT" "$ACTUAL_OUT" > "$RUN_DIFF"; then
                         echo ""
-                        echo -e "${COLOR_RED}FAILED ($MODE: Output Mismatch)${COLOR_RESET}"
+                        echo -e "${COMPILER} ${AKY_FILE} --${MODE}: ${COLOR_RED}FAIL:output_mismatch${COLOR_RESET}"
                         FAILED=$((FAILED + 1))
                         rm -f "$OUTPUT_BIN_PATH"
                         TEST_PASSED=0
@@ -339,7 +337,7 @@ else
                     sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$EXPECTED_LOG" > "$CLEAN_EXPECTED_LOG"
                     if ! diff "$CLEAN_EXPECTED_LOG" "$CLEAN_ACTUAL_LOG" > "$LOGDIFF"; then
                         echo ""
-                        echo -e "${COLOR_RED}FAILED ($MODE: Log Mismatch)${COLOR_RESET}"
+                        echo -e "${COMPILER} ${AKY_FILE} (${MODE}): ${COLOR_RED}FAIL:log_mismatch${COLOR_RESET}"
                         FAILED=$((FAILED + 1))
                         rm -f "$OUTPUT_BIN_PATH"
                         TEST_PASSED=0
@@ -352,7 +350,7 @@ else
                 rm -f "$OUTPUT_BIN_PATH"
             fi
 
-            echo -e "${COLOR_GREEN}PASSED ($MODE)${COLOR_RESET}"
+            echo -e "${COMPILER} ${AKY_FILE} --${MODE}: ${COLOR_GREEN}PASS${COLOR_RESET}"
         done
 
         if [ $TEST_PASSED -eq 1 ]; then

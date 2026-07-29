@@ -9,6 +9,7 @@
 #include "optlir/optlir.h"
 #include "optlir/unused.h"
 #include "optlir/local.h"
+#include "common/linker.h"
 
 #define BASENAME "build/out"
 #define BASENAME_OPT "build/opt_out"
@@ -25,7 +26,7 @@ int main(int argc, char *argv[]) {
 
     // TODO add this;
     if (argc < 2) {
-      printf("Usage: %s <file.aky> [-l<lib>] | --lsp\n", argv[0]);
+        printf("Usage: %s <file.aky> [-l<lib>] [--linker gcc|clang|lld|mold] | --lsp\n", argv[0]);
       return 1;
     }
 
@@ -41,6 +42,7 @@ int main(int argc, char *argv[]) {
     int emit_balir = 0;
     int unopt_mode = 0;
     int opt_mode = 0;
+    LinkerType current_linker = LINKER_GCC;
 
     ParserSettings parser_settings = {0};
     // This is the default setting
@@ -76,6 +78,14 @@ int main(int argc, char *argv[]) {
             if (i + 1 < argc) {
                 strncpy(custom_output_basename, argv[++i], sizeof(custom_output_basename) - 1);
                 custom_output_basename[sizeof(custom_output_basename) - 1] = '\0';
+            }
+        } else if (strcmp(argv[i], "--linker") == 0) {
+            if (i + 1 < argc) {
+                i++;
+                if (strcmp(argv[i], "gcc") == 0) current_linker = LINKER_GCC;
+                else if (strcmp(argv[i], "clang") == 0) current_linker = LINKER_CLANG;
+                else if (strcmp(argv[i], "lld") == 0) current_linker = LINKER_LLD;
+                else if (strcmp(argv[i], "mold") == 0) current_linker = LINKER_MOLD;
             }
         } else {
             filename = argv[i];
@@ -206,7 +216,7 @@ int main(int argc, char *argv[]) {
     arena_reset(&arena);
 
     const char *active_output_basename = output_basename_ptr ? output_basename_ptr : (opt_mode ? BASENAME_OPT : BASENAME);
-    int final_ret = backend_run(alir_module, active_output_basename, link_flags);
+    int final_ret = backend_run(alir_module, active_output_basename, link_flags, unopt_mode ? 0 : 1, current_linker);
     free(code);
 
     arena_free(&arena);

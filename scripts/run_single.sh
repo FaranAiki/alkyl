@@ -37,6 +37,8 @@ INPUT_FILE="test/input/$FEATURE/$NAME.in"
 LOGDIFF="test/logdiff/$FEATURE/$NAME.logdiff"
 RUN_DIFF="test/diff/$FEATURE/$NAME.diff"
 
+echo -ne "${COMPILER} ${AKY_FILE} (${MODE}): Compiling..."
+
 ${COMPILER} -o "$OUTPUT_BIN" $COMPILER_FLAGS "${FLAGS[@]}" "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
 COMP_RET=$?
 
@@ -54,7 +56,7 @@ fi
 
 if [ $COMP_RET -ne 0 ]; then
     rm -f "$OUTPUT_BIN"
-    echo "${FEATURE}/${NAME}|${MODE}|FAIL:compilation"
+    echo "[${COMPILER}] ${AKY_FILE} (${MODE}): ${COLOR_RED}FAIL:compilation${COLOR_RESET}"
     exit 0
 fi
 
@@ -67,7 +69,7 @@ if [ -f "$OUTPUT_BIN" ]; then
     RUN_RET=$?
 
     if [ $RUN_RET -ne 0 ]; then
-        echo "${FEATURE}/${NAME}|${MODE}|FAIL:execution"
+        echo "[${COMPILER}] ${AKY_FILE} (${MODE}): ${COLOR_RED}FAIL:execution${COLOR_RESET}"
         rm -f "$OUTPUT_BIN"
         exit 0
     fi
@@ -78,7 +80,7 @@ if [ -f "$OUTPUT_BIN" ]; then
 
     if [ -f "$EXPECTED_OUT" ]; then
         if ! diff "$EXPECTED_OUT" "$ACTUAL_OUT" > "$RUN_DIFF"; then
-            echo "${FEATURE}/${NAME}|${MODE}|FAIL:output_mismatch"
+            echo "[${COMPILER}] ${AKY_FILE} (${MODE}): ${COLOR_RED}FAIL:output_mismatch${COLOR_RESET}"
             rm -f "$OUTPUT_BIN"
             exit 0
         else
@@ -89,7 +91,7 @@ if [ -f "$OUTPUT_BIN" ]; then
     if [ -f "$EXPECTED_LOG" ]; then
         sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$EXPECTED_LOG" > "$CLEAN_EXPECTED_LOG"
         if ! diff "$CLEAN_EXPECTED_LOG" "$CLEAN_ACTUAL_LOG" > "$LOGDIFF"; then
-            echo "${FEATURE}/${NAME}|${MODE}|FAIL:log_mismatch"
+            echo "[${COMPILER}] ${AKY_FILE} (${MODE}): ${COLOR_RED}FAIL:log_mismatch${COLOR_RESET}"
             rm -f "$OUTPUT_BIN"
             exit 0
         else
@@ -100,4 +102,4 @@ if [ -f "$OUTPUT_BIN" ]; then
     rm -f "$OUTPUT_BIN"
 fi
 
-echo "${FEATURE}/${NAME}|${MODE}|PASS"
+echo "[${COMPILER}] ${AKY_FILE} (${MODE}): ${COLOR_GREEN}PASS${COLOR_RESET}"

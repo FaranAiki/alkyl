@@ -1,10 +1,12 @@
 #include "codegen/codegen.h"
 #include "codegen_qbe/codegen.h"
+#include "common/linker.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int backend_run(AlirModule *module, const char *basename, const char *link_flags) {
+int backend_run(AlirModule *module, const char *basename, const char *link_flags, int optimization_level, LinkerType linker) {
+    (void)optimization_level;
     char outname[256];
     snprintf(outname, sizeof(outname), "%s.ssa", basename);
     FILE *out = fopen(outname, "w");
@@ -75,10 +77,11 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
         return 1;
     }
 
-    snprintf(cmd, sizeof(cmd), "gcc %s.s %s -o %s", basename, link_flags ? link_flags : "", basename);
-    int gcc_ret = system(cmd);
-    if (gcc_ret != 0) {
-        fprintf(stderr, "GCC linking failed with code %d\n", gcc_ret);
+    char s_file[256];
+    snprintf(s_file, sizeof(s_file), "%s.s", basename);
+    int link_ret = alkyl_link(s_file, basename, link_flags, linker);
+    if (link_ret != 0) {
+        fprintf(stderr, "Linking failed.\n");
         return 1;
     }
 

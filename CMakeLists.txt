@@ -109,6 +109,7 @@ set(HELPER_SOURCES
     src/common/arena.c
     src/common/context.c
     src/common/hashmap.c
+    src/common/linker.c
     src/driver/lsp.c
 )
 
