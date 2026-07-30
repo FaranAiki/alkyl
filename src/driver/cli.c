@@ -143,10 +143,12 @@ int run_repl(void) {
                         r->vm->globals = vg;
                         ptr = vg->ptr_val;
                     }
-                    if (vt.base == TYPE_CLASS && vt.ptr_depth == 0) {
+                    if (vt.base == TYPE_CLASS && vt.ptr_depth == 0 && val) {
                         int struct_size = 1024;
                         if (r->module && vt.class_name) { struct_size = alir_get_struct_size(r->module, vt.class_name); if (struct_size < 8) struct_size = 8; }
                         memcpy(ptr, (void*)(intptr_t)val, struct_size);
+                    } else if (vt.base == TYPE_CLASS && vt.ptr_depth == 0) {
+                        /* val is 0 (no initializer), ptr_val already zero-allocated */
                     } else { *((long long*)ptr) = val; }
                 }
             } else if (curr->type == NODE_CLASS) {
@@ -158,36 +160,43 @@ int run_repl(void) {
             } else if (curr->type == NODE_LINK) {
                 metalir_run_link(r, (LinkNode*)curr);
             } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
-            } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
-                       curr->type != NODE_ENUM && curr->type != NODE_ERRNUM) {
-                VarType expr_rt;
-                long long res_val = metalir_run_expr(r, curr, id++, 1, &expr_rt);
+} else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
+                   curr->type != NODE_ENUM && curr->type != NODE_ERRNUM) {
+                VarType chk = sem_get_node_type(&r->sem, curr);
+                if (chk.base == TYPE_NAMESPACE || chk.base == TYPE_CLASS) {
+                    print_symbol_info(&r->sem, chk);
+                } else {
+                    VarType expr_rt;
+                    long long res_val = metalir_run_expr(r, curr, id++, 1, &expr_rt);
 
-                if (expr_rt.base != TYPE_VOID && expr_rt.base != TYPE_UNKNOWN) {
-                    SemSymbol *res_sym = sem_symbol_lookup(&r->sem, "res", NULL);
-                    if (!res_sym) {
-                        res_sym = sem_symbol_add(&r->sem, "res", SYM_VAR, expr_rt);
-                        res_sym->is_mutable = true;
-                        res_sym->is_initialized = true;
-                    } else {
-                        res_sym->type = expr_rt;
+                    if (expr_rt.base != TYPE_VOID && expr_rt.base != TYPE_UNKNOWN) {
+                        SemSymbol *res_sym = sem_symbol_lookup(&r->sem, "res", NULL);
+                        if (!res_sym) {
+                            res_sym = sem_symbol_add(&r->sem, "res", SYM_VAR, expr_rt);
+                            res_sym->is_mutable = true;
+                            res_sym->is_initialized = true;
+                        } else {
+                            res_sym->type = expr_rt;
+                        }
+                        VMGlobal *g = r->vm->globals;
+                        void *ptr = NULL;
+                        while(g) { if (streq(g->name, "res")) { ptr = g->ptr_val; break; } g = g->next; }
+                        if (!ptr) {
+                            VMGlobal *vg = arena_alloc(&r->vm_arena, sizeof(VMGlobal));
+                            vg->name = arena_strdup(&r->vm_arena, "res");
+                            vg->ptr_val = arena_alloc(&r->vm_arena, 1024);
+                            vg->next = r->vm->globals;
+                            r->vm->globals = vg;
+                            ptr = vg->ptr_val;
+                        }
+                        if (expr_rt.base == TYPE_CLASS && expr_rt.ptr_depth == 0 && res_val) {
+                            int struct_size = 1024;
+                            if (r->module && expr_rt.class_name) { struct_size = alir_get_struct_size(r->module, expr_rt.class_name); if (struct_size < 8) struct_size = 8; }
+                            memcpy(ptr, (void*)(intptr_t)res_val, struct_size);
+                        } else if (expr_rt.base == TYPE_CLASS && expr_rt.ptr_depth == 0) {
+                            /* res_val is 0 (no initializer), ptr_val already zero-allocated */
+                        } else { *((long long*)ptr) = res_val; }
                     }
-                    VMGlobal *g = r->vm->globals;
-                    void *ptr = NULL;
-                    while(g) { if (streq(g->name, "res")) { ptr = g->ptr_val; break; } g = g->next; }
-                    if (!ptr) {
-                        VMGlobal *vg = arena_alloc(&r->vm_arena, sizeof(VMGlobal));
-                        vg->name = arena_strdup(&r->vm_arena, "res");
-                        vg->ptr_val = arena_alloc(&r->vm_arena, 1024);
-                        vg->next = r->vm->globals;
-                        r->vm->globals = vg;
-                        ptr = vg->ptr_val;
-                    }
-                    if (expr_rt.base == TYPE_CLASS && expr_rt.ptr_depth == 0) {
-                        int struct_size = 1024;
-                        if (r->module && expr_rt.class_name) { struct_size = alir_get_struct_size(r->module, expr_rt.class_name); if (struct_size < 8) struct_size = 8; }
-                        memcpy(ptr, (void*)(intptr_t)res_val, struct_size);
-                    } else { *((long long*)ptr) = res_val; }
                 }
             }
             curr = curr->next;

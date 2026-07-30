@@ -135,6 +135,8 @@ void metalir_print_repl_value(VarType rt, long long result) {
         }
         else if ((rt.base == TYPE_CLASS && rt.class_name && streq(rt.class_name, "string")) || (rt.base == TYPE_CHAR && rt.ptr_depth == 1 && rt.array_size == 0))
             printf("-> %s (char*)\n", (char*)(intptr_t)result);
+        else if (rt.base == TYPE_CLASS && rt.ptr_depth == 0 && rt.array_size == 0)
+            printf("-> %p (%s)\n", (void*)(intptr_t)result, sem_type_to_str(rt));
         else {
             if (rt.ptr_depth > 0 || rt.array_size > 0) {
                 if (rt.array_size > 0 && result != 0) {
