@@ -45,33 +45,33 @@ long long metalir_vm_resolve_var(AlirValue *val, AlirModule *module, MetalirVM *
             int idx = atoi(name + 1);
             if (idx < arg_count && args) return args[idx];
         }
-        if (module) {
-            AlirGlobal *g = module->globals;
-            while(g) {
-                if (strcmp(g->name, name) == 0) return (long long)(intptr_t)g->string_content;
-                g = g->next;
-            }
-        }
         if (vm) {
             VMGlobal *g = vm->globals;
             while(g) {
                 if (strcmp(g->name, name) == 0) return (long long)(intptr_t)g->ptr_val;
+                g = g->next;
+            }
+        }
+        if (module) {
+            AlirGlobal *g = module->globals;
+            while(g) {
+                if (strcmp(g->name, name) == 0) return (long long)(intptr_t)g->string_content;
                 g = g->next;
             }
         }
     } else if (val->kind == ALIR_VAL_GLOBAL) {
         const char *name = val->val.str_val;
-        if (module) {
-            AlirGlobal *g = module->globals;
-            while(g) {
-                if (strcmp(g->name, name) == 0) return (long long)(intptr_t)g->string_content;
-                g = g->next;
-            }
-        }
         if (vm) {
             VMGlobal *g = vm->globals;
             while(g) {
                 if (strcmp(g->name, name) == 0) return (long long)(intptr_t)g->ptr_val;
+                g = g->next;
+            }
+        }
+        if (module) {
+            AlirGlobal *g = module->globals;
+            while(g) {
+                if (strcmp(g->name, name) == 0) return (long long)(intptr_t)g->string_content;
                 g = g->next;
             }
         }

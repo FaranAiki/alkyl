@@ -113,7 +113,7 @@ static AlirFunction* find_func(MetalirRunner *r, const char *name) {
     return NULL;
 }
 
-static void print_repl_value(VarType rt, long long result) {
+void metalir_print_repl_value(VarType rt, long long result) {
     if (rt.base == TYPE_VOID && rt.ptr_depth == 0) {
         printf("-> (void)\n");
     } else if (rt.base == TYPE_BOOL && rt.ptr_depth == 0 && rt.array_size == 0) {
@@ -357,7 +357,7 @@ long long metalir_run_expr(MetalirRunner *r, ASTNode *curr, int seq,
     }
 
     if (print_rich) {
-        print_repl_value(fn->ret_type, result);
+        metalir_print_repl_value(fn->ret_type, result);
     }
 
     return result;

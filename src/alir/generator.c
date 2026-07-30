@@ -406,12 +406,9 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn, const char *fqn)
 
     ctx->current_block = alir_add_block(ctx->module, ctx->current_func, "entry");
 
-    AlirValue *this_ptr = new_temp(ctx, this_t);
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, this_ptr, NULL, NULL));
-    alir_add_symbol(ctx, "this", this_ptr, this_t);
     AlirValue *p0 = alir_val_var(ctx->module, "p0");
     p0->type = this_t;
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, p0, this_ptr));
+    alir_add_symbol(ctx, "this", p0, this_t);
 
     if (st && !cn->is_union) {
         int param_idx = 1;
@@ -423,7 +420,7 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn, const char *fqn)
             arg_val->type = f->type;
 
             AlirValue *loaded_this = new_temp(ctx, this_t);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_this, this_ptr, NULL));
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_this, p0, NULL));
 
             VarType ft = f->type; ft.ptr_depth++;
             AlirValue *field_ptr = new_temp(ctx, ft);

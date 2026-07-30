@@ -1,0 +1,26 @@
+--- src/metalir/eval_mem.c
++++ src/metalir/eval_mem.c
+@@ -94,6 +94,7 @@
+                                 if (struct_size < 8) struct_size = 8;
+                             }
+                             memcpy(ptr, src_ptr, struct_size);
++                            // printf("VM STORE memcpy to %p from %p\n", ptr, src_ptr);
+                         } else if (ptr) {
+                             int size = alir_get_type_size(inst->op1->type);
+                             if (size == 1) *(unsigned char*)ptr = (unsigned char)val;
+                             else if (size == 2) *(unsigned short*)ptr = (unsigned short)val;
+                             else if (size == 4) *(unsigned int*)ptr = (unsigned int)val;
+                             else *(unsigned long long*)ptr = (unsigned long long)val;
++                            printf("VM STORE to %p value %lld\n", ptr, val);
+                         }
+                     }
+                     break;
+@@ -165,6 +166,7 @@
+                         }
+                         
+                         if (base_ptr) {
+                             ctx->registers[inst->dest->temp_id].as.ptr_val = (void*)((char*)base_ptr + byte_offset);
++                            printf("VM GET_PTR base %p offset %d -> %p\n", base_ptr, byte_offset, ctx->registers[inst->dest->temp_id].as.ptr_val);
+                         }
+                     }
+                     break;

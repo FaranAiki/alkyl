@@ -112,7 +112,21 @@ AlirValue* alir_gen_addr_member_access(AlirCtx *ctx, ASTNode *node) {
     VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
     if (obj_t.base == TYPE_ENUM) return NULL;
 
-    AlirValue *base_ptr = alir_gen_expr(ctx, ma->object);
+    AlirValue *base_ptr = NULL;
+    if (obj_t.ptr_depth == 0) {
+        base_ptr = alir_gen_addr(ctx, ma->object);
+        if (!base_ptr) {
+            AlirValue *rval = alir_gen_expr(ctx, ma->object);
+            if (rval) {
+                base_ptr = new_temp(ctx, obj_t);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, base_ptr, NULL, NULL));
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, rval, base_ptr));
+            }
+        }
+    } else {
+        base_ptr = alir_gen_expr(ctx, ma->object);
+    }
+    
     if (!base_ptr) return NULL;
 
     char *class_name = base_ptr->type.class_name;

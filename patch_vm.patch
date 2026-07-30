@@ -1,0 +1,11 @@
+--- src/metalir/eval_call.c
++++ src/metalir/eval_call.c
+@@ -48,6 +48,8 @@
+                                     }
+                                     f = f->next;
+                                 }
++                                if (!target_fn) printf("VM CALL ERROR: target_fn NULL for %s\n", inst->op1->val.str_val);
++                                else printf("VM CALL SUCCESS: executing %s\n", target_fn->name);
+                             }
+ 
+                             if (target_fn && !target_fn->is_extern) {

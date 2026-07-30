@@ -49,6 +49,7 @@ void metalir_run_func_def(MetalirRunner *r, ASTNode *curr);
 void metalir_run_link(MetalirRunner *r, LinkNode *ln);
 long long metalir_run_expr(MetalirRunner *r, ASTNode *curr, int seq,
                            int print_rich, VarType *out_type);
+void metalir_print_repl_value(VarType rt, long long result);
 
 #ifdef __cplusplus
 }

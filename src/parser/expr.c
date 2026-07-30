@@ -10,7 +10,7 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
   if (target && target->type == NODE_VAR_REF) {
       name = ((VarRefNode*)target)->name;
   }
-  
+
   eat(p, TOKEN_LPAREN);
   ASTNode *args_head = NULL;
   ASTNode **curr_arg = &args_head;
@@ -140,7 +140,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             char *member = p->current_token.text;
             p->current_token.text = NULL;
             eat(p, TOKEN_IDENTIFIER);
-            
+
             if (p->current_token.type == TOKEN_LPAREN) {
                 eat(p, TOKEN_LPAREN);
                 ASTNode *args_head = NULL;
@@ -181,7 +181,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                     }
                 }
                 eat(p, TOKEN_RPAREN);
-                
+
                 MethodCallNode *mc = parser_alloc(p, sizeof(MethodCallNode));
                 mc->base.type = NODE_METHOD_CALL;
                 mc->object = node;
@@ -196,15 +196,15 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                 node = (ASTNode*)ma;
             }
             set_loc(node, line, col);
-        } 
+        }
         else if (p->current_token.type == TOKEN_LBRACKET && p->disable_space_call == 0 && (!p->current_token.has_space_before || p->in_space_separated_call > 0)) {
             eat(p, TOKEN_LBRACKET);
-            
+
             if (is_type_start(p)) {
                 int max_args = 16;
                 VarType *types = parser_alloc(p, sizeof(VarType) * max_args);
                 int num_types = 0;
-                
+
                 while (p->current_token.type != TOKEN_RBRACKET) { if (p->has_error) break;
                     if (num_types >= max_args) {
                         report_error(p->l, p->current_token, "Too many template type parameters");
@@ -218,7 +218,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                     }
                 }
                 eat(p, TOKEN_RBRACKET);
-                
+
                 TemplateInstNode *ti = parser_alloc(p, sizeof(TemplateInstNode));
                 ti->base.type = NODE_TEMPLATE_INSTANTIATION;
                 ti->target = node;
@@ -228,10 +228,10 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             } else {
                 ASTNode *index = parse_expression(p);
                 eat(p, TOKEN_RBRACKET);
-                
+
                 IndexAccessNode *aa = parser_alloc(p, sizeof(IndexAccessNode));
                 aa->base.type = NODE_INDEX_ACCESS;
-                aa->target = node; 
+                aa->target = node;
                 aa->index = index;
                 node = (ASTNode*)aa;
             }
@@ -251,7 +251,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
         else if (p->current_token.type == TOKEN_AS) {
             eat(p, TOKEN_AS);
             VarType t = parse_type(p);
-            
+
             CastNode *cn = parser_alloc(p, sizeof(CastNode));
             cn->base.type = NODE_CAST;
             cn->operand = node;
@@ -290,9 +290,9 @@ ASTNode* parse_factor(Parser *p) {
       p->current_token.type == TOKEN_KW_DOUBLE || p->current_token.type == TOKEN_KW_VOID ||
       p->current_token.type == TOKEN_KW_BOOL || p->current_token.type == TOKEN_KW_UNSIGNED ||
       p->current_token.type == TOKEN_KW_SHORT) {
-      
+
       VarType t = parse_type(p);
-      
+
       while (p->current_token.type == TOKEN_LBRACKET) {
           eat(p, TOKEN_LBRACKET);
           if (p->current_token.type == TOKEN_RBRACKET) {
@@ -307,7 +307,7 @@ ASTNode* parse_factor(Parser *p) {
               t.array_size = 1; // Just a marker
           }
       }
-      
+
       SizeOfNode *sn = parser_alloc(p, sizeof(SizeOfNode));
       sn->base.type = NODE_TYPEOF;
       sn->target_type = t;
@@ -333,7 +333,7 @@ ASTNode* parse_factor(Parser *p) {
                       eat(p, p->current_token.type);
                   }
                   eat(p, TOKEN_RBRACKET);
-                  t.array_size = 1; 
+                  t.array_size = 1;
               }
           }
           // If typeof takes a type, we wrap it in a CastNode or a new TypeOfNode.
@@ -356,7 +356,7 @@ ASTNode* parse_factor(Parser *p) {
   else if (p->current_token.type == TOKEN_KW_DEFINED) {
       p->disable_macro_expansion = 1;
       eat(p, TOKEN_KW_DEFINED);
-      
+
       ASTNode *expr;
       if (p->current_token.type == TOKEN_LPAREN) {
           eat(p, TOKEN_LPAREN);
@@ -409,7 +409,7 @@ ASTNode* parse_factor(Parser *p) {
     eat(p, TOKEN_LBRACKET);
     ASTNode *elems_head = NULL;
     ASTNode **curr_elem = &elems_head;
-    
+
     int restore_space_call = 0;
     if (p->settings.array_separator_with_space) {
         p->disable_space_call++;
@@ -419,7 +419,7 @@ ASTNode* parse_factor(Parser *p) {
     if (p->current_token.type != TOKEN_RBRACKET) {
       *curr_elem = parse_expression(p);
       curr_elem = &(*curr_elem)->next;
-      while (p->current_token.type == TOKEN_COMMA || (p->settings.array_separator_with_space && p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF)) { 
+      while (p->current_token.type == TOKEN_COMMA || (p->settings.array_separator_with_space && p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF)) {
         if (p->has_error) break;
         if (p->current_token.type == TOKEN_COMMA) {
             eat(p, TOKEN_COMMA);
@@ -429,11 +429,11 @@ ASTNode* parse_factor(Parser *p) {
         curr_elem = &(*curr_elem)->next;
       }
     }
-    
+
     if (restore_space_call) {
         p->disable_space_call--;
     }
-    
+
     eat(p, TOKEN_RBRACKET);
     ArrayLitNode *an = parser_alloc(p, sizeof(ArrayLitNode));
     an->base.type = NODE_ARRAY_LIT;
@@ -442,7 +442,7 @@ ASTNode* parse_factor(Parser *p) {
     node = (ASTNode*)an;
     set_loc(node, line, col);
   }
-  else if (p->current_token.type == TOKEN_NUMBER || 
+  else if (p->current_token.type == TOKEN_NUMBER ||
            p->current_token.type == TOKEN_UINT_LIT ||
            p->current_token.type == TOKEN_LONG_LIT ||
            p->current_token.type == TOKEN_ULONG_LIT ||
@@ -450,7 +450,7 @@ ASTNode* parse_factor(Parser *p) {
            p->current_token.type == TOKEN_ULONG_LONG_LIT) {
     LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;
-    
+
     if (p->current_token.type == TOKEN_UINT_LIT) { ln->var_type.base = TYPE_INT; ln->var_type.is_unsigned = 1; }
     else if (p->current_token.type == TOKEN_LONG_LIT) { ln->var_type.base = TYPE_LONG; }
     else if (p->current_token.type == TOKEN_ULONG_LIT) { ln->var_type.base = TYPE_LONG; ln->var_type.is_unsigned = 1; }
@@ -493,7 +493,7 @@ ASTNode* parse_factor(Parser *p) {
   else if (p->current_token.type == TOKEN_STRING) {
     if (p->l->settings.double_quote_as_string) {
       // Treat as string(c"...")
-      
+
       // 1. Create argument C-string literal node: c"..."
       LiteralNode *arg_ln = parser_alloc(p, sizeof(LiteralNode));
       arg_ln->base.type = NODE_LITERAL;
@@ -502,13 +502,13 @@ ASTNode* parse_factor(Parser *p) {
       arg_ln->val.str_val = parser_strdup(p, p->current_token.text);
       arg_ln->base.next = NULL;
       set_loc((ASTNode*)arg_ln, line, col);
-      
+
       // 2. Create target class/function variable reference: string
       VarRefNode *target_vn = parser_alloc(p, sizeof(VarRefNode));
       target_vn->base.type = NODE_VAR_REF;
       target_vn->name = parser_strdup(p, "string");
       set_loc((ASTNode*)target_vn, line, col);
-      
+
       // 3. Create CallNode: string(c"...")
       CallNode *call_node = parser_alloc(p, sizeof(CallNode));
       call_node->base.type = NODE_CALL;
@@ -516,7 +516,7 @@ ASTNode* parse_factor(Parser *p) {
       call_node->target = (ASTNode*)target_vn;
       call_node->args = (ASTNode*)arg_ln;
       set_loc((ASTNode*)call_node, line, col);
-      
+
       p->current_token.text = NULL;
       eat(p, TOKEN_STRING);
       node = (ASTNode*)call_node;
@@ -537,9 +537,9 @@ ASTNode* parse_factor(Parser *p) {
     LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
     ln->base.type = NODE_LITERAL;
     ln->var_type.base = TYPE_CHAR;
-    ln->var_type.ptr_depth = 1; 
+    ln->var_type.ptr_depth = 1;
     ln->val.str_val = parser_strdup(p, p->current_token.text);
-    p->current_token.text = NULL; 
+    p->current_token.text = NULL;
     eat(p, TOKEN_C_STRING);
     node = (ASTNode*)ln;
     set_loc(node, line, col);
@@ -567,20 +567,20 @@ ASTNode* parse_factor(Parser *p) {
   else if (p->current_token.type == TOKEN_KW_SIZEOF || p->current_token.type == TOKEN_KW_ALIGNOF) {
     int is_align = (p->current_token.type == TOKEN_KW_ALIGNOF);
     eat(p, p->current_token.type);
-    
+
     int has_paren = (p->current_token.type == TOKEN_LPAREN);
     if (has_paren) eat(p, TOKEN_LPAREN);
-    
+
     SizeOfNode *sn = parser_alloc(p, sizeof(SizeOfNode));
     sn->base.type = is_align ? NODE_ALIGNOF : NODE_SIZEOF;
-    sn->target_type.base = TYPE_UNKNOWN; 
-    
+    sn->target_type.base = TYPE_UNKNOWN;
+
     if (is_type_start(p)) {
         sn->target_type = parse_type(p);
     } else {
         sn->operand = parse_expression(p);
     }
-    
+
     if (has_paren) eat(p, TOKEN_RPAREN);
 
     node = (ASTNode*)sn;
@@ -608,13 +608,13 @@ ASTNode* parse_factor(Parser *p) {
         p->current_token.text = NULL;
         eat(p, TOKEN_IDENTIFIER);
     }
-    
+
     VarRefNode *vn = parser_alloc(p, sizeof(VarRefNode));
     vn->base.type = NODE_VAR_REF;
     vn->name = name;
     node = (ASTNode*)vn;
     set_loc(node, line, col);
-    
+
   }
   else if (is_type_start(p)) {
       VarType t = parse_type(p);
@@ -631,9 +631,9 @@ ASTNode* parse_factor(Parser *p) {
     const char *tok = p->current_token.text ? p->current_token.text : token_type_to_string(p->current_token.type);
     snprintf(msg, sizeof(msg), "Unexpected token in expression: '%s'", tok);
     parser_fail(p, msg);
-    return NULL; 
+    return NULL;
   }
-  
+
   if (p->settings.multiplication_if_digit_word &&
       node && node->type == NODE_LITERAL) {
       VarType lt = ((LiteralNode*)node)->var_type;
@@ -678,7 +678,7 @@ ASTNode* parse_unary(Parser *p) {
   if (p->has_error) return NULL;
   int line = p->current_token.line;
   int col = p->current_token.col;
-  
+
   if (p->current_token.type == TOKEN_INCREMENT || p->current_token.type == TOKEN_DECREMENT) {
       int op = p->current_token.type;
       eat(p, op);
@@ -691,9 +691,9 @@ ASTNode* parse_unary(Parser *p) {
       set_loc((ASTNode*)node, line, col);
       return (ASTNode*)node;
   }
-  
-  if (p->current_token.type == TOKEN_NOT || p->current_token.type == TOKEN_MINUS || 
-      p->current_token.type == TOKEN_BIT_NOT || p->current_token.type == TOKEN_STAR || 
+
+  if (p->current_token.type == TOKEN_NOT || p->current_token.type == TOKEN_MINUS ||
+      p->current_token.type == TOKEN_BIT_NOT || p->current_token.type == TOKEN_STAR ||
       p->current_token.type == TOKEN_AND) {
     int op = p->current_token.type;
     eat(p, op);
@@ -863,10 +863,10 @@ ASTNode* parse_fallback(Parser *p) {
 }
 
 ASTNode* parse_assignment(Parser *p) {
-  ASTNode *lhs = parse_fallback(p); 
+  ASTNode *lhs = parse_fallback(p);
   if (p->has_error) return lhs;
-  
-  if (p->current_token.type == TOKEN_ASSIGN || 
+
+  if (p->current_token.type == TOKEN_ASSIGN ||
       p->current_token.type == TOKEN_PLUS_ASSIGN ||
       p->current_token.type == TOKEN_MINUS_ASSIGN ||
       p->current_token.type == TOKEN_STAR_ASSIGN ||
@@ -877,25 +877,25 @@ ASTNode* parse_assignment(Parser *p) {
       p->current_token.type == TOKEN_XOR_ASSIGN ||
       p->current_token.type == TOKEN_LSHIFT_ASSIGN ||
       p->current_token.type == TOKEN_RSHIFT_ASSIGN) {
-          
+
       int line = p->current_token.line;
       int col = p->current_token.col;
       int op = p->current_token.type;
       eat(p, op);
-      
-      ASTNode *rhs = parse_assignment(p); 
-      
+
+      ASTNode *rhs = parse_assignment(p);
+
       AssignNode *node = parser_alloc(p, sizeof(AssignNode));
       node->base.type = NODE_ASSIGN;
       node->value = rhs;
       node->op = op;
 
       if (lhs->type == NODE_VAR_REF) {
-          node->name = ((VarRefNode*)lhs)->name; 
-          ((VarRefNode*)lhs)->name = NULL; 
+          node->name = ((VarRefNode*)lhs)->name;
+          ((VarRefNode*)lhs)->name = NULL;
           // No free
       } else {
-          node->target = lhs; 
+          node->target = lhs;
       }
       set_loc((ASTNode*)node, line, col);
       return (ASTNode*)node;
@@ -944,7 +944,6 @@ ASTNode* parse_initializer(Parser *p, VarType vtype) {
             char *cls_name = parser_strdup(p, vtype.class_name);
             char *bracket = strchr(cls_name, '[');
             if (bracket) {
-                // If it's something like Vector[int], construct a dummy TemplateInstNode so Semantic Analyzer can process it
                 *bracket = '\0';
                 TemplateInstNode *ti = parser_alloc(p, sizeof(TemplateInstNode));
                 ti->base.type = NODE_TEMPLATE_INSTANTIATION;
@@ -957,12 +956,12 @@ ASTNode* parse_initializer(Parser *p, VarType vtype) {
                 // Actually, since this is a known limitation, let's just use the string and let semantic fix it.
             }
         }
-        
+
         cnode->name = vtype.class_name ? parser_strdup(p, vtype.class_name) : NULL;
         cnode->target = NULL;
-        
+
         // Actually, if it has brackets, Semantic can just try replacing '[' with '_' and ']' with ''.
-        
+
         cnode->args = args_head;
         return (ASTNode*)cnode;
     }
