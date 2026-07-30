@@ -86,6 +86,7 @@ int main(int argc, char *argv[]) {
                 else if (streq(argv[i], "clang")) current_linker = LINKER_CLANG;
                 else if (streq(argv[i], "lld")) current_linker = LINKER_LLD;
                 else if (streq(argv[i], "mold")) current_linker = LINKER_MOLD;
+                else if (streq(argv[i], "alynk")) current_linker = LINKER_MOLD;
             }
         } else {
             filename = argv[i];

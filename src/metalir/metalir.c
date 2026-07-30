@@ -366,14 +366,38 @@ long long metalir_run_expr(MetalirRunner *r, ASTNode *curr, int seq,
     long long result = metalir_vm_execute(r->vm, r->module, cfn, &r->sem, NULL, 0);
 
     if (curr->type == NODE_ASSIGN && ((AssignNode*)curr)->is_implicit_let) {
-        if (fn->ret_type.array_size > 0) {
-            VMGlobal *g = r->vm->globals;
-            while (g) {
-                if (streq(g->name, ((AssignNode*)curr)->name)) {
-                    g->ptr_val = (void*)(intptr_t)result;
-                    break;
+        VMGlobal *g = r->vm->globals;
+        while (g) {
+            if (streq(g->name, ((AssignNode*)curr)->name)) {
+                if (fn->ret_type.base == TYPE_CLASS && fn->ret_type.ptr_depth == 0) {
+                    int struct_size = 1024;
+                    if (r->module && fn->ret_type.class_name) {
+                        struct_size = alir_get_struct_size(r->module, fn->ret_type.class_name);
+                        if (struct_size < 8) struct_size = 8;
+                    }
+                    memcpy(g->ptr_val, (void*)(intptr_t)result, struct_size);
+                } else {
+                    *((long long*)g->ptr_val) = result;
                 }
-                g = g->next;
+                break;
+            }
+            g = g->next;
+        }
+        if (!g) {
+            VMGlobal *vg = arena_alloc(&r->vm_arena, sizeof(VMGlobal));
+            vg->name = arena_strdup(&r->vm_arena, ((AssignNode*)curr)->name);
+            vg->ptr_val = arena_alloc(&r->vm_arena, 1024);
+            vg->next = r->vm->globals;
+            r->vm->globals = vg;
+            if (fn->ret_type.base == TYPE_CLASS && fn->ret_type.ptr_depth == 0) {
+                int struct_size = 1024;
+                if (r->module && fn->ret_type.class_name) {
+                    struct_size = alir_get_struct_size(r->module, fn->ret_type.class_name);
+                    if (struct_size < 8) struct_size = 8;
+                }
+                memcpy(vg->ptr_val, (void*)(intptr_t)result, struct_size);
+            } else {
+                *((long long*)vg->ptr_val) = result;
             }
         }
     }

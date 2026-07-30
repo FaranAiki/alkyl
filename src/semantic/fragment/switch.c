@@ -5,10 +5,10 @@ void sem_check_for_in(SemanticCtx *ctx, ASTNode *node) {
     ForInNode *fn = (ForInNode*)node;
     sem_check_expr(ctx, fn->collection);
     ctx->in_loop++;
-    
+
     VarType col_type = sem_get_node_type(ctx, fn->collection);
     VarType iter_type = col_type;
-    
+
     if (iter_type.base == TYPE_CLASS && iter_type.class_name && strncmp(iter_type.class_name, "FluxCtx_", 8) == 0) {
         if (iter_type.fp_ret_type) {
             iter_type = *iter_type.fp_ret_type;
@@ -22,7 +22,7 @@ void sem_check_for_in(SemanticCtx *ctx, ASTNode *node) {
     } else if (iter_type.base == TYPE_CLASS && iter_type.class_name && streq(iter_type.class_name, "string")) {
         iter_type.base = TYPE_CHAR;
     } else if (is_integer(iter_type)) {
-        // Allowed: integers act as valid iterators (0 to N-1) 
+        // Allowed: integers act as valid iterators (0 to N-1)
     } else if (iter_type.base == TYPE_CLASS && iter_type.class_name) {
         MethodCallNode *mc = arena_alloc_type(ctx->compiler_ctx->arena, MethodCallNode);
         memset(mc, 0, sizeof(MethodCallNode));
@@ -32,16 +32,16 @@ void sem_check_for_in(SemanticCtx *ctx, ASTNode *node) {
         mc->object = fn->collection;
         mc->method_name = "iterate";
         mc->args = NULL;
-        
+
         fn->collection = (ASTNode*)mc;
-        
-        // Suppress errors during sem_check_expr just in case we want to customize the message? 
+
+        // Suppress errors during sem_check_expr just in case we want to customize the message?
         // No, let it throw the standard "no member named iterate" if it's missing!
         sem_check_expr(ctx, fn->collection);
-        
+
         col_type = sem_get_node_type(ctx, fn->collection);
         iter_type = col_type;
-        
+
         if (iter_type.base == TYPE_CLASS && iter_type.class_name && strncmp(iter_type.class_name, "FluxCtx_", 8) == 0) {
             if (iter_type.fp_ret_type) {
                 iter_type = *iter_type.fp_ret_type;
@@ -56,16 +56,16 @@ void sem_check_for_in(SemanticCtx *ctx, ASTNode *node) {
         sem_error(ctx, node, "Cannot iterate over non-iterable type");
         iter_type = (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     }
-    
-    fn->iter_type = iter_type; 
-    
+
+    fn->iter_type = iter_type;
+
     sem_scope_enter(ctx, 0, (VarType){0});
     SemSymbol *s = sem_symbol_add(ctx, fn->var_name, SYM_VAR, iter_type);
-    s->is_initialized = 1; 
-    
+    s->is_initialized = 1;
+
     sem_check_block(ctx, fn->body);
     sem_scope_exit(ctx);
-    
+
     ctx->in_loop--;
 }
 
@@ -73,7 +73,7 @@ void sem_check_unary_op_switch(SemanticCtx *ctx, ASTNode *node) {
     UnaryOpNode *un = (UnaryOpNode*)node;
     sem_check_expr(ctx, un->operand);
     VarType t = sem_get_node_type(ctx, un->operand);
-    
+
     // Operator Overloading Check
     char name_buf[64];
     snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", un->is_suffix ? TOKEN_SUFFOP : TOKEN_PREFOP, un->op);
@@ -91,20 +91,20 @@ void sem_check_unary_op_switch(SemanticCtx *ctx, ASTNode *node) {
         }
     }
 
-    
+
     if (sem_get_node_tainted(ctx, un->operand)) {
         if (un->op != TOKEN_AND) {
             sem_set_node_tainted(ctx, node, 1);
         }
     }
-    
+
     if (t.base == TYPE_VOID && t.ptr_depth == 0) {
          sem_error(ctx, node, "Operand of unary expression cannot be 'void'");
     }
-    
-    if (un->op == TOKEN_AND) { 
+
+    if (un->op == TOKEN_AND) {
         t.ptr_depth++;
-    } else if (un->op == TOKEN_STAR) { 
+    } else if (un->op == TOKEN_STAR) {
         if (t.ptr_depth > 0) t.ptr_depth--;
         else sem_error(ctx, node, "Cannot dereference non-pointer");
     } else if (un->op == TOKEN_NOT) {
@@ -115,14 +115,14 @@ void sem_check_unary_op_switch(SemanticCtx *ctx, ASTNode *node) {
 
 void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
     VarRefNode *ref = (VarRefNode*)node;
-    
+
     void *err_val = hashmap_get(&ctx->compiler_ctx->error_table, ref->name);
     if (!err_val && strncmp(ref->name, "Err", 3) == 0) {
         int id = ctx->compiler_ctx->next_error_id++;
         hashmap_put(&ctx->compiler_ctx->error_table, ref->name, (void*)(intptr_t)(id + 1));
         err_val = (void*)(intptr_t)(id + 1);
     }
-    
+
     if (err_val) {
         ref->is_error_id = 1;
         ref->error_id = (int)(intptr_t)err_val;
@@ -132,7 +132,7 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
 
     SemScope *found_in_scope = NULL;
     SemSymbol *sym = sem_symbol_lookup(ctx, ref->name, &found_in_scope);
-    
+
     if (sym) {
         if (!sym->is_pristine) {
             sym->type.is_tainted = 1;
@@ -141,7 +141,7 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
         }
 
         sem_set_node_type(ctx, node, sym->type);
-        
+
         if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
             if (!sym->is_pure) {
                 if (ctx->current_func_sym->must_pure) sem_error(ctx, node, "Pure function '%s' cannot use impure variable '%s'", ctx->current_func_sym->name, ref->name);
@@ -167,7 +167,7 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
             ref->is_class_member = 0;
         }
         return;
-    } 
+    }
 
     // [FIX]: Check if we are inside a method scope by looking up "this"
     SemSymbol *this_sym = sem_symbol_lookup(ctx, "this", NULL);
@@ -191,17 +191,18 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
     sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
 }
 
-void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) { printf("sem_check_index_access type base: %d, array_size: %d\n", sem_get_node_type(ctx, ((IndexAccessNode*)node)->target).base, sem_get_node_type(ctx, ((IndexAccessNode*)node)->target).array_size);
+void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) {
+  debug_any("sem_check_index_access type base: %d, array_size: %d\n", sem_get_node_type(ctx, ((IndexAccessNode*)node)->target).base, sem_get_node_type(ctx, ((IndexAccessNode*)node)->target).array_size);
     IndexAccessNode *aa = (IndexAccessNode*)node;
     sem_check_expr(ctx, aa->target);
     sem_check_expr(ctx, aa->index);
-    
+
     if (sem_get_node_tainted(ctx, aa->target)) {
         sem_set_node_tainted(ctx, node, 1);
     }
-    
+
     VarType t = sem_get_node_type(ctx, aa->target);
-    
+
     // Check for union access by type
     if (t.base == TYPE_CLASS && t.class_name) {
         SemSymbol *class_sym = sem_symbol_lookup(ctx, t.class_name, NULL);
@@ -219,7 +220,7 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) { printf("sem_check
                         ma.base.col = node->col;
                         ma.object = aa->target;
                         ma.member_name = arena_strdup(ctx->compiler_ctx->arena, f->name);
-                        
+
                         sem_set_node_type(ctx, node, f->type);
                         memcpy(node, &ma, sizeof(MemberAccessNode));
                         return;
@@ -237,7 +238,7 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) { printf("sem_check
                         ma.base.col = node->col;
                         ma.object = aa->target;
                         ma.member_name = arena_strdup(ctx->compiler_ctx->arena, f->name);
-                        
+
                         sem_set_node_type(ctx, node, f->type);
                         memcpy(node, &ma, sizeof(MemberAccessNode));
                         return;
@@ -250,7 +251,7 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) { printf("sem_check
             return;
         }
     }
-    
+
     // Check for trait access (composition)
     if (t.base == TYPE_CLASS && t.class_name) {
         char *trait_name = NULL;
@@ -262,7 +263,7 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) { printf("sem_check
                 trait_name = index_type.class_name;
             }
         }
-        
+
         if (trait_name) {
             SemSymbol *class_sym = sem_symbol_lookup(ctx, t.class_name, NULL);
         if (class_sym && class_sym->trait_count > 0) {
@@ -278,7 +279,7 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) { printf("sem_check
         }
         }
     }
-    
+
     int is_valid = 0;
     if (t.array_size > 0) {
         is_valid = 1;
@@ -298,11 +299,11 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) { printf("sem_check
          sem_set_node_type(ctx, node, (VarType){ .base = TYPE_CLASS, .class_name = (char*)"string" });
          return;
     }
-    
-    if (!is_valid) { 
+
+    if (!is_valid) {
         sem_error(ctx, node, "Type is not a pointer, array, string, vector, hashmap, or enum");
         t = (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     }
-    
+
     sem_set_node_type(ctx, node, t);
 }

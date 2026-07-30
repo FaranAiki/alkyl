@@ -6,7 +6,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
         return;
     }
 
-    char func_name[256];
+    char func_name[512];
     if (fn->mangled_name) {
         int is_inherited = 0;
         if (class_name && fn->class_name) {

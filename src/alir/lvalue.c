@@ -156,9 +156,9 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
         if (sym && sym->type.class_name) cname = sym->type.class_name;
     }
 
-    char func_name[256];
+    char func_name[512];
     if (mc->mangled_name && !is_trait_access) {
-        snprintf(func_name, 256, "%s", mc->mangled_name);
+        snprintf(func_name, sizeof(func_name), "%s", mc->mangled_name);
     } else if (mc->mangled_name && is_trait_access && cname) {
         char search_str[256];
         snprintf(search_str, sizeof(search_str), "_%s", mc->method_name);
@@ -183,14 +183,14 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
             }
         } else {
             if (cname && strchr(cname, '.')) {
-                snprintf(func_name, 256, "%s_%s", safe_cname, mc->method_name);
+                snprintf(func_name, sizeof(func_name), "%s_%s", safe_cname, mc->method_name);
             } else {
                 const char *top_ns = "main";
                 if (ctx->module && ctx->module->compiler_ctx) {
                     const char *dns = diag_get_namespace(ctx->module->compiler_ctx);
                     if (dns && strlen(dns) > 0) top_ns = dns;
                 }
-                snprintf(func_name, 256, "%s_%s_%s", top_ns, cname ? safe_cname : "Unknown", mc->method_name);
+                snprintf(func_name, sizeof(func_name), "%s_%s_%s", top_ns, cname ? safe_cname : "Unknown", mc->method_name);
             }
         }
     } else {
@@ -200,16 +200,16 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
             for (int i = 0; safe_cname[i]; i++) {
                 if (safe_cname[i] == '.') safe_cname[i] = '_';
             }
-            snprintf(func_name, 256, "%s_%s", safe_cname, mc->method_name);
+            snprintf(func_name, sizeof(func_name), "%s_%s", safe_cname, mc->method_name);
         } else if (cname) {
             const char *top_ns = "main";
             if (ctx->module && ctx->module->compiler_ctx) {
                 const char *dns = diag_get_namespace(ctx->module->compiler_ctx);
                 if (dns && strlen(dns) > 0) top_ns = dns;
             }
-            snprintf(func_name, 256, "%s_%s_%s", top_ns, cname, mc->method_name);
+            snprintf(func_name, sizeof(func_name), "%s_%s_%s", top_ns, cname, mc->method_name);
         } else {
-            snprintf(func_name, 256, "%s", mc->method_name);
+            snprintf(func_name, sizeof(func_name), "%s", mc->method_name);
         }
     }
     AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, func_name), NULL);
@@ -257,7 +257,7 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
             while(method_sym) {
                 if (streq(method_sym->name, mc->method_name)) {
                     if (method_sym->is_flux) {
-                        char struct_name[512];
+                        char struct_name[1024];
                         snprintf(struct_name, sizeof(struct_name), "FluxCtx_%s", func_name);
                         ret_type = (VarType){TYPE_CLASS, 0, alir_strdup(ctx->module, struct_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
                         found_flux = 1;

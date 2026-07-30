@@ -1,6 +1,13 @@
 #include "context.h"
 #include <string.h>
 
+void context_init_errtable(CompilerContext *ctx) {
+    // Inject ErrNull, ErrDivisionByZero, and others
+    int null_id = ctx->next_error_id++;
+    hashmap_put(&ctx->error_table, "ErrNull", (void*)(intptr_t)(++null_id));
+    hashmap_put(&ctx->error_table, "ErrDivisionByZero", (void*)(intptr_t)(++null_id));
+}
+
 void context_init(CompilerContext *ctx, Arena *arena) {
     if (!ctx) return;
 
@@ -26,9 +33,8 @@ void context_init(CompilerContext *ctx, Arena *arena) {
     hashmap_init(&ctx->import_cache, arena, 64);
     ctx->next_error_id = 0;
 
-    // Inject ErrNull as ID 0
-    int null_id = ctx->next_error_id++;
-    hashmap_put(&ctx->error_table, "ErrNull", (void*)(intptr_t)(null_id + 1));
+    context_init_errtable(ctx);
+
     ctx->settings.no_purge = false;
     ctx->settings.allocator_arc = false;
     ctx->settings.inject_enum_as_cstring = true;

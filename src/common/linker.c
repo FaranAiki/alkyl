@@ -6,6 +6,7 @@
 
 const char* alkyl_get_linker_command(LinkerType type) {
     switch (type) {
+        case LINKER_ALYNK:  return "echo not implemented";
         case LINKER_CLANG:  return "clang -g -O0 %s -o %s -no-pie %s";
         case LINKER_LLD:    return "ld.lld -o %s %s %s -no-pie";
         case LINKER_MOLD:   return "mold -o %s %s %s";

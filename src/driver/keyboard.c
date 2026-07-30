@@ -51,6 +51,7 @@ static int has_unbalanced_braces(const char *buffer, int len) {
 }
 
 static void cursor_up(char *buffer, int len, int *pos) {
+    (void)len;
     int current_line_start = 0;
     for (int i = *pos - 1; i >= 0; i--) {
         if (buffer[i] == '\n') {
@@ -138,6 +139,7 @@ static void insert_newline_line(char *buffer, int *len, int *pos) {
 }
 
 static void cursor_word_left(char *buffer, int len, int *pos) {
+    (void)len;
     if (*pos == 0) return;
     int i = *pos - 1;
     while (i >= 0 && !isalnum((unsigned char)buffer[i]) && buffer[i] != '_') i--;

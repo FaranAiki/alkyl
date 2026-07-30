@@ -3,8 +3,6 @@ project(alkyl C)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
-set(CMAKE_VERBOSE_MAKEFILE OFF CACHE BOOL "Enable verbose makefile output")
-
 set(OPT_LEVEL "")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wno-stringop-overflow")
@@ -47,18 +45,6 @@ option(ENABLE_DEBUG_STEP "Enable debug_step() output" ${ENABLE_DEBUG_STEP_DEFAUL
 option(ENABLE_DEBUG_ANY "Enable debug_any() output" ${ENABLE_DEBUG_ANY_DEFAULT})
 option(ENABLE_DEBUG_PARSER_OUT "Enable parser AST output" ${ENABLE_DEBUG_PARSER_OUT_DEFAULT})
 option(ENABLE_DEBUG_SEMANTIC_OUT "Enable semantic analysis output" ${ENABLE_DEBUG_SEMANTIC_OUT_DEFAULT})
-
-if(BUILD_TYPE_LOWER STREQUAL "debug")
-    set(ENABLE_DEBUG_STEP ${ENABLE_DEBUG_STEP_DEFAULT} CACHE BOOL "Enable debug_step() output" FORCE)
-    set(ENABLE_DEBUG_ANY ${ENABLE_DEBUG_ANY_DEFAULT} CACHE BOOL "Enable debug_any() output" FORCE)
-    set(ENABLE_DEBUG_PARSER_OUT ${ENABLE_DEBUG_PARSER_OUT_DEFAULT} CACHE BOOL "Enable parser AST output" FORCE)
-    set(ENABLE_DEBUG_SEMANTIC_OUT ${ENABLE_DEBUG_SEMANTIC_OUT_DEFAULT} CACHE BOOL "Enable semantic analysis output" FORCE)
-elseif(BUILD_TYPE_LOWER STREQUAL "release")
-    set(ENABLE_DEBUG_STEP ${ENABLE_DEBUG_STEP_DEFAULT} CACHE BOOL "Enable debug_step() output" FORCE)
-    set(ENABLE_DEBUG_ANY ${ENABLE_DEBUG_ANY_DEFAULT} CACHE BOOL "Enable debug_any() output" FORCE)
-    set(ENABLE_DEBUG_PARSER_OUT ${ENABLE_DEBUG_PARSER_OUT_DEFAULT} CACHE BOOL "Enable parser AST output" FORCE)
-    set(ENABLE_DEBUG_SEMANTIC_OUT ${ENABLE_DEBUG_SEMANTIC_OUT_DEFAULT} CACHE BOOL "Enable semantic analysis output" FORCE)
-endif()
 
 if(ENABLE_DEBUG_STEP)
     add_compile_definitions(DEBUG_STEP)

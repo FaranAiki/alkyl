@@ -59,19 +59,23 @@ static void print_symbol_info(SemanticCtx *ctx, VarType rt) {
     }
 }
 
-int run_repl(void) {
-    printf("\033[36mEthyl (Alkyl interpreter) version 0.0.1 \033[0m\n");
+static void display_init(void) {
+    printf("\033[36mEthyl (Alkyl interpreter) by Faran Aiki \033[0m\n");
     printf("Type \033[33m'exit'\033[0m or \033[33m'quit'\033[0m to leave.\n\n");
+}
+
+int run_repl(void) {
+    display_init();
 
     SemanticSettings sem_settings = default_sem_settings();
     sem_settings.namespace_ausearch_warning = false;
     MetalirRunner *r = metalir_runner_create("ethyl_repl", &sem_settings, 0);
 
     // TODO is this proper to hardcode it here?
-    // no, make sure that this is not the absolute path
-    metalir_load_module(r, "lib/std/print.aky");
+    // metalir_load_module(r, "lib/std/ethyl.aky");
     metalir_load_module(r, "lib/std/math.aky");
     metalir_load_module(r, "lib/std/heap.aky");
+    metalir_load_module(r, "lib/std/print.aky");
 
     signal(SIGINT, SIG_IGN);
 
@@ -118,7 +122,7 @@ int run_repl(void) {
                 VarType vt = vd->var_type;
                 if (vt.base == TYPE_UNKNOWN && vd->initializer) vt = sem_get_node_type(&r->sem, vd->initializer);
                 metalir_print_repl_value(vt, val);
-                
+
                 if (vt.base != TYPE_VOID && vt.base != TYPE_UNKNOWN) {
                     SemSymbol *res_sym = sem_symbol_lookup(&r->sem, "res", NULL);
                     if (!res_sym) {
@@ -156,46 +160,43 @@ int run_repl(void) {
             } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
             } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
                        curr->type != NODE_ENUM && curr->type != NODE_ERRNUM) {
-                VarType rt = sem_get_node_type(&r->sem, curr);
-                if (rt.base == TYPE_NAMESPACE || rt.base == TYPE_CLASS) {
-                    print_symbol_info(&r->sem, rt);
-                } else {
-                    VarType expr_rt;
-                    long long res_val = metalir_run_expr(r, curr, id++, 1, &expr_rt);
-                    
-                    if (expr_rt.base != TYPE_VOID && expr_rt.base != TYPE_UNKNOWN) {
-                        SemSymbol *res_sym = sem_symbol_lookup(&r->sem, "res", NULL);
-                        if (!res_sym) {
-                            res_sym = sem_symbol_add(&r->sem, "res", SYM_VAR, expr_rt);
-                            res_sym->is_mutable = true;
-                            res_sym->is_initialized = true;
-                        } else {
-                            res_sym->type = expr_rt;
-                        }
-                        VMGlobal *g = r->vm->globals;
-                        void *ptr = NULL;
-                        while(g) { if (streq(g->name, "res")) { ptr = g->ptr_val; break; } g = g->next; }
-                        if (!ptr) {
-                            VMGlobal *vg = arena_alloc(&r->vm_arena, sizeof(VMGlobal));
-                            vg->name = arena_strdup(&r->vm_arena, "res");
-                            vg->ptr_val = arena_alloc(&r->vm_arena, 1024);
-                            vg->next = r->vm->globals;
-                            r->vm->globals = vg;
-                            ptr = vg->ptr_val;
-                        }
-                        if (expr_rt.base == TYPE_CLASS && expr_rt.ptr_depth == 0) {
-                            int struct_size = 1024;
-                            if (r->module && expr_rt.class_name) { struct_size = alir_get_struct_size(r->module, expr_rt.class_name); if (struct_size < 8) struct_size = 8; }
-                            memcpy(ptr, (void*)(intptr_t)res_val, struct_size);
-                        } else { *((long long*)ptr) = res_val; }
+                VarType expr_rt;
+                long long res_val = metalir_run_expr(r, curr, id++, 1, &expr_rt);
+
+                if (expr_rt.base != TYPE_VOID && expr_rt.base != TYPE_UNKNOWN) {
+                    SemSymbol *res_sym = sem_symbol_lookup(&r->sem, "res", NULL);
+                    if (!res_sym) {
+                        res_sym = sem_symbol_add(&r->sem, "res", SYM_VAR, expr_rt);
+                        res_sym->is_mutable = true;
+                        res_sym->is_initialized = true;
+                    } else {
+                        res_sym->type = expr_rt;
                     }
+                    VMGlobal *g = r->vm->globals;
+                    void *ptr = NULL;
+                    while(g) { if (streq(g->name, "res")) { ptr = g->ptr_val; break; } g = g->next; }
+                    if (!ptr) {
+                        VMGlobal *vg = arena_alloc(&r->vm_arena, sizeof(VMGlobal));
+                        vg->name = arena_strdup(&r->vm_arena, "res");
+                        vg->ptr_val = arena_alloc(&r->vm_arena, 1024);
+                        vg->next = r->vm->globals;
+                        r->vm->globals = vg;
+                        ptr = vg->ptr_val;
+                    }
+                    if (expr_rt.base == TYPE_CLASS && expr_rt.ptr_depth == 0) {
+                        int struct_size = 1024;
+                        if (r->module && expr_rt.class_name) { struct_size = alir_get_struct_size(r->module, expr_rt.class_name); if (struct_size < 8) struct_size = 8; }
+                        memcpy(ptr, (void*)(intptr_t)res_val, struct_size);
+                    } else { *((long long*)ptr) = res_val; }
                 }
             }
             curr = curr->next;
         }
 
         cmd_count++;
+#ifdef DEBUG_ANY
         alir_emit_to_file(r->module, "repl_debug_after.alir");
+#endif // DEBUG_ANY
     }
     metalir_runner_destroy(r);
     return 0;

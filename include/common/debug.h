@@ -29,28 +29,24 @@
   #define DIAG_RESET  ""
 #endif // COLOR
 
-#define DEBUG_STEP
 #ifdef DEBUG_STEP
   #define debug_step(msg, ...) fprintf(stderr, DIAG_CYAN "step: " DIAG_RESET msg "\n", ##__VA_ARGS__)
 #else
   #define debug_step(msg, ...)
 #endif // DEBUG_STEP
 
-#define DEBUG_PARSER_OUT
 #ifdef DEBUG_PARSER_OUT
   #define to_ast_out(p, a, f) parser_to_file(p, a, f)
 #else
   #define to_ast_out(p, a, f)
 #endif // DEBUG_PARSER_OUT
 
-#define DEBUG_SEMANTIC_OUT
 #ifdef DEBUG_SEMANTIC_OUT
   #define to_sem_out(p, f) semantic_to_file(p, f)
 #else
   #define to_sem_out(p, f)
 #endif // DEBUG_PARSER_OUT
 
-#define DEBUG_ANY
 #ifdef DEBUG_ANY
   #define debug_any(msg, ...) fprintf(stderr, DIAG_CYAN "debug: " DIAG_RESET msg "", ##__VA_ARGS__)
 #else
