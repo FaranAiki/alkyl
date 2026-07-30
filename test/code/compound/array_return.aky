@@ -1,0 +1,23 @@
+import "std/print";
+
+compound[type Type] class Vector {
+  Type x, y;
+  void set(Type x, Type y) {
+    this.x = x;
+    this.y = y;
+  }
+  Type[2] get() {
+    return x;
+  }
+}
+
+int main() {
+  let v_single = Vector[single](1, 2);
+
+  print(v_single.get());
+
+  let v_int = Vector[int](1, 2);
+
+  v_int.set(2, 3)
+  print(v_int.get());
+}

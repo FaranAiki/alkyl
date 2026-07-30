@@ -196,6 +196,27 @@ int run_repl(void) {
                         } else if (expr_rt.base == TYPE_CLASS && expr_rt.ptr_depth == 0) {
                             /* res_val is 0 (no initializer), ptr_val already zero-allocated */
                         } else { *((long long*)ptr) = res_val; }
+
+                        /* Update target VM global for regular assignments (e.g. v = ...) */
+                        if (curr->type == NODE_ASSIGN && !((AssignNode*)curr)->is_implicit_let) {
+                            const char *target_name = ((AssignNode*)curr)->name;
+                            VMGlobal *vg2 = r->vm->globals;
+                            while(vg2) {
+                                if (streq(vg2->name, target_name)) {
+                                    if (expr_rt.base == TYPE_CLASS && expr_rt.ptr_depth == 0 && res_val) {
+                                        int struct_size = 1024;
+                                        if (r->module && expr_rt.class_name) { struct_size = alir_get_struct_size(r->module, expr_rt.class_name); if (struct_size < 8) struct_size = 8; }
+                                        memcpy(vg2->ptr_val, (void*)(intptr_t)res_val, struct_size);
+                                    } else if (expr_rt.base == TYPE_CLASS && expr_rt.ptr_depth == 0) {
+                                        /* res_val is 0, ptr_val already zero-allocated */
+                                    } else {
+                                        *((long long*)vg2->ptr_val) = res_val;
+                                    }
+                                    break;
+                                }
+                                vg2 = vg2->next;
+                            }
+                        }
                     }
                 }
             }
