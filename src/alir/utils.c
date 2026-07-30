@@ -51,10 +51,15 @@ void alir_add_symbol(AlirCtx *ctx, const char *name, AlirValue *ptr, VarType t) 
     s->type = t;
     s->next = ctx->symbols;
     ctx->symbols = s;
+    hashmap_put(&ctx->symbol_map, s->name, s);
 }
 
 AlirSymbol* alir_find_symbol(AlirCtx *ctx, const char *name) {
-    AlirSymbol *s = ctx->symbols;
+    AlirSymbol *s = (AlirSymbol*)hashmap_get(&ctx->symbol_map, name);
+    if (s) return s;
+
+    // Fallback to linked list in case map wasn't initialized properly in some legacy code paths
+    s = ctx->symbols;
     while(s) {
         if (strcmp(s->name, name) == 0) return s;
         s = s->next;

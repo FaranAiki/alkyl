@@ -206,6 +206,7 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, current_state, ptr_st, NULL));
 
     ctx->symbols = NULL; 
+    hashmap_init(&ctx->symbol_map, ctx->module->compiler_ctx ? ctx->module->compiler_ctx->arena : NULL, 32); 
     p_idx = 4;
     if (class_name) {
          VarType pt = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)}; pt.ptr_depth++;

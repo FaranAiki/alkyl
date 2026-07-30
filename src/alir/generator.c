@@ -575,6 +575,7 @@ AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
     ctx.sem = sem;
     ctx.module = alir_create_module(sem ? sem->compiler_ctx : NULL, "main_module");
     hashmap_init(&ctx.const_fold_map, ctx.module->compiler_ctx ? ctx.module->compiler_ctx->arena : NULL, 64);
+    hashmap_init(&ctx.symbol_map, ctx.module->compiler_ctx ? ctx.module->compiler_ctx->arena : NULL, 128);
 
     if (sem) {
         ctx.module->src = sem->current_source;

@@ -211,6 +211,7 @@ typedef struct AlirCtx {
     AlirBlock *current_block;
 
     AlirSymbol *symbols;    // Local IR Symbol Table (Name -> Register)
+    HashMap symbol_map;     // Fast lookup for local symbols
 
     int temp_counter;
     int label_counter;

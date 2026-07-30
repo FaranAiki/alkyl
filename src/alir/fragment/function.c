@@ -89,6 +89,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
     ctx->current_block = alir_add_block(ctx->module, ctx->current_func, "entry");
     ctx->temp_counter = 0;
     ctx->symbols = NULL;
+    hashmap_init(&ctx->symbol_map, ctx->module->compiler_ctx ? ctx->module->compiler_ctx->arena : NULL, 32);
 
     int p_idx = 0;
 
