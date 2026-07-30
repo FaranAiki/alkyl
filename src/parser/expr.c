@@ -48,11 +48,27 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
     }
   }
   eat(p, TOKEN_RPAREN);
+
+  if (target && target->type == NODE_MEMBER_ACCESS) {
+    MemberAccessNode *ma = (MemberAccessNode*)target;
+    MethodCallNode *mc = parser_alloc(p, sizeof(MethodCallNode));
+    mc->base.type = NODE_METHOD_CALL;
+    mc->object = ma->object;
+    mc->method_name = ma->member_name;
+    mc->args = args_head;
+    mc->mangled_name = NULL;
+    mc->owner_class = NULL;
+    mc->is_static = 0;
+    debug_any("Created MethodCall for member '%s' line=%d col=%d\n", mc->method_name, mc->base.line, mc->base.col);
+    return (ASTNode*)mc;
+  }
+
   CallNode *node = parser_alloc(p, sizeof(CallNode));
   node->base.type = NODE_CALL;
   node->name = name;
   node->target = target;
   node->args = args_head;
+  debug_any("Created Call name=%s target_type=%d line=%d col=%d node=%p target=%p\n", node->name ? node->name : "(null)", target ? (int)target->type : -1, node->base.line, node->base.col, (void*)node, (void*)target);
   return (ASTNode*)node;
 }
 
@@ -260,6 +276,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             set_loc(node, line, col);
         }
         else if (p->current_token.type == TOKEN_LPAREN) {
+            fprintf(stderr, "PARSER DEBUG parse_postfix: before parse_call, node->type=%d\n", node ? (int)node->type : -1);
             node = parse_call(p, node);
             set_loc(node, line, col);
         }

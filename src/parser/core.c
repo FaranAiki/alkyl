@@ -462,15 +462,24 @@ VarType parse_type(Parser *p) {
                            full_name[fn_len + 1] = '\0';
                        }
                        
-                       while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
-                           fn_len = strlen(full_name);
-                           if (fn_len + 1 < sizeof(full_name)) {
-                               const char *txt = p->current_token.text ? p->current_token.text : token_type_to_string(p->current_token.type);
-                               snprintf(full_name + fn_len, sizeof(full_name) - fn_len, "%s", txt);
-                           }
-                           eat(p, p->current_token.type);
-                           if (p->has_error) return (VarType){0};
-                       }
+                        while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+                            fn_len = strlen(full_name);
+                            if (fn_len + 1 < sizeof(full_name)) {
+                                const char *txt;
+                                if (p->current_token.text) {
+                                    txt = p->current_token.text;
+                                } else if (p->current_token.type == TOKEN_NUMBER) {
+                                    static char num_buf[32];
+                                    snprintf(num_buf, sizeof(num_buf), "%lld", p->current_token.long_val);
+                                    txt = num_buf;
+                                } else {
+                                    txt = token_type_to_string(p->current_token.type);
+                                }
+                                snprintf(full_name + fn_len, sizeof(full_name) - fn_len, "%s", txt);
+                            }
+                            eat(p, p->current_token.type);
+                            if (p->has_error) return (VarType){0};
+                        }
                        eat(p, TOKEN_RBRACKET);
                        if (p->has_error) return (VarType){0};
                        fn_len = strlen(full_name);

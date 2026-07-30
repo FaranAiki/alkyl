@@ -3,11 +3,11 @@
 void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
     sem_check_expr(ctx, node->object);
     VarType obj_type = sem_get_node_type(ctx, node->object);
-    
+
     if (sem_get_node_tainted(ctx, node->object)) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
     }
-    
+
     if (obj_type.base == TYPE_UNKNOWN) {
         sem_error(ctx, (ASTNode*)node, "Unknown type");
         return;
@@ -56,10 +56,10 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                         } else {
                             sem_set_node_type(ctx, (ASTNode*)node, member->type);
                         }
-                        node->owner_class = ns_sym->name; 
+                        node->owner_class = ns_sym->name;
                         node->is_static = 1;
                         found = 1;
-                    } 
+                    }
                     else if (member->kind == SYM_VAR && member->type.is_func_ptr) {
                         sem_set_node_type(ctx, (ASTNode*)node, *member->type.fp_ret_type);
                         found = 1;
@@ -71,19 +71,19 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                         ASTNode *saved_args = node->args;
                         int saved_line = node->base.line;
                         int saved_col = node->base.col;
-                        
+
                         CallNode *call = (CallNode*)node;
                         call->base.type = NODE_CALL;
                         call->base.line = saved_line;
                         call->base.col = saved_col;
-                        
+
                         VarRefNode *target = arena_alloc_type(ctx->compiler_ctx->arena, VarRefNode);
                         target->base.type = NODE_VAR_REF;
                         target->base.line = saved_line;
                         target->base.col = saved_col;
                         target->name = arena_strdup(ctx->compiler_ctx->arena, full_name);
                         target->is_class_member = 0;
-                        
+
                         call->name = target->name;
                         call->mangled_name = NULL;
                         call->args = saved_args;
@@ -112,7 +112,7 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                     }
             }
         }
-        
+
         done_ns_method_search:
         if (!found) {
              sem_error(ctx, (ASTNode*)node, "Function '%s' not found in namespace '%s'", node->method_name, obj_type.class_name);
@@ -142,12 +142,14 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
     }
 
     sem_scope_enter(ctx, 1, node->ret_type);
-    
+
+    sem_scope_enter(ctx, 1, node->ret_type);
+
     SemSymbol *old_func = ctx->current_func_sym;
     ctx->current_func_sym = sem_symbol_lookup(ctx, node->name, NULL);
 
     if (node->class_name) {
-        VarType this_type = {TYPE_CLASS, 1, arena_strdup(ctx->compiler_ctx->arena, node->class_name), 0, 0, NULL, NULL, 0, 0, 0, 0}; 
+        VarType this_type = {TYPE_CLASS, 1, arena_strdup(ctx->compiler_ctx->arena, node->class_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
         sem_symbol_add(ctx, "this", SYM_VAR, this_type);
     }
 
@@ -176,11 +178,11 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
         }
         p = p->next;
     }
-    
+
     if (!node->is_macro) {
         sem_check_block(ctx, node->body);
     }
     sem_scope_exit(ctx);
-    
+
     ctx->current_func_sym = old_func;
 }

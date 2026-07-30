@@ -12,6 +12,35 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
             strncpy(base_name, t.class_name, len);
             base_name[len] = '\0';
 
+            /* Parse array sizes from brackets, e.g. Type[2] -> array_size=2 */
+            int array_size = 0;
+            const char *p = bracket;
+            while (*p) {
+                if (*p == '[') {
+                    p++;
+                    int sz = 0;
+                    while (*p >= '0' && *p <= '9') {
+                        sz = sz * 10 + (*p - '0');
+                        p++;
+                    }
+                    if (*p == ']') p++;
+                    if (sz > 0 && array_size == 0) array_size = sz;
+                } else {
+                    p++;
+                }
+            }
+
+            /* Check if base_name is a generic type param that needs replacement */
+            for (int i = 0; i < num_params; i++) {
+                if (streq(base_name, type_params[i])) {
+                    VarType new_t = replace_with[i];
+                    new_t.ptr_depth += t.ptr_depth;
+                    if (array_size > 0) new_t.array_size = array_size;
+                    fprintf(stderr, "DEBUG clone_var_type bracket-typeparam: %s -> base=%s array_size=%d\n", t.class_name, new_t.class_name, new_t.array_size);
+                    return new_t;
+                }
+            }
+
             char mangled[1024];
             strcpy(mangled, base_name);
             for (int i = 0; i < num_renames; i++) {
@@ -23,6 +52,8 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
 
             VarType new_t = t;
             new_t.class_name = arena_strdup(ctx->arena, mangled);
+            if (array_size > 0) new_t.array_size = array_size;
+            fprintf(stderr, "DEBUG clone_var_type bracket: %s -> %s array_size=%d\n", t.class_name, new_t.class_name, new_t.array_size);
             return new_t;
         }
 
@@ -30,7 +61,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
             if (streq(t.class_name, type_params[i])) {
                 VarType new_t = replace_with[i];
                 new_t.ptr_depth += t.ptr_depth;
-                new_t.array_depth += t.array_depth;
+                if (t.array_size > 0) new_t.array_size = t.array_size;
                 return new_t;
             }
         }
@@ -44,17 +75,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
     }
     VarType res = t;
     if (t.class_name) res.class_name = arena_strdup(ctx->arena, t.class_name);
-
-    if (t.is_func_ptr && t.fp_ret_type) {
-        res.fp_ret_type = arena_alloc(ctx->arena, sizeof(VarType));
-        *res.fp_ret_type = clone_var_type(ctx, *t.fp_ret_type, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
-        if (t.fp_param_types) {
-            res.fp_param_types = arena_alloc(ctx->arena, sizeof(VarType) * t.fp_param_count);
-            for (int i = 0; i < t.fp_param_count; i++) {
-                res.fp_param_types[i] = clone_var_type(ctx, t.fp_param_types[i], type_params, replace_with, num_params, rename_from, rename_to, num_renames);
-            }
-        }
-    }
+    fprintf(stderr, "DEBUG clone_var_type fallback: class_name=%s array_size=%d array_depth=%d\n", t.class_name, t.array_size, t.array_depth);
     return res;
 }
 

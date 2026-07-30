@@ -301,7 +301,12 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
 
     SemSymbol *sym = NULL;
     if (node->target) {
+        int before_type = node->target->type;
         sem_check_expr(ctx, node->target);
+        int after_type = node->target->type;
+        if (before_type != after_type) {
+            fprintf(stderr, "DEBUG sem_check_call: TARGET MODIFIED! node=%p before=%d after=%d\n", (void*)node, before_type, after_type);
+        }
         if (node->target->type == NODE_TEMPLATE_INSTANTIATION) {
             // target->target was updated to VarRef inside sem_check_expr
             TemplateInstNode *ti = (TemplateInstNode*)node->target;
@@ -312,6 +317,8 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
             node->name = ((VarRefNode*)node->target)->name;
         } else if (node->target->type == NODE_MEMBER_ACCESS) {
             node->name = ((MemberAccessNode*)node->target)->member_name;
+        } else if (node->target->type == NODE_METHOD_CALL) {
+            debug_any("CallNode has MethodCall target! method_name=%s\n", ((MethodCallNode*)node->target)->method_name);
         }
     }
 
@@ -642,6 +649,8 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
 void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
     if (node->is_macro_arg) return;
+
+    fprintf(stderr, "DEBUG sem_check_expr: type=%d line=%d col=%d node=%p\n", node->type, node->line, node->col, (void*)node);
 
     switch(node->type) {
         case NODE_LITERAL: {
@@ -1500,6 +1509,10 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
 void sem_check_block(SemanticCtx *ctx, ASTNode *block) {
     ASTNode *curr = block;
     while (curr) {
+        if (curr->type == NODE_CALL) {
+            CallNode *cn = (CallNode*)curr;
+            fprintf(stderr, "DEBUG sem_check_block: Call line=%d col=%d name=%s target_type=%d node=%p\n", curr->line, curr->col, cn->name ? cn->name : "(null)", cn->target ? (int)cn->target->type : -1, (void*)curr);
+        }
         sem_check_node(ctx, curr);
         curr = curr->next;
     }
