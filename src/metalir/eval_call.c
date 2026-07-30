@@ -14,7 +14,7 @@ void vm_eval_call(VMContext *ctx, AlirInst *inst) {
 case ALIR_OP_CALL: {
                     if (inst->op1 && (inst->op1->kind == ALIR_VAL_VAR || inst->op1->kind == ALIR_VAL_GLOBAL)) {
                         if (inst->op1->val.str_val) {
-                            // printf("DEBUG VM CALL: %s\n", inst->op1->val.str_val);
+                            // debug_any("VM CALL: %s\n", inst->op1->val.str_val);
                         }
                         if (inst->op1->val.str_val && strcmp(inst->op1->val.str_val, "print") == 0) {
                             for (int i = 0; i < inst->arg_count; i++) {

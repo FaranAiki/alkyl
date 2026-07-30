@@ -1,4 +1,18 @@
-nah this is shit
+Here is the architectural documentation and programming guide for the **Alkyl** compiler project. (Also applicable for Kilo Code and other AI assistants)
+
+<RULE>
+**Debugging Print Rule:**
+Every `fprintf` or `printf` that is used for debugging MUST be replaced by `debug_any("msg", ...);`. Do NOT use `printf("DEBUG: ...")` or `fprintf(stderr, ...)`.
+</RULE>
+
+# How to Program in Alkyl
+1. **Variables and Assignment**: 
+   - `let p = 1;`
+   - In the REPL, `p = 1` also acts as a declaration.
+2. **Types**: Alkyl uses C-like types (`int`, `double`, `single`, `char`, `bool`) but also has `class` and `namespace`.
+3. **Control Flow**: Standard `if`, `while`, `switch`.
+4. **Macros**: Macros are defined with `meta void` and are expanded at AST level. Never eagerly compile an unexpanded macro to ALIR.
+
 
 Here is the architectural documentation for the **Alkyl** compiler project.
 
