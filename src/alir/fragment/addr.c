@@ -264,6 +264,17 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
         }
     }
 
+    if (node->type == NODE_CALL || node->type == NODE_METHOD_CALL) {
+        AlirValue *rval = alir_gen_expr(ctx, node);
+        if (rval) {
+            VarType t = sem_get_node_type(ctx->sem, node);
+            AlirValue *ptr = new_temp(ctx, t);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, rval, ptr));
+            return ptr;
+        }
+    }
+
     return NULL;
 }
 

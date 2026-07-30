@@ -1,0 +1,14 @@
+import "std/print";
+class Vector {
+    public:
+        int[2] get() {
+            return [10, 100];
+        }
+}
+int main() {
+    let vec1 = Vector();
+    let a = vec1.get()[0];
+    print "typeof a: ", typeof(a), "\n";
+    print "typeof int: ", typeof(int), "\n";
+    return 0;
+}

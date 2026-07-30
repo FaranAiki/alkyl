@@ -687,7 +687,7 @@ VarType parse_type(Parser *p) {
           t.array_size = 1;
       }
       eat(p, TOKEN_RBRACKET);
-      t.ptr_depth++;
+      // t.ptr_depth++;
   }
 
   return t;

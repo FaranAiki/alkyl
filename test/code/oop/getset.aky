@@ -1,0 +1,36 @@
+import "std/print";
+
+class Vector {
+    private:
+        int x = 0;
+        int y = 0;
+
+    public:
+        void set(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        int[2] get() {
+            return [this.x, this.y];
+        }
+}
+
+int main() {
+    let vec1 = Vector(1, 2);
+    // this is on stack! don't on heap!
+
+    Vector vec2(3, 4); // this is the same!
+
+    // make sure accesing private not in the class throws error
+    print "vec1 ", vec1.get()[0], " ", vec1.get()[1], "\n";
+    print "vec2 ", vec2.get()[0], " ", vec2.get()[1], "\n";
+
+    vec1.set(10, 100);
+    vec2.set(20, 200);
+
+    print "vec1 ", vec1.get()[0], " ", vec1.get()[1], "\n";
+    print "vec2 ", vec2.get()[0], " ", vec2.get()[1], "\n";
+
+    return 0;
+}

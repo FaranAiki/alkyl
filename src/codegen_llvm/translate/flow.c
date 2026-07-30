@@ -156,8 +156,8 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             LLVMTypeRef ret_ty = LLVMGetReturnType(LLVMGlobalGetValueType(current_func));
             
             if (op1) {
-                if (LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) {
-                    if (inst->op1 && inst->op1->type.base == TYPE_CLASS) {
+                if ((LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind || LLVMGetTypeKind(ret_ty) == LLVMArrayTypeKind) && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) {
+                    if (inst->op1 && (inst->op1->type.base == TYPE_CLASS || inst->op1->type.array_size > 0)) {
                         VarType base_t = inst->op1->type;
                         base_t.ptr_depth = 0;
                         LLVMTypeRef struct_ty = get_llvm_type(ctx, base_t);

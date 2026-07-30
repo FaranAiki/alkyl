@@ -191,7 +191,7 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
     sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
 }
 
-void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) {
+void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) { printf("sem_check_index_access type base: %d, array_size: %d\n", sem_get_node_type(ctx, ((IndexAccessNode*)node)->target).base, sem_get_node_type(ctx, ((IndexAccessNode*)node)->target).array_size);
     IndexAccessNode *aa = (IndexAccessNode*)node;
     sem_check_expr(ctx, aa->target);
     sem_check_expr(ctx, aa->index);
@@ -279,7 +279,9 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) {
         }
     }
     
+    int is_valid = 0;
     if (t.array_size > 0) {
+        is_valid = 1;
         if (t.array_depth > 0) {
             t.array_size = t.array_depth;
             t.array_depth = 0;
@@ -288,6 +290,7 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) {
         }
     }
     else if (t.ptr_depth > 0) {
+        is_valid = 1;
         t.ptr_depth--;
     }
     else if (t.base == TYPE_ENUM || t.base == TYPE_ARRAY || (t.base == TYPE_CLASS && t.class_name && (strcmp(t.class_name, "string") == 0 || strcmp(t.class_name, "vector") == 0 || strcmp(t.class_name, "hashmap") == 0))) {
@@ -295,7 +298,8 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) {
          sem_set_node_type(ctx, node, (VarType){ .base = TYPE_CLASS, .class_name = (char*)"string" });
          return;
     }
-    else { 
+    
+    if (!is_valid) { 
         sem_error(ctx, node, "Type is not a pointer, array, string, vector, hashmap, or enum");
         t = (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     }

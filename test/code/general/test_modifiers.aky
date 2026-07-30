@@ -20,8 +20,12 @@ container class ContainerClass {
 pragma class PragmaClass {
     int x = 5;
     int y;
-    int fun() {}
-    int fun2();
+    int fun() {
+      return 1;
+    }
+    int fun2() {
+      return 2;
+    }
 }
 
 frame class FrameClass {
@@ -32,5 +36,12 @@ frame class FrameClass {
 }
 
 int main() {
+    ExactClass ec;
+    if ec.x != 5 then return 5;
+
+    ContainerClass cc = ContainerClass(10, 10);
+    if cc.x != cc.y then return 10;
+    if cc.x != 5 then return 15;
+
     return 0;
 }

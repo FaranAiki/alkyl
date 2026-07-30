@@ -1,0 +1,15 @@
+extern "C" int printf(char* fmt, ...);
+
+class Vector {
+    public:
+        int[2] get() {
+            return [10, 100];
+        }
+}
+int main() {
+    let vec1 = Vector();
+    let a = vec1.get()[0];
+    let b = vec1.get()[1];
+    printf("a = %d, b = %d\n", a, b);
+    return 0;
+}

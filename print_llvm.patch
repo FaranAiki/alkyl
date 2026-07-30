@@ -1,0 +1,11 @@
+--- src/codegen_llvm/driver.c
++++ src/codegen_llvm/driver.c
+@@ -70,6 +70,9 @@
+     CodegenCtx *cg_ctx = codegen_init(module);
+     LLVMModuleRef llvm_module = codegen_generate(cg_ctx);
+ 
++    char *err_llvm = NULL;
++    LLVMPrintModuleToFile(llvm_module, "out.ll", &err_llvm);
++
+     char o_file[1024];
+     snprintf(o_file, sizeof(o_file), "%s.o", basename);
