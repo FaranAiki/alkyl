@@ -15,7 +15,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
             char mangled[1024];
             strcpy(mangled, base_name);
             for (int i = 0; i < num_renames; i++) {
-                if (strcmp(base_name, rename_from[i]) == 0) {
+                if (streq(base_name, rename_from[i])) {
                     strcpy(mangled, rename_to[i]);
                     break;
                 }
@@ -27,7 +27,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
         }
 
         for (int i = 0; i < num_params; i++) {
-            if (strcmp(t.class_name, type_params[i]) == 0) {
+            if (streq(t.class_name, type_params[i])) {
                 VarType new_t = replace_with[i];
                 new_t.ptr_depth += t.ptr_depth;
                 new_t.array_depth += t.array_depth;
@@ -35,7 +35,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
             }
         }
         for (int i = 0; i < num_renames; i++) {
-            if (strcmp(t.class_name, rename_from[i]) == 0) {
+            if (streq(t.class_name, rename_from[i])) {
                 VarType new_t = t;
                 new_t.class_name = arena_strdup(ctx->arena, rename_to[i]);
                 return new_t;
@@ -79,7 +79,7 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             if (orig->name) {
                 n->name = arena_strdup(ctx->arena, orig->name);
                 for (int i = 0; i < num_renames; i++) {
-                    if (strcmp(orig->name, rename_from[i]) == 0) {
+                    if (streq(orig->name, rename_from[i])) {
                         n->name = arena_strdup(ctx->arena, rename_to[i]);
                         break;
                     }
@@ -103,14 +103,14 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             if (orig->name) {
                 n->name = arena_strdup(ctx->arena, orig->name);
                 for (int i = 0; i < num_renames; i++) {
-                    if (strcmp(orig->name, rename_from[i]) == 0) {
+                    if (streq(orig->name, rename_from[i])) {
                         n->name = arena_strdup(ctx->arena, rename_to[i]);
                         break;
                     }
                 }
                 if (strncmp(orig->name, "as_", 3) == 0) {
                     for (int i = 0; i < num_params; i++) {
-                        if (strcmp(orig->name + 3, type_params[i]) == 0) {
+                        if (streq(orig->name + 3, type_params[i])) {
                             char buf[256];
                             const char *repl = replace_with[i].base == TYPE_INT ? "int" :
                                                replace_with[i].base == TYPE_SINGLE ? "float" :
@@ -127,7 +127,7 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             if (orig->class_name) {
                 n->class_name = arena_strdup(ctx->arena, orig->class_name);
                 for (int i = 0; i < num_renames; i++) {
-                    if (strcmp(orig->class_name, rename_from[i]) == 0) {
+                    if (streq(orig->class_name, rename_from[i])) {
                         n->class_name = arena_strdup(ctx->arena, rename_to[i]);
                         break;
                     }
@@ -179,7 +179,7 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
                     char mangled[1024];
                     strcpy(mangled, base_name);
                     for (int i = 0; i < num_renames; i++) {
-                        if (strcmp(base_name, rename_from[i]) == 0) {
+                        if (streq(base_name, rename_from[i])) {
                             strcpy(mangled, rename_to[i]);
                             break;
                         }
@@ -188,7 +188,7 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
                 } else {
                     n->name = arena_strdup(ctx->arena, orig->name);
                     for (int i = 0; i < num_renames; i++) {
-                        if (strcmp(orig->name, rename_from[i]) == 0) {
+                        if (streq(orig->name, rename_from[i])) {
                             n->name = arena_strdup(ctx->arena, rename_to[i]);
                             break;
                         }
@@ -207,7 +207,7 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             if (orig->name) {
                 n->name = arena_strdup(ctx->arena, orig->name);
                 for (int i = 0; i < num_renames; i++) {
-                    if (strcmp(orig->name, rename_from[i]) == 0) {
+                    if (streq(orig->name, rename_from[i])) {
                         n->name = arena_strdup(ctx->arena, rename_to[i]);
                         break;
                     }
@@ -398,7 +398,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
     if (node->type == NODE_VAR_REF) {
         VarRefNode *vn = (VarRefNode*)node;
         for (int i=0; i<num_params; i++) {
-            if (param_names[i] && strcmp(vn->name, param_names[i]) == 0) {
+            if (param_names[i] && streq(vn->name, param_names[i])) {
                 // Replace with a clone of the argument to avoid sharing nodes
                 ASTNode *old_next = param_args[i]->next;
                 param_args[i]->next = NULL;
@@ -416,7 +416,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
         IndexAccessNode *aa = (IndexAccessNode*)node;
         if (aa->target && aa->target->type == NODE_VAR_REF) {
             VarRefNode *vn = (VarRefNode*)aa->target;
-            if (strcmp(vn->name, "...") == 0) {
+            if (streq(vn->name, "...")) {
                 if (aa->index && aa->index->type == NODE_LITERAL) {
                     LiteralNode *ln = (LiteralNode*)aa->index;
                     int idx = (int)ln->val.long_val;
@@ -501,7 +501,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
         }
         case NODE_FOR_IN: {
             ForInNode *fn = (ForInNode*)node;
-            if (fn->collection && fn->collection->type == NODE_VAR_REF && ((VarRefNode*)fn->collection)->name && strcmp(((VarRefNode*)fn->collection)->name, "...") == 0) {
+            if (fn->collection && fn->collection->type == NODE_VAR_REF && ((VarRefNode*)fn->collection)->name && streq(((VarRefNode*)fn->collection)->name, "...")) {
                 ASTNode *expanded_head = NULL;
                 ASTNode *expanded_tail = NULL;
 

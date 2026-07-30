@@ -8,7 +8,7 @@ SemSymbol* lookup_local_symbol(SemanticCtx *ctx, const char *name) {
     if (!ctx->current_scope) return NULL;
     SemSymbol *sym = ctx->current_scope->symbols;
     while (sym) {
-        if (strcmp(sym->name, name) == 0) return sym;
+        if (streq(sym->name, name)) return sym;
         sym = sym->next;
     }
     return NULL;
@@ -49,7 +49,7 @@ void sem_check_residue_exhaustive(SemanticCtx *ctx, ASTNode *where,
         for (ResidueCase *rc = cases; rc; rc = rc->next) {
             if (rc->is_default) { found = 1; continue; }
             for (int j = 0; j < rc->num_err; j++) {
-                if (strcmp(rc->err_names[j], ename) == 0) { found = 1; break; }
+                if (streq(rc->err_names[j], ename)) { found = 1; break; }
             }
             if (found) break;
         }
@@ -400,7 +400,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         if (sym->inner_scope) {
             SemSymbol *s = sym->inner_scope->symbols;
             while (s) {
-                if (strcmp(s->name, sym->name) == 0 || strcmp(s->name, "init") == 0) {
+                if (streq(s->name, sym->name) || streq(s->name, "init")) {
                      constructor_head = s;
                      break;
                 }
@@ -429,7 +429,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                 if (trait_sym && trait_sym->inner_scope) {
                     SemSymbol *s = trait_sym->inner_scope->symbols;
                     while (s) {
-                        if (strcmp(s->name, trait_sym->name) == 0 || strcmp(s->name, "init") == 0) {
+                        if (streq(s->name, trait_sym->name) || streq(s->name, "init")) {
                             constructor_head = s;
                             break;
                         }
@@ -468,7 +468,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                  if (arg_count == 1) {
                      VarType arg_type = sem_get_node_type(ctx, node->args);
                      debug_any("copy check: base=%d expected=%d class_name=%s sym_name=%s\n", arg_type.base, TYPE_CLASS, arg_type.class_name ? arg_type.class_name : "(null)", sym->name);
-                     if (arg_type.base == TYPE_CLASS && arg_type.class_name && strcmp(arg_type.class_name, sym->name) == 0) {
+                     if (arg_type.base == TYPE_CLASS && arg_type.class_name && streq(arg_type.class_name, sym->name)) {
                          is_copy = 1;
                      }
                  }
@@ -625,7 +625,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     else if (is_integer(l) && is_pointer(r)) {
          sem_set_node_type(ctx, (ASTNode*)node, r);
     }
-    else if ((l.base == TYPE_CLASS && l.class_name && strcmp(l.class_name, "string") == 0) || (r.base == TYPE_CLASS && r.class_name && strcmp(r.class_name, "string") == 0)) {
+    else if ((l.base == TYPE_CLASS && l.class_name && streq(l.class_name, "string")) || (r.base == TYPE_CLASS && r.class_name && streq(r.class_name, "string"))) {
          if (node->op == TOKEN_PLUS)
             sem_set_node_type(ctx, (ASTNode*)node, (VarType){ .base = TYPE_CLASS, .class_name = (char*)"string" });
          else {
@@ -672,7 +672,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 if (class_sym && class_sym->inner_scope) {
                     SemSymbol *member = class_sym->inner_scope->symbols;
                     while (member) {
-                        if (member->kind == SYM_FUNC && strcmp(member->name, as_name) == 0) {
+                        if (member->kind == SYM_FUNC && streq(member->name, as_name)) {
                             comp = true;
                             break;
                         }
@@ -754,7 +754,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 if (class_sym && class_sym->inner_scope) {
                     SemSymbol *member = class_sym->inner_scope->symbols;
                     while (member) {
-                        if (member->kind == SYM_FUNC && strcmp(member->name, as_name) == 0) {
+                        if (member->kind == SYM_FUNC && streq(member->name, as_name)) {
                             char mangled[512];
                             snprintf(mangled, sizeof(mangled), "%s_%s", op_t.class_name, as_name);
                             cn->custom_cast_method = arena_strdup(ctx->compiler_ctx->arena, member->mangled_name ? member->mangled_name : mangled);
@@ -865,14 +865,14 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 if (class_sym && class_sym->inner_scope) {
                     SemSymbol *s = class_sym->inner_scope->symbols;
                     while (s) {
-                        if (strcmp(s->name, name_buf) == 0) { sym = s; is_method = 1; break; }
+                        if (streq(s->name, name_buf)) { sym = s; is_method = 1; break; }
                         s = s->next;
                     }
                     if (!sym) {
                         snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", id->is_prefix ? TOKEN_PREFOP : TOKEN_SUFFOP, id->op);
                         s = class_sym->inner_scope->symbols;
                         while (s) {
-                            if (strcmp(s->name, name_buf) == 0) { sym = s; is_method = 1; break; }
+                            if (streq(s->name, name_buf)) { sym = s; is_method = 1; break; }
                             s = s->next;
                         }
                     }
@@ -1645,7 +1645,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
                     int found = -1;
                     Parameter *p = sym->params;
                     for (int i=0; p; i++, p=p->next) {
-                        if (p->name && strcmp(p->name, narg->name) == 0) { found = i; break; }
+                        if (p->name && streq(p->name, narg->name)) { found = i; break; }
                     }
                     if (found == -1 || matched_args[found] != NULL) { match = 0; break; }
                     matched_args[found] = narg->value;

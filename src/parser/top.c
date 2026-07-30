@@ -167,7 +167,7 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
   while (p->current_token.type != TOKEN_RBRACKET) { if (p->has_error) break;
       VarType *curr_allowed = NULL;
       int curr_num = 0;
-      if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text && strcmp(p->current_token.text, "type") == 0) {
+      if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text && streq(p->current_token.text, "type")) {
           eat(p, TOKEN_IDENTIFIER);
           if (p->current_token.type == TOKEN_LBRACKET) {
               eat(p, TOKEN_LBRACKET);
@@ -431,25 +431,25 @@ ASTNode* parse_top_level_internal(Parser *p) {
                       parser_fail(p, "no reason to set setting");
                   }
 
-                  if (strcmp(domain, "compiler") == 0) {
-                      if (strcmp(key, "no_purge") == 0 && val) {
-                          p->ctx->settings.no_purge = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
-                      } else if (strcmp(key, "allocator_arc") == 0 && val) {
-                          p->ctx->settings.allocator_arc = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
+                  if (streq(domain, "compiler")) {
+                      if (streq(key, "no_purge") && val) {
+                          p->ctx->settings.no_purge = (streq(val, "true") || streq(val, "1"));
+                      } else if (streq(key, "allocator_arc") && val) {
+                          p->ctx->settings.allocator_arc = (streq(val, "true") || streq(val, "1"));
                       }
-                  } else if (strcmp(domain, "lexer") == 0) {
-                      if (strcmp(key, "scope_style") == 0 && val) {
-                          if (strcmp(val, "SCOPE_INDENTATION") == 0) {
+                  } else if (streq(domain, "lexer")) {
+                      if (streq(key, "scope_style") && val) {
+                          if (streq(val, "SCOPE_INDENTATION")) {
                               p->l->settings.scope_style = SCOPE_INDENTATION;
-                          } else if (strcmp(val, "SCOPE_BRACKETS") == 0) {
+                          } else if (streq(val, "SCOPE_BRACKETS")) {
                               p->l->settings.scope_style = SCOPE_BRACKETS;
                           } else {
                               parser_fail(p, "Unknown scope_style value");
                           }
-                      } else if (strcmp(key, "require_semicolons") == 0 && val) {
-                          p->l->settings.require_semicolons = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
-                      } else if (strcmp(key, "double_quote_as_string") == 0 && val) {
-                          bool setting = (strcmp(val, "true") == 0 || strcmp(val, "1") == 0);
+                      } else if (streq(key, "require_semicolons") && val) {
+                          p->l->settings.require_semicolons = (streq(val, "true") || streq(val, "1"));
+                      } else if (streq(key, "double_quote_as_string") && val) {
+                          bool setting = (streq(val, "true") || streq(val, "1"));
                           p->l->settings.double_quote_as_string = setting;
                           p->ctx->settings.double_quote_as_string = setting;
                       }
@@ -468,7 +468,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
                       parser_fail(p, "no reason to set setting");
                   }
 
-                  if (strcmp(domain, "cconv") == 0 && val) {
+                  if (streq(domain, "cconv") && val) {
                       p->ctx->settings.default_cconv = val;
                   }
               }
@@ -512,7 +512,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
                               p->current_token.col = col;
                               parser_fail(p, "no reason to set setting");
                           }
-                          if (strcmp(key, "cconv") == 0) {
+                          if (streq(key, "cconv")) {
                               p->pending_cconv = parser_strdup(p, p->current_token.text);
                           }
                           eat(p, p->current_token.type);

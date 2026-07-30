@@ -122,7 +122,7 @@ typedef struct {
 
 static int import_stack_contains(ImportStack *stack, const char *path) {
     for (int i = 0; i < stack->count; i++) {
-        if (strcmp(stack->paths[i], path) == 0) return 1;
+        if (streq(stack->paths[i], path)) return 1;
     }
     return 0;
 }

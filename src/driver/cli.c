@@ -88,7 +88,7 @@ int run_repl(void) {
         while(len > 0 && (buffer[len-1] == ' ' || buffer[len-1] == '\n' || buffer[len-1] == '\r')) len--;
         buffer[len] = '\0';
 
-        if (strcmp(buffer, "exit") == 0 || strcmp(buffer, "quit") == 0) {
+        if (streq(buffer, "exit") || streq(buffer, "quit")) {
             break;
         }
 
@@ -130,7 +130,7 @@ int run_repl(void) {
                     }
                     VMGlobal *g = r->vm->globals;
                     void *ptr = NULL;
-                    while(g) { if (strcmp(g->name, "res") == 0) { ptr = g->ptr_val; break; } g = g->next; }
+                    while(g) { if (streq(g->name, "res")) { ptr = g->ptr_val; break; } g = g->next; }
                     if (!ptr) {
                         VMGlobal *vg = arena_alloc(&r->vm_arena, sizeof(VMGlobal));
                         vg->name = arena_strdup(&r->vm_arena, "res");
@@ -174,7 +174,7 @@ int run_repl(void) {
                         }
                         VMGlobal *g = r->vm->globals;
                         void *ptr = NULL;
-                        while(g) { if (strcmp(g->name, "res") == 0) { ptr = g->ptr_val; break; } g = g->next; }
+                        while(g) { if (streq(g->name, "res")) { ptr = g->ptr_val; break; } g = g->next; }
                         if (!ptr) {
                             VMGlobal *vg = arena_alloc(&r->vm_arena, sizeof(VMGlobal));
                             vg->name = arena_strdup(&r->vm_arena, "res");
@@ -259,7 +259,7 @@ int run_file(const char *filename) {
 
     AlirFunction *main_fn = r->module->functions;
     while (main_fn) {
-        if (strcmp(main_fn->name, "main") == 0) break;
+        if (streq(main_fn->name, "main")) break;
         main_fn = main_fn->next;
     }
 
@@ -315,7 +315,7 @@ int main(int argc, char *argv[]) {
     }
 
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--module") == 0) {
+        if (streq(argv[i], "-m") || streq(argv[i], "--module")) {
             if (i + 1 >= argc) {
                 fprintf(stderr, "Error: -m/--module requires a module name\n");
                 return 1;

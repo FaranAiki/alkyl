@@ -40,7 +40,7 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
     char *mangled = fd->name;
     if (fd->is_extern) {
         if (fd->extern_name) mangled = fd->extern_name;
-    } else if (strcmp(fd->name, "main") != 0) {
+    } else if (!streq(fd->name, "main")) {
         const char *current_ns = diag_get_namespace(ctx->compiler_ctx);
         char *ns_class = NULL;
         if (current_ns && strlen(current_ns) > 0) {

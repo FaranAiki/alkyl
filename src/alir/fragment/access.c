@@ -72,7 +72,7 @@ int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char
         while (search) {
             AlirField *f = search->fields;
             while(f) {
-                if (strcmp(f->name, field_name) == 0) return f->index;
+                if (streq(f->name, field_name)) return f->index;
                 f = f->next;
             }
             search = search->next;
@@ -108,7 +108,7 @@ AlirValue* alir_gen_addr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     // is a different class than the target type
     if (elem_t.base == TYPE_CLASS && target_t.base == TYPE_CLASS &&
         elem_t.class_name && target_t.class_name &&
-        strcmp(elem_t.class_name, target_t.class_name) != 0) {
+        !streq(elem_t.class_name, target_t.class_name)) {
 
         VarType ptr_t = elem_t;
         ptr_t.ptr_depth++;
@@ -149,7 +149,7 @@ AlirValue* alir_gen_expr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     // Check if it's a trait access. If so, just return the target bitcasted!
     if (elem_t.base == TYPE_CLASS && target_t.base == TYPE_CLASS &&
         elem_t.class_name && target_t.class_name &&
-        strcmp(elem_t.class_name, target_t.class_name) != 0) {
+        !streq(elem_t.class_name, target_t.class_name)) {
 
         AlirValue *target_val = alir_gen_expr(ctx, aa->target);
         if (!target_val) return NULL;

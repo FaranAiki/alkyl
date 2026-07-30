@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include "common/common.h"
 
 struct SemanticCtx;
 struct SemSymbol;
@@ -23,7 +24,7 @@ static int history_view_idx = 0;
 
 static void add_to_cmd_history(const char *line) {
     if (strlen(line) == 0) return;
-    if (cmd_history_count > 0 && strcmp(cmd_history[cmd_history_count - 1], line) == 0) return;
+    if (cmd_history_count > 0 && streq(cmd_history[cmd_history_count - 1], line)) return;
     if (cmd_history_count < MAX_HISTORY) {
         strcpy(cmd_history[cmd_history_count], line);
         cmd_history_count++;

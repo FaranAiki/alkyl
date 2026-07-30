@@ -4,7 +4,7 @@
 static AlirBlock* find_block(AlirFunction *func, const char *label) {
     AlirBlock *b = func->blocks;
     while (b) {
-        if (strcmp(b->label, label) == 0) return b;
+        if (streq(b->label, label)) return b;
         b = b->next;
     }
     return NULL;

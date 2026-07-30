@@ -13,7 +13,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         VarDeclNode *vn = (VarDeclNode*)node;
         FluxVar *fv = ctx->flux_vars;
         while(fv) {
-            if (strcmp(fv->name, vn->name) == 0) break;
+            if (streq(fv->name, vn->name)) break;
             fv = fv->next;
         }
 

@@ -119,8 +119,8 @@ static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
     // Fallback if hashmap is not initialized
     SemSymbol *sym = scope->symbols;
     while (sym) {
-        if (strcmp(sym->name, name) == 0) {
-            if (sym->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && strcmp(sym->name, scope->class_sym->name) == 0) {
+        if (streq(sym->name, name)) {
+            if (sym->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && streq(sym->name, scope->class_sym->name)) {
                 // skip constructor
             } else {
                 return sym;
@@ -366,7 +366,7 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
             if (sym->kind == SYM_ENUM && sym->inner_scope) {
                 SemSymbol *mem = sym->inner_scope->symbols;
                 while (mem) {
-                    if (strcmp(mem->name, name) == 0) {
+                    if (streq(mem->name, name)) {
                         if (out_scope) *out_scope = sym->inner_scope;
                         return mem;
                     }
@@ -445,12 +445,12 @@ int sem_types_are_equal(VarType a, VarType b) {
 
     if (a.base == TYPE_CLASS || a.base == TYPE_ENUM || a.base == TYPE_NAMESPACE) {
         if (a.class_name && b.class_name) {
-            if (strcmp(a.class_name, b.class_name) == 0) return 1;
+            if (streq(a.class_name, b.class_name)) return 1;
             const char *dot_a = strrchr(a.class_name, '.');
             const char *dot_b = strrchr(b.class_name, '.');
             const char *base_a = dot_a ? dot_a + 1 : a.class_name;
             const char *base_b = dot_b ? dot_b + 1 : b.class_name;
-            return strcmp(base_a, base_b) == 0;
+            return streq(base_a, base_b);
         }
         return 0;
     }
@@ -461,12 +461,12 @@ int sem_types_are_equal(VarType a, VarType b) {
 bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
     if (dest.base == TYPE_CLASS && src.base == TYPE_CLASS && dest.class_name && src.class_name) {
         if (dest.ptr_depth == src.ptr_depth) {
-            if (strcmp(dest.class_name, src.class_name) == 0) return true;
+            if (streq(dest.class_name, src.class_name)) return true;
 
             // Check inheritance
             SemSymbol *src_sym = sem_symbol_lookup(ctx, src.class_name, NULL);
             while (src_sym && src_sym->kind == SYM_CLASS && src_sym->parent_name) {
-                if (strcmp(src_sym->parent_name, dest.class_name) == 0) return true;
+                if (streq(src_sym->parent_name, dest.class_name)) return true;
                 src_sym = sem_symbol_lookup(ctx, src_sym->parent_name, NULL);
             }
 
@@ -474,7 +474,7 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
             src_sym = sem_symbol_lookup(ctx, src.class_name, NULL);
             while (src_sym && src_sym->kind == SYM_CLASS) {
                 for (int i = 0; i < src_sym->trait_count; i++) {
-                    if (strcmp(src_sym->traits[i], dest.class_name) == 0) return true;
+                    if (streq(src_sym->traits[i], dest.class_name)) return true;
 
                     // Recursive trait check (traits can have traits)
                     SemSymbol *trait_sym = sem_symbol_lookup(ctx, src_sym->traits[i], NULL);
@@ -495,8 +495,8 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
 
     if (dest.base == TYPE_AUTO) return true;
 
-    if (dest.base == TYPE_CLASS && dest.class_name && strcmp(dest.class_name, "string") == 0 && src.base == TYPE_CHAR) return true;
-    if (src.base == TYPE_CLASS && src.class_name && strcmp(src.class_name, "string") == 0 && dest.base == TYPE_CHAR) return true; // Adding this just in case
+    if (dest.base == TYPE_CLASS && dest.class_name && streq(dest.class_name, "string") && src.base == TYPE_CHAR) return true;
+    if (src.base == TYPE_CLASS && src.class_name && streq(src.class_name, "string") && dest.base == TYPE_CHAR) return true; // Adding this just in case
     if (dest.base == TYPE_CHAR && src.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0) && (src.ptr_depth > 0 || src.array_size > 0)) return true;
 
     // TODO make this more proper!
@@ -513,8 +513,8 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
         return true;
     }
 
-    int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && strcmp(dest.class_name, "string") == 0 && dest.ptr_depth == 0);
-    int src_is_str = (src.base == TYPE_CLASS && src.class_name && strcmp(src.class_name, "string") == 0 && src.ptr_depth == 0);
+    int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && streq(dest.class_name, "string") && dest.ptr_depth == 0);
+    int src_is_str = (src.base == TYPE_CLASS && src.class_name && streq(src.class_name, "string") && src.ptr_depth == 0);
 
     int dest_is_char_p = (dest.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0));
     int src_is_char_p = (src.base == TYPE_CHAR && (src.ptr_depth > 0 || src.array_size > 0));

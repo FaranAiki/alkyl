@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
       return 1;
     }
 
-    if (argc == 2 && strcmp(argv[1], "--lsp") == 0) {
+    if (argc == 2 && streq(argv[1], "--lsp")) {
         start_lsp_server();
         return 0;
     }
@@ -64,28 +64,28 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "Too many link flags\n");
                 return 1;
             }
-        } else if (strcmp(argv[i], "--emit-alir") == 0) {
+        } else if (streq(argv[i], "--emit-alir")) {
             emit_alir = 1;
-        } else if (strcmp(argv[i], "--emit-balir") == 0) {
+        } else if (streq(argv[i], "--emit-balir")) {
             emit_balir = 1;
-        } else if (strcmp(argv[i], "--allow-vector-init") == 0) {
+        } else if (streq(argv[i], "--allow-vector-init")) {
             parser_settings.allow_vector_initialization = 1;
-        } else if (strcmp(argv[i], "--unopt") == 0) {
+        } else if (streq(argv[i], "--unopt")) {
             unopt_mode = 1;
-        } else if (strcmp(argv[i], "--opt") == 0) {
+        } else if (streq(argv[i], "--opt")) {
             opt_mode = 1;
-        } else if (strcmp(argv[i], "-o") == 0) {
+        } else if (streq(argv[i], "-o")) {
             if (i + 1 < argc) {
                 strncpy(custom_output_basename, argv[++i], sizeof(custom_output_basename) - 1);
                 custom_output_basename[sizeof(custom_output_basename) - 1] = '\0';
             }
-        } else if (strcmp(argv[i], "--linker") == 0) {
+        } else if (streq(argv[i], "--linker")) {
             if (i + 1 < argc) {
                 i++;
-                if (strcmp(argv[i], "gcc") == 0) current_linker = LINKER_GCC;
-                else if (strcmp(argv[i], "clang") == 0) current_linker = LINKER_CLANG;
-                else if (strcmp(argv[i], "lld") == 0) current_linker = LINKER_LLD;
-                else if (strcmp(argv[i], "mold") == 0) current_linker = LINKER_MOLD;
+                if (streq(argv[i], "gcc")) current_linker = LINKER_GCC;
+                else if (streq(argv[i], "clang")) current_linker = LINKER_CLANG;
+                else if (streq(argv[i], "lld")) current_linker = LINKER_LLD;
+                else if (streq(argv[i], "mold")) current_linker = LINKER_MOLD;
             }
         } else {
             filename = argv[i];

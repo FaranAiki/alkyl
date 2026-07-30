@@ -90,7 +90,7 @@ void alir_func_add_param(AlirModule *mod, AlirFunction *func, const char *name, 
 AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, VarType type) {
     AlirGlobal *curr = mod->globals;
     while (curr) {
-        if (curr->string_content && strcmp(curr->string_content, content) == 0) {
+        if (curr->string_content && streq(curr->string_content, content)) {
             return alir_val_global(mod, curr->name, curr->type);
         }
         curr = curr->next;
@@ -194,7 +194,7 @@ AlirStruct* alir_find_struct(AlirModule *mod, const char *name) {
     if (st) return st;
     st = mod->structs;
     while(st) {
-        if (strcmp(st->name, name) == 0) {
+        if (streq(st->name, name)) {
             hashmap_put(&mod->struct_map, name, st);
             return st;
         }
@@ -209,7 +209,7 @@ int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *f
 
     AlirField *f = st->fields;
     while(f) {
-        if (strcmp(f->name, field_name) == 0) return f->index;
+        if (streq(f->name, field_name)) return f->index;
         f = f->next;
     }
     return -1;

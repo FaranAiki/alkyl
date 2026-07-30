@@ -71,7 +71,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                             param_types[i] = LLVMInt64TypeInContext(ctx->llvm_ctx);
                         }
                     }
-                    if (strcmp(inst->op1->val.str_val, "ns.Clib") == 0) {
+                    if (streq(inst->op1->val.str_val, "ns.Clib")) {
                         for (int i = 0; i < param_count; i++) {
                             char *ts = LLVMPrintTypeToString(param_types[i]);
                             debug_any("CALL DECL func=%s param[%d] type=%s\n", inst->op1->val.str_val, i, ts);

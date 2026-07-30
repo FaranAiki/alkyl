@@ -233,7 +233,7 @@ void alir_emit_stream(AlirModule *mod, FILE *f) {
         AlirGlobal *g = mod->globals;
         while(g) {
             char *esc = escape_string(g->string_content);
-            if (g->type.base == TYPE_CLASS && g->type.class_name && strcmp(g->type.class_name, "string") == 0) {
+            if (g->type.base == TYPE_CLASS && g->type.class_name && streq(g->type.class_name, "string")) {
                 // TODO string is not native, fix this
                 fprintf(f, "@%s = string \"%s\"\n", g->name, esc);
             } else {

@@ -135,7 +135,7 @@ AlirEnum* alir_find_enum(AlirModule *mod, const char *name) {
     if (e) return e;
     e = mod->enums;
     while(e) {
-        if (strcmp(e->name, name) == 0) {
+        if (streq(e->name, name)) {
             hashmap_put(&mod->enum_map, name, e);
             return e;
         }
@@ -150,7 +150,7 @@ int alir_get_enum_value(AlirModule *mod, const char *enum_name, const char *entr
 
     AlirEnumEntry *ent = e->entries;
     while(ent) {
-        if (strcmp(ent->name, entry_name) == 0) {
+        if (streq(ent->name, entry_name)) {
             *out_val = ent->value;
             return 1;
         }
@@ -349,7 +349,7 @@ static AlirValue* fold_const_expr_ahead(AlirCtx *ctx, ASTNode *node) {
                     return alir_const_int(ctx->module, val);
                 }
             }
-            if (strcmp(vr->name, "Err") == 0) {
+            if (streq(vr->name, "Err")) {
                 void *err_val = hashmap_get(&ctx->sem->compiler_ctx->error_table, vr->name);
                 if (err_val) {
                     return alir_const_int(ctx->module, (long)(intptr_t)err_val);

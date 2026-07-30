@@ -19,7 +19,7 @@ void sem_check_for_in(SemanticCtx *ctx, ASTNode *node) {
         iter_type.array_size = 0;
     } else if (iter_type.ptr_depth > 0) {
         iter_type.ptr_depth--;
-    } else if (iter_type.base == TYPE_CLASS && iter_type.class_name && strcmp(iter_type.class_name, "string") == 0) {
+    } else if (iter_type.base == TYPE_CLASS && iter_type.class_name && streq(iter_type.class_name, "string")) {
         iter_type.base = TYPE_CHAR;
     } else if (is_integer(iter_type)) {
         // Allowed: integers act as valid iterators (0 to N-1) 
@@ -267,7 +267,7 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) { printf("sem_check
             SemSymbol *class_sym = sem_symbol_lookup(ctx, t.class_name, NULL);
         if (class_sym && class_sym->trait_count > 0) {
             for (int i = 0; i < class_sym->trait_count; i++) {
-                if (strcmp(class_sym->traits[i], trait_name) == 0) {
+                if (streq(class_sym->traits[i], trait_name)) {
                     // Valid composition access!
                     VarType trait_t = t;
                     trait_t.class_name = arena_strdup(ctx->compiler_ctx->arena, trait_name);
@@ -293,7 +293,7 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) { printf("sem_check
         is_valid = 1;
         t.ptr_depth--;
     }
-    else if (t.base == TYPE_ENUM || t.base == TYPE_ARRAY || (t.base == TYPE_CLASS && t.class_name && (strcmp(t.class_name, "string") == 0 || strcmp(t.class_name, "vector") == 0 || strcmp(t.class_name, "hashmap") == 0))) {
+    else if (t.base == TYPE_ENUM || t.base == TYPE_ARRAY || (t.base == TYPE_CLASS && t.class_name && (streq(t.class_name, "string") || streq(t.class_name, "vector") || streq(t.class_name, "hashmap")))) {
          // for now wait!
          sem_set_node_type(ctx, node, (VarType){ .base = TYPE_CLASS, .class_name = (char*)"string" });
          return;

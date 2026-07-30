@@ -141,14 +141,14 @@ static void report_generic(Lexer *l, Token t, const char *label, const char *col
     if (!l || !l->ctx) return;
     CompilerContext *ctx = l->ctx;
 
-    if (strcmp(ctx->current_namespace, ctx->last_reported_namespace) != 0) {
+    if (!streq(ctx->current_namespace, ctx->last_reported_namespace)) {
         fprintf(stderr, "at namespace %s%s%s:\n", DIAG_BOLD, ctx->current_namespace, DIAG_RESET);
         strncpy(ctx->last_reported_namespace, ctx->current_namespace, 255);
         ctx->last_reported_namespace[255] = '\0';
     }
 
     if (l->filename) {
-        if (strcmp(l->filename, ctx->last_reported_filename) != 0) {
+        if (!streq(l->filename, ctx->last_reported_filename)) {
             char short_path[256];
             get_short_path(l->filename, short_path, sizeof(short_path));
             fprintf(stderr, "in %s%s%s:\n", DIAG_PURPLE, short_path, DIAG_RESET);

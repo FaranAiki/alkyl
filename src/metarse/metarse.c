@@ -72,7 +72,7 @@ void executor_alir_generate(Executor *e, ASTNode *root) {
 AlirFunction* alir_find_function(AlirModule *module, const char *name) {
     AlirFunction *f = module->functions;
     while (f) {
-        if (strcmp(f->name, name) == 0) return f;
+        if (streq(f->name, name)) return f;
         f = f->next;
     }
     return NULL;
@@ -214,7 +214,7 @@ static void print_repl_value(VarType rt, long long result) {
             union { long long i; double d; } u; u.i = result;
             printf("-> %f (double)\n", u.d);
         }
-        else if ((rt.base == TYPE_CLASS && rt.class_name && strcmp(rt.class_name, "string") == 0) || (rt.base == TYPE_CHAR && rt.ptr_depth == 1 && rt.array_size == 0))
+        else if ((rt.base == TYPE_CLASS && rt.class_name && streq(rt.class_name, "string")) || (rt.base == TYPE_CHAR && rt.ptr_depth == 1 && rt.array_size == 0))
             printf("-> %s (char*)\n", (char*)(intptr_t)result);
         else {
             if (rt.ptr_depth > 0 || rt.array_size > 0) {
@@ -306,7 +306,7 @@ long long exec_expr(Executor *e, ASTNode *curr, int seq, const char *prefix,
         if (fn->ret_type.array_size > 0) {
             VMGlobal *g = e->vm->globals;
             while (g) {
-                if (strcmp(g->name, ((AssignNode*)curr)->name) == 0) {
+                if (streq(g->name, ((AssignNode*)curr)->name)) {
                     g->ptr_val = (void*)(intptr_t)result;
                     break;
                 }

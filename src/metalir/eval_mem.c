@@ -51,7 +51,7 @@ case ALIR_OP_STORE: {
                         else if (inst->op1->kind == ALIR_VAL_GLOBAL && ctx->module) {
                             AlirGlobal *g = ctx->module->globals;
                             while(g) {
-                                if (strcmp(g->name, inst->op1->val.str_val) == 0) {
+                                if (streq(g->name, inst->op1->val.str_val)) {
                                     val = (long long)(intptr_t)g->string_content;
                                     break;
                                 }
@@ -64,7 +64,7 @@ case ALIR_OP_STORE: {
                         else if (inst->op2->kind == ALIR_VAL_GLOBAL) {
                             VMGlobal *g = ctx->vm->globals;
                             while(g) {
-                                if (strcmp(g->name, inst->op2->val.str_val) == 0) {
+                                if (streq(g->name, inst->op2->val.str_val)) {
                                     ptr = g->ptr_val;
                                     break;
                                 }
@@ -113,7 +113,7 @@ case ALIR_OP_LOAD: {
                         else if (inst->op1->kind == ALIR_VAL_GLOBAL) {
                             VMGlobal *g = ctx->vm->globals;
                             while(g) {
-                                if (strcmp(g->name, inst->op1->val.str_val) == 0) {
+                                if (streq(g->name, inst->op1->val.str_val)) {
                                     ptr = g->ptr_val;
                                     break;
                                 }
@@ -122,7 +122,7 @@ case ALIR_OP_LOAD: {
                             if (!ptr) {
                                 AlirGlobal *ag = ctx->module->globals;
                                 while(ag) {
-                                    if (strcmp(ag->name, inst->op1->val.str_val) == 0) {
+                                    if (streq(ag->name, inst->op1->val.str_val)) {
                                         ptr = (void*)(intptr_t)ag->string_content;
                                         break;
                                     }
@@ -162,7 +162,7 @@ case ALIR_OP_GET_PTR: {
                         else if (inst->op1->kind == ALIR_VAL_GLOBAL) {
                             VMGlobal *g = ctx->vm->globals;
                             while(g) {
-                                if (strcmp(g->name, inst->op1->val.str_val) == 0) { base_ptr = g->ptr_val; break; }
+                                if (streq(g->name, inst->op1->val.str_val)) { base_ptr = g->ptr_val; break; }
                                 g = g->next;
                             }
                         }

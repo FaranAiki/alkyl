@@ -294,7 +294,7 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             char call_dt = dt;
             if (inst->op1 && inst->op1->kind == ALIR_VAL_VAR && inst->op1->val.str_val) {
                 for (AlirFunction *f = module->functions; f; f = f->next) {
-                    if (f->name && strcmp(f->name, inst->op1->val.str_val) == 0) {
+                    if (f->name && streq(f->name, inst->op1->val.str_val)) {
                         char rt = qbe_type(f->ret_type);
                         if (rt != 'v') call_dt = rt;
                         break;

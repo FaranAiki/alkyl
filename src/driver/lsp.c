@@ -58,7 +58,7 @@ static void generate_semantic_tokens(const char *filepath, int **out_data, int *
         int token_type = -1; // -1 means don't highlight
         int current_is_type_keyword = 0;
         
-        if (t.type == TOKEN_IDENTIFIER && t.text && strcmp(t.text, "type") == 0) {
+        if (t.type == TOKEN_IDENTIFIER && t.text && streq(t.text, "type")) {
             token_type = 4; // keyword
             current_is_type_keyword = 1;
         } else if (t.type == TOKEN_KW_LET || t.type == TOKEN_KW_MUT || t.type == TOKEN_CLASS || t.type == TOKEN_STRUCT || t.type == TOKEN_NAMESPACE || t.type == TOKEN_IF || t.type == TOKEN_ELSE || t.type == TOKEN_WHILE || t.type == TOKEN_FOR || t.type == TOKEN_RETURN || t.type == TOKEN_BREAK || t.type == TOKEN_CONTINUE || t.type == TOKEN_TYPEDEF || t.type == TOKEN_AS || t.type == TOKEN_INFOP || t.type == TOKEN_PREFOP || t.type == TOKEN_SUFFOP || t.type == TOKEN_INFMUT || t.type == TOKEN_PREMUT || t.type == TOKEN_SUFMUT || t.type == TOKEN_DEFINE || t.type == TOKEN_PURGE || t.type == TOKEN_COMPOUND) {
@@ -127,7 +127,7 @@ static void read_content_length(int *length) {
     while (fgets(buffer, sizeof(buffer), stdin)) {
         if (strncmp(buffer, "Content-Length:", 15) == 0) {
             *length = atoi(buffer + 15);
-        } else if (strcmp(buffer, "\r\n") == 0 || strcmp(buffer, "\n") == 0) {
+        } else if (streq(buffer, "\r\n") || streq(buffer, "\n")) {
             break;
         }
     }

@@ -86,7 +86,7 @@ long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
        while(e) {
            AlirEnumEntry *ent = e->entries;
            while(ent) {
-               if (strcmp(ent->name, vr->name) == 0) return ent->value;
+               if (streq(ent->name, vr->name)) return ent->value;
                ent = ent->next;
            }
            e = e->next;
@@ -462,7 +462,7 @@ void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_
             while (mem) {
                 if (mem->type == NODE_FUNC_DEF) {
                     FuncDefNode *fn = (FuncDefNode*)mem;
-                    if (strcmp(fn->name, pcn->name) != 0 && strcmp(fn->name, "init") != 0) {
+                    if (!streq(fn->name, pcn->name) && !streq(fn->name, "init")) {
                         int is_overridden = 0;
                         if (target_node && hashmap_has(&target_methods, fn->name)) {
                             is_overridden = 1;
@@ -487,7 +487,7 @@ void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_
             while (mem) {
                 if (mem->type == NODE_FUNC_DEF) {
                     FuncDefNode *fn = (FuncDefNode*)mem;
-                    if (strcmp(fn->name, tcn->name) != 0 && strcmp(fn->name, "init") != 0) {
+                    if (!streq(fn->name, tcn->name) && !streq(fn->name, "init")) {
                         int is_overridden = 0;
                         if (target_node && hashmap_has(&target_methods, fn->name)) {
                             is_overridden = 1;
@@ -527,7 +527,7 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
             while(mem) {
                 if (mem->type == NODE_FUNC_DEF) {
                     FuncDefNode *fn = (FuncDefNode*)mem;
-                    if (strcmp(fn->name, cn->name) == 0 || strcmp(fn->name, "init") == 0) {
+                    if (streq(fn->name, cn->name) || streq(fn->name, "init")) {
                         has_constructor = 1;
                     }
                     alir_gen_function_def(ctx, fn, fqn);

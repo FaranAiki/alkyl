@@ -1,4 +1,5 @@
 #include "hashmap.h"
+#include "common/common.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -171,7 +172,7 @@ void hashmap_put(HashMap *map, const char *key, void *value) {
         int idx = indices[i];
         if ((uint32_t)idx != TOMBSTONE) {
             if (entries[idx].hash == hash &&
-                (entries[idx].key == key || strcmp(entries[idx].key, key) == 0)) {
+                (entries[idx].key == key || streq(entries[idx].key, key))) {
                 entries[idx].value = value;
                 return;
             }
@@ -214,7 +215,7 @@ const char* hashmap_intern(HashMap *map, const char *key) {
         int idx = indices[i];
         if ((uint32_t)idx != TOMBSTONE) {
             if (entries[idx].hash == hash &&
-                (entries[idx].key == key || strcmp(entries[idx].key, key) == 0)) {
+                (entries[idx].key == key || streq(entries[idx].key, key))) {
                 return entries[idx].key;
             }
         }
@@ -253,7 +254,7 @@ void* hashmap_get(HashMap *map, const char *key) {
         int idx = indices[i];
         if ((uint32_t)idx != TOMBSTONE) {
             if (entries[idx].hash == hash &&
-                (entries[idx].key == key || strcmp(entries[idx].key, key) == 0)) {
+                (entries[idx].key == key || streq(entries[idx].key, key))) {
                 return entries[idx].value;
             }
         }
@@ -316,7 +317,7 @@ int hashmap_inc(HashMap *map, const char *key) {
         int idx = indices[i];
         if ((uint32_t)idx != TOMBSTONE) {
             if (entries[idx].hash == hash &&
-                (entries[idx].key == key || strcmp(entries[idx].key, key) == 0)) {
+                (entries[idx].key == key || streq(entries[idx].key, key))) {
                 intptr_t count = (intptr_t)entries[idx].value;
                 count++;
                 entries[idx].value = (void *)count;
@@ -358,7 +359,7 @@ int hashmap_remove(HashMap *map, const char *key) {
         int idx = indices[i];
         if ((uint32_t)idx != TOMBSTONE) {
             if (entries[idx].hash == hash &&
-                (entries[idx].key == key || strcmp(entries[idx].key, key) == 0)) {
+                (entries[idx].key == key || streq(entries[idx].key, key))) {
                 entries[idx].key = NULL;
                 entries[idx].value = NULL;
                 entries[idx].hash = TOMBSTONE;

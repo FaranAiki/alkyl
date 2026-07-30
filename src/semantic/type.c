@@ -8,11 +8,11 @@ extern void sem_check_residue_exhaustive(SemanticCtx *ctx, ASTNode *where,
                                          int default_case);
 
 void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarType src) {
-    int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && strcmp(dest.class_name, "string") == 0 && dest.ptr_depth == 0);
+    int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && streq(dest.class_name, "string") && dest.ptr_depth == 0);
     int src_is_char = (src.base == TYPE_CHAR && (src.ptr_depth > 0 || src.array_size > 0));
     
     int dest_is_char = (dest.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0));
-    int src_is_str = (src.base == TYPE_CLASS && src.class_name && strcmp(src.class_name, "string") == 0 && src.ptr_depth == 0);
+    int src_is_str = (src.base == TYPE_CLASS && src.class_name && streq(src.class_name, "string") && src.ptr_depth == 0);
     
     if (dest_is_str && src_is_char) {
         sem_info(ctx, node, "Implicit cast from 'char%s' to 'string'", (src.array_size > 0) ? "[]" : "*");
@@ -21,7 +21,7 @@ void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarT
         
         if (node->type == NODE_LITERAL) {
             LiteralNode *lit = (LiteralNode*)node;
-            if (lit->var_type.base == TYPE_CLASS && lit->var_type.class_name && strcmp(lit->var_type.class_name, "string") == 0 && lit->val.str_val) {
+            if (lit->var_type.base == TYPE_CLASS && lit->var_type.class_name && streq(lit->var_type.class_name, "string") && lit->val.str_val) {
                 sem_hint(ctx, node, "Use c\"%s\" for a C-style string", lit->val.str_val);
                 return;
             }
@@ -102,7 +102,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             }
         } 
         else {
-            int is_stack_ctor = (node->var_type.base == TYPE_CLASS && node->var_type.ptr_depth == 0 && init_type.base == TYPE_CLASS && init_type.ptr_depth == 1 && node->var_type.class_name && init_type.class_name && strcmp(node->var_type.class_name, init_type.class_name) == 0);
+            int is_stack_ctor = (node->var_type.base == TYPE_CLASS && node->var_type.ptr_depth == 0 && init_type.base == TYPE_CLASS && init_type.ptr_depth == 1 && node->var_type.class_name && init_type.class_name && streq(node->var_type.class_name, init_type.class_name));
             if (!sem_types_are_compatible(ctx,node->var_type, init_type) && !is_stack_ctor) {
                 char *t1 = sem_type_to_str(node->var_type);
                 char *t2 = sem_type_to_str(init_type);
@@ -323,7 +323,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
             if (class_sym && class_sym->inner_scope) {
                 SemSymbol *s = class_sym->inner_scope->symbols;
                 while (s) {
-                    if (strcmp(s->name, name_buf) == 0) { sym = s; is_method = 1; break; }
+                    if (streq(s->name, name_buf)) { sym = s; is_method = 1; break; }
                     s = s->next;
                 }
             }
@@ -515,6 +515,6 @@ int is_bool(VarType t) {
 }
 
 int is_pointer(VarType t) {
-    return t.ptr_depth > 0 || t.array_size > 0 || (t.base == TYPE_CLASS && t.class_name && (strcmp(t.class_name, "string") == 0 || strcmp(t.class_name, "vector") == 0)) || t.is_func_ptr;
+    return t.ptr_depth > 0 || t.array_size > 0 || (t.base == TYPE_CLASS && t.class_name && (streq(t.class_name, "string") || streq(t.class_name, "vector"))) || t.is_func_ptr;
 }
 

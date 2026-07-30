@@ -16,12 +16,12 @@ case ALIR_OP_CALL: {
                         if (inst->op1->val.str_val) {
                             // debug_any("VM CALL: %s\n", inst->op1->val.str_val);
                         }
-                        if (inst->op1->val.str_val && strcmp(inst->op1->val.str_val, "print") == 0) {
+                        if (inst->op1->val.str_val && streq(inst->op1->val.str_val, "print")) {
                             for (int i = 0; i < inst->arg_count; i++) {
                                 AlirValue *arg = inst->args[i];
                                 if (arg->kind == ALIR_VAL_CONST) {
                                     if (arg->type.base == TYPE_INT) printf("%lld", arg->val.long_long_val);
-                                    else if (arg->type.base == TYPE_CLASS && arg->type.class_name && strcmp(arg->type.class_name, "string") == 0) printf("%s", arg->val.str_val);
+                                    else if (arg->type.base == TYPE_CLASS && arg->type.class_name && streq(arg->type.class_name, "string")) printf("%s", arg->val.str_val);
                                 } else if (arg->kind == ALIR_VAL_TEMP) {
                                     printf("%lld", ctx->registers[arg->temp_id].as.int_val);
                                 } else if (arg->kind == ALIR_VAL_VAR) {
@@ -40,7 +40,7 @@ case ALIR_OP_CALL: {
                             if (ctx->module) {
                                 AlirFunction *f = ctx->module->functions;
                                 while(f) {
-                                    if (strcmp(f->name, inst->op1->val.str_val) == 0) {
+                                    if (streq(f->name, inst->op1->val.str_val)) {
                                         target_fn = f;
                                         break;
                                     }
@@ -64,7 +64,7 @@ case ALIR_OP_CALL: {
                             else new_args[i] = 0;
                                 }
                                 long long rc = metalir_vm_execute(ctx->vm, ctx->module, target_fn, ctx->sem_ctx, new_args, inst->arg_count);
-                                if (strcmp(target_fn->name, "Vector_as_int") == 0) {
+                                if (streq(target_fn->name, "Vector_as_int")) {
                                 }
 
                                 if (inst->dest) {
@@ -76,12 +76,12 @@ case ALIR_OP_CALL: {
                                 if (ctx->module) {
                                     AlirFunction *curr = ctx->module->functions;
                                     while(curr) {
-                                        if (strcmp(curr->name, inst->op1->val.str_val) == 0) { ext_func = curr; break; }
+                                        if (streq(curr->name, inst->op1->val.str_val)) { ext_func = curr; break; }
                                         curr = curr->next;
                                     }
                                 }
 
-                                if (strcmp(inst->op1->val.str_val, "malloc") == 0) {
+                                if (streq(inst->op1->val.str_val, "malloc")) {
                                     debug_any("DLSYM MALLOC: %p\n", func_ptr);
                                 }
 
@@ -128,7 +128,7 @@ case ALIR_OP_CALL: {
                                                 else { float f; memcpy(&f, &raw, sizeof(float)); *(float*)val = f; }
                                             }
                                             arg_values[i] = val;
-                                        } else if ((arg->type.base == TYPE_CLASS && arg->type.class_name && strcmp(arg->type.class_name, "string") == 0) || arg->type.base == TYPE_AUTO || arg->type.ptr_depth > 0) {
+                                        } else if ((arg->type.base == TYPE_CLASS && arg->type.class_name && streq(arg->type.class_name, "string")) || arg->type.base == TYPE_AUTO || arg->type.ptr_depth > 0) {
                                             arg_types[i] = &ffi_type_pointer;
                                             void **val = (void**)&arg_data[i];
                                             *val = NULL;
@@ -169,7 +169,7 @@ case ALIR_OP_CALL: {
                                             else if (inst->dest->type.base == TYPE_SINGLE) rc = &rc_float;
                                         }
                                         ffi_call(&cif, func_ptr, rc, arg_values);
-                                        if (strcmp(inst->op1->val.str_val, "malloc") == 0) {
+                                        if (streq(inst->op1->val.str_val, "malloc")) {
                                             debug_any("MALLOC FFI RETURN: %lld\n", rc_int);
                                         }
                                         if (inst->dest) {

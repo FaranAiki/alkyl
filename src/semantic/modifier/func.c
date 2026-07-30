@@ -30,7 +30,7 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                 member = hashmap_get((HashMap*)ns_sym->inner_scope->symbol_map, node->method_name);
             } else {
                 member = ns_sym->inner_scope->symbols;
-                while (member && strcmp(member->name, node->method_name) != 0) {
+                while (member && !streq(member->name, node->method_name)) {
                     member = member->next;
                 }
             }

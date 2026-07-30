@@ -37,6 +37,14 @@ char* escape_string(const char *str);
 char* read_file(const char* path);
 void write_file(const char* path, const char* content);
 
+#include <string.h>
+static inline int streq(const char *a, const char *b) {
+    if (a == b) return 1;
+    if (!a || !b) return 0;
+    if (a[0] != b[0]) return 0;
+    return strcmp(a, b) == 0;
+}
+
 #include "arena.h"
 #include "context.h"
 #include "debug.h"

@@ -256,8 +256,8 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   debug_any("constructor check: vt.class_name='%s', class_name='%s'\n", vt.class_name, class_name);
                       }
                       if ((vt.base == TYPE_CLASS || vt.base == TYPE_UNKNOWN) && vt.class_name != NULL &&
-                             (strcmp(vt.class_name, class_name) == 0 ||
-                              (strlen(vt.class_name) > strlen(class_name) && strcmp(vt.class_name + strlen(vt.class_name) - strlen(class_name), class_name) == 0))) {
+                             (streq(vt.class_name, class_name) ||
+                              (strlen(vt.class_name) > strlen(class_name) && streq(vt.class_name + strlen(vt.class_name) - strlen(class_name), class_name)))) {
                       // Constructor detected: ClassName(...)
                       char *mem_name = parser_strdup(p, vt.class_name);
                       vt.base = TYPE_VOID; // Constructors implicitly return void or handle specially

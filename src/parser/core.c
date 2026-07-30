@@ -104,7 +104,7 @@ static int get_typename_kind(Parser *p, const char *name) {
 void register_alias(Parser *p, const char *name, VarType target) {
     TypeAlias *curr = p->alias_head;
     while(curr) {
-        if (strcmp(curr->name, name) == 0) {
+        if (streq(curr->name, name)) {
             curr->target = target;
             return;
         }
@@ -123,7 +123,7 @@ void register_alias(Parser *p, const char *name, VarType target) {
 VarType* get_alias(Parser *p, const char *name) {
     TypeAlias *curr = p->alias_head;
     while(curr) {
-        if (strcmp(curr->name, name) == 0) return &curr->target;
+        if (streq(curr->name, name)) return &curr->target;
         curr = curr->next;
     }
     return NULL;
@@ -153,7 +153,7 @@ void register_macro(Parser *p, const char *name, char **params, int param_count,
 static Macro* find_macro(Parser *p, const char *name) {
     Macro *curr = p->macro_head;
     while(curr) {
-        if (strcmp(curr->name, name) == 0) return curr;
+        if (streq(curr->name, name)) return curr;
         curr = curr->next;
     }
     return NULL;
@@ -162,7 +162,7 @@ static Macro* find_macro(Parser *p, const char *name) {
 /* True if `name` is already being expanded (C preprocessor blue-paint). */
 static int macro_is_expanding(Parser *p, const char *name) {
     for (Expansion *e = p->expansion_head; e; e = e->next) {
-        if (e->macro_name && strcmp(e->macro_name, name) == 0) return 1;
+        if (e->macro_name && streq(e->macro_name, name)) return 1;
     }
     return 0;
 }
@@ -256,7 +256,7 @@ static Token expand_macros_from(Parser *p, Token t) {
             int p_idx = -1;
             if (bt.type == TOKEN_IDENTIFIER && m->param_count > 0) {
                 for (int k = 0; k < m->param_count; k++) {
-                    if (strcmp(bt.text, m->params[k]) == 0) { p_idx = k; break; }
+                    if (streq(bt.text, m->params[k])) { p_idx = k; break; }
                 }
             }
 
