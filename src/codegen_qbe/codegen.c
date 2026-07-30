@@ -9,7 +9,11 @@ int s_next_qbe_temp = 0;
 
 static int get_qbe_type_size_for_var(VarType t) {
     if (t.ptr_depth > 0) return 8;
-    if (t.array_size > 0) return 8;
+    if (t.array_size > 0) {
+        VarType elem = t;
+        elem.array_size = 0;
+        return t.array_size * get_qbe_type_size_for_var(elem);
+    }
     switch (t.base) {
         case TYPE_VOID: return 0;
         case TYPE_BOOL:
@@ -31,7 +35,11 @@ static int get_qbe_type_size_for_var(VarType t) {
 
 static int get_qbe_type_align_for_var(VarType t) {
     if (t.ptr_depth > 0) return 8;
-    if (t.array_size > 0) return 8;
+    if (t.array_size > 0) {
+        VarType elem = t;
+        elem.array_size = 0;
+        return get_qbe_type_align_for_var(elem);
+    }
     switch (t.base) {
         case TYPE_BOOL:
         case TYPE_CHAR:
@@ -115,6 +123,7 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
     switch (inst->op) {
         case ALIR_OP_ALLOCA: {
             int sz;
+            int align = get_qbe_type_align_for_var(inst->dest->type);
             if (inst->op1 && inst->op1->kind == ALIR_VAL_CONST) {
                 sz = (int)inst->op1->val.long_val;
             } else if (inst->op1 && inst->op1->kind == ALIR_VAL_INT) {
@@ -122,11 +131,11 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             } else if (inst->dest && inst->dest->type.base == TYPE_CLASS && inst->dest->type.class_name) {
                 sz = get_struct_size(module, inst->dest->type.class_name);
             } else {
-                sz = qbe_type_size(dt);
+                sz = get_qbe_type_size_for_var(inst->dest->type);
             }
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =l alloc4 %d\n", sz);
+            fprintf(out, " =l alloc%d %d\n", align > 4 ? align : 4, sz);
             break;
         }
         case ALIR_OP_STORE: {

@@ -1,0 +1,11 @@
+export function w $main() {
+@entry
+%a =l alloc4 4
+storew 42, %a
+%b =l alloc4 4
+storew 0, %b
+blit %a, %b, 4
+%c =w loadw %b
+ret %c
+}
+

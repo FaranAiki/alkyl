@@ -1,6 +1,13 @@
 #include "link.h"
 
 ASTNode* parse_import_internal(Parser *p, const char *fname) {
+   if (p->ctx) {
+       ASTNode *cached = (ASTNode*)hashmap_get(&p->ctx->import_cache, fname);
+       if (cached) {
+           return NULL;
+       }
+   }
+
    char* src = read_import_file(p, fname);
    if (!src) {
        char msg[512];
@@ -28,6 +35,14 @@ ASTNode* parse_import_internal(Parser *p, const char *fname) {
    p->type_head = import_p.type_head;
    p->types_map = import_p.types_map;
    p->alias_head = import_p.alias_head;
+
+   if (p->ctx) {
+       if (!imported_root) {
+           imported_root = parser_alloc(p, sizeof(ASTNode));
+           imported_root->type = NODE_ROOT;
+       }
+       hashmap_put(&p->ctx->import_cache, fname, imported_root);
+   }
 
    return imported_root;
 }

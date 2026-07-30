@@ -7,6 +7,14 @@
 
 char qbe_type(VarType t) {
     if (t.ptr_depth > 0) return 'l';
+    if (t.array_size > 0) {
+        int sz = 0;
+        VarType elem = t;
+        elem.array_size = 0;
+        sz = t.array_size * qbe_type_size(qbe_type(elem));
+        if (sz <= 4) return 'w';
+        return 'l';
+    }
     switch (t.base) {
         case TYPE_VOID: return 'v';
         case TYPE_INT:

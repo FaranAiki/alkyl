@@ -23,6 +23,7 @@ void context_init(CompilerContext *ctx, Arena *arena) {
     // 1024 is a good starting capacity for average source files
     hashmap_init(&ctx->string_pool, arena, 1024);
     hashmap_init(&ctx->error_table, arena, 64);
+    hashmap_init(&ctx->import_cache, arena, 64);
     ctx->next_error_id = 0;
 
     // Inject ErrNull as ID 0

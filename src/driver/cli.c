@@ -117,7 +117,9 @@ int run_repl(void) {
             } else if (curr->type == NODE_CLASS) {
                 metalir_run_class(r, curr, root);
             } else if (curr->type == NODE_FUNC_DEF) {
-                metalir_run_func_def(r, curr);
+                if (!((FuncDefNode*)curr)->is_macro) {
+                    metalir_run_func_def(r, curr);
+                }
             } else if (curr->type == NODE_LINK) {
                 metalir_run_link(r, (LinkNode*)curr);
             } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
@@ -186,7 +188,9 @@ int run_file(const char *filename) {
         } else if (curr->type == NODE_CLASS) {
             metalir_run_class(r, curr, root);
         } else if (curr->type == NODE_FUNC_DEF) {
-            metalir_run_func_def(r, curr);
+            if (!((FuncDefNode*)curr)->is_macro) {
+                metalir_run_func_def(r, curr);
+            }
         } else if (curr->type == NODE_LINK) {
             metalir_run_link(r, (LinkNode*)curr);
         }
@@ -210,7 +214,9 @@ int run_file(const char *filename) {
             } else if (curr->type == NODE_CLASS) {
                 metalir_run_class(r, curr, root);
             } else if (curr->type == NODE_FUNC_DEF) {
-                metalir_run_func_def(r, curr);
+                if (!((FuncDefNode*)curr)->is_macro) {
+                    metalir_run_func_def(r, curr);
+                }
             } else if (curr->type == NODE_LINK) {
                 metalir_run_link(r, (LinkNode*)curr);
             } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {

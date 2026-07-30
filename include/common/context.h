@@ -34,6 +34,7 @@ typedef struct {
   int next_error_id;
   void *macro_head;
   CompilerSettings settings;
+  HashMap import_cache;
 } CompilerContext;
 
 // Initialize the context with a provided arena
