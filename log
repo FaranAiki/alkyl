@@ -1,0 +1,26 @@
+[1;36mstep: [0mFinished lexing. Start parsing.
+[1;36mdebug: [0mafter parse_type, vt.base=1, token.type=23
+[1;36mdebug: [0mafter parse_type, vt.base=1, token.type=23
+[1;36mstep: [0mFinished Semantic Analysis. Start macro-linking.
+[1;36mstep: [0mFinished macro linking. Start generating Alkyl Intermediate Representation (alir).
+[1;36mdebug: [0malir_gen_function_def fn->name=cprintf class_name=NULL fn->mangled_name=printf -> func_name=printf
+[1;36mdebug: [0malir_gen_function_def fn->name=fun class_name=MyClass fn->mangled_name=main_MyClass_fun -> func_name=main_MyClass_fun
+[1;36mdebug: [0malir_gen_function_def fn->name=nofun class_name=MyClass fn->mangled_name=main_MyClass_nofun -> func_name=main_MyClass_nofun
+[1;36mdebug: [0malir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+[1;36mdebug: [0mGLOBAL VAR ADDR: cprintf
+[1;36mdebug: [0mfunc=main op=0 dest_kind=5 dest_type_base=8 op1_kind=0 op1_type_base=0
+[1;36mdebug: [0mfunc=main op=35 dest_kind=5 dest_type_base=8 op1_kind=7 op1_type_base=1
+[1;36mdebug: [0mfunc=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+[1;36mdebug: [0mfunc=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=8
+[1;36mdebug: [0mfunc=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+[1;36mdebug: [0mfunc=main op=2 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=8
+[1;36mdebug: [0mfunc=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+[1;36mdebug: [0mfunc=main op=2 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=8
+[1;36mdebug: [0mfunc=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+[1;36mdebug: [0mfunc=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+[1;36mdebug: [0mfunc=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+[1;36mdebug: [0mfunc=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+[1;36mstep: [0mFinished alir. Start alir check and analysis.
+[1;36mstep: [0mFinished alir check and analysis. Start alir optimization.
+[1;36mstep: [0mFinished alir optimization. Start code generation using LLVM codegen
+sem_check_index_access type base: 0, array_size: 0

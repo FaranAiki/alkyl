@@ -163,6 +163,8 @@ long long metalir_vm_execute(MetalirVM *vm, AlirModule *module, AlirFunction *fu
                 case ALIR_OP_CAST:
                 case ALIR_OP_BITCAST:
                 case ALIR_OP_FALLBACK:
+                case ALIR_OP_SIZEOF:
+                case ALIR_OP_ALIGNOF:
                     vm_eval_misc(&ctx, inst);
                     break;
                 default: break;

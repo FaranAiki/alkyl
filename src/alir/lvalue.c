@@ -316,7 +316,7 @@ AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     } else {
         ptr_type.ptr_depth++;
     }
-    ptr_type.array_size = arr_type.array_size;
+    ptr_type.array_size = elem_type.array_size;
 
     // 1. Allocate on the Stack natively
     AlirValue *stack_ptr = new_temp(ctx, arr_type);

@@ -66,7 +66,7 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
         default: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
     }
 
-    if ((t.ptr_depth > 0 && t.array_size == 0) || t.is_func_ptr || (t.array_depth > 0 && t.array_size == 0)) {
+    if (t.ptr_depth > 0 || t.is_func_ptr || (t.array_depth > 0 && t.array_size == 0)) {
         if (t.base == TYPE_CLASS && t.class_name && !t.is_func_ptr && t.array_depth == 0) {
             base = LLVMPointerType(base, 0);
         } else {

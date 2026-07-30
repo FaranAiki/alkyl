@@ -98,9 +98,6 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         LLVMValueRef indices[] = { zero, op2 };
                         
                         VarType raw_t = inst->op1->type;
-                        if (raw_t.array_depth == 0 && raw_t.ptr_depth > 0) {
-                            raw_t.ptr_depth--;
-                        }
                         LLVMTypeRef arr_ty = get_llvm_type(ctx, raw_t);
                         
                         res = LLVMBuildGEP2(ctx->builder, arr_ty, op1, indices, 2, "array_gep");

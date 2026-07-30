@@ -556,19 +556,6 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
     VarType col_t = sem_get_node_type(ctx->sem, fn->collection);
     AlirValue *col_ptr = NULL;
 
-    // Pre-allocate for FluxCtx if returned by value, to avoid stack overlap with QBE
-    if (col_t.base == TYPE_CLASS && col_t.class_name && strncmp(col_t.class_name, "FluxCtx_", 8) == 0 && col_t.ptr_depth == 0) {
-        VarType pt = col_t;
-        pt.ptr_depth = 1;
-        int struct_size = alir_get_struct_size(ctx->module, col_t.class_name);
-        if (struct_size < 8) struct_size = 8;
-        AlirValue *size_val = alir_const_int(ctx->module, struct_size);
-        AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1});
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, raw_mem, size_val, NULL));
-        col_ptr = new_temp(ctx, pt);
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, col_ptr, raw_mem, NULL));
-    }
-
     AlirValue *col = NULL;
     if (fn->collection->type == NODE_VAR_REF) {
         col = alir_gen_addr(ctx, fn->collection);
@@ -579,6 +566,12 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
 
     if (!col) {
         printf("No collections\n");
+    }
+
+    if (col && col->type.base == TYPE_CLASS && col->type.class_name && strncmp(col->type.class_name, "FluxCtx_", 8) == 0 && col->type.ptr_depth == 0) {
+        VarType pt = col->type;
+        col_ptr = new_temp(ctx, pt);
+        emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, col_ptr, NULL, NULL));
     }
 
     int limit_val = 0;

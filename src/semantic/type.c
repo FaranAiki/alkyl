@@ -1,4 +1,6 @@
 #include "semantic.h"
+
+int sem_count_required_class_fields(SemanticCtx *ctx, SemSymbol *sym);
 #include <stdio.h>
 
 // Defined in check.c.
@@ -115,6 +117,18 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
     } else {
         if (node->var_type.base == TYPE_AUTO) {
             sem_error(ctx, (ASTNode*)node, "Variable '%s' declared 'let' but has no initializer", node->name);
+        } else if (node->var_type.base == TYPE_CLASS && node->var_type.ptr_depth == 0 && node->var_type.class_name) {
+            SemSymbol *cls_sym = sem_symbol_lookup(ctx, node->var_type.class_name, NULL);
+            if (cls_sym && !cls_sym->is_union) {
+                int req = sem_count_required_class_fields(ctx, cls_sym);
+                if (req == 0) {
+                    CallNode *ctor_call = arena_alloc(ctx->compiler_ctx->arena, sizeof(CallNode));
+                    ctor_call->base.type = NODE_CALL;
+                    ctor_call->name = arena_strdup(ctx->compiler_ctx->arena, node->var_type.class_name);
+                    node->initializer = (ASTNode*)ctor_call;
+                    sem_check_expr(ctx, node->initializer);
+                }
+            }
         }
     }
 

@@ -199,7 +199,7 @@ static int sem_count_class_fields(SemanticCtx *ctx, SemSymbol *sym) {
     return count;
 }
 
-static int sem_count_required_class_fields(SemanticCtx *ctx, SemSymbol *sym) {
+int sem_count_required_class_fields(SemanticCtx *ctx, SemSymbol *sym) {
     if (!sym || sym->kind != SYM_CLASS) return 0;
     int count = 0;
     if (sym->parent_name) {

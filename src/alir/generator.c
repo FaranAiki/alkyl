@@ -419,12 +419,9 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn, const char *fqn)
             AlirValue *arg_val = alir_val_var(ctx->module, p_name);
             arg_val->type = f->type;
 
-            AlirValue *loaded_this = new_temp(ctx, this_t);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_this, p0, NULL));
-
             VarType ft = f->type; ft.ptr_depth++;
             AlirValue *field_ptr = new_temp(ctx, ft);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, loaded_this, alir_const_int(ctx->module, f->index)));
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, field_ptr, p0, alir_const_int(ctx->module, f->index)));
             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, arg_val, field_ptr));
 
             param_idx++;

@@ -129,16 +129,8 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     
     ctx->current_block = alir_add_block(ctx->module, ctx->current_func, "entry");
     
-    int struct_size = alir_get_struct_size(ctx->module, struct_name);
-    if (struct_size < 8) struct_size = 8;
-    
-    AlirValue *size_val = alir_const_int(ctx->module, struct_size);
-    
-    AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1});
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, raw_mem, size_val, NULL));
-    
     AlirValue *ctx_ptr = new_temp(ctx, ret_type_ptr);
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, ctx_ptr, raw_mem, NULL));
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ctx_ptr, NULL, NULL));
     
     AlirValue *ptr_state = new_temp(ctx, (VarType){TYPE_INT, 1});
     emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, ptr_state, ctx_ptr, alir_const_int(ctx->module, 0)));

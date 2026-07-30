@@ -74,6 +74,7 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
     snprintf(o_file, sizeof(o_file), "%s.o", basename);
 
     char *err_msg = NULL;
+    LLVMPrintModuleToFile(llvm_module, "my_out.ll", &err_msg);
     if (LLVMTargetMachineEmitToFile(machine, llvm_module, o_file, LLVMObjectFile, &err_msg) != 0) {
         fprintf(stderr, "Emit Error: %s\n", err_msg);
         if (err_msg) LLVMDisposeMessage(err_msg);

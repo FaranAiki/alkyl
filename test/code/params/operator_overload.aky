@@ -1,3 +1,4 @@
+extern int printf(char*, ...) as cprintf;
 class Vector {
     int x;
     int y;
@@ -15,7 +16,7 @@ int main() {
     mut Vector b(30, 40);
 
     mut Vector c = a + b;
-    if (c.x != 40) return 1;
+    if (c.x != 40)  { cprintf(c"Failed 1: c.x = %d\n", c.x); return 1; }
     if (c.y != 60) return 2;
     return 0;
 }

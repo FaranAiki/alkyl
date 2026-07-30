@@ -144,28 +144,50 @@ void metalir_print_repl_value(VarType rt, long long result) {
                             long long inner_ptr = ((long long*)(intptr_t)result)[i];
                             printf("[");
                             for (int j = 0; j < rt.array_depth; j++) {
-                                if (rt.base == TYPE_DOUBLE || rt.base == TYPE_SINGLE) {
+                                if (rt.base == TYPE_DOUBLE) {
                                     double val = ((double*)(intptr_t)inner_ptr)[j];
                                     printf("%f", val);
+                                } else if (rt.base == TYPE_SINGLE) {
+                                    float val = ((float*)(intptr_t)inner_ptr)[j];
+                                    printf("%f", (double)val);
                                 } else if (rt.base == TYPE_CHAR && rt.ptr_depth == 1) {
                                     long long val = ((long long*)(intptr_t)inner_ptr)[j];
                                     printf("\"%s\"", (char*)(intptr_t)val);
                                 } else {
-                                    long long val = ((long long*)(intptr_t)inner_ptr)[j];
+                                    long long val = 0;
+                                    if (rt.base == TYPE_CHAR || rt.base == TYPE_UNSIGNED_CHAR || rt.base == TYPE_BOOL)
+                                        val = ((char*)(intptr_t)inner_ptr)[j];
+                                    else if (rt.base == TYPE_SHORT)
+                                        val = ((short*)(intptr_t)inner_ptr)[j];
+                                    else if (rt.base == TYPE_INT || rt.base == TYPE_UNSIGNED_INT || rt.base == TYPE_ENUM)
+                                        val = ((int*)(intptr_t)inner_ptr)[j];
+                                    else
+                                        val = ((long long*)(intptr_t)inner_ptr)[j];
                                     printf("%lld", val);
                                 }
                                 if (j < rt.array_depth - 1) printf(", ");
                             }
                             printf("]");
                         } else {
-                            if (rt.base == TYPE_DOUBLE || rt.base == TYPE_SINGLE) {
+                            if (rt.base == TYPE_DOUBLE) {
                                 double val = ((double*)(intptr_t)result)[i];
                                 printf("%f", val);
+                            } else if (rt.base == TYPE_SINGLE) {
+                                float val = ((float*)(intptr_t)result)[i];
+                                printf("%f", (double)val);
                             } else if (rt.base == TYPE_CHAR && rt.ptr_depth == 1) {
                                 long long val = ((long long*)(intptr_t)result)[i];
                                 printf("\"%s\"", (char*)(intptr_t)val);
                             } else {
-                                long long val = ((long long*)(intptr_t)result)[i];
+                                long long val = 0;
+                                if (rt.base == TYPE_CHAR || rt.base == TYPE_UNSIGNED_CHAR || rt.base == TYPE_BOOL)
+                                    val = ((char*)(intptr_t)result)[i];
+                                else if (rt.base == TYPE_SHORT)
+                                    val = ((short*)(intptr_t)result)[i];
+                                else if (rt.base == TYPE_INT || rt.base == TYPE_UNSIGNED_INT || rt.base == TYPE_ENUM)
+                                    val = ((int*)(intptr_t)result)[i];
+                                else
+                                    val = ((long long*)(intptr_t)result)[i];
                                 printf("%lld", val);
                             }
                         }

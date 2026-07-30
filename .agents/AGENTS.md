@@ -3,15 +3,25 @@ Here is the architectural documentation and programming guide for the **Alkyl** 
 <RULE>
 **Debugging Print Rule:**
 Every `fprintf` or `printf` that is used for debugging MUST be replaced by `debug_any("msg", ...);`. Do NOT use `printf("DEBUG: ...")` or `fprintf(stderr, ...)`.
+
+**String Comparison Rule:**
+Do NOT use `strcmp` for string comparisons inside the compiler codebase. ALWAYS use the inline function `streq(const char *a, const char *b)` defined in `include/common/common.h` which performs pointer equality first for speed.
 </RULE>
 
 # How to Program in Alkyl
 1. **Variables and Assignment**: 
-   - `let p = 1;`
-   - In the REPL, `p = 1` also acts as a declaration.
-2. **Types**: Alkyl uses C-like types (`int`, `double`, `single`, `char`, `bool`) but also has `class` and `namespace`.
-3. **Control Flow**: Standard `if`, `while`, `switch`.
-4. **Macros**: Macros are defined with `meta void` and are expanded at AST level. Never eagerly compile an unexpanded macro to ALIR.
+   - Declare variables with `let`, e.g., `let p = 1;`, `let p: int = 1;`
+   - In the REPL, `p = 1` also acts as an implicit declaration if `p` doesn't exist.
+   - The REPL automatically saves the last evaluated expression in a global variable called `res` (similar to `_` in Python or `it` in GHCi).
+2. **Types**: 
+   - Primitives: `int`, `double`, `single`, `long`, `char`, `bool`.
+   - Arrays: `[1, 2, 3]` (Array literals are fully supported in REPL).
+   - User-defined: `class`, `namespace`, `enum`. Unions are synthetic types.
+3. **Control Flow**: 
+   - Standard `if`, `while`, `switch`.
+4. **Functions & Macros**: 
+   - Functions: `func int add(int a, int b) { return a + b; }`
+   - Macros are defined with `meta void` and are expanded at the AST level. Never eagerly compile an unexpanded macro to ALIR.
 
 
 Here is the architectural documentation for the **Alkyl** compiler project.
