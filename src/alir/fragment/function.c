@@ -1,6 +1,7 @@
 #include "alir.h"
 
 void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
+    if (fn->is_macro) return;
     if (fn->is_flux) {
         alir_gen_flux_def(ctx, fn, class_name);
         return;
@@ -299,6 +300,15 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
 
 AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
     const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
+    
+    // Resolve target_name through semantic table if possible, to handle namespace imports
+    if (ctx->sem) {
+        SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, NULL);
+        if (sym && sym->kind == SYM_CLASS) {
+            target_name = sym->name; // Use fully qualified class name
+        }
+    }
+
     // Check if it's a constructor call via Struct Registry
     if (alir_find_struct(ctx->module, target_name)) { printf("Found struct %s\n", target_name);
         int count = 0; ASTNode *a = cn->args; while(a) { count++; a=a->next; }
@@ -315,6 +325,9 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
     if (ctx->sem) {
         debug_any("Looking up '%s'\n", target_name);
         SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, NULL);
+        if (!sym && cn->name && !streq(target_name, cn->name)) {
+            sym = sem_symbol_lookup(ctx->sem, cn->name, NULL);
+        }
         if (sym) {
             debug_any("Found symbol %s, kind=%d, is_macro=%d, node_ptr=%p\n", sym->name, sym->kind, sym->is_macro, sym->node_ptr);
         } else {

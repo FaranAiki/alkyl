@@ -497,6 +497,11 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
             cn->args = ast_rewrite_macro(ctx, cn->args, varargs_head, param_names, param_args, num_params);
             break;
         }
+        case NODE_MEMBER_ACCESS: {
+            MemberAccessNode *mn = (MemberAccessNode*)node;
+            mn->object = ast_rewrite_macro(ctx, mn->object, varargs_head, param_names, param_args, num_params);
+            break;
+        }
         case NODE_METHOD_CALL: {
             MethodCallNode *mcn = (MethodCallNode*)node;
             mcn->object = ast_rewrite_macro(ctx, mcn->object, varargs_head, param_names, param_args, num_params);

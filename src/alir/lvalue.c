@@ -238,6 +238,75 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
             snprintf(func_name, sizeof(func_name), "%s", mc->method_name);
         }
     }
+    // Intercept Macro Method calls
+    if (ctx->sem) {
+        SemSymbol *sym = NULL;
+        if (cname) {
+            SemSymbol *class_sym = sem_symbol_lookup_type(ctx->sem, cname);
+            if (class_sym && class_sym->inner_scope && class_sym->inner_scope->symbol_map) {
+                sym = hashmap_get((HashMap*)class_sym->inner_scope->symbol_map, mc->method_name);
+            }
+        }
+        if (sym && sym->kind == SYM_FUNC && sym->is_macro && sym->node_ptr) {
+            FuncDefNode *fd = (FuncDefNode*)sym->node_ptr;
+
+            int num_params = 0;
+            Parameter *p = fd->params;
+            while(p) { num_params++; p = p->next; }
+
+            // Add 1 for "this" if not static
+            int total_params = mc->is_static ? num_params : (num_params + 1);
+
+            char **param_names = NULL;
+            ASTNode **param_args = NULL;
+            ASTNode *varargs_head = NULL;
+
+            if (total_params > 0) {
+                param_names = alir_alloc(ctx->module, total_params * sizeof(char*));
+                param_args = alir_alloc(ctx->module, total_params * sizeof(ASTNode*));
+                
+                int i = 0;
+                if (!mc->is_static) {
+                    param_names[0] = "this";
+                    param_args[0] = mc->object;
+                    i = 1;
+                }
+
+                p = fd->params;
+                ASTNode *a = mc->args;
+                for (; i < total_params && a; i++) {
+                    param_names[i] = p->name;
+                    param_args[i] = a;
+                    p = p->next;
+                    a = a->next;
+                }
+                varargs_head = a; // Any remaining args are varargs
+            } else {
+                varargs_head = mc->args;
+            }
+
+            CompilerContext *cctx = ctx->module->compiler_ctx;
+            extern ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarType *replace_with, int num_params, char **rename_from, char **rename_to, int num_renames);
+            ASTNode *cloned_body = ast_clone(cctx, fd->body, NULL, NULL, 0, NULL, NULL, 0);
+
+            extern ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *body, ASTNode *varargs_head, char **param_names, ASTNode **param_args, int num_params);
+            cloned_body = ast_rewrite_macro(cctx, cloned_body, varargs_head, param_names, param_args, total_params);
+
+            extern void sem_check_block(SemanticCtx *ctx, ASTNode *block);
+            sem_check_block(ctx->sem, cloned_body);
+
+            ASTNode *curr = cloned_body;
+            while (curr) {
+                extern void alir_gen_stmt(AlirCtx *ctx, ASTNode *node);
+                alir_gen_stmt(ctx, curr);
+                curr = curr->next;
+            }
+
+            // Macros do not return values as expression results yet
+            return NULL;
+        }
+    }
+
     AlirInst *call = mk_inst(ctx->module, ALIR_OP_CALL, NULL, alir_val_var(ctx->module, func_name), NULL);
 
     int count = 0; ASTNode *a = mc->args; while(a) { count++; a=a->next; }

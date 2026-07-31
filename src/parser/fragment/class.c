@@ -42,7 +42,7 @@ ASTNode* parse_enum(Parser *p) {
           eat(p, TOKEN_NUMBER);
       }
 
-      EnumEntry *entry = parser_alloc(p, sizeof(EnumEntry));
+      EnumEntry *entry = parser_alloc_raw(p, sizeof(EnumEntry));
       entry->name = member_name;
       entry->value = current_val;
       entry->next = NULL;
@@ -107,12 +107,12 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
       if (p->current_token.type == TOKEN_HAS) {
           eat(p, TOKEN_HAS);
           int cap = 4;
-          traits = parser_alloc(p, sizeof(char*) * cap);
+          traits = parser_alloc_raw(p, sizeof(char*) * cap);
           do {
               if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected trait or struct name after 'has'");
               if (trait_count >= cap) {
                   cap *= 2;
-                  char **new_traits = parser_alloc(p, sizeof(char*)*cap);
+                  char **new_traits = parser_alloc_raw(p, sizeof(char*)*cap);
                   memcpy(new_traits, traits, sizeof(char*)*trait_count);
                   traits = new_traits;
               }
@@ -163,9 +163,9 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
               eat(p, TOKEN_COMPOUND);
               eat(p, TOKEN_LBRACKET);
               int max_params = 16;
-              type_params = parser_alloc(p, sizeof(char*) * max_params);
-              allowed_types = parser_alloc(p, sizeof(VarType*) * max_params);
-              num_allowed = parser_alloc(p, sizeof(int) * max_params);
+              type_params = parser_alloc_raw(p, sizeof(char*) * max_params);
+              allowed_types = parser_alloc_raw(p, sizeof(VarType*) * max_params);
+              num_allowed = parser_alloc_raw(p, sizeof(int) * max_params);
 
               while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
                   if (p->has_error) break;
@@ -175,7 +175,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                       eat(p, TOKEN_IDENTIFIER);
                       if (p->current_token.type == TOKEN_LBRACKET) {
                           eat(p, TOKEN_LBRACKET);
-                          curr_allowed = parser_alloc(p, sizeof(VarType) * 16);
+                          curr_allowed = parser_alloc_raw(p, sizeof(VarType) * 16);
                           while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
                               curr_allowed[curr_num++] = parse_type(p);
                               if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
@@ -349,7 +349,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                                   pt.ptr_depth++;
                               }
 
-                              Parameter *pm = parser_alloc(p, sizeof(Parameter));
+                              Parameter *pm = parser_alloc_raw(p, sizeof(Parameter));
                               pm->type = pt; pm->name = pname;
                               *curr_p = pm; curr_p = &pm->next;
                               if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
@@ -425,7 +425,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                               pt.ptr_depth++;
                           }
 
-                          Parameter *pm = parser_alloc(p, sizeof(Parameter));
+                          Parameter *pm = parser_alloc_raw(p, sizeof(Parameter));
                           apply_param_modifiers(pm, pmods);
                           pm->type = pt; pm->name = pname;
                           *curr_p = pm; curr_p = &pm->next;

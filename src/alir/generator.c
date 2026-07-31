@@ -178,6 +178,7 @@ void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
     while(n) {
         if (n->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)n;
+            printf("DEBUG_PASS1: visiting class %s\n", cn->name);
             char *fqn = cn->name;
             if (current_ns && strlen(current_ns) > 0) {
                 char buf[512];
@@ -196,11 +197,17 @@ void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
                 AlirEnumEntry *ae = alir_alloc(ctx->module, sizeof(AlirEnumEntry));
                 ae->name = alir_strdup(ctx->module, ent->name);
                 ae->value = ent->value;
+                ae->next = NULL;
                 *tail = ae;
                 tail = &ae->next;
                 ent = ent->next;
             }
             alir_register_enum(ctx->module, en->name, head);
+        } else if (n->type == NODE_IMPORT) {
+            ImportNode *in = (ImportNode*)n;
+            if (in->resolved_body) {
+                pass1_register(ctx, in->resolved_body, current_ns);
+            }
         } else if (n->type == NODE_NAMESPACE) {
             NamespaceNode *ns = (NamespaceNode*)n;
             char *next_ns = ns->name;
@@ -236,6 +243,11 @@ void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current
                 next_ns = alir_strdup(ctx->module, buf);
             }
             pass2_populate(ctx, root, ns->body, next_ns);
+        } else if (n->type == NODE_IMPORT) {
+            ImportNode *in = (ImportNode*)n;
+            if (in->resolved_body) {
+                pass2_populate(ctx, root, in->resolved_body, current_ns);
+            }
         }
         n = n->next;
     }
@@ -507,7 +519,7 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
         if (curr->type == NODE_FUNC_DEF) {
             FuncDefNode *fn = (FuncDefNode*)curr;
             if (!fn->is_macro) {
-                alir_gen_function_def(ctx, fn, NULL);
+                alir_gen_function_def(ctx, fn, fn->class_name);
             }
         } else if (curr->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)curr;
@@ -548,6 +560,11 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
                 next_ns = alir_strdup(ctx->module, buf);
             }
             alir_gen_functions_recursive(ctx, ns->body, next_ns);
+        } else if (curr->type == NODE_IMPORT) {
+            ImportNode *in = (ImportNode*)curr;
+            if (in->resolved_body) {
+                alir_gen_functions_recursive(ctx, in->resolved_body, current_ns);
+            }
         } else if (curr->type == NODE_VAR_DECL) {
             VarDeclNode *vd = (VarDeclNode*)curr;
             debug_any("Found top-level VAR_DECL %s\n", vd->name);
@@ -578,6 +595,15 @@ AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
 
     // 1. SCAN AND REGISTER CLASSES & ENUMS
     alir_scan_and_register_classes(&ctx, root);
+
+    printf("DEBUG_PASS1_END: struct list:\n");
+    fflush(stdout);
+    AlirStruct *ds = ctx.module->structs;
+    while (ds) {
+        printf(" - %s fields: %d\n", ds->name, ds->field_count);
+        fflush(stdout);
+        ds = ds->next;
+    }
 
     // 1.5. FOLD TOP-LEVEL CONST DECLARATIONS WITH CONSTANT INITIALIZERS
     scan_and_fold_consts(&ctx, root);

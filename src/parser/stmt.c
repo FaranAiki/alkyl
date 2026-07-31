@@ -235,7 +235,7 @@ static ResidueCase* parse_residue_cases(Parser *p, char *default_err_var) {
     ResidueCase **curr = &head;
 
     while (p->current_token.type == TOKEN_LBRACKET || p->current_token.type == TOKEN_LBRACE) { if (p->has_error) break;
-        ResidueCase *rc = parser_alloc(p, sizeof(ResidueCase));
+        ResidueCase *rc = parser_alloc_raw(p, sizeof(ResidueCase));
         rc->err_names = NULL;
         rc->num_err = 0;
         rc->is_default = 0;
@@ -244,7 +244,7 @@ static ResidueCase* parse_residue_cases(Parser *p, char *default_err_var) {
         if (p->current_token.type == TOKEN_LBRACKET) {
             eat(p, TOKEN_LBRACKET);
             int cap = 4;
-            rc->err_names = parser_alloc(p, sizeof(char*) * cap);
+            rc->err_names = parser_alloc_raw(p, sizeof(char*) * cap);
             while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
                 if (p->current_token.type != TOKEN_IDENTIFIER) {
                     parser_fail(p, "Expected error name in residue case");
@@ -252,7 +252,7 @@ static ResidueCase* parse_residue_cases(Parser *p, char *default_err_var) {
                 }
                 if (rc->num_err >= cap) {
                     cap *= 2;
-                    char **tmp = parser_alloc(p, sizeof(char*) * cap);
+                    char **tmp = parser_alloc_raw(p, sizeof(char*) * cap);
                     for (int i = 0; i < rc->num_err; i++) tmp[i] = rc->err_names[i];
                     rc->err_names = tmp;
                 }

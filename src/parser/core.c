@@ -60,6 +60,13 @@ void* parser_alloc(Parser *p, size_t size) {
     return ptr;
 }
 
+void* parser_alloc_raw(Parser *p, size_t size) {
+    if (!p || !p->ctx || !p->ctx->arena) return calloc(1, size);
+    void *ptr = arena_alloc(p->ctx->arena, size);
+    if (ptr) memset(ptr, 0, size);
+    return ptr;
+}
+
 char* parser_strdup(Parser *p, const char *str) {
     if (!str) return NULL;
     if (!p || !p->ctx || !p->ctx->arena) return strdup(str); 
@@ -111,7 +118,7 @@ void register_alias(Parser *p, const char *name, VarType target) {
         curr = curr->next;
     }
 
-    TypeAlias *a = parser_alloc(p, sizeof(TypeAlias));
+    TypeAlias *a = parser_alloc_raw(p, sizeof(TypeAlias));
     a->name = parser_strdup(p, name);
     a->target = target;
     if (target.class_name) a->target.class_name = parser_strdup(p, target.class_name);
@@ -136,11 +143,11 @@ Token token_clone(Parser *p, Token t) {
 }
 
 void register_macro(Parser *p, const char *name, char **params, int param_count, Token *body, int body_len) {
-    Macro *m = parser_alloc(p, sizeof(Macro));
+    Macro *m = parser_alloc_raw(p, sizeof(Macro));
     m->name = parser_strdup(p, name);
     m->params = params; 
     m->param_count = param_count;
-    m->body = parser_alloc(p, sizeof(Token) * body_len);
+    m->body = parser_alloc_raw(p, sizeof(Token) * body_len);
     for (int i=0; i<body_len; i++) {
         m->body[i] = token_clone(p, body[i]);
     }
@@ -208,12 +215,12 @@ static Token expand_macros_from(Parser *p, Token t) {
                 return t;
             }
 
-            args = parser_alloc(p, sizeof(Token*) * m->param_count);
-            arg_lens = parser_alloc(p, m->param_count * sizeof(int));
+            args = parser_alloc_raw(p, sizeof(Token*) * m->param_count);
+            arg_lens = parser_alloc_raw(p, m->param_count * sizeof(int));
 
             for (int i = 0; i < m->param_count; i++) {
                 int cap = 8; int len = 0;
-                args[i] = parser_alloc(p, sizeof(Token) * cap);
+                args[i] = parser_alloc_raw(p, sizeof(Token) * cap);
                 int depth = 0;
                 while (1) {
                     Token arg_t = fetch_safe(p);
@@ -237,7 +244,7 @@ static Token expand_macros_from(Parser *p, Token t) {
 
                     if (len >= cap) {
                         cap *= 2;
-                        Token *new_arr = parser_alloc(p, sizeof(Token) * cap);
+                        Token *new_arr = parser_alloc_raw(p, sizeof(Token) * cap);
                         memcpy(new_arr, args[i], sizeof(Token) * len);
                         args[i] = new_arr;
                     }
@@ -249,7 +256,7 @@ static Token expand_macros_from(Parser *p, Token t) {
 
         int res_cap = m->body_len * 2 + 16;
         int res_len = 0;
-        Token *res = parser_alloc(p, sizeof(Token) * res_cap);
+        Token *res = parser_alloc_raw(p, sizeof(Token) * res_cap);
 
         for (int i = 0; i < m->body_len; i++) {
             Token bt = m->body[i];
@@ -264,7 +271,7 @@ static Token expand_macros_from(Parser *p, Token t) {
                 for (int k = 0; k < arg_lens[p_idx]; k++) {
                     if (res_len >= res_cap) {
                         res_cap *= 2;
-                        Token *new_res = parser_alloc(p, sizeof(Token) * res_cap);
+                        Token *new_res = parser_alloc_raw(p, sizeof(Token) * res_cap);
                         memcpy(new_res, res, sizeof(Token) * res_len);
                         res = new_res;
                     }
@@ -273,7 +280,7 @@ static Token expand_macros_from(Parser *p, Token t) {
             } else {
                 if (res_len >= res_cap) {
                     res_cap *= 2;
-                    Token *new_res = parser_alloc(p, sizeof(Token) * res_cap);
+                    Token *new_res = parser_alloc_raw(p, sizeof(Token) * res_cap);
                     memcpy(new_res, res, sizeof(Token) * res_len);
                     res = new_res;
                 }
@@ -281,7 +288,7 @@ static Token expand_macros_from(Parser *p, Token t) {
             }
         }
 
-        Expansion *ex = parser_alloc(p, sizeof(Expansion));
+        Expansion *ex = parser_alloc_raw(p, sizeof(Expansion));
         ex->tokens = res;
         ex->count = res_len;
         ex->pos = 0;
@@ -707,7 +714,7 @@ VarType parse_type(Parser *p) {
 VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     VarType vt = {0};
     vt.is_func_ptr = 1;
-    vt.fp_ret_type = parser_alloc(p, sizeof(VarType));
+    vt.fp_ret_type = parser_alloc_raw(p, sizeof(VarType));
     *vt.fp_ret_type = ret_type;
     
     eat(p, TOKEN_LPAREN);
@@ -733,7 +740,7 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     }
     
     int cap = 4;
-    vt.fp_param_types = parser_alloc(p, sizeof(VarType) * cap);
+    vt.fp_param_types = parser_alloc_raw(p, sizeof(VarType) * cap);
     vt.fp_param_count = 0;
     
     if (p->current_token.type != TOKEN_RPAREN) {
@@ -772,7 +779,7 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
             
             if (vt.fp_param_count >= cap) {
                 cap *= 2;
-                VarType *new_params = parser_alloc(p, sizeof(VarType) * cap);
+                VarType *new_params = parser_alloc_raw(p, sizeof(VarType) * cap);
                 memcpy(new_params, vt.fp_param_types, sizeof(VarType) * vt.fp_param_count);
                 vt.fp_param_types = new_params;
             }
@@ -794,7 +801,7 @@ static char* read_file_content(Parser *p, const char* path) {
     fseek(f, 0, SEEK_END);
     long len = ftell(f);
     fseek(f, 0, SEEK_SET);
-    char* buf = parser_alloc(p, len + 1);
+    char* buf = parser_alloc_raw(p, len + 1);
     if(buf) { fread(buf, 1, len, f); buf[len] = 0; }
     fclose(f);
     return buf;
@@ -848,14 +855,14 @@ void parser_prescan(Parser *p) {
 ASTNode* parse_program(Parser *p) {
   if (p->l) {
       p->token_capacity = 1024;
-      p->tokens = parser_alloc(p, sizeof(Token) * p->token_capacity);
+      p->tokens = parser_alloc_raw(p, sizeof(Token) * p->token_capacity);
       p->token_count = 0;
       p->token_pos = 0;
       while (1) {
           Token t = lexer_next(p->l);
           if (p->token_count >= p->token_capacity) {
               int new_cap = p->token_capacity * 2;
-              Token *new_tokens = parser_alloc(p, sizeof(Token) * new_cap);
+              Token *new_tokens = parser_alloc_raw(p, sizeof(Token) * new_cap);
               memcpy(new_tokens, p->tokens, sizeof(Token) * p->token_count);
               p->tokens = new_tokens;
               p->token_capacity = new_cap;

@@ -218,7 +218,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
 
             if (is_type_start(p)) {
                 int max_args = 16;
-                VarType *types = parser_alloc(p, sizeof(VarType) * max_args);
+                VarType *types = parser_alloc_raw(p, sizeof(VarType) * max_args);
                 int num_types = 0;
 
                 while (p->current_token.type != TOKEN_RBRACKET) { if (p->has_error) break;
@@ -909,13 +909,13 @@ ASTNode* parse_fallback(Parser *p) {
 
       if (is_coalesce) {
           err_id = parser_strdup(p, "ErrNull");
-          err_names = parser_alloc(p, sizeof(char*));
+          err_names = parser_alloc_raw(p, sizeof(char*));
           err_names[0] = parser_strdup(p, "ErrNull");
           num_err = 1;
       } else if (p->current_token.type == TOKEN_LBRACKET) {
           eat(p, TOKEN_LBRACKET);
           int cap = 4;
-          err_names = parser_alloc(p, sizeof(char*) * cap);
+          err_names = parser_alloc_raw(p, sizeof(char*) * cap);
           while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
               if (p->current_token.type != TOKEN_IDENTIFIER) {
                   parser_fail(p, "Expected error name in ? [...] case");
@@ -923,7 +923,7 @@ ASTNode* parse_fallback(Parser *p) {
               }
               if (num_err >= cap) {
                   cap *= 2;
-                  char **tmp = parser_alloc(p, sizeof(char*) * cap);
+                  char **tmp = parser_alloc_raw(p, sizeof(char*) * cap);
                   for (int i = 0; i < num_err; i++) tmp[i] = err_names[i];
                   err_names = tmp;
               }
@@ -956,7 +956,7 @@ ASTNode* parse_fallback(Parser *p) {
       node->fallback_err_name = err_id;
       node->err_var_name = err_var;
 
-      ResidueCase *rc = parser_alloc(p, sizeof(ResidueCase));
+      ResidueCase *rc = parser_alloc_raw(p, sizeof(ResidueCase));
       rc->err_names = err_names;
       rc->num_err = num_err;
       rc->body = right;

@@ -1,0 +1,21 @@
+import "std/print";
+
+premeta {
+    reason "Testing"
+    parser.function_call_require_comma = false;
+}
+
+define divby(a, b) as a % b == 0;
+
+/* to do: make it so that [1..=100].each( (int i){
+    // do something
+    // is possible
+})*/
+int main() {
+    for x in [1..=100] {
+        if divby(x, 15) then print x " is fizzbuzz\n";
+        else if divby(x, 5) then print x " is fizz\n";
+        else if divby(x, 3) then print x " is buzz\n";
+        else print "Just " x " \n";
+    }
+}

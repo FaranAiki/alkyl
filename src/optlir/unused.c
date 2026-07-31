@@ -73,38 +73,49 @@ static void collect_called_functions(AlirModule *module, UsedSet *called) {
     }
 }
 
+static void check_type_for_struct(Arena *arena, UsedSet *used_structs, VarType *type) {
+    if (!type) return;
+    if (type->base == TYPE_CLASS && type->class_name) {
+        debug_any("Check Type for Struct Marking %s\n", type->class_name);
+        used_set_add(arena, used_structs, type->class_name);
+    }
+}
+
+static bool is_struct_used(UsedSet *used_structs, const char *st_name) {
+    if (used_set_has(used_structs, st_name)) return true;
+    const char *dot = strrchr(st_name, '.');
+    if (dot) {
+        if (used_set_has(used_structs, dot + 1)) return true;
+    }
+    return false;
+}
+
 static void collect_used_structs(AlirModule *module, UsedSet *used_structs) {
     Arena *arena = module->compiler_ctx ? module->compiler_ctx->arena : NULL;
+
+    AlirGlobal *g = module->globals;
+    while (g) {
+        check_type_for_struct(arena, used_structs, &g->type);
+        g = g->next;
+    }
+
     AlirFunction *f = module->functions;
     while (f) {
-        if (f->ret_type.base == TYPE_CLASS && f->ret_type.class_name) {
-            used_set_add(arena, used_structs, f->ret_type.class_name);
-        }
+        check_type_for_struct(arena, used_structs, &f->ret_type);
         AlirParam *p = f->params;
         while (p) {
-            if (p->type.base == TYPE_CLASS && p->type.class_name) {
-                used_set_add(arena, used_structs, p->type.class_name);
-            }
+            check_type_for_struct(arena, used_structs, &p->type);
             p = p->next;
         }
         AlirBlock *b = f->blocks;
         while (b) {
             AlirInst *i = b->head;
             while (i) {
-                if (i->dest && i->dest->type.base == TYPE_CLASS && i->dest->type.class_name) {
-                    used_set_add(arena, used_structs, i->dest->type.class_name);
-                }
-                if (i->op1 && i->op1->type.base == TYPE_CLASS && i->op1->type.class_name) {
-                    used_set_add(arena, used_structs, i->op1->type.class_name);
-                }
-                if (i->op2 && i->op2->type.base == TYPE_CLASS && i->op2->type.class_name) {
-                    used_set_add(arena, used_structs, i->op2->type.class_name);
-                }
+                if (i->dest) check_type_for_struct(arena, used_structs, &i->dest->type);
+                if (i->op1) check_type_for_struct(arena, used_structs, &i->op1->type);
+                if (i->op2) check_type_for_struct(arena, used_structs, &i->op2->type);
                 for (int j = 0; j < i->arg_count; j++) {
-                    if (i->args[j] && i->args[j]->type.base == TYPE_CLASS &&
-                        i->args[j]->type.class_name) {
-                        used_set_add(arena, used_structs, i->args[j]->type.class_name);
-                    }
+                    if (i->args[j]) check_type_for_struct(arena, used_structs, &i->args[j]->type);
                 }
                 i = i->next;
             }
@@ -112,6 +123,27 @@ static void collect_used_structs(AlirModule *module, UsedSet *used_structs) {
         }
         f = f->next;
     }
+
+    // Transitive closure for struct fields
+    int changed;
+    do {
+        changed = 0;
+        AlirStruct *st = module->structs;
+        while (st) {
+            if (is_struct_used(used_structs, st->name)) {
+                AlirField *field = st->fields;
+                while (field) {
+                    if (field->type.base == TYPE_CLASS && field->type.class_name && !used_set_has(used_structs, field->type.class_name)) {
+                        debug_any("ALIR Struct Marking field dep %s\n", field->type.class_name);
+                        used_set_add(arena, used_structs, field->type.class_name);
+                        changed = 1;
+                    }
+                    field = field->next;
+                }
+            }
+            st = st->next;
+        }
+    } while (changed);
 }
 
 static void collect_used_globals(AlirModule *module, UsedSet *used_globals) {
@@ -195,7 +227,7 @@ void optlir_remove_unused_struct(AlirModule *module) {
     AlirStruct **structs = &module->structs;
     while (*structs) {
         AlirStruct *st = *structs;
-        if (!used_set_has(&used_structs, st->name)) {
+        if (!is_struct_used(&used_structs, st->name)) {
             *structs = st->next;
             continue;
         }

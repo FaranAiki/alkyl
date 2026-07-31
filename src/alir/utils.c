@@ -73,17 +73,10 @@ AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *
     AlirStruct *st = alir_find_struct(ctx->module, class_name);
     if (!st) return NULL;
 
-    // 1. Sizeof
-    AlirValue *size_val = alir_const_int(ctx->module, 8);
-
-    // 2. Alloc Stack (Alloca)
-    AlirValue *raw_mem = new_temp(ctx, (VarType){TYPE_CHAR, 1}); // char*
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, raw_mem, size_val, NULL));
-
-    // 3. Bitcast to Class*
-    VarType cls_ptr_type = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)};
-    AlirValue *obj_ptr = new_temp(ctx, cls_ptr_type);
-    emit(ctx, mk_inst(ctx->module, ALIR_OP_BITCAST, obj_ptr, raw_mem, NULL));
+    // 1. Alloc Stack (Alloca)
+    VarType cls_type = {TYPE_CLASS, 0, alir_strdup(ctx->module, class_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+    AlirValue *obj_ptr = new_temp(ctx, cls_type);
+    emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, obj_ptr, NULL, NULL));
 
     // 4. Call Constructor or Implicit Member Initialization
     SemSymbol *sym = ctx->sem ? sem_symbol_lookup(ctx->sem, class_name, NULL) : NULL;

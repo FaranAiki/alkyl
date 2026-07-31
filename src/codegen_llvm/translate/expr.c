@@ -56,13 +56,27 @@ LLVMValueRef translate_expr(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 } else {
                     LLVMTypeRef t1 = LLVMTypeOf(op1);
                     LLVMTypeRef t2 = LLVMTypeOf(op2);
-                    unsigned w1 = LLVMGetIntTypeWidth(t1);
-                    unsigned w2 = LLVMGetIntTypeWidth(t2);
+                    unsigned w1 = LLVMGetTypeKind(t1) == LLVMIntegerTypeKind ? LLVMGetIntTypeWidth(t1) : 0;
+                    unsigned w2 = LLVMGetTypeKind(t2) == LLVMIntegerTypeKind ? LLVMGetIntTypeWidth(t2) : 0;
                     LLVMValueRef cmp1 = op1, cmp2 = op2;
-                    if (w1 > w2) {
-                        cmp2 = LLVMBuildZExt(ctx->builder, op2, t1, "zext_cmp");
-                    } else if (w2 > w1) {
-                        cmp1 = LLVMBuildZExt(ctx->builder, op1, t2, "zext_cmp");
+                    if (w1 > w2 && w2 > 0) {
+                        cmp2 = LLVMBuildZExt(ctx->builder, cmp2, t1, "zext_cmp");
+                    } else if (w2 > w1 && w1 > 0) {
+                        cmp1 = LLVMBuildZExt(ctx->builder, cmp1, t2, "zext_cmp");
+                    } else if (LLVMGetTypeKind(t1) != LLVMGetTypeKind(t2)) {
+                        if (LLVMGetTypeKind(t1) == LLVMPointerTypeKind && LLVMGetTypeKind(t2) == LLVMIntegerTypeKind) {
+                            cmp1 = LLVMBuildPtrToInt(ctx->builder, cmp1, t2, "ptr2int_cmp");
+                        } else if (LLVMGetTypeKind(t2) == LLVMPointerTypeKind && LLVMGetTypeKind(t1) == LLVMIntegerTypeKind) {
+                            cmp2 = LLVMBuildPtrToInt(ctx->builder, cmp2, t1, "ptr2int_cmp");
+                        } else if (LLVMGetTypeKind(t1) == LLVMPointerTypeKind && LLVMGetTypeKind(t2) == LLVMStructTypeKind) {
+                            cmp1 = LLVMBuildPtrToInt(ctx->builder, cmp1, LLVMInt64TypeInContext(ctx->llvm_ctx), "ptr2int_cmp");
+                            cmp2 = LLVMBuildExtractValue(ctx->builder, cmp2, 1, "ext_cmp");
+                            cmp2 = LLVMBuildPtrToInt(ctx->builder, cmp2, LLVMInt64TypeInContext(ctx->llvm_ctx), "ptr2int_cmp");
+                        } else if (LLVMGetTypeKind(t2) == LLVMPointerTypeKind && LLVMGetTypeKind(t1) == LLVMStructTypeKind) {
+                            cmp2 = LLVMBuildPtrToInt(ctx->builder, cmp2, LLVMInt64TypeInContext(ctx->llvm_ctx), "ptr2int_cmp");
+                            cmp1 = LLVMBuildExtractValue(ctx->builder, cmp1, 1, "ext_cmp");
+                            cmp1 = LLVMBuildPtrToInt(ctx->builder, cmp1, LLVMInt64TypeInContext(ctx->llvm_ctx), "ptr2int_cmp");
+                        }
                     }
                     switch (inst->op) {
                         case ALIR_OP_EQ: res = LLVMBuildICmp(ctx->builder, LLVMIntEQ, cmp1, cmp2, "eq"); break;
@@ -202,6 +216,14 @@ LLVMValueRef translate_expr(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     if (src_kind == LLVMDoubleTypeKind && dst_kind == LLVMFloatTypeKind) res = LLVMBuildFPTrunc(ctx->builder, op1, dst_ty, "fptrunc");
                     else if (src_kind == LLVMFloatTypeKind && dst_kind == LLVMDoubleTypeKind) res = LLVMBuildFPExt(ctx->builder, op1, dst_ty, "fpext");
                     else res = op1;
+                } else if (src_kind == LLVMStructTypeKind && dst_kind != LLVMStructTypeKind) {
+                    res = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext_taint");
+                } else if (src_kind != LLVMStructTypeKind && dst_kind == LLVMStructTypeKind) {
+                    // Casting untainted to tainted (assume error = 0)
+                    LLVMValueRef err_val = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
+                    LLVMValueRef taint = LLVMGetUndef(dst_ty);
+                    taint = LLVMBuildInsertValue(ctx->builder, taint, err_val, 0, "ins_err");
+                    res = LLVMBuildInsertValue(ctx->builder, taint, op1, 1, "ins_val");
                 } else {
                     res = LLVMBuildBitCast(ctx->builder, op1, dst_ty, "bitcast");
                 }

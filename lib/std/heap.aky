@@ -128,6 +128,11 @@ namespace heap {
             return (base + offset) as void*;
         }
 
+        compound [type T]
+        T* alloc_type(long count) {
+            return this.alloc(count * sizeof(T)) as T*;
+        }
+
     public tainted:
         // free() returns all memory back to the OS/default allocator
         void free() {

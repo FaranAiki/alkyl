@@ -26,14 +26,14 @@ ASTNode* parse_define(Parser *p) {
       if (p->current_token.type == TOKEN_LPAREN) {
           eat(p, TOKEN_LPAREN);
           int cap = 4;
-          params = parser_alloc(p, sizeof(char*) * cap);
+          params = parser_alloc_raw(p, sizeof(char*) * cap);
           
           if (p->current_token.type != TOKEN_RPAREN) {
               while(1) {
                   if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected parameter name in define definition");
                   if (param_count >= cap) { 
                       cap *= 2; 
-                      char **new_params = parser_alloc(p, sizeof(char*)*cap);
+                      char **new_params = parser_alloc_raw(p, sizeof(char*)*cap);
                       memcpy(new_params, params, sizeof(char*)*param_count);
                       params = new_params;
                   }
@@ -51,7 +51,7 @@ ASTNode* parse_define(Parser *p) {
       if (sig_count >= sig_cap) {
           sig_cap = (sig_cap == 0) ? 2 : sig_cap * 2;
           // Simple realloc
-          MacroSig *new_sigs = parser_alloc(p, sizeof(MacroSig) * sig_cap);
+          MacroSig *new_sigs = parser_alloc_raw(p, sizeof(MacroSig) * sig_cap);
           if (sigs) memcpy(new_sigs, sigs, sizeof(MacroSig) * sig_count);
           sigs = new_sigs;
       }
@@ -88,7 +88,7 @@ ASTNode* parse_define(Parser *p) {
   }
   eat(p, TOKEN_AS);
   
-  Token *body_tokens = parser_alloc(p, sizeof(Token) * 32);
+  Token *body_tokens = parser_alloc_raw(p, sizeof(Token) * 32);
   int body_cap = 32;
   int body_len = 0;
   /* Store body tokens literally; expansion happens at each use site. */
@@ -97,7 +97,7 @@ ASTNode* parse_define(Parser *p) {
   while (p->current_token.type != TOKEN_SEMICOLON && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
       if (body_len >= body_cap) { 
           body_cap *= 2; 
-          Token *new_toks = parser_alloc(p, sizeof(Token)*body_cap);
+          Token *new_toks = parser_alloc_raw(p, sizeof(Token)*body_cap);
           memcpy(new_toks, body_tokens, sizeof(Token)*body_len);
           body_tokens = new_toks;
       }
@@ -177,13 +177,13 @@ ASTNode* parse_typedef(Parser *p) {
       char **names = NULL;
       int name_count = 0;
       int name_cap = 4;
-      names = parser_alloc(p, sizeof(char*) * name_cap);
+      names = parser_alloc_raw(p, sizeof(char*) * name_cap);
       
       while (1) {
           if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected new type name after 'typedef'");
           if (name_count >= name_cap) { 
               name_cap *= 2; 
-              char **new_names = parser_alloc(p, sizeof(char*) * name_cap);
+              char **new_names = parser_alloc_raw(p, sizeof(char*) * name_cap);
               memcpy(new_names, names, sizeof(char*) * name_count);
               names = new_names;
           }

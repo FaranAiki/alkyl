@@ -80,6 +80,7 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name);
 char* read_import_file(Parser *p, const char* filename);
 
 void* parser_alloc(Parser *p, size_t size);
+void* parser_alloc_raw(Parser *p, size_t size);
 char* parser_strdup(Parser *p, const char *str);
 
 void register_macro(Parser *p, const char *name, char **params, int param_count, Token *body, int body_len);

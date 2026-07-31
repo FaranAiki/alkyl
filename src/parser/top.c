@@ -80,7 +80,7 @@ static ASTNode* parse_single_extern(Parser *p, int modifiers) {
           ptype.ptr_depth++;
       }
 
-      Parameter *param = parser_alloc(p, sizeof(Parameter));
+      Parameter *param = parser_alloc_raw(p, sizeof(Parameter));
       apply_param_modifiers(param, pmods);
       param->type = ptype; param->name = pname;
 
@@ -159,9 +159,9 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
   eat(p, TOKEN_LBRACKET);
 
   int max_params = 16;
-  char **type_params = parser_alloc(p, sizeof(char*) * max_params);
-  VarType **allowed_types = parser_alloc(p, sizeof(VarType*) * max_params);
-  int *num_allowed = parser_alloc(p, sizeof(int) * max_params);
+  char **type_params = parser_alloc_raw(p, sizeof(char*) * max_params);
+  VarType **allowed_types = parser_alloc_raw(p, sizeof(VarType*) * max_params);
+  int *num_allowed = parser_alloc_raw(p, sizeof(int) * max_params);
   int num_params = 0;
 
   while (p->current_token.type != TOKEN_RBRACKET) { if (p->has_error) break;
@@ -171,7 +171,7 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
           eat(p, TOKEN_IDENTIFIER);
           if (p->current_token.type == TOKEN_LBRACKET) {
               eat(p, TOKEN_LBRACKET);
-              curr_allowed = parser_alloc(p, sizeof(VarType) * 16);
+              curr_allowed = parser_alloc_raw(p, sizeof(VarType) * 16);
               while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
                   curr_allowed[curr_num++] = parse_type(p);
                   if (p->current_token.type == TOKEN_COMMA) {
@@ -284,7 +284,7 @@ ASTNode* parse_errnum(Parser *p) {
             break;
         }
 
-        EnumEntry *entry = parser_alloc(p, sizeof(EnumEntry));
+        EnumEntry *entry = parser_alloc_raw(p, sizeof(EnumEntry));
         entry->name = parser_strdup(p, p->current_token.text);
         entry->value = -1; // Semantic analyzer handles numbering
         entry->next = NULL;
@@ -326,7 +326,7 @@ ASTNode* parse_errnum(Parser *p) {
     FuncDefNode *fd = (FuncDefNode*)fn;
     int count = 0;
     for (EnumEntry *e = head; e; e = e->next) count++;
-    fd->err_names = parser_alloc(p, sizeof(char*) * (count > 0 ? count : 1));
+    fd->err_names = parser_alloc_raw(p, sizeof(char*) * (count > 0 ? count : 1));
     fd->num_err = count;
     fd->has_errnum = 1;
     int i = 0;
@@ -748,7 +748,7 @@ ASTNode* parse_func_def_after_type(Parser *p, int modifiers, VarType vtype, int 
             ptype.ptr_depth++;
         }
 
-        Parameter *pm = parser_alloc(p, sizeof(Parameter));
+        Parameter *pm = parser_alloc_raw(p, sizeof(Parameter));
         apply_param_modifiers(pm, pmods);
         pm->type = ptype; pm->name = pname;
 

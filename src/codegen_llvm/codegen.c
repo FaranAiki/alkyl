@@ -53,6 +53,17 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
             if (t.class_name) {
                 base = hashmap_get(&ctx->struct_map, t.class_name);
                 if (!base) {
+                    AlirStruct *st = ctx->alir_mod->structs;
+                    while (st) {
+                        const char *dot = strrchr(st->name, '.');
+                        if (dot && streq(dot + 1, t.class_name)) {
+                            base = hashmap_get(&ctx->struct_map, st->name);
+                            if (base) break;
+                        }
+                        st = st->next;
+                    }
+                }
+                if (!base) {
                     base = LLVMStructCreateNamed(ctx->llvm_ctx, t.class_name);
                     hashmap_put(&ctx->struct_map, t.class_name, base);
                 }
@@ -114,7 +125,7 @@ LLVMValueRef get_llvm_value(CodegenCtx *ctx, AlirValue *v) {
             } else if (v->type.base == TYPE_DOUBLE && v->type.ptr_depth == 0) {
                 return LLVMConstReal(ty, v->val.double_val);
             } else {
-                long long val = (v->type.base == TYPE_LONG || v->type.base == TYPE_LONG_LONG || v->type.base == TYPE_UNSIGNED_LONG_LONG) 
+                long long val = (v->type.base == TYPE_LONG || v->type.base == TYPE_LONG_LONG || v->type.base == TYPE_UNSIGNED_LONG_LONG)
                                 ? v->val.long_long_val : v->val.int_val;
                 if (LLVMGetTypeKind(ty) == LLVMPointerTypeKind) {
                     if (val == 0) return LLVMConstNull(ty);
@@ -161,6 +172,8 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
     AlirStruct *st = ctx->alir_mod->structs;
     while (st) {
         LLVMTypeRef struct_ty = LLVMStructCreateNamed(ctx->llvm_ctx, st->name);
+        printf("DEBUG_CODEGEN: struct=%s fields=%d\n", st->name, st->field_count);
+        fflush(stdout);
         hashmap_put(&ctx->struct_map, st->name, struct_ty);
         st = st->next;
     }
@@ -234,7 +247,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                     field_tys[f->index] = get_llvm_type(ctx, f->type);
                     f = f->next;
                 }
-                LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
+                for(int i=0; i<st->field_count; i++) { debug_any("Field %d: base=%d ptr_depth=%d\n", i, (int)st->fields[i].type.base, st->fields[i].type.ptr_depth); } LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
             }
         }
         st = st->next;
@@ -261,10 +274,12 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
 
                 LLVMValueRef len_val = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), g->string_content ? strlen(g->string_content) : 0, 0);
 
-                LLVMTypeRef class_type = get_llvm_type(ctx, g->type);
+                VarType base_g_type = g->type;
+                base_g_type.ptr_depth = 0;
+                LLVMTypeRef class_type = get_llvm_type(ctx, base_g_type);
                 if (class_type && LLVMIsOpaqueStruct(class_type)) {
                     LLVMTypeRef types[] = { LLVMInt32TypeInContext(ctx->llvm_ctx), ptr_ty };
-                    LLVMStructSetBody(class_type, types, 2, 0);
+                    printf("Setting body for string: class_type=%p types[0]=%p types[1]=%p i32=%p\n", class_type, types[0], types[1], LLVMInt32TypeInContext(ctx->llvm_ctx)); LLVMStructSetBody(class_type, types, 2, 0);
                 }
 
                 LLVMValueRef struct_vals[] = { len_val, ptr_val };
@@ -282,6 +297,12 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                 LLVMSetLinkage(global_var, LLVMPrivateLinkage);
                 LLVMSetGlobalConstant(global_var, 1);
             }
+        } else {
+            // Regular global variables
+            LLVMTypeRef ty = get_llvm_type(ctx, g->type);
+            LLVMValueRef global_var = LLVMAddGlobal(ctx->llvm_mod, ty, g->name);
+            LLVMSetInitializer(global_var, LLVMConstNull(ty));
+            // Set standard external linkage or whatever is appropriate
         }
         g = g->next;
     }

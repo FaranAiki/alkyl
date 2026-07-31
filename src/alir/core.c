@@ -10,7 +10,8 @@ void* alir_alloc(AlirModule *mod, size_t size) {
         if (ptr) memset(ptr, 0, size);
         return ptr;
     }
-    return calloc(1, size);
+    void *ptr = calloc(1, size);
+    return ptr;
 }
 
 char* alir_strdup(AlirModule *mod, const char *str) {
@@ -169,6 +170,8 @@ void alir_append_inst(AlirBlock *block, AlirInst *inst) {
 
 void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields, int is_union) {
     AlirStruct *st = alir_alloc(mod, sizeof(AlirStruct));
+    printf("DEBUG_REGISTER: st=%p name=%s next=%p\n", st, name, mod->structs);
+    fflush(stdout);
     st->is_union = is_union;
     st->name = alir_strdup(mod, name);
     st->fields = fields;
@@ -196,6 +199,15 @@ AlirStruct* alir_find_struct(AlirModule *mod, const char *name) {
     while(st) {
         if (streq(st->name, name)) {
             hashmap_put(&mod->struct_map, name, st);
+            return st;
+        }
+        st = st->next;
+    }
+    // Fallback: Check if the struct name ends with ".name"
+    st = mod->structs;
+    while(st) {
+        const char *dot = strrchr(st->name, '.');
+        if (dot && streq(dot + 1, name)) {
             return st;
         }
         st = st->next;

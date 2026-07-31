@@ -2,14 +2,14 @@ import "std/heap";
 import "std/print";
 
 int main() {
-    tainted int* arr = heap.default_allocator.alloc_type[int](10);
+    tainted int* arr = default_allocator.alloc_type[int](10);
     arr[0] = 5;
     arr[1] = 10;
-    
+
     // cast to int to drop tainted, not safe but fine for testing
     int x = arr[0] as int;
     int y = arr[1] as int;
-    std.print x, " ", y, "\n";
-    heap.default_allocator.free(arr as void*);
+    std.print x ? 0, " ", y ? 0, "\n";
+    default_allocator.free(arr as void*);
     return 0;
 }
