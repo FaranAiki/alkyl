@@ -169,7 +169,7 @@ run_single_test() {
 export -f run_single_test
 
 # Main execution
-FILES=$(find test/code -name "*.aky" | sort)
+FILES=$(find test/code -name "*.kyl" | sort)
 
 TOTAL=0
 PASS_COUNT=0
@@ -182,7 +182,7 @@ if [ $PARALLEL -eq 1 ]; then
     while IFS= read -r AKY_FILE; do
         REL_PATH=${AKY_FILE#test/code/}
         FEATURE=$(dirname "$REL_PATH")
-        NAME=$(basename "$REL_PATH" .aky)
+        NAME=$(basename "$REL_PATH" .kyl)
 
         MODES=""
         [ $RUN_UNOPT -eq 1 ] && MODES="${MODES} unopt"
@@ -230,7 +230,7 @@ else
     while IFS= read -r AKY_FILE; do
         REL_PATH=${AKY_FILE#test/code/}
         FEATURE=$(dirname "$REL_PATH")
-        NAME=$(basename "$REL_PATH" .aky)
+        NAME=$(basename "$REL_PATH" .kyl)
 
         EXPECTED_LOG="test/log/$FEATURE/$NAME.log"
         EXPECTED_OUT="test/output/$FEATURE/$NAME.out"

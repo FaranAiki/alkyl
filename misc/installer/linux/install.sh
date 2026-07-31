@@ -40,7 +40,7 @@ cat <<EOF > "$MIME_DIR/application-x-alkyl.xml"
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
   <mime-type type="application/x-alkyl">
     <comment>Alkyl Source File</comment>
-    <glob pattern="*.aky"/>
+    <glob pattern="*.kyl"/>
     <glob pattern="*.hky"/>
     <icon name="application-x-alkyl"/>
   </mime-type>

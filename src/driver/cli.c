@@ -72,10 +72,10 @@ int run_repl(void) {
     MetalirRunner *r = metalir_runner_create("ethyl_repl", &sem_settings, 0);
 
     // TODO is this proper to hardcode it here?
-    // metalir_load_module(r, "lib/std/ethyl.aky");
-    metalir_load_module(r, "lib/std/math.aky");
-    metalir_load_module(r, "lib/std/heap.aky");
-    metalir_load_module(r, "lib/std/print.aky");
+    // metalir_load_module(r, "lib/std/ethyl.kyl");
+    metalir_load_module(r, "lib/std/math.kyl");
+    metalir_load_module(r, "lib/std/heap.kyl");
+    metalir_load_module(r, "lib/std/print.kyl");
 
     signal(SIGINT, SIG_IGN);
 
@@ -386,6 +386,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    fprintf(stderr, "Usage: %s [file.aky] | -m <module> | --module <module>\n", argv[0]);
+    fprintf(stderr, "Usage: %s [file.kyl] | -m <module> | --module <module>\n", argv[0]);
     return 1;
 }

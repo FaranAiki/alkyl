@@ -29,7 +29,7 @@ Futhermore, error messages must contain file path, line number, column, and a su
 
 ### 3.1. Verification (Are we building the product right?)
 
-Unit Testing: Each language feature (Loops, Classes, Arrays) is verified by specific .aky test files in code/test/.
+Unit Testing: Each language feature (Loops, Classes, Arrays) is verified by specific .kyl test files in code/test/.
 
 Integration Testing: The driver is tested against full programs to ensure linking and execution correctness.
 

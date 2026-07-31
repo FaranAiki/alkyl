@@ -2,7 +2,7 @@
 
 A simple programming language written using C as a frontend and backends, such as LLVM-IR (mainly), QBE (experimental), and self-backend, with the philosophy of ARCUY: Always Reasonable Choose Your Way.
 
-Alkyl is named after aikil (aiki language) and alkyl in chemistry which is a highly reactive and foundational. This means alkyl is a very modularized language that can acts as others
+Alkyl is named after aikil (aiki language) and alkyl in chemistry which is a highly reactive and foundational. This means alkyl is a very modularized language that can acts as others. The file extension for Alkyl source code is `.kyl`, a sweet suggestion made by my beloved girlfriend (saysay/kupkup).
 
 # Status
 

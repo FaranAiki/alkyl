@@ -809,7 +809,7 @@ static char* read_file_content(Parser *p, const char* path) {
 
 char* read_import_file(Parser *p, const char* filename) {
   const char* paths[] = { "", "lib/" };
-  const char* exts[] = { ".aky", ".hky", ".alk", ".alky", ".alkyl", "" };
+  const char* exts[] = { ".kyl", ".hky", ".alk", ".alky", ".alkyl", "" };
   char path[1024];
   
   for (unsigned long i = 0; i < sizeof(paths)/sizeof(*paths); i++) {

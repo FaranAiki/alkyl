@@ -62,7 +62,7 @@ Supports function overloading.
 - **Enums**: `enum Color { Red, Green = 10, Blue }`
 
 ## 7. Modular Programming & FFI
-- **Import**: `import "std/math.aky";`
+- **Import**: `import "std/math.kyl";`
 - **Extern**: `extern int printf(string fmt, ...);`
 - **Link**: `link "m";`
 

@@ -16,7 +16,7 @@ Business Goal: "Better C Interoperability"
 
 Feature: externC keyword.
 
-Test Case: code/test/extern_test.aky.
+Test Case: code/test/extern_test.kyl.
 
 Implementation: src/codegen/foreign.c.
 

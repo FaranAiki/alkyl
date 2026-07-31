@@ -1,0 +1,5 @@
+import "std/print.kyl";
+extern int printf(char* fmt, ...);
+int main() {
+  if (typeof([1,2,3]) == typeof(int[])) { printf("TRUE\n"); } else { printf("FALSE\n"); }
+}

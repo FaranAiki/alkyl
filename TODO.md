@@ -1,7 +1,7 @@
 # TODO
 
 ## 1. Class & Vector is Error!
-Refer to test/code/cast/class_cast.aky
+Refer to test/code/cast/class_cast.kyl
 
 It should be:
 int main() {

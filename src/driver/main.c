@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
     // TODO add this;
     if (argc < 2) {
-        printf("Usage: %s <file.aky> [-l<lib>] [--linker gcc|clang|lld|mold] | --lsp\n", argv[0]);
+        printf("Usage: %s <file.kyl> [-l<lib>] [--linker gcc|clang|lld|mold] | --lsp\n", argv[0]);
       return 1;
     }
 

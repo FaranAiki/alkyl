@@ -184,7 +184,7 @@ Between Semantic Analysis and LLVM Codegen, there is the **ALIR (Alkyl Intermedi
 With the given information, do:
 
 <RULE>
-Alkyl files use the extensions .aky (source) and .hky (header) strictly. Do not use or assume .al extensions.
+Alkyl files use the extensions .kyl (source) and .hky (header) strictly. Do not use or assume .al extensions.
 </RULE>
 
 ### Unions and ALIR Type Layout
