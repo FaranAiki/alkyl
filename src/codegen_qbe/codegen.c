@@ -650,7 +650,8 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             int t_shr = alloc_qbe_temp();
             int t_shl = alloc_qbe_temp();
 
-            fprintf(out, "\t%%t%d =%c sub ", t_bits_minus_y, dt);
+            int bits = (dt == 'l') ? 64 : 32;
+            fprintf(out, "\t%%t%d =%c sub %d, ", t_bits_minus_y, dt, bits);
             print_val(out, inst->op2);
             fprintf(out, "\n");
 
@@ -684,7 +685,8 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             print_val(out, inst->op2);
             fprintf(out, "\n");
 
-            fprintf(out, "\t%%t%d =%c sub ", t_bits_minus_y, dt);
+            int bits = (dt == 'l') ? 64 : 32;
+            fprintf(out, "\t%%t%d =%c sub %d, ", t_bits_minus_y, dt, bits);
             print_val(out, inst->op2);
             fprintf(out, "\n");
 

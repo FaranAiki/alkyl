@@ -93,10 +93,17 @@ void optlir_dce_allocs(AlirModule *module) {
         HashMap used_map;
         hashmap_init(&used_map, module->compiler_ctx->arena, 256);
         
+        HashMap alloc_map;
+        hashmap_init(&alloc_map, module->compiler_ctx->arena, 256);
+        
         AlirBlock *b = func->blocks;
         while(b) {
             AlirInst *inst = b->head;
             while(inst) {
+                if (inst->op == ALIR_OP_ALLOCA && inst->dest && inst->dest->kind == ALIR_VAL_TEMP) {
+                    char key[32]; snprintf(key, sizeof(key), "%d", inst->dest->temp_id);
+                    hashmap_put(&alloc_map, key, (void*)1);
+                }
                 if (inst->op != ALIR_OP_STORE && inst->op != ALIR_OP_ALLOCA) {
                     if (inst->op1 && inst->op1->kind == ALIR_VAL_TEMP) {
                         char key[32]; snprintf(key, sizeof(key), "%d", inst->op1->temp_id);
@@ -113,7 +120,6 @@ void optlir_dce_allocs(AlirModule *module) {
                         }
                     }
                 }
-                // stores OP2 is the pointer, if it's NOT a temporary we don't care, but if it is we might eliminate it if unused
                 inst = inst->next;
             }
             b = b->next;
@@ -132,7 +138,10 @@ void optlir_dce_allocs(AlirModule *module) {
                 }
                 else if (inst->op == ALIR_OP_STORE && inst->op2 && inst->op2->kind == ALIR_VAL_TEMP) {
                     char key[32]; snprintf(key, sizeof(key), "%d", inst->op2->temp_id);
-                    if (!hashmap_get(&used_map, key)) {
+                    // Only delete the store if the target is an unused ALLOCA.
+                    // If it is a GETPTR or anything else, we don't know if the base is used,
+                    // so it is unsafe to delete it blindly.
+                    if (hashmap_get(&alloc_map, key) && !hashmap_get(&used_map, key)) {
                         inst->op = ALIR_OP_FREE_STACK; // NOP
                         inst->op1 = NULL;
                         inst->op2 = NULL;
@@ -143,6 +152,7 @@ void optlir_dce_allocs(AlirModule *module) {
             b = b->next;
         }
         hashmap_free(&used_map);
+        hashmap_free(&alloc_map);
         func = func->next;
     }
 }
