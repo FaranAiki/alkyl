@@ -120,7 +120,7 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
     char dt = 'w';
     if (inst->dest) {
         dt = qbe_type(inst->dest->type);
-        if (dt == 'v') dt = 'w';
+        if (dt == 'v') dt = 'l';
     }
 
     switch (inst->op) {
@@ -136,14 +136,33 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             } else {
                 sz = get_qbe_type_size_for_var(inst->dest->type);
             }
-            fprintf(out, "\t");
-            print_val(out, inst->dest);
-            fprintf(out, " =l alloc%d %d\n", align > 4 ? align : 4, sz);
+            if (inst->dest && inst->dest->type.base == TYPE_CLASS && inst->dest->type.class_name && strncmp(inst->dest->type.class_name, "FluxCtx", 7) == 0) {
+                fprintf(out, "\t");
+                print_val(out, inst->dest);
+                fprintf(out, " =l call $malloc(l %d)\n", sz);
+            } else {
+                fprintf(out, "\t");
+                print_val(out, inst->dest);
+                fprintf(out, " =l alloc%d %d\n", align > 4 ? align : 4, sz);
+            }
             break;
         }
         case ALIR_OP_STORE: {
             char st = qbe_type(inst->op1->type);
-            if (st == 'v') st = 'w';
+            if (inst->op1->type.base == TYPE_CLASS && inst->op1->type.ptr_depth == 0) {
+                int sz = 4;
+                if (inst->op1->type.base == TYPE_CLASS && inst->op1->type.class_name) {
+                    sz = get_struct_size(module, inst->op1->type.class_name);
+                } else {
+                    sz = get_qbe_type_size_for_var(inst->op1->type);
+                }
+                fprintf(out, "\tblit ");
+                print_val(out, inst->op1);
+                fprintf(out, ", ");
+                print_val(out, inst->op2);
+                fprintf(out, ", %d\n", sz);
+                break;
+            }
             fprintf(out, "\tstore%c ", st);
             print_val(out, inst->op1);
             fprintf(out, ", ");
@@ -153,6 +172,14 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
         }
         case ALIR_OP_LOAD: {
             char lt = qbe_type(inst->dest->type);
+            if (inst->dest->type.base == TYPE_CLASS && inst->dest->type.ptr_depth == 0) {
+                fprintf(out, "\t");
+                print_val(out, inst->dest);
+                fprintf(out, " =l copy ");
+                print_val(out, inst->op1);
+                fprintf(out, "\n");
+                break;
+            }
             if (lt == 'v') lt = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
@@ -162,29 +189,81 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             break;
         }
         case ALIR_OP_GET_PTR: {
+            if (!inst->op2) {
+                fprintf(out, "\t");
+                print_val(out, inst->dest);
+                fprintf(out, " =l add ");
+                print_val(out, inst->op1);
+                fprintf(out, ", 0\n");
+                break;
+            }
+
+            if (inst->op2->kind != ALIR_VAL_CONST) {
+                char idx_t = qbe_type(inst->op2->type);
+                if (idx_t == 'v') idx_t = 'w';
+                
+                VarType elem_type = inst->dest->type;
+                elem_type.ptr_depth--;
+                int elem_size = get_qbe_type_size_for_var(elem_type);
+
+                int tmp_id = 0;
+                if (inst->dest->kind == ALIR_VAL_TEMP) tmp_id = inst->dest->temp_id;
+
+                // 1. Extend index to 64-bit if necessary
+                if (idx_t == 'w') {
+                    fprintf(out, "\t%%__idx_ext_%d =l extsw ", tmp_id);
+                    print_val(out, inst->op2);
+                    fprintf(out, "\n");
+                } else if (idx_t == 'b') {
+                    fprintf(out, "\t%%__idx_ext_%d =l extub ", tmp_id);
+                    print_val(out, inst->op2);
+                    fprintf(out, "\n");
+                }
+
+                // 2. Multiply by element size
+                if (elem_size > 1) {
+                    fprintf(out, "\t%%__idx_mul_%d =l mul ", tmp_id);
+                    if (idx_t == 'w' || idx_t == 'b') fprintf(out, "%%__idx_ext_%d", tmp_id);
+                    else print_val(out, inst->op2);
+                    fprintf(out, ", %d\n", elem_size);
+                }
+
+                // 3. Add to base pointer
+                fprintf(out, "\t");
+                print_val(out, inst->dest);
+                fprintf(out, " =l add ");
+                print_val(out, inst->op1);
+                fprintf(out, ", ");
+                if (elem_size > 1) fprintf(out, "%%__idx_mul_%d", tmp_id);
+                else {
+                    if (idx_t == 'w' || idx_t == 'b') fprintf(out, "%%__idx_ext_%d", tmp_id);
+                    else print_val(out, inst->op2);
+                }
+                fprintf(out, "\n");
+                break;
+            }
+
+            // Constant offset
+            VarType base_type = inst->op1->type;
+            if (base_type.ptr_depth > 0) base_type.ptr_depth--;
+            else if (base_type.array_size > 0) base_type.array_size = 0;
+            
+            int offset = 0;
+            if (base_type.base == TYPE_CLASS && base_type.class_name) {
+                offset = get_struct_field_offset(module, base_type.class_name, (int)inst->op2->val.long_val);
+            } else {
+                int idx = (int)inst->op2->val.long_val;
+                VarType elem_type = inst->dest->type;
+                elem_type.ptr_depth--;
+                int elem_size = get_qbe_type_size_for_var(elem_type);
+                offset = idx * elem_size;
+            }
+
             fprintf(out, "\t");
             print_val(out, inst->dest);
             fprintf(out, " =l add ");
             print_val(out, inst->op1);
-            
-            int offset = 0;
-            if (inst->op2) {
-                VarType base_type = inst->op1->type;
-                if (base_type.ptr_depth > 0) base_type.ptr_depth--;
-                else if (base_type.array_size > 0) base_type.array_size = 0;
-                
-                if (base_type.base == TYPE_CLASS && base_type.class_name && inst->op2->kind == ALIR_VAL_CONST) {
-                    offset = get_struct_field_offset(module, base_type.class_name, (int)inst->op2->val.long_val);
-                } else {
-                    int idx = (int)(intptr_t)inst->op2->val.long_val;
-                    VarType elem_type = inst->dest->type;
-                    elem_type.ptr_depth--;
-                    int elem_size = qbe_type_size(qbe_type(elem_type));
-                    offset = idx * elem_size;
-                }
-            }
-            fprintf(out, ", %d", offset);
-            fprintf(out, "\n");
+            fprintf(out, ", %d\n", offset);
             break;
         }
         case ALIR_OP_ADD: {
@@ -316,7 +395,8 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
                 for (AlirFunction *f = module->functions; f; f = f->next) {
                     if (f->name && streq(f->name, inst->op1->val.str_val)) {
                         char rt = qbe_type(f->ret_type);
-                        if (rt != 'v') call_dt = rt;
+                        if (f->ret_type.base == TYPE_CLASS && f->ret_type.ptr_depth == 0) call_dt = 'l';
+                        else if (rt != 'v') call_dt = rt;
                         break;
                     }
                 }

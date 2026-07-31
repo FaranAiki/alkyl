@@ -39,7 +39,7 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
         if (!f->blocks) continue;
         char ret_t = qbe_type(f->ret_type);
         if (ret_t == 'v') {
-            fprintf(out, "export function $%s(", f->name);
+            fprintf(out, "export function l $%s(", f->name);
         } else {
             fprintf(out, "export function %c $%s(", ret_t, f->name);
         }
