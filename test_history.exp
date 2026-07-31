@@ -1,0 +1,19 @@
+#!/usr/bin/expect -f
+set timeout 2
+spawn build/ethyl
+expect "In \\\[0\\\]:"
+send "let a = 1;\r"
+expect "In \\\[1\\\]:"
+send "let b = 2;\r"
+expect "In \\\[2\\\]:"
+send "\033\[A"
+expect "let b = 2;" { puts "\nOK UP 1" }
+send "\033\[A"
+expect "let a = 1;" { puts "\nOK UP 2" }
+send "\r"
+expect "In \\\[3\\\]:"
+send "\033\[A"
+expect "let a = 1;" { puts "\nOK UP 3" }
+send "x\r"
+expect "In \\\[4\\\]:"
+send "quit()\r"

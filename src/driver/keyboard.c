@@ -36,19 +36,7 @@ static void add_to_cmd_history(const char *line) {
     }
 }
 
-static int has_unbalanced_braces(const char *buffer, int len) {
-    int brace = 0;
-    int in_str = 0, in_char = 0;
-    for (int i = 0; i < len; i++) {
-        if (buffer[i] == '"' && !in_char) in_str = !in_str;
-        else if (buffer[i] == '\'' && !in_str) in_char = !in_char;
-        else if (!in_str && !in_char) {
-            if (buffer[i] == '{') brace++;
-            else if (buffer[i] == '}') brace--;
-        }
-    }
-    return brace > 0;
-}
+
 
 static bool cursor_up(char *buffer, int len, int *pos) {
     (void)len;
@@ -498,21 +486,48 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                         }
                     }
                 } else if (seq2 == 'A') { // Up
-                    if (!has_unbalanced_braces(input_buffer, len) || !cursor_up(input_buffer, len, &pos)) {
+                    if (!cursor_up(input_buffer, len, &pos)) {
                         if (history_view_idx > 0) {
                             if (history_view_idx == cmd_history_count) {
                                 strcpy(temp_buffer, input_buffer);
                             }
-                            history_view_idx--;
-                            strcpy(input_buffer, cmd_history[history_view_idx]);
-                            len = strlen(input_buffer);
-                            pos = len;
+                            int found_idx = -1;
+                            int search_len = strlen(temp_buffer);
+                            if (search_len == 0) {
+                                found_idx = history_view_idx - 1;
+                            } else {
+                                for (int i = history_view_idx - 1; i >= 0; i--) {
+                                    if (strncmp(cmd_history[i], temp_buffer, search_len) == 0) {
+                                        found_idx = i;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (found_idx >= 0) {
+                                history_view_idx = found_idx;
+                                strcpy(input_buffer, cmd_history[history_view_idx]);
+                                len = strlen(input_buffer);
+                                pos = len;
+                            }
                         }
                     }
                 } else if (seq2 == 'B') { // Down
-                    if (!has_unbalanced_braces(input_buffer, len) || !cursor_down(input_buffer, len, &pos)) {
+                    if (!cursor_down(input_buffer, len, &pos)) {
                         if (history_view_idx < cmd_history_count) {
-                            history_view_idx++;
+                            int found_idx = cmd_history_count;
+                            int search_len = strlen(temp_buffer);
+                            if (search_len == 0) {
+                                found_idx = history_view_idx + 1;
+                            } else {
+                                for (int i = history_view_idx + 1; i < cmd_history_count; i++) {
+                                    if (strncmp(cmd_history[i], temp_buffer, search_len) == 0) {
+                                        found_idx = i;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            history_view_idx = found_idx;
                             if (history_view_idx == cmd_history_count) {
                                 strcpy(input_buffer, temp_buffer);
                             } else {
