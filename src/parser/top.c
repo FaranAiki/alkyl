@@ -401,11 +401,11 @@ ASTNode* parse_top_level_internal(Parser *p) {
           char *reason_str = NULL;
           if (p->current_token.type == TOKEN_REASON) {
               eat(p, TOKEN_REASON);
-              if (p->current_token.type != TOKEN_STRING) {
+              if (p->current_token.type != TOKEN_STRING && p->current_token.type != TOKEN_C_STRING) {
                   parser_fail(p, "Expected string literal after reason");
               }
               reason_str = parser_strdup(p, p->current_token.text);
-              eat(p, TOKEN_STRING);
+              eat(p, p->current_token.type);
           }
 
           int line = p->current_token.line;
@@ -420,8 +420,10 @@ ASTNode* parse_top_level_internal(Parser *p) {
                   eat(p, TOKEN_ASSIGN);
                   // parse value
                   char *val = NULL;
-                  if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_NUMBER || p->current_token.type == TOKEN_STRING) {
-                      val = parser_strdup(p, p->current_token.text);
+                  if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_NUMBER || p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING || p->current_token.type == TOKEN_TRUE || p->current_token.type == TOKEN_FALSE) {
+                      if (p->current_token.type == TOKEN_TRUE) val = "true";
+                      else if (p->current_token.type == TOKEN_FALSE) val = "false";
+                      else val = parser_strdup(p, p->current_token.text);
                       eat(p, p->current_token.type);
                   }
 
@@ -431,34 +433,75 @@ ASTNode* parse_top_level_internal(Parser *p) {
                       parser_fail(p, "no reason to set setting");
                   }
 
+                  int matched = 0;
+#define SET_COMP_BOOL(fname) if (streq(key, #fname)) { p->ctx->settings.fname = (streq(val, "true") || streq(val, "1")); matched = 1; }
+#define SET_LEX_BOOL(fname)  if (streq(key, #fname)) { p->l->settings.fname = (streq(val, "true") || streq(val, "1")); matched = 1; }
+#define SET_PARS_BOOL(fname) if (streq(key, #fname)) { p->settings.fname = (streq(val, "true") || streq(val, "1")); matched = 1; }
+
                   if (streq(domain, "compiler")) {
-                      if (streq(key, "no_purge") && val) {
-                          p->ctx->settings.no_purge = (streq(val, "true") || streq(val, "1"));
-                      } else if (streq(key, "allocator_arc") && val) {
-                          p->ctx->settings.allocator_arc = (streq(val, "true") || streq(val, "1"));
+                      if (val) {
+                          SET_COMP_BOOL(no_purge);
+                          SET_COMP_BOOL(allocator_arc);
+                          SET_COMP_BOOL(inject_enum_as_cstring);
+                          SET_COMP_BOOL(double_quote_as_string);
+                          if (streq(key, "default_cconv")) {
+                              p->ctx->settings.default_cconv = val;
+                              matched = 1;
+                          }
                       }
                   } else if (streq(domain, "lexer")) {
-                      if (streq(key, "scope_style") && val) {
-                          if (streq(val, "SCOPE_INDENTATION")) {
-                              p->l->settings.scope_style = SCOPE_INDENTATION;
-                          } else if (streq(val, "SCOPE_BRACKETS")) {
-                              p->l->settings.scope_style = SCOPE_BRACKETS;
-                          } else {
-                              parser_fail(p, "Unknown scope_style value");
+                      if (val) {
+                          SET_LEX_BOOL(require_semicolons);
+                          SET_LEX_BOOL(double_quote_as_string);
+                          SET_LEX_BOOL(import_require_double_quotes);
+                          
+                          if (streq(key, "double_quote_as_string")) {
+                              p->ctx->settings.double_quote_as_string = p->l->settings.double_quote_as_string; // Sync
                           }
-                      } else if (streq(key, "require_semicolons") && val) {
-                          p->l->settings.require_semicolons = (streq(val, "true") || streq(val, "1"));
-                      } else if (streq(key, "double_quote_as_string") && val) {
-                          bool setting = (streq(val, "true") || streq(val, "1"));
-                          p->l->settings.double_quote_as_string = setting;
-                          p->ctx->settings.double_quote_as_string = setting;
+                          
+                          if (streq(key, "scope_style")) {
+                              if (streq(val, "SCOPE_INDENTATION")) {
+                                  p->l->settings.scope_style = SCOPE_INDENTATION;
+                              } else if (streq(val, "SCOPE_BRACKETS")) {
+                                  p->l->settings.scope_style = SCOPE_BRACKETS;
+                              } else {
+                                  parser_fail(p, "Unknown scope_style value");
+                              }
+                              matched = 1;
+                          }
+                      }
+                  } else if (streq(domain, "parser")) {
+                      if (val) {
+                          SET_PARS_BOOL(require_parens_for_conditions);
+                          SET_PARS_BOOL(allow_implicit_return);
+                          SET_PARS_BOOL(allow_postfix_types);
+                          SET_PARS_BOOL(strict_boolean_conditions);
+                          SET_PARS_BOOL(allow_vector_initialization);
+                          SET_PARS_BOOL(namespace_auto_search);
+                          SET_PARS_BOOL(namespace_ausearch_warning);
+                          SET_PARS_BOOL(function_call_require_comma);
+                          SET_PARS_BOOL(array_separator_with_space);
+                          SET_PARS_BOOL(multiplication_if_digit_word);
+                          SET_PARS_BOOL(exponentation_if_word_digit);
                       }
                   }
+                  
+                  if (!matched) {
+                      p->current_token.line = line;
+                      p->current_token.col = col;
+                      parser_fail(p, "Unknown setting or missing value in premeta block");
+                  }
+                  
+#undef SET_COMP_BOOL
+#undef SET_LEX_BOOL
+#undef SET_PARS_BOOL
               } else if (p->current_token.type == TOKEN_ASSIGN) {
                   eat(p, TOKEN_ASSIGN);
                   char *val = NULL;
-                  if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_NUMBER || p->current_token.type == TOKEN_STRING) {
-                      val = parser_strdup(p, p->current_token.text);
+                  if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_NUMBER || p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING || p->current_token.type == TOKEN_TRUE || p->current_token.type == TOKEN_FALSE) {
+                      if (p->current_token.type == TOKEN_TRUE) val = "true";
+                      else if (p->current_token.type == TOKEN_FALSE) val = "false";
+                      else val = parser_strdup(p, p->current_token.text);
                       eat(p, p->current_token.type);
                   }
 

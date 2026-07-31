@@ -1,0 +1,17 @@
+import "std/print";
+
+int main() {
+    let a = [1..=10];
+    for i in a {
+        std.print i, " ";
+    }
+    std.print "\n";
+    
+    let b = [10..<15];
+    for i in b {
+        std.print i, " ";
+    }
+    std.print "\n";
+    
+    return 0;
+}

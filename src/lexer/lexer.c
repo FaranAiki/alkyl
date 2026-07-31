@@ -124,10 +124,37 @@ static int lex_symbol(Lexer *l, Token *t) {
   char c = peek(l);
 
   if (c == '.') {
-      if (l->src[l->pos+1] == '.' && l->src[l->pos+2] == '.') {
-          advance(l); advance(l); advance(l);
-          t->type = TOKEN_ELLIPSIS;
-          return 1;
+      if (l->src[l->pos+1] == '.') {
+          if (l->src[l->pos+2] == '.') {
+              advance(l); advance(l); advance(l);
+              t->type = TOKEN_ELLIPSIS;
+              return 1;
+          }
+          if (l->src[l->pos+2] == '=') {
+              advance(l); advance(l); advance(l);
+              t->type = TOKEN_RANGE_INCL;
+              return 1;
+          }
+          if (l->src[l->pos+2] == '<') {
+              if (l->src[l->pos+3] == '=') {
+                  advance(l); advance(l); advance(l); advance(l);
+                  t->type = TOKEN_RANGE_INCL_LTE;
+                  return 1;
+              }
+              advance(l); advance(l); advance(l);
+              t->type = TOKEN_RANGE_EXCL;
+              return 1;
+          }
+          if (l->src[l->pos+2] == '>') {
+              if (l->src[l->pos+3] == '=') {
+                  advance(l); advance(l); advance(l); advance(l);
+                  t->type = TOKEN_RANGE_INCL_GTE;
+                  return 1;
+              }
+              advance(l); advance(l); advance(l);
+              t->type = TOKEN_RANGE_EXCL_GT;
+              return 1;
+          }
       }
       advance(l); t->type = TOKEN_DOT; return 1;
   }
@@ -340,7 +367,7 @@ static int lex_number(Lexer *l, Token *t) {
       length++;
     }
 
-    if (peek(l) == '.') {
+    if (peek(l) == '.' && l->src[l->pos+1] != '.') {
       advance(l);
       length++;
 

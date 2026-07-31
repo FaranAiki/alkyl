@@ -435,15 +435,105 @@ ASTNode* parse_factor(Parser *p) {
 
     if (p->current_token.type != TOKEN_RBRACKET) {
       *curr_elem = parse_expression(p);
-      curr_elem = &(*curr_elem)->next;
+      
+      if (p->current_token.type >= TOKEN_RANGE_INCL && p->current_token.type <= TOKEN_RANGE_INCL_LTE) {
+          TokenType range_type = p->current_token.type;
+          eat(p, range_type);
+          ASTNode *end_expr = parse_expression(p);
+          
+          if ((*curr_elem)->type == NODE_LITERAL && end_expr->type == NODE_LITERAL) {
+              LiteralNode *start_lit = (LiteralNode*)*curr_elem;
+              LiteralNode *end_lit = (LiteralNode*)end_expr;
+              if (start_lit->var_type.base == TYPE_INT && end_lit->var_type.base == TYPE_INT) {
+                  int start_val = start_lit->val.int_val;
+                  int end_val = end_lit->val.int_val;
+                  int step = (start_val <= end_val) ? 1 : -1;
+                  
+                  if (range_type == TOKEN_RANGE_EXCL || range_type == TOKEN_RANGE_EXCL_GT) {
+                      if (start_val != end_val) {
+                          end_val -= step;
+                      } else {
+                          // start == end, exclusive means empty range. For simplicity, just make step such that loop doesn't run, or make start_val > end_val
+                          step = 1; start_val = 1; end_val = 0; // empty range
+                          *curr_elem = NULL; // Removing the first element (wait, this might break if it's the only element, but handled below)
+                      }
+                  }
+                  
+                  if (step > 0 ? (start_val <= end_val) : (start_val >= end_val)) {
+                      start_lit->val.int_val = start_val;
+                      int i = start_val + step;
+                      while (step > 0 ? (i <= end_val) : (i >= end_val)) {
+                          LiteralNode *new_lit = parser_alloc(p, sizeof(LiteralNode));
+                          new_lit->base.type = NODE_LITERAL;
+                          new_lit->var_type = start_lit->var_type;
+                          new_lit->val.int_val = i;
+                          (*curr_elem)->next = (ASTNode*)new_lit;
+                          curr_elem = &(*curr_elem)->next;
+                          i += step;
+                      }
+                      curr_elem = &(*curr_elem)->next; // point to next of the last element
+                  } else {
+                      *curr_elem = NULL; // empty
+                  }
+              } else {
+                  parser_fail(p, "Range bounds must be integers");
+              }
+          } else {
+              parser_fail(p, "Range bounds in array literals must be compile-time literals for now");
+          }
+      } else {
+          curr_elem = &(*curr_elem)->next;
+      }
+      
       while (p->current_token.type == TOKEN_COMMA || (p->settings.array_separator_with_space && p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF)) {
         if (p->has_error) break;
         if (p->current_token.type == TOKEN_COMMA) {
             eat(p, TOKEN_COMMA);
         }
         if (p->current_token.type == TOKEN_RBRACKET) break;
+        
         *curr_elem = parse_expression(p);
-        curr_elem = &(*curr_elem)->next;
+        
+        if (p->current_token.type >= TOKEN_RANGE_INCL && p->current_token.type <= TOKEN_RANGE_INCL_LTE) {
+            TokenType range_type = p->current_token.type;
+            eat(p, range_type);
+            ASTNode *end_expr = parse_expression(p);
+            if ((*curr_elem)->type == NODE_LITERAL && end_expr->type == NODE_LITERAL) {
+                LiteralNode *start_lit = (LiteralNode*)*curr_elem;
+                LiteralNode *end_lit = (LiteralNode*)end_expr;
+                if (start_lit->var_type.base == TYPE_INT && end_lit->var_type.base == TYPE_INT) {
+                    int start_val = start_lit->val.int_val;
+                    int end_val = end_lit->val.int_val;
+                    int step = (start_val <= end_val) ? 1 : -1;
+                    if (range_type == TOKEN_RANGE_EXCL || range_type == TOKEN_RANGE_EXCL_GT) {
+                        if (start_val != end_val) end_val -= step;
+                        else { step = 1; start_val = 1; end_val = 0; *curr_elem = NULL; }
+                    }
+                    if (step > 0 ? (start_val <= end_val) : (start_val >= end_val)) {
+                        start_lit->val.int_val = start_val;
+                        int i = start_val + step;
+                        while (step > 0 ? (i <= end_val) : (i >= end_val)) {
+                            LiteralNode *new_lit = parser_alloc(p, sizeof(LiteralNode));
+                            new_lit->base.type = NODE_LITERAL;
+                            new_lit->var_type = start_lit->var_type;
+                            new_lit->val.int_val = i;
+                            (*curr_elem)->next = (ASTNode*)new_lit;
+                            curr_elem = &(*curr_elem)->next;
+                            i += step;
+                        }
+                        curr_elem = &(*curr_elem)->next;
+                    } else {
+                        *curr_elem = NULL;
+                    }
+                } else {
+                    parser_fail(p, "Range bounds must be integers");
+                }
+            } else {
+                parser_fail(p, "Range bounds in array literals must be compile-time literals for now");
+            }
+        } else {
+            curr_elem = &(*curr_elem)->next;
+        }
       }
     }
 
