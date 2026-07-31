@@ -1,0 +1,39 @@
+import "std/print";
+
+define Integer as
+  int,
+  unsigned int,
+  long,
+  unsigned long,
+  long long,
+  unsigned long long;
+
+/* recursive_gcd */
+compound [type[Integer] Type]
+Type rec_gcd(Type a, Type b) {
+    if b == 0 then return a;
+    return rec_gcd(b, a % b);
+}
+
+/* iteration_gcd*/
+compound [type[Integer] Type]
+Type iter_gcd(Type a, Type b) {
+    while b != 0 {
+        let temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+
+int main() {
+    for i in [1, 2, 4, 6, 7] {
+        for j in [2, 5, 6, 10, 9] {
+            // todo maybe in
+            std.print "The int gcd (recursive) of ", i, " and ", j, " is ", rec_gcd[int](i, j), "\n";
+            std.print "The int gcd (iterative) of ", i, " and ", j, " is ", iter_gcd[int](i, j), "\n";
+            print "The long gcd (recursive) of ", i, " and ", j, " is ", rec_gcd[long](i, j), "\n";
+            print "The long gcd (iterative) of ", i, " and ", j, " is ", iter_gcd[long](i, j), "\n";
+        }
+    }
+}

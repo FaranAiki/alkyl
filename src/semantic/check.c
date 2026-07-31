@@ -378,21 +378,108 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
     if (sym->kind == SYM_FUNC) {
         SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, sym, (ASTNode*)node);
         if (resolved) {
-            if (!resolved->is_macro) {
-                node->mangled_name = resolved->mangled_name;
-            }
+            node->mangled_name = resolved->mangled_name;
             sym = resolved; // Update sym to the resolved one
         }
     }
 
     if (sym->kind == SYM_TEMPLATE) {
         CompoundNode *cn = sym->template_node;
+
+        // Typecheck arguments so we can deduce types
+        ASTNode *arg = node->args;
+        while (arg) {
+            sem_check_expr(ctx, arg);
+            arg = arg->next;
+        }
+
+        if (cn->body && cn->body->type == NODE_FUNC_DEF && cn->body->next == NULL) {
+            FuncDefNode *fn = (FuncDefNode*)cn->body;
+            VarType inferred_types[16];
+            int inferred_flags[16] = {0}; // 1 if deduced, 0 otherwise
+            int deduction_failed = 0;
+
+            Parameter *param = fn->params;
+            arg = node->args;
+            
+            while (param && arg) {
+                if (param->type.base == TYPE_CLASS && param->type.class_name && param->type.ptr_depth == 0 && param->type.array_depth == 0) {
+                    for (int i = 0; i < cn->num_type_params; i++) {
+                        if (streq(param->type.class_name, cn->type_params[i])) {
+                            VarType arg_t = sem_get_node_type(ctx, arg);
+                            
+                            if (!inferred_flags[i]) {
+                                inferred_types[i] = arg_t;
+                                inferred_flags[i] = 1;
+                            } else {
+                                if (!sem_types_are_equal(inferred_types[i], arg_t)) {
+                                    deduction_failed = 1;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                param = param->next;
+                arg = arg->next;
+            }
+
+            for (int i = 0; i < cn->num_type_params; i++) {
+                if (!inferred_flags[i]) deduction_failed = 1;
+            }
+
+            if (!deduction_failed) {
+                TemplateInstNode *ti = arena_alloc_type(ctx->compiler_ctx->arena, TemplateInstNode);
+                ti->base.type = NODE_TEMPLATE_INSTANTIATION;
+                ti->base.line = node->base.line;
+                ti->base.col = node->base.col;
+                ti->target = node->target; 
+                ti->num_template_types = cn->num_type_params;
+                ti->template_types = arena_alloc(ctx->compiler_ctx->arena, sizeof(VarType) * ti->num_template_types);
+                
+                for (int i = 0; i < cn->num_type_params; i++) {
+                    ti->template_types[i] = inferred_types[i];
+                }
+                
+                node->target = (ASTNode*)ti;
+                
+                // Evaluate the template instantiation
+                sem_check_expr(ctx, node->target);
+                
+                if (node->target->type == NODE_TEMPLATE_INSTANTIATION) {
+                    TemplateInstNode *evaluated_ti = (TemplateInstNode*)node->target;
+                    if (evaluated_ti->target && evaluated_ti->target->type == NODE_VAR_REF) {
+                        node->name = ((VarRefNode*)evaluated_ti->target)->name;
+                    }
+                } else if (node->target->type == NODE_VAR_REF) {
+                    node->name = ((VarRefNode*)node->target)->name;
+                }
+                
+                sym = sem_symbol_lookup(ctx, node->name, NULL);
+                if (sym) {
+                    if (sym->kind == SYM_FUNC) {
+                        SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, sym, (ASTNode*)node);
+                        if (resolved) {
+                            node->mangled_name = resolved->mangled_name;
+                            sym = resolved; 
+                        }
+                        sem_set_node_type(ctx, (ASTNode*)node, sym->type);
+                        
+                        if (sym->kind == SYM_FUNC) {
+                            if (!sym->is_pristine) sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+
         char expected_types[256] = "";
         for (int i=0; i<cn->num_type_params; i++) {
             strcat(expected_types, cn->type_params[i]);
             if (i < cn->num_type_params - 1) strcat(expected_types, ", ");
         }
-        sem_error(ctx, (ASTNode*)node, "'%s' needs types [%s]", sym->name, expected_types);
+        sem_error(ctx, (ASTNode*)node, "Template '%s' needs types [%s]. Type inference failed.", sym->name, expected_types);
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         return;
     }

@@ -1,0 +1,17 @@
+import "std/print";
+
+compound [type[int] T]
+T rec_gcd(T a, T b) {
+    if b == 0 then return a;
+    return rec_gcd(b, a % b); // Recursive call without [T] (actually inside template it resolves automatically in Alkyl? Wait, usually we do rec_gcd[T](b, a%b))
+}
+
+int main() {
+    int i = 6;
+    int j = 9;
+    
+    // Type Inference in Instantiation
+    std.print "GCD of ", i, " and ", j, " is ", rec_gcd(i, j), "\n";
+    
+    return 0;
+}

@@ -54,7 +54,18 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
         } else {
             ns_class = fd->class_name;
         }
-        mangled = sem_mangle_func_name(ctx, ns_class, fd->name, fd->params);
+
+        if (fd->is_macro) {
+            if (ns_class) {
+                char buf[512];
+                snprintf(buf, sizeof(buf), "%s.%s", ns_class, fd->name);
+                mangled = arena_strdup(ctx->compiler_ctx->arena, buf);
+            } else {
+                mangled = fd->name;
+            }
+        } else {
+            mangled = sem_mangle_func_name(ctx, ns_class, fd->name, fd->params);
+        }
     }
     sym->mangled_name = mangled;
     fd->mangled_name = mangled;
