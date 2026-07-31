@@ -27,6 +27,9 @@ int sem_is_constant_nonzero(ASTNode* node) {
             case TYPE_BOOL: return lit->val.int_val != 0;
             default: return 0;
         }
+    } else if (node->type == NODE_CAST) {
+        CastNode* cn = (CastNode*)node;
+        return sem_is_constant_nonzero(cn->operand);
     } else if (node->type == NODE_UNARY_OP) {
         UnaryOpNode* un = (UnaryOpNode*)node;
         if (un->op == TOKEN_MINUS || un->op == TOKEN_PLUS) {
