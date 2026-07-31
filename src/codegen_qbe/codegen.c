@@ -527,7 +527,7 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             if (op_t == 'v') op_t = 'w';
             fprintf(out, "\t");
             print_val(out, inst->dest);
-            fprintf(out, " =%c mod ", op_t);
+            fprintf(out, " =%c rem ", op_t);
             print_val(out, inst->op1);
             fprintf(out, ", ");
             print_val(out, inst->op2);
