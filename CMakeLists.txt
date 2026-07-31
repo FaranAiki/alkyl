@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(alkyl C)
+project(alkyl C CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
@@ -100,6 +100,8 @@ set(CODEGEN_QBE_SOURCES
     src/codegen_qbe/driver.c
 )
 
+
+
 set(FRONTEND_SOURCES
     src/lexer/lexer.c
     src/lexer/emitter.c
@@ -168,6 +170,13 @@ set (ALICK_SOURCES
     src/alick/cfg.c
 )
 
+set(MLIR_SOURCES
+    src/mlir/generate.c
+    src/mlir/expr.c
+    src/mlir/stmt.c
+    src/mlir/mlir_wrapper.cpp
+)
+
 set(HELPER_SOURCES
     src/common/diagnostic.c
     src/common/common.c
@@ -183,6 +192,7 @@ set(COMMON_SOURCES
   ${SEMANTIC_SOURCES}
   ${ALIR_SOURCES}
   ${OPTIMIZE_ALIR_SOURCES}
+  ${MLIR_SOURCES}
   ${ALICK_SOURCES}
   ${HELPER_SOURCES}
 )
@@ -208,6 +218,7 @@ set(ETHYL_SOURCES
   ${FRONTEND_SOURCES}
   ${SEMANTIC_SOURCES}
   ${ALIR_SOURCES}
+  ${MLIR_SOURCES}
   ${ALICK_SOURCES}
   ${HELPER_SOURCES}
 )
@@ -246,6 +257,7 @@ endif()
 if (BACKEND_LOWER STREQUAL "qbe" OR BUILDALL)
     include_directories(include/codegen_qbe)
 endif()
+
 
 if (BACKEND_LOWER STREQUAL "llvm" OR BUILDALL)
     find_package(LLVM REQUIRED CONFIG)
@@ -324,6 +336,25 @@ if (BACKEND_LOWER STREQUAL "qbe" OR BUILDALL)
 
     if(WIN32)
         target_sources(alkyl_qbe PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/misc/installer/windows/alkyl.rc)
+    endif()
+endif()
+
+
+
+if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
+    add_executable(alkyl_mlir ${ALKYL_SOURCES} src/mlir/driver.c)
+
+    target_include_directories(alkyl_mlir PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_compile_definitions(alkyl_mlir PRIVATE BACKEND=mlir)
+
+    if (LLVM_DIR OR MLIR_DIR)
+        target_include_directories(alkyl_mlir PRIVATE ${LLVM_INCLUDE_DIRS})
+        # If MLIR is properly found, link libraries here:
+        # target_link_libraries(alkyl_mlir PRIVATE MLIRIR MLIRFunc MLIRArith MLIRMemRef MLIRSupport)
+    endif()
+
+    if(UNIX)
+        target_link_libraries(alkyl_mlir PRIVATE m pthread dl z ncurses)
     endif()
 endif()
 

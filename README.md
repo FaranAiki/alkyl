@@ -14,6 +14,27 @@ Alkyl is a general multipurpose language that is used for experimenting with lex
 
 Moreover, Alkyl is similar to C, Dart, Zig, and some other programming languages.
 
+# Pipeline
+Refer to src/ for all of these
+The mainstream way to do it (currently heavily supported)
+lexer (tokenize)
+-> parser (to ParseNodes)
+-> semantic checker (modified ParseNodes)
+-> alir (to alir)
+-> alick (checked alir)
+-> optlir (optimized alir codes)
+-> alick (checked optimized alir)
+-> llvm [alir to llvm-ir ssa] (results in machine code)
+
+The one we will need to self-host using QBE (run quite slower at its peak, the binary is slower too)
+... (still the same up to the last alick)
+-> qbe [alir to qbe ssa] (results in machine code)
+
+This is the least supported and still experimental (just to check if Alkyl is possible to use MLIR)
+... (still the same up to semantic checker)
+-> mlir (to "alir" using MLIR .td)
+-> llvm [from mlir] (results in machine code)
+
 # Core Feature
 
 Core feature is the high-level and simplicity of C, combined with C++'s' and Java's object oriented programming with is-a has-a feature.The language itself enforces SOLID principles and modularization, but without as much as bloat in other programming languages.
