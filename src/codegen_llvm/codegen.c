@@ -54,9 +54,29 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
                 base = hashmap_get(&ctx->struct_map, t.class_name);
                 if (!base) {
                     AlirStruct *st = ctx->alir_mod->structs;
+                    char mangled_t[512];
+                    snprintf(mangled_t, sizeof(mangled_t), "%s", t.class_name);
+                    if (strchr(mangled_t, '[')) {
+                        for (int i=0; mangled_t[i]; i++) {
+                            if (mangled_t[i] == '[') mangled_t[i] = '_';
+                            else if (mangled_t[i] == ']') mangled_t[i] = '\0';
+                            else if (mangled_t[i] == ',' || mangled_t[i] == ' ') mangled_t[i] = '_';
+                        }
+                        int j = 0;
+                        for (int i=0; mangled_t[i] && j < 511; i++) {
+                            if (mangled_t[i] == '_' && mangled_t[i+1] == '_') continue;
+                            mangled_t[j++] = mangled_t[i];
+                        }
+                        mangled_t[j] = '\0';
+                    }
+
                     while (st) {
+                        if (streq(st->name, mangled_t)) {
+                            base = hashmap_get(&ctx->struct_map, st->name);
+                            if (base) break;
+                        }
                         const char *dot = strrchr(st->name, '.');
-                        if (dot && streq(dot + 1, t.class_name)) {
+                        if (dot && (streq(dot + 1, t.class_name) || streq(dot + 1, mangled_t))) {
                             base = hashmap_get(&ctx->struct_map, st->name);
                             if (base) break;
                         }

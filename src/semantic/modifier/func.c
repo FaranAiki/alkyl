@@ -37,7 +37,10 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
             if (member) {
                     if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
                         if (member->kind == SYM_FUNC && !member->is_pure) {
-                            sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot call impure method '%s'", ctx->current_func_sym->name, member->name);
+                            if (ctx->current_func_sym->must_pure) {
+                                sem_error(ctx, (ASTNode*)node, "Pure function '%s' cannot call impure method '%s'", ctx->current_func_sym->name, member->name);
+                            }
+                            ctx->current_func_sym->is_pure = false;
                         }
                     }
 

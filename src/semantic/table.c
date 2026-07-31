@@ -446,10 +446,39 @@ int sem_types_are_equal(VarType a, VarType b) {
     if (a.base == TYPE_CLASS || a.base == TYPE_ENUM || a.base == TYPE_NAMESPACE) {
         if (a.class_name && b.class_name) {
             if (streq(a.class_name, b.class_name)) return 1;
-            const char *dot_a = strrchr(a.class_name, '.');
-            const char *dot_b = strrchr(b.class_name, '.');
-            const char *base_a = dot_a ? dot_a + 1 : a.class_name;
-            const char *base_b = dot_b ? dot_b + 1 : b.class_name;
+            
+            char mangled_a[512] = "";
+            char mangled_b[512] = "";
+            
+            for (int k = 0; k < 2; k++) {
+                const char *src = (k == 0) ? a.class_name : b.class_name;
+                char *dst = (k == 0) ? mangled_a : mangled_b;
+                
+                char tmp[512];
+                snprintf(tmp, sizeof(tmp), "%s", src);
+                if (strchr(tmp, '[')) {
+                    for (int i=0; tmp[i]; i++) {
+                        if (tmp[i] == '[') tmp[i] = '_';
+                        else if (tmp[i] == ']') tmp[i] = '\0';
+                        else if (tmp[i] == ',' || tmp[i] == ' ') tmp[i] = '_';
+                    }
+                    int j = 0;
+                    for (int i=0; tmp[i] && j < 511; i++) {
+                        if (tmp[i] == '_' && tmp[i+1] == '_') continue;
+                        dst[j++] = tmp[i];
+                    }
+                    dst[j] = '\0';
+                } else {
+                    snprintf(dst, 512, "%s", src);
+                }
+            }
+            
+            if (streq(mangled_a, mangled_b)) return 1;
+            
+            const char *dot_a = strrchr(mangled_a, '.');
+            const char *dot_b = strrchr(mangled_b, '.');
+            const char *base_a = dot_a ? dot_a + 1 : mangled_a;
+            const char *base_b = dot_b ? dot_b + 1 : mangled_b;
             return streq(base_a, base_b);
         }
         return 0;

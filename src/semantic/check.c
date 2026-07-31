@@ -14,6 +14,28 @@ SemSymbol* lookup_local_symbol(SemanticCtx *ctx, const char *name) {
     return NULL;
 }
 
+int sem_is_constant_nonzero(ASTNode* node) {
+    if (!node) return 0;
+    if (node->type == NODE_LITERAL) {
+        LiteralNode* lit = (LiteralNode*)node;
+        switch (lit->var_type.base) {
+            case TYPE_INT: return lit->val.int_val != 0;
+            case TYPE_DOUBLE: return lit->val.double_val != 0.0;
+            case TYPE_SINGLE: return lit->val.single_val != 0.0f;
+            case TYPE_LONG: return lit->val.long_val != 0;
+            case TYPE_CHAR: return lit->val.char_val != 0;
+            case TYPE_BOOL: return lit->val.int_val != 0;
+            default: return 0;
+        }
+    } else if (node->type == NODE_UNARY_OP) {
+        UnaryOpNode* un = (UnaryOpNode*)node;
+        if (un->op == TOKEN_MINUS || un->op == TOKEN_PLUS) {
+            return sem_is_constant_nonzero(un->operand);
+        }
+    }
+    return 0;
+}
+
 // If `node` is a call to a function that has an attached `errnum [...]` set,
 // returns that function's SemSymbol (so the caller can enumerate its errors).
 // Otherwise returns NULL.
@@ -412,13 +434,13 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
 
             Parameter *param = fn->params;
             arg = node->args;
-            
+
             while (param && arg) {
                 if (param->type.base == TYPE_CLASS && param->type.class_name && param->type.ptr_depth == 0 && param->type.array_depth == 0) {
                     for (int i = 0; i < cn->num_type_params; i++) {
                         if (streq(param->type.class_name, cn->type_params[i])) {
                             VarType arg_t = sem_get_node_type(ctx, arg);
-                            
+
                             if (!inferred_flags[i]) {
                                 inferred_types[i] = arg_t;
                                 inferred_flags[i] = 1;
@@ -444,19 +466,19 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                 ti->base.type = NODE_TEMPLATE_INSTANTIATION;
                 ti->base.line = node->base.line;
                 ti->base.col = node->base.col;
-                ti->target = node->target; 
+                ti->target = node->target;
                 ti->num_template_types = cn->num_type_params;
                 ti->template_types = arena_alloc(ctx->compiler_ctx->arena, sizeof(VarType) * ti->num_template_types);
-                
+
                 for (int i = 0; i < cn->num_type_params; i++) {
                     ti->template_types[i] = inferred_types[i];
                 }
-                
+
                 node->target = (ASTNode*)ti;
-                
+
                 // Evaluate the template instantiation
                 sem_check_expr(ctx, node->target);
-                
+
                 if (node->target->type == NODE_TEMPLATE_INSTANTIATION) {
                     TemplateInstNode *evaluated_ti = (TemplateInstNode*)node->target;
                     if (evaluated_ti->target && evaluated_ti->target->type == NODE_VAR_REF) {
@@ -476,17 +498,17 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                 } else if (node->target->type == NODE_VAR_REF) {
                     node->name = ((VarRefNode*)node->target)->name;
                 }
-                
+
                 sym = sem_symbol_lookup(ctx, node->name, NULL);
                 if (sym) {
                     if (sym->kind == SYM_FUNC) {
                         SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, sym, (ASTNode*)node);
                         if (resolved) {
                             node->mangled_name = resolved->mangled_name;
-                            sym = resolved; 
+                            sym = resolved;
                         }
                         sem_set_node_type(ctx, (ASTNode*)node, sym->type);
-                        
+
                         if (sym->kind == SYM_FUNC) {
                             if (!sym->is_pristine) sem_set_node_tainted(ctx, (ASTNode*)node, 1);
                         }
@@ -661,7 +683,9 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     } else if (sem_get_node_tainted(ctx, node->left) || sem_get_node_tainted(ctx, node->right)) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
     } else if (node->op == TOKEN_SLASH) {
-        sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+        if (!sem_is_constant_nonzero(node->right)) {
+            sem_set_node_tainted(ctx, (ASTNode*)node, 1);
+        }
     }
 
     if (l.base == TYPE_UNKNOWN || r.base == TYPE_UNKNOWN) {
@@ -1179,7 +1203,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             char target_name[256] = "";
             SemSymbol *sym = NULL;
             SemScope *found_in_scope = NULL;
-            
+
             if (ti->target->type == NODE_VAR_REF) {
                 snprintf(target_name, sizeof(target_name), "%s", ((VarRefNode*)ti->target)->name);
                 sym = sem_symbol_lookup(ctx, target_name, &found_in_scope);
@@ -1187,7 +1211,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 MemberAccessNode *ma = (MemberAccessNode*)ti->target;
                 sem_check_expr(ctx, ma->object);
                 VarType obj_type = sem_get_node_type(ctx, ma->object);
-                
+
                 if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
                     SemSymbol *class_sym = sem_symbol_lookup_type(ctx, obj_type.class_name);
                     if (class_sym && class_sym->inner_scope && class_sym->inner_scope->symbol_map) {
@@ -1207,7 +1231,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                         }
                     }
                 }
-                
+
                 // Fallback for simple namespace variable A.B if not typed correctly
                 if (!sym && ma->object->type == NODE_VAR_REF) {
                     snprintf(target_name, sizeof(target_name), "%s.%s", ((VarRefNode*)ma->object)->name, ma->member_name);
@@ -1333,11 +1357,21 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 }
                 ctx->current_scope = old_scope;
                 if (found_in_scope) {
-                    inst_sym = hashmap_get((HashMap*)found_in_scope->symbol_map, mangled);
-                    debug_any("Lookup mangled %s in found_in_scope %p (symbol_map %p): %p\n", mangled, found_in_scope, found_in_scope->symbol_map, inst_sym);
+                    if (found_in_scope->symbol_map) {
+                        inst_sym = hashmap_get((HashMap*)found_in_scope->symbol_map, mangled);
+                    }
+                    if (!inst_sym) {
+                        SemSymbol *s = found_in_scope->symbols;
+                        while (s) {
+                            if (streq(s->name, mangled)) {
+                                inst_sym = s;
+                                break;
+                            }
+                            s = s->next;
+                        }
+                    }
                 } else {
                     inst_sym = sem_symbol_lookup(ctx, mangled, NULL);
-                    debug_any("Lookup mangled %s globally: %p\n", mangled, inst_sym);
                 }
             }
 
@@ -1910,6 +1944,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
 
         if (arg_is_tainted && param_is_pristine) {
             sem_error(ctx, *p_curr, "Cannot pass tainted expression to pristine parameter '%s'", curr_para->name);
+            sem_hint(ctx, *p_curr, "Expressions containing division by a non-constant can lead to division by error");
         }
 
         if (sem_types_are_compatible(ctx, curr_para->type, sem_get_node_type(ctx, *p_curr))) {
@@ -1923,6 +1958,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
         while (*p_curr) {
             if (sem_get_node_tainted(ctx, *p_curr)) {
                 sem_error(ctx, *p_curr, "Cannot pass tainted expression to varargs (...) of function '%s'", best_match->name);
+                sem_hint(ctx, *p_curr, "Expressions containing division by a non-constant can lead to division by error");
             }
             p_curr = &(*p_curr)->next;
         }

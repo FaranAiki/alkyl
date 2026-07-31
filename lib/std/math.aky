@@ -1,36 +1,370 @@
+link m;
 
-// TODO abstract this!
 /*closed*/ namespace __raw_math {
-  extern double sin(double);
-  extern double cos(double);
+  reason "math library" pure extern double sin(double);
+  reason "math library" pure extern double cos(double);
+  reason "math library" pure extern double tan(double);
+  reason "math library" pure extern double asin(double);
+  reason "math library" pure extern double acos(double);
+  reason "math library" pure extern double atan(double);
+  reason "math library" pure extern double atan2(double, double);
 
-  extern single sinf(single);
-  extern single cosf(single);
+  reason "math library" pure extern double sinh(double);
+  reason "math library" pure extern double cosh(double);
+  reason "math library" pure extern double tanh(double);
+
+  reason "math library" pure extern double exp(double);
+  reason "math library" pure extern double exp2(double);
+  reason "math library" pure extern double expm1(double);
+  reason "math library" pure extern double log(double);
+  reason "math library" pure extern double log10(double);
+  reason "math library" pure extern double log2(double);
+  reason "math library" pure extern double log1p(double);
+
+  reason "math library" pure extern double pow(double, double);
+  reason "math library" pure extern double sqrt(double);
+  reason "math library" pure extern double cbrt(double);
+  reason "math library" pure extern double hypot(double, double);
+
+  reason "math library" pure extern double erf(double);
+  reason "math library" pure extern double erfc(double);
+  reason "math library" pure extern double lgamma(double);
+  reason "math library" pure extern double tgamma(double);
+
+  reason "math library" pure extern double ceil(double);
+  reason "math library" pure extern double floor(double);
+  reason "math library" pure extern double round(double);
+  reason "math library" pure extern double trunc(double);
+  reason "math library" pure extern double nearbyint(double);
+  reason "math library" pure extern double rint(double);
+
+  reason "math library" pure extern double fabs(double);
+  reason "math library" pure extern double fmod(double, double);
+  reason "math library" pure extern double fmax(double, double);
+  reason "math library" pure extern double fmin(double, double);
+  reason "math library" pure extern double remainder(double, double);
+  reason "math library" pure extern double copysign(double, double);
+
+  reason "math library" pure extern double frexp(double, int*);
+  reason "math library" pure extern double modf(double, double*);
+
+  reason "math library" pure extern double nextafter(double, double);
+  reason "math library" pure extern double fma(double, double, double);
+
+  reason "math library" pure extern int ilogb(double);
+  reason "math library" pure extern double scalbn(double, int);
+  reason "math library" pure extern double scalbln(double, long);
+
+  reason "math library" pure extern single sinf(single);
+  reason "math library" pure extern single cosf(single);
+  reason "math library" pure extern single tanf(single);
+  reason "math library" pure extern single asinf(single);
+  reason "math library" pure extern single acosf(single);
+  reason "math library" pure extern single atanf(single);
+  reason "math library" pure extern single atan2f(single, single);
+
+  reason "math library" pure extern single sinhf(single);
+  reason "math library" pure extern single coshf(single);
+  reason "math library" pure extern single tanhf(single);
+
+  reason "math library" pure extern single expf(single);
+  reason "math library" pure extern single exp2f(single);
+  reason "math library" pure extern single expm1f(single);
+  reason "math library" pure extern single logf(single);
+  reason "math library" pure extern single log10f(single);
+  reason "math library" pure extern single log2f(single);
+  reason "math library" pure extern single log1pf(single);
+
+  reason "math library" pure extern single powf(single, single);
+  reason "math library" pure extern single sqrtf(single);
+  reason "math library" pure extern single cbrtf(single);
+  reason "math library" pure extern single hypotf(single, single);
+
+  reason "math library" pure extern single erff(single);
+  reason "math library" pure extern single erfcf(single);
+  reason "math library" pure extern single lgammaf(single);
+  reason "math library" pure extern single tgammaf(single);
+
+  reason "math library" pure extern single ceilf(single);
+  reason "math library" pure extern single floorf(single);
+  reason "math library" pure extern single roundf(single);
+  reason "math library" pure extern single truncf(single);
+  reason "math library" pure extern single nearbyintf(single);
+  reason "math library" pure extern single rintf(single);
+
+  reason "math library" pure extern single fabsf(single);
+  reason "math library" pure extern single fmodf(single, single);
+  reason "math library" pure extern single fmaxf(single, single);
+  reason "math library" pure extern single fminf(single, single);
+  reason "math library" pure extern single remainderf(single, single);
+  reason "math library" pure extern single copysignf(single, single);
+
+  reason "math library" pure extern single frexpf(single, int*);
+  reason "math library" pure extern single modff(single, single*);
+
+  reason "math library" pure extern single nextafterf(single, single);
+  reason "math library" pure extern single fmaf(single, single, single);
+
+  reason "math library" pure extern int ilogbf(single);
+  reason "math library" pure extern single scalbnf(single, int);
+  reason "math library" pure extern single scalblnf(single, long);
 }
 
 /* static define */
 define _r_sin as __raw_math.sin;
 define _r_cos as __raw_math.cos;
+define _r_tan as __raw_math.tan;
+define _r_asin as __raw_math.asin;
+define _r_acos as __raw_math.acos;
+define _r_atan as __raw_math.atan;
+define _r_atan2 as __raw_math.atan2;
+
+define _r_sinh as __raw_math.sinh;
+define _r_cosh as __raw_math.cosh;
+define _r_tanh as __raw_math.tanh;
+
+define _r_exp as __raw_math.exp;
+define _r_exp2 as __raw_math.exp2;
+define _r_expm1 as __raw_math.expm1;
+define _r_log as __raw_math.log;
+define _r_log10 as __raw_math.log10;
+define _r_log2 as __raw_math.log2;
+define _r_log1p as __raw_math.log1p;
+
+define _r_pow as __raw_math.pow;
+define _r_sqrt as __raw_math.sqrt;
+define _r_cbrt as __raw_math.cbrt;
+define _r_hypot as __raw_math.hypot;
+
+define _r_erf as __raw_math.erf;
+define _r_erfc as __raw_math.erfc;
+define _r_lgamma as __raw_math.lgamma;
+define _r_tgamma as __raw_math.tgamma;
+
+define _r_ceil as __raw_math.ceil;
+define _r_floor as __raw_math.floor;
+define _r_round as __raw_math.round;
+define _r_trunc as __raw_math.trunc;
+define _r_nearbyint as __raw_math.nearbyint;
+define _r_rint as __raw_math.rint;
+
+define _r_fabs as __raw_math.fabs;
+define _r_fmod as __raw_math.fmod;
+define _r_fmax as __raw_math.fmax;
+define _r_fmin as __raw_math.fmin;
+define _r_remainder as __raw_math.remainder;
+define _r_copysign as __raw_math.copysign;
+
+define _r_frexp as __raw_math.frexp;
+define _r_modf as __raw_math.modf;
+
+define _r_nextafter as __raw_math.nextafter;
+define _r_fma as __raw_math.fma;
+
+define _r_ilogb as __raw_math.ilogb;
+define _r_scalbn as __raw_math.scalbn;
+define _r_scalbln as __raw_math.scalbln;
 
 define _r_sinf as __raw_math.sinf;
 define _r_cosf as __raw_math.cosf;
+define _r_tanf as __raw_math.tanf;
+define _r_asinf as __raw_math.asinf;
+define _r_acosf as __raw_math.acosf;
+define _r_atanf as __raw_math.atanf;
+define _r_atan2f as __raw_math.atan2f;
+
+define _r_sinhf as __raw_math.sinhf;
+define _r_coshf as __raw_math.coshf;
+define _r_tanhf as __raw_math.tanhf;
+
+define _r_expf as __raw_math.expf;
+define _r_exp2f as __raw_math.exp2f;
+define _r_expm1f as __raw_math.expm1f;
+define _r_logf as __raw_math.logf;
+define _r_log10f as __raw_math.log10f;
+define _r_log2f as __raw_math.log2f;
+define _r_log1pf as __raw_math.log1pf;
+
+define _r_powf as __raw_math.powf;
+define _r_sqrtf as __raw_math.sqrtf;
+define _r_cbrtf as __raw_math.cbrtf;
+define _r_hypotf as __raw_math.hypotf;
+
+define _r_erff as __raw_math.erff;
+define _r_erfcf as __raw_math.erfcf;
+define _r_lgammaf as __raw_math.lgammaf;
+define _r_tgammaf as __raw_math.tgammaf;
+
+define _r_ceilf as __raw_math.ceilf;
+define _r_floorf as __raw_math.floorf;
+define _r_roundf as __raw_math.roundf;
+define _r_truncf as __raw_math.truncf;
+define _r_nearbyintf as __raw_math.nearbyintf;
+define _r_rintf as __raw_math.rintf;
+
+define _r_fabsf as __raw_math.fabsf;
+define _r_fmodf as __raw_math.fmodf;
+define _r_fmaxf as __raw_math.fmaxf;
+define _r_fminf as __raw_math.fminf;
+define _r_remainderf as __raw_math.remainderf;
+define _r_copysignf as __raw_math.copysignf;
+
+define _r_frexpf as __raw_math.frexpf;
+define _r_modff as __raw_math.modff;
+
+define _r_nextafterf as __raw_math.nextafterf;
+define _r_fmaf as __raw_math.fmaf;
+
+define _r_ilogbf as __raw_math.ilogbf;
+define _r_scalbnf as __raw_math.scalbnf;
+define _r_scalblnf as __raw_math.scalblnf;
 
 namespace math {
 
 const double pi = 3.14159265358;
 
-single sin(single n) {
-  return _r_sinf(n);
-}
-single cos(single n) {
-  return _r_cosf(n);
+pure double atan2(double y, double x) { return _r_atan2(y, x); }
+pure single atan2(single y, single x) { return _r_atan2f(y, x); }
+
+pure single sin(single n) { return _r_sinf(n); }
+pure single cos(single n) { return _r_cosf(n); }
+pure single tan(single n) { return _r_tanf(n); }
+
+pure double sin(double n) { return _r_sin(n); }
+pure double cos(double n) { return _r_cos(n); }
+pure double tan(double n) { return _r_tan(n); }
+
+pure single asin(single n) { return _r_asinf(n); }
+pure single acos(single n) { return _r_acosf(n); }
+pure single atan(single n) { return _r_atanf(n); }
+
+pure double asin(double n) { return _r_asin(n); }
+pure double acos(double n) { return _r_acos(n); }
+pure double atan(double n) { return _r_atan(n); }
+
+pure single sinh(single n) { return _r_sinhf(n); }
+pure single cosh(single n) { return _r_coshf(n); }
+pure single tanh(single n) { return _r_tanhf(n); }
+
+pure double sinh(double n) { return _r_sinh(n); }
+pure double cosh(double n) { return _r_cosh(n); }
+pure double tanh(double n) { return _r_tanh(n); }
+
+pure single exp(single n) { return _r_expf(n); }
+pure single exp2(single n) { return _r_exp2f(n); }
+pure single expm1(single n) { return _r_expm1f(n); }
+
+pure double exp(double n) { return _r_exp(n); }
+pure double exp2(double n) { return _r_exp2(n); }
+pure double expm1(double n) { return _r_expm1(n); }
+
+pure single log(single n) { return _r_logf(n); }
+pure single log10(single n) { return _r_log10f(n); }
+pure single log2(single n) { return _r_log2f(n); }
+pure single log1p(single n) { return _r_log1pf(n); }
+
+pure double log(double n) { return _r_log(n); }
+pure double log10(double n) { return _r_log10(n); }
+pure double log2(double n) { return _r_log2(n); }
+pure double log1p(double n) { return _r_log1p(n); }
+
+pure single pow(single a, single b) { return _r_powf(a, b); }
+pure single sqrt(single n) { return _r_sqrtf(n); }
+pure single cbrt(single n) { return _r_cbrtf(n); }
+pure single hypot(single a, single b) { return _r_hypotf(a, b); }
+
+pure double pow(double a, double b) { return _r_pow(a, b); }
+pure double sqrt(double n) { return _r_sqrt(n); }
+pure double cbrt(double n) { return _r_cbrt(n); }
+pure double hypot(double a, double b) { return _r_hypot(a, b); }
+
+pure single erf(single n) { return _r_erff(n); }
+pure single erfc(single n) { return _r_erfcf(n); }
+pure single lgamma(single n) { return _r_lgammaf(n); }
+pure single tgamma(single n) { return _r_tgammaf(n); }
+
+pure double erf(double n) { return _r_erf(n); }
+pure double erfc(double n) { return _r_erfc(n); }
+pure double lgamma(double n) { return _r_lgamma(n); }
+pure double tgamma(double n) { return _r_tgamma(n); }
+
+pure single ceil(single n) { return _r_ceilf(n); }
+pure single floor(single n) { return _r_floorf(n); }
+pure single round(single n) { return _r_roundf(n); }
+pure single trunc(single n) { return _r_truncf(n); }
+pure single nearbyint(single n) { return _r_nearbyintf(n); }
+pure single rint(single n) { return _r_rintf(n); }
+
+pure double ceil(double n) { return _r_ceil(n); }
+pure double floor(double n) { return _r_floor(n); }
+pure double round(double n) { return _r_round(n); }
+pure double trunc(double n) { return _r_trunc(n); }
+pure double nearbyint(double n) { return _r_nearbyint(n); }
+pure double rint(double n) { return _r_rint(n); }
+
+pure single abs(single n) { return _r_fabsf(n); }
+pure double abs(double n) { return _r_fabs(n); }
+
+pure single fmod(single a, single b) { return _r_fmodf(a, b); }
+pure single fmax(single a, single b) { return _r_fmaxf(a, b); }
+pure single fmin(single a, single b) { return _r_fminf(a, b); }
+pure single remainder(single a, single b) { return _r_remainderf(a, b); }
+
+pure double fmod(double a, double b) { return _r_fmod(a, b); }
+pure double fmax(double a, double b) { return _r_fmax(a, b); }
+pure double fmin(double a, double b) { return _r_fmin(a, b); }
+pure double remainder(double a, double b) { return _r_remainder(a, b); }
+
+pure single nextafter(single from, single to) { return _r_nextafterf(from, to); }
+pure single fma(single a, single b, single c) { return _r_fmaf(a, b, c); }
+
+pure double nextafter(double from, double to) { return _r_nextafter(from, to); }
+pure double fma(double a, double b, double c) { return _r_fma(a, b, c); }
+
+pure int ilogb(double n) { return _r_ilogb(n); }
+pure int ilogb(single n) { return _r_ilogbf(n); }
+
+pure single scalbn(single n, int exp) { return _r_scalbnf(n, exp); }
+pure double scalbn(double n, int exp) { return _r_scalbn(n, exp); }
+
+pure single scalbln(single n, long exp) { return _r_scalblnf(n, exp); }
+pure double scalbln(double n, long exp) { return _r_scalbln(n, exp); }
+
+pure single copysign(single mag, single sgn) { return _r_copysignf(mag, sgn); }
+pure double copysign(double mag, double sgn) { return _r_copysign(mag, sgn); }
+
+compound[type Type] abstract container class frexp_result {
+  Type mantissa;
+  int exponent;
 }
 
-double sin(double n) {
-  return _r_sin(n);
+compound[type Type] abstract container class modf_result {
+  Type integral;
+  Type fractional;
 }
-double cos(double n) {
-  return _r_cos(n);
+
+pure frexp_result[single] frexp(single value) {
+  int exp;
+  single mantissa = _r_frexpf(value, &exp);
+  return frexp_result[single](mantissa, exp);
+}
+
+pure frexp_result[double] frexp(double value) {
+  int exp;
+  double mantissa = _r_frexp(value, &exp);
+  return frexp_result[double](mantissa, exp);
+}
+
+pure modf_result[single] modf(single value) {
+  single intg;
+  single frac = _r_modff(value, &intg);
+  return modf_result[single](intg, frac);
+}
+
+pure modf_result[double] modf(double value) {
+  double intg;
+  double frac = _r_modf(value, &intg);
+  return modf_result[double](intg, frac);
 }
 
 }

@@ -142,7 +142,7 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
 
         sem_set_node_type(ctx, node, sym->type);
 
-        if (ctx->current_func_sym && ctx->current_func_sym->is_pure) {
+        if (sym->kind == SYM_VAR && ctx->current_func_sym && ctx->current_func_sym->is_pure) {
             if (!sym->is_pure) {
                 if (ctx->current_func_sym->must_pure) sem_error(ctx, node, "Pure function '%s' cannot use impure variable '%s'", ctx->current_func_sym->name, ref->name);
                 ctx->current_func_sym->is_pure = false;
