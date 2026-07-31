@@ -313,12 +313,12 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
 
     // Intercept Macro function calls
     if (ctx->sem) {
-        printf("DEBUG MACRO: Looking up '%s'\n", target_name);
+        debug_any("Looking up '%s'\n", target_name);
         SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, NULL);
         if (sym) {
-            printf("DEBUG MACRO: Found symbol %s, kind=%d, is_macro=%d, node_ptr=%p\n", sym->name, sym->kind, sym->is_macro, sym->node_ptr);
+            debug_any("Found symbol %s, kind=%d, is_macro=%d, node_ptr=%p\n", sym->name, sym->kind, sym->is_macro, sym->node_ptr);
         } else {
-            printf("DEBUG MACRO: Symbol '%s' not found!\n", target_name);
+            debug_any("Symbol '%s' not found!\n", target_name);
         }
         if (sym && sym->kind == SYM_FUNC && sym->is_macro && sym->node_ptr) {
             FuncDefNode *fd = (FuncDefNode*)sym->node_ptr;

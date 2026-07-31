@@ -16,6 +16,10 @@
         "The `wash (expr) { ... } residue (err) { ... }` and `clean` statements provide scoped unwrapping for tainted variables or expressions, converting them to pristine within the main block and handling errors in the residue block. They can be written with or without parentheses around the expression, and the residue block uses `err` by default if not explicitly named."
       ]
     },
+    "generics": {
+      "templates": "Alkyl supports C++ style templates using the `compound` keyword. Templates can take type parameters restricted by a `define` constraint (e.g. `define Integer as int, long; compound [type[Integer] T] T add(T a, T b)`).",
+      "argument_deduction": "The Alkyl compiler supports automatic Template Argument Deduction. If you call `add(5, 10)`, the compiler automatically infers `T = int` without needing explicit brackets `add[int](5, 10)`."
+    },
     "builtins": {
       "typeof": "typeof() is used to get the Type info struct of a variable or type at runtime.",
       "sizeof": "sizeof() is used to get the size in bytes of a type or variable at compile-time/runtime.",
@@ -27,7 +31,8 @@
       "arx_operators": "The ARX (Add-Rotate-Xor) operators are fully supported: `^` for XOR, `<<%` for left rotation, and `%>>` for right rotation."
     },
     "parser": {
-      "wash_type": "The WashType enum is used to distinguish between wash (0), clean (1), and untaint (2) operations in the parser."
+      "wash_type": "The WashType enum is used to distinguish between wash (0), clean (1), and untaint (2) operations in the parser.",
+      "assignment": "In standard AOT compilation, variables are declared with `let x = 5;`. However, in the REPL (ethyl), typing `x = 5;` acts exactly identically to `let x = 5;` (triggering implicit declaration and type inference)."
     },
     "oop": {
       "class": "Classes are the primary object-oriented construct, declared using 'class' (e.g. 'open class Vector { ... }'). They can contain fields and methods, and can be modified with visibility modifiers like 'open' (public) or 'closed' (private).",
