@@ -201,7 +201,7 @@ int main(int argc, char *argv[]) {
     if (optimization_level > 0) {
         optlir_remove_unused(alir_module);
 
-        optlir_local_optimize(alir_module);
+        optlir_optimize(alir_module, optimization_level);
 
         // is this necessary tho?
         optlir_remove_unused(alir_module);

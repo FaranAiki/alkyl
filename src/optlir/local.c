@@ -729,32 +729,44 @@ static void forward_empty_blocks_function(AlirModule *module, AlirFunction *func
     } while (changed);
 }
 
-void optlir_local_optimize(AlirModule *module) {
-    if (!module) return;
+void optlir_optimize(AlirModule *module, int opt_level) {
+    if (!module || opt_level <= 0) return;
 
-    AlirFunction *func = module->functions;
-    while (func) {
-        if (!func->is_extern) {
-            constant_propagate_function(module, func);
-            fold_branches_function(module, func);
-            merge_entry_jump_function(module, func);
-            forward_empty_blocks_function(module, func);
-            remove_unreachable_blocks_function(module, func);
-            remove_dead_stores_function(module, func);
-            propagate_param_copies_function(module, func);
-            eval_pure_call_function(module, func);
-        }
+    optlir_mem2reg_local(module);
 
-        {
-            AlirBlock *b = func->blocks;
-            while (b) {
-                free_edges(b->pred);
-                free_edges(b->succ);
-                b->pred = NULL;
-                b->succ = NULL;
-                b = b->next;
+    int max_iters = (opt_level >= 3) ? 5 : 1;
+    for (int iter = 0; iter < max_iters; iter++) {
+        AlirFunction *func = module->functions;
+        while (func) {
+            if (!func->is_extern) {
+                if (opt_level >= 1) {
+                    remove_unreachable_blocks_function(module, func);
+                    forward_empty_blocks_function(module, func);
+                }
+                if (opt_level >= 2) {
+                    constant_propagate_function(module, func);
+                    fold_branches_function(module, func);
+                    merge_entry_jump_function(module, func);
+                    remove_dead_stores_function(module, func);
+                    propagate_param_copies_function(module, func);
+                }
+                if (opt_level >= 3) {
+                    eval_pure_call_function(module, func);
+                }
             }
+
+            {
+                AlirBlock *b = func->blocks;
+                while (b) {
+                    free_edges(b->pred);
+                    free_edges(b->succ);
+                    b->pred = NULL;
+                    b->succ = NULL;
+                    b = b->next;
+                }
+            }
+            func = func->next;
         }
-        func = func->next;
     }
+    optlir_dce_allocs(module);
 }

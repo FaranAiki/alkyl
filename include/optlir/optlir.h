@@ -17,6 +17,8 @@ typedef struct ConstVal {
 } ConstVal;
 
 void optlir_remove_unused(AlirModule *module);
-void optlir_local_optimize(AlirModule *module);
+void optlir_optimize(AlirModule *module, int opt_level);
+void optlir_mem2reg_local(AlirModule *module);
+void optlir_dce_allocs(AlirModule *module);
 
 #endif

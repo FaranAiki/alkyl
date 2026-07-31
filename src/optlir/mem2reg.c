@@ -1,0 +1,148 @@
+#include "optlir.h"
+#include "common/arena.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+void optlir_mem2reg_local(AlirModule *module) {
+    AlirFunction *func = module->functions;
+    while(func) {
+        HashMap repl_map;
+        hashmap_init(&repl_map, module->compiler_ctx->arena, 256);
+        
+        AlirBlock *b = func->blocks;
+        while(b) {
+            HashMap store_map;
+            hashmap_init(&store_map, module->compiler_ctx->arena, 64);
+            
+            AlirInst *inst = b->head;
+            while(inst) {
+                if (inst->op == ALIR_OP_STORE && inst->op2 && inst->op2->kind == ALIR_VAL_TEMP && inst->op1) {
+                    char key[32];
+                    snprintf(key, sizeof(key), "%d", inst->op2->temp_id);
+                    hashmap_put(&store_map, key, inst->op1);
+                }
+                else if (inst->op == ALIR_OP_LOAD && inst->op1 && inst->op1->kind == ALIR_VAL_TEMP && inst->dest && inst->dest->kind == ALIR_VAL_TEMP) {
+                    char key[32];
+                    snprintf(key, sizeof(key), "%d", inst->op1->temp_id);
+                    AlirValue *val = hashmap_get(&store_map, key);
+                    if (val) {
+                        char dest_key[32];
+                        snprintf(dest_key, sizeof(dest_key), "%d", inst->dest->temp_id);
+                        hashmap_put(&repl_map, dest_key, val);
+                        
+                        inst->op = ALIR_OP_FREE_STACK; // Make it a NOP
+                        inst->dest = NULL;
+                        inst->op1 = NULL;
+                    }
+                }
+                inst = inst->next;
+            }
+            hashmap_free(&store_map);
+            b = b->next;
+        }
+        
+        b = func->blocks;
+        while(b) {
+            AlirInst *inst = b->head;
+            while(inst) {
+                if (inst->op1 && inst->op1->kind == ALIR_VAL_TEMP) {
+                    char key[32]; snprintf(key, sizeof(key), "%d", inst->op1->temp_id);
+                    AlirValue *repl = hashmap_get(&repl_map, key);
+                    while(repl && repl->kind == ALIR_VAL_TEMP) {
+                        char k2[32]; snprintf(k2, sizeof(k2), "%d", repl->temp_id);
+                        AlirValue *r2 = hashmap_get(&repl_map, k2);
+                        if (r2) repl = r2; else break;
+                    }
+                    if (repl) inst->op1 = repl;
+                }
+                if (inst->op2 && inst->op2->kind == ALIR_VAL_TEMP) {
+                    char key[32]; snprintf(key, sizeof(key), "%d", inst->op2->temp_id);
+                    AlirValue *repl = hashmap_get(&repl_map, key);
+                    while(repl && repl->kind == ALIR_VAL_TEMP) {
+                        char k2[32]; snprintf(k2, sizeof(k2), "%d", repl->temp_id);
+                        AlirValue *r2 = hashmap_get(&repl_map, k2);
+                        if (r2) repl = r2; else break;
+                    }
+                    if (repl) inst->op2 = repl;
+                }
+                for(int i=0; i<inst->arg_count; i++) {
+                    if (inst->args[i] && inst->args[i]->kind == ALIR_VAL_TEMP) {
+                        char key[32]; snprintf(key, sizeof(key), "%d", inst->args[i]->temp_id);
+                        AlirValue *repl = hashmap_get(&repl_map, key);
+                        while(repl && repl->kind == ALIR_VAL_TEMP) {
+                            char k2[32]; snprintf(k2, sizeof(k2), "%d", repl->temp_id);
+                            AlirValue *r2 = hashmap_get(&repl_map, k2);
+                            if (r2) repl = r2; else break;
+                        }
+                        if (repl) inst->args[i] = repl;
+                    }
+                }
+                inst = inst->next;
+            }
+            b = b->next;
+        }
+        hashmap_free(&repl_map);
+        func = func->next;
+    }
+}
+
+void optlir_dce_allocs(AlirModule *module) {
+    AlirFunction *func = module->functions;
+    while(func) {
+        HashMap used_map;
+        hashmap_init(&used_map, module->compiler_ctx->arena, 256);
+        
+        AlirBlock *b = func->blocks;
+        while(b) {
+            AlirInst *inst = b->head;
+            while(inst) {
+                if (inst->op != ALIR_OP_STORE && inst->op != ALIR_OP_ALLOCA) {
+                    if (inst->op1 && inst->op1->kind == ALIR_VAL_TEMP) {
+                        char key[32]; snprintf(key, sizeof(key), "%d", inst->op1->temp_id);
+                        hashmap_put(&used_map, key, (void*)1);
+                    }
+                    if (inst->op2 && inst->op2->kind == ALIR_VAL_TEMP) {
+                        char key[32]; snprintf(key, sizeof(key), "%d", inst->op2->temp_id);
+                        hashmap_put(&used_map, key, (void*)1);
+                    }
+                    for(int i=0; i<inst->arg_count; i++) {
+                        if (inst->args[i] && inst->args[i]->kind == ALIR_VAL_TEMP) {
+                            char key[32]; snprintf(key, sizeof(key), "%d", inst->args[i]->temp_id);
+                            hashmap_put(&used_map, key, (void*)1);
+                        }
+                    }
+                }
+                // stores OP2 is the pointer, if it's NOT a temporary we don't care, but if it is we might eliminate it if unused
+                inst = inst->next;
+            }
+            b = b->next;
+        }
+        
+        b = func->blocks;
+        while(b) {
+            AlirInst *inst = b->head;
+            while(inst) {
+                if (inst->op == ALIR_OP_ALLOCA && inst->dest && inst->dest->kind == ALIR_VAL_TEMP) {
+                    char key[32]; snprintf(key, sizeof(key), "%d", inst->dest->temp_id);
+                    if (!hashmap_get(&used_map, key)) {
+                        inst->op = ALIR_OP_FREE_STACK; // NOP
+                        inst->dest = NULL;
+                    }
+                }
+                else if (inst->op == ALIR_OP_STORE && inst->op2 && inst->op2->kind == ALIR_VAL_TEMP) {
+                    char key[32]; snprintf(key, sizeof(key), "%d", inst->op2->temp_id);
+                    if (!hashmap_get(&used_map, key)) {
+                        inst->op = ALIR_OP_FREE_STACK; // NOP
+                        inst->op1 = NULL;
+                        inst->op2 = NULL;
+                    }
+                }
+                inst = inst->next;
+            }
+            b = b->next;
+        }
+        hashmap_free(&used_map);
+        func = func->next;
+    }
+}

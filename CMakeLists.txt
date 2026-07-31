@@ -157,6 +157,7 @@ set(ALIR_SOURCES
 set(OPTIMIZE_ALIR_SOURCES
     src/optlir/unused.c
     src/optlir/local.c
+    src/optlir/mem2reg.c
     src/optlir/pure.c
 )
 
