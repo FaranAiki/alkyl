@@ -36,7 +36,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
                     VarType new_t = replace_with[i];
                     new_t.ptr_depth += t.ptr_depth;
                     if (array_size > 0) new_t.array_size = array_size;
-                    fprintf(stderr, "DEBUG clone_var_type bracket-typeparam: %s -> base=%s array_size=%d\n", t.class_name, new_t.class_name, new_t.array_size);
+                    debug_any("clone_var_type bracket-typeparam: %s -> base=%s array_size=%d\n", t.class_name, new_t.class_name, new_t.array_size);
                     return new_t;
                 }
             }
@@ -53,7 +53,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
             VarType new_t = t;
             new_t.class_name = arena_strdup(ctx->arena, mangled);
             if (array_size > 0) new_t.array_size = array_size;
-            fprintf(stderr, "DEBUG clone_var_type bracket: %s -> %s array_size=%d\n", t.class_name, new_t.class_name, new_t.array_size);
+            debug_any("clone_var_type bracket: %s -> %s array_size=%d\n", t.class_name, new_t.class_name, new_t.array_size);
             return new_t;
         }
 
@@ -75,7 +75,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
     }
     VarType res = t;
     if (t.class_name) res.class_name = arena_strdup(ctx->arena, t.class_name);
-    fprintf(stderr, "DEBUG clone_var_type fallback: class_name=%s array_size=%d array_depth=%d\n", t.class_name, t.array_size, t.array_depth);
+    debug_any("clone_var_type fallback: class_name=%s array_size=%d array_depth=%d\n", t.class_name, t.array_size, t.array_depth);
     return res;
 }
 

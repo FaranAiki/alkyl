@@ -276,7 +276,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             set_loc(node, line, col);
         }
         else if (p->current_token.type == TOKEN_LPAREN) {
-            fprintf(stderr, "PARSER DEBUG parse_postfix: before parse_call, node->type=%d\n", node ? (int)node->type : -1);
+            debug_any("parse_postfix: before parse_call, node->type=%d\n", node ? (int)node->type : -1);
             node = parse_call(p, node);
             set_loc(node, line, col);
         }

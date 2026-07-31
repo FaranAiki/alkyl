@@ -305,7 +305,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         sem_check_expr(ctx, node->target);
         int after_type = node->target->type;
         if (before_type != after_type) {
-            fprintf(stderr, "DEBUG sem_check_call: TARGET MODIFIED! node=%p before=%d after=%d\n", (void*)node, before_type, after_type);
+            debug_any("sem_check_call: TARGET MODIFIED! node=%p before=%d after=%d\n", (void*)node, before_type, after_type);
         }
         if (node->target->type == NODE_TEMPLATE_INSTANTIATION) {
             // target->target was updated to VarRef inside sem_check_expr
@@ -650,7 +650,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
     if (node->is_macro_arg) return;
 
-    fprintf(stderr, "DEBUG sem_check_expr: type=%d line=%d col=%d node=%p\n", node->type, node->line, node->col, (void*)node);
+    debug_any("sem_check_expr: type=%d line=%d col=%d node=%p\n", node->type, node->line, node->col, (void*)node);
 
     switch(node->type) {
         case NODE_LITERAL: {
@@ -1511,7 +1511,7 @@ void sem_check_block(SemanticCtx *ctx, ASTNode *block) {
     while (curr) {
         if (curr->type == NODE_CALL) {
             CallNode *cn = (CallNode*)curr;
-            fprintf(stderr, "DEBUG sem_check_block: Call line=%d col=%d name=%s target_type=%d node=%p\n", curr->line, curr->col, cn->name ? cn->name : "(null)", cn->target ? (int)cn->target->type : -1, (void*)curr);
+            debug_any("sem_check_block: Call line=%d col=%d name=%s target_type=%d node=%p\n", curr->line, curr->col, cn->name ? cn->name : "(null)", cn->target ? (int)cn->target->type : -1, (void*)curr);
         }
         sem_check_node(ctx, curr);
         curr = curr->next;

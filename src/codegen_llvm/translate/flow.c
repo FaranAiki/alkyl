@@ -114,6 +114,14 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         } else if (aw > ew) {
                             args[i] = LLVMBuildTrunc(ctx->builder, args[i], expected_ty, "trunc_arg");
                         }
+                    } else if (LLVMGetTypeKind(expected_ty) == LLVMFloatTypeKind && LLVMGetTypeKind(arg_ty) == LLVMDoubleTypeKind) {
+                        args[i] = LLVMBuildFPTrunc(ctx->builder, args[i], expected_ty, "fptrunc_arg");
+                    } else if (LLVMGetTypeKind(expected_ty) == LLVMDoubleTypeKind && LLVMGetTypeKind(arg_ty) == LLVMFloatTypeKind) {
+                        args[i] = LLVMBuildFPExt(ctx->builder, args[i], expected_ty, "fpext_arg");
+                    } else if (LLVMGetTypeKind(expected_ty) == LLVMPointerTypeKind && LLVMGetTypeKind(arg_ty) == LLVMArrayTypeKind) {
+                        LLVMValueRef alloca = LLVMBuildAlloca(ctx->builder, arg_ty, "array_arg_alloc");
+                        LLVMBuildStore(ctx->builder, args[i], alloca);
+                        args[i] = alloca;
                     }
                     // If arg is tainted (struct) but function expects pristine (non-struct), extract inner value
                     if (LLVMGetTypeKind(expected_ty) != LLVMStructTypeKind && LLVMGetTypeKind(LLVMTypeOf(args[i])) == LLVMStructTypeKind) {
@@ -129,6 +137,8 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     } else if (LLVMGetIntTypeWidth(arg_ty) < 32) {
                         args[i] = LLVMBuildSExt(ctx->builder, args[i], LLVMInt32TypeInContext(ctx->llvm_ctx), "prom_i32");
                     }
+                } else if (LLVMGetTypeKind(arg_ty) == LLVMFloatTypeKind) {
+                    args[i] = LLVMBuildFPExt(ctx->builder, args[i], LLVMDoubleTypeInContext(ctx->llvm_ctx), "prom_f32_f64");
                 }
             }
             

@@ -12,12 +12,12 @@ compound[type Type] class Vector {
 }
 
 int main() {
-  let v_single = Vector[single](1, 2);
+  let v_single = Vector[single](1.0, 2.0);
 
   print(v_single.get());
 
   let v_int = Vector[int](1, 2);
 
-  v_int.set(2, 3)
+  v_int.set(2, 3);
   print(v_int.get());
 }

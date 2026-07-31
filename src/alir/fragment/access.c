@@ -85,18 +85,22 @@ int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char
 AlirValue* alir_gen_addr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     // 1. Get the address of the array variable itself
     AlirValue *base_ptr = alir_gen_addr(ctx, aa->target);
-    if (!base_ptr) return NULL;
+    if (!base_ptr) {
+        AlirValue *rval = alir_gen_expr(ctx, aa->target);
+        if (!rval) return NULL;
+        base_ptr = rval;
+    } else {
+        VarType alir_type = base_ptr->type;
 
-    VarType alir_type = base_ptr->type;
-
-    // 2. CRITICAL: If target is a dynamic pointer (like from malloc),
-    // we must load the heap address FROM the stack variable before indexing!
-    // We look at the actual ALIR variable type to determine if it's decayed
-    // to a pointer instead of static inline representation on the stack.
-    if (alir_type.ptr_depth > 0 && alir_type.array_size == 0) {
-        AlirValue *loaded_base = new_temp(ctx, alir_type);
-        emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_base, base_ptr, NULL));
-        base_ptr = loaded_base; // Now base_ptr holds the malloc result
+        // 2. CRITICAL: If target is a dynamic pointer (like from malloc),
+        // we must load the heap address FROM the stack variable before indexing!
+        // We look at the actual ALIR variable type to determine if it's decayed
+        // to a pointer instead of static inline representation on the stack.
+        if (alir_type.ptr_depth > 0 && alir_type.array_size == 0) {
+            AlirValue *loaded_base = new_temp(ctx, alir_type);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded_base, base_ptr, NULL));
+            base_ptr = loaded_base; // Now base_ptr holds the malloc result
+        }
     }
 
     // 3. Evaluate the index
