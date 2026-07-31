@@ -163,7 +163,14 @@ int run_repl(void) {
 } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
                    curr->type != NODE_ENUM && curr->type != NODE_ERRNUM) {
                 VarType chk = sem_get_node_type(&r->sem, curr);
-                if (chk.base == TYPE_NAMESPACE || chk.base == TYPE_CLASS) {
+                int is_type_sym = 0;
+                if ((chk.base == TYPE_NAMESPACE || chk.base == TYPE_CLASS) && curr->type == NODE_VAR_REF) {
+                    SemSymbol *sym = sem_symbol_lookup(&r->sem, ((VarRefNode*)curr)->name, NULL);
+                    if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_NAMESPACE)) {
+                        is_type_sym = 1;
+                    }
+                }
+                if (is_type_sym) {
                     print_symbol_info(&r->sem, chk);
                 } else {
                     VarType expr_rt;
@@ -314,7 +321,14 @@ int run_file(const char *filename) {
             } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
                        curr->type != NODE_ENUM && curr->type != NODE_ERRNUM) {
                 VarType chk = sem_get_node_type(&r->sem, curr);
-                if (chk.base == TYPE_NAMESPACE || chk.base == TYPE_CLASS) {
+                int is_type_sym = 0;
+                if ((chk.base == TYPE_NAMESPACE || chk.base == TYPE_CLASS) && curr->type == NODE_VAR_REF) {
+                    SemSymbol *sym = sem_symbol_lookup(&r->sem, ((VarRefNode*)curr)->name, NULL);
+                    if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_NAMESPACE)) {
+                        is_type_sym = 1;
+                    }
+                }
+                if (is_type_sym) {
                     print_symbol_info(&r->sem, chk);
                 } else {
                     VarType rt;

@@ -50,7 +50,7 @@ static int has_unbalanced_braces(const char *buffer, int len) {
     return brace > 0;
 }
 
-static void cursor_up(char *buffer, int len, int *pos) {
+static bool cursor_up(char *buffer, int len, int *pos) {
     (void)len;
     int current_line_start = 0;
     for (int i = *pos - 1; i >= 0; i--) {
@@ -59,7 +59,7 @@ static void cursor_up(char *buffer, int len, int *pos) {
             break;
         }
     }
-    if (current_line_start == 0) return;
+    if (current_line_start == 0) return false;
 
     int prev_line_start = 0;
     for (int i = current_line_start - 2; i >= 0; i--) {
@@ -79,9 +79,10 @@ static void cursor_up(char *buffer, int len, int *pos) {
     } else {
         *pos = prev_line_start + prev_line_len;
     }
+    return true;
 }
 
-static void cursor_down(char *buffer, int len, int *pos) {
+static bool cursor_down(char *buffer, int len, int *pos) {
     int current_line_start = 0;
     for (int i = *pos - 1; i >= 0; i--) {
         if (buffer[i] == '\n') {
@@ -98,10 +99,10 @@ static void cursor_down(char *buffer, int len, int *pos) {
         }
     }
 
-    if (next_newline >= len) return;
+    if (next_newline >= len) return false;
 
     int next_line_start = next_newline + 1;
-    if (next_line_start >= len) return;
+    if (next_line_start >= len) return false;
 
     int col_offset = *pos - current_line_start;
     int next_line_end = len;
@@ -118,6 +119,7 @@ static void cursor_down(char *buffer, int len, int *pos) {
     } else {
         *pos = next_line_start + next_line_len;
     }
+    return true;
 }
 
 static void insert_newline_line(char *buffer, int *len, int *pos) {
@@ -496,9 +498,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                         }
                     }
                 } else if (seq2 == 'A') { // Up
-                    if (has_unbalanced_braces(input_buffer, len)) {
-                        cursor_up(input_buffer, len, &pos);
-                    } else {
+                    if (!has_unbalanced_braces(input_buffer, len) || !cursor_up(input_buffer, len, &pos)) {
                         if (history_view_idx > 0) {
                             if (history_view_idx == cmd_history_count) {
                                 strcpy(temp_buffer, input_buffer);
@@ -510,9 +510,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                         }
                     }
                 } else if (seq2 == 'B') { // Down
-                    if (has_unbalanced_braces(input_buffer, len)) {
-                        cursor_down(input_buffer, len, &pos);
-                    } else {
+                    if (!has_unbalanced_braces(input_buffer, len) || !cursor_down(input_buffer, len, &pos)) {
                         if (history_view_idx < cmd_history_count) {
                             history_view_idx++;
                             if (history_view_idx == cmd_history_count) {
