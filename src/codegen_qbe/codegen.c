@@ -6,9 +6,11 @@
 #include <ctype.h>
 
 int s_next_qbe_temp = 0;
+AlirFunction *s_current_qbe_function = NULL;
 
 static int get_qbe_type_size_for_var(VarType t) {
     if (t.ptr_depth > 0) return 8;
+    if (t.is_tainted) return 8;
     if (t.array_size > 0) {
         VarType elem = t;
         elem.array_size = 0;
@@ -35,6 +37,7 @@ static int get_qbe_type_size_for_var(VarType t) {
 
 static int get_qbe_type_align_for_var(VarType t) {
     if (t.ptr_depth > 0) return 8;
+    if (t.is_tainted) return 4;
     if (t.array_size > 0) {
         VarType elem = t;
         elem.array_size = 0;
@@ -259,9 +262,26 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
         }
         case ALIR_OP_RET:
             if (inst->op1) {
-                fprintf(out, "\tret ");
-                print_val(out, inst->op1);
-                fprintf(out, "\n");
+                if (s_current_qbe_function && s_current_qbe_function->ret_type.is_tainted) {
+                    char rt = qbe_type(inst->op1->type);
+                    if (rt == 'v') rt = 'w'; // Just in case
+                    if (rt == 'w') {
+                        int ext_id = s_next_qbe_temp++;
+                        int shl_id = s_next_qbe_temp++;
+                        fprintf(out, "\t%%ret_ext_%d =l extuw ", ext_id);
+                        print_val(out, inst->op1);
+                        fprintf(out, "\n\t%%ret_shl_%d =l shl %%ret_ext_%d, 32\n", shl_id, ext_id);
+                        fprintf(out, "\tret %%ret_shl_%d\n", shl_id);
+                    } else {
+                        fprintf(out, "\tret ");
+                        print_val(out, inst->op1);
+                        fprintf(out, "\n");
+                    }
+                } else {
+                    fprintf(out, "\tret ");
+                    print_val(out, inst->op1);
+                    fprintf(out, "\n");
+                }
             } else {
                 fprintf(out, "\tret\n");
             }
@@ -639,22 +659,81 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             break;
         }
         case ALIR_OP_PANIC:
-            if (inst->op1) {
-                fprintf(out, "\tcall $printf(l ");
-                print_val(out, inst->op1);
-                fprintf(out, ", w ");
-                print_val(out, inst->op2);
-                fprintf(out, ")\n");
+            if (s_current_qbe_function && s_current_qbe_function->ret_type.is_tainted) {
+                if (inst->op2) {
+                    fprintf(out, "\t%%err_ext_%d =l extuw ", s_next_qbe_temp++);
+                    print_val(out, inst->op2);
+                    fprintf(out, "\n\tret %%err_ext_%d\n", s_next_qbe_temp - 1);
+                } else {
+                    fprintf(out, "\tret 1\n");
+                }
+            } else {
+                if (inst->op1) {
+                    fprintf(out, "\tcall $printf(l ");
+                    print_val(out, inst->op1);
+                    fprintf(out, ", w ");
+                    print_val(out, inst->op2 ? inst->op2 : inst->op1); // fallback
+                    fprintf(out, ")\n");
+                }
+                fprintf(out, "\tcall $exit(l 1)\n");
+                fprintf(out, "\thlt\n");
             }
-            fprintf(out, "\tcall $exit(l 1)\n");
-            fprintf(out, "\thlt\n");
             break;
-        case ALIR_OP_FALLBACK:
-            fprintf(out, "\t# FALLBACK (ternary/null-coalescing) unhandled\n");
+        case ALIR_OP_FALLBACK: {
+            int lbl = s_next_qbe_temp++;
+            char rt = qbe_type(inst->dest->type);
+            if (rt == 'v') rt = 'w';
+            char op1_t = qbe_type(inst->op1->type);
+            char op2_t = qbe_type(inst->op2->type);
+            
+            fprintf(out, "\t%%err_%d =w copy ", lbl);
+            print_val(out, inst->op1);
+            fprintf(out, "\n");
+            
+            if (inst->arg_count == 1 && inst->args[0]) {
+                fprintf(out, "\t%%is_err_%d =w ceqw %%err_%d, ", lbl, lbl);
+                print_val(out, inst->args[0]);
+                fprintf(out, "\n");
+            } else {
+                fprintf(out, "\t%%is_err_%d =w cnew %%err_%d, 0\n", lbl, lbl);
+            }
+            
+            fprintf(out, "\tjnz %%is_err_%d, @fb_then_%d, @fb_else_%d\n", lbl, lbl, lbl);
+            
+            fprintf(out, "@fb_then_%d\n", lbl);
+            if (rt == 'l' && op2_t == 'w') {
+                fprintf(out, "\t%%fb_val_%d =l extuw ", lbl);
+                print_val(out, inst->op2);
+                fprintf(out, "\n\t%%fb_then_res_%d =l shl %%fb_val_%d, 32\n", lbl, lbl);
+            } else {
+                fprintf(out, "\t%%fb_then_res_%d =%c copy ", lbl, rt);
+                print_val(out, inst->op2);
+                fprintf(out, "\n");
+            }
+            fprintf(out, "\tjmp @fb_merge_%d\n", lbl);
+            
+            fprintf(out, "@fb_else_%d\n", lbl);
+            if (rt == 'w' && op1_t == 'l') {
+                fprintf(out, "\t%%fb_shr_%d =l shr ", lbl);
+                print_val(out, inst->op1);
+                fprintf(out, ", 32\n");
+                fprintf(out, "\t%%fb_else_res_%d =w copy %%fb_shr_%d\n", lbl, lbl);
+            } else {
+                fprintf(out, "\t%%fb_else_res_%d =%c copy ", lbl, rt);
+                print_val(out, inst->op1);
+                fprintf(out, "\n");
+            }
+            fprintf(out, "\tjmp @fb_merge_%d\n", lbl);
+            
+            fprintf(out, "@fb_merge_%d\n", lbl);
+            fprintf(out, "\t");
+            print_val(out, inst->dest);
+            fprintf(out, " =%c phi @fb_then_%d %%fb_then_res_%d, @fb_else_%d %%fb_else_res_%d\n", 
+                    rt, lbl, lbl, lbl, lbl);
             break;
+        }
         default:
             fprintf(out, "\t# UNHANDLED OP %d\n", inst->op);
             break;
     }
 }
-

@@ -7,6 +7,7 @@
 
 char qbe_type(VarType t) {
     if (t.ptr_depth > 0) return 'l';
+    if (t.is_tainted) return 'l';
     if (t.array_size > 0) {
         int sz = 0;
         VarType elem = t;

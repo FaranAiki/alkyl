@@ -3,6 +3,14 @@
 // TODO: make sure that we have
 // text_read.c && text_write.c
 void alir_fprint_type(FILE *f, VarType t) {
+    if (t.is_tainted) {
+        fprintf(f, "{int, ");
+        t.is_tainted = 0; // Prevent infinite loop or recursion
+        alir_fprint_type(f, t);
+        fprintf(f, "}");
+        return;
+    }
+
     switch(t.base) {
         case TYPE_INT: fprintf(f, "int"); break;
         case TYPE_LONG: fprintf(f, "long"); break;
@@ -23,8 +31,6 @@ void alir_fprint_type(FILE *f, VarType t) {
 
         default: fprintf(f, "def"); break;
     }
-    // [FIX] Correct pointer depth logic.
-    // It used to evaluate `if(0 - 1)` which is TRUE, printing 'ptr' for 0 depth.
     if (t.ptr_depth > 0) fprintf(f, "*");
     for(int i=1; i<t.ptr_depth; i++) fprintf(f, "*");
 }
@@ -41,10 +47,9 @@ void alir_fprint_val(FILE *f, AlirValue *v) {
                 fprintf(f, "%ld", v->val.long_val);
             break;
         case ALIR_VAL_TEMP:
-            fprintf(f, "%%%d", v->temp_id);
+            fprintf(f, "%%t%d", v->temp_id);
             break;
         case ALIR_VAL_VAR:
-            // [FIX] ALIR_VAL_VAR must map to local parameters/registers, not globals
             fprintf(f, "%%%s", v->val.str_val);
             break;
         case ALIR_VAL_GLOBAL:
@@ -103,18 +108,18 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
 
           AlirBlock *b = func->blocks;
           while(b) {
-              fprintf(f, "  block %s\n", b->label);
+              fprintf(f, "    block %s\n", b->label);
 
               AlirInst *inst = b->head;
               while(inst) {
-                  fprintf(f, "    ");
+                  fprintf(f, "        ");
                   if (inst->dest) {
                       alir_fprint_val(f, inst->dest);
                       fprintf(f, " = ");
                   }
 
                   if (inst->op == ALIR_OP_ALLOCA && inst->dest) {
-                      fprintf(f, "onstack ");
+                      fprintf(f, "alloc ");
                       alir_fprint_type(f, inst->dest->type);
                       if (inst->op1) {
                         fprintf(f, " ");
@@ -122,11 +127,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                       }
                   }
                   else if (inst->op == ALIR_OP_STORE) {
-                      if (inst->op2) alir_fprint_val(f, inst->op2);
-                      else fprintf(f, "undef");
-
-                      fprintf(f, " <- ");
-
+                      fprintf(f, "store ");
                       if (inst->op1) {
                           alir_fprint_type(f, inst->op1->type);
                           fprintf(f, " ");
@@ -134,6 +135,9 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                       } else {
                           fprintf(f, "undef");
                       }
+                      fprintf(f, ", ptr ");
+                      if (inst->op2) alir_fprint_val(f, inst->op2);
+                      else fprintf(f, "undef");
                   }
                   else if (inst->op == ALIR_OP_CONDI) {
                       fprintf(f, "if ");

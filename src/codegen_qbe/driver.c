@@ -55,6 +55,7 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
         }
         fprintf(out, ") {\n");
 
+        s_current_qbe_function = f;
         AlirBlock *curr_block = f->blocks;
         while (curr_block) {
             AlirBlock *next_block = curr_block->next;

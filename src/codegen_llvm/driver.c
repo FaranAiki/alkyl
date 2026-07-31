@@ -8,6 +8,8 @@
 #include <llvm-c/Analysis.h>
 #include <llvm-c/Target.h>
 #include <llvm-c/TargetMachine.h>
+#include <llvm-c/Transforms/PassBuilder.h>
+#include <llvm-c/Error.h>
 
 static int llvm_native_initialized = 0;
 static LLVMTargetMachineRef cached_target_machine = NULL;
@@ -69,6 +71,24 @@ int backend_run(AlirModule *module, const char *basename, const char *link_flags
 
     CodegenCtx *cg_ctx = codegen_init(module);
     LLVMModuleRef llvm_module = codegen_generate(cg_ctx);
+
+    if (optimization_level > 0) {
+        char passes[32];
+        if (optimization_level == 1) strcpy(passes, "default<O1>");
+        else if (optimization_level == 2) strcpy(passes, "default<O2>");
+        else if (optimization_level == 3) strcpy(passes, "default<O3>");
+        else if (optimization_level == 4) strcpy(passes, "default<Os>");
+        else if (optimization_level >= 5) strcpy(passes, "default<Oz>");
+        
+        LLVMPassBuilderOptionsRef pb_opt = LLVMCreatePassBuilderOptions();
+        LLVMErrorRef err = LLVMRunPasses(llvm_module, passes, machine, pb_opt);
+        if (err) {
+            char *err_str = LLVMGetErrorMessage(err);
+            fprintf(stderr, "PassBuilder Error: %s\n", err_str);
+            LLVMDisposeErrorMessage(err_str);
+        }
+        LLVMDisposePassBuilderOptions(pb_opt);
+    }
 
     char o_file[1024];
     snprintf(o_file, sizeof(o_file), "%s.o", basename);

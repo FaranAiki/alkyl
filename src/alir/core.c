@@ -141,7 +141,7 @@ AlirBlock* alir_add_block(AlirModule *mod, AlirFunction *func, const char *label
             b->label = alir_strdup(mod, label_hint); // First use gets the plain label
         } else {
             char buf[128];
-            snprintf(buf, sizeof(buf), "%s%d", label_hint, count); // Subsequents get enumerated (while_cond2, etc)alir
+            snprintf(buf, sizeof(buf), "%s_%d", label_hint, count); // Subsequents get enumerated (while_cond_2, etc)
             b->label = alir_strdup(mod, buf);
         }
     }
@@ -218,7 +218,7 @@ int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *f
 // TODO change this into ENUM!
 const char* alir_op_str(AlirOpcode op) {
     switch(op) {
-        case ALIR_OP_ALLOCA: return "onstack";
+        case ALIR_OP_ALLOCA: return "alloc";
         case ALIR_OP_FREE_STACK: return "unstack"; // this is not needed, i guess
         case ALIR_OP_STORE: return "store";
         case ALIR_OP_LOAD: return "load";
@@ -238,7 +238,7 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_JUMP: return "jump";
         case ALIR_OP_CONDI: return "condition";
         case ALIR_OP_CALL: return "call";
-        case ALIR_OP_RET: return "->";
+        case ALIR_OP_RET: return "ret";
         case ALIR_OP_PANIC: return "panic";
 
         case ALIR_OP_CAST: return "cast";

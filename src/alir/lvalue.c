@@ -83,6 +83,32 @@ AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
     }
 
     VarType res_type = cn->var_type;
+    if (operand->kind == ALIR_VAL_CONST && operand->type.ptr_depth == 0 && res_type.ptr_depth == 0) {
+        if (res_type.base == TYPE_INT || res_type.base == TYPE_BOOL || res_type.base == TYPE_CHAR || res_type.base == TYPE_LONG) {
+            long val = 0;
+            if (operand->type.base == TYPE_DOUBLE) val = (long)operand->val.double_val;
+            else if (operand->type.base == TYPE_SINGLE) val = (long)operand->val.single_val;
+            else val = operand->val.int_val;
+            AlirValue *c = alir_const_int(ctx->module, val);
+            c->type = res_type;
+            return c;
+        } else if (res_type.base == TYPE_DOUBLE || res_type.base == TYPE_SINGLE) {
+            double val = 0;
+            if (operand->type.base == TYPE_DOUBLE) val = operand->val.double_val;
+            else if (operand->type.base == TYPE_SINGLE) val = operand->val.single_val;
+            else val = (double)operand->val.int_val;
+            if (res_type.base == TYPE_DOUBLE) {
+                AlirValue *c = alir_const_double(ctx->module, val);
+                c->type = res_type;
+                return c;
+            } else {
+                AlirValue *c = alir_const_float(ctx->module, (float)val);
+                c->type = res_type;
+                return c;
+            }
+        }
+    }
+
     AlirValue *dest = new_temp(ctx, res_type);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_CAST, dest, operand, NULL));
     return dest;

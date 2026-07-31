@@ -12,5 +12,6 @@ int find_max_temp(AlirModule *module);
 int alloc_qbe_temp(void);
 
 extern int s_next_qbe_temp;
+extern AlirFunction *s_current_qbe_function;
 
 #endif // QBE_CODEGEN_H

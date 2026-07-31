@@ -40,8 +40,7 @@ int main(int argc, char *argv[]) {
     char custom_output_basename[1024] = {0};
     int emit_alir = 0;
     int emit_balir = 0;
-    int unopt_mode = 0;
-    int opt_mode = 0;
+    int optimization_level = 0; // 0 = O0, 1 = O1, 2 = O2, 3 = O3, 4 = Os, 5 = Oz
     LinkerType current_linker = LINKER_GCC;
 
     ParserSettings parser_settings = {0};
@@ -70,10 +69,18 @@ int main(int argc, char *argv[]) {
             emit_balir = 1;
         } else if (streq(argv[i], "--allow-vector-init")) {
             parser_settings.allow_vector_initialization = 1;
-        } else if (streq(argv[i], "--unopt")) {
-            unopt_mode = 1;
-        } else if (streq(argv[i], "--opt")) {
-            opt_mode = 1;
+        } else if (streq(argv[i], "--unopt") || streq(argv[i], "-O0")) {
+            optimization_level = 0;
+        } else if (streq(argv[i], "--opt") || streq(argv[i], "-O2")) {
+            optimization_level = 2;
+        } else if (streq(argv[i], "-O1")) {
+            optimization_level = 1;
+        } else if (streq(argv[i], "-O3")) {
+            optimization_level = 3;
+        } else if (streq(argv[i], "-Os")) {
+            optimization_level = 4;
+        } else if (streq(argv[i], "-Oz")) {
+            optimization_level = 5;
         } else if (streq(argv[i], "-o")) {
             if (i + 1 < argc) {
                 strncpy(custom_output_basename, argv[++i], sizeof(custom_output_basename) - 1);
@@ -93,7 +100,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    const char *output_basename_ptr = custom_output_basename[0] ? custom_output_basename : ((opt_mode && !unopt_mode) ? BASENAME_OPT : BASENAME);
+    const char *output_basename_ptr = custom_output_basename[0] ? custom_output_basename : (optimization_level > 0 ? BASENAME_OPT : BASENAME);
 
     if (!filename) {
         fprintf(stderr, "No input file specified\n");
@@ -191,7 +198,7 @@ int main(int argc, char *argv[]) {
 
     debug_step("Finished alir check and analysis. Start alir optimization.");
 
-    if (!unopt_mode) {
+    if (optimization_level > 0) {
         optlir_remove_unused(alir_module);
 
         optlir_local_optimize(alir_module);
@@ -216,8 +223,8 @@ int main(int argc, char *argv[]) {
     debug_step("Finished alir optimization. Start code generation using " BACKEND_STRING " codegen");
     arena_reset(&arena);
 
-    const char *active_output_basename = output_basename_ptr ? output_basename_ptr : (opt_mode ? BASENAME_OPT : BASENAME);
-    int final_ret = backend_run(alir_module, active_output_basename, link_flags, unopt_mode ? 0 : 1, current_linker);
+    const char *active_output_basename = output_basename_ptr ? output_basename_ptr : (optimization_level > 0 ? BASENAME_OPT : BASENAME);
+    int final_ret = backend_run(alir_module, active_output_basename, link_flags, optimization_level, current_linker);
     free(code);
 
     arena_free(&arena);

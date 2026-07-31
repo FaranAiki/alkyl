@@ -704,6 +704,31 @@ static void eval_pure_call_function(AlirModule *module, AlirFunction *func) {
     }
 }
 
+static void forward_empty_blocks_function(AlirModule *module, AlirFunction *func) {
+    if (!func || !func->blocks) return;
+    
+    int changed;
+    do {
+        changed = 0;
+        AlirBlock *b = func->blocks;
+        while (b) {
+            // We skip func->blocks (entry block) because we can't redirect implicit entry jumps.
+            if (b != func->blocks && b->head && b->head->op == ALIR_OP_JUMP && b->head->next == NULL) {
+                if (b->head->op1 && b->head->op1->kind == ALIR_VAL_LABEL) {
+                    const char *target_label = b->head->op1->val.str_val;
+                    if (!streq(b->label, target_label)) {
+                        redirect_label_in_all_blocks(module, func, b->label, target_label);
+                        // Prevent infinite loop by making it jump to itself, it will be removed as unreachable
+                        b->head->op1->val.str_val = b->label;
+                        changed = 1;
+                    }
+                }
+            }
+            b = b->next;
+        }
+    } while (changed);
+}
+
 void optlir_local_optimize(AlirModule *module) {
     if (!module) return;
 
@@ -713,6 +738,7 @@ void optlir_local_optimize(AlirModule *module) {
             constant_propagate_function(module, func);
             fold_branches_function(module, func);
             merge_entry_jump_function(module, func);
+            forward_empty_blocks_function(module, func);
             remove_unreachable_blocks_function(module, func);
             remove_dead_stores_function(module, func);
             propagate_param_copies_function(module, func);
