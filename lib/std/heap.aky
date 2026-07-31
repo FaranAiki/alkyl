@@ -11,6 +11,9 @@ namespace heap {
     public tainted:
         void* alloc(long size);
         void free(tainted void* ptr);
+        
+        compound [type T]
+        T* alloc_type(long count);
     }
 
     open class CAllocator is Allocator {
@@ -21,6 +24,11 @@ namespace heap {
         void* alloc(long size) {
             if size < 0 { purge ErrOutOfMemory; }
             return my.malloc(size);
+        }
+
+        compound [type T]
+        T* alloc_type(long count) {
+            return my.malloc(count * sizeof(T)) as T*;
         }
 
         void free(tainted void* ptr) {

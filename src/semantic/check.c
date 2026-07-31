@@ -312,6 +312,17 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
             TemplateInstNode *ti = (TemplateInstNode*)node->target;
             if (ti->target->type == NODE_VAR_REF) {
                 node->name = ((VarRefNode*)ti->target)->name;
+            } else if (ti->target->type == NODE_MEMBER_ACCESS) {
+                MethodCallNode *mc = (MethodCallNode*)node;
+                MemberAccessNode *ma = (MemberAccessNode*)ti->target;
+                mc->base.type = NODE_METHOD_CALL;
+                mc->object = ma->object;
+                mc->method_name = ma->member_name; // the mangled name
+                mc->mangled_name = NULL;
+                mc->owner_class = NULL;
+                mc->is_static = 0;
+                sem_check_method_call(ctx, mc);
+                return;
             }
         } else if (node->target->type == NODE_VAR_REF) {
             node->name = ((VarRefNode*)node->target)->name;
@@ -450,6 +461,17 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                     TemplateInstNode *evaluated_ti = (TemplateInstNode*)node->target;
                     if (evaluated_ti->target && evaluated_ti->target->type == NODE_VAR_REF) {
                         node->name = ((VarRefNode*)evaluated_ti->target)->name;
+                    } else if (evaluated_ti->target && evaluated_ti->target->type == NODE_MEMBER_ACCESS) {
+                        MethodCallNode *mc = (MethodCallNode*)node;
+                        MemberAccessNode *ma = (MemberAccessNode*)evaluated_ti->target;
+                        mc->base.type = NODE_METHOD_CALL;
+                        mc->object = ma->object;
+                        mc->method_name = ma->member_name; // the mangled name
+                        mc->mangled_name = NULL;
+                        mc->owner_class = NULL;
+                        mc->is_static = 0;
+                        sem_check_method_call(ctx, mc);
+                        return;
                     }
                 } else if (node->target->type == NODE_VAR_REF) {
                     node->name = ((VarRefNode*)node->target)->name;
@@ -1155,22 +1177,47 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
         case NODE_TEMPLATE_INSTANTIATION: {
             TemplateInstNode *ti = (TemplateInstNode*)node;
             char target_name[256] = "";
+            SemSymbol *sym = NULL;
+            SemScope *found_in_scope = NULL;
+            
             if (ti->target->type == NODE_VAR_REF) {
                 snprintf(target_name, sizeof(target_name), "%s", ((VarRefNode*)ti->target)->name);
+                sym = sem_symbol_lookup(ctx, target_name, &found_in_scope);
             } else if (ti->target->type == NODE_MEMBER_ACCESS) {
                 MemberAccessNode *ma = (MemberAccessNode*)ti->target;
-                if (ma->object->type == NODE_VAR_REF) {
+                sem_check_expr(ctx, ma->object);
+                VarType obj_type = sem_get_node_type(ctx, ma->object);
+                
+                if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
+                    SemSymbol *class_sym = sem_symbol_lookup_type(ctx, obj_type.class_name);
+                    if (class_sym && class_sym->inner_scope && class_sym->inner_scope->symbol_map) {
+                        sym = hashmap_get((HashMap*)class_sym->inner_scope->symbol_map, ma->member_name);
+                        if (sym) {
+                            found_in_scope = class_sym->inner_scope;
+                            snprintf(target_name, sizeof(target_name), "%s", ma->member_name);
+                        }
+                    }
+                } else if (obj_type.base == TYPE_NAMESPACE && obj_type.class_name) {
+                    SemSymbol *ns_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
+                    if (ns_sym && ns_sym->inner_scope && ns_sym->inner_scope->symbol_map) {
+                        sym = hashmap_get((HashMap*)ns_sym->inner_scope->symbol_map, ma->member_name);
+                        if (sym) {
+                            found_in_scope = ns_sym->inner_scope;
+                            snprintf(target_name, sizeof(target_name), "%s", ma->member_name);
+                        }
+                    }
+                }
+                
+                // Fallback for simple namespace variable A.B if not typed correctly
+                if (!sym && ma->object->type == NODE_VAR_REF) {
                     snprintf(target_name, sizeof(target_name), "%s.%s", ((VarRefNode*)ma->object)->name, ma->member_name);
-                } else {
-                    sem_error(ctx, node, "Unsupported member access in template instantiation");
-                    break;
+                    sym = sem_symbol_lookup(ctx, target_name, &found_in_scope);
                 }
             } else {
                 sem_error(ctx, node, "Expected identifier for template instantiation");
                 break;
             }
-            SemScope *found_in_scope = NULL;
-            SemSymbol *sym = sem_symbol_lookup(ctx, target_name, &found_in_scope);
+
             if (!sym || sym->kind != SYM_TEMPLATE) {
                 // Fallback to array access / component access!
                 if (ti->num_template_types == 1) {
@@ -1285,7 +1332,13 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     curr = curr->next;
                 }
                 ctx->current_scope = old_scope;
-                inst_sym = sem_symbol_lookup(ctx, mangled, NULL);
+                if (found_in_scope) {
+                    inst_sym = hashmap_get((HashMap*)found_in_scope->symbol_map, mangled);
+                    debug_any("Lookup mangled %s in found_in_scope %p (symbol_map %p): %p\n", mangled, found_in_scope, found_in_scope->symbol_map, inst_sym);
+                } else {
+                    inst_sym = sem_symbol_lookup(ctx, mangled, NULL);
+                    debug_any("Lookup mangled %s globally: %p\n", mangled, inst_sym);
+                }
             }
 
             // Replace the current node with a VarRef to the mangled name, so codegen just calls the instantiated function/class
@@ -1293,13 +1346,23 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             // So its type should be the type of `inst_sym`.
             if (inst_sym) {
                 sem_set_node_type(ctx, node, inst_sym->type);
-                // Also update the target so Codegen emits the mangled name
-                VarRefNode *new_vr = arena_alloc(ctx->compiler_ctx->arena, sizeof(VarRefNode));
-                new_vr->base.type = NODE_VAR_REF;
-                new_vr->name = arena_strdup(ctx->compiler_ctx->arena, mangled);
-                new_vr->base.line = node->line;
-                new_vr->base.col = node->col;
-                ti->target = (ASTNode*)new_vr;
+                if (ti->target->type == NODE_MEMBER_ACCESS) {
+                    MemberAccessNode *ma = (MemberAccessNode*)ti->target;
+                    MemberAccessNode *new_ma = arena_alloc(ctx->compiler_ctx->arena, sizeof(MemberAccessNode));
+                    new_ma->base.type = NODE_MEMBER_ACCESS;
+                    new_ma->object = ma->object;
+                    new_ma->member_name = arena_strdup(ctx->compiler_ctx->arena, mangled);
+                    new_ma->base.line = node->line;
+                    new_ma->base.col = node->col;
+                    ti->target = (ASTNode*)new_ma;
+                } else {
+                    VarRefNode *new_vr = arena_alloc(ctx->compiler_ctx->arena, sizeof(VarRefNode));
+                    new_vr->base.type = NODE_VAR_REF;
+                    new_vr->name = arena_strdup(ctx->compiler_ctx->arena, mangled);
+                    new_vr->base.line = node->line;
+                    new_vr->base.col = node->col;
+                    ti->target = (ASTNode*)new_vr;
+                }
             }
             break;
         }

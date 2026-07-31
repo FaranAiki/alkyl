@@ -172,6 +172,14 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
             sem_symbolic_var_decl(ctx, mem);
         } else if (mem->type == NODE_FUNC_DEF) {
             sem_symbolic_func_def(ctx, mem);
+        } else if (mem->type == NODE_COMPOUND) {
+            CompoundNode *cn = (CompoundNode*)mem;
+            if (cn->body->type == NODE_FUNC_DEF) {
+                FuncDefNode *f = (FuncDefNode*)cn->body;
+                VarType type_tmpl = {TYPE_UNKNOWN};
+                SemSymbol *sym = sem_symbol_add(ctx, f->name, SYM_TEMPLATE, type_tmpl);
+                sym->template_node = cn;
+            }
         }
         mem = mem->next;
     }

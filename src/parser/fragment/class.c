@@ -152,6 +152,75 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
           int line = p->current_token.line;
           int col = p->current_token.col;
 
+          int is_compound = 0;
+          char **type_params = NULL;
+          VarType **allowed_types = NULL;
+          int *num_allowed = NULL;
+          int num_type_params = 0;
+
+          if (p->current_token.type == TOKEN_COMPOUND) {
+              is_compound = 1;
+              eat(p, TOKEN_COMPOUND);
+              eat(p, TOKEN_LBRACKET);
+              int max_params = 16;
+              type_params = parser_alloc(p, sizeof(char*) * max_params);
+              allowed_types = parser_alloc(p, sizeof(VarType*) * max_params);
+              num_allowed = parser_alloc(p, sizeof(int) * max_params);
+
+              while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+                  if (p->has_error) break;
+                  VarType *curr_allowed = NULL;
+                  int curr_num = 0;
+                  if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text && streq(p->current_token.text, "type")) {
+                      eat(p, TOKEN_IDENTIFIER);
+                      if (p->current_token.type == TOKEN_LBRACKET) {
+                          eat(p, TOKEN_LBRACKET);
+                          curr_allowed = parser_alloc(p, sizeof(VarType) * 16);
+                          while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+                              curr_allowed[curr_num++] = parse_type(p);
+                              if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
+                              else break;
+                          }
+                          eat(p, TOKEN_RBRACKET);
+                      }
+                  } else {
+                      parser_fail(p, "Expected 'type' keyword in compound");
+                  }
+                  if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected type parameter name in compound");
+                  char *type_param = parser_strdup(p, p->current_token.text);
+                  type_params[num_type_params] = type_param;
+                  allowed_types[num_type_params] = curr_allowed;
+                  num_allowed[num_type_params] = curr_num;
+                  num_type_params++;
+                  eat(p, TOKEN_IDENTIFIER);
+                  
+                  register_typename(p, type_param, 0);
+                  
+                  if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
+                  else break;
+              }
+              eat(p, TOKEN_RBRACKET);
+          }
+
+#define APPEND_MEMBER(node_ptr) do { \
+    ASTNode *_node = (ASTNode*)(node_ptr); \
+    if (is_compound) { \
+        CompoundNode *cn = parser_alloc(p, sizeof(CompoundNode)); \
+        cn->base.type = NODE_COMPOUND; \
+        cn->base.line = line; \
+        cn->base.col = col; \
+        cn->type_params = type_params; \
+        cn->allowed_types = allowed_types; \
+        cn->num_allowed = num_allowed; \
+        cn->num_type_params = num_type_params; \
+        cn->body = _node; \
+        _node = (ASTNode*)cn; \
+        is_compound = 0; \
+    } \
+    *curr_member = _node; \
+    curr_member = &_node->next; \
+} while(0)
+
           if (p->current_token.type == TOKEN_FLUX) {
               eat(p, TOKEN_FLUX);
               VarType vt = parse_type(p);
@@ -176,8 +245,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
 
               apply_func_modifiers(func, member_modifiers);
 
-              *curr_member = (ASTNode*)func;
-              curr_member = &func->base.next;
+              APPEND_MEMBER(func);
               continue;
           }
 
@@ -219,8 +287,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
 
               apply_func_modifiers(func, member_modifiers);
 
-              *curr_member = (ASTNode*)func;
-              curr_member = &func->base.next;
+              APPEND_MEMBER(func);
               continue;
           }
 
@@ -248,8 +315,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
 
                       apply_var_modifiers(var, member_modifiers);
 
-                      *curr_member = (ASTNode*)var;
-                      curr_member = &var->base.next;
+                      APPEND_MEMBER(var);
                       continue;
                   } else {
                       if (vt.class_name != NULL) {
@@ -309,8 +375,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
 
                       apply_func_modifiers(func, member_modifiers);
 
-                      *curr_member = (ASTNode*)func;
-                      curr_member = &func->base.next;
+                      APPEND_MEMBER(func);
                       continue;
                   }
                   }
@@ -395,8 +460,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
 
                   apply_func_modifiers(func, member_modifiers);
 
-                  *curr_member = (ASTNode*)func;
-                  curr_member = &func->base.next;
+                  APPEND_MEMBER(func);
               } else {
                   int next_extra_ptrs = 0;
                   while(1) {
@@ -442,8 +506,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
 
                       apply_var_modifiers(var, member_modifiers);
 
-                      *curr_member = (ASTNode*)var;
-                      curr_member = &var->base.next;
+                      APPEND_MEMBER(var);
 
                       if (p->current_token.type == TOKEN_COMMA) {
                           eat(p, TOKEN_COMMA);

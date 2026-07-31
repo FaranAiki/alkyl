@@ -63,7 +63,7 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
     return (ASTNode*)mc;
   }
 
-  CallNode *node = parser_alloc(p, sizeof(CallNode));
+  CallNode *node = parser_alloc(p, sizeof(MethodCallNode));
   node->base.type = NODE_CALL;
   node->name = name;
   node->target = target;
@@ -133,7 +133,7 @@ static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
     return (ASTNode*)mc;
   }
 
-  CallNode *node = parser_alloc(p, sizeof(CallNode));
+  CallNode *node = parser_alloc(p, sizeof(MethodCallNode));
   node->base.type = NODE_CALL;
   char *name = NULL;
   if (target && target->type == NODE_VAR_REF) {
@@ -617,7 +617,7 @@ ASTNode* parse_factor(Parser *p) {
       set_loc((ASTNode*)target_vn, line, col);
 
       // 3. Create CallNode: string(c"...")
-      CallNode *call_node = parser_alloc(p, sizeof(CallNode));
+      CallNode *call_node = parser_alloc(p, sizeof(MethodCallNode));
       call_node->base.type = NODE_CALL;
       call_node->name = parser_strdup(p, "string");
       call_node->target = (ASTNode*)target_vn;
@@ -1043,7 +1043,7 @@ ASTNode* parse_initializer(Parser *p, VarType vtype) {
             }
         }
         eat(p, TOKEN_RPAREN);
-        CallNode *cnode = parser_alloc(p, sizeof(CallNode));
+        CallNode *cnode = parser_alloc(p, sizeof(MethodCallNode));
         cnode->base.type = NODE_CALL;
         cnode->base.line = p->current_token.line;
         cnode->base.col = p->current_token.col;
