@@ -24,6 +24,8 @@ struct SwitchState {
 };
 #endif
 
+#include "common/debug.h"
+
 extern "C" {
 
 AlkylMlirContext alkyl_mlir_create_context() {
@@ -492,7 +494,6 @@ void* alkyl_mlir_build_scf_if_start(AlkylMlirContext c_ctx, AlkylMlirValue cond,
     if (!global_builder) return nullptr;
     auto condition = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(cond));
     
-    // cast to i1 if needed
     auto bool_cond = condition;
     if (!condition.getType().isInteger(1)) {
         auto zero = global_builder->create<mlir::arith::ConstantIntOp>(global_builder->getUnknownLoc(), condition.getType(), 0);
@@ -500,10 +501,26 @@ void* alkyl_mlir_build_scf_if_start(AlkylMlirContext c_ctx, AlkylMlirValue cond,
     }
     
     auto ifOp = global_builder->create<mlir::scf::IfOp>(global_builder->getUnknownLoc(), bool_cond, has_else != 0);
-    global_builder->setInsertionPointToStart(&ifOp.getThenRegion().front());
+    auto &then_block = ifOp.getThenRegion().front();
+    
+    if (!then_block.empty()) {
+        global_builder->setInsertionPoint(&then_block, std::prev(then_block.end()));
+    } else {
+        global_builder->setInsertionPointToStart(&then_block);
+    }
+    
+    if (has_else) {
+        auto &else_block = ifOp.getElseRegion().front();
+        if (!else_block.empty()) {
+            global_builder->setInsertionPoint(&else_block, std::prev(else_block.end()));
+        } else {
+            global_builder->setInsertionPointToStart(&else_block);
+        }
+    }
+    
     return reinterpret_cast<void*>(ifOp.getOperation());
 #else
-    (void)c_ctx; (void)cond; (void)has_else; return reinterpret_cast<void*>(1);
+    (void)c_ctx; (void)cond; return reinterpret_cast<void*>(1);
 #endif
 }
 
@@ -513,9 +530,12 @@ void alkyl_mlir_build_scf_if_else(AlkylMlirContext c_ctx, void* if_op_ptr) {
     auto op = static_cast<mlir::Operation*>(if_op_ptr);
     auto ifOp = mlir::cast<mlir::scf::IfOp>(op);
     
-    // Yield from then block
-    global_builder->create<mlir::scf::YieldOp>(global_builder->getUnknownLoc());
-    global_builder->setInsertionPointToStart(&ifOp.getElseRegion().front());
+    auto &else_block = ifOp.getElseRegion().front();
+    if (!else_block.empty()) {
+        global_builder->setInsertionPoint(&else_block, std::prev(else_block.end()));
+    } else {
+        global_builder->setInsertionPointToStart(&else_block);
+    }
 #else
     (void)c_ctx; (void)if_op_ptr;
 #endif
@@ -526,9 +546,6 @@ void alkyl_mlir_build_scf_if_end(AlkylMlirContext c_ctx, void* if_op_ptr) {
     if (!global_builder || !if_op_ptr) return;
     auto op = static_cast<mlir::Operation*>(if_op_ptr);
     auto ifOp = mlir::cast<mlir::scf::IfOp>(op);
-    
-    // Yield from current block (either then or else)
-    global_builder->create<mlir::scf::YieldOp>(global_builder->getUnknownLoc());
     global_builder->setInsertionPointAfter(ifOp);
 #else
     (void)c_ctx; (void)if_op_ptr;
