@@ -107,10 +107,10 @@ AlkylMlirFunc alkyl_mlir_add_function(AlkylMlirContext c_ctx, AlkylMlirModule mo
         return nullptr;
     }
     
-    // Creating a func returning i32, taking num_args arguments
-    auto i32Type = mlir::IntegerType::get(ctx, 32);
-    std::vector<mlir::Type> argTypes(num_args, i32Type);
-    auto funcType = mlir::FunctionType::get(ctx, argTypes, mlir::TypeRange{i32Type});
+    // Creating a func returning i64, taking num_args arguments
+    auto i64Type = mlir::IntegerType::get(ctx, 64);
+    std::vector<mlir::Type> argTypes(num_args, i64Type);
+    auto funcType = mlir::FunctionType::get(ctx, argTypes, mlir::TypeRange{i64Type});
     auto funcOp = global_builder->create<mlir::func::FuncOp>(global_builder->getUnknownLoc(), name, funcType);
     
     return static_cast<void*>(funcOp.getOperation());
@@ -129,6 +129,17 @@ AlkylMlirBlock alkyl_mlir_add_block(AlkylMlirFunc func) {
 #else
     (void)func;
     return nullptr;
+#endif
+}
+
+AlkylMlirValue alkyl_mlir_get_arg(AlkylMlirFunc func, int index) {
+#ifdef HAS_MLIR
+    auto* op = static_cast<mlir::Operation*>(func);
+    auto funcOp = mlir::cast<mlir::func::FuncOp>(op);
+    if (index >= (int)funcOp.getNumArguments()) return nullptr;
+    return reinterpret_cast<void*>(funcOp.getArgument(index).getAsOpaquePointer());
+#else
+    (void)func; (void)index; return nullptr;
 #endif
 }
 
@@ -151,6 +162,16 @@ void alkyl_mlir_build_return(AlkylMlirContext c_ctx, AlkylMlirValue val) {
         }
         if (val) {
             auto v = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(val));
+            if (mlir::isa<mlir::MemRefType>(v.getType())) {
+                auto extractOp = global_builder->create<mlir::memref::ExtractAlignedPointerAsIndexOp>(global_builder->getUnknownLoc(), v);
+                v = global_builder->create<mlir::arith::IndexCastOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), extractOp.getResult());
+            } else if (mlir::isa<mlir::LLVM::LLVMPointerType>(v.getType())) {
+                v = global_builder->create<mlir::LLVM::PtrToIntOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), v);
+            } else if (v.getType().isIntOrIndex()) {
+                if (v.getType().getIntOrFloatBitWidth() < 64) {
+                    v = global_builder->create<mlir::arith::ExtSIOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), v);
+                }
+            }
             global_builder->create<mlir::func::ReturnOp>(global_builder->getUnknownLoc(), v);
         } else {
             global_builder->create<mlir::func::ReturnOp>(global_builder->getUnknownLoc());
@@ -188,7 +209,7 @@ AlkylMlirValue alkyl_mlir_build_alloca(AlkylMlirContext c_ctx, const char* name)
 #ifdef HAS_MLIR
     if (!global_builder) return nullptr;
     auto* ctx = static_cast<mlir::MLIRContext*>(c_ctx);
-    mlir::Type type = mlir::IntegerType::get(ctx, 32); // Mock: Always int32
+    mlir::Type type = mlir::IntegerType::get(ctx, 64); // Use i64 to hold pointers safely
     auto memrefType = mlir::MemRefType::get({}, type);
     auto alloca = global_builder->create<mlir::memref::AllocaOp>(global_builder->getUnknownLoc(), memrefType);
     return reinterpret_cast<void*>(alloca.getResult().getImpl());
@@ -217,6 +238,14 @@ void alkyl_mlir_build_store(AlkylMlirContext c_ctx, AlkylMlirValue val, AlkylMli
     auto p = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(ptr));
     if (!mlir::isa<mlir::MemRefType>(p.getType())) return;
     auto memrefType = mlir::cast<mlir::MemRefType>(p.getType());
+    
+    // If storing a memref (e.g. object), extract pointer as i64
+    if (mlir::isa<mlir::MemRefType>(v.getType())) {
+        auto extractOp = global_builder->create<mlir::memref::ExtractAlignedPointerAsIndexOp>(global_builder->getUnknownLoc(), v);
+        v = global_builder->create<mlir::arith::IndexCastOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), extractOp.getResult());
+    } else if (mlir::isa<mlir::LLVM::LLVMPointerType>(v.getType())) {
+        v = global_builder->create<mlir::LLVM::PtrToIntOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), v);
+    }
     
     // cast v to match elementType if they are both integers but different widths
     if (v.getType().isIntOrIndex() && memrefType.getElementType().isIntOrIndex()) {
@@ -272,21 +301,26 @@ AlkylMlirValue alkyl_mlir_build_load_field(AlkylMlirContext c_ctx, AlkylMlirValu
     auto* ctx = static_cast<mlir::MLIRContext*>(c_ctx);
     auto p = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(ptr));
     
-    if (!mlir::isa<mlir::MemRefType>(p.getType())) {
-        auto type = mlir::IntegerType::get(ctx, 64);
-        auto zero = global_builder->create<mlir::arith::ConstantOp>(global_builder->getUnknownLoc(), type, global_builder->getIntegerAttr(type, 0));
-        mlir::Value res = zero.getResult();
-        if (is_string) {
-            res = global_builder->create<mlir::LLVM::IntToPtrOp>(global_builder->getUnknownLoc(), mlir::LLVM::LLVMPointerType::get(ctx), res);
+    mlir::Value res;
+    if (mlir::isa<mlir::MemRefType>(p.getType())) {
+        auto index_type = mlir::IndexType::get(ctx);
+        auto idx = global_builder->create<mlir::arith::ConstantOp>(global_builder->getUnknownLoc(), index_type, global_builder->getIntegerAttr(index_type, index));
+        auto loadOp = global_builder->create<mlir::memref::LoadOp>(global_builder->getUnknownLoc(), p, mlir::ValueRange{idx.getResult()});
+        res = loadOp.getResult();
+    } else {
+        // Assume p is i64
+        auto i64Type = global_builder->getI64Type();
+        if (p.getType() != i64Type) {
+            p = global_builder->create<mlir::arith::ExtSIOp>(global_builder->getUnknownLoc(), i64Type, p);
         }
-        return reinterpret_cast<void*>(res.getImpl());
+        auto ptrType = mlir::LLVM::LLVMPointerType::get(ctx);
+        auto rawPtr = global_builder->create<mlir::LLVM::IntToPtrOp>(global_builder->getUnknownLoc(), ptrType, p);
+        
+        auto idx = global_builder->create<mlir::arith::ConstantOp>(global_builder->getUnknownLoc(), global_builder->getI32Type(), global_builder->getI32IntegerAttr(index));
+        auto gep = global_builder->create<mlir::LLVM::GEPOp>(global_builder->getUnknownLoc(), ptrType, i64Type, rawPtr, mlir::ValueRange{idx.getResult()});
+        auto loadOp = global_builder->create<mlir::LLVM::LoadOp>(global_builder->getUnknownLoc(), i64Type, gep);
+        res = loadOp.getResult();
     }
-    
-    auto index_type = mlir::IndexType::get(ctx);
-    auto idx = global_builder->create<mlir::arith::ConstantOp>(global_builder->getUnknownLoc(), index_type, global_builder->getIntegerAttr(index_type, index));
-    
-    auto load = global_builder->create<mlir::memref::LoadOp>(global_builder->getUnknownLoc(), p, mlir::ValueRange{idx.getResult()});
-    mlir::Value res = load.getResult();
     
     if (is_string) {
         res = global_builder->create<mlir::LLVM::IntToPtrOp>(global_builder->getUnknownLoc(), mlir::LLVM::LLVMPointerType::get(ctx), res);
@@ -396,11 +430,22 @@ AlkylMlirValue alkyl_mlir_build_call(AlkylMlirContext c_ctx, const char* name, A
     
     std::vector<mlir::Value> operands;
     for (int i = 0; i < num_args; i++) {
-        operands.push_back(static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(args[i])));
+        auto val = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(args[i]));
+        if (mlir::isa<mlir::MemRefType>(val.getType())) {
+            auto extractOp = global_builder->create<mlir::memref::ExtractAlignedPointerAsIndexOp>(global_builder->getUnknownLoc(), val);
+            val = global_builder->create<mlir::arith::IndexCastOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), extractOp.getResult());
+        } else if (mlir::isa<mlir::LLVM::LLVMPointerType>(val.getType())) {
+            val = global_builder->create<mlir::LLVM::PtrToIntOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), val);
+        } else if (val.getType().isIntOrIndex()) {
+            if (val.getType().getIntOrFloatBitWidth() < 64) {
+                val = global_builder->create<mlir::arith::ExtSIOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), val);
+            }
+        }
+        operands.push_back(val);
     }
     
-    // For now, assume returning i32 and all args i32
-    auto type = mlir::IntegerType::get(ctx, 32);
+    // For now, assume returning i64 and all args i64
+    auto type = mlir::IntegerType::get(ctx, 64);
     
     // Auto-declare if missing or redefine if arg count mismatch is expected
     if (auto block = global_builder->getBlock()) {
@@ -542,6 +587,22 @@ void alkyl_mlir_build_switch_case_start(AlkylMlirContext c_ctx, void* switch_op_
     parentRegion->getBlocks().insert(mlir::Region::iterator(state->merge_block), next_cond_block);
     
     global_builder->setInsertionPointToEnd(state->current_cond_block);
+    
+    // Ensure same types for cmpi
+    if (state->cond.getType() != case_val.getType()) {
+        auto cond_type = state->cond.getType();
+        auto case_type = case_val.getType();
+        if (cond_type.isIntOrIndex() && case_type.isIntOrIndex()) {
+            unsigned cond_width = cond_type.getIntOrFloatBitWidth();
+            unsigned case_width = case_type.getIntOrFloatBitWidth();
+            if (cond_width > case_width) {
+                case_val = global_builder->create<mlir::arith::ExtSIOp>(global_builder->getUnknownLoc(), cond_type, case_val);
+            } else if (cond_width < case_width) {
+                case_val = global_builder->create<mlir::arith::TruncIOp>(global_builder->getUnknownLoc(), cond_type, case_val);
+            }
+        }
+    }
+    
     auto cmp = global_builder->create<mlir::arith::CmpIOp>(global_builder->getUnknownLoc(), mlir::arith::CmpIPredicate::eq, state->cond, case_val);
     global_builder->create<mlir::cf::CondBranchOp>(global_builder->getUnknownLoc(), cmp, case_block, next_cond_block);
     

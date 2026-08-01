@@ -1,0 +1,657 @@
+/home/faranaiki/Git/alkyl/src/mlir/generate.c: In function ‘generate_node’:
+/home/faranaiki/Git/alkyl/src/mlir/generate.c:24:41: error: implicit declaration of function ‘hashmap_create’; did you mean ‘hashmap_free’? [-Wimplicit-function-declaration]
+   24 |             if (!mlir_vars) mlir_vars = hashmap_create(1024);
+      |                                         ^~~~~~~~~~~~~~
+      |                                         hashmap_free
+/home/faranaiki/Git/alkyl/src/mlir/generate.c:24:39: error: assignment to ‘HashMap *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+   24 |             if (!mlir_vars) mlir_vars = hashmap_create(1024);
+      |                                       ^
+/home/faranaiki/Git/alkyl/src/mlir/generate.c:76:51: error: assignment to ‘HashMap *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+   76 |                         if (!mlir_vars) mlir_vars = hashmap_create(1024);
+      |                                                   ^
+make[2]: *** [CMakeFiles/ethyl.dir/build.make:793: CMakeFiles/ethyl.dir/src/mlir/generate.c.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:558: CMakeFiles/ethyl.dir/all] Error 2
+make[1]: *** Waiting for unfinished jobs....
+/home/faranaiki/Git/alkyl/src/mlir/generate.c: In function ‘generate_node’:
+/home/faranaiki/Git/alkyl/src/mlir/generate.c:24:41: error: implicit declaration of function ‘hashmap_create’; did you mean ‘hashmap_free’? [-Wimplicit-function-declaration]
+   24 |             if (!mlir_vars) mlir_vars = hashmap_create(1024);
+      |                                         ^~~~~~~~~~~~~~
+      |                                         hashmap_free
+/home/faranaiki/Git/alkyl/src/mlir/generate.c:24:39: error: assignment to ‘HashMap *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+   24 |             if (!mlir_vars) mlir_vars = hashmap_create(1024);
+      |                                       ^
+/home/faranaiki/Git/alkyl/src/mlir/generate.c:76:51: error: assignment to ‘HashMap *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+   76 |                         if (!mlir_vars) mlir_vars = hashmap_create(1024);
+      |                                                   ^
+make[2]: *** [CMakeFiles/alkyl_qbe.dir/build.make:835: CMakeFiles/alkyl_qbe.dir/src/mlir/generate.c.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:302: CMakeFiles/alkyl_qbe.dir/all] Error 2
+/home/faranaiki/Git/alkyl/src/mlir/generate.c: In function ‘generate_node’:
+/home/faranaiki/Git/alkyl/src/mlir/generate.c:24:41: error: implicit declaration of function ‘hashmap_create’; did you mean ‘hashmap_free’? [-Wimplicit-function-declaration]
+   24 |             if (!mlir_vars) mlir_vars = hashmap_create(1024);
+      |                                         ^~~~~~~~~~~~~~
+      |                                         hashmap_free
+/home/faranaiki/Git/alkyl/src/mlir/generate.c:24:39: error: assignment to ‘HashMap *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+   24 |             if (!mlir_vars) mlir_vars = hashmap_create(1024);
+      |                                       ^
+/home/faranaiki/Git/alkyl/src/mlir/generate.c:76:51: error: assignment to ‘HashMap *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+   76 |                         if (!mlir_vars) mlir_vars = hashmap_create(1024);
+      |                                                   ^
+/home/faranaiki/Git/alkyl/src/mlir/generate.c: In function ‘generate_node’:
+/home/faranaiki/Git/alkyl/src/mlir/generate.c:24:41: error: implicit declaration of function ‘hashmap_create’; did you mean ‘hashmap_free’? [-Wimplicit-function-declaration]
+   24 |             if (!mlir_vars) mlir_vars = hashmap_create(1024);
+      |                                         ^~~~~~~~~~~~~~
+      |                                         hashmap_free
+/home/faranaiki/Git/alkyl/src/mlir/generate.c:24:39: error: assignment to ‘HashMap *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+   24 |             if (!mlir_vars) mlir_vars = hashmap_create(1024);
+      |                                       ^
+/home/faranaiki/Git/alkyl/src/mlir/generate.c:76:51: error: assignment to ‘HashMap *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+   76 |                         if (!mlir_vars) mlir_vars = hashmap_create(1024);
+      |                                                   ^
+make[2]: *** [CMakeFiles/alkyl_llvm.dir/build.make:835: CMakeFiles/alkyl_llvm.dir/src/mlir/generate.c.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[2]: *** [CMakeFiles/alkyl_mlir.dir/build.make:835: CMakeFiles/alkyl_mlir.dir/src/mlir/generate.c.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [CMakeFiles/Makefile2:270: CMakeFiles/alkyl_llvm.dir/all] Error 2
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_add_function(AlkylMlirContext, AlkylMlirModule, const char*, int, int)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:114:61: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::func::FuncOp; Args = {const char*&, mlir::FunctionType&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  114 |     auto funcOp = global_builder->create<mlir::func::FuncOp>(global_builder->getUnknownLoc(), name, funcType);
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:5:
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_get_arg(AlkylMlirFunc, int)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:139:15: warning: comparison of integer expressions of different signedness: ‘int’ and ‘unsigned int’ [-Wsign-compare]
+  139 |     if (index >= funcOp.getNumArguments()) return nullptr;
+      |         ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:140:69: error: ‘mlir::detail::BlockArgumentImpl* mlir::BlockArgument::getImpl() const’ is private within this context
+  140 |     return reinterpret_cast<void*>(funcOp.getArgument(index).getImpl());
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+In file included from /usr/include/mlir/IR/BlockSupport.h:16,
+                 from /usr/include/mlir/IR/OperationSupport.h:18,
+                 from /usr/include/mlir/IR/Dialect.h:17,
+                 from /usr/include/mlir/IR/OpDefinition.h:22,
+                 from /usr/include/mlir/IR/Builders.h:12:
+/usr/include/mlir/IR/Value.h:338:30: note: declared private here
+  338 |   detail::BlockArgumentImpl *getImpl() const {
+      |                              ^~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_set_insertion_point_to_end(AlkylMlirContext, AlkylMlirBlock)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:146:61: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  146 | void alkyl_mlir_set_insertion_point_to_end(AlkylMlirContext c_ctx, AlkylMlirBlock block) {
+      |                                            ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_build_return(AlkylMlirContext, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:166:102: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::memref::ExtractAlignedPointerAsIndexOp; Args = {mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  166 |                 auto extractOp = global_builder->create<mlir::memref::ExtractAlignedPointerAsIndexOp>(global_builder->getUnknownLoc(), v);
+      |                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:167:69: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::IndexCastOp; Args = {mlir::IntegerType, mlir::detail::TypedValue<mlir::IndexType>}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  167 |                 v = global_builder->create<mlir::arith::IndexCastOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), extractOp.getResult());
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:169:67: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::LLVM::PtrToIntOp; Args = {mlir::IntegerType, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  169 |                 v = global_builder->create<mlir::LLVM::PtrToIntOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), v);
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:172:69: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::ExtSIOp; Args = {mlir::IntegerType, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  172 |                     v = global_builder->create<mlir::arith::ExtSIOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), v);
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:175:57: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::func::ReturnOp; Args = {mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  175 |             global_builder->create<mlir::func::ReturnOp>(global_builder->getUnknownLoc(), v);
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:177:57: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::func::ReturnOp; Args = {}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  177 |             global_builder->create<mlir::func::ReturnOp>(global_builder->getUnknownLoc());
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:156:47: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  156 | void alkyl_mlir_build_return(AlkylMlirContext c_ctx, AlkylMlirValue val) {
+      |                              ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘int alkyl_mlir_is_terminated(AlkylMlirContext)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:185:47: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  185 | int alkyl_mlir_is_terminated(AlkylMlirContext c_ctx) {
+      |                              ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_alloca(AlkylMlirContext, const char*)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:214:65: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::memref::AllocaOp; Args = {mlir::MemRefType&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  214 |     auto alloca = global_builder->create<mlir::memref::AllocaOp>(global_builder->getUnknownLoc(), memrefType);
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:208:76: warning: unused parameter ‘name’ [-Wunused-parameter]
+  208 | AlkylMlirValue alkyl_mlir_build_alloca(AlkylMlirContext c_ctx, const char* name) {
+      |                                                                ~~~~~~~~~~~~^~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_alloc_object(AlkylMlirContext, int)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:227:65: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::memref::AllocaOp; Args = {mlir::MemRefType&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  227 |     auto alloca = global_builder->create<mlir::memref::AllocaOp>(global_builder->getUnknownLoc(), memrefType);
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_build_store(AlkylMlirContext, AlkylMlirValue, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:244:94: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::memref::ExtractAlignedPointerAsIndexOp; Args = {mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  244 |         auto extractOp = global_builder->create<mlir::memref::ExtractAlignedPointerAsIndexOp>(global_builder->getUnknownLoc(), v);
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:245:61: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::IndexCastOp; Args = {mlir::IntegerType, mlir::detail::TypedValue<mlir::IndexType>}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  245 |         v = global_builder->create<mlir::arith::IndexCastOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), extractOp.getResult());
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:247:59: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::LLVM::PtrToIntOp; Args = {mlir::IntegerType, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  247 |         v = global_builder->create<mlir::LLVM::PtrToIntOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), v);
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:255:61: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::ExtSIOp; Args = {mlir::Type, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  255 |             v = global_builder->create<mlir::arith::ExtSIOp>(global_builder->getUnknownLoc(), memrefType.getElementType(), v);
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:257:62: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::TruncIOp; Args = {mlir::Type, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  257 |             v = global_builder->create<mlir::arith::TruncIOp>(global_builder->getUnknownLoc(), memrefType.getElementType(), v);
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:262:50: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::memref::StoreOp; Args = {mlir::Value&, mlir::Value&, mlir::ValueRange}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  262 |     global_builder->create<mlir::memref::StoreOp>(global_builder->getUnknownLoc(), v, p, mlir::ValueRange{});
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:234:46: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  234 | void alkyl_mlir_build_store(AlkylMlirContext c_ctx, AlkylMlirValue val, AlkylMlirValue ptr) {
+      |                             ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_build_store_field(AlkylMlirContext, AlkylMlirValue, AlkylMlirValue, int)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:280:63: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::ConstantOp; Args = {mlir::IndexType&, mlir::IntegerAttr}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  280 |     auto idx = global_builder->create<mlir::arith::ConstantOp>(global_builder->getUnknownLoc(), index_type, global_builder->getIntegerAttr(index_type, index));
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:284:57: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::ExtSIOp; Args = {mlir::IntegerType, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  284 |         v = global_builder->create<mlir::arith::ExtSIOp>(global_builder->getUnknownLoc(), mlir::IntegerType::get(ctx, 64), v);
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:289:59: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::LLVM::PtrToIntOp; Args = {mlir::IntegerType, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  289 |         v = global_builder->create<mlir::LLVM::PtrToIntOp>(global_builder->getUnknownLoc(), mlir::IntegerType::get(ctx, 64), v);
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:292:50: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::memref::StoreOp; Args = {mlir::Value&, mlir::Value&, mlir::ValueRange}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  292 |     global_builder->create<mlir::memref::StoreOp>(global_builder->getUnknownLoc(), v, p, mlir::ValueRange{idx.getResult()});
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_load_field(AlkylMlirContext, AlkylMlirValue, int, int)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:307:67: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::ConstantOp; Args = {mlir::IndexType&, mlir::IntegerAttr}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  307 |         auto idx = global_builder->create<mlir::arith::ConstantOp>(global_builder->getUnknownLoc(), index_type, global_builder->getIntegerAttr(index_type, index));
+      |                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:308:67: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::memref::LoadOp; Args = {mlir::Value&, mlir::ValueRange}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  308 |         auto loadOp = global_builder->create<mlir::memref::LoadOp>(global_builder->getUnknownLoc(), p, mlir::ValueRange{idx.getResult()});
+      |                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:314:61: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::ExtSIOp; Args = {mlir::IntegerType&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  314 |             p = global_builder->create<mlir::arith::ExtSIOp>(global_builder->getUnknownLoc(), i64Type, p);
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:317:69: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::LLVM::IntToPtrOp; Args = {mlir::LLVM::LLVMPointerType&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  317 |         auto rawPtr = global_builder->create<mlir::LLVM::IntToPtrOp>(global_builder->getUnknownLoc(), ptrType, p);
+      |                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:319:67: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::ConstantOp; Args = {mlir::IntegerType, mlir::IntegerAttr}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  319 |         auto idx = global_builder->create<mlir::arith::ConstantOp>(global_builder->getUnknownLoc(), global_builder->getI32Type(), global_builder->getI32IntegerAttr(index));
+      |                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:320:61: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::LLVM::GEPOp; Args = {mlir::LLVM::LLVMPointerType&, mlir::IntegerType&, mlir::LLVM::IntToPtrOp&, mlir::ValueRange}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  320 |         auto gep = global_builder->create<mlir::LLVM::GEPOp>(global_builder->getUnknownLoc(), ptrType, i64Type, rawPtr, mlir::ValueRange{idx.getResult()});
+      |                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:321:65: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::LLVM::LoadOp; Args = {mlir::IntegerType&, mlir::LLVM::GEPOp&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  321 |         auto loadOp = global_builder->create<mlir::LLVM::LoadOp>(global_builder->getUnknownLoc(), i64Type, gep);
+      |                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:326:61: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::LLVM::IntToPtrOp; Args = {mlir::LLVM::LLVMPointerType, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  326 |         res = global_builder->create<mlir::LLVM::IntToPtrOp>(global_builder->getUnknownLoc(), mlir::LLVM::LLVMPointerType::get(ctx), res);
+      |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_int_constant(AlkylMlirContext, int)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:340:63: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::ConstantOp; Args = {mlir::IntegerType&, mlir::IntegerAttr}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  340 |     auto cst = global_builder->create<mlir::arith::ConstantOp>(global_builder->getUnknownLoc(), type, global_builder->getIntegerAttr(type, val));
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_string_constant(AlkylMlirContext, AlkylMlirModule, const char*)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:364:65: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::LLVM::GlobalOp; Args = {mlir::LLVM::LLVMArrayType&, bool, mlir::LLVM::linkage::Linkage, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, mlir::StringAttr, int}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  364 |     auto globalOp = global_builder->create<mlir::LLVM::GlobalOp>(
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+  365 |         global_builder->getUnknownLoc(),
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                         
+  366 |         arrayType,
+      |         ~~~~~~~~~~                                               
+  367 |         true, // isConstant
+      |         ~~~~~~~~~~~~~~~~~~~                                      
+  368 |         mlir::LLVM::Linkage::Internal,
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                           
+  369 |         sym_name,
+      |         ~~~~~~~~~                                                
+  370 |         mlir::StringAttr::get(ctx, llvm::StringRef(str, strRef.size() + 1)),
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  371 |         0 // alignment
+      |         ~~~~~~~~~~~~~~                                           
+  372 |     );
+      |     ~                                                            
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:376:64: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::LLVM::AddressOfOp; Args = {mlir::LLVM::LLVMPointerType, mlir::FlatSymbolRefAttr}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  376 |     auto addr = global_builder->create<mlir::LLVM::AddressOfOp>(
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+  377 |         global_builder->getUnknownLoc(),
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                        
+  378 |         mlir::LLVM::LLVMPointerType::get(ctx),
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                  
+  379 |         mlir::SymbolRefAttr::get(ctx, sym_name)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                 
+  380 |     );
+      |     ~                                                           
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_add(AlkylMlirContext, AlkylMlirValue, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:394:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::AddIOp; Args = {mlir::Value&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  394 |         auto op = global_builder->create<op_class>(global_builder->getUnknownLoc(), l, r); \
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:404:1: note: in expansion of macro ‘GEN_BINOP’
+  404 | GEN_BINOP(alkyl_mlir_build_add, mlir::arith::AddIOp)
+      | ^~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:390:47: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  390 |     AlkylMlirValue func_name(AlkylMlirContext c_ctx, AlkylMlirValue lhs, AlkylMlirValue rhs) { \
+      |                              ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:404:1: note: in expansion of macro ‘GEN_BINOP’
+  404 | GEN_BINOP(alkyl_mlir_build_add, mlir::arith::AddIOp)
+      | ^~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_sub(AlkylMlirContext, AlkylMlirValue, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:394:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::SubIOp; Args = {mlir::Value&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  394 |         auto op = global_builder->create<op_class>(global_builder->getUnknownLoc(), l, r); \
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:405:1: note: in expansion of macro ‘GEN_BINOP’
+  405 | GEN_BINOP(alkyl_mlir_build_sub, mlir::arith::SubIOp)
+      | ^~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:390:47: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  390 |     AlkylMlirValue func_name(AlkylMlirContext c_ctx, AlkylMlirValue lhs, AlkylMlirValue rhs) { \
+      |                              ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:405:1: note: in expansion of macro ‘GEN_BINOP’
+  405 | GEN_BINOP(alkyl_mlir_build_sub, mlir::arith::SubIOp)
+      | ^~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_mul(AlkylMlirContext, AlkylMlirValue, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:394:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::MulIOp; Args = {mlir::Value&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  394 |         auto op = global_builder->create<op_class>(global_builder->getUnknownLoc(), l, r); \
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:406:1: note: in expansion of macro ‘GEN_BINOP’
+  406 | GEN_BINOP(alkyl_mlir_build_mul, mlir::arith::MulIOp)
+      | ^~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:390:47: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  390 |     AlkylMlirValue func_name(AlkylMlirContext c_ctx, AlkylMlirValue lhs, AlkylMlirValue rhs) { \
+      |                              ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:406:1: note: in expansion of macro ‘GEN_BINOP’
+  406 | GEN_BINOP(alkyl_mlir_build_mul, mlir::arith::MulIOp)
+      | ^~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_div(AlkylMlirContext, AlkylMlirValue, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:394:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::DivSIOp; Args = {mlir::Value&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  394 |         auto op = global_builder->create<op_class>(global_builder->getUnknownLoc(), l, r); \
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:407:1: note: in expansion of macro ‘GEN_BINOP’
+  407 | GEN_BINOP(alkyl_mlir_build_div, mlir::arith::DivSIOp)
+      | ^~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:390:47: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  390 |     AlkylMlirValue func_name(AlkylMlirContext c_ctx, AlkylMlirValue lhs, AlkylMlirValue rhs) { \
+      |                              ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:407:1: note: in expansion of macro ‘GEN_BINOP’
+  407 | GEN_BINOP(alkyl_mlir_build_div, mlir::arith::DivSIOp)
+      | ^~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_mod(AlkylMlirContext, AlkylMlirValue, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:394:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::RemSIOp; Args = {mlir::Value&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  394 |         auto op = global_builder->create<op_class>(global_builder->getUnknownLoc(), l, r); \
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:408:1: note: in expansion of macro ‘GEN_BINOP’
+  408 | GEN_BINOP(alkyl_mlir_build_mod, mlir::arith::RemSIOp)
+      | ^~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:390:47: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  390 |     AlkylMlirValue func_name(AlkylMlirContext c_ctx, AlkylMlirValue lhs, AlkylMlirValue rhs) { \
+      |                              ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:408:1: note: in expansion of macro ‘GEN_BINOP’
+  408 | GEN_BINOP(alkyl_mlir_build_mod, mlir::arith::RemSIOp)
+      | ^~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_shl(AlkylMlirContext, AlkylMlirValue, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:394:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::ShLIOp; Args = {mlir::Value&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  394 |         auto op = global_builder->create<op_class>(global_builder->getUnknownLoc(), l, r); \
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:409:1: note: in expansion of macro ‘GEN_BINOP’
+  409 | GEN_BINOP(alkyl_mlir_build_shl, mlir::arith::ShLIOp)
+      | ^~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:390:47: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  390 |     AlkylMlirValue func_name(AlkylMlirContext c_ctx, AlkylMlirValue lhs, AlkylMlirValue rhs) { \
+      |                              ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:409:1: note: in expansion of macro ‘GEN_BINOP’
+  409 | GEN_BINOP(alkyl_mlir_build_shl, mlir::arith::ShLIOp)
+      | ^~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_shr(AlkylMlirContext, AlkylMlirValue, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:394:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::ShRSIOp; Args = {mlir::Value&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  394 |         auto op = global_builder->create<op_class>(global_builder->getUnknownLoc(), l, r); \
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:410:1: note: in expansion of macro ‘GEN_BINOP’
+  410 | GEN_BINOP(alkyl_mlir_build_shr, mlir::arith::ShRSIOp)
+      | ^~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:390:47: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  390 |     AlkylMlirValue func_name(AlkylMlirContext c_ctx, AlkylMlirValue lhs, AlkylMlirValue rhs) { \
+      |                              ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:410:1: note: in expansion of macro ‘GEN_BINOP’
+  410 | GEN_BINOP(alkyl_mlir_build_shr, mlir::arith::ShRSIOp)
+      | ^~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_and(AlkylMlirContext, AlkylMlirValue, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:394:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::AndIOp; Args = {mlir::Value&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  394 |         auto op = global_builder->create<op_class>(global_builder->getUnknownLoc(), l, r); \
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:411:1: note: in expansion of macro ‘GEN_BINOP’
+  411 | GEN_BINOP(alkyl_mlir_build_and, mlir::arith::AndIOp)
+      | ^~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:390:47: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  390 |     AlkylMlirValue func_name(AlkylMlirContext c_ctx, AlkylMlirValue lhs, AlkylMlirValue rhs) { \
+      |                              ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:411:1: note: in expansion of macro ‘GEN_BINOP’
+  411 | GEN_BINOP(alkyl_mlir_build_and, mlir::arith::AndIOp)
+      | ^~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_or(AlkylMlirContext, AlkylMlirValue, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:394:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::OrIOp; Args = {mlir::Value&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  394 |         auto op = global_builder->create<op_class>(global_builder->getUnknownLoc(), l, r); \
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:412:1: note: in expansion of macro ‘GEN_BINOP’
+  412 | GEN_BINOP(alkyl_mlir_build_or, mlir::arith::OrIOp)
+      | ^~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:390:47: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  390 |     AlkylMlirValue func_name(AlkylMlirContext c_ctx, AlkylMlirValue lhs, AlkylMlirValue rhs) { \
+      |                              ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:412:1: note: in expansion of macro ‘GEN_BINOP’
+  412 | GEN_BINOP(alkyl_mlir_build_or, mlir::arith::OrIOp)
+      | ^~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_xor(AlkylMlirContext, AlkylMlirValue, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:394:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::XOrIOp; Args = {mlir::Value&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  394 |         auto op = global_builder->create<op_class>(global_builder->getUnknownLoc(), l, r); \
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:413:1: note: in expansion of macro ‘GEN_BINOP’
+  413 | GEN_BINOP(alkyl_mlir_build_xor, mlir::arith::XOrIOp)
+      | ^~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:390:47: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  390 |     AlkylMlirValue func_name(AlkylMlirContext c_ctx, AlkylMlirValue lhs, AlkylMlirValue rhs) { \
+      |                              ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:413:1: note: in expansion of macro ‘GEN_BINOP’
+  413 | GEN_BINOP(alkyl_mlir_build_xor, mlir::arith::XOrIOp)
+      | ^~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_load(AlkylMlirContext, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:419:61: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::memref::LoadOp; Args = {mlir::Value&, mlir::ValueRange}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  419 |     auto load = global_builder->create<mlir::memref::LoadOp>(global_builder->getUnknownLoc(), p, mlir::ValueRange{});
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:415:55: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  415 | AlkylMlirValue alkyl_mlir_build_load(AlkylMlirContext c_ctx, AlkylMlirValue ptr) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_call(AlkylMlirContext, const char*, void**, int)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:435:98: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::memref::ExtractAlignedPointerAsIndexOp; Args = {mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  435 |             auto extractOp = global_builder->create<mlir::memref::ExtractAlignedPointerAsIndexOp>(global_builder->getUnknownLoc(), val);
+      |                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:436:67: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::IndexCastOp; Args = {mlir::IntegerType, mlir::detail::TypedValue<mlir::IndexType>}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  436 |             val = global_builder->create<mlir::arith::IndexCastOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), extractOp.getResult());
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:438:65: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::LLVM::PtrToIntOp; Args = {mlir::IntegerType, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  438 |             val = global_builder->create<mlir::LLVM::PtrToIntOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), val);
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:441:67: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::ExtSIOp; Args = {mlir::IntegerType, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  441 |                 val = global_builder->create<mlir::arith::ExtSIOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), val);
+      |                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:462:67: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::LLVM::LLVMFuncOp; Args = {const char*&, mlir::LLVM::LLVMFunctionType&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  462 |                     global_builder->create<mlir::LLVM::LLVMFuncOp>(global_builder->getUnknownLoc(), name, llvmFuncType);
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:468:75: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::LLVM::CallOp; Args = {mlir::TypeRange, mlir::FlatSymbolRefAttr, std::vector<mlir::Value, std::allocator<mlir::Value> >&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  468 |                     auto call = global_builder->create<mlir::LLVM::CallOp>(
+      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+  469 |                         global_builder->getUnknownLoc(), mlir::TypeRange{type}, mlir::SymbolRefAttr::get(ctx, name), operands);
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:479:59: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::func::CallOp; Args = {const char*&, mlir::TypeRange, std::vector<mlir::Value, std::allocator<mlir::Value> >&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  479 |     auto call = global_builder->create<mlir::func::CallOp>(
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+  480 |         global_builder->getUnknownLoc(), name, mlir::TypeRange{type}, operands);
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_scf_if_start(AlkylMlirContext, AlkylMlirValue, int)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:498:71: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::ConstantIntOp; Args = {mlir::Type, int}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  498 |         auto zero = global_builder->create<mlir::arith::ConstantIntOp>(global_builder->getUnknownLoc(), condition.getType(), 0);
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:499:64: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::CmpIOp; Args = {mlir::arith::CmpIPredicate, mlir::Value&, mlir::arith::ConstantIntOp&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  499 |         bool_cond = global_builder->create<mlir::arith::CmpIOp>(global_builder->getUnknownLoc(), mlir::arith::CmpIPredicate::ne, condition, zero);
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:502:56: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::scf::IfOp; Args = {mlir::Value&, bool}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  502 |     auto ifOp = global_builder->create<mlir::scf::IfOp>(global_builder->getUnknownLoc(), bool_cond, has_else != 0);
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:490:54: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  490 | void* alkyl_mlir_build_scf_if_start(AlkylMlirContext c_ctx, AlkylMlirValue cond, int has_else) {
+      |                                     ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_build_scf_if_else(AlkylMlirContext, void*)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:517:47: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::scf::YieldOp; Args = {}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  517 |     global_builder->create<mlir::scf::YieldOp>(global_builder->getUnknownLoc());
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:510:52: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  510 | void alkyl_mlir_build_scf_if_else(AlkylMlirContext c_ctx, void* if_op_ptr) {
+      |                                   ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_build_scf_if_end(AlkylMlirContext, void*)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:531:47: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::scf::YieldOp; Args = {}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  531 |     global_builder->create<mlir::scf::YieldOp>(global_builder->getUnknownLoc());
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:524:51: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  524 | void alkyl_mlir_build_scf_if_end(AlkylMlirContext c_ctx, void* if_op_ptr) {
+      |                                  ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_build_scf_while(AlkylMlirContext, AlkylMlirValue)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:538:50: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  538 | void alkyl_mlir_build_scf_while(AlkylMlirContext c_ctx, AlkylMlirValue cond) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:538:72: warning: unused parameter ‘cond’ [-Wunused-parameter]
+  538 | void alkyl_mlir_build_scf_while(AlkylMlirContext c_ctx, AlkylMlirValue cond) {
+      |                                                         ~~~~~~~~~~~~~~~^~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void* alkyl_mlir_build_switch_start(AlkylMlirContext, AlkylMlirValue, int)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:547:54: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  547 | void* alkyl_mlir_build_switch_start(AlkylMlirContext c_ctx, AlkylMlirValue cond, int num_cases) {
+      |                                     ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:547:86: warning: unused parameter ‘num_cases’ [-Wunused-parameter]
+  547 | void* alkyl_mlir_build_switch_start(AlkylMlirContext c_ctx, AlkylMlirValue cond, int num_cases) {
+      |                                                                                  ~~~~^~~~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_build_switch_set_cond_insertion(AlkylMlirContext, void*)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:565:66: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  565 | void alkyl_mlir_build_switch_set_cond_insertion(AlkylMlirContext c_ctx, void* switch_op_ptr) {
+      |                                                 ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_build_switch_case_start(AlkylMlirContext, void*, AlkylMlirValue, int)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:590:59: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::arith::CmpIOp; Args = {mlir::arith::CmpIPredicate, mlir::Value&, mlir::Value&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  590 |     auto cmp = global_builder->create<mlir::arith::CmpIOp>(global_builder->getUnknownLoc(), mlir::arith::CmpIPredicate::eq, state->cond, case_val);
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:591:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::cf::CondBranchOp; Args = {mlir::arith::CmpIOp&, mlir::Block*&, mlir::Block*&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  591 |     global_builder->create<mlir::cf::CondBranchOp>(global_builder->getUnknownLoc(), cmp, case_block, next_cond_block);
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:595:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::cf::BranchOp; Args = {mlir::Block*&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  595 |         global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), case_block);
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:575:58: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  575 | void alkyl_mlir_build_switch_case_start(AlkylMlirContext c_ctx, void* switch_op_ptr, AlkylMlirValue val, int is_leak) {
+      |                                         ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:575:110: warning: unused parameter ‘is_leak’ [-Wunused-parameter]
+  575 | void alkyl_mlir_build_switch_case_start(AlkylMlirContext c_ctx, void* switch_op_ptr, AlkylMlirValue val, int is_leak) {
+      |                                                                                                          ~~~~^~~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_build_switch_case_end(AlkylMlirContext, void*, int)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:611:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::cf::BranchOp; Args = {mlir::Block*&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  611 |         global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), state->merge_block);
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:606:56: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  606 | void alkyl_mlir_build_switch_case_end(AlkylMlirContext c_ctx, void* switch_op_ptr, int is_leak) {
+      |                                       ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_build_switch_default_start(AlkylMlirContext, void*)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:632:47: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::cf::BranchOp; Args = {mlir::Block*&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  632 |     global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), default_block);
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:637:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::cf::BranchOp; Args = {mlir::Block*&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  637 |         global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), default_block);
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:620:61: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  620 | void alkyl_mlir_build_switch_default_start(AlkylMlirContext c_ctx, void* switch_op_ptr) {
+      |                                            ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_build_switch_default_end(AlkylMlirContext, void*)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:651:47: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::cf::BranchOp; Args = {mlir::Block*&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  651 |     global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), state->merge_block);
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:647:59: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  647 | void alkyl_mlir_build_switch_default_end(AlkylMlirContext c_ctx, void* switch_op_ptr) {
+      |                                          ~~~~~~~~~~~~~~~~~^~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp: In function ‘void alkyl_mlir_build_switch_end(AlkylMlirContext, void*)’:
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:664:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::cf::BranchOp; Args = {mlir::Block*&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  664 |         global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), state->merge_block);
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:669:51: warning: ‘OpTy mlir::OpBuilder::create(mlir::Location, Args&& ...) [with OpTy = mlir::cf::BranchOp; Args = {mlir::Block*&}]’ is deprecated: Use OpTy::create instead [-Wdeprecated-declarations]
+  669 |         global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), state->merge_block);
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/mlir/IR/Builders.h:506:8: note: declared here
+  506 |   OpTy create(Location location, Args &&...args) {
+      |        ^~~~~~
+/home/faranaiki/Git/alkyl/src/mlir/mlir_wrapper.cpp:657:51: warning: unused parameter ‘c_ctx’ [-Wunused-parameter]
+  657 | void alkyl_mlir_build_switch_end(AlkylMlirContext c_ctx, void* switch_op_ptr) {
+      |                                  ~~~~~~~~~~~~~~~~~^~~~~
+make[2]: *** [CMakeFiles/alkyl_mlir.dir/build.make:877: CMakeFiles/alkyl_mlir.dir/src/mlir/mlir_wrapper.cpp.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:462: CMakeFiles/alkyl_mlir.dir/all] Error 2
+make: *** [Makefile:91: all] Error 2

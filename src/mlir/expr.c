@@ -78,6 +78,10 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                     }
                     n = n->next;
                 }
+                int arg_count = 0;
+                ASTNode *a = call->args;
+                while (a) { arg_count++; a = a->next; }
+                if (arg_count > num_fields) num_fields = arg_count;
                 
                 AlkylMlirValue obj = alkyl_mlir_build_alloc_object(ctx, num_fields);
                 
@@ -193,6 +197,34 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                     n = n->next;
                 }
             }
+            if (index == 0) {
+                // Fallback global search like ALIR does for inherited fields/traits
+                n = mlir_global_ast_root;
+                while (n) {
+                    if (n->type == NODE_CLASS) {
+                        ClassNode *cls = (ClassNode*)n;
+                        ASTNode *member = cls->members;
+                        int idx = 0;
+                        int found = 0;
+                        while (member) {
+                            if (member->type == NODE_VAR_DECL) {
+                                VarDeclNode *vd = (VarDeclNode*)member;
+                                if (vd->name && maccess->member_name && strcmp(vd->name, maccess->member_name) == 0) {
+                                    index = idx;
+                                    found = 1;
+                                    break;
+                                }
+                                idx++;
+                            }
+                            member = member->next;
+                        }
+                        if (found) break;
+                    }
+                    n = n->next;
+                }
+            }
+            
+            printf("Member access %s on %s: index %d\n", maccess->member_name, maccess->object->sem_type.class_name ? maccess->object->sem_type.class_name : "unknown", index);
             
             int is_string = (maccess->base.sem_type.base == TYPE_CHAR && maccess->base.sem_type.ptr_depth > 0);
             return alkyl_mlir_build_load_field(ctx, obj, index, is_string);
@@ -240,7 +272,8 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                     n = n->next;
                 }
             }
-            return alkyl_mlir_build_int_constant(ctx, 0);
+            // Fallback for trait cast or array access: just return the object pointer
+            return mlir_gen_expr(ctx, mod, ia->target);
         }
         case NODE_ASSIGN: {
             AssignNode *assign = (AssignNode*)node;

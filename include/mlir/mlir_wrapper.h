@@ -18,6 +18,7 @@ void alkyl_mlir_dump_module(AlkylMlirModule mod, const char* filename);
 
 // Functions and Blocks
 AlkylMlirFunc alkyl_mlir_add_function(AlkylMlirContext ctx, AlkylMlirModule mod, const char* name, int is_extern, int num_args);
+AlkylMlirValue alkyl_mlir_get_arg(AlkylMlirFunc func, int index);
 AlkylMlirBlock alkyl_mlir_add_block(AlkylMlirFunc func);
 void alkyl_mlir_set_insertion_point_to_end(AlkylMlirContext ctx, AlkylMlirBlock block);
 

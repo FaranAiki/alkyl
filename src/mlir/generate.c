@@ -20,6 +20,29 @@ static void generate_node(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *no
             AlkylMlirBlock entry_block = alkyl_mlir_add_block(mlir_fn);
             alkyl_mlir_set_insertion_point_to_end(ctx, entry_block);
             
+            extern HashMap *mlir_vars;
+            if (!mlir_vars) {
+                mlir_vars = (HashMap*)malloc(sizeof(HashMap));
+                hashmap_init(mlir_vars, NULL, 1024);
+            }
+            
+            int arg_idx = 0;
+            if (fn->class_name && !fn->is_static) {
+                AlkylMlirValue this_arg = alkyl_mlir_get_arg(mlir_fn, arg_idx++);
+                AlkylMlirValue this_alloca = alkyl_mlir_build_alloca(ctx, "this");
+                hashmap_put(mlir_vars, "this", this_alloca);
+                alkyl_mlir_build_store(ctx, this_arg, this_alloca);
+            }
+            
+            p = fn->params;
+            while (p) {
+                AlkylMlirValue arg_val = alkyl_mlir_get_arg(mlir_fn, arg_idx++);
+                AlkylMlirValue arg_alloca = alkyl_mlir_build_alloca(ctx, p->name);
+                hashmap_put(mlir_vars, p->name, arg_alloca);
+                alkyl_mlir_build_store(ctx, arg_val, arg_alloca);
+                p = p->next;
+            }
+            
             // Generate the body statements recursively
             ASTNode *curr = fn->body;
             while (curr) {
@@ -51,6 +74,29 @@ static void generate_node(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *no
                     if (fn->body && !fn->is_extern) {
                         AlkylMlirBlock entry_block = alkyl_mlir_add_block(mlir_fn);
                         alkyl_mlir_set_insertion_point_to_end(ctx, entry_block);
+                        
+                        extern HashMap *mlir_vars;
+                        if (!mlir_vars) {
+                            mlir_vars = (HashMap*)malloc(sizeof(HashMap));
+                            hashmap_init(mlir_vars, NULL, 1024);
+                        }
+                        
+                        int arg_idx = 0;
+                        if (!fn->is_static) {
+                            AlkylMlirValue this_arg = alkyl_mlir_get_arg(mlir_fn, arg_idx++);
+                            AlkylMlirValue this_alloca = alkyl_mlir_build_alloca(ctx, "this");
+                            hashmap_put(mlir_vars, "this", this_alloca);
+                            alkyl_mlir_build_store(ctx, this_arg, this_alloca);
+                        }
+                        
+                        Parameter *p = fn->params;
+                        while (p) {
+                            AlkylMlirValue arg_val = alkyl_mlir_get_arg(mlir_fn, arg_idx++);
+                            AlkylMlirValue arg_alloca = alkyl_mlir_build_alloca(ctx, p->name);
+                            hashmap_put(mlir_vars, p->name, arg_alloca);
+                            alkyl_mlir_build_store(ctx, arg_val, arg_alloca);
+                            p = p->next;
+                        }
                         
                         ASTNode *curr = fn->body;
                         while (curr) {
