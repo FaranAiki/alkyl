@@ -348,9 +348,50 @@ if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
     target_compile_definitions(alkyl_mlir PRIVATE BACKEND=mlir)
 
     if (LLVM_DIR OR MLIR_DIR)
-        target_include_directories(alkyl_mlir PRIVATE ${LLVM_INCLUDE_DIRS})
-        # If MLIR is properly found, link libraries here:
-        # target_link_libraries(alkyl_mlir PRIVATE MLIRIR MLIRFunc MLIRArith MLIRMemRef MLIRSupport)
+        find_package(MLIR CONFIG)
+        if (MLIR_FOUND)
+            message(STATUS "Found MLIR ${MLIR_PACKAGE_VERSION}")
+            message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
+            
+            # Setup TableGen
+            set(MLIR_TABLEGEN_EXE "mlir-tblgen")
+            set(ALKYL_TABLEGEN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/mlir/tablegen)
+            set(ALKYL_TABLEGEN_INC_DIR ${CMAKE_CURRENT_BINARY_DIR}/include/mlir/tablegen)
+            file(MAKE_DIRECTORY ${ALKYL_TABLEGEN_INC_DIR})
+
+            # Generate Dialect declarations and definitions
+            add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
+                COMMAND ${MLIR_TABLEGEN_EXE} -gen-dialect-decls ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td -I ${MLIR_INCLUDE_DIRS} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
+                DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td)
+            
+            add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
+                COMMAND ${MLIR_TABLEGEN_EXE} -gen-dialect-defs ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td -I ${MLIR_INCLUDE_DIRS} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
+                DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td)
+
+            # Generate Ops declarations and definitions
+            add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
+                COMMAND ${MLIR_TABLEGEN_EXE} -gen-op-decls ${ALKYL_TABLEGEN_DIR}/AlkylOps.td -I ${MLIR_INCLUDE_DIRS} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
+                DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylOps.td)
+            
+            add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
+                COMMAND ${MLIR_TABLEGEN_EXE} -gen-op-defs ${ALKYL_TABLEGEN_DIR}/AlkylOps.td -I ${MLIR_INCLUDE_DIRS} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
+                DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylOps.td)
+
+            # Create a target for the generated files so they build before alkyl_mlir
+            add_custom_target(alkyl_mlir_tblgen
+                DEPENDS 
+                ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
+                ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
+                ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
+                ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
+            )
+
+            target_include_directories(alkyl_mlir PRIVATE ${LLVM_INCLUDE_DIRS} ${MLIR_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/include)
+            target_link_libraries(alkyl_mlir PRIVATE MLIRIR MLIRFuncDialect MLIRArithDialect MLIRMemRefDialect MLIRSupport MLIRTransforms)
+            add_dependencies(alkyl_mlir alkyl_mlir_tblgen)
+        else()
+            message(STATUS "MLIR not found, building alkyl_mlir with stubs.")
+        endif()
     endif()
 
     if(UNIX)

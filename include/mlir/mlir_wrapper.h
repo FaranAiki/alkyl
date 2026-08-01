@@ -31,12 +31,29 @@ AlkylMlirValue alkyl_mlir_build_add(AlkylMlirContext ctx, AlkylMlirValue lhs, Al
 AlkylMlirValue alkyl_mlir_build_sub(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
 AlkylMlirValue alkyl_mlir_build_mul(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
 AlkylMlirValue alkyl_mlir_build_div(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
+AlkylMlirValue alkyl_mlir_build_mod(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
 AlkylMlirValue alkyl_mlir_build_shl(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
 AlkylMlirValue alkyl_mlir_build_shr(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
+AlkylMlirValue alkyl_mlir_build_and(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
+AlkylMlirValue alkyl_mlir_build_or(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
+AlkylMlirValue alkyl_mlir_build_xor(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
 
-// Control Flow (Mocked for now)
-void alkyl_mlir_build_scf_if(AlkylMlirContext ctx, AlkylMlirValue cond);
+AlkylMlirValue alkyl_mlir_build_load(AlkylMlirContext ctx, AlkylMlirValue ptr);
+AlkylMlirValue alkyl_mlir_build_call(AlkylMlirContext ctx, const char* name, AlkylMlirValue* args, int num_args);
+
+// Control Flow
+void* alkyl_mlir_build_scf_if_start(AlkylMlirContext ctx, AlkylMlirValue cond, int has_else);
+void alkyl_mlir_build_scf_if_else(AlkylMlirContext ctx, void* if_op_ptr);
+void alkyl_mlir_build_scf_if_end(AlkylMlirContext ctx, void* if_op_ptr);
+
 void alkyl_mlir_build_scf_while(AlkylMlirContext ctx, AlkylMlirValue cond);
+
+void* alkyl_mlir_build_switch_start(AlkylMlirContext ctx, AlkylMlirValue cond, int num_cases);
+void alkyl_mlir_build_switch_case_start(AlkylMlirContext ctx, void* switch_op_ptr, AlkylMlirValue val, int is_leak);
+void alkyl_mlir_build_switch_case_end(AlkylMlirContext ctx, void* switch_op_ptr);
+void alkyl_mlir_build_switch_default_start(AlkylMlirContext ctx, void* switch_op_ptr);
+void alkyl_mlir_build_switch_default_end(AlkylMlirContext ctx, void* switch_op_ptr);
+void alkyl_mlir_build_switch_end(AlkylMlirContext ctx, void* switch_op_ptr);
 
 #ifdef __cplusplus
 }

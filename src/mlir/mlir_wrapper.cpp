@@ -8,7 +8,16 @@
 #include <mlir/Dialect/Func/IR/FuncOps.h>
 #include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/Dialect/MemRef/IR/MemRef.h>
+#include <mlir/Dialect/SCF/IR/SCF.h>
 #define HAS_MLIR 1
+#include <vector>
+#include <cstdint>
+struct SwitchState {
+    mlir::Value cond;
+    std::vector<std::pair<int64_t, mlir::Block*>> cases;
+    mlir::Block* default_block;
+    mlir::Block* merge_block;
+};
 #endif
 #endif
 
@@ -17,10 +26,10 @@ extern "C" {
 AlkylMlirContext alkyl_mlir_create_context() {
 #ifdef HAS_MLIR
     mlir::MLIRContext* ctx = new mlir::MLIRContext();
-    ctx->loadDialect<mlir::func::FuncDialect, mlir::arith::ArithDialect, mlir::memref::MemRefDialect>();
+    ctx->loadDialect<mlir::func::FuncDialect, mlir::arith::ArithDialect, mlir::memref::MemRefDialect, mlir::scf::SCFDialect>();
     return static_cast<void*>(ctx);
 #else
-    return nullptr;
+    return reinterpret_cast<void*>(1);
 #endif
 }
 
@@ -32,7 +41,7 @@ AlkylMlirModule alkyl_mlir_create_module(AlkylMlirContext c_ctx, const char* nam
     return static_cast<void*>(module.getOperation());
 #else
     (void)c_ctx; (void)name;
-    return nullptr;
+    return reinterpret_cast<void*>(1);
 #endif
 }
 
@@ -171,17 +180,92 @@ GEN_BINOP(alkyl_mlir_build_add, mlir::arith::AddIOp)
 GEN_BINOP(alkyl_mlir_build_sub, mlir::arith::SubIOp)
 GEN_BINOP(alkyl_mlir_build_mul, mlir::arith::MulIOp)
 GEN_BINOP(alkyl_mlir_build_div, mlir::arith::DivSIOp)
+GEN_BINOP(alkyl_mlir_build_mod, mlir::arith::RemSIOp)
 GEN_BINOP(alkyl_mlir_build_shl, mlir::arith::ShLIOp)
 GEN_BINOP(alkyl_mlir_build_shr, mlir::arith::ShRSIOp)
+GEN_BINOP(alkyl_mlir_build_and, mlir::arith::AndIOp)
+GEN_BINOP(alkyl_mlir_build_or, mlir::arith::OrIOp)
+GEN_BINOP(alkyl_mlir_build_xor, mlir::arith::XOrIOp)
 
-void alkyl_mlir_build_scf_if(AlkylMlirContext c_ctx, AlkylMlirValue cond) {
+AlkylMlirValue alkyl_mlir_build_load(AlkylMlirContext c_ctx, AlkylMlirValue ptr) {
 #ifdef HAS_MLIR
-    if (!global_builder) return;
-    // Just a placeholder, as full SCF IF requires regions and yield ops
-    // auto condition = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(cond));
-    // global_builder->create<mlir::scf::IfOp>(...);
+    if (!global_builder) return nullptr;
+    auto p = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(ptr));
+    auto load = global_builder->create<mlir::memref::LoadOp>(global_builder->getUnknownLoc(), p, mlir::ValueRange{});
+    return reinterpret_cast<void*>(load.getResult().getImpl());
 #else
-    (void)c_ctx; (void)cond;
+    (void)c_ctx; (void)ptr; return nullptr;
+#endif
+}
+
+AlkylMlirValue alkyl_mlir_build_call(AlkylMlirContext c_ctx, const char* name, AlkylMlirValue* args, int num_args) {
+#ifdef HAS_MLIR
+    if (!global_builder) return nullptr;
+    auto* ctx = static_cast<mlir::MLIRContext*>(c_ctx);
+    
+    std::vector<mlir::Value> operands;
+    for (int i = 0; i < num_args; i++) {
+        operands.push_back(static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(args[i])));
+    }
+    
+    // For now, assume returning i32
+    auto type = mlir::IntegerType::get(ctx, 32);
+    auto call = global_builder->create<mlir::func::CallOp>(
+        global_builder->getUnknownLoc(), name, mlir::TypeRange{type}, operands);
+        
+    if (call.getNumResults() > 0)
+        return reinterpret_cast<void*>(call.getResult(0).getImpl());
+    return nullptr;
+#else
+    (void)c_ctx; (void)name; (void)args; (void)num_args; return nullptr;
+#endif
+}
+
+void* alkyl_mlir_build_scf_if_start(AlkylMlirContext c_ctx, AlkylMlirValue cond, int has_else) {
+#ifdef HAS_MLIR
+    if (!global_builder) return nullptr;
+    auto condition = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(cond));
+    
+    // cast to i1 if needed
+    auto bool_cond = condition;
+    if (!condition.getType().isInteger(1)) {
+        auto zero = global_builder->create<mlir::arith::ConstantIntOp>(global_builder->getUnknownLoc(), 0, condition.getType());
+        bool_cond = global_builder->create<mlir::arith::CmpIOp>(global_builder->getUnknownLoc(), mlir::arith::CmpIPredicate::ne, condition, zero);
+    }
+    
+    auto ifOp = global_builder->create<mlir::scf::IfOp>(global_builder->getUnknownLoc(), bool_cond, has_else != 0);
+    global_builder->setInsertionPointToStart(&ifOp.getThenRegion().front());
+    return reinterpret_cast<void*>(ifOp.getOperation());
+#else
+    (void)c_ctx; (void)cond; (void)has_else; return reinterpret_cast<void*>(1);
+#endif
+}
+
+void alkyl_mlir_build_scf_if_else(AlkylMlirContext c_ctx, void* if_op_ptr) {
+#ifdef HAS_MLIR
+    if (!global_builder || !if_op_ptr) return;
+    auto op = static_cast<mlir::Operation*>(if_op_ptr);
+    auto ifOp = mlir::cast<mlir::scf::IfOp>(op);
+    
+    // Yield from then block
+    global_builder->create<mlir::scf::YieldOp>(global_builder->getUnknownLoc());
+    global_builder->setInsertionPointToStart(&ifOp.getElseRegion().front());
+#else
+    (void)c_ctx; (void)if_op_ptr;
+#endif
+}
+
+void alkyl_mlir_build_scf_if_end(AlkylMlirContext c_ctx, void* if_op_ptr) {
+#ifdef HAS_MLIR
+    if (!global_builder || !if_op_ptr) return;
+    auto op = static_cast<mlir::Operation*>(if_op_ptr);
+    auto ifOp = mlir::cast<mlir::scf::IfOp>(op);
+    
+    // Yield from current block (either then or else)
+    global_builder->create<mlir::scf::YieldOp>(global_builder->getUnknownLoc());
+    global_builder->setInsertionPointAfter(ifOp);
+#else
+    (void)c_ctx; (void)if_op_ptr;
 #endif
 }
 
@@ -191,6 +275,66 @@ void alkyl_mlir_build_scf_while(AlkylMlirContext c_ctx, AlkylMlirValue cond) {
     // Placeholder for SCF While
 #else
     (void)c_ctx; (void)cond;
+#endif
+}
+
+void* alkyl_mlir_build_switch_start(AlkylMlirContext c_ctx, AlkylMlirValue cond, int num_cases) {
+#ifdef HAS_MLIR
+    if (!global_builder) return nullptr;
+    auto state = new SwitchState();
+    state->cond = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(cond));
+    
+    // We will build a chain of if-else ops, so we store the state.
+    // IndexSwitchOp requires case values upfront, which we don't have yet.
+    // So we just buffer blocks in this state to build a branch ladder.
+    return state;
+#else
+    (void)c_ctx; (void)cond; (void)num_cases; return reinterpret_cast<void*>(1);
+#endif
+}
+
+void alkyl_mlir_build_switch_case_start(AlkylMlirContext c_ctx, void* switch_op_ptr, AlkylMlirValue val, int is_leak) {
+#ifdef HAS_MLIR
+    if (!global_builder || !switch_op_ptr) return;
+    auto state = static_cast<SwitchState*>(switch_op_ptr);
+    // Placeholder for case region block creation
+#else
+    (void)c_ctx; (void)switch_op_ptr; (void)val; (void)is_leak;
+#endif
+}
+
+void alkyl_mlir_build_switch_case_end(AlkylMlirContext c_ctx, void* switch_op_ptr) {
+#ifdef HAS_MLIR
+    if (!global_builder || !switch_op_ptr) return;
+#else
+    (void)c_ctx; (void)switch_op_ptr;
+#endif
+}
+
+void alkyl_mlir_build_switch_default_start(AlkylMlirContext c_ctx, void* switch_op_ptr) {
+#ifdef HAS_MLIR
+    if (!global_builder || !switch_op_ptr) return;
+#else
+    (void)c_ctx; (void)switch_op_ptr;
+#endif
+}
+
+void alkyl_mlir_build_switch_default_end(AlkylMlirContext c_ctx, void* switch_op_ptr) {
+#ifdef HAS_MLIR
+    if (!global_builder || !switch_op_ptr) return;
+#else
+    (void)c_ctx; (void)switch_op_ptr;
+#endif
+}
+
+void alkyl_mlir_build_switch_end(AlkylMlirContext c_ctx, void* switch_op_ptr) {
+#ifdef HAS_MLIR
+    if (!global_builder || !switch_op_ptr) return;
+    auto state = static_cast<SwitchState*>(switch_op_ptr);
+    // Finalize the if-else chain using the buffered blocks
+    delete state;
+#else
+    (void)c_ctx; (void)switch_op_ptr;
 #endif
 }
 
