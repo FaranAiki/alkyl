@@ -9,7 +9,7 @@ if not configs.alkyl then
   configs.alkyl = {
     default_config = {
       cmd = {'/home/faranaiki/Git/alkyl/alkyl', '--lsp'},
-      filetypes = {'alkyl', 'aky'},
+      filetypes = {'alkyl', 'hky', 'kyl'},
       root_dir = function(fname)
         return lspconfig.util.root_pattern('.git')(fname) or lspconfig.util.path.dirname(fname)
       end,

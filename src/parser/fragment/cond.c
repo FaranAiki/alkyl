@@ -22,10 +22,7 @@ ASTNode* parse_if(Parser *p) {
   
   ASTNode *then_body = parse_single_statement_or_block(p);
   ASTNode *else_body = NULL;
-  if (p->current_token.type == TOKEN_ELIF) {
-    p->current_token.type = TOKEN_IF; 
-    else_body = parse_if(p);
-  } else if (p->current_token.type == TOKEN_ELSE) {
+  if (p->current_token.type == TOKEN_ELSE) {
     eat(p, TOKEN_ELSE);
     else_body = parse_single_statement_or_block(p);
   }

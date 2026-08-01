@@ -22,7 +22,7 @@ typedef enum {
   TOKEN_COMMA,
   TOKEN_ELLIPSIS,
   TOKEN_DOT,
-  
+
   TOKEN_RANGE_INCL, // ..=
   TOKEN_RANGE_EXCL, // ..<
   TOKEN_RANGE_INCL_GTE, // ..>=
@@ -54,7 +54,6 @@ typedef enum {
   TOKEN_ALIR,
 
   TOKEN_IF,
-  TOKEN_ELIF,
   TOKEN_THEN,
   TOKEN_ELSE,
   TOKEN_RETURN,
@@ -282,7 +281,6 @@ static const KeywordDef keywords[] = {
     {"define", TOKEN_DEFINE},
     {"defined", TOKEN_KW_DEFINED},
     {"double", TOKEN_KW_DOUBLE},
-    {"elif", TOKEN_ELIF},
     {"else", TOKEN_ELSE},
     {"emit", TOKEN_EMIT},
     {"enum", TOKEN_ENUM},

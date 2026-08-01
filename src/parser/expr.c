@@ -95,7 +95,6 @@ static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
         p->current_token.type == TOKEN_RBRACKET ||
         p->current_token.type == TOKEN_RBRACE ||
         p->current_token.type == TOKEN_ELSE ||
-        p->current_token.type == TOKEN_ELIF ||
         p->current_token.type == TOKEN_EOF) {
         break;
     }
@@ -435,12 +434,12 @@ ASTNode* parse_factor(Parser *p) {
 
     if (p->current_token.type != TOKEN_RBRACKET) {
       *curr_elem = parse_expression(p);
-      
+
       if (p->current_token.type >= TOKEN_RANGE_INCL && p->current_token.type <= TOKEN_RANGE_INCL_LTE) {
           TokenType range_type = p->current_token.type;
           eat(p, range_type);
           ASTNode *end_expr = parse_expression(p);
-          
+
           if ((*curr_elem)->type == NODE_LITERAL && end_expr->type == NODE_LITERAL) {
               LiteralNode *start_lit = (LiteralNode*)*curr_elem;
               LiteralNode *end_lit = (LiteralNode*)end_expr;
@@ -448,7 +447,7 @@ ASTNode* parse_factor(Parser *p) {
                   int start_val = start_lit->val.int_val;
                   int end_val = end_lit->val.int_val;
                   int step = (start_val <= end_val) ? 1 : -1;
-                  
+
                   if (range_type == TOKEN_RANGE_EXCL || range_type == TOKEN_RANGE_EXCL_GT) {
                       if (start_val != end_val) {
                           end_val -= step;
@@ -458,7 +457,7 @@ ASTNode* parse_factor(Parser *p) {
                           *curr_elem = NULL; // Removing the first element (wait, this might break if it's the only element, but handled below)
                       }
                   }
-                  
+
                   if (step > 0 ? (start_val <= end_val) : (start_val >= end_val)) {
                       start_lit->val.int_val = start_val;
                       int i = start_val + step;
@@ -484,16 +483,16 @@ ASTNode* parse_factor(Parser *p) {
       } else {
           curr_elem = &(*curr_elem)->next;
       }
-      
+
       while (p->current_token.type == TOKEN_COMMA || (p->settings.array_separator_with_space && p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF)) {
         if (p->has_error) break;
         if (p->current_token.type == TOKEN_COMMA) {
             eat(p, TOKEN_COMMA);
         }
         if (p->current_token.type == TOKEN_RBRACKET) break;
-        
+
         *curr_elem = parse_expression(p);
-        
+
         if (p->current_token.type >= TOKEN_RANGE_INCL && p->current_token.type <= TOKEN_RANGE_INCL_LTE) {
             TokenType range_type = p->current_token.type;
             eat(p, range_type);
@@ -998,12 +997,12 @@ ASTNode* parse_dollar(Parser *p) {
       node->base.type = NODE_CALL;
       node->name = NULL;
       node->target = lhs;
-      
+
       if (lhs && lhs->type == NODE_VAR_REF) {
           node->name = ((VarRefNode*)lhs)->name;
           node->target = NULL;
       }
-      
+
       node->args = rhs;
       set_loc((ASTNode*)node, line, col);
       return (ASTNode*)node;

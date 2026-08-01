@@ -232,7 +232,6 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_RSHIFT_ASSIGN: return ">>=";
 
         case TOKEN_IF: return "if";
-        case TOKEN_ELIF: return "elif";
         case TOKEN_ELSE: return "else";
         case TOKEN_RETURN: return "return";
         case TOKEN_BREAK: return "break";

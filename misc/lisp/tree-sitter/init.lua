@@ -5,7 +5,8 @@ return {
       -- 1. Register the filetype
       vim.filetype.add({
         extension = {
-          aky = "alkyl",
+          kyl = "alkyl",
+          hky = "alkyl"
         },
       })
 

@@ -1,21 +1,34 @@
+// ini sebenarnya ada macro print minjem dari C
+// karena implementasi printf yang langsung
+// pake INTERUPSI itu nanti aja pas udah ada
+// backend & linker sendiri
 import "std/print";
 
+// dibaca sebelum diparse (kalo ngga salah kawoakow lupa pipeline meta vs. premeta)
 premeta {
+    // Kasih alasan kenapa kita ngga harus pake koma
     reason "Testing"
     parser.function_call_require_comma = false;
+
+    reason "Coba ga pake semicolon"
+    lexer.require_semicolons = false;
+
+    // Ini biar bisa otomatis ngga perlu pake brace
+    // ofc default is SCOPE_BRACE
+    reason "Coba pake indentation"
+    lexer.scope_style = SCOPE_INDENTATION;
 }
 
 define divby(a, b) as a % b == 0;
+define otherwise as else;
 
-/* to do: make it so that [1..=100].each( (int i){
-    // do something
-    // is possible
-})*/
 int main() {
-    for x in [1..=100] {
-        if divby(x, 15) then print x " is fizzbuzz\n";
-        else if divby(x, 5) then print x " is fizz\n";
-        else if divby(x, 3) then print x " is buzz\n";
-        else print "Just " x " \n";
-    }
+    // kan tadi si parser udah tau indentation kek gmn
+    // sama ga perlu pake semicolon
+    for x in [1..=100]
+        if divby(x, 15) then print x " is fizzbuzz\n"
+        else if divby(x, 5) then
+            print x " is fizz\n"
+        else if divby(x, 3) { print x " is buzz\n" }
+        otherwise print "Just " x " \n"
 }

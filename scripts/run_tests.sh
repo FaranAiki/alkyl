@@ -67,7 +67,7 @@ echo -e "${COLOR_BLUE}Starting Alkyl Tests...${COLOR_RESET}"
 
 # Function to run a single test - outputs result to stdout
 run_single_test() {
-    local AKY_FILE="$1"
+    local KYL_FILE="$1"
     local FEATURE="$2"
     local NAME="$3"
     local MODE="$4"
@@ -88,7 +88,7 @@ run_single_test() {
 
     mkdir -p "test/log/$FEATURE" "test/output/$FEATURE" "test/logdiff/$FEATURE" "test/diff/$FEATURE"
 
-    FIRST_LINE=$(head -n 1 "$AKY_FILE")
+    FIRST_LINE=$(head -n 1 "$KYL_FILE")
     FLAGS=()
     if [[ "$FIRST_LINE" == "// FLAGS: "* ]]; then
         FLAGS_STR="${FIRST_LINE#// FLAGS: }"
@@ -103,7 +103,7 @@ run_single_test() {
         COMPILER_FLAGS="--opt"
     fi
 
-    ${COMPILER} -o "$OUTPUT_BIN" $COMPILER_FLAGS "${FLAGS[@]}" "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
+    ${COMPILER} -o "$OUTPUT_BIN" $COMPILER_FLAGS "${FLAGS[@]}" "$KYL_FILE" > "$ACTUAL_LOG" 2>&1
     local COMP_RET=$?
 
     sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$ACTUAL_LOG" > "$CLEAN_ACTUAL_LOG"
@@ -182,8 +182,8 @@ if [ $PARALLEL -eq 1 ]; then
     echo -e "${COLOR_YELLOW}Running tests in parallel with $CORES jobs...${COLOR_RESET}"
 
     # For each test, generate the modes to run
-    while IFS= read -r AKY_FILE; do
-        REL_PATH=${AKY_FILE#test/code/}
+    while IFS= read -r KYL_FILE; do
+        REL_PATH=${KYL_FILE#test/code/}
         FEATURE=$(dirname "$REL_PATH")
         NAME=$(basename "$REL_PATH" .kyl)
 
@@ -192,7 +192,7 @@ if [ $PARALLEL -eq 1 ]; then
         [ $RUN_OPT -eq 1 ] && MODES="${MODES} opt"
 
         for MODE in $MODES; do
-            echo "${AKY_FILE}|${FEATURE}|${NAME}|${MODE}|${COMPILER}|${UPDATE}"
+            echo "${KYL_FILE}|${FEATURE}|${NAME}|${MODE}|${COMPILER}|${UPDATE}"
         done
     done <<< "$FILES" > build/tmp/test_configs.txt
 
@@ -202,8 +202,8 @@ if [ $PARALLEL -eq 1 ]; then
     else
         # Use xargs + bash for parallelism
         cat build/tmp/test_configs.txt | xargs -P "$CORES" -I {} bash -c '
-            IFS="|" read -r AKY_FILE FEATURE NAME MODE COMPILER UPDATE <<< "$1"
-            scripts/run_single.sh "$AKY_FILE" "$FEATURE" "$NAME" "$MODE" "$COMPILER" "$UPDATE"
+            IFS="|" read -r KYL_FILE FEATURE NAME MODE COMPILER UPDATE <<< "$1"
+            scripts/run_single.sh "$KYL_FILE" "$FEATURE" "$NAME" "$MODE" "$COMPILER" "$UPDATE"
         ' _ {} >> "$RESULT_FILE" 2>&1
     fi
 
@@ -230,8 +230,8 @@ else
     FAILED=0
     PASSED=0
     TOTAL=0
-    while IFS= read -r AKY_FILE; do
-        REL_PATH=${AKY_FILE#test/code/}
+    while IFS= read -r KYL_FILE; do
+        REL_PATH=${KYL_FILE#test/code/}
         FEATURE=$(dirname "$REL_PATH")
         NAME=$(basename "$REL_PATH" .kyl)
 
@@ -249,7 +249,7 @@ else
 
         mkdir -p "test/log/$FEATURE" "test/output/$FEATURE" "test/logdiff/$FEATURE" "test/diff/$FEATURE"
 
-        FIRST_LINE=$(head -n 1 "$AKY_FILE")
+        FIRST_LINE=$(head -n 1 "$KYL_FILE")
         FLAGS=()
         if [[ "$FIRST_LINE" == "// FLAGS: "* ]]; then
             FLAGS_STR="${FIRST_LINE#// FLAGS: }"
@@ -273,7 +273,7 @@ else
             fi
 
             # 1. Compilation
-            ${COMPILER} -o "$OUTPUT_BIN_PATH" $COMPILER_FLAGS "${FLAGS[@]}" "$AKY_FILE" > "$ACTUAL_LOG" 2>&1
+            ${COMPILER} -o "$OUTPUT_BIN_PATH" $COMPILER_FLAGS "${FLAGS[@]}" "$KYL_FILE" > "$ACTUAL_LOG" 2>&1
             COMP_RET=$?
 
             # Strip colors for diffing
@@ -293,7 +293,7 @@ else
             if [ $COMP_RET -ne 0 ]; then
                 rm -f "$OUTPUT_BIN_PATH"
                 echo ""
-                echo -e "${COMPILER} ${AKY_FILE} --${MODE}: ${COLOR_RED}FAIL:compilation${COLOR_RESET}"
+                echo -e "${COMPILER} ${KYL_FILE} --${MODE}: ${COLOR_RED}FAIL:compilation${COLOR_RESET}"
                 FAILED=$((FAILED + 1))
                 TEST_PASSED=0
                 continue
@@ -310,7 +310,7 @@ else
 
                 if [ $RUN_RET -ne 0 ]; then
                     echo ""
-                    echo -e "${COMPILER} ${AKY_FILE} --${MODE}: ${COLOR_RED}FAIL:execution${COLOR_RESET}"
+                    echo -e "${COMPILER} ${KYL_FILE} --${MODE}: ${COLOR_RED}FAIL:execution${COLOR_RESET}"
                     FAILED=$((FAILED + 1))
                     rm -f "$OUTPUT_BIN_PATH"
                     TEST_PASSED=0
@@ -325,7 +325,7 @@ else
                 if [ -f "$EXPECTED_OUT" ]; then
                     if ! diff "$EXPECTED_OUT" "$ACTUAL_OUT" > "$RUN_DIFF"; then
                         echo ""
-                        echo -e "${COMPILER} ${AKY_FILE} --${MODE}: ${COLOR_RED}FAIL:output_mismatch${COLOR_RESET}"
+                        echo -e "${COMPILER} ${KYL_FILE} --${MODE}: ${COLOR_RED}FAIL:output_mismatch${COLOR_RESET}"
                         FAILED=$((FAILED + 1))
                         rm -f "$OUTPUT_BIN_PATH"
                         TEST_PASSED=0
@@ -340,7 +340,7 @@ else
                     sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" "$EXPECTED_LOG" > "$CLEAN_EXPECTED_LOG"
                     if ! diff "$CLEAN_EXPECTED_LOG" "$CLEAN_ACTUAL_LOG" > "$LOGDIFF"; then
                         echo ""
-                        echo -e "${COMPILER} ${AKY_FILE} (${MODE}): ${COLOR_RED}FAIL:log_mismatch${COLOR_RESET}"
+                        echo -e "${COMPILER} ${KYL_FILE} (${MODE}): ${COLOR_RED}FAIL:log_mismatch${COLOR_RESET}"
                         FAILED=$((FAILED + 1))
                         rm -f "$OUTPUT_BIN_PATH"
                         TEST_PASSED=0
@@ -353,7 +353,7 @@ else
                 rm -f "$OUTPUT_BIN_PATH"
             fi
 
-            echo -e "${COMPILER} ${AKY_FILE} --${MODE}: ${COLOR_GREEN}PASS${COLOR_RESET}"
+            echo -e "${COMPILER} ${KYL_FILE} --${MODE}: ${COLOR_GREEN}PASS${COLOR_RESET}"
         done
 
         if [ $TEST_PASSED -eq 1 ]; then

@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -euo pipefail
 
 # Alkyl Build Comparison Script
@@ -68,16 +67,16 @@ fi
 
 # Resolve filename
 if [[ -f "$FILENAME" ]]; then
-    AKY_FILE="$FILENAME"
+    KYL_FILE="$FILENAME"
 elif [[ "$FILENAME" == *.kyl ]]; then
-    AKY_FILE="test/code/examples/$FILENAME"
-    if [[ ! -f "$AKY_FILE" ]]; then
+    KYL_FILE="test/code/examples/$FILENAME"
+    if [[ ! -f "$KYL_FILE" ]]; then
         echo -e "${COLOR_RED}Error: File '$FILENAME' not found${COLOR_RESET}" >&2
         exit 1
     fi
 else
-    AKY_FILE="test/code/examples/$FILENAME.kyl"
-    if [[ ! -f "$AKY_FILE" ]]; then
+    KYL_FILE="test/code/examples/$FILENAME.kyl"
+    if [[ ! -f "$KYL_FILE" ]]; then
         echo -e "${COLOR_RED}Error: test/code/examples/$FILENAME.kyl not found${COLOR_RESET}" >&2
         exit 1
     fi
@@ -87,7 +86,7 @@ echo -e "${COLOR_BOLD}========================================${COLOR_RESET}"
 echo -e "${COLOR_BOLD} Alkyl Build Comparison${COLOR_RESET}"
 echo -e "${COLOR_BOLD}========================================${COLOR_RESET}"
 echo ""
-echo -e "Source:   ${COLOR_CYAN}$AKY_FILE${COLOR_RESET}"
+echo -e "Source:   ${COLOR_CYAN}$KYL_FILE${COLOR_RESET}"
 echo -e "Mode:     ${COLOR_CYAN}--$MODE${COLOR_RESET}"
 echo -e "Runs:     ${COLOR_CYAN}$RUNS${COLOR_RESET}"
 echo ""
@@ -126,12 +125,12 @@ for i in "${!BACKENDS[@]}"; do
     backend="${BACKENDS[$i]}"
     compiler="${COMPILERS[$i]}"
     out_bin="$TMPDIR/${backend}_${MODE}"
-    
+
     rm -f "$out_bin"
-    
+
     echo ""
     echo -e "--- ${COLOR_YELLOW}$backend${COLOR_RESET} ($compiler) ---"
-    
+
     # Build hyperfine command args
     HYPERFINE_ARGS=(
         --warmup 1
@@ -139,20 +138,20 @@ for i in "${!BACKENDS[@]}"; do
         --export-json "$TMPDIR/${backend}_compile.json"
         --command-name "${backend}-compile"
     )
-    
+
     # Compile command
     COMPILE_CMD=("$compiler" -o "$out_bin" "$COMPILER_FLAG")
     if [[ ${#EXTRA_FLAGS[@]} -gt 0 ]]; then
         COMPILE_CMD+=("${EXTRA_FLAGS[@]}")
     fi
-    COMPILE_CMD+=("$AKY_FILE")
-    
+    COMPILE_CMD+=("$KYL_FILE")
+
     if hyperfine "${HYPERFINE_ARGS[@]}" "${COMPILE_CMD[*]}"; then
         compile_status[$i]="OK"
     else
         compile_status[$i]="FAIL"
     fi
-    
+
     if [[ -f "$out_bin" ]]; then
         compile_mean=$(python3 -c "
 import json, sys
@@ -164,10 +163,10 @@ except Exception:
     print('N/A')
 " 2>/dev/null || echo "N/A")
         compile_times[$i]="$compile_mean"
-        
+
         size=$(stat -c%s "$out_bin" 2>/dev/null || echo "N/A")
         sizes[$i]="$size"
-        
+
         echo -e "  Mean compile time: ${COLOR_GREEN}${compile_mean}s${COLOR_RESET}"
         echo -e "  Binary size:       ${size} bytes"
     else
@@ -186,19 +185,19 @@ echo -e "${COLOR_BOLD}========================================${COLOR_RESET}"
 for i in "${!BACKENDS[@]}"; do
     backend="${BACKENDS[$i]}"
     out_bin="$TMPDIR/${backend}_${MODE}"
-    
+
     if [[ ! -f "$out_bin" ]]; then
         continue
     fi
-    
+
     echo ""
     echo -e "--- ${COLOR_YELLOW}$backend${COLOR_RESET} ---"
-    
+
     hyperfine --warmup 1 --runs "$RUNS" \
         --export-json "$TMPDIR/${backend}_exec.json" \
         --command-name "${backend}-exec" \
         "$out_bin" || true
-    
+
     exec_mean=$(python3 -c "
 import json, sys
 try:
@@ -209,7 +208,7 @@ except Exception:
     print('N/A')
 " 2>/dev/null || echo "N/A")
     exec_times[$i]="$exec_mean"
-    
+
     echo -e "  Mean execution time: ${COLOR_GREEN}${exec_mean}s${COLOR_RESET}"
 done
 

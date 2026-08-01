@@ -7,7 +7,6 @@ void eat_semi(Parser *p) {
     if (p->current_token.type == TOKEN_SEMICOLON) {
         eat(p, TOKEN_SEMICOLON);
     } else if (p->current_token.type == TOKEN_ELSE || 
-               p->current_token.type == TOKEN_ELIF || 
                p->current_token.type == TOKEN_RBRACE || 
                p->current_token.type == TOKEN_EOF) {
         // Implicit
@@ -28,7 +27,6 @@ ASTNode* parse_return(Parser *p) {
   ASTNode *val = NULL;
   if (p->current_token.type != TOKEN_SEMICOLON && 
       p->current_token.type != TOKEN_ELSE && 
-      p->current_token.type != TOKEN_ELIF && 
       p->current_token.type != TOKEN_RBRACE && 
       p->current_token.type != TOKEN_EOF) {
     val = parse_expression(p);
@@ -170,7 +168,6 @@ ASTNode* parse_assignment_or_call(Parser *p) {
   }
   if (p->current_token.type == TOKEN_SEMICOLON || 
       p->current_token.type == TOKEN_ELSE || 
-      p->current_token.type == TOKEN_ELIF || 
       p->current_token.type == TOKEN_RBRACE || 
       p->current_token.type == TOKEN_EOF) {
       
