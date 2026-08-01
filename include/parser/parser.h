@@ -23,6 +23,7 @@ typedef struct {
     int allow_vector_initialization;
     int namespace_auto_search;     // default 1
     int namespace_ausearch_warning;// default 1
+    int greedy_space_calls;        // default 0
     int function_call_require_comma; // default 1
     int array_separator_with_space; // default 0
     int multiplication_if_digit_word; // default 0: 2pi -> 2*pi

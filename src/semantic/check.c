@@ -1897,7 +1897,18 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
 
     if (!best_match) {
         if (err_node) {
-            sem_error(ctx, err_node, "No matching overload found for function '%s'", first_sym->name);
+            StringBuilder sb;
+            sb_init(&sb, ctx->compiler_ctx->arena);
+            ASTNode *curr = *args;
+            int first = 1;
+            while(curr) {
+                if (!first) sb_append(&sb, ", ");
+                VarType arg_t = sem_get_node_type(ctx, curr);
+                sb_append(&sb, sem_type_to_str(arg_t));
+                first = 0;
+                curr = curr->next;
+            }
+            sem_error(ctx, err_node, "No matching overload found for function '%s(%s)'", first_sym->name, sb_return(&sb));
         }
         return NULL;
     }

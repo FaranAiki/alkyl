@@ -252,6 +252,12 @@ static int lex_symbol(Lexer *l, Token *t) {
     t->type = TOKEN_QUESTION;
     return 1;
   }
+  
+  if (c == '$') {
+    advance(l);
+    t->type = TOKEN_DOLLAR;
+    return 1;
+  }
 
   if (c == '<') {
     advance(l);

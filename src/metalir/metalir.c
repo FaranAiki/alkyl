@@ -21,6 +21,7 @@ MetalirRunner* metalir_runner_create(const char *module_name,
     if (module_name && strstr(module_name, "repl")) {
         ps.multiplication_if_digit_word = 1;
         ps.exponentation_if_word_digit = 1;
+        ps.greedy_space_calls = 1;
     }
     r->parser.l = &r->lexer;
     parser_init(&r->parser, &r->lexer, &ps);

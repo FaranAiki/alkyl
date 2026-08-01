@@ -104,9 +104,9 @@ static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
         break;
     }
 
-    p->in_space_separated_call++;
+    if (!p->settings.greedy_space_calls) p->in_space_separated_call++;
     ASTNode *expr = parse_expression(p);
-    p->in_space_separated_call--;
+    if (!p->settings.greedy_space_calls) p->in_space_separated_call--;
 
     if (!expr) break;
 
@@ -969,8 +969,50 @@ ASTNode* parse_fallback(Parser *p) {
   return left;
 }
 
-ASTNode* parse_assignment(Parser *p) {
+ASTNode* parse_dollar(Parser *p) {
   ASTNode *lhs = parse_fallback(p);
+  if (p->has_error) return lhs;
+
+  if (p->current_token.type == TOKEN_DOLLAR) {
+      int line = p->current_token.line;
+      int col = p->current_token.col;
+      eat(p, TOKEN_DOLLAR);
+
+      ASTNode *rhs = parse_dollar(p); // Right-associative
+
+      if (lhs && lhs->type == NODE_MEMBER_ACCESS) {
+          MemberAccessNode *ma = (MemberAccessNode*)lhs;
+          MethodCallNode *mc = parser_alloc(p, sizeof(MethodCallNode));
+          mc->base.type = NODE_METHOD_CALL;
+          mc->object = ma->object;
+          mc->method_name = ma->member_name;
+          mc->args = rhs;
+          mc->mangled_name = NULL;
+          mc->owner_class = NULL;
+          mc->is_static = 0;
+          set_loc((ASTNode*)mc, line, col);
+          return (ASTNode*)mc;
+      }
+
+      CallNode *node = parser_alloc(p, sizeof(MethodCallNode));
+      node->base.type = NODE_CALL;
+      node->name = NULL;
+      node->target = lhs;
+      
+      if (lhs && lhs->type == NODE_VAR_REF) {
+          node->name = ((VarRefNode*)lhs)->name;
+          node->target = NULL;
+      }
+      
+      node->args = rhs;
+      set_loc((ASTNode*)node, line, col);
+      return (ASTNode*)node;
+  }
+  return lhs;
+}
+
+ASTNode* parse_assignment(Parser *p) {
+  ASTNode *lhs = parse_dollar(p);
   if (p->has_error) return lhs;
 
   if (p->current_token.type == TOKEN_ASSIGN ||

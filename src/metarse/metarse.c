@@ -17,6 +17,11 @@ void executor_init(Executor *e, const char *module_name,
     ParserSettings ps = {0};
     ps.function_call_require_comma = function_call_require_comma;
     ps.array_separator_with_space = 1;
+    if (module_name && strstr(module_name, "repl")) {
+        ps.multiplication_if_digit_word = 1;
+        ps.exponentation_if_word_digit = 1;
+        ps.greedy_space_calls = 1;
+    }
     parser_init(&e->p, &dummy, &ps);
 
     arena_init(&e->vm_arena);

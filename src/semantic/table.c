@@ -567,11 +567,29 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
     return false;
 }
 
-char* sem_type_to_str(VarType t) {
-    static char buffers[4][256];
-    static int idx = 0;
-    char *buf = buffers[idx];
-    idx = (idx + 1) % 4;
+static void sem_type_to_str_rec(VarType t, char *buf, int max_len, int *pos) {
+    if (*pos >= max_len - 1) return;
+
+    if (t.is_func_ptr) {
+        if (t.fp_ret_type) {
+            sem_type_to_str_rec(*t.fp_ret_type, buf, max_len, pos);
+        } else {
+            *pos += snprintf(buf + *pos, max_len - *pos, "void");
+        }
+        *pos += snprintf(buf + *pos, max_len - *pos, "(*)(");
+        if (t.fp_param_count > 0 || t.fp_is_varargs) {
+            for (int i=0; i<t.fp_param_count; i++) {
+                if (i > 0) *pos += snprintf(buf + *pos, max_len - *pos, ", ");
+                sem_type_to_str_rec(t.fp_param_types[i], buf, max_len, pos);
+            }
+            if (t.fp_is_varargs) {
+                if (t.fp_param_count > 0) *pos += snprintf(buf + *pos, max_len - *pos, ", ");
+                *pos += snprintf(buf + *pos, max_len - *pos, "...");
+            }
+        }
+        *pos += snprintf(buf + *pos, max_len - *pos, ")");
+        return;
+    }
 
     const char *base = "unknown";
     switch(t.base) {
@@ -598,35 +616,37 @@ char* sem_type_to_str(VarType t) {
         default: base = "unknown"; break;
     }
 
-    int pos = 0;
+    if (t.is_tainted) *pos += snprintf(buf + *pos, max_len - *pos, "tainted ");
+    else if (t.is_pristine) *pos += snprintf(buf + *pos, max_len - *pos, "pristine ");
 
-    if (t.is_tainted) pos += snprintf(buf + pos, 256 - pos, "tainted ");
-    else if (t.is_pristine) pos += snprintf(buf + pos, 256 - pos, "pristine ");
-
-    if (t.is_unsigned) pos += snprintf(buf + pos, 256 - pos, "unsigned ");
-    pos += snprintf(buf + pos, 256 - pos, "%s", base);
+    if (t.is_unsigned) *pos += snprintf(buf + *pos, max_len - *pos, "unsigned ");
+    *pos += snprintf(buf + *pos, max_len - *pos, "%s", base);
 
     int ptrs = t.ptr_depth;
     if (t.array_size > 0) ptrs--;
     if (t.array_depth > 0) ptrs--;
     
     for(int i=0; i<ptrs; i++) {
-        if(pos < 255) buf[pos++] = '*';
+        if(*pos < max_len - 1) buf[(*pos)++] = '*';
     }
     if (t.array_size > 0) {
-        pos += snprintf(buf + pos, 256 - pos, "[]");
+        *pos += snprintf(buf + *pos, max_len - *pos, "[]");
         if (t.array_depth > 0) {
-            pos += snprintf(buf + pos, 256 - pos, "[]");
+            *pos += snprintf(buf + *pos, max_len - *pos, "[]");
         }
     }
+}
+
+char* sem_type_to_str(VarType t) {
+    static char buffers[16][1024];
+    static int idx = 0;
+    char *buf = buffers[idx];
+    idx = (idx + 1) % 16;
+    
+    int pos = 0;
+    sem_type_to_str_rec(t, buf, 1024, &pos);
     buf[pos] = '\0';
-
-
-
-    if (t.is_func_ptr) {
-        strcat(buf, "(*)(...)");
-    }
-
+    
     return buf;
 }
 char* sem_mangle_type(VarType t) {
