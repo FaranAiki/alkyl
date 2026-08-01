@@ -1,0 +1,66 @@
+--- include/mlir/mlir_wrapper.h
++++ include/mlir/mlir_wrapper.h
+@@ -17,7 +17,7 @@
+ AlkylMlirModule alkyl_mlir_create_module(AlkylMlirContext ctx, const char* name);
+ 
+ // Functions and Blocks
+-AlkylMlirFunc alkyl_mlir_add_function(AlkylMlirContext ctx, AlkylMlirModule mod, const char* name, int is_extern);
++AlkylMlirFunc alkyl_mlir_add_function(AlkylMlirContext ctx, AlkylMlirModule mod, const char* name, int is_extern, int num_args);
+ AlkylMlirBlock alkyl_mlir_add_block(AlkylMlirFunc func);
+ void alkyl_mlir_set_insertion_point_to_end(AlkylMlirContext ctx, AlkylMlirBlock block);
+ 
+--- src/mlir/mlir_wrapper.cpp
++++ src/mlir/mlir_wrapper.cpp
+@@ -86,7 +86,7 @@
+ #endif
+ }
+ 
+-AlkylMlirFunc alkyl_mlir_add_function(AlkylMlirContext c_ctx, AlkylMlirModule mod, const char* name, int is_extern) {
++AlkylMlirFunc alkyl_mlir_add_function(AlkylMlirContext c_ctx, AlkylMlirModule mod, const char* name, int is_extern, int num_args) {
+ #ifdef HAS_MLIR
+     auto* ctx = static_cast<mlir::MLIRContext*>(c_ctx);
+     auto* op = static_cast<mlir::Operation*>(mod);
+@@ -107,8 +107,9 @@
+     }
+     
+-    // Creating a func returning i32, taking no arguments (just as a mock)
++    // Creating a func returning i32, taking num_args arguments
+     auto i32Type = mlir::IntegerType::get(ctx, 32);
+-    auto funcType = mlir::FunctionType::get(ctx, mlir::TypeRange{}, mlir::TypeRange{i32Type});
++    std::vector<mlir::Type> argTypes(num_args, i32Type);
++    auto funcType = mlir::FunctionType::get(ctx, argTypes, mlir::TypeRange{i32Type});
+     auto funcOp = global_builder->create<mlir::func::FuncOp>(global_builder->getUnknownLoc(), name, funcType);
+     
+     return static_cast<void*>(funcOp.getOperation());
+@@ -115,3 +116,3 @@
+ #else
+-    (void)c_ctx; (void)mod; (void)name; (void)is_extern;
++    (void)c_ctx; (void)mod; (void)name; (void)is_extern; (void)num_args;
+     return nullptr;
+--- src/mlir/generate.c
++++ src/mlir/generate.c
+@@ -11,7 +11,12 @@
+         printf("  Mapping FuncDefNode: %s\n", fn->name);
+         
+-        AlkylMlirFunc mlir_fn = alkyl_mlir_add_function(ctx, mod, fn->name, fn->is_extern || fn->body == NULL);
++        int num_args = 0;
++        Parameter *p = fn->params;
++        while (p) { num_args++; p = p->next; }
++        if (fn->class_name) num_args++; // implicit this
++
++        AlkylMlirFunc mlir_fn = alkyl_mlir_add_function(ctx, mod, fn->name, fn->is_extern || fn->body == NULL, num_args);
+         if (fn->body && !fn->is_extern) {
+             AlkylMlirBlock entry_block = alkyl_mlir_add_block(mlir_fn);
+@@ -31,7 +36,12 @@
+                 if (!fn->is_macro) {
+                     char* func_name = fn->mangled_name ? fn->mangled_name : fn->name;
+                     printf("  Mapping Class Method: %s\n", func_name);
+                     
+-                    AlkylMlirFunc mlir_fn = alkyl_mlir_add_function(ctx, mod, func_name, fn->is_extern || fn->body == NULL);
++                    int num_args = 0;
++                    Parameter *p = fn->params;
++                    while (p) { num_args++; p = p->next; }
++                    num_args++; // implicit this for class methods!
++
++                    AlkylMlirFunc mlir_fn = alkyl_mlir_add_function(ctx, mod, func_name, fn->is_extern || fn->body == NULL, num_args);
+                     if (fn->body && !fn->is_extern) {

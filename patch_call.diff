@@ -1,0 +1,11 @@
+--- src/mlir/mlir_wrapper.cpp
++++ src/mlir/mlir_wrapper.cpp
+@@ -421,6 +421,8 @@
+                 if (!existingFunc) {
+                     auto call = global_builder->create<mlir::LLVM::CallOp>(
+                         global_builder->getUnknownLoc(), mlir::TypeRange{type}, mlir::SymbolRefAttr::get(ctx, name), operands);
++                    auto llvmFuncType = mlir::LLVM::LLVMFunctionType::get(type, llvm::ArrayRef<mlir::Type>{}, /*isVarArg=*/true);
++                    call->setAttr("var_callee_type", mlir::TypeAttr::get(llvmFuncType));
+                     mlir::Value v = call.getResult();
+                     return static_cast<void*>(v.getAsOpaquePointer());
+                 }

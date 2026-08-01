@@ -61,7 +61,12 @@ static LLVMTargetMachineRef get_target_machine(int optimization_level) {
     return cached_target_machine;
 }
 
-int backend_run(AlirModule *module, const char *basename, const char *link_flags, int optimization_level, LinkerType linker) {
+int backend_run_alir(AlirModule *module, const char *basename, const char *link_flags, int optimization_level, LinkerType linker) {
+    if (!module) return 1;
+
+    char obj_filename[1024];
+    snprintf(obj_filename, sizeof(obj_filename), "%s.o", basename);
+
     ensure_llvm_initialized();
 
     LLVMTargetMachineRef machine = get_target_machine(optimization_level);

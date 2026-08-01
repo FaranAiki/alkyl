@@ -163,6 +163,7 @@ int main(int argc, char *argv[]) {
       curr = curr->next;
     }
 
+#ifndef ALKYL_ENABLE_MLIR
     debug_step("Finished macro linking. Start generating Alkyl Intermediate Representation (alir).");
 
     // Pass to ALIR
@@ -181,8 +182,14 @@ int main(int argc, char *argv[]) {
       arena_free(&arena);
       return 1;
     }
+#else
+    AlirModule *alir_module = NULL;
+    (void)alir_module;
+    (void)emit_alir;
+    (void)emit_balir;
+    debug_step("Skipping ALIR generation since MLIR backend is enabled.");
+#endif
 
-    sem_cleanup(&sem_ctx);
 
     if (comp_ctx.error_count > 0) {
         fprintf(stderr, "Compilation aborted due to previous errors.\n");
@@ -192,6 +199,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+#ifndef ALKYL_ENABLE_MLIR
     if (emit_balir) {
         alir_write_binary(alir_module, BASENAME ".balir");
     }
@@ -219,12 +227,18 @@ int main(int argc, char *argv[]) {
             alir_emit_to_file(alir_module, BASENAME ".opt.alir");
         }
     }
+#endif
 
     debug_step("Finished alir optimization. Start code generation using " BACKEND_STRING " codegen");
     arena_reset(&arena);
 
     const char *active_output_basename = output_basename_ptr ? output_basename_ptr : (optimization_level > 0 ? BASENAME_OPT : BASENAME);
-    int final_ret = backend_run(alir_module, active_output_basename, link_flags, optimization_level, current_linker);
+#ifndef ALKYL_ENABLE_MLIR
+    int final_ret = backend_run_alir(alir_module, active_output_basename, link_flags, optimization_level, current_linker);
+#else
+    int final_ret = backend_run_semantic(&sem_ctx, root, active_output_basename, link_flags, optimization_level, current_linker);
+#endif
+    sem_cleanup(&sem_ctx);
     free(code);
 
     arena_free(&arena);

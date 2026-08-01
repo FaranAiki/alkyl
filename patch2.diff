@@ -1,0 +1,19 @@
+--- src/mlir/mlir_wrapper.cpp
++++ src/mlir/mlir_wrapper.cpp
+@@ -155,6 +155,16 @@
+ #endif
+ }
+ 
++int alkyl_mlir_is_terminated(AlkylMlirContext c_ctx) {
++#ifdef HAS_MLIR
++    if (!global_builder) return 0;
++    mlir::Block *block = global_builder->getBlock();
++    return (block && !block->empty() && block->back().hasTrait<mlir::OpTrait::IsTerminator>()) ? 1 : 0;
++#else
++    return 0;
++#endif
++}
++
+ AlkylMlirValue alkyl_mlir_build_load(AlkylMlirContext c_ctx, AlkylMlirValue ptr, AlkylMlirType type) {
+ #ifdef HAS_MLIR
+     if (!global_builder) return nullptr;

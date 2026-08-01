@@ -1,4 +1,5 @@
 #include "mlir/generate.h"
+#include "common/hashmap.h"
 #include <stdio.h>
 
 void mlir_gen_stmt(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node) {
@@ -17,6 +18,11 @@ void mlir_gen_stmt(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node) {
         case NODE_VAR_DECL: {
             VarDeclNode *var = (VarDeclNode*)node;
             AlkylMlirValue alloca = alkyl_mlir_build_alloca(ctx, var->name);
+            
+            extern HashMap *mlir_vars;
+            if (mlir_vars && var->name) {
+                hashmap_put(mlir_vars, var->name, alloca);
+            }
             
             if (var->initializer) {
                 AlkylMlirValue init_val = mlir_gen_expr(ctx, mod, var->initializer);
@@ -67,6 +73,8 @@ void mlir_gen_stmt(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node) {
                     CaseNode *c = (CaseNode*)curr;
                     AlkylMlirValue case_val = NULL;
                     if (c->value) {
+                        void alkyl_mlir_build_switch_set_cond_insertion(AlkylMlirContext c_ctx, void* switch_op_ptr);
+                        alkyl_mlir_build_switch_set_cond_insertion(ctx, switch_op);
                         case_val = mlir_gen_expr(ctx, mod, c->value);
                     }
                     alkyl_mlir_build_switch_case_start(ctx, switch_op, case_val, c->is_leak);
@@ -76,7 +84,8 @@ void mlir_gen_stmt(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node) {
                         mlir_gen_stmt(ctx, mod, body_stmt);
                         body_stmt = body_stmt->next;
                     }
-                    alkyl_mlir_build_switch_case_end(ctx, switch_op);
+                    void alkyl_mlir_build_switch_case_end(AlkylMlirContext c_ctx, void* switch_op_ptr, int is_leak);
+                    alkyl_mlir_build_switch_case_end(ctx, switch_op, c->is_leak);
                 }
                 curr = curr->next;
             }
@@ -94,6 +103,15 @@ void mlir_gen_stmt(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node) {
             alkyl_mlir_build_switch_end(ctx, switch_op);
             break;
         }
+        case NODE_ASSIGN:
+        case NODE_INC_DEC:
+        case NODE_METHOD_CALL:
+        case NODE_MEMBER_ACCESS:
+        case NODE_CALL:
+        case NODE_VAR_REF:
+            // Delegate statement-level expression evaluation to expr.c
+            mlir_gen_expr(ctx, mod, node);
+            break;
         default:
             printf("Warning: Unhandled stmt node type %d in MLIR\n", node->type);
             break;

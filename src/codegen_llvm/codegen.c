@@ -192,7 +192,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
     AlirStruct *st = ctx->alir_mod->structs;
     while (st) {
         LLVMTypeRef struct_ty = LLVMStructCreateNamed(ctx->llvm_ctx, st->name);
-        printf("DEBUG_CODEGEN: struct=%s fields=%d\n", st->name, st->field_count);
+        debug_any("struct=%s fields=%d\n", st->name, st->field_count);
         fflush(stdout);
         hashmap_put(&ctx->struct_map, st->name, struct_ty);
         st = st->next;

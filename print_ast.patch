@@ -1,0 +1,6 @@
+--- src/mlir/expr.c
++++ src/mlir/expr.c
+@@ -5,6 +5,7 @@
+ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node) {
+     if (!node) return NULL;
++    printf("expr type=%d\n", node->type);

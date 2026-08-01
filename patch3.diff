@@ -1,0 +1,19 @@
+--- include/mlir/mlir_wrapper.h
++++ include/mlir/mlir_wrapper.h
+@@ -28,6 +28,7 @@
+ AlkylMlirBlock alkyl_mlir_add_block(AlkylMlirFunc func);
+ void alkyl_mlir_set_insertion_point_to_end(AlkylMlirContext ctx, AlkylMlirBlock block);
+ void alkyl_mlir_build_return(AlkylMlirContext ctx, AlkylMlirValue val);
++int alkyl_mlir_is_terminated(AlkylMlirContext ctx);
+ 
+ AlkylMlirValue alkyl_mlir_build_int_constant(AlkylMlirContext ctx, long long val);
+ AlkylMlirValue alkyl_mlir_build_float_constant(AlkylMlirContext ctx, double val);
+--- include/mlir/generate.h
++++ include/mlir/generate.h
+@@ -19,6 +19,7 @@
+ 
+ void mlir_generate(CompilerContext *ctx, ASTNode *node, const char* out_filename);
+ void mlir_gen_stmt(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node);
+ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node);
+ 
+ #endif

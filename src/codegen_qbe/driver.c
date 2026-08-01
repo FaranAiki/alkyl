@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int backend_run(AlirModule *module, const char *basename, const char *link_flags, int optimization_level, LinkerType linker) {
+int backend_run_alir(AlirModule *module, const char *basename, const char *link_flags, int optimization_level, LinkerType linker) {
     (void)optimization_level;
     char outname[256];
     snprintf(outname, sizeof(outname), "%s.ssa", basename);

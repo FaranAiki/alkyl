@@ -118,9 +118,8 @@ Tracing the input: `let x = 10;`
 
 ## 4. Key Technical Decisions
 
-### Error Recovery with `setjmp` / `longjmp`
-
-In `src/parser/core.c` and `src/driver/cli.c`, the project uses C's `setjmp` and `longjmp` for error handling.
+## No `setjmp`/`longjmp`
+Those suck ass.
 
 * **Why:** In a recursive descent parser, an error might occur deep within a call stack (Expression  Term  Factor). Returning error codes up every level is messy.
 * **Implementation:** When `parser_fail` is called, it performs a `longjmp` back to a safe state (the main loop). This allows the REPL to print the error and immediately prompt for new input without crashing the process.
@@ -140,5 +139,5 @@ The project uses the pure C API (`llvm-c/Core.h`) rather than the C++ object-ori
 * **Effect:** This requires manual management of strings and builders (`LLVMBuildAdd`, `LLVMBuildRet`).
 * **Architecture:** It allows the entire compiler to remain pure C, ensuring high portability and a smaller runtime footprint compared to linking against the C++ LLVM libraries. It requires explicit type creation (e.g., `LLVMInt32Type()`) at every step.
 
-## 6. What to Do 
+## 6. What to Do
 With the given information, do:
