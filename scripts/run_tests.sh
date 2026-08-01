@@ -7,6 +7,7 @@
 #   --llvm   : use build/alkyl_llvm as compiler
 #   --qbe    : use build/alkyl_qbe as compiler
 #   --ethyl  : use build/ethyl as compiler
+#   --mlir   : use build/alkyl_mlir as compiler
 #   --parallel : run tests in parallel (uses NPROC jobs)
 #   default  : run both (unopt first, then opt) with build/alkyl symlink
 
@@ -31,6 +32,8 @@ for arg in "$@"; do
         COMPILER="build/alkyl_qbe"
     elif [ "$arg" == "--ethyl" ]; then
         COMPILER="build/ethyl"
+    elif [ "$arg" == "--mlir" ]; then
+        COMPILER="build/alkyl_mlir"
     elif [ "$arg" == "--parallel" ]; then
         PARALLEL=1
         CORES=$(nproc 2>/dev/null || echo 4)
