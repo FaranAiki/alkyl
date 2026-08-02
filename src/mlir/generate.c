@@ -349,6 +349,7 @@ static void scan_classes(ASTNode *root) {
     }
 }
 
+// TODO: Do not use global here
 ASTNode *mlir_global_ast_root = NULL;
 HashMap *mlir_vars = NULL;
 

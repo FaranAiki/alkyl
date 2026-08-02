@@ -1,34 +1,40 @@
-pkgname=alkyl-git
-pkgver=r1
+pkgname=alkyl
+pkgver=0.1.0
 pkgrel=1
-pkgdesc="Alkyl Compiler"
+pkgdesc="Alkyl Programming Language Compiler"
 arch=('x86_64')
 url="https://github.com/FaranAiki/alkyl"
-license=('GPL')
-makedepends=('cmake' 'llvm', 'gcc')
-source=("git+https://github.com/yourusername/alkyl.git")
-md5sums=('SKIP')
+license=('MIT')
+depends=('gcc-libs' 'glibc' 'llvm-libs' 'zlib' 'ncurses' 'readline' 'libffi')
+makedepends=('cmake' 'llvm' 'git')
+source=("$pkgname::git+$url.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/$pkgname"
+  printf "0.1.0.r%s.g%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
 
 build() {
-  cd alkyl
+  cd "$srcdir/$pkgname"
   mkdir -p build
   cd build
-  cmake ..
-  make
+  cmake .. \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILDALL=OFF \
+    -DBACKEND=llvm
+  cmake --build .
 }
 
 package() {
-  cd alkyl
+  cd "$srcdir/$pkgname/build"
 
-  # Install binary
-  install -Dm755 build/alkyl "$pkgdir/usr/bin/alkyl"
+  install -Dm755 alkyl_llvm "$pkgdir/usr/bin/alkyl"
+  install -Dm755 ethyl "$pkgdir/usr/bin/ethyl"
 
-  # Install desktop icon
-  install -Dm644 misc/asset/logo.png "$pkgdir/usr/share/icons/hicolor/512x512/apps/alkyl.png"
-  
-  # Install desktop file
-  install -d "$pkgdir/usr/share/applications"
-  cat <<EOF > "$pkgdir/usr/share/applications/alkyl.desktop"
+  install -Dm644 ../misc/asset/logo.png "$pkgdir/usr/share/icons/hicolor/512x512/apps/alkyl.png"
+
+  install -Dm644 /dev/stdin "$pkgdir/usr/share/applications/alkyl.desktop" <<EOF
 [Desktop Entry]
 Name=Alkyl Compiler
 Exec=alkyl %F
@@ -38,9 +44,7 @@ Type=Application
 Categories=Development;
 EOF
 
-  # Install MIME info
-  install -d "$pkgdir/usr/share/mime/packages"
-  cat <<EOF > "$pkgdir/usr/share/mime/packages/application-x-alkyl.xml"
+  install -Dm644 /dev/stdin "$pkgdir/usr/share/mime/packages/application-x-alkyl.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
   <mime-type type="application/x-alkyl">
@@ -52,6 +56,5 @@ EOF
 </mime-info>
 EOF
 
-  # Install MIME icon
-  install -Dm644 misc/asset/script_logo.png "$pkgdir/usr/share/icons/hicolor/512x512/mimetypes/application-x-alkyl.png"
+  install -Dm644 ../misc/asset/script_logo.png "$pkgdir/usr/share/icons/hicolor/512x512/mimetypes/application-x-alkyl.png"
 }

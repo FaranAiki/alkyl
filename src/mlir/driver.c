@@ -14,6 +14,7 @@ int backend_run_semantic(SemanticCtx *sem_ctx, ASTNode *root, const char *basena
     mlir_generate(root, basename);
 
     char cmd[512];
+    // TODO make sure thta this is abstracted
     snprintf(cmd, sizeof(cmd), "mlir-opt --convert-scf-to-cf --convert-cf-to-llvm --convert-func-to-llvm --convert-arith-to-llvm --finalize-memref-to-llvm --reconcile-unrealized-casts %s.mlir | mlir-translate --mlir-to-llvmir -o %s.ll", basename, basename);
     int ret = system(cmd);
     if (ret != 0) {

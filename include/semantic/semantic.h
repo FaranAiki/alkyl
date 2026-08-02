@@ -44,8 +44,6 @@ void sem_hint(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...);
 
 void sem_register_builtins(SemanticCtx *ctx);
 
-void sem_check_node(SemanticCtx *ctx, ASTNode *node);
-void sem_check_block(SemanticCtx *ctx, ASTNode *block);
 void sem_check_expr(SemanticCtx *ctx, ASTNode *node);
 void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node);
 
@@ -54,7 +52,6 @@ SemSymbol* lookup_local_symbol(SemanticCtx *ctx, const char *name);
 void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node);
 
 void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym);
-void sem_check_stmt(SemanticCtx *ctx, ASTNode *node);
 void sem_insert_implicit_cast(SemanticCtx *ctx, ASTNode **node_ptr, VarType target_type);
 
 #include "emitter.h"
@@ -64,6 +61,7 @@ void sem_insert_implicit_cast(SemanticCtx *ctx, ASTNode **node_ptr, VarType targ
 #include "fragment/switch.h"
 #include "fragment/symbolic.h"
 #include "fragment/field.h"
+#include "fragment/block.h"
 #include "modifier/class.h"
 #include "modifier/func.h"
 #include "modifier/taint.h"

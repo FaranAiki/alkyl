@@ -1,0 +1,21 @@
+pkgbase = alkyl
+	pkgdesc = Alkyl Programming Language Compiler
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/FaranAiki/alkyl
+	arch = x86_64
+	license = MIT
+	makedepends = cmake
+	makedepends = llvm
+	makedepends = git
+	depends = gcc-libs
+	depends = glibc
+	depends = llvm-libs
+	depends = zlib
+	depends = ncurses
+	depends = readline
+	depends = libffi
+	source = alkyl::git+https://github.com/FaranAiki/alkyl.git
+	sha256sums = SKIP
+
+pkgname = alkyl

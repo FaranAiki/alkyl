@@ -1,5 +1,8 @@
 #include "mlir/mlir_wrapper.h"
 
+// TODO make sure that the wrapper
+// is MODULARIZED
+// (lmao this is vibecoded purely)
 #ifdef ALKYL_ENABLE_MLIR
 #include <mlir/IR/MLIRContext.h>
 #include <mlir/IR/Builders.h>
@@ -90,7 +93,7 @@ void alkyl_mlir_dump_module(AlkylMlirModule c_mod, const char* filename) {
     if (!c_mod) return;
     auto op = static_cast<mlir::Operation*>(c_mod);
     auto moduleOp = mlir::cast<mlir::ModuleOp>(op);
-    
+
     std::error_code ec;
     llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::OF_None);
     if (ec) {
@@ -105,7 +108,7 @@ void alkyl_mlir_dump_module(AlkylMlirModule c_mod, const char* filename) {
 
 // --- BUILDER WRAPPERS --- //
 
-// We store a global builder for simplicity in this example, 
+// We store a global builder for simplicity in this example,
 // though a real compiler would attach it to a custom struct.
 #ifdef HAS_MLIR
 static mlir::OpBuilder* global_builder = nullptr;
@@ -116,28 +119,28 @@ AlkylMlirFunc alkyl_mlir_add_function(AlkylMlirContext c_ctx, AlkylMlirModule mo
     auto* ctx = static_cast<mlir::MLIRContext*>(c_ctx);
     auto* op = static_cast<mlir::Operation*>(mod);
     auto moduleOp = mlir::cast<mlir::ModuleOp>(op);
-    
+
     auto existing = moduleOp.lookupSymbol<mlir::func::FuncOp>(name);
     if (existing) {
         return static_cast<void*>(existing.getOperation());
     }
-    
+
     if (!global_builder) {
         global_builder = new mlir::OpBuilder(ctx);
     }
-    
+
     global_builder->setInsertionPointToEnd(moduleOp.getBody());
-    
+
     if (is_extern) {
         return nullptr;
     }
-    
+
     // Creating a func returning i64, taking num_args arguments
     auto i64Type = mlir::IntegerType::get(ctx, 64);
     std::vector<mlir::Type> argTypes(num_args, i64Type);
     auto funcType = mlir::FunctionType::get(ctx, argTypes, mlir::TypeRange{i64Type});
     auto funcOp = global_builder->create<mlir::func::FuncOp>(global_builder->getUnknownLoc(), name, funcType);
-    
+
     return static_cast<void*>(funcOp.getOperation());
 #else
     (void)c_ctx; (void)mod; (void)name; (void)is_extern; (void)num_args;
@@ -263,7 +266,7 @@ void alkyl_mlir_build_store(AlkylMlirContext c_ctx, AlkylMlirValue val, AlkylMli
     auto p = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(ptr));
     if (!mlir::isa<mlir::MemRefType>(p.getType())) return;
     auto memrefType = mlir::cast<mlir::MemRefType>(p.getType());
-    
+
     // If storing a memref (e.g. object), extract pointer as i64
     if (mlir::isa<mlir::MemRefType>(v.getType())) {
         auto extractOp = global_builder->create<mlir::memref::ExtractAlignedPointerAsIndexOp>(global_builder->getUnknownLoc(), v);
@@ -271,7 +274,7 @@ void alkyl_mlir_build_store(AlkylMlirContext c_ctx, AlkylMlirValue val, AlkylMli
     } else if (mlir::isa<mlir::LLVM::LLVMPointerType>(v.getType())) {
         v = global_builder->create<mlir::LLVM::PtrToIntOp>(global_builder->getUnknownLoc(), global_builder->getI64Type(), v);
     }
-    
+
     // cast v to match elementType if they are both integers but different widths
     if (v.getType().isIntOrIndex() && memrefType.getElementType().isIntOrIndex()) {
         unsigned v_width = v.getType().getIntOrFloatBitWidth();
@@ -282,7 +285,7 @@ void alkyl_mlir_build_store(AlkylMlirContext c_ctx, AlkylMlirValue val, AlkylMli
             v = global_builder->create<mlir::arith::TruncIOp>(global_builder->getUnknownLoc(), memrefType.getElementType(), v);
         }
     }
-    
+
     if (v.getType() != memrefType.getElementType()) return; // Ignore invalid store
     global_builder->create<mlir::memref::StoreOp>(global_builder->getUnknownLoc(), v, p, mlir::ValueRange{});
 #else
@@ -296,19 +299,19 @@ void alkyl_mlir_build_store_field(AlkylMlirContext c_ctx, AlkylMlirValue val, Al
     auto* ctx = static_cast<mlir::MLIRContext*>(c_ctx);
     auto v = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(val));
     auto p = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(ptr));
-    
+
     if (!mlir::isa<mlir::MemRefType>(p.getType())) {
         return; // Ignore invalid store to non-memref
     }
-    
+
     auto index_type = mlir::IndexType::get(ctx);
     auto idx = global_builder->create<mlir::arith::ConstantOp>(global_builder->getUnknownLoc(), index_type, global_builder->getIntegerAttr(index_type, index));
-    
+
     // cast v to i64 if needed
     if (!v.getType().isInteger(64) && !mlir::isa<mlir::LLVM::LLVMPointerType>(v.getType())) {
         v = global_builder->create<mlir::arith::ExtSIOp>(global_builder->getUnknownLoc(), mlir::IntegerType::get(ctx, 64), v);
     }
-    
+
     // If v is a pointer, cast it to i64 so we can store it in memref<i64>
     if (mlir::isa<mlir::LLVM::LLVMPointerType>(v.getType())) {
         v = global_builder->create<mlir::LLVM::PtrToIntOp>(global_builder->getUnknownLoc(), mlir::IntegerType::get(ctx, 64), v);
@@ -325,7 +328,7 @@ AlkylMlirValue alkyl_mlir_build_load_field(AlkylMlirContext c_ctx, AlkylMlirValu
     if (!global_builder || !ptr) return nullptr;
     auto* ctx = static_cast<mlir::MLIRContext*>(c_ctx);
     auto p = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(ptr));
-    
+
     mlir::Value res;
     if (mlir::isa<mlir::MemRefType>(p.getType())) {
         auto index_type = mlir::IndexType::get(ctx);
@@ -340,17 +343,17 @@ AlkylMlirValue alkyl_mlir_build_load_field(AlkylMlirContext c_ctx, AlkylMlirValu
         }
         auto ptrType = mlir::LLVM::LLVMPointerType::get(ctx);
         auto rawPtr = global_builder->create<mlir::LLVM::IntToPtrOp>(global_builder->getUnknownLoc(), ptrType, p);
-        
+
         auto idx = global_builder->create<mlir::arith::ConstantOp>(global_builder->getUnknownLoc(), global_builder->getI32Type(), global_builder->getI32IntegerAttr(index));
         auto gep = global_builder->create<mlir::LLVM::GEPOp>(global_builder->getUnknownLoc(), ptrType, i64Type, rawPtr, mlir::ValueRange{idx.getResult()});
         auto loadOp = global_builder->create<mlir::LLVM::LoadOp>(global_builder->getUnknownLoc(), i64Type, gep);
         res = loadOp.getResult();
     }
-    
+
     if (is_string) {
         res = global_builder->create<mlir::LLVM::IntToPtrOp>(global_builder->getUnknownLoc(), mlir::LLVM::LLVMPointerType::get(ctx), res);
     }
-    
+
     return reinterpret_cast<void*>(res.getImpl());
 #else
     (void)c_ctx; (void)ptr; (void)index; (void)is_string; return nullptr;
@@ -377,14 +380,14 @@ AlkylMlirValue alkyl_mlir_build_string_constant(AlkylMlirContext c_ctx, AlkylMli
 
     static int str_counter = 0;
     std::string sym_name = "str" + std::to_string(str_counter++);
-    
+
     auto ip = global_builder->saveInsertionPoint();
     global_builder->setInsertionPointToStart(moduleOp.getBody());
-    
+
     llvm::StringRef strRef(str);
     auto i8Type = mlir::IntegerType::get(ctx, 8);
     auto arrayType = mlir::LLVM::LLVMArrayType::get(i8Type, strRef.size() + 1);
-    
+
     // Create global string
     auto globalOp = global_builder->create<mlir::LLVM::GlobalOp>(
         global_builder->getUnknownLoc(),
@@ -395,15 +398,15 @@ AlkylMlirValue alkyl_mlir_build_string_constant(AlkylMlirContext c_ctx, AlkylMli
         mlir::StringAttr::get(ctx, llvm::StringRef(str, strRef.size() + 1)),
         0 // alignment
     );
-    
+
     global_builder->restoreInsertionPoint(ip);
-    
+
     auto addr = global_builder->create<mlir::LLVM::AddressOfOp>(
         global_builder->getUnknownLoc(),
         mlir::LLVM::LLVMPointerType::get(ctx),
         mlir::SymbolRefAttr::get(ctx, sym_name)
     );
-    
+
     return reinterpret_cast<void*>(addr.getResult().getImpl());
 #else
     (void)c_ctx; (void)mod; (void)str; return nullptr;
@@ -463,7 +466,7 @@ AlkylMlirValue alkyl_mlir_build_call(AlkylMlirContext c_ctx, const char* name, A
 #ifdef HAS_MLIR
     if (!global_builder) return nullptr;
     auto* ctx = static_cast<mlir::MLIRContext*>(c_ctx);
-    
+
     std::vector<mlir::Value> operands;
     for (int i = 0; i < num_args; i++) {
         auto val = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(args[i]));
@@ -479,27 +482,27 @@ AlkylMlirValue alkyl_mlir_build_call(AlkylMlirContext c_ctx, const char* name, A
         }
         operands.push_back(val);
     }
-    
+
     // For now, assume returning i64 and all args i64
     auto type = mlir::IntegerType::get(ctx, 64);
-    
+
     // Auto-declare if missing or redefine if arg count mismatch is expected
     if (auto block = global_builder->getBlock()) {
         if (auto parent = block->getParentOp()) {
             if (auto moduleOp = parent->getParentOfType<mlir::ModuleOp>()) {
                 auto existingFunc = moduleOp.lookupSymbol<mlir::func::FuncOp>(name);
                 auto existingLLVM = moduleOp.lookupSymbol<mlir::LLVM::LLVMFuncOp>(name);
-                
+
                 if (!existingFunc && !existingLLVM) {
                     auto ip = global_builder->saveInsertionPoint();
                     global_builder->setInsertionPointToEnd(moduleOp.getBody());
-                    
+
                     auto llvmFuncType = mlir::LLVM::LLVMFunctionType::get(type, llvm::ArrayRef<mlir::Type>{}, /*isVarArg=*/true);
                     global_builder->create<mlir::LLVM::LLVMFuncOp>(global_builder->getUnknownLoc(), name, llvmFuncType);
-                    
+
                     global_builder->restoreInsertionPoint(ip);
                 }
-                
+
                 if (!existingFunc) {
                     auto call = global_builder->create<mlir::LLVM::CallOp>(
                         global_builder->getUnknownLoc(), mlir::TypeRange{type}, mlir::SymbolRefAttr::get(ctx, name), operands);
@@ -511,10 +514,10 @@ AlkylMlirValue alkyl_mlir_build_call(AlkylMlirContext c_ctx, const char* name, A
             }
         }
     }
-    
+
     auto call = global_builder->create<mlir::func::CallOp>(
         global_builder->getUnknownLoc(), name, mlir::TypeRange{type}, operands);
-        
+
     if (call.getNumResults() > 0)
         return reinterpret_cast<void*>(call.getResult(0).getImpl());
     return nullptr;
@@ -527,22 +530,22 @@ void* alkyl_mlir_build_scf_if_start(AlkylMlirContext c_ctx, AlkylMlirValue cond,
 #ifdef HAS_MLIR
     if (!global_builder) return nullptr;
     auto condition = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(cond));
-    
+
     auto bool_cond = condition;
     if (!condition.getType().isInteger(1)) {
         auto zero = global_builder->create<mlir::arith::ConstantIntOp>(global_builder->getUnknownLoc(), condition.getType(), 0);
         bool_cond = global_builder->create<mlir::arith::CmpIOp>(global_builder->getUnknownLoc(), mlir::arith::CmpIPredicate::ne, condition, zero);
     }
-    
+
     auto ifOp = global_builder->create<mlir::scf::IfOp>(global_builder->getUnknownLoc(), bool_cond, has_else != 0);
     auto &then_block = ifOp.getThenRegion().front();
-    
+
     if (!then_block.empty()) {
         global_builder->setInsertionPoint(&then_block, std::prev(then_block.end()));
     } else {
         global_builder->setInsertionPointToStart(&then_block);
     }
-    
+
     if (has_else) {
         auto &else_block = ifOp.getElseRegion().front();
         if (!else_block.empty()) {
@@ -551,7 +554,7 @@ void* alkyl_mlir_build_scf_if_start(AlkylMlirContext c_ctx, AlkylMlirValue cond,
             global_builder->setInsertionPointToStart(&else_block);
         }
     }
-    
+
     return reinterpret_cast<void*>(ifOp.getOperation());
 #else
     (void)c_ctx; (void)cond; return reinterpret_cast<void*>(1);
@@ -563,7 +566,7 @@ void alkyl_mlir_build_scf_if_else(AlkylMlirContext c_ctx, void* if_op_ptr) {
     if (!global_builder || !if_op_ptr) return;
     auto op = static_cast<mlir::Operation*>(if_op_ptr);
     auto ifOp = mlir::cast<mlir::scf::IfOp>(op);
-    
+
     auto &else_block = ifOp.getElseRegion().front();
     if (!else_block.empty()) {
         global_builder->setInsertionPoint(&else_block, std::prev(else_block.end()));
@@ -600,13 +603,13 @@ void* alkyl_mlir_build_switch_start(AlkylMlirContext c_ctx, AlkylMlirValue cond,
     if (!global_builder) return nullptr;
     auto state = new SwitchState();
     state->cond = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(cond));
-    
+
     mlir::Block* currentBlock = global_builder->getBlock();
     mlir::Region* parentRegion = currentBlock->getParent();
     state->merge_block = new mlir::Block();
     parentRegion->push_back(state->merge_block);
     state->current_cond_block = currentBlock;
-    
+
     return state;
 #else
     (void)c_ctx; (void)cond; (void)num_cases; return reinterpret_cast<void*>(1);
@@ -629,16 +632,16 @@ void alkyl_mlir_build_switch_case_start(AlkylMlirContext c_ctx, void* switch_op_
     auto state = static_cast<SwitchState*>(switch_op_ptr);
     auto case_val = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(val));
     mlir::Region* parentRegion = state->current_cond_block->getParent();
-    
+
     mlir::Block* case_block = new mlir::Block();
     mlir::Block* next_cond_block = new mlir::Block();
-    
+
     // Insert before merge_block
     parentRegion->getBlocks().insert(mlir::Region::iterator(state->merge_block), case_block);
     parentRegion->getBlocks().insert(mlir::Region::iterator(state->merge_block), next_cond_block);
-    
+
     global_builder->setInsertionPointToEnd(state->current_cond_block);
-    
+
     // Ensure same types for cmpi
     if (state->cond.getType() != case_val.getType()) {
         auto cond_type = state->cond.getType();
@@ -653,16 +656,16 @@ void alkyl_mlir_build_switch_case_start(AlkylMlirContext c_ctx, void* switch_op_
             }
         }
     }
-    
+
     auto cmp = global_builder->create<mlir::arith::CmpIOp>(global_builder->getUnknownLoc(), mlir::arith::CmpIPredicate::eq, state->cond, case_val);
     global_builder->create<mlir::cf::CondBranchOp>(global_builder->getUnknownLoc(), cmp, case_block, next_cond_block);
-    
+
     if (state->leak_source) {
         global_builder->setInsertionPointToEnd(state->leak_source);
         global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), case_block);
         state->leak_source = nullptr;
     }
-    
+
     global_builder->setInsertionPointToEnd(case_block);
     state->current_cond_block = next_cond_block;
 #else
@@ -688,23 +691,23 @@ void alkyl_mlir_build_switch_default_start(AlkylMlirContext c_ctx, void* switch_
 #ifdef HAS_MLIR
     if (!global_builder || !switch_op_ptr) return;
     auto state = static_cast<SwitchState*>(switch_op_ptr);
-    
+
     // Default block is just the current next_cond_block
     // but actually, we should just let it be a new block, or jump from current_cond_block directly.
     mlir::Block* default_block = new mlir::Block();
     mlir::Region* parentRegion = state->current_cond_block->getParent();
     parentRegion->getBlocks().insert(mlir::Region::iterator(state->merge_block), default_block);
-    
+
     global_builder->setInsertionPointToEnd(state->current_cond_block);
     global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), default_block);
     state->has_default_case = true;
-    
+
     if (state->leak_source) {
         global_builder->setInsertionPointToEnd(state->leak_source);
         global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), default_block);
         state->leak_source = nullptr;
     }
-    
+
     global_builder->setInsertionPointToEnd(default_block);
 #else
     (void)c_ctx; (void)switch_op_ptr;
@@ -725,18 +728,18 @@ void alkyl_mlir_build_switch_end(AlkylMlirContext c_ctx, void* switch_op_ptr) {
 #ifdef HAS_MLIR
     if (!global_builder || !switch_op_ptr) return;
     auto state = static_cast<SwitchState*>(switch_op_ptr);
-    
+
     if (!state->has_default_case) {
         global_builder->setInsertionPointToEnd(state->current_cond_block);
         global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), state->merge_block);
     }
-    
+
     if (state->leak_source) {
         global_builder->setInsertionPointToEnd(state->leak_source);
         global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), state->merge_block);
         state->leak_source = nullptr;
     }
-    
+
     global_builder->setInsertionPointToEnd(state->merge_block);
     delete state;
 #else

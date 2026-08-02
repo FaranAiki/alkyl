@@ -134,6 +134,7 @@ set(SEMANTIC_SOURCES
 
     src/semantic/fragment/lookup.c
     src/semantic/fragment/switch.c
+    src/semantic/fragment/block.c
     src/semantic/fragment/symbolic.c
     src/semantic/fragment/field.c
 )
