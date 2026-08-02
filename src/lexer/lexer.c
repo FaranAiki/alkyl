@@ -155,6 +155,9 @@ static int lex_symbol(Lexer *l, Token *t) {
               t->type = TOKEN_RANGE_EXCL_GT;
               return 1;
           }
+          advance(l); advance(l);
+          t->type = TOKEN_RANGE;
+          return 1;
       }
       advance(l); t->type = TOKEN_DOT; return 1;
   }

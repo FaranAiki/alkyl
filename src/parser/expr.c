@@ -435,7 +435,7 @@ ASTNode* parse_factor(Parser *p) {
     if (p->current_token.type != TOKEN_RBRACKET) {
       *curr_elem = parse_expression(p);
 
-      if (p->current_token.type >= TOKEN_RANGE_INCL && p->current_token.type <= TOKEN_RANGE_INCL_LTE) {
+      if (p->current_token.type >= TOKEN_RANGE_INCL && p->current_token.type <= TOKEN_RANGE_INCL_LTE || p->current_token.type == TOKEN_RANGE) {
           TokenType range_type = p->current_token.type;
           eat(p, range_type);
           ASTNode *end_expr = parse_expression(p);
@@ -448,7 +448,7 @@ ASTNode* parse_factor(Parser *p) {
                   int end_val = end_lit->val.int_val;
                   int step = (start_val <= end_val) ? 1 : -1;
 
-                  if (range_type == TOKEN_RANGE_EXCL || range_type == TOKEN_RANGE_EXCL_GT) {
+                  if (range_type == TOKEN_RANGE_EXCL || range_type == TOKEN_RANGE_EXCL_GT || range_type == TOKEN_RANGE) {
                       if (start_val != end_val) {
                           end_val -= step;
                       } else {
@@ -493,7 +493,7 @@ ASTNode* parse_factor(Parser *p) {
 
         *curr_elem = parse_expression(p);
 
-        if (p->current_token.type >= TOKEN_RANGE_INCL && p->current_token.type <= TOKEN_RANGE_INCL_LTE) {
+        if (p->current_token.type >= TOKEN_RANGE_INCL && p->current_token.type <= TOKEN_RANGE_INCL_LTE || p->current_token.type == TOKEN_RANGE) {
             TokenType range_type = p->current_token.type;
             eat(p, range_type);
             ASTNode *end_expr = parse_expression(p);
@@ -504,7 +504,7 @@ ASTNode* parse_factor(Parser *p) {
                     int start_val = start_lit->val.int_val;
                     int end_val = end_lit->val.int_val;
                     int step = (start_val <= end_val) ? 1 : -1;
-                    if (range_type == TOKEN_RANGE_EXCL || range_type == TOKEN_RANGE_EXCL_GT) {
+                    if (range_type == TOKEN_RANGE_EXCL || range_type == TOKEN_RANGE_EXCL_GT || range_type == TOKEN_RANGE) {
                         if (start_val != end_val) end_val -= step;
                         else { step = 1; start_val = 1; end_val = 0; *curr_elem = NULL; }
                     }

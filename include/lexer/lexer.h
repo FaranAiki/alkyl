@@ -29,6 +29,7 @@ typedef enum {
   TOKEN_RANGE_INCL_GTE, // ..>=
   TOKEN_RANGE_EXCL_GT, // ..>
   TOKEN_RANGE_INCL_LTE, // ..<=
+  TOKEN_RANGE, // .. (Rust-style exclusive range)
 
   TOKEN_NUMBER,
   TOKEN_SINGLE_LIT,

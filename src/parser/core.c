@@ -13,7 +13,7 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
     p->alias_head = NULL;
     p->expansion_head = NULL;
     p->disable_macro_expansion = 0;
-    
+
     p->tokens = NULL;
     p->token_count = 0;
     p->token_capacity = 0;
@@ -22,13 +22,13 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
     p->in_space_separated_call = 0;
     p->disable_space_call = 0;
     p->pending_cconv = NULL;
-    
+
     if (p->ctx && p->ctx->arena) {
         hashmap_init(&p->types_map, p->ctx->arena, 64);
     } else {
         hashmap_init(&p->types_map, NULL, 64);
     }
-    
+
     if (settings) {
         p->settings = *settings;
     } else {
@@ -42,7 +42,7 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
         p->settings.function_call_require_comma = 1;
         p->settings.array_separator_with_space = 0;
     }
-    
+
     if (l) {
         p->current_token.type = TOKEN_UNKNOWN;
     }
@@ -70,7 +70,7 @@ void* parser_alloc_raw(Parser *p, size_t size) {
 
 char* parser_strdup(Parser *p, const char *str) {
     if (!str) return NULL;
-    if (!p || !p->ctx || !p->ctx->arena) return strdup(str); 
+    if (!p || !p->ctx || !p->ctx->arena) return strdup(str);
     return arena_strdup(p->ctx->arena, str);
 }
 
@@ -91,8 +91,8 @@ int is_typename(Parser *p, const char *name) {
 
 int is_type_start(Parser *p) {
     TokenType ct = p->current_token.type;
-    if (ct == TOKEN_KW_INT || ct == TOKEN_KW_SHORT || ct == TOKEN_KW_LONG || 
-        ct == TOKEN_KW_DOUBLE || ct == TOKEN_KW_SINGLE || ct == TOKEN_KW_CHAR || 
+    if (ct == TOKEN_KW_INT || ct == TOKEN_KW_SHORT || ct == TOKEN_KW_LONG ||
+        ct == TOKEN_KW_DOUBLE || ct == TOKEN_KW_SINGLE || ct == TOKEN_KW_CHAR ||
         ct == TOKEN_KW_VOID || ct == TOKEN_KW_BOOL || ct == TOKEN_KW_UNSIGNED || ct == TOKEN_KW_SIGNED) {
         return 1;
     }
@@ -123,7 +123,7 @@ void register_alias(Parser *p, const char *name, VarType target) {
     a->name = parser_strdup(p, name);
     a->target = target;
     if (target.class_name) a->target.class_name = parser_strdup(p, target.class_name);
-    
+
     a->next = p->alias_head;
     p->alias_head = a;
 }
@@ -146,7 +146,7 @@ Token token_clone(Parser *p, Token t) {
 void register_macro(Parser *p, const char *name, char **params, int param_count, Token *body, int body_len) {
     Macro *m = parser_alloc_raw(p, sizeof(Macro));
     m->name = parser_strdup(p, name);
-    m->params = params; 
+    m->params = params;
     m->param_count = param_count;
     m->body = parser_alloc_raw(p, sizeof(Token) * body_len);
     for (int i=0; i<body_len; i++) {
@@ -303,7 +303,7 @@ static Token expand_macros_from(Parser *p, Token t) {
 }
 
 void parser_fail_at(Parser *p, Token t, const char *msg) {
-    report_error(p->l, t, msg); 
+    report_error(p->l, t, msg);
     if (p->ctx) p->ctx->error_count++;
     p->has_error = 1;
 }
@@ -327,7 +327,7 @@ void parser_sync(Parser *p) {
         switch (p->current_token.type) {
             case TOKEN_CLASS:
             case TOKEN_STRUCT:
-            case TOKEN_UNION: 
+            case TOKEN_UNION:
             case TOKEN_NAMESPACE:
             case TOKEN_KW_INT:
             case TOKEN_KW_VOID:
@@ -341,7 +341,7 @@ void parser_sync(Parser *p) {
             case TOKEN_DEFINE:
                 return;
             default:
-                eat(p, p->current_token.type); 
+                eat(p, p->current_token.type);
     if (p->has_error) return;
         }
     }
@@ -354,9 +354,9 @@ void eat(Parser *p, TokenType type) {
   } else {
     char msg[256];
     const char *expected = get_token_description(type);
-    const char *found = p->current_token.type == TOKEN_EOF ? "end of file" : 
+    const char *found = p->current_token.type == TOKEN_EOF ? "end of file" :
                         (p->current_token.text ? p->current_token.text : token_type_to_string(p->current_token.type));
-    
+
     snprintf(msg, sizeof(msg), "Expected '%s' but found '%s'", expected, found);
     parser_fail(p, msg);
   }
@@ -364,10 +364,8 @@ void eat(Parser *p, TokenType type) {
 
 // Composite type parsing helper
 VarType parse_type(Parser *p) {
-  VarType t = {0}; 
+  VarType t = {0};
   t.base = TYPE_UNKNOWN;
-
-
 
   if (p->current_token.type == TOKEN_KW_UNSIGNED) {
       t.is_unsigned = 1;
@@ -432,7 +430,7 @@ VarType parse_type(Parser *p) {
            snprintf(full_type_name, sizeof(full_type_name), "%s", p->current_token.text);
            eat(p, TOKEN_IDENTIFIER);
            if (p->has_error) return (VarType){0};
-           
+
            while (p->current_token.type == TOKEN_DOT) { if (p->has_error) break;
                eat(p, TOKEN_DOT);
                if (p->has_error) return (VarType){0};
@@ -450,18 +448,18 @@ VarType parse_type(Parser *p) {
 
            int kind = get_typename_kind(p, full_type_name);
            if (kind != 0) {
-               if (kind == 2) { 
+               if (kind == 2) {
                    t.base = TYPE_ENUM;
                    t.class_name = parser_strdup(p, full_type_name);
                } else {
                    t.base = TYPE_CLASS;
                    char base_name[512];
                    snprintf(base_name, sizeof(base_name), "%s", full_type_name);
-                   
+
                    if (p->current_token.type == TOKEN_LBRACKET) {
                        char full_name[1024];
                        snprintf(full_name, sizeof(full_name), "%s", base_name);
-                       
+
                        eat(p, TOKEN_LBRACKET);
                        if (p->has_error) return (VarType){0};
                        size_t fn_len = strlen(full_name);
@@ -469,7 +467,7 @@ VarType parse_type(Parser *p) {
                            full_name[fn_len] = '[';
                            full_name[fn_len + 1] = '\0';
                        }
-                       
+
                         while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
                             fn_len = strlen(full_name);
                             if (fn_len + 1 < sizeof(full_name)) {
@@ -509,15 +507,15 @@ VarType parse_type(Parser *p) {
               p->expansion_head = saved_exp;
               if (saved_exp && saved_exp_pos >= 0) saved_exp->pos = saved_exp_pos;
               if (t.is_unsigned) t.base = TYPE_INT;
-              return t; 
+              return t;
           }
       }
   } else {
       TokenType ct = p->current_token.type;
       if (ct == TOKEN_KW_INT) { t.base = TYPE_INT; eat(p, TOKEN_KW_INT); }
-      else if (ct == TOKEN_KW_SHORT) { 
-          t.base = TYPE_SHORT; 
-          eat(p, TOKEN_KW_SHORT); 
+      else if (ct == TOKEN_KW_SHORT) {
+          t.base = TYPE_SHORT;
+          eat(p, TOKEN_KW_SHORT);
           if (p->current_token.type == TOKEN_KW_INT) {
               eat(p, TOKEN_KW_INT);
           }
@@ -556,7 +554,7 @@ VarType parse_type(Parser *p) {
           if (p->current_token.type == TOKEN_KW_LONG) {
               eat(p, TOKEN_KW_LONG);
     if (p->has_error) return (VarType){0};
-              if (p->current_token.type == TOKEN_KW_LONG) eat(p, TOKEN_KW_LONG); 
+              if (p->current_token.type == TOKEN_KW_LONG) eat(p, TOKEN_KW_LONG);
               t.base = TYPE_LONG_DOUBLE;
           } else {
               t.base = TYPE_DOUBLE;
@@ -573,13 +571,13 @@ VarType parse_type(Parser *p) {
           if (p->current_token.type == TOKEN_LBRACKET) {
               eat(p, TOKEN_LBRACKET);
               char buf[512] = "__Union_";
-              
+
               ClassNode *cls = parser_alloc(p, sizeof(ClassNode));
               cls->base.type = NODE_CLASS;
               cls->is_union = 1;
               ASTNode *last_member = NULL;
               int field_idx = 0;
-              
+
               while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
                   VarType f_type = parse_type(p);
                   char *f_name = NULL;
@@ -591,7 +589,7 @@ VarType parse_type(Parser *p) {
                       snprintf(f_buf, sizeof(f_buf), "_f%d", field_idx++);
                       f_name = parser_strdup(p, f_buf);
                   }
-                  
+
                   VarDeclNode *vd = parser_alloc(p, sizeof(VarDeclNode));
                   vd->base.type = NODE_VAR_DECL;
                   vd->name = f_name;
@@ -599,7 +597,7 @@ VarType parse_type(Parser *p) {
                   if (last_member) last_member->next = (ASTNode*)vd;
                   else cls->members = (ASTNode*)vd;
                   last_member = (ASTNode*)vd;
-                  
+
                   strncat(buf, f_name, sizeof(buf) - strlen(buf) - 1);
                   if (p->current_token.type == TOKEN_COMMA) {
                       strncat(buf, "_", sizeof(buf) - strlen(buf) - 1);
@@ -624,11 +622,11 @@ VarType parse_type(Parser *p) {
                   eat(p, TOKEN_CLASS);
                   if (p->current_token.type == TOKEN_LBRACE) {
                       eat(p, TOKEN_LBRACE);
-                      
+
                       ClassNode *cls = parser_alloc(p, sizeof(ClassNode));
                       cls->base.type = NODE_CLASS;
                       ASTNode *last_member = NULL;
-                      
+
                        while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
                            VarType f_type = parse_type(p);
                            if (p->current_token.type == TOKEN_IDENTIFIER) {
@@ -646,7 +644,7 @@ VarType parse_type(Parser *p) {
                       }
                       eat(p, TOKEN_RBRACE);
                       t.base = TYPE_CLASS;
-                      
+
                       // Generate a unique name using a static counter for this session
                       static int anon_struct_counter = 0;
                       char buf[64];
@@ -666,8 +664,8 @@ VarType parse_type(Parser *p) {
           }
       }
       else {
-          if (t.is_unsigned) t.base = TYPE_INT; 
-          else return t; 
+          if (t.is_unsigned) t.base = TYPE_INT;
+          else return t;
       }
   }
 
@@ -676,7 +674,7 @@ VarType parse_type(Parser *p) {
     eat(p, TOKEN_STAR);
     if (p->has_error) return (VarType){0};
   }
-  
+
   if (p->current_token.type == TOKEN_LPAREN) {
       Token next = parser_peek_token(p);
       if (next.type == TOKEN_STAR) {
@@ -684,7 +682,7 @@ VarType parse_type(Parser *p) {
     if (p->has_error) return (VarType){0};
       }
   }
-  
+
   if (p->current_token.type == TOKEN_QUESTION) {
       t.is_tainted = 1;
       eat(p, TOKEN_QUESTION);
@@ -717,13 +715,13 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     vt.is_func_ptr = 1;
     vt.fp_ret_type = parser_alloc_raw(p, sizeof(VarType));
     *vt.fp_ret_type = ret_type;
-    
+
     eat(p, TOKEN_LPAREN);
     if (p->has_error) return (VarType){0};
     if (p->current_token.type == TOKEN_STAR) {
         eat(p, TOKEN_STAR);
     if (p->has_error) return (VarType){0};
-        
+
         if (p->current_token.type == TOKEN_IDENTIFIER) {
             if (out_name) *out_name = parser_strdup(p, p->current_token.text);
             eat(p, TOKEN_IDENTIFIER);
@@ -731,7 +729,7 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
         } else if (out_name) {
             *out_name = NULL;
         }
-        
+
         eat(p, TOKEN_RPAREN);
     if (p->has_error) return (VarType){0};
         eat(p, TOKEN_LPAREN);
@@ -739,11 +737,11 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     } else {
         if (out_name) *out_name = NULL;
     }
-    
+
     int cap = 4;
     vt.fp_param_types = parser_alloc_raw(p, sizeof(VarType) * cap);
     vt.fp_param_count = 0;
-    
+
     if (p->current_token.type != TOKEN_RPAREN) {
         while(1) {
             if (p->current_token.type == TOKEN_ELLIPSIS) {
@@ -752,19 +750,19 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     if (p->has_error) return (VarType){0};
                 break;
             }
-            
+
             int pmods = parse_modifiers(p);
     if (p->has_error) return (VarType){0};
             (void)pmods; // unused in func ptr types for now
             VarType pt = parse_type(p);
     if (p->has_error) return (VarType){0};
             if (pt.base == TYPE_UNKNOWN) parser_fail(p, "Expected type in function pointer params");
-            
+
             if (p->current_token.type == TOKEN_IDENTIFIER) {
-                eat(p, TOKEN_IDENTIFIER); 
+                eat(p, TOKEN_IDENTIFIER);
     if (p->has_error) return (VarType){0};
             }
-            
+
              if (p->current_token.type == TOKEN_LBRACKET) {
                 eat(p, TOKEN_LBRACKET);
     if (p->has_error) return (VarType){0};
@@ -777,7 +775,7 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     if (p->has_error) return (VarType){0};
                 pt.ptr_depth++;
             }
-            
+
             if (vt.fp_param_count >= cap) {
                 cap *= 2;
                 VarType *new_params = parser_alloc_raw(p, sizeof(VarType) * cap);
@@ -785,14 +783,14 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
                 vt.fp_param_types = new_params;
             }
             vt.fp_param_types[vt.fp_param_count++] = pt;
-            
+
             if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
             else break;
         }
     }
     eat(p, TOKEN_RPAREN);
     if (p->has_error) return (VarType){0};
-    
+
     return vt;
 }
 
@@ -928,27 +926,27 @@ ASTNode* parse_program(Parser *p) {
   /* Expand macros on the first token so REPL lines like `t` after
    * `define t as p` resolve to the same binding as `p`. */
   p->current_token = expand_macros_from(p, lexer_next_raw(p));
-  
+
   ASTNode *head = NULL;
   ASTNode **current = &head;
-  
+
   while (p->current_token.type != TOKEN_EOF) {
     if (p->has_error) {
         p->has_error = 0;
         parser_sync(p);
         if (p->current_token.type == TOKEN_EOF) break;
     }
-   
+
     ASTNode *node = parse_top_level(p);
     if (node) {
-        if (!*current) *current = node; 
-        
+        if (!*current) *current = node;
+
         ASTNode *iter = node;
         while (iter->next) iter = iter->next;
         current = &iter->next;
     }
   }
-  
+
   if (p->synthetic_classes) {
       if (!*current) *current = p->synthetic_classes;
       else {
@@ -959,6 +957,6 @@ ASTNode* parse_program(Parser *p) {
   } else {
       *current = NULL;
   }
-  
+
   return head;
 }
