@@ -5,12 +5,12 @@ set -euo pipefail
 # Usage: ./scripts/compare_bin <filename> [--opt|--unopt] [--runs N] [-- <extra compiler flags>]
 #   --opt          : compile with --opt (default)
 #   --unopt        : compile with --unopt
-#   --runs N       : number of hyperfine runs (default: 5)
+#   --runs N       : number of hyperfine runs (default: 100)
 #   -- <extra>     : pass extra flags directly to the alkyl compiler
 
 COMPILERS=("build/alkyl_llvm" "build/alkyl_qbe" "build/alkyl_mlir" "build/alkyl_cranelift")
 BACKENDS=("llvm" "qbe" "mlir" "cranelift")
-RUNS=5
+RUNS=100
 MODE="opt"
 EXTRA_FLAGS=()
 
@@ -60,7 +60,7 @@ if [[ -z "$FILENAME" ]]; then
     echo "  <filename>       : .kyl file or example name (e.g. fizzbuzz or test/code/examples/fizzbuzz.kyl)"
     echo "  --opt            : compile with --opt (default)"
     echo "  --unopt          : compile with --unopt"
-    echo "  --runs N         : number of hyperfine runs (default: 5)"
+    echo "  --runs N         : number of hyperfine runs (default: 100)"
     echo "  -- <extra flags> : pass extra flags directly to the alkyl compiler"
     exit 1
 fi
@@ -105,7 +105,11 @@ if ! command -v hyperfine &>/dev/null; then
     exit 1
 fi
 
-COMPILER_FLAG="--$MODE"
+if [[ "$MODE" == "opt" ]]; then
+    COMPILER_FLAG="-O3"
+else
+    COMPILER_FLAG="--unopt"
+fi
 
 # Temp dirs
 TMPDIR=$(mktemp -d)
@@ -270,5 +274,48 @@ for i in "${!BACKENDS[@]}"; do
     fi
 done
 [[ -n "$smallest" ]] && echo -e "  Smallest size:   ${COLOR_GREEN}$smallest${COLOR_RESET} (${smallest_size} bytes)"
+
+echo ""
+
+echo -e "${COLOR_BOLD}Losers:${COLOR_RESET}"
+
+# Slowest compile
+slowest_compile=""
+slowest_compile_time="-1"
+for i in "${!BACKENDS[@]}"; do
+    if [[ "${compile_times[$i]:-N/A}" != "N/A" ]]; then
+        if python3 -c "import sys; print(float('${compile_times[$i]}') > float('$slowest_compile_time'))" 2>/dev/null | grep -q True; then
+            slowest_compile_time="${compile_times[$i]}"
+            slowest_compile="${BACKENDS[$i]}"
+        fi
+    fi
+done
+[[ -n "$slowest_compile" ]] && echo -e "  Slowest compile: ${COLOR_RED}$slowest_compile${COLOR_RESET} (${slowest_compile_time}s)"
+
+# Slowest exec
+slowest_exec=""
+slowest_exec_time="-1"
+for i in "${!BACKENDS[@]}"; do
+    if [[ "${exec_times[$i]:-N/A}" != "N/A" ]]; then
+        if python3 -c "import sys; print(float('${exec_times[$i]}') > float('$slowest_exec_time'))" 2>/dev/null | grep -q True; then
+            slowest_exec_time="${exec_times[$i]}"
+            slowest_exec="${BACKENDS[$i]}"
+        fi
+    fi
+done
+[[ -n "$slowest_exec" ]] && echo -e "  Slowest exec:    ${COLOR_RED}$slowest_exec${COLOR_RESET} (${slowest_exec_time}s)"
+
+# Biggest
+biggest=""
+biggest_size="-1"
+for i in "${!BACKENDS[@]}"; do
+    if [[ "${sizes[$i]:-N/A}" != "N/A" ]]; then
+        if python3 -c "import sys; print(int('${sizes[$i]}') > int('$biggest_size'))" 2>/dev/null | grep -q True; then
+            biggest_size="${sizes[$i]}"
+            biggest="${BACKENDS[$i]}"
+        fi
+    fi
+done
+[[ -n "$biggest" ]] && echo -e "  Biggest size:    ${COLOR_RED}$biggest${COLOR_RESET} (${biggest_size} bytes)"
 
 echo ""
