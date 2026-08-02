@@ -11,31 +11,54 @@ MIME_ICON_DIR="$HOME/.local/share/icons/hicolor/512x512/mimetypes"
 APP_DIR="$HOME/.local/share/applications"
 BIN_DIR="$HOME/.local/bin"
 MIME_DIR="$HOME/.local/share/mime/packages"
+LIB_DIR="$HOME/.local/share/alkyl"
 
-mkdir -p "$ICON_DIR" "$MIME_ICON_DIR" "$APP_DIR" "$BIN_DIR" "$MIME_DIR"
+mkdir -p "$ICON_DIR" "$MIME_ICON_DIR" "$APP_DIR" "$BIN_DIR" "$MIME_DIR" "$LIB_DIR"
 
-echo "Installing Alkyl executable..."
-if [ -f "$PROJECT_ROOT/build/alkyl" ]; then
-    install -Dm755 "$PROJECT_ROOT/build/alkyl" "$BIN_DIR/alkyl"
-else
-    echo "Error: build/alkyl not found. Run cmake build first."
-    exit 1
+install_binary() {
+    local src="$1"
+    local dest="$2"
+    if [ -f "$src" ]; then
+        install -Dm755 "$src" "$dest"
+    else
+        echo "Warning: $src not found, skipping."
+    fi
+}
+
+install_desktop() {
+    local src="$1"
+    local dest="$2"
+    if [ -f "$src" ]; then
+        install -Dm644 "$src" "$dest"
+    fi
+}
+
+echo "Installing Alkyl compiler binaries..."
+install_binary "$PROJECT_ROOT/build/alkyl" "$BIN_DIR/alkyl"
+install_binary "$PROJECT_ROOT/build/alkyl_llvm" "$BIN_DIR/alkyl_llvm"
+install_binary "$PROJECT_ROOT/build/alkyl_qbe" "$BIN_DIR/alkyl_qbe"
+install_binary "$PROJECT_ROOT/build/alkyl_mlir" "$BIN_DIR/alkyl_mlir"
+install_binary "$PROJECT_ROOT/build/alkyl_cranelift" "$BIN_DIR/alkyl_cranelift"
+install_binary "$PROJECT_ROOT/build/ethyl" "$BIN_DIR/ethyl"
+
+echo "Installing standard libraries..."
+if [ -d "$PROJECT_ROOT/lib" ]; then
+    cp -r "$PROJECT_ROOT/lib/." "$LIB_DIR/"
 fi
 
 echo "Installing icons..."
-if [ -f "$PROJECT_ROOT/misc/asset/logo.png" ]; then
-    install -Dm644 "$PROJECT_ROOT/misc/asset/logo.png" "$ICON_DIR/alkyl.png"
-fi
+install -Dm644 "$PROJECT_ROOT/misc/asset/logo.png" "$ICON_DIR/alkyl.png"
+install -Dm644 "$PROJECT_ROOT/misc/asset/script_logo.png" "$MIME_ICON_DIR/application-x-alkyl.png"
 
-if [ -f "$PROJECT_ROOT/misc/asset/script_logo.png" ]; then
-    install -Dm644 "$PROJECT_ROOT/misc/asset/script_logo.png" "$MIME_ICON_DIR/application-x-alkyl.png"
-fi
+echo "Installing desktop entries..."
+install_desktop "$INSTALLER_DIR/alkyl.desktop" "$APP_DIR/alkyl.desktop"
+install_desktop "$INSTALLER_DIR/alkyl-llvm.desktop" "$APP_DIR/alkyl-llvm.desktop"
+install_desktop "$INSTALLER_DIR/alkyl-qbe.desktop" "$APP_DIR/alkyl-qbe.desktop"
+install_desktop "$INSTALLER_DIR/alkyl-mlir.desktop" "$APP_DIR/alkyl-mlir.desktop"
+install_desktop "$INSTALLER_DIR/alkyl-cranelift.desktop" "$APP_DIR/alkyl-cranelift.desktop"
+install_desktop "$INSTALLER_DIR/ethyl.desktop" "$APP_DIR/ethyl.desktop"
 
-echo "Installing desktop entry and MIME types..."
-if [ -f "$INSTALLER_DIR/alkyl.desktop" ]; then
-    install -Dm644 "$INSTALLER_DIR/alkyl.desktop" "$APP_DIR/alkyl.desktop"
-fi
-
+echo "Installing MIME types..."
 if [ -f "$INSTALLER_DIR/application-x-alkyl.xml" ]; then
     install -Dm644 "$INSTALLER_DIR/application-x-alkyl.xml" "$MIME_DIR/application-x-alkyl.xml"
 fi

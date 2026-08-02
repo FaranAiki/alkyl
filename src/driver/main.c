@@ -44,8 +44,7 @@ int main(int argc, char *argv[]) {
     LinkerType current_linker = LINKER_GCC;
 
     ParserSettings parser_settings = {0};
-    // This is the default setting
-    // for Alkyl as a compiled programming language
+    parser_set_default_import_paths(&parser_settings);
     parser_settings.namespace_auto_search = 1;
     parser_settings.namespace_ausearch_warning = 1;
     parser_settings.function_call_require_comma = 1;

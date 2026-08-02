@@ -29,14 +29,25 @@ build() {
 package() {
   cd "$srcdir/$pkgname"
 
-  install -Dm755 build/alkyl_llvm "$pkgdir/usr/bin/alkyl"
+  install -Dm755 build/alkyl "$pkgdir/usr/bin/alkyl"
+  install -Dm755 build/alkyl_llvm "$pkgdir/usr/bin/alkyl_llvm"
   install -Dm755 build/ethyl "$pkgdir/usr/bin/ethyl"
 
+  [ -f build/alkyl_qbe ] && install -Dm755 build/alkyl_qbe "$pkgdir/usr/bin/alkyl_qbe"
+  [ -f build/alkyl_mlir ] && install -Dm755 build/alkyl_mlir "$pkgdir/usr/bin/alkyl_mlir"
+  [ -f build/alkyl_cranelift ] && install -Dm755 build/alkyl_cranelift "$pkgdir/usr/bin/alkyl_cranelift"
+
   install -Dm644 misc/asset/logo.png "$pkgdir/usr/share/icons/hicolor/512x512/apps/alkyl.png"
+  install -Dm644 misc/asset/script_logo.png "$pkgdir/usr/share/icons/hicolor/512x512/mimetypes/application-x-alkyl.png"
 
   install -Dm644 misc/installer/linux/arch/alkyl.desktop "$pkgdir/usr/share/applications/alkyl.desktop"
+  install -Dm644 misc/installer/linux/arch/alkyl-llvm.desktop "$pkgdir/usr/share/applications/alkyl-llvm.desktop"
+  install -Dm644 misc/installer/linux/arch/alkyl-qbe.desktop "$pkgdir/usr/share/applications/alkyl-qbe.desktop"
+  install -Dm644 misc/installer/linux/arch/alkyl-mlir.desktop "$pkgdir/usr/share/applications/alkyl-mlir.desktop"
+  install -Dm644 misc/installer/linux/arch/alkyl-cranelift.desktop "$pkgdir/usr/share/applications/alkyl-cranelift.desktop"
+  install -Dm644 misc/installer/linux/arch/ethyl.desktop "$pkgdir/usr/share/applications/ethyl.desktop"
 
   install -Dm644 misc/installer/linux/arch/application-x-alkyl.xml "$pkgdir/usr/share/mime/packages/application-x-alkyl.xml"
 
-  install -Dm644 misc/asset/script_logo.png "$pkgdir/usr/share/icons/hicolor/512x512/mimetypes/application-x-alkyl.png"
+  cp -r lib "$pkgdir/usr/share/alkyl/"
 }

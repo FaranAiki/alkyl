@@ -47,6 +47,7 @@ cc_binary(
     includes = ["include", "include/codegen_qbe", "include/codegen_llvm", "include/codegen_llvm/fragment", "include/metarse", "include/mlir", "include/mlir/tablegen", "include/parser", "include/parser/fragment", "include/optlir", "include/metalir", "include/lexer", "include/common", "include/alir", "include/alir/fragment", "include/semantic", "include/semantic/fragment", "include/semantic/modifier", "include/driver", "include/alick", "include/codegen", "src"],
     copts = ["-O3", "-std=gnu11", "-Iinclude", "-include", "stdbool.h", "-D_GNU_SOURCE"],
     linkopts = ["-lLLVM-22", "-lm"],
+    data = glob(["lib/**/*"]),
 )
 
 # MLIR Compiler
@@ -96,6 +97,7 @@ cc_binary(
     includes = ["include", "include/codegen_qbe", "include/codegen_llvm", "include/codegen_llvm/fragment", "include/metarse", "include/mlir", "include/mlir/tablegen", "include/parser", "include/parser/fragment", "include/optlir", "include/metalir", "include/lexer", "include/common", "include/alir", "include/alir/fragment", "include/semantic", "include/semantic/fragment", "include/semantic/modifier", "include/driver", "include/alick", "include/codegen", "src"],
     copts = ["-O3", "-std=gnu11", "-Iinclude", "-include", "stdbool.h", "-D_GNU_SOURCE"],
     linkopts = ["-lMLIR", "-lLLVM-22", "-lm"],
+    data = glob(["lib/**/*"]),
 )
 
 # Cranelift Backend (Rust)
@@ -156,4 +158,5 @@ cc_binary(
         ":alkyl_cranelift_backend",
     ],
     linkopts = ["-lm", "-lpthread", "-ldl"],
+    data = glob(["lib/**/*"]),
 )

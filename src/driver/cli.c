@@ -71,11 +71,9 @@ int run_repl(void) {
     sem_settings.namespace_ausearch_warning = false;
     MetalirRunner *r = metalir_runner_create("ethyl_repl", &sem_settings, 0);
 
-    // TODO is this proper to hardcode it here?
-    // metalir_load_module(r, "lib/std/ethyl.kyl");
-    metalir_load_module(r, "lib/std/math.kyl");
-    metalir_load_module(r, "lib/std/heap.kyl");
-    metalir_load_module(r, "lib/std/print.kyl");
+    metalir_load_module(r, "std/math");
+    metalir_load_module(r, "std/heap");
+    metalir_load_module(r, "std/print");
 
     signal(SIGINT, SIG_IGN);
 

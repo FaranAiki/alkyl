@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
     p->l = l;
@@ -796,30 +797,81 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
 }
 
 static char* read_file_content(Parser *p, const char* path) {
+    struct stat st;
+    if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
+        return NULL;
+    }
     FILE* f = fopen(path, "rb");
     if (!f) return NULL;
     fseek(f, 0, SEEK_END);
     long len = ftell(f);
+    if (len <= 0) { fclose(f); return NULL; }
     fseek(f, 0, SEEK_SET);
-    char* buf = parser_alloc_raw(p, len + 1);
-    if(buf) { fread(buf, 1, len, f); buf[len] = 0; }
+    char* buf = parser_alloc_raw(p, (size_t)len + 1);
+    if(buf) {
+        if (fread(buf, 1, (size_t)len, f) != (size_t)len) {
+            buf = NULL;
+        } else {
+            buf[len] = 0;
+        }
+    }
     fclose(f);
     return buf;
 }
 
 char* read_import_file(Parser *p, const char* filename) {
-  const char* paths[] = { "", "lib/" };
-  const char* exts[] = { ".kyl", ".hky", ".alk", ".alky", ".alkyl", "" };
-  char path[1024];
-  
-  for (unsigned long i = 0; i < sizeof(paths)/sizeof(*paths); i++) {
-      for (unsigned long j = 0; j < sizeof(exts)/sizeof(*exts); j++) {
-          snprintf(path, sizeof(path), "%s%s%s", paths[i], filename, exts[j]);
-          char *content = read_file_content(p, path);
-          if (content) return content;
-      }
-  }
-  return NULL;
+    const char *exts[] = { ".kyl", ".hky", ".alk", ".alky", ".alkyl", "" };
+    char path[1024];
+
+    if (p->l && p->l->filename && p->l->filename[0]) {
+        const char *file_dir = p->l->filename;
+        const char *last_slash = strrchr(file_dir, '/');
+        if (last_slash) {
+            size_t dir_len = (size_t)(last_slash - file_dir);
+            if (dir_len < sizeof(path)) {
+                for (unsigned long j = 0; j < sizeof(exts)/sizeof(*exts); j++) {
+                    snprintf(path, sizeof(path), "%.*s/%s%s", (int)dir_len, file_dir, filename, exts[j]);
+                    char *content = read_file_content(p, path);
+                    if (content) return content;
+                }
+            }
+        }
+    }
+
+    if (p->settings.import_paths && p->settings.import_path_count > 0) {
+        for (int i = 0; i < p->settings.import_path_count; i++) {
+            for (unsigned long j = 0; j < sizeof(exts)/sizeof(*exts); j++) {
+                snprintf(path, sizeof(path), "%s/%s%s", p->settings.import_paths[i], filename, exts[j]);
+                char *content = read_file_content(p, path);
+                if (content) return content;
+            }
+        }
+    }
+
+    const char *fallback_paths[] = { "", "lib/", "./lib/" };
+    for (unsigned long i = 0; i < sizeof(fallback_paths)/sizeof(*fallback_paths); i++) {
+        for (unsigned long j = 0; j < sizeof(exts)/sizeof(*exts); j++) {
+            snprintf(path, sizeof(path), "%s%s%s", fallback_paths[i], filename, exts[j]);
+            char *content = read_file_content(p, path);
+            if (content) return content;
+        }
+    }
+    return NULL;
+}
+
+void parser_set_default_import_paths(ParserSettings *ps) {
+    static const char *paths[4];
+    int count = 0;
+    paths[count++] = "/usr/share/alkyl";
+    paths[count++] = "/usr/local/share/alkyl";
+    const char *home = getenv("HOME");
+    if (home) {
+        static char user_path[512];
+        snprintf(user_path, sizeof(user_path), "%s/.local/share/alkyl", home);
+        paths[count++] = user_path;
+    }
+    ps->import_paths = paths;
+    ps->import_path_count = count;
 }
 
 Token parser_peek_token(Parser *p) {

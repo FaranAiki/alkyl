@@ -28,6 +28,8 @@ typedef struct {
     int array_separator_with_space; // default 0
     int multiplication_if_digit_word; // default 0: 2pi -> 2*pi
     int exponentation_if_word_digit;  // default 0: pi2 -> pi**2 (future)
+    const char **import_paths;
+    int import_path_count;
 } ParserSettings;
 
 typedef struct Parser {
@@ -66,6 +68,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
 
 Token parser_peek_token(Parser *p);
 void parser_prescan(Parser *p);
+void parser_set_default_import_paths(ParserSettings *ps);
 
 ASTNode* parse_program(Parser *p);
 ASTNode* parse_expression(Parser *p);

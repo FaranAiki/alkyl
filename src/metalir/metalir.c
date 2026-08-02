@@ -18,6 +18,7 @@ MetalirRunner* metalir_runner_create(const char *module_name,
     ParserSettings ps = {0};
     ps.function_call_require_comma = function_call_require_comma;
     ps.array_separator_with_space = 1;
+    parser_set_default_import_paths(&ps);
     if (module_name && strstr(module_name, "repl")) {
         ps.multiplication_if_digit_word = 1;
         ps.exponentation_if_word_digit = 1;
@@ -458,9 +459,15 @@ long long metalir_execute_string(MetalirRunner *r, const char *source,
 
 int metalir_load_module(MetalirRunner *r, const char *path) {
     char *src = read_file(path);
+    int from_malloc = 0;
+    if (!src) {
+        src = read_import_file(&r->parser, path);
+    } else {
+        from_malloc = 1;
+    }
     if (!src) return -1;
     metalir_execute_string(r, src, path);
-    free(src);
+    if (from_malloc) free(src);
     r->ctx.semantic_error_count = 0;
     r->ctx.error_count = 0;
     return 0;

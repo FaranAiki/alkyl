@@ -475,6 +475,24 @@ install(TARGETS alkyl_llvm ethyl
     RUNTIME DESTINATION bin
 )
 
+if (BACKEND_LOWER STREQUAL "qbe" OR BUILDALL)
+    install(TARGETS alkyl_qbe
+        RUNTIME DESTINATION bin
+    )
+endif()
+
+if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
+    install(TARGETS alkyl_mlir
+        RUNTIME DESTINATION bin
+    )
+endif()
+
+if (BACKEND_LOWER STREQUAL "cranelift" OR BUILDALL)
+    install(TARGETS alkyl_cranelift
+        RUNTIME DESTINATION bin
+    )
+endif()
+
 install(FILES ${CMAKE_SOURCE_DIR}/misc/asset/logo.png
     DESTINATION share/icons/hicolor/512x512/apps
     RENAME alkyl.png
@@ -488,7 +506,27 @@ install(FILES ${CMAKE_SOURCE_DIR}/misc/asset/script_logo.png
 install(FILES ${CMAKE_SOURCE_DIR}/misc/installer/linux/arch/alkyl.desktop
     DESTINATION share/applications
 )
+install(FILES ${CMAKE_SOURCE_DIR}/misc/installer/linux/arch/alkyl-llvm.desktop
+    DESTINATION share/applications
+)
+install(FILES ${CMAKE_SOURCE_DIR}/misc/installer/linux/arch/alkyl-qbe.desktop
+    DESTINATION share/applications
+)
+install(FILES ${CMAKE_SOURCE_DIR}/misc/installer/linux/arch/alkyl-mlir.desktop
+    DESTINATION share/applications
+)
+install(FILES ${CMAKE_SOURCE_DIR}/misc/installer/linux/arch/alkyl-cranelift.desktop
+    DESTINATION share/applications
+)
+install(FILES ${CMAKE_SOURCE_DIR}/misc/installer/linux/arch/ethyl.desktop
+    DESTINATION share/applications
+)
 
 install(FILES ${CMAKE_SOURCE_DIR}/misc/installer/linux/arch/application-x-alkyl.xml
     DESTINATION share/mime/packages
+)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/lib/
+    DESTINATION share/alkyl
+    FILES_MATCHING PATTERN "*"
 )
