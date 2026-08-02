@@ -71,6 +71,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
 
     // TODO change this into switch instead of if-else
     while (node) {
+        ctx->current_node = node;
         if (node->type == NODE_FUNC_DEF) {
             FuncDefNode *fd = (FuncDefNode*)node;
             // Register the error set attached via `errnum [...]` and mark the
@@ -322,6 +323,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
 // because this is too big!
 void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
+    ctx->current_node = node;
     if (node->is_macro_arg) return;
 
     debug_any("sem_check_expr: type=%d line=%d col=%d node=%p\n", node->type, node->line, node->col, (void*)node);

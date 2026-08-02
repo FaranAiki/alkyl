@@ -588,21 +588,35 @@ void alkyl_mlir_build_scf_if_end(AlkylMlirContext c_ctx, void* if_op_ptr) {
     (void)c_ctx; (void)if_op_ptr;
 #endif
 }
+#ifdef HAS_MLIR
+struct CfgLoopBlocks {
+    mlir::Block *condBlock;
+    mlir::Block *bodyBlock;
+    mlir::Block *endBlock;
+};
+static std::vector<CfgLoopBlocks*> loop_stack;
+#endif
 
 void* alkyl_mlir_build_scf_while_start(AlkylMlirContext c_ctx) {
 #ifdef HAS_MLIR
     if (!global_builder) return nullptr;
-    auto whileOp = global_builder->create<mlir::scf::WhileOp>(
-        global_builder->getUnknownLoc(),
-        mlir::TypeRange{},
-        mlir::ValueRange{}
-    );
-    auto *beforeBlock = new mlir::Block();
-    whileOp.getBefore().push_back(beforeBlock);
-    auto *afterBlock = new mlir::Block();
-    whileOp.getAfter().push_back(afterBlock);
-    global_builder->setInsertionPointToEnd(beforeBlock);
-    return reinterpret_cast<void*>(whileOp.getOperation());
+    auto *condBlock = new mlir::Block();
+    auto *bodyBlock = new mlir::Block();
+    auto *endBlock = new mlir::Block();
+    
+    mlir::Region *region = global_builder->getBlock()->getParent();
+    region->push_back(condBlock);
+    region->push_back(bodyBlock);
+    region->push_back(endBlock);
+
+    if (!alkyl_mlir_is_terminated(c_ctx)) {
+        global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), condBlock);
+    }
+    global_builder->setInsertionPointToEnd(condBlock);
+    
+    CfgLoopBlocks *loop = new CfgLoopBlocks{condBlock, bodyBlock, endBlock};
+    loop_stack.push_back(loop);
+    return reinterpret_cast<void*>(loop);
 #else
     (void)c_ctx; return reinterpret_cast<void*>(1);
 #endif
@@ -611,8 +625,7 @@ void* alkyl_mlir_build_scf_while_start(AlkylMlirContext c_ctx) {
 void alkyl_mlir_build_scf_while_cond_yield(AlkylMlirContext c_ctx, void* while_op_ptr, AlkylMlirValue cond) {
 #ifdef HAS_MLIR
     if (!global_builder || !while_op_ptr) return;
-    auto op = static_cast<mlir::Operation*>(while_op_ptr);
-    auto whileOp = mlir::cast<mlir::scf::WhileOp>(op);
+    CfgLoopBlocks *loop = reinterpret_cast<CfgLoopBlocks*>(while_op_ptr);
     auto condition = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(cond));
     
     auto bool_cond = condition;
@@ -620,8 +633,9 @@ void alkyl_mlir_build_scf_while_cond_yield(AlkylMlirContext c_ctx, void* while_o
         auto zero = global_builder->create<mlir::arith::ConstantIntOp>(global_builder->getUnknownLoc(), condition.getType(), 0);
         bool_cond = global_builder->create<mlir::arith::CmpIOp>(global_builder->getUnknownLoc(), mlir::arith::CmpIPredicate::ne, condition, zero);
     }
-    global_builder->create<mlir::scf::ConditionOp>(global_builder->getUnknownLoc(), bool_cond, mlir::ValueRange{});
-    global_builder->setInsertionPointToEnd(&whileOp.getAfter().front());
+    
+    global_builder->create<mlir::cf::CondBranchOp>(global_builder->getUnknownLoc(), bool_cond, loop->bodyBlock, loop->endBlock);
+    global_builder->setInsertionPointToEnd(loop->bodyBlock);
 #else
     (void)c_ctx; (void)while_op_ptr; (void)cond;
 #endif
@@ -630,12 +644,18 @@ void alkyl_mlir_build_scf_while_cond_yield(AlkylMlirContext c_ctx, void* while_o
 void alkyl_mlir_build_scf_while_end(AlkylMlirContext c_ctx, void* while_op_ptr) {
 #ifdef HAS_MLIR
     if (!global_builder || !while_op_ptr) return;
-    auto op = static_cast<mlir::Operation*>(while_op_ptr);
-    auto whileOp = mlir::cast<mlir::scf::WhileOp>(op);
+    CfgLoopBlocks *loop = reinterpret_cast<CfgLoopBlocks*>(while_op_ptr);
+    
     if (!alkyl_mlir_is_terminated(c_ctx)) {
-        global_builder->create<mlir::scf::YieldOp>(global_builder->getUnknownLoc());
+        global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), loop->condBlock);
     }
-    global_builder->setInsertionPointAfter(whileOp);
+    
+    global_builder->setInsertionPointToEnd(loop->endBlock);
+    
+    if (!loop_stack.empty() && loop_stack.back() == loop) {
+        loop_stack.pop_back();
+    }
+    delete loop;
 #else
     (void)c_ctx; (void)while_op_ptr;
 #endif
@@ -643,8 +663,11 @@ void alkyl_mlir_build_scf_while_end(AlkylMlirContext c_ctx, void* while_op_ptr) 
 
 void alkyl_mlir_build_scf_break(AlkylMlirContext c_ctx) {
 #ifdef HAS_MLIR
-    if (!global_builder) return;
-    // Placeholder for SCF Break
+    if (!global_builder || loop_stack.empty()) return;
+    CfgLoopBlocks *loop = loop_stack.back();
+    if (!alkyl_mlir_is_terminated(c_ctx)) {
+        global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), loop->endBlock);
+    }
 #else
     (void)c_ctx;
 #endif
@@ -652,8 +675,11 @@ void alkyl_mlir_build_scf_break(AlkylMlirContext c_ctx) {
 
 void alkyl_mlir_build_scf_continue(AlkylMlirContext c_ctx) {
 #ifdef HAS_MLIR
-    if (!global_builder) return;
-    // Placeholder for SCF Continue
+    if (!global_builder || loop_stack.empty()) return;
+    CfgLoopBlocks *loop = loop_stack.back();
+    if (!alkyl_mlir_is_terminated(c_ctx)) {
+        global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), loop->condBlock);
+    }
 #else
     (void)c_ctx;
 #endif

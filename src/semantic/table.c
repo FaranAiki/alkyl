@@ -303,7 +303,11 @@ SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
                 SemSymbol *sym = find_in_scope_direct(ns->inner_scope, name);
                 if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM || sym->kind == SYM_NAMESPACE || sym->kind == SYM_TEMPLATE)) {
                     if (ctx->settings.namespace_ausearch_warning) {
-                        printf("\033[33mWarning:\033[0m Implicitly resolved '%s' to '%s.%s'\n", name, ns->name, name);
+                        if (ctx->current_node) {
+                            printf("\033[33mWarning:\033[0m Implicitly resolved '%s' to '%s.%s' at line %d\n", name, ns->name, name, ctx->current_node->line);
+                        } else {
+                            printf("\033[33mWarning:\033[0m Implicitly resolved '%s' to '%s.%s'\n", name, ns->name, name);
+                        }
                     }
                     return sym;
                 }
@@ -422,7 +426,11 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
                 SemSymbol *sym = find_in_scope_direct(ns->inner_scope, name);
                 if (sym) {
                     if (ctx->settings.namespace_ausearch_warning) {
-                        printf("\033[33mWarning:\033[0m Implicitly resolved '%s' to '%s.%s'\n", name, ns->name, name);
+                        if (ctx->current_node) {
+                            printf("\033[33mWarning:\033[0m Implicitly resolved '%s' to '%s.%s' at line %d\n", name, ns->name, name, ctx->current_node->line);
+                        } else {
+                            printf("\033[33mWarning:\033[0m Implicitly resolved '%s' to '%s.%s'\n", name, ns->name, name);
+                        }
                     }
                     if (out_scope) *out_scope = ns->inner_scope;
                     return sym;

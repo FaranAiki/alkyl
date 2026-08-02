@@ -3,6 +3,7 @@
 void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
     if (node->is_macro_arg) return;
+    ctx->current_node = node;
 
     switch (node->type) {
         case NODE_PURGE: {
