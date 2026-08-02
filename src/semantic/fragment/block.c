@@ -241,7 +241,6 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_METHOD_CALL:
         case NODE_MEMBER_ACCESS:
         case NODE_INDEX_ACCESS:
-        case NODE_VECTOR_ACCESS:
         case NODE_BINARY_OP:
         case NODE_UNARY_OP:
         case NODE_VAR_REF:

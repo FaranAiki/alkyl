@@ -55,7 +55,11 @@ void* alkyl_mlir_build_scf_if_start(AlkylMlirContext ctx, AlkylMlirValue cond, i
 void alkyl_mlir_build_scf_if_else(AlkylMlirContext ctx, void* if_op_ptr);
 void alkyl_mlir_build_scf_if_end(AlkylMlirContext ctx, void* if_op_ptr);
 
-void alkyl_mlir_build_scf_while(AlkylMlirContext ctx, AlkylMlirValue cond);
+void* alkyl_mlir_build_scf_while_start(AlkylMlirContext ctx);
+void alkyl_mlir_build_scf_while_cond_yield(AlkylMlirContext ctx, void* while_op_ptr, AlkylMlirValue cond);
+void alkyl_mlir_build_scf_while_end(AlkylMlirContext ctx, void* while_op_ptr);
+void alkyl_mlir_build_scf_break(AlkylMlirContext ctx);
+void alkyl_mlir_build_scf_continue(AlkylMlirContext ctx);
 
 void* alkyl_mlir_build_switch_start(AlkylMlirContext ctx, AlkylMlirValue cond, int num_cases);
 void alkyl_mlir_build_switch_case_start(AlkylMlirContext ctx, void* switch_op_ptr, AlkylMlirValue val, int is_leak);

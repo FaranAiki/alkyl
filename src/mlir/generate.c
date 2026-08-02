@@ -107,12 +107,14 @@ static void generate_inherited_methods(AlkylMlirContext ctx, AlkylMlirModule mod
                                     p = p->next;
                                 }
 
+                                reset_mlir_defers();
                                 ASTNode *curr = fn->body;
                                 while (curr) {
                                     mlir_gen_stmt(ctx, mod, curr);
                                     curr = curr->next;
                                 }
                                 if (!alkyl_mlir_is_terminated(ctx)) {
+                                    execute_mlir_defers(ctx, mod);
                                     alkyl_mlir_build_return(ctx, alkyl_mlir_build_int_constant(ctx, 0));
                                 }
                             }
@@ -191,12 +193,14 @@ static void generate_inherited_methods(AlkylMlirContext ctx, AlkylMlirModule mod
                                     p = p->next;
                                 }
 
+                                reset_mlir_defers();
                                 ASTNode *curr = fn->body;
                                 while (curr) {
                                     mlir_gen_stmt(ctx, mod, curr);
                                     curr = curr->next;
                                 }
                                 if (!alkyl_mlir_is_terminated(ctx)) {
+                                    execute_mlir_defers(ctx, mod);
                                     alkyl_mlir_build_return(ctx, alkyl_mlir_build_int_constant(ctx, 0));
                                 }
                             }
@@ -249,12 +253,14 @@ static void generate_node(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *no
                 p = p->next;
             }
 
+            reset_mlir_defers();
             ASTNode *curr = fn->body;
             while (curr) {
                 mlir_gen_stmt(ctx, mod, curr);
                 curr = curr->next;
             }
             if (!alkyl_mlir_is_terminated(ctx)) {
+                execute_mlir_defers(ctx, mod);
                 alkyl_mlir_build_return(ctx, alkyl_mlir_build_int_constant(ctx, 0));
             }
         }
@@ -299,12 +305,14 @@ static void generate_node(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *no
                             p = p->next;
                         }
 
+                        reset_mlir_defers();
                         ASTNode *curr = fn->body;
                         while (curr) {
                             mlir_gen_stmt(ctx, mod, curr);
                             curr = curr->next;
                         }
                         if (!alkyl_mlir_is_terminated(ctx)) {
+                            execute_mlir_defers(ctx, mod);
                             alkyl_mlir_build_return(ctx, alkyl_mlir_build_int_constant(ctx, 0));
                         }
                     }
@@ -324,6 +332,11 @@ static void generate_node(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *no
     } else if (node->type == NODE_NAMESPACE) {
         NamespaceNode *ns = (NamespaceNode*)node;
         generate_node(ctx, mod, ns->body);
+    } else if (node->type == NODE_IMPORT) {
+        ImportNode *in = (ImportNode*)node;
+        if (in->resolved_body) {
+            generate_node(ctx, mod, in->resolved_body);
+        }
     }
 
     generate_node(ctx, mod, node->next);

@@ -350,6 +350,41 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
             }
             return alkyl_mlir_build_int_constant(ctx, 0);
         }
+        case NODE_UNARY_OP: {
+            UnaryOpNode *unop = (UnaryOpNode*)node;
+            AlkylMlirValue operand = mlir_gen_expr(ctx, mod, unop->operand);
+            if (unop->op == TOKEN_MINUS) {
+                AlkylMlirValue zero = alkyl_mlir_build_int_constant(ctx, 0);
+                return alkyl_mlir_build_sub(ctx, zero, operand);
+            } else if (unop->op == TOKEN_NOT) {
+                AlkylMlirValue one = alkyl_mlir_build_int_constant(ctx, 1);
+                return alkyl_mlir_build_xor(ctx, operand, one);
+            } else if (unop->op == TOKEN_BIT_NOT) {
+                AlkylMlirValue minus_one = alkyl_mlir_build_int_constant(ctx, -1);
+                return alkyl_mlir_build_xor(ctx, operand, minus_one);
+            } else if (unop->op == TOKEN_STAR) {
+                return alkyl_mlir_build_load(ctx, operand);
+            }
+            return operand;
+        }
+        case NODE_ARRAY_LIT: {
+            ArrayLitNode *arr = (ArrayLitNode*)node;
+            int num_elements = 0;
+            ASTNode *elem = arr->elements;
+            while (elem) { num_elements++; elem = elem->next; }
+            
+            AlkylMlirValue obj = alkyl_mlir_build_alloc_object(ctx, num_elements);
+            
+            int i = 0;
+            elem = arr->elements;
+            while (elem && i < num_elements) {
+                AlkylMlirValue val = mlir_gen_expr(ctx, mod, elem);
+                alkyl_mlir_build_store_field(ctx, val, obj, i);
+                i++;
+                elem = elem->next;
+            }
+            return obj;
+        }
         default:
             printf("Warning: Unhandled expr node type %d in MLIR\n", node->type);
             return alkyl_mlir_build_int_constant(ctx, 0);

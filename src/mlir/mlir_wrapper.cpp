@@ -589,12 +589,73 @@ void alkyl_mlir_build_scf_if_end(AlkylMlirContext c_ctx, void* if_op_ptr) {
 #endif
 }
 
-void alkyl_mlir_build_scf_while(AlkylMlirContext c_ctx, AlkylMlirValue cond) {
+void* alkyl_mlir_build_scf_while_start(AlkylMlirContext c_ctx) {
+#ifdef HAS_MLIR
+    if (!global_builder) return nullptr;
+    auto whileOp = global_builder->create<mlir::scf::WhileOp>(
+        global_builder->getUnknownLoc(),
+        mlir::TypeRange{},
+        mlir::ValueRange{}
+    );
+    auto *beforeBlock = new mlir::Block();
+    whileOp.getBefore().push_back(beforeBlock);
+    auto *afterBlock = new mlir::Block();
+    whileOp.getAfter().push_back(afterBlock);
+    global_builder->setInsertionPointToEnd(beforeBlock);
+    return reinterpret_cast<void*>(whileOp.getOperation());
+#else
+    (void)c_ctx; return reinterpret_cast<void*>(1);
+#endif
+}
+
+void alkyl_mlir_build_scf_while_cond_yield(AlkylMlirContext c_ctx, void* while_op_ptr, AlkylMlirValue cond) {
+#ifdef HAS_MLIR
+    if (!global_builder || !while_op_ptr) return;
+    auto op = static_cast<mlir::Operation*>(while_op_ptr);
+    auto whileOp = mlir::cast<mlir::scf::WhileOp>(op);
+    auto condition = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(cond));
+    
+    auto bool_cond = condition;
+    if (!condition.getType().isInteger(1)) {
+        auto zero = global_builder->create<mlir::arith::ConstantIntOp>(global_builder->getUnknownLoc(), condition.getType(), 0);
+        bool_cond = global_builder->create<mlir::arith::CmpIOp>(global_builder->getUnknownLoc(), mlir::arith::CmpIPredicate::ne, condition, zero);
+    }
+    global_builder->create<mlir::scf::ConditionOp>(global_builder->getUnknownLoc(), bool_cond, mlir::ValueRange{});
+    global_builder->setInsertionPointToEnd(&whileOp.getAfter().front());
+#else
+    (void)c_ctx; (void)while_op_ptr; (void)cond;
+#endif
+}
+
+void alkyl_mlir_build_scf_while_end(AlkylMlirContext c_ctx, void* while_op_ptr) {
+#ifdef HAS_MLIR
+    if (!global_builder || !while_op_ptr) return;
+    auto op = static_cast<mlir::Operation*>(while_op_ptr);
+    auto whileOp = mlir::cast<mlir::scf::WhileOp>(op);
+    if (!alkyl_mlir_is_terminated(c_ctx)) {
+        global_builder->create<mlir::scf::YieldOp>(global_builder->getUnknownLoc());
+    }
+    global_builder->setInsertionPointAfter(whileOp);
+#else
+    (void)c_ctx; (void)while_op_ptr;
+#endif
+}
+
+void alkyl_mlir_build_scf_break(AlkylMlirContext c_ctx) {
 #ifdef HAS_MLIR
     if (!global_builder) return;
-    // Placeholder for SCF While
+    // Placeholder for SCF Break
 #else
-    (void)c_ctx; (void)cond;
+    (void)c_ctx;
+#endif
+}
+
+void alkyl_mlir_build_scf_continue(AlkylMlirContext c_ctx) {
+#ifdef HAS_MLIR
+    if (!global_builder) return;
+    // Placeholder for SCF Continue
+#else
+    (void)c_ctx;
 #endif
 }
 

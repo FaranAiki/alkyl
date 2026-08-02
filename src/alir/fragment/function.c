@@ -7,6 +7,10 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
         return;
     }
 
+    ctx->defers = NULL;
+    ctx->defer_count = 0;
+    ctx->defer_capacity = 0;
+
     char func_name[512];
     if (fn->mangled_name) {
         int is_inherited = 0;
@@ -131,6 +135,10 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
         int has_term = tail && is_terminator(tail->op);
 
         if (!has_term) {
+            for (int i = ctx->defer_count - 1; i >= 0; i--) {
+                alir_gen_stmt(ctx, ctx->defers[i]);
+            }
+
             ctx->current_line = fn->base.line;
             ctx->current_col = fn->base.col;
 

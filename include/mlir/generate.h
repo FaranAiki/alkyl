@@ -17,5 +17,9 @@ void mlir_generate(ASTNode *root, const char *basename);
 // Core Generation Functions
 void mlir_gen_stmt(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node);
 AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node);
+void mlir_gen_type(AlkylMlirContext ctx, VarType type);
+
+void reset_mlir_defers();
+void execute_mlir_defers(AlkylMlirContext ctx, AlkylMlirModule mod);
 
 #endif // MLIR_GENERATE_H

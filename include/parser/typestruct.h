@@ -5,41 +5,40 @@
 
 typedef enum {
   NODE_ROOT,
-  NODE_FUNC_DEF,  
-  NODE_CALL,    
-  NODE_RETURN,  
+  NODE_FUNC_DEF,
+  NODE_CALL,
+  NODE_RETURN,
   NODE_BREAK,
   NODE_CONTINUE,
-  NODE_LOOP,    
-  NODE_WHILE,   
+  NODE_LOOP,
+  NODE_WHILE,
   NODE_IF,
   NODE_SWITCH,
   NODE_CASE,
-  NODE_VAR_DECL,  
-  NODE_ASSIGN,  
+  NODE_VAR_DECL,
+  NODE_ASSIGN,
   NODE_VAR_REF,
   NODE_BINARY_OP,
-  NODE_UNARY_OP, 
+  NODE_UNARY_OP,
   NODE_LITERAL,
-  NODE_ARRAY_LIT, 
-  NODE_INDEX_ACCESS, 
-  NODE_VECTOR_ACCESS, 
-  NODE_INC_DEC, 
+  NODE_ARRAY_LIT,
+  NODE_INDEX_ACCESS,
+  NODE_INC_DEC,
   NODE_LINK,
   NODE_CLASS,
   NODE_STRUCT,
-  NODE_NAMESPACE, 
-  NODE_ENUM, 
+  NODE_NAMESPACE,
+  NODE_ENUM,
   NODE_ERRNUM,
   NODE_MEMBER_ACCESS,
-  NODE_METHOD_CALL, 
+  NODE_METHOD_CALL,
   NODE_TYPEOF,
-  NODE_HAS_METHOD,    
-  NODE_HAS_ATTRIBUTE,  
+  NODE_HAS_METHOD,
+  NODE_HAS_ATTRIBUTE,
   NODE_CAST,
   NODE_EMIT,
   NODE_FOR_IN,
-  NODE_WASH, 
+  NODE_WASH,
   NODE_CLEAN,
   NODE_UNTAINT,
   NODE_SIZEOF,
@@ -74,8 +73,8 @@ typedef enum {
   TYPE_ARRAY,
 
   TYPE_AUTO,
-  TYPE_CLASS, 
-  TYPE_ENUM, 
+  TYPE_CLASS,
+  TYPE_ENUM,
   TYPE_NAMESPACE,
   TYPE_ERROR,
   TYPE_UNKNOWN,
@@ -85,13 +84,13 @@ typedef enum {
   IS_A_NONE,
   IS_A_NAKED,
   IS_A_FINAL,
-} IsASemantic; 
+} IsASemantic;
 
 typedef enum {
   HAS_A_NONE,
-  HAS_A_REACTIVE, 
-  HAS_A_INERT, 
-} HasASemantic; 
+  HAS_A_REACTIVE,
+  HAS_A_INERT,
+} HasASemantic;
 
 typedef struct VarType {
   BaseType base;
@@ -99,12 +98,12 @@ typedef struct VarType {
   char *class_name;
   int array_size;
   int array_depth;
-  
-  struct VarType *fp_ret_type;   
-  struct VarType *fp_param_types; 
+
+  struct VarType *fp_ret_type;
+  struct VarType *fp_param_types;
   int fp_param_count;
 
-  bool is_unsigned : 1; 
+  bool is_unsigned : 1;
   bool is_func_ptr : 1;
   bool fp_is_varargs : 1;
   bool is_tainted : 1;
@@ -113,7 +112,7 @@ typedef struct VarType {
 
 typedef struct ASTNode {
   NodeType type;
-  struct ASTNode *next; 
+  struct ASTNode *next;
   int line;
   int col;
   char *reason;
@@ -126,7 +125,7 @@ typedef struct ASTNode {
 typedef struct Parameter {
   VarType type;
   char *name;
-  
+
   bool is_pure : 1;
   bool has_explicit_pure : 1;
   bool is_pristine : 1;
@@ -139,16 +138,16 @@ typedef struct Parameter {
 typedef struct {
   ASTNode base;
   char *name;
-  char *mangled_name; 
+  char *mangled_name;
   VarType ret_type;
   Parameter *params;
-  ASTNode *body; 
-  char *class_name; 
+  ASTNode *body;
+  char *class_name;
 
   IsASemantic is_is_a;
   HasASemantic is_has_a;
 
-  bool is_varargs : 1; 
+  bool is_varargs : 1;
   bool is_macro : 1;
   bool is_public : 1;
   bool is_open : 1;
@@ -173,22 +172,22 @@ typedef struct {
 typedef struct {
   ASTNode base;
   char *name;
-  char *parent_name; 
+  char *parent_name;
   struct {
       char **names;
       int count;
-  } traits; 
-  ASTNode *members; 
-  
+  } traits;
+  ASTNode *members;
+
   IsASemantic is_is_a;
   HasASemantic is_has_a;
 
-  bool is_open : 1; 
-  bool is_public : 1; 
+  bool is_open : 1;
+  bool is_public : 1;
   bool is_extern : 1;
-  bool has_body : 1; 
+  bool has_body : 1;
   bool is_union : 1;
-  bool is_static : 1; 
+  bool is_static : 1;
   bool is_abstract : 1;
   bool is_exact : 1;
   bool is_pragma : 1;
@@ -203,22 +202,22 @@ typedef struct {
 typedef struct {
   ASTNode base;
   char *name;
-  char *parent_name; 
+  char *parent_name;
   struct {
       char **names;
       int count;
-  } traits; 
-  ASTNode *members; 
-  
+  } traits;
+  ASTNode *members;
+
   IsASemantic is_is_a;
   HasASemantic is_has_a;
 
-  bool is_open : 1; 
-  bool is_public : 1; 
+  bool is_open : 1;
+  bool is_public : 1;
   bool is_extern : 1;
-  bool has_body : 1; 
+  bool has_body : 1;
   bool is_union : 1;
-  bool is_static : 1; 
+  bool is_static : 1;
   bool is_abstract : 1;
   bool is_pure : 1;
 } StructNode;
@@ -272,13 +271,13 @@ typedef struct {
 typedef struct {
   ASTNode base;
   char *name;
-  ASTNode *body; 
+  ASTNode *body;
 } NamespaceNode;
 
 typedef struct {
   ASTNode base;
-  ASTNode *object; 
-  char *member_name; 
+  ASTNode *object;
+  char *member_name;
 } MemberAccessNode;
 
 typedef struct {
@@ -286,9 +285,9 @@ typedef struct {
   ASTNode *object;
   char *method_name;
   ASTNode *args;
-  char *mangled_name; 
-  char *owner_class;  
-  bool is_static : 1;      
+  char *mangled_name;
+  char *owner_class;
+  bool is_static : 1;
 } MethodCallNode;
 
 typedef struct {
@@ -301,8 +300,8 @@ typedef struct {
 typedef struct {
   ASTNode base;
   char *name;
-  char *mangled_name; 
-  ASTNode *args; 
+  char *mangled_name;
+  ASTNode *args;
   ASTNode *target; // For complex calls like template instantiations or function pointers
 } CallNode;
 
@@ -318,16 +317,16 @@ typedef struct {
 
 typedef struct {
     ASTNode base;
-    ASTNode *value; 
-    ASTNode *body;  
-    bool is_leak : 1;    
+    ASTNode *value;
+    ASTNode *body;
+    bool is_leak : 1;
 } CaseNode;
 
 typedef struct {
     ASTNode base;
     ASTNode *condition;
-    ASTNode *cases; 
-    ASTNode *default_case; 
+    ASTNode *cases;
+    ASTNode *default_case;
 } SwitchNode;
 
 typedef struct {
@@ -353,17 +352,17 @@ typedef struct {
   VarType var_type;
   char *name;
   ASTNode *initializer;
-  ASTNode *array_size; 
+  ASTNode *array_size;
 
   IsASemantic is_is_a;
   HasASemantic is_has_a;
 
-  bool is_array : 1;   
+  bool is_array : 1;
   bool is_open : 1;
   bool is_public : 1;
   bool is_static : 1;
   bool is_const : 1;
-  bool is_mutable : 1; 
+  bool is_mutable : 1;
   bool is_pure : 1;
   bool has_explicit_pure : 1;
   bool is_pristine : 1;
@@ -374,20 +373,20 @@ typedef struct {
   ASTNode base;
   char *name;
   ASTNode *value;
-  ASTNode *index; 
-  ASTNode *target; 
-  int op; 
+  ASTNode *index;
+  ASTNode *target;
+  int op;
   bool is_implicit_let : 1;
   char *overloaded_func_name;
-} AssignNode; 
+} AssignNode;
 
 typedef struct {
   ASTNode base;
   char *name;
-  ASTNode *index; 
-  ASTNode *target; 
+  ASTNode *index;
+  ASTNode *target;
   int op;
-  bool is_prefix : 1; 
+  bool is_prefix : 1;
   char *overloaded_func_name;
 } IncDecNode;
 
@@ -396,27 +395,21 @@ typedef struct {
   char *name;
   char *mangled_name;
   int error_id;
-  bool is_class_member : 1; 
+  bool is_class_member : 1;
   bool is_error_id : 1;
 } VarRefNode;
 
 typedef struct {
   ASTNode base;
-  ASTNode *target; 
+  ASTNode *target;
   ASTNode *index;
 } IndexAccessNode;
 
 typedef struct {
   ASTNode base;
-  ASTNode *elements; 
+  ASTNode *elements;
   bool is_vector;
 } ArrayLitNode;
-
-typedef struct {
-  ASTNode base;
-  ASTNode *target; 
-  ASTNode *index;
-} VectorAccessNode;
 
 
 typedef struct {
@@ -426,7 +419,7 @@ typedef struct {
 
 typedef struct {
   ASTNode base;
-  int op; 
+  int op;
   ASTNode *left;
   ASTNode *right;
   char *overloaded_func_name;
@@ -440,7 +433,7 @@ typedef struct {
 
 typedef struct {
   ASTNode base;
-  int op; 
+  int op;
   ASTNode *operand;
   int is_suffix;
   char *overloaded_func_name;
@@ -469,7 +462,7 @@ typedef struct {
   ASTNode base;
   ASTNode *condition;
   ASTNode *body;
-  bool is_do_while : 1; 
+  bool is_do_while : 1;
 } WhileNode;
 
 typedef struct {
@@ -477,7 +470,7 @@ typedef struct {
     char *var_name;
     ASTNode *collection;
     ASTNode *body;
-    VarType iter_type; 
+    VarType iter_type;
 } ForInNode;
 
 typedef struct {
@@ -492,7 +485,7 @@ typedef struct {
 typedef struct {
   ASTNode base;
   VarType var_type;
-  Value val; 
+  Value val;
 } LiteralNode;
 
 typedef struct {

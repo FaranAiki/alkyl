@@ -1,0 +1,14 @@
+import "std/print";
+
+int main() {
+    print "Hello, World!\n";
+    defer print "Something is printing lastly!\n";
+    defer print "Something is printing lastly or not?\n";
+    print "Ok bro!\n";
+    // expect
+    // -> Hello, World!
+    // -> Ok bro
+    // -> ...
+    // -> ...
+    return 0;
+}

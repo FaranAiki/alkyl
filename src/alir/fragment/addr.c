@@ -265,11 +265,6 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
         return alir_gen_array_lit(ctx, node);
     }
 
-    // TODO add vector access
-    if (node->type == NODE_VECTOR_ACCESS) {
-
-    }
-
     if (node->type == NODE_UNARY_OP) {
         UnaryOpNode *un = (UnaryOpNode*)node;
         if (un->op == TOKEN_STAR) {

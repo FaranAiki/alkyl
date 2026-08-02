@@ -235,6 +235,10 @@ typedef struct AlirCtx {
 
     HashMap const_fold_map;
 
+    ASTNode **defers;
+    int defer_count;
+    int defer_capacity;
+
     HashMap class_map;      // class name -> ClassNode*
 } AlirCtx;
 
