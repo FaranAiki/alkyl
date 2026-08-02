@@ -325,11 +325,11 @@ pure double fma(double a, double b, double c) { return _r_fma(a, b, c); }
 pure int ilogb(double n) { return _r_ilogb(n); }
 pure int ilogb(single n) { return _r_ilogbf(n); }
 
-pure single scalbn(single n, int exp) { return _r_scalbnf(n, exp); }
-pure double scalbn(double n, int exp) { return _r_scalbn(n, exp); }
+pure single scalbn(single n, int result_exp) { return _r_scalbnf(n, result_exp); }
+pure double scalbn(double n, int result_exp) { return _r_scalbn(n, result_exp); }
 
-pure single scalbln(single n, long exp) { return _r_scalblnf(n, exp); }
-pure double scalbln(double n, long exp) { return _r_scalbln(n, exp); }
+pure single scalbln(single n, long result_exp) { return _r_scalblnf(n, result_exp); }
+pure double scalbln(double n, long result_exp) { return _r_scalbln(n, result_exp); }
 
 pure single copysign(single mag, single sgn) { return _r_copysignf(mag, sgn); }
 pure double copysign(double mag, double sgn) { return _r_copysign(mag, sgn); }
@@ -345,15 +345,15 @@ compound[type Type] abstract container class modf_result {
 }
 
 pure frexp_result[single] frexp(single value) {
-    int exp;
-    single mantissa = _r_frexpf(value, &exp);
-    return frexp_result[single](mantissa, exp);
+    int exponent;
+    single mantissa = _r_frexpf(value, &exponent);
+    return frexp_result[single](mantissa, exponent);
 }
 
 pure frexp_result[double] frexp(double value) {
-    int exp;
-    double mantissa = _r_frexp(value, &exp);
-    return frexp_result[double](mantissa, exp);
+    int exponent;
+    double mantissa = _r_frexp(value, &exponent);
+    return frexp_result[double](mantissa, exponent);
 }
 
 pure modf_result[single] modf(single value) {

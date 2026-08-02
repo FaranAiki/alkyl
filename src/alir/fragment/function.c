@@ -300,7 +300,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
 
 AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
     const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
-    
+
     // Resolve target_name through semantic table if possible, to handle namespace imports
     if (ctx->sem) {
         SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, NULL);
@@ -310,7 +310,7 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
     }
 
     // Check if it's a constructor call via Struct Registry
-    if (alir_find_struct(ctx->module, target_name)) { printf("Found struct %s\n", target_name);
+    if (alir_find_struct(ctx->module, target_name)) { debug_any("Found struct %s\n", target_name);
         int count = 0; ASTNode *a = cn->args; while(a) { count++; a=a->next; }
         if (count == 1 && ctx->sem) {
             VarType arg_t = sem_get_node_type(ctx->sem, cn->args);
