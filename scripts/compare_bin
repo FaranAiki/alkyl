@@ -3,10 +3,6 @@ set -euo pipefail
 
 # Alkyl Build Comparison Script
 # Usage: ./scripts/compare_bin <filename> [--opt|--unopt] [--runs N] [-- <extra compiler flags>]
-#   --opt          : compile with --opt (default)
-#   --unopt        : compile with --unopt
-#   --runs N       : number of hyperfine runs (default: 100)
-#   -- <extra>     : pass extra flags directly to the alkyl compiler
 
 COMPILERS=("build/alkyl_llvm" "build/alkyl_qbe" "build/alkyl_mlir" "build/alkyl_cranelift")
 BACKENDS=("llvm" "qbe" "mlir" "cranelift")
@@ -26,84 +22,37 @@ COLOR_BOLD="\033[1m"
 FILENAME=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --opt)
-            MODE="opt"
-            shift
-            ;;
-        --unopt)
-            MODE="unopt"
-            shift
-            ;;
-        --runs)
-            RUNS="$2"
-            shift 2
-            ;;
-        --)
-            shift
-            EXTRA_FLAGS=("$@")
-            break
-            ;;
-        -*)
-            echo -e "${COLOR_RED}Error: Unknown option: $1${COLOR_RESET}" >&2
-            exit 1
-            ;;
-        *)
-            FILENAME="$1"
-            shift
-            ;;
+        --opt) MODE="opt"; shift ;;
+        --unopt) MODE="unopt"; shift ;;
+        --runs) RUNS="$2"; shift 2 ;;
+        --) shift; EXTRA_FLAGS=("$@"); break ;;
+        -*) echo -e "${COLOR_RED}Error: Unknown option: $1${COLOR_RESET}" >&2; exit 1 ;;
+        *) FILENAME="$1"; shift ;;
     esac
 done
 
 if [[ -z "$FILENAME" ]]; then
     echo -e "${COLOR_BOLD}Usage:${COLOR_RESET} $0 <filename> [--opt|--unopt] [--runs N] [-- <extra flags>]"
-    echo ""
-    echo "  <filename>       : .kyl file or example name (e.g. fizzbuzz or test/code/examples/fizzbuzz.kyl)"
-    echo "  --opt            : compile with --opt (default)"
-    echo "  --unopt          : compile with --unopt"
-    echo "  --runs N         : number of hyperfine runs (default: 100)"
-    echo "  -- <extra flags> : pass extra flags directly to the alkyl compiler"
     exit 1
 fi
 
-# Resolve filename
 if [[ -f "$FILENAME" ]]; then
     KYL_FILE="$FILENAME"
 elif [[ "$FILENAME" == *.kyl ]]; then
     KYL_FILE="test/code/examples/$FILENAME"
-    if [[ ! -f "$KYL_FILE" ]]; then
-        echo -e "${COLOR_RED}Error: File '$FILENAME' not found${COLOR_RESET}" >&2
-        exit 1
-    fi
+    if [[ ! -f "$KYL_FILE" ]]; then echo -e "${COLOR_RED}Error: File '$FILENAME' not found${COLOR_RESET}" >&2; exit 1; fi
 else
     KYL_FILE="test/code/examples/$FILENAME.kyl"
-    if [[ ! -f "$KYL_FILE" ]]; then
-        echo -e "${COLOR_RED}Error: test/code/examples/$FILENAME.kyl not found${COLOR_RESET}" >&2
-        exit 1
-    fi
+    if [[ ! -f "$KYL_FILE" ]]; then echo -e "${COLOR_RED}Error: test/code/examples/$FILENAME.kyl not found${COLOR_RESET}" >&2; exit 1; fi
 fi
 
 echo -e "${COLOR_BOLD}========================================${COLOR_RESET}"
-echo -e "${COLOR_BOLD} Alkyl Build Comparison${COLOR_RESET}"
+echo -e "${COLOR_BOLD} Alkyl Build Comparison (Extended)${COLOR_RESET}"
 echo -e "${COLOR_BOLD}========================================${COLOR_RESET}"
-echo ""
 echo -e "Source:   ${COLOR_CYAN}$KYL_FILE${COLOR_RESET}"
 echo -e "Mode:     ${COLOR_CYAN}--$MODE${COLOR_RESET}"
 echo -e "Runs:     ${COLOR_CYAN}$RUNS${COLOR_RESET}"
 echo ""
-
-# Check compilers exist
-for compiler in "${COMPILERS[@]}"; do
-    if [[ ! -x "$compiler" ]]; then
-        echo -e "${COLOR_RED}Error: $compiler not found. Build the project first (cmake --build build).${COLOR_RESET}" >&2
-        exit 1
-    fi
-done
-
-# Check hyperfine
-if ! command -v hyperfine &>/dev/null; then
-    echo -e "${COLOR_RED}Error: hyperfine is not installed.${COLOR_RESET}" >&2
-    exit 1
-fi
 
 if [[ "$MODE" == "opt" ]]; then
     COMPILER_FLAG="-O3"
@@ -111,43 +60,33 @@ else
     COMPILER_FLAG="--unopt"
 fi
 
-# Temp dirs
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
-# Arrays to hold results
 declare -a compile_times=()
 declare -a exec_times=()
 declare -a sizes=()
+declare -a stripped_sizes=()
+declare -a compile_mem=()
+declare -a exec_mem=()
+declare -a cache_misses=()
 declare -a compile_status=()
-
-echo -e "${COLOR_BOLD}========================================${COLOR_RESET}"
-echo -e "${COLOR_BOLD} Compilation Time (hyperfine, $RUNS runs)${COLOR_RESET}"
-echo -e "${COLOR_BOLD}========================================${COLOR_RESET}"
 
 for i in "${!BACKENDS[@]}"; do
     backend="${BACKENDS[$i]}"
     compiler="${COMPILERS[$i]}"
     out_bin="$TMPDIR/${backend}_${MODE}"
-
     rm -f "$out_bin"
-
-    echo ""
     echo -e "--- ${COLOR_YELLOW}$backend${COLOR_RESET} ($compiler) ---"
 
-    # Build hyperfine command args
-    HYPERFINE_ARGS=(
-        --warmup 1
-        --runs "$RUNS"
-        --export-json "$TMPDIR/${backend}_compile.json"
-        --command-name "${backend}-compile"
-    )
-
-    # Compile command
-    COMPILE_CMD=("$compiler" -o "$out_bin" "$COMPILER_FLAG")
-    if [[ ${#EXTRA_FLAGS[@]} -gt 0 ]]; then
-        COMPILE_CMD+=("${EXTRA_FLAGS[@]}")
+    if [[ ! -x "$compiler" ]]; then
+        echo -e "  ${COLOR_RED}Compiler not found${COLOR_RESET}"
+        continue
     fi
+
+    HYPERFINE_ARGS=( --warmup 1 --runs "$RUNS" --export-json "$TMPDIR/${backend}_compile.json" --command-name "${backend}-compile" )
+    COMPILE_CMD=("$compiler" -o "$out_bin" "$COMPILER_FLAG")
+    if [[ ${#EXTRA_FLAGS[@]} -gt 0 ]]; then COMPILE_CMD+=("${EXTRA_FLAGS[@]}"); fi
     COMPILE_CMD+=("$KYL_FILE")
 
     if hyperfine "${HYPERFINE_ARGS[@]}" "${COMPILE_CMD[*]}"; then
@@ -157,165 +96,137 @@ for i in "${!BACKENDS[@]}"; do
     fi
 
     if [[ -f "$out_bin" ]]; then
-        compile_mean=$(python3 -c "
-import json, sys
-try:
-    with open('$TMPDIR/${backend}_compile.json') as f:
-        d = json.load(f)
-    print(f\"{d['results'][0]['mean']:.4f}\")
-except Exception:
-    print('N/A')
-" 2>/dev/null || echo "N/A")
+        compile_mean=$(python3 -c "import json; print(f\"{json.load(open('$TMPDIR/${backend}_compile.json'))['results'][0]['mean']:.4f}\")" 2>/dev/null || echo "N/A")
         compile_times[$i]="$compile_mean"
 
         size=$(stat -c%s "$out_bin" 2>/dev/null || echo "N/A")
         sizes[$i]="$size"
 
-        echo -e "  Mean compile time: ${COLOR_GREEN}${compile_mean}s${COLOR_RESET}"
-        echo -e "  Binary size:       ${size} bytes"
+        cp "$out_bin" "$out_bin.stripped"
+        strip "$out_bin.stripped" 2>/dev/null || true
+        ssize=$(stat -c%s "$out_bin.stripped" 2>/dev/null || echo "N/A")
+        stripped_sizes[$i]="$ssize"
+
+        /usr/bin/time -v "${COMPILE_CMD[@]}" 2> "$TMPDIR/${backend}_cmem.txt" || true
+        mem=$(grep "Maximum resident set size" "$TMPDIR/${backend}_cmem.txt" | awk '{print $6}' || echo "N/A")
+        compile_mem[$i]="$mem"
     else
         compile_times[$i]="N/A"
-        exec_times[$i]="N/A"
         sizes[$i]="N/A"
-        echo -e "  ${COLOR_RED}Compilation failed${COLOR_RESET}"
+        stripped_sizes[$i]="N/A"
+        compile_mem[$i]="N/A"
     fi
 done
 
 echo ""
 echo -e "${COLOR_BOLD}========================================${COLOR_RESET}"
-echo -e "${COLOR_BOLD} Execution Time (hyperfine, $RUNS runs)${COLOR_RESET}"
+echo -e "${COLOR_BOLD} Execution, Memory & Cache Analysis${COLOR_RESET}"
 echo -e "${COLOR_BOLD}========================================${COLOR_RESET}"
 
 for i in "${!BACKENDS[@]}"; do
     backend="${BACKENDS[$i]}"
     out_bin="$TMPDIR/${backend}_${MODE}"
-
-    if [[ ! -f "$out_bin" ]]; then
-        continue
-    fi
-
-    echo ""
+    if [[ ! -f "$out_bin" ]]; then continue; fi
     echo -e "--- ${COLOR_YELLOW}$backend${COLOR_RESET} ---"
 
-    hyperfine --warmup 1 --runs "$RUNS" \
-        --export-json "$TMPDIR/${backend}_exec.json" \
-        --command-name "${backend}-exec" \
-        "$out_bin" || true
-
-    exec_mean=$(python3 -c "
-import json, sys
-try:
-    with open('$TMPDIR/${backend}_exec.json') as f:
-        d = json.load(f)
-    print(f\"{d['results'][0]['mean']:.4f}\")
-except Exception:
-    print('N/A')
-" 2>/dev/null || echo "N/A")
+    hyperfine --warmup 1 --runs "$RUNS" --export-json "$TMPDIR/${backend}_exec.json" --command-name "${backend}-exec" "$out_bin" || true
+    exec_mean=$(python3 -c "import json; print(f\"{json.load(open('$TMPDIR/${backend}_exec.json'))['results'][0]['mean']:.4f}\")" 2>/dev/null || echo "N/A")
     exec_times[$i]="$exec_mean"
 
-    echo -e "  Mean execution time: ${COLOR_GREEN}${exec_mean}s${COLOR_RESET}"
+    /usr/bin/time -v "$out_bin" >/dev/null 2> "$TMPDIR/${backend}_emem.txt" || true
+    emem=$(grep "Maximum resident set size" "$TMPDIR/${backend}_emem.txt" | awk '{print $6}' || echo "N/A")
+    exec_mem[$i]="$emem"
+
+    if command -v valgrind &>/dev/null; then
+        valgrind --tool=cachegrind --cachegrind-out-file="$TMPDIR/${backend}_cg.out" "$out_bin" >/dev/null 2> "$TMPDIR/${backend}_cg.txt" || true
+        d1=$(grep "D1  misses:" "$TMPDIR/${backend}_cg.txt" | awk '{print $3}' | tr -d ',' || echo "N/A")
+        ll=$(grep "LL misses:" "$TMPDIR/${backend}_cg.txt" | awk '{print $3}' | tr -d ',' || echo "N/A")
+        cache_misses[$i]="${d1}/${ll}"
+    else
+        cache_misses[$i]="No Valgrind"
+    fi
 done
 
 echo ""
 echo -e "${COLOR_BOLD}========================================${COLOR_RESET}"
 echo -e "${COLOR_BOLD} Summary${COLOR_RESET}"
 echo -e "${COLOR_BOLD}========================================${COLOR_RESET}"
-printf "%-10s | %-10s | %-14s | %-14s | %-14s\n" "Backend" "Status" "Compile (s)" "Execute (s)" "Size (bytes)"
-printf "%-10s-+-%-10s-+-%-14s-+-%-14s-+-%-14s\n" "----------" "----------" "--------------" "--------------" "--------------"
+printf "%-10s | %-6s | %-11s | %-11s | %-11s | %-11s | %-10s | %-10s | %-14s\n" "Backend" "Status" "Compile (s)" "Exec (s)" "Comp Mem(K)" "Exec Mem(K)" "Size (B)" "Strip (B)" "Cache D1/LL"
+printf "%-10s-+-%-6s-+-%-11s-+-%-11s-+-%-11s-+-%-11s-+-%-10s-+-%-10s-+-%-14s\n" "----------" "------" "-----------" "-----------" "-----------" "-----------" "----------" "----------" "--------------"
 
 for i in "${!BACKENDS[@]}"; do
     backend="${BACKENDS[$i]}"
     status="${compile_status[$i]:-N/A}"
     compile="${compile_times[$i]:-N/A}"
     exec="${exec_times[$i]:-N/A}"
+    cmem="${compile_mem[$i]:-N/A}"
+    emem="${exec_mem[$i]:-N/A}"
     size="${sizes[$i]:-N/A}"
-    printf "%-10s | %-10s | %-14s | %-14s | %-14s\n" "$backend" "$status" "$compile" "$exec" "$size"
+    ssize="${stripped_sizes[$i]:-N/A}"
+    cache="${cache_misses[$i]:-N/A}"
+    printf "%-10s | %-6s | %-11s | %-11s | %-11s | %-11s | %-10s | %-10s | %-14s\n" "$backend" "$status" "$compile" "$exec" "$cmem" "$emem" "$size" "$ssize" "$cache"
 done
 
-# Find winners
 echo ""
-echo -e "${COLOR_BOLD}Winners:${COLOR_RESET}"
+echo -e "${COLOR_BOLD}Winners & Losers:${COLOR_RESET}"
 
 # Fastest compile
 fastest_compile=""
 fastest_compile_time="999999"
-for i in "${!BACKENDS[@]}"; do
-    if [[ "${compile_times[$i]:-N/A}" != "N/A" ]]; then
-        if python3 -c "import sys; print(float('${compile_times[$i]}') < float('$fastest_compile_time'))" 2>/dev/null | grep -q True; then
-            fastest_compile_time="${compile_times[$i]}"
-            fastest_compile="${BACKENDS[$i]}"
-        fi
-    fi
-done
-[[ -n "$fastest_compile" ]] && echo -e "  Fastest compile: ${COLOR_GREEN}$fastest_compile${COLOR_RESET} (${fastest_compile_time}s)"
-
-# Fastest exec
-fastest_exec=""
-fastest_exec_time="999999"
-for i in "${!BACKENDS[@]}"; do
-    if [[ "${exec_times[$i]:-N/A}" != "N/A" ]]; then
-        if python3 -c "import sys; print(float('${exec_times[$i]}') < float('$fastest_exec_time'))" 2>/dev/null | grep -q True; then
-            fastest_exec_time="${exec_times[$i]}"
-            fastest_exec="${BACKENDS[$i]}"
-        fi
-    fi
-done
-[[ -n "$fastest_exec" ]] && echo -e "  Fastest exec:    ${COLOR_GREEN}$fastest_exec${COLOR_RESET} (${fastest_exec_time}s)"
-
-# Smallest
-smallest=""
-smallest_size="999999999"
-for i in "${!BACKENDS[@]}"; do
-    if [[ "${sizes[$i]:-N/A}" != "N/A" ]]; then
-        if python3 -c "import sys; print(int('${sizes[$i]}') < int('$smallest_size'))" 2>/dev/null | grep -q True; then
-            smallest_size="${sizes[$i]}"
-            smallest="${BACKENDS[$i]}"
-        fi
-    fi
-done
-[[ -n "$smallest" ]] && echo -e "  Smallest size:   ${COLOR_GREEN}$smallest${COLOR_RESET} (${smallest_size} bytes)"
-
-echo ""
-
-echo -e "${COLOR_BOLD}Losers:${COLOR_RESET}"
-
-# Slowest compile
 slowest_compile=""
 slowest_compile_time="-1"
 for i in "${!BACKENDS[@]}"; do
     if [[ "${compile_times[$i]:-N/A}" != "N/A" ]]; then
-        if python3 -c "import sys; print(float('${compile_times[$i]}') > float('$slowest_compile_time'))" 2>/dev/null | grep -q True; then
+        if python3 -c "import sys; print(float() < float())" 2>/dev/null | grep -q True; then
+            fastest_compile_time="${compile_times[$i]}"
+            fastest_compile="${BACKENDS[$i]}"
+        fi
+        if python3 -c "import sys; print(float() > float())" 2>/dev/null | grep -q True; then
             slowest_compile_time="${compile_times[$i]}"
             slowest_compile="${BACKENDS[$i]}"
         fi
     fi
 done
+[[ -n "$fastest_compile" ]] && echo -e "  Fastest compile: ${COLOR_GREEN}$fastest_compile${COLOR_RESET} (${fastest_compile_time}s)"
 [[ -n "$slowest_compile" ]] && echo -e "  Slowest compile: ${COLOR_RED}$slowest_compile${COLOR_RESET} (${slowest_compile_time}s)"
 
-# Slowest exec
+# Fastest exec
+fastest_exec=""
+fastest_exec_time="999999"
 slowest_exec=""
 slowest_exec_time="-1"
 for i in "${!BACKENDS[@]}"; do
     if [[ "${exec_times[$i]:-N/A}" != "N/A" ]]; then
-        if python3 -c "import sys; print(float('${exec_times[$i]}') > float('$slowest_exec_time'))" 2>/dev/null | grep -q True; then
+        if python3 -c "import sys; print(float() < float())" 2>/dev/null | grep -q True; then
+            fastest_exec_time="${exec_times[$i]}"
+            fastest_exec="${BACKENDS[$i]}"
+        fi
+        if python3 -c "import sys; print(float() > float())" 2>/dev/null | grep -q True; then
             slowest_exec_time="${exec_times[$i]}"
             slowest_exec="${BACKENDS[$i]}"
         fi
     fi
 done
+[[ -n "$fastest_exec" ]] && echo -e "  Fastest exec:    ${COLOR_GREEN}$fastest_exec${COLOR_RESET} (${fastest_exec_time}s)"
 [[ -n "$slowest_exec" ]] && echo -e "  Slowest exec:    ${COLOR_RED}$slowest_exec${COLOR_RESET} (${slowest_exec_time}s)"
 
-# Biggest
+# Size
+smallest=""
+smallest_size="999999999"
 biggest=""
 biggest_size="-1"
 for i in "${!BACKENDS[@]}"; do
     if [[ "${sizes[$i]:-N/A}" != "N/A" ]]; then
-        if python3 -c "import sys; print(int('${sizes[$i]}') > int('$biggest_size'))" 2>/dev/null | grep -q True; then
+        if python3 -c "import sys; print(int() < int())" 2>/dev/null | grep -q True; then
+            smallest_size="${sizes[$i]}"
+            smallest="${BACKENDS[$i]}"
+        fi
+        if python3 -c "import sys; print(int() > int())" 2>/dev/null | grep -q True; then
             biggest_size="${sizes[$i]}"
             biggest="${BACKENDS[$i]}"
         fi
     fi
 done
-[[ -n "$biggest" ]] && echo -e "  Biggest size:    ${COLOR_RED}$biggest${COLOR_RESET} (${biggest_size} bytes)"
-
+[[ -n "$smallest" ]] && echo -e "  Smallest size:   ${COLOR_GREEN}$smallest${COLOR_RESET} (${smallest_size} B)"
+[[ -n "$biggest" ]]  && echo -e "  Biggest size:    ${COLOR_RED}$biggest${COLOR_RESET} (${biggest_size} B)"
 echo ""
