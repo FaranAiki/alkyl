@@ -22,6 +22,11 @@ Do NOT use `strcmp` for string comparisons inside the compiler codebase. ALWAYS 
 4. **Functions & Macros**: 
    - Functions: `func int add(int a, int b) { return a + b; }`
    - Macros are defined with `meta void` and are expanded at the AST level. Never eagerly compile an unexpanded macro to ALIR.
+5. **Foreign Function Interface (FFI) & Calling Conventions**:
+   - Use `@identifier` before `extern` or `func` to specify calling conventions or name mangling schemas without using pragmas. 
+   - Example: `@cpp extern { int some_cpp_func(); }` will use C++ Itanium name mangling.
+   - Example: `@stdcall int my_func();`
+   - Example: `@rust extern int get_rust_data();`
 
 
 Here is the architectural documentation for the **Alkyl** compiler project.
@@ -32,12 +37,17 @@ Here is the architectural documentation for the **Alkyl** compiler project.
 
 ## 1. High-Level Overview
 
-**Alkyl** is a statically typed, compiled programming language implemented in **C**. It utilizes the **LLVM Compiler Infrastructure** (via the LLVM C API) for backend code generation and optimization.
+**Alkyl** is a statically typed, compiled programming language implemented entirely in **C**. It is designed to be deeply modular and supports multiple interchangeable backends:
+- **LLVM C API**: Standard high-performance backend.
+- **MLIR**: Advanced, state-of-the-art lowering dialect.
+- **QBE**: Minimalist, fast-compiling backend.
 
-The project is architected as a modular pipeline. It transforms source code through distinct stages: lexical analysis, parsing (AST construction), semantic analysis (type checking and symbol resolution), and finally code generation into LLVM IR. The system supports two modes of operation:
+The project transforms source code through distinct stages: lexical analysis, parsing (AST construction), semantic analysis (type checking and symbol resolution), and finally code generation to the selected backend. 
+
+The system supports two modes of operation:
 
 1. **AOT (Ahead-of-Time) Compilation:** Compiling source files to native object code and linking them into executables.
-2. **JIT (Just-In-Time) Execution:** An interactive REPL (Read-Eval-Print Loop) for immediate code evaluation.
+2. **JIT (Just-In-Time) Execution:** An interactive REPL (`ethyl`) for immediate code evaluation.
 
 ## 2. Directory Breakdown (`src/`)
 

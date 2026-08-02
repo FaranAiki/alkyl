@@ -8,9 +8,12 @@ Here is the architectural documentation for the **Alkyl** compiler project.
 
 ## 1. High-Level Overview
 
-**Alkyl** is a statically typed, compiled programming language implemented in **C**. It utilizes the **LLVM Compiler Infrastructure** (via the LLVM C API) for backend code generation and optimization.
+**Alkyl** is a statically typed, compiled programming language implemented entirely in **C**. It is designed to be deeply modular and supports multiple interchangeable backends:
+- **LLVM C API**: Standard high-performance backend.
+- **MLIR**: Advanced, state-of-the-art lowering dialect.
+- **QBE**: Minimalist, fast-compiling backend.
 
-The project is architected as a modular pipeline. It transforms source code through distinct stages: lexical analysis, parsing (AST construction), semantic analysis (type checking and symbol resolution), and finally code generation into LLVM IR. The system supports two modes of operation:
+The project transforms source code through distinct stages: lexical analysis, parsing (AST construction), semantic analysis (type checking and symbol resolution), and finally code generation into the chosen backend. The system supports two modes of operation:
 
 1. **AOT (Ahead-of-Time) Compilation:** Compiling source files to native object code and linking them into executables.
 2. **JIT (Just-In-Time) Execution:** An interactive REPL (Read-Eval-Print Loop) for immediate code evaluation.
@@ -121,9 +124,6 @@ Tracing the input: `let x = 10;`
 ## No `setjmp`/`longjmp`
 Those suck ass.
 
-* **Why:** In a recursive descent parser, an error might occur deep within a call stack (Expression  Term  Factor). Returning error codes up every level is messy.
-* **Implementation:** When `parser_fail` is called, it performs a `longjmp` back to a safe state (the main loop). This allows the REPL to print the error and immediately prompt for new input without crashing the process.
-
 ### Internal vs. Public Headers
 
 The parser uses a strict separation of interfaces:
@@ -141,3 +141,8 @@ The project uses the pure C API (`llvm-c/Core.h`) rather than the C++ object-ori
 
 ## 6. What to Do
 With the given information, do:
+
+### Foreign Function Interface (FFI) & Calling Conventions
+- Calling conventions and name mangling schemas can be directly specified using the `@identifier` syntax in front of function declarations or extern blocks.
+- Example: `@cpp extern { int some_func(); }` triggers C++ Itanium name mangling.
+- Example: `@stdcall int my_func();` triggers standard C-style `stdcall`.

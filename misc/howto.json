@@ -39,6 +39,9 @@
       "compound": "Compound types encompass any user-defined structured types, primarily classes and potentially structs/enums. They aggregate multiple data fields and methods into a single type definition.",
       "is-a": "The 'is' keyword is used for single inheritance, establishing an 'is-a' relationship (e.g., 'class Player is Entity'). The subclass inherits fields and methods from the base class.",
       "has-a": "The 'has' keyword is used to include traits or mixins, establishing a 'has-a' relationship (e.g., 'class User has Printable'). This allows the class to incorporate the methods and properties defined in the trait."
+    },
+    "ffi": {
+      "conventions": "Calling conventions and name mangling schemas (like C++ Itanium) can be set directly on externs and functions using the `@identifier` syntax (e.g., `@cpp extern { int foo(); }` or `@rust int bar();`). This bypasses the need for verbose pragmas and allows seamless integration with foreign libraries."
     }
   }
 }

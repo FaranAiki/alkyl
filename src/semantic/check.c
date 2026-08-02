@@ -149,8 +149,6 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
     }
 }
 
-extern ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarType *replace_with, int num_params, char **rename_from, char **rename_to, int num_renames);
-
 void sem_inject_default_class_args(SemanticCtx *ctx, CallNode *node, SemSymbol *sym, int arg_count, int total_fields) {
     VarDeclNode **fields = arena_alloc(ctx->compiler_ctx->arena, sizeof(VarDeclNode*) * total_fields);
     int idx = 0;

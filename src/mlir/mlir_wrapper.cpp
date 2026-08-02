@@ -26,12 +26,35 @@ struct SwitchState {
 
 #include "common/debug.h"
 
+#ifdef HAS_MLIR
+#include "mlir/tablegen/AlkylDialect.h.inc"
+
+#define GET_OP_CLASSES
+#include "mlir/tablegen/AlkylOps.h.inc"
+
+#define GET_DIALECT_CLASSES
+#include "mlir/tablegen/AlkylDialect.cpp.inc"
+
+#define GET_OP_CLASSES
+#include "mlir/tablegen/AlkylOps.cpp.inc"
+
+namespace alkyl_mlir {
+  void AlkylDialect::initialize() {
+    addOperations<
+#define GET_OP_LIST
+#include "mlir/tablegen/AlkylOps.cpp.inc"
+    >();
+  }
+}
+#endif
+
 extern "C" {
 
 AlkylMlirContext alkyl_mlir_create_context() {
 #ifdef HAS_MLIR
     mlir::MLIRContext* ctx = new mlir::MLIRContext();
     ctx->loadDialect<mlir::func::FuncDialect, mlir::arith::ArithDialect, mlir::memref::MemRefDialect, mlir::scf::SCFDialect, mlir::LLVM::LLVMDialect, mlir::cf::ControlFlowDialect>();
+    ctx->getOrLoadDialect<alkyl_mlir::AlkylDialect>();
     return static_cast<void*>(ctx);
 #else
     return reinterpret_cast<void*>(1);
