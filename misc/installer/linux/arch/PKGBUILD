@@ -27,34 +27,16 @@ build() {
 }
 
 package() {
-  cd "$srcdir/$pkgname/build"
+  cd "$srcdir/$pkgname"
 
-  install -Dm755 alkyl_llvm "$pkgdir/usr/bin/alkyl"
-  install -Dm755 ethyl "$pkgdir/usr/bin/ethyl"
+  install -Dm755 build/alkyl_llvm "$pkgdir/usr/bin/alkyl"
+  install -Dm755 build/ethyl "$pkgdir/usr/bin/ethyl"
 
-  install -Dm644 ../misc/asset/logo.png "$pkgdir/usr/share/icons/hicolor/512x512/apps/alkyl.png"
+  install -Dm644 misc/asset/logo.png "$pkgdir/usr/share/icons/hicolor/512x512/apps/alkyl.png"
 
-  install -Dm644 /dev/stdin "$pkgdir/usr/share/applications/alkyl.desktop" <<EOF
-[Desktop Entry]
-Name=Alkyl Compiler
-Exec=alkyl %F
-Icon=alkyl
-Terminal=true
-Type=Application
-Categories=Development;
-EOF
+  install -Dm644 misc/installer/linux/arch/alkyl.desktop "$pkgdir/usr/share/applications/alkyl.desktop"
 
-  install -Dm644 /dev/stdin "$pkgdir/usr/share/mime/packages/application-x-alkyl.xml" <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-  <mime-type type="application/x-alkyl">
-    <comment>Alkyl Source File</comment>
-    <glob pattern="*.kyl"/>
-    <glob pattern="*.hky"/>
-    <icon name="application-x-alkyl"/>
-  </mime-type>
-</mime-info>
-EOF
+  install -Dm644 misc/installer/linux/arch/application-x-alkyl.xml "$pkgdir/usr/share/mime/packages/application-x-alkyl.xml"
 
-  install -Dm644 ../misc/asset/script_logo.png "$pkgdir/usr/share/icons/hicolor/512x512/mimetypes/application-x-alkyl.png"
+  install -Dm644 misc/asset/script_logo.png "$pkgdir/usr/share/icons/hicolor/512x512/mimetypes/application-x-alkyl.png"
 }

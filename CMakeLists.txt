@@ -470,3 +470,25 @@ message(STATUS "BACKEND_LOWER: ${BACKEND_LOWER}")
 message(STATUS "Backend target: ${ALKYL_BACKEND_TARGET}")
 message(STATUS "Enable Debug Any: ${ENABLE_DEBUG_ANY}")
 message(STATUS "Enable Debug Step: ${ENABLE_DEBUG_STEP}")
+
+install(TARGETS alkyl_llvm ethyl
+    RUNTIME DESTINATION bin
+)
+
+install(FILES ${CMAKE_SOURCE_DIR}/misc/asset/logo.png
+    DESTINATION share/icons/hicolor/512x512/apps
+    RENAME alkyl.png
+)
+
+install(FILES ${CMAKE_SOURCE_DIR}/misc/asset/script_logo.png
+    DESTINATION share/icons/hicolor/512x512/mimetypes
+    RENAME application-x-alkyl.png
+)
+
+install(FILES ${CMAKE_SOURCE_DIR}/misc/installer/linux/arch/alkyl.desktop
+    DESTINATION share/applications
+)
+
+install(FILES ${CMAKE_SOURCE_DIR}/misc/installer/linux/arch/application-x-alkyl.xml
+    DESTINATION share/mime/packages
+)
