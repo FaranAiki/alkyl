@@ -1,0 +1,12 @@
+[package]
+name = "alkyl_cranelift_backend"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+cranelift = "0.105.0"
+cranelift-jit = "0.105.0"
+cranelift-module = "0.105.0"

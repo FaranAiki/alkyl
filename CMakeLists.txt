@@ -402,6 +402,33 @@ if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
     endif()
 endif()
 
+if (BACKEND_LOWER STREQUAL "cranelift" OR BUILDALL)
+    # 1. Ask Cargo to build the static library
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/codegen_cranelift/rust_backend/target/release/libalkyl_cranelift_backend.a
+        COMMAND cargo build --release
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/codegen_cranelift/rust_backend
+        COMMENT "Building Rust Cranelift backend..."
+    )
+    add_custom_target(alkyl_cranelift_rust_lib DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/codegen_cranelift/rust_backend/target/release/libalkyl_cranelift_backend.a)
+
+    # 2. Add executable
+    add_executable(alkyl_cranelift ${ALKYL_SOURCES} src/codegen_cranelift/driver.c) # We can reuse main.c
+    target_include_directories(alkyl_cranelift PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_compile_definitions(alkyl_cranelift PRIVATE BACKEND=cranelift)
+
+    # 3. Link the Rust staticlib
+    target_link_libraries(alkyl_cranelift PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/codegen_cranelift/rust_backend/target/release/libalkyl_cranelift_backend.a
+    )
+    add_dependencies(alkyl_cranelift alkyl_cranelift_rust_lib)
+
+    if(UNIX)
+        target_link_libraries(alkyl_cranelift PRIVATE m pthread dl z ncurses)
+    endif()
+endif()
+
+
 if (BACKEND_LOWER STREQUAL "llvm")
     set(ALKYL_BACKEND_TARGET alkyl_llvm)
 elseif (BACKEND_LOWER STREQUAL "qbe")
