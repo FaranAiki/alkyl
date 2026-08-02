@@ -64,7 +64,17 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
                 mangled = fd->name;
             }
         } else {
-            mangled = sem_mangle_func_name(ctx, ns_class, fd->name, fd->params);
+            if (fd->cconv) {
+                if (streq(fd->cconv, "cpp")) {
+                    mangled = sem_mangle_itanium_func_name(ctx, ns_class, fd->name, fd->params);
+                } else {
+                    mangled = fd->name; // basic extern for other languages for now
+                }
+            } else if (fd->is_extern && !fd->extern_name) {
+                mangled = fd->name; // default C mangling for basic externs
+            } else {
+                mangled = sem_mangle_func_name(ctx, ns_class, fd->name, fd->params);
+            }
         }
     }
     sym->mangled_name = mangled;

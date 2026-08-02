@@ -259,6 +259,12 @@ static int lex_symbol(Lexer *l, Token *t) {
     return 1;
   }
 
+  if (c == '@') {
+    advance(l);
+    t->type = TOKEN_AT;
+    return 1;
+  }
+
   if (c == '<') {
     advance(l);
     if (peek(l) == '<') {

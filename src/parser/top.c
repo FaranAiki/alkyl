@@ -32,6 +32,8 @@ void apply_implicit_return(Parser *p, ASTNode **body_ptr) {
 }
 
 static ASTNode* parse_single_extern(Parser *p, int modifiers) {
+  modifiers |= parse_modifiers(p);
+  
   if (p->current_token.type == TOKEN_CLASS || p->current_token.type == TOKEN_STRUCT || p->current_token.type == TOKEN_UNION) {
       eat(p, p->current_token.type);
       if (p->has_error) return NULL;
@@ -124,6 +126,8 @@ static ASTNode* parse_single_extern(Parser *p, int modifiers) {
 
 ASTNode* parse_extern(Parser *p, int modifiers) {
   eat(p, TOKEN_EXTERN);
+
+  modifiers |= parse_modifiers(p);
 
   if (p->current_token.type == TOKEN_LBRACE) {
       eat(p, TOKEN_LBRACE);

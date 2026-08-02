@@ -35,6 +35,7 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src);
 int sem_types_are_equal(VarType a, VarType b);
 char* sem_type_to_str(VarType t);
 char* sem_mangle_func_name(SemanticCtx *ctx, const char *class_name, const char *base_name, Parameter *params);
+char* sem_mangle_itanium_func_name(SemanticCtx *ctx, const char *class_name, const char *base_name, Parameter *params);
 
 void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...);
 void sem_warning(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...);

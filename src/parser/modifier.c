@@ -35,6 +35,16 @@ int parse_modifiers(Parser* p) {
                 eat(p, TOKEN_META);
                 break;
             }
+            case TOKEN_AT: {
+                eat(p, TOKEN_AT);
+                if (p->current_token.type != TOKEN_IDENTIFIER) {
+                    parser_fail(p, "Expected identifier after '@'");
+                    return modifiers;
+                }
+                p->pending_cconv = parser_strdup(p, p->current_token.text);
+                eat(p, TOKEN_IDENTIFIER);
+                break;
+            }
             case TOKEN_IDENTIFIER: {
                 if (streq(p->current_token.text, "static")) {
                     modifiers |= MODIFIER_STATIC;

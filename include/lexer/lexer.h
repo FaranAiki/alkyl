@@ -22,6 +22,7 @@ typedef enum {
   TOKEN_COMMA,
   TOKEN_ELLIPSIS,
   TOKEN_DOT,
+  TOKEN_AT,
 
   TOKEN_RANGE_INCL, // ..=
   TOKEN_RANGE_EXCL, // ..<

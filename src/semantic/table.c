@@ -680,6 +680,54 @@ char* sem_mangle_type(VarType t) {
     return buf;
 }
 
+char* sem_mangle_itanium_type(VarType t) {
+    const char *base = "v";
+    switch(t.base) {
+        case TYPE_INT: base = "i"; break;
+        case TYPE_SHORT: base = "s"; break;
+        case TYPE_LONG: base = "l"; break;
+        case TYPE_LONG_LONG: base = "x"; break;
+        case TYPE_CHAR: base = "c"; break;
+        case TYPE_BOOL: base = "b"; break;
+        case TYPE_SINGLE: base = "f"; break;
+        case TYPE_DOUBLE: base = "d"; break;
+        case TYPE_LONG_DOUBLE: base = "e"; break; // wait, long double is 'e'
+        case TYPE_VOID: base = "v"; break;
+        case TYPE_CLASS: 
+        case TYPE_ENUM: {
+            static char cbuf[256];
+            snprintf(cbuf, 256, "%zu%s", strlen(t.class_name ? t.class_name : "unknown"), t.class_name ? t.class_name : "unknown");
+            base = cbuf;
+            break;
+        }
+        default: base = "v"; break;
+    }
+    static char buf[256];
+    int pos = 0;
+    for (int i = 0; i < t.ptr_depth; i++) {
+        pos += snprintf(buf + pos, 256 - pos, "P");
+    }
+    snprintf(buf + pos, 256 - pos, "%s", base);
+    return buf;
+}
+
+char* sem_mangle_itanium_func_name(SemanticCtx *ctx, const char *class_name, const char *base_name, Parameter *params) {
+    char buf[1024];
+    int pos = 0;
+    if (class_name) {
+        pos += snprintf(buf + pos, 1024 - pos, "_ZN%zu%s%zu%sE", strlen(class_name), class_name, strlen(base_name), base_name);
+    } else {
+        pos += snprintf(buf + pos, 1024 - pos, "_Z%zu%s", strlen(base_name), base_name);
+    }
+    Parameter *p = params;
+    while (p) {
+        pos += snprintf(buf + pos, 1024 - pos, "%s", sem_mangle_itanium_type(p->type));
+        p = p->next;
+    }
+    if (!params) pos += snprintf(buf + pos, 1024 - pos, "v");
+    return ctx && ctx->compiler_ctx && ctx->compiler_ctx->arena ? arena_strdup(ctx->compiler_ctx->arena, buf) : strdup(buf);
+}
+
 char* sem_mangle_func_name(SemanticCtx *ctx, const char *class_name, const char *base_name, Parameter *params) {
     char buf[1024];
     int pos = 0;
