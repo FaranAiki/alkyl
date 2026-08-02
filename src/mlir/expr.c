@@ -384,6 +384,9 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                 elem = elem->next;
             }
             return obj;
+        case NODE_CAST: {
+            CastNode *cast = (CastNode*)node;
+            return mlir_gen_expr(ctx, mod, cast->operand);
         }
         default:
             printf("Warning: Unhandled expr node type %d in MLIR\n", node->type);

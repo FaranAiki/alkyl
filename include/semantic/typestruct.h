@@ -116,6 +116,7 @@ typedef struct {
     int in_switch;
     
     ASTNode **ast_tail; // For appending instantiated templates
+    ASTNode *current_node;
 } SemanticCtx;
 
 #endif // SEMANTIC_TYPESTRUCT_H
