@@ -14,15 +14,34 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
             return alkyl_mlir_build_int_constant(ctx, lit->val.int_val);
         }
         case NODE_VAR_REF: {
-            VarRefNode *v = (VarRefNode*)node;
+            VarRefNode *var = (VarRefNode*)node;
             extern HashMap *mlir_vars;
-            if (mlir_vars && v->name) {
-                AlkylMlirValue alloca = hashmap_get(mlir_vars, v->name);
+            if (mlir_vars && var->name) {
+                AlkylMlirValue alloca = hashmap_get(mlir_vars, var->name);
                 if (alloca) {
                     return alkyl_mlir_build_load(ctx, alloca);
                 }
             }
-            return alkyl_mlir_build_int_constant(ctx, 0); 
+            
+            // If not found in mlir_vars, check if it's an enum variant
+            if (var->name) {
+                extern ASTNode *mlir_global_ast_root;
+                ASTNode *n = mlir_global_ast_root;
+                while (n) {
+                    if (n->type == NODE_ENUM) {
+                        EnumNode *en = (EnumNode*)n;
+                        EnumEntry *ent = en->entries;
+                        while (ent) {
+                            if (strcmp(ent->name, var->name) == 0) {
+                                return alkyl_mlir_build_int_constant(ctx, ent->value);
+                            }
+                            ent = ent->next;
+                        }
+                    }
+                    n = n->next;
+                }
+            }
+            return alkyl_mlir_build_int_constant(ctx, 0);
         }
         case NODE_CALL: {
             CallNode *call = (CallNode*)node;
@@ -168,6 +187,30 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
         }
         case NODE_MEMBER_ACCESS: {
             MemberAccessNode *maccess = (MemberAccessNode*)node;
+            printf("DEBUG: member access %s, base=%d, expected TYPE_ENUM=%d, class_name=%s\n", maccess->member_name, maccess->object->sem_type.base, TYPE_ENUM, maccess->object->sem_type.class_name);
+            if (maccess->object->sem_type.base == TYPE_ENUM && maccess->object->sem_type.class_name) {
+                extern ASTNode *mlir_global_ast_root;
+                ASTNode *n = mlir_global_ast_root;
+                while (n) {
+                    if (n->type == NODE_ENUM) {
+                        EnumNode *en = (EnumNode*)n;
+                        if (strcmp(en->name, maccess->object->sem_type.class_name) == 0) {
+                            EnumEntry *ent = en->entries;
+                            long val = 0;
+                            while (ent) {
+                                if (strcmp(ent->name, maccess->member_name) == 0) {
+                                    val = ent->value;
+                                    break;
+                                }
+                                ent = ent->next;
+                            }
+                            return alkyl_mlir_build_int_constant(ctx, val);
+                        }
+                    }
+                    n = n->next;
+                }
+                return alkyl_mlir_build_int_constant(ctx, 0);
+            }
             AlkylMlirValue obj = mlir_gen_expr(ctx, mod, maccess->object);
             
             int index = 0;
@@ -291,8 +334,12 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
         case NODE_INC_DEC: {
             IncDecNode *inc = (IncDecNode*)node;
             extern HashMap *mlir_vars;
-            if (mlir_vars && inc->name) {
-                AlkylMlirValue alloca = hashmap_get(mlir_vars, inc->name);
+            char *var_name = inc->name;
+            if (!var_name && inc->target && inc->target->type == NODE_VAR_REF) {
+                var_name = ((VarRefNode*)inc->target)->name;
+            }
+            if (mlir_vars && var_name) {
+                AlkylMlirValue alloca = hashmap_get(mlir_vars, var_name);
                 if (alloca) {
                     AlkylMlirValue old_val = alkyl_mlir_build_load(ctx, alloca);
                     AlkylMlirValue one = alkyl_mlir_build_int_constant(ctx, 1);

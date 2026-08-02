@@ -416,6 +416,17 @@ AlkylMlirValue alkyl_mlir_build_string_constant(AlkylMlirContext c_ctx, AlkylMli
         if (!global_builder) return nullptr; \
         auto l = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(lhs)); \
         auto r = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(rhs)); \
+        auto l_type = l.getType(); \
+        auto r_type = r.getType(); \
+        if (l_type != r_type && l_type.isIntOrIndex() && r_type.isIntOrIndex()) { \
+            unsigned l_width = l_type.getIntOrFloatBitWidth(); \
+            unsigned r_width = r_type.getIntOrFloatBitWidth(); \
+            if (l_width > r_width) { \
+                r = global_builder->create<mlir::arith::ExtSIOp>(global_builder->getUnknownLoc(), l_type, r); \
+            } else if (r_width > l_width) { \
+                l = global_builder->create<mlir::arith::ExtSIOp>(global_builder->getUnknownLoc(), r_type, l); \
+            } \
+        } \
         auto op = global_builder->create<op_class>(global_builder->getUnknownLoc(), l, r); \
         return reinterpret_cast<void*>(op.getResult().getImpl()); \
     }

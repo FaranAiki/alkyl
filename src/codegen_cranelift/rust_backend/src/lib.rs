@@ -6,7 +6,7 @@ use cranelift_module::{Module, default_libcall_names};
 use std::fs::File;
 use std::io::Write;
 
-// .. skipped enum definition 
+// .. skipped enum definition
 
 #[repr(C)]
 #[derive(Debug, PartialEq, Eq)]
@@ -88,8 +88,10 @@ pub struct AlirFunction {
     pub reason: *mut c_char,
     pub cconv: *mut c_char,
     pub next: *mut AlirFunction,
+
 }
-// VarType in C is a struct, not a pointer. It's too big to guess. 
+// TODO implement this
+// VarType in C is a struct, not a pointer. It's too big to guess.
 // We will just read `functions` using a raw pointer approach if we need to.
 
 #[repr(C)]
@@ -141,7 +143,7 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
             let gname = unsafe { CStr::from_ptr(g.name) }.to_string_lossy().into_owned();
             let gcontent = unsafe { CStr::from_ptr(g.string_content) };
             let data_id = module.declare_data(&gname, cranelift_module::Linkage::Export, true, false).unwrap();
-            
+
             data_desc.define(gcontent.to_bytes_with_nul().to_vec().into_boxed_slice());
             module.define_data(data_id, &data_desc).unwrap();
             data_desc.clear();
@@ -154,7 +156,7 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
     let mut curr_func = alir.functions as *const AlirFunction;
     while !curr_func.is_null() {
         let f = unsafe { &*curr_func };
-        
+
         let fname = if !f.name.is_null() {
             unsafe { CStr::from_ptr(f.name) }.to_string_lossy().into_owned()
         } else {
@@ -216,14 +218,14 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
             let cl_block = *block_map.get(&lbl).unwrap();
     builder.switch_to_block(cl_block);
 
-            
+
             let mut curr_inst = b.head as *const AlirInst;
             let mut terminated = false;
             println!("Function: {}", fname);
             while !curr_inst.is_null() {
                 let inst = unsafe { &*curr_inst };
                 println!("  Opcode: {:?}", inst.op);
-                
+
                 let get_val = |v_ptr: *mut AlirValue, bld: &mut cranelift::frontend::FunctionBuilder<'_>, map: &std::collections::HashMap<usize, cranelift::codegen::ir::Value>, module: &mut ObjectModule, global_map: &std::collections::HashMap<String, cranelift_module::DataId>| -> cranelift::codegen::ir::Value {
                     if v_ptr.is_null() {
                         return bld.ins().iconst(cranelift::codegen::ir::types::I64, 0);
@@ -345,7 +347,7 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 if v2.kind == 6 && v3.kind == 6 && v2.val != 0 && v3.val != 0 {
                                     let then_lbl = unsafe { CStr::from_ptr(v2.val as *const c_char) }.to_string_lossy().into_owned();
                                     let else_lbl = unsafe { CStr::from_ptr(v3.val as *const c_char) }.to_string_lossy().into_owned();
-                                    
+
                                     if let (Some(then_block), Some(else_block)) = (block_map.get(&then_lbl), block_map.get(&else_lbl)) {
                                         let c = builder.ins().icmp_imm(cranelift::codegen::ir::condcodes::IntCC::NotEqual, cond, 0);
                                         builder.ins().brif(c, *then_block, &[], *else_block, &[]);
@@ -390,22 +392,23 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                         AlirOpcode::Call => {
                             if !inst.op1.is_null() {
                                 let v1 = unsafe { &*inst.op1 };
-                                
+
                                 let mut func_name_opt = None;
                                 if (v1.kind == 4 || v1.kind == 9) && v1.val != 0 { // ALIR_VAL_VAR or ALIR_VAL_GLOBAL
                                     func_name_opt = Some(unsafe { CStr::from_ptr(v1.val as *const c_char) }.to_string_lossy().into_owned());
                                 }
-                                
+                                println!("DEBUG: ALIR_OP_CALL func_name={:?} v1.kind={}", func_name_opt, v1.kind);
+
                                 if let Some(func_name) = func_name_opt {
-                                    
+
                                     let mut sig = module.make_signature();
                                     for _ in 0..inst.arg_count {
                                         sig.params.push(cranelift::codegen::ir::AbiParam::new(cranelift::codegen::ir::types::I64));
                                     }
                                     sig.returns.push(cranelift::codegen::ir::AbiParam::new(cranelift::codegen::ir::types::I64));
-                                    
+
                                     let sig_ref = builder.import_signature(sig.clone());
-                                    
+
                                     let callee_id = if let Some(id) = func_map.get(&func_name) {
                                         *id
                                     } else {
@@ -413,13 +416,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                     };
                                     let local_callee = module.declare_func_in_func(callee_id, &mut builder.func);
                                     let func_ptr = builder.ins().func_addr(cranelift::codegen::ir::types::I64, local_callee);
-                                    
+
                                     let mut call_args = Vec::new();
                                     for i in 0..inst.arg_count {
                                         let arg_v = unsafe { *(inst.args.offset(i as isize)) };
                                         call_args.push(get_val(arg_v, &mut builder, &val_map, &mut module, &global_map));
                                     }
-                                    
+
                                     let call_inst = builder.ins().call_indirect(sig_ref, func_ptr, &call_args);
                                     let res = builder.inst_results(call_inst)[0];
                                     if !inst.dest.is_null() {
@@ -449,10 +452,10 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
 
             curr_block = b.next;
         }
-        
+
         builder.seal_all_blocks();
         builder.finalize();
-        
+
         module.define_function(func_id, &mut ctx).unwrap();
         module.clear_context(&mut ctx);
 
