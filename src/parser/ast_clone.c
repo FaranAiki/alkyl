@@ -9,6 +9,7 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
         if (bracket) {
             char base_name[256];
             int len = bracket - t.class_name;
+            if (len >= (int)sizeof(base_name)) len = (int)sizeof(base_name) - 1;
             strncpy(base_name, t.class_name, len);
             base_name[len] = '\0';
 
@@ -42,10 +43,10 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
             }
 
             char mangled[1024];
-            strcpy(mangled, base_name);
+            snprintf(mangled, sizeof(mangled), "%s", base_name);
             for (int i = 0; i < num_renames; i++) {
                 if (streq(base_name, rename_from[i])) {
-                    strcpy(mangled, rename_to[i]);
+                    snprintf(mangled, sizeof(mangled), "%s", rename_to[i]);
                     break;
                 }
             }
@@ -194,14 +195,15 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
                 if (bracket) {
                     char base_name[256];
                     int len = bracket - orig->name;
+                    if (len >= (int)sizeof(base_name)) len = (int)sizeof(base_name) - 1;
                     strncpy(base_name, orig->name, len);
                     base_name[len] = '\0';
 
                     char mangled[1024];
-                    strcpy(mangled, base_name);
+                    snprintf(mangled, sizeof(mangled), "%s", base_name);
                     for (int i = 0; i < num_renames; i++) {
                         if (streq(base_name, rename_from[i])) {
-                            strcpy(mangled, rename_to[i]);
+                            snprintf(mangled, sizeof(mangled), "%s", rename_to[i]);
                             break;
                         }
                     }

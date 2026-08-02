@@ -129,11 +129,13 @@ set(SEMANTIC_SOURCES
     src/semantic/core.c
 
     src/semantic/modifier/func.c
+    src/semantic/modifier/taint.c
     src/semantic/modifier/class.c
 
     src/semantic/fragment/lookup.c
     src/semantic/fragment/switch.c
     src/semantic/fragment/symbolic.c
+    src/semantic/fragment/field.c
 )
 
 set(ALIR_SOURCES
@@ -349,7 +351,7 @@ if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
     if (MLIR_FOUND)
         message(STATUS "Found MLIR ${MLIR_PACKAGE_VERSION}")
         message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
-        
+
         add_executable(alkyl_mlir ${ALKYL_SOURCES} src/mlir/driver.c)
         target_include_directories(alkyl_mlir PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
         target_compile_definitions(alkyl_mlir PRIVATE BACKEND=mlir)
@@ -364,7 +366,7 @@ if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
         add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
             COMMAND ${MLIR_TABLEGEN_EXE} -gen-dialect-decls ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
             DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td)
-        
+
         add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
             COMMAND ${MLIR_TABLEGEN_EXE} -gen-dialect-defs ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
             DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td)
@@ -373,14 +375,14 @@ if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
         add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
             COMMAND ${MLIR_TABLEGEN_EXE} -gen-op-decls ${ALKYL_TABLEGEN_DIR}/AlkylOps.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
             DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylOps.td)
-        
+
         add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
             COMMAND ${MLIR_TABLEGEN_EXE} -gen-op-defs ${ALKYL_TABLEGEN_DIR}/AlkylOps.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
             DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylOps.td)
 
         # Create a target for the generated files so they build before alkyl_mlir
         add_custom_target(alkyl_mlir_tblgen
-            DEPENDS 
+            DEPENDS
             ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
             ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
             ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
@@ -438,3 +440,5 @@ add_custom_target(run-tests
 message(STATUS "CODEGEN_SOURCES: ${CODEGEN_SOURCES}")
 message(STATUS "BACKEND_LOWER: ${BACKEND_LOWER}")
 message(STATUS "Backend target: ${ALKYL_BACKEND_TARGET}")
+message(STATUS "Enable Debug Any: ${ENABLE_DEBUG_ANY}")
+message(STATUS "Enable Debug Step: ${ENABLE_DEBUG_STEP}")

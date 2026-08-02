@@ -43,6 +43,10 @@ static void generate_semantic_tokens(const char *filepath, int **out_data, int *
     // We will collect tokens into a dynamically growing array
     int capacity = 1024;
     int *data = malloc(capacity * sizeof(int));
+    if (!data) {
+        *out_len = 0;
+        return;
+    }
     int count = 0;
     
     int prev_line = 1;
@@ -88,7 +92,13 @@ static void generate_semantic_tokens(const char *filepath, int **out_data, int *
         if (token_type != -1) {
             if (count + 5 > capacity) {
                 capacity *= 2;
-                data = realloc(data, capacity * sizeof(int));
+                int *tmp = realloc(data, capacity * sizeof(int));
+                if (!tmp) {
+                    free(data);
+                    *out_len = 0;
+                    return;
+                }
+                data = tmp;
             }
             
             int deltaLine = t.line - prev_line;
@@ -126,7 +136,11 @@ static void read_content_length(int *length) {
     char buffer[256];
     while (fgets(buffer, sizeof(buffer), stdin)) {
         if (strncmp(buffer, "Content-Length:", 15) == 0) {
-            *length = atoi(buffer + 15);
+            char *endptr;
+            long val = strtol(buffer + 15, &endptr, 10);
+            if (endptr != buffer + 15 && val >= 0 && val <= 2147483647) {
+                *length = (int)val;
+            }
         } else if (streq(buffer, "\r\n") || streq(buffer, "\n")) {
             break;
         }

@@ -79,11 +79,11 @@ int backend_run_alir(AlirModule *module, const char *basename, const char *link_
 
     if (optimization_level > 0) {
         char passes[32];
-        if (optimization_level == 1) strcpy(passes, "default<O1>");
-        else if (optimization_level == 2) strcpy(passes, "default<O2>");
-        else if (optimization_level == 3) strcpy(passes, "default<O3>");
-        else if (optimization_level == 4) strcpy(passes, "default<Os>");
-        else if (optimization_level >= 5) strcpy(passes, "default<Oz>");
+        if (optimization_level == 1) snprintf(passes, sizeof(passes), "%s", "default<O1>");
+        else if (optimization_level == 2) snprintf(passes, sizeof(passes), "%s", "default<O2>");
+        else if (optimization_level == 3) snprintf(passes, sizeof(passes), "%s", "default<O3>");
+        else if (optimization_level == 4) snprintf(passes, sizeof(passes), "%s", "default<Os>");
+        else if (optimization_level >= 5) snprintf(passes, sizeof(passes), "%s", "default<Oz>");
         
         LLVMPassBuilderOptionsRef pb_opt = LLVMCreatePassBuilderOptions();
         LLVMErrorRef err = LLVMRunPasses(llvm_module, passes, machine, pb_opt);

@@ -97,7 +97,7 @@ AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, 
         curr = curr->next;
     }
     char label[64];
-    sprintf(label, "str.%d", mod->str_counter++);
+    snprintf(label, sizeof(label), "str.%d", mod->str_counter++);
 
     AlirGlobal *g = alir_alloc(mod, sizeof(AlirGlobal));
     g->name = alir_strdup(mod, label);
@@ -134,7 +134,7 @@ AlirBlock* alir_add_block(AlirModule *mod, AlirFunction *func, const char *label
 
     if (!label_hint) {
         char buf[32];
-        sprintf(buf, "L%d", b->id);
+        snprintf(buf, sizeof(buf), "L%d", b->id);
         b->label = alir_strdup(mod, buf);
     } else {
         int count = hashmap_inc(&label_map, label_hint);

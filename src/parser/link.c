@@ -60,21 +60,33 @@ ASTNode* parse_import(Parser *p) {
            parser_fail(p, "Expected file path string after 'import'");
            return NULL;
        }
-       char path_buf[256] = {0};
-       while (p->current_token.type == TOKEN_IDENTIFIER ||
-              p->current_token.type == TOKEN_DOT ||
-              p->current_token.type == TOKEN_SLASH) {
-           if (p->current_token.type == TOKEN_DOT) {
-               strcat(path_buf, "/");
-           } else if (p->current_token.type == TOKEN_SLASH) {
-               strcat(path_buf, "/");
-           } else {
-               if (p->current_token.text) {
-                   strncat(path_buf, p->current_token.text, 255 - strlen(path_buf));
-               }
-           }
-           eat(p, p->current_token.type);
-       }
+        char path_buf[256] = {0};
+        size_t path_len = 0;
+        while (p->current_token.type == TOKEN_IDENTIFIER ||
+               p->current_token.type == TOKEN_DOT ||
+               p->current_token.type == TOKEN_SLASH) {
+            if (p->current_token.type == TOKEN_DOT) {
+                if (path_len + 1 < sizeof(path_buf)) {
+                    path_buf[path_len++] = '/';
+                    path_buf[path_len] = '\0';
+                }
+            } else if (p->current_token.type == TOKEN_SLASH) {
+                if (path_len + 1 < sizeof(path_buf)) {
+                    path_buf[path_len++] = '/';
+                    path_buf[path_len] = '\0';
+                }
+            } else {
+                if (p->current_token.text) {
+                    size_t text_len = strlen(p->current_token.text);
+                    if (text_len + path_len < sizeof(path_buf) - 1) {
+                        memcpy(path_buf + path_len, p->current_token.text, text_len);
+                        path_len += text_len;
+                        path_buf[path_len] = '\0';
+                    }
+                }
+            }
+            eat(p, p->current_token.type);
+        }
        if (strlen(path_buf) == 0) {
            parser_fail(p, "Expected file path after 'import'");
            return NULL;
@@ -130,7 +142,9 @@ static int import_stack_contains(ImportStack *stack, const char *path) {
 static void import_stack_push(ImportStack *stack, const char *path) {
     if (stack->count >= stack->capacity) {
         stack->capacity = stack->capacity == 0 ? 16 : stack->capacity * 2;
-        stack->paths = (const char**)realloc(stack->paths, stack->capacity * sizeof(char*));
+        const char **tmp = (const char**)realloc(stack->paths, stack->capacity * sizeof(char*));
+        if (!tmp) return;
+        stack->paths = tmp;
     }
     stack->paths[stack->count++] = path;
 }

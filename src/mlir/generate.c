@@ -355,6 +355,10 @@ HashMap *mlir_vars = NULL;
 void mlir_generate(ASTNode *root, const char *basename) {
     mlir_global_ast_root = root;
     mlir_vars = malloc(sizeof(HashMap));
+    if (!mlir_vars) {
+        fprintf(stderr, "Failed to allocate memory for MLIR variables\n");
+        return;
+    }
     hashmap_init(mlir_vars, NULL, 16);
 
     scan_classes(root);

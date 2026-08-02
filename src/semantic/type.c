@@ -3,24 +3,18 @@
 int sem_count_required_class_fields(SemanticCtx *ctx, SemSymbol *sym);
 #include <stdio.h>
 
-// Defined in check.c.
-extern SemSymbol* sem_get_errnum_func_sym(SemanticCtx *ctx, ASTNode *node);
-extern void sem_check_residue_exhaustive(SemanticCtx *ctx, ASTNode *where,
-                                         SemSymbol *err_sym, ResidueCase *cases,
-                                         int default_case);
-
 void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarType src) {
     int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && streq(dest.class_name, "string") && dest.ptr_depth == 0);
     int src_is_char = (src.base == TYPE_CHAR && (src.ptr_depth > 0 || src.array_size > 0));
-    
+
     int dest_is_char = (dest.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0));
     int src_is_str = (src.base == TYPE_CLASS && src.class_name && streq(src.class_name, "string") && src.ptr_depth == 0);
-    
+
     if (dest_is_str && src_is_char) {
         sem_info(ctx, node, "Implicit cast from 'char%s' to 'string'", (src.array_size > 0) ? "[]" : "*");
     } else if (dest_is_char && src_is_str) {
         sem_info(ctx, node, "Implicit cast from 'string' to 'char%s'", (dest.array_size > 0) ? "[]" : "*");
-        
+
         if (node->type == NODE_LITERAL) {
             LiteralNode *lit = (LiteralNode*)node;
             if (lit->var_type.base == TYPE_CLASS && lit->var_type.class_name && streq(lit->var_type.class_name, "string") && lit->val.str_val) {
@@ -84,7 +78,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
     if (node->initializer) {
         sem_check_expr(ctx, node->initializer);
         VarType init_type = sem_get_node_type(ctx, node->initializer);
-        
+
         if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0 && !init_type.is_func_ptr) {
             sem_error(ctx, (ASTNode*)node, "Cannot use expression of type 'void' to initialize variable '%s'", node->name);
         }
@@ -100,9 +94,9 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             } else if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0 && !init_type.is_func_ptr) {
                 sem_error(ctx, (ASTNode*)node, "Cannot infer type 'void' for variable '%s'", node->name);
             } else {
-                node->var_type = init_type; 
+                node->var_type = init_type;
             }
-        } 
+        }
         else {
             int is_stack_ctor = (node->var_type.base == TYPE_CLASS && node->var_type.ptr_depth == 0 && init_type.base == TYPE_CLASS && init_type.ptr_depth == 1 && node->var_type.class_name && init_type.class_name && streq(node->var_type.class_name, init_type.class_name));
             if (!sem_types_are_compatible(ctx,node->var_type, init_type) && !is_stack_ctor) {
@@ -137,11 +131,37 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             sem_error(ctx, (ASTNode*)node, "Redeclaration of variable '%s' in the same scope", node->name);
         } else {
             SemScope *shadow_scope = NULL;
-            SemSymbol *shadow = sem_symbol_lookup(ctx, node->name, &shadow_scope);
+            SemSymbol *shadow = NULL;
+            SemScope *parent = ctx->current_scope ? ctx->current_scope->parent : NULL;
+            while (parent && !shadow) {
+                SemSymbol *sym = find_in_scope_direct(parent, node->name);
+                if (sym) {
+                    shadow = sym;
+                    shadow_scope = parent;
+                    break;
+                }
+                sym = parent->symbols;
+                while (sym) {
+                    if (sym->kind == SYM_ENUM && sym->inner_scope) {
+                        SemSymbol *mem = sym->inner_scope->symbols;
+                        while (mem) {
+                            if (streq(mem->name, node->name)) {
+                                shadow = mem;
+                                shadow_scope = sym->inner_scope;
+                                break;
+                            }
+                            mem = mem->next;
+                        }
+                        if (shadow) break;
+                    }
+                    sym = sym->next;
+                }
+                parent = parent->parent;
+            }
             if (shadow) {
                 if (shadow->inner_scope == ctx->global_scope) {
                     sem_info(ctx, (ASTNode*)node, "Shadowing global variable '%s'", node->name);
-                } 
+                }
                 else if (shadow_scope && shadow_scope->is_class_scope) {
                     sem_info(ctx, (ASTNode*)node, "Shadowing class member '%s'", node->name);
                 }
@@ -151,12 +171,12 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             }
 
             SemSymbol *sym = sem_symbol_add(ctx, node->name, SYM_VAR, node->var_type);
-            sym->is_mutable = node->is_mutable; 
+            sym->is_mutable = node->is_mutable;
             sym->is_pure = node->is_pure;
             sym->must_pure = node->has_explicit_pure;
             sym->is_pristine = node->is_pristine;
-            sym->must_pristine = node->has_explicit_pristine;            
-      
+            sym->must_pristine = node->has_explicit_pristine;
+
             int is_global = (ctx->current_scope == ctx->global_scope);
             if (node->initializer || is_global || node->base.type == NODE_VAR_DECL) {
                  sym->is_initialized = true;
@@ -203,7 +223,7 @@ static bool sem_is_lvalue_mutable(SemanticCtx *ctx, ASTNode *node) {
         return sem_is_lvalue_mutable(ctx, aa->target);
     } else if (node->type == NODE_UNARY_OP) {
         // e.g. pointer dereference `*ptr`
-        return true; 
+        return true;
     }
     return true;
 }
@@ -213,7 +233,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     VarType rhs_type = sem_get_node_type(ctx, node->value);
     VarType lhs_type;
     int expr_tainted = sem_get_node_tainted(ctx, node->value);
-   
+
     if (rhs_type.base == TYPE_VOID && rhs_type.ptr_depth == 0) {
         sem_error(ctx, (ASTNode*)node, "Cannot assign value of type 'void' to variable");
     }
@@ -230,7 +250,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
         SemScope *found = NULL;
         SemSymbol *sym = sem_symbol_lookup(ctx, node->name, &found);
         int implicit_this = 0;
-        
+
         if (sym && found && found->is_class_scope) {
             implicit_this = 1;
         } else if (!sym) {
@@ -247,7 +267,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
             }
         }
 
-        
+
         if (!sym) {
             if (ctx->settings.implicit_let) {
                 node->is_implicit_let = true;
@@ -263,7 +283,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
             if (!sym->is_mutable) {
                 sem_error(ctx, (ASTNode*)node, "Cannot assign to immutable variable '%s'", node->name);
             }
-            
+
             if (implicit_this) {
                 VarRefNode *vr = arena_alloc_type(ctx->compiler_ctx->arena, VarRefNode);
                 memset(vr, 0, sizeof(VarRefNode));
@@ -275,11 +295,11 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                 lhs_type = sym->type;
             }
 
-            
+
             if (sym->must_pristine && expr_tainted) {
                 sem_error(ctx, (ASTNode*)node, "Cannot assign a tainted value to pristine variable '%s'", sym->name);
             }
-            
+
             if (node->op != TOKEN_ASSIGN) {
                 if (sym->kind == SYM_VAR && !sym->is_initialized) {
                     sem_error(ctx, (ASTNode*)node, "Use of uninitialized variable '%s' in compound assignment", node->name);
@@ -292,22 +312,22 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                 sym->is_mutable = true;
                 sym->is_initialized = true;
             }
-            
+
             lhs_type = sym->type;
-            
+
             if (node->index) {
                 sem_check_expr(ctx, node->index);
                 VarType idx_t = sem_get_node_type(ctx, node->index);
                 if (!is_integer(idx_t)) {
                     sem_error(ctx, node->index, "Array index must be an integer");
                 }
-                
+
                 if (lhs_type.array_size > 0) lhs_type.array_size = 0;
                 else if (lhs_type.ptr_depth > 0) lhs_type.ptr_depth--;
                 else {
                     sem_error(ctx, (ASTNode*)node, "Cannot index into non-array variable '%s'", node->name);
                 }
-                
+
                 if (sym->kind == SYM_VAR && !sym->is_initialized) {
                     sem_error(ctx, (ASTNode*)node, "Use of uninitialized array '%s'", node->name);
                 }
@@ -320,16 +340,16 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     } else {
         sem_check_expr(ctx, node->target);
         lhs_type = sem_get_node_type(ctx, node->target);
-        
+
         if (!sem_is_lvalue_mutable(ctx, node->target)) {
             sem_error(ctx, (ASTNode*)node, "Cannot assign to immutable variable/member");
         }
     }
-    
+
     if (node->op != TOKEN_ASSIGN) {
         char name_buf[64];
         snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", TOKEN_INFMUT, node->op);
-        
+
         SemSymbol *sym = NULL;
         int is_method = 0;
         if (lhs_type.base == TYPE_CLASS && lhs_type.ptr_depth == 0 && lhs_type.class_name) {
@@ -345,7 +365,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
         if (!sym) {
             sym = sem_symbol_lookup(ctx, name_buf, NULL);
         }
-        
+
         if (sym && sym->kind == SYM_FUNC) {
             if (is_method) {
                 ASTNode *method_args = node->value;
@@ -380,7 +400,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                     VarType ptr_type = lhs_type;
                     ptr_type.ptr_depth++;
                     sem_set_node_type(ctx, (ASTNode*)addr_of, ptr_type);
-                    
+
                     addr_of->base.next = node->value;
                     node->value->next = NULL;
                     SemSymbol *resolved = sem_resolve_overload(ctx, (ASTNode**)&addr_of, NULL, sym, NULL);
@@ -435,7 +455,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                             base_target = (ASTNode*)vr;
                             node->name = NULL;
                         }
-                        
+
                         if (base_target) {
                             MemberAccessNode *ma = arena_alloc_type(ctx->compiler_ctx->arena, MemberAccessNode);
                             memset(ma, 0, sizeof(MemberAccessNode));
@@ -444,7 +464,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                             ma->base.col = node->base.col;
                             ma->object = base_target;
                             ma->member_name = arena_strdup(ctx->compiler_ctx->arena, f->name);
-                            
+
                             sem_set_node_type(ctx, (ASTNode*)ma, f->type);
                             node->target = (ASTNode*)ma;
                             lhs_type = f->type; // Update lhs_type
@@ -453,7 +473,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
                     }
                 }
             }
-            
+
             if (!union_matched) {
                  char *t1 = sem_type_to_str(lhs_type);
                  char *t2 = sem_type_to_str(rhs_type);

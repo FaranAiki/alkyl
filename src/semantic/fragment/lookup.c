@@ -10,9 +10,12 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
         if (class_sym && class_sym->kind == SYM_TEMPLATE) {
             CompoundNode *cn = class_sym->template_node;
             char expected_types[256] = "";
+            size_t pos = 0;
             for (int i=0; i<cn->num_type_params; i++) {
-                strcat(expected_types, cn->type_params[i]);
-                if (i < cn->num_type_params - 1) strcat(expected_types, ", ");
+                pos += snprintf(expected_types + pos, sizeof(expected_types) - pos, "%s", cn->type_params[i]);
+                if (i < cn->num_type_params - 1 && pos < sizeof(expected_types) - 1) {
+                    pos += snprintf(expected_types + pos, sizeof(expected_types) - pos, ", ");
+                }
             }
             sem_error(ctx, (ASTNode*)node, "'%s' needs types [%s]", obj_type.class_name, expected_types);
         } else {
@@ -174,4 +177,177 @@ void sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
          sem_error(ctx, (ASTNode*)node, "Method '%s' not found in class '%s'", node->method_name, obj_type.class_name);
          sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
     }
+}
+
+SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_count, SemSymbol *first_sym, ASTNode *err_node) {
+    int arg_count = 0;
+    ASTNode *curr_arg = *args;
+    while(curr_arg) {
+        sem_check_expr(ctx, curr_arg);
+        curr_arg = curr_arg->next;
+        arg_count++;
+    }
+    if (out_arg_count) *out_arg_count = arg_count;
+
+    SemSymbol *sym = first_sym;
+    SemSymbol *best_match = NULL;
+    int best_score = -1;
+
+    ASTNode **best_matched_args = NULL;
+    ASTNode *best_varargs_head = NULL;
+
+    // Find matching overload (exact types or compatible implicit cast)
+    while (sym) {
+        if (sym->param_count <= arg_count || sym->is_variadic || 1) { // 1 because of default args
+            int match = 1;
+            int exact_matches = 0;
+
+            ASTNode **matched_args = arena_alloc(ctx->compiler_ctx->arena, sizeof(ASTNode*) * (sym->param_count > 0 ? sym->param_count : 1));
+            for (int i=0; i<sym->param_count; i++) matched_args[i] = NULL;
+
+            ASTNode *varargs_head = NULL;
+            ASTNode **curr_vararg = &varargs_head;
+
+            int pos_idx = 0;
+            curr_arg = *args;
+            while(curr_arg) {
+                if (curr_arg->type == NODE_NAMED_ARG) {
+                    NamedArgNode *narg = (NamedArgNode*)curr_arg;
+                    int found = -1;
+                    Parameter *p = sym->params;
+                    for (int i=0; p; i++, p=p->next) {
+                        if (p->name && streq(p->name, narg->name)) { found = i; break; }
+                    }
+                    if (found == -1 || matched_args[found] != NULL) { match = 0; break; }
+                    matched_args[found] = narg->value;
+                } else {
+                    if (pos_idx < sym->param_count) {
+                        if (matched_args[pos_idx] != NULL) { match = 0; break; }
+                        matched_args[pos_idx] = curr_arg;
+                        pos_idx++;
+                    } else if (sym->is_variadic) {
+                        *curr_vararg = curr_arg;
+                        curr_vararg = &(*curr_vararg)->next;
+                    } else {
+                        match = 0; break;
+                    }
+                }
+                curr_arg = curr_arg->next;
+            }
+
+            if (match) {
+                Parameter *p = sym->params;
+                for (int i=0; i<sym->param_count; i++, p=p->next) {
+                    if (matched_args[i] == NULL) {
+                        if (p->default_value) {
+                            matched_args[i] = p->default_value;
+                        } else {
+                            match = 0; break;
+                        }
+                    }
+                    sem_check_expr(ctx, matched_args[i]);
+                    VarType arg_t = sem_get_node_type(ctx, matched_args[i]);
+                    if (!sem_types_are_compatible(ctx, p->type, arg_t)) { match = 0; break; }
+                    if (p->type.base == arg_t.base && p->type.ptr_depth == arg_t.ptr_depth) exact_matches++;
+                }
+            }
+
+            if (match) {
+                int score = exact_matches;
+                if (score > best_score) {
+                    best_score = score;
+                    best_match = sym;
+                    best_matched_args = matched_args;
+                    if (*curr_vararg) *curr_vararg = NULL; // terminate varargs list safely
+                    best_varargs_head = varargs_head;
+                }
+            }
+        }
+        sym = sym->overload_next;
+    }
+
+    if (!best_match) {
+        if (err_node) {
+            StringBuilder sb;
+            sb_init(&sb, ctx->compiler_ctx->arena);
+            ASTNode *curr = *args;
+            int first = 1;
+            while(curr) {
+                if (!first) sb_append(&sb, ", ");
+                VarType arg_t = sem_get_node_type(ctx, curr);
+                sb_append(&sb, sem_type_to_str(arg_t));
+                first = 0;
+                curr = curr->next;
+            }
+            sem_error(ctx, err_node, "No matching overload found for function '%s(%s)'", first_sym->name, sb_return(&sb));
+        }
+        return NULL;
+    }
+
+    // Rebuild arguments list
+    if (best_matched_args) {
+        ASTNode *new_args_head = NULL;
+        ASTNode **curr_new = &new_args_head;
+        for (int i=0; i<best_match->param_count; i++) {
+            *curr_new = best_matched_args[i];
+            curr_new = &(*curr_new)->next;
+        }
+        if (best_varargs_head) {
+            *curr_new = best_varargs_head;
+        } else {
+            *curr_new = NULL;
+        }
+        *args = new_args_head;
+    }
+
+    // Apply implicit casts and reference downgrades
+    ASTNode **p_curr = args;
+    Parameter *curr_para = best_match->params;
+
+    ASTNode *arg_node = *args;
+    while(arg_node) {
+        if (!best_match->is_pristine && arg_node->type == NODE_UNARY_OP) {
+            UnaryOpNode *uop = (UnaryOpNode*)arg_node;
+            if (uop->op == TOKEN_AND && uop->operand->type == NODE_VAR_REF) {
+                VarRefNode *var_ref = (VarRefNode*)uop->operand;
+                SemSymbol *ref_sym = sem_symbol_lookup(ctx, var_ref->name, NULL);
+                if (ref_sym) {
+                    if (ref_sym->must_pristine) {
+                        sem_error(ctx, arg_node, "Cannot pass pristine variable '%s' by reference to tainted function '%s'", var_ref->name, best_match->name);
+                    } else {
+                        ref_sym->is_pristine = 0; // Downgrade to tainted
+                    }
+                }
+            }
+        }
+        arg_node = arg_node->next;
+    }
+
+    while(*p_curr && curr_para) {
+        int arg_is_tainted = sem_get_node_tainted(ctx, *p_curr);
+        int param_is_pristine = curr_para->is_pristine;
+
+        if (arg_is_tainted && param_is_pristine) {
+            sem_error(ctx, *p_curr, "Cannot pass tainted expression to pristine parameter '%s'", curr_para->name);
+            sem_hint(ctx, *p_curr, "Expressions containing division by a non-constant can lead to division by error");
+        }
+
+        if (sem_types_are_compatible(ctx, curr_para->type, sem_get_node_type(ctx, *p_curr))) {
+            sem_insert_implicit_cast(ctx, p_curr, curr_para->type);
+        }
+        p_curr = &(*p_curr)->next;
+        curr_para = curr_para->next;
+    }
+
+    if (best_match->is_variadic) {
+        while (*p_curr) {
+            if (sem_get_node_tainted(ctx, *p_curr)) {
+                sem_error(ctx, *p_curr, "Cannot pass tainted expression to varargs (...) of function '%s'", best_match->name);
+                sem_hint(ctx, *p_curr, "Expressions containing division by a non-constant can lead to division by error");
+            }
+            p_curr = &(*p_curr)->next;
+        }
+    }
+
+    return best_match;
 }

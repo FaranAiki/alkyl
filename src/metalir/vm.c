@@ -42,8 +42,9 @@ long long metalir_vm_resolve_var(AlirValue *val, AlirModule *module, MetalirVM *
     if (val->kind == ALIR_VAL_VAR) {
         const char *name = val->val.str_val;
         if (name && name[0] == 'p') {
-            int idx = atoi(name + 1);
-            if (idx < arg_count && args) return args[idx];
+            char *endptr;
+            long idx = strtol(name + 1, &endptr, 10);
+            if (endptr != name + 1 && idx >= 0 && idx < arg_count && args) return args[idx];
         }
         if (vm) {
             VMGlobal *g = vm->globals;

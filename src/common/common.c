@@ -18,16 +18,15 @@ static void sb_grow(StringBuilder *sb, int min_cap) {
     if (new_cap < min_cap) new_cap = min_cap;
 
     if (sb->arena) {
-        // Arena mode: Allocate new block and copy.
-        // This trades arena memory usage for safety/speed (no manual free).
         char *new_data = arena_alloc(sb->arena, new_cap);
         if (sb->data) {
             memcpy(new_data, sb->data, sb->len);
         }
         sb->data = new_data;
     } else {
-        // Legacy mode: standard realloc
-        sb->data = realloc(sb->data, new_cap);
+        char *tmp = realloc(sb->data, new_cap);
+        if (!tmp) return;
+        sb->data = tmp;
     }
     sb->cap = new_cap;
 }

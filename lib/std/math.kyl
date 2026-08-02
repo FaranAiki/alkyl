@@ -222,6 +222,7 @@ define _r_scalblnf as __raw_math.scalblnf;
 namespace math {
 
 const double pi = 3.14159265358979323846;
+// const Complex i = Complex();
 
 pure double atan2(double y, double x) { return _r_atan2(y, x); }
 pure single atan2(single y, single x) { return _r_atan2f(y, x); }

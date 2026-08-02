@@ -151,7 +151,7 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     int param_offset = 0;
     p_idx = 4;
     if (class_name) {
-        char arg_name[16]; sprintf(arg_name, "p%d", param_offset++);
+        char arg_name[16]; snprintf(arg_name, sizeof(arg_name), "p%d", param_offset++);
         AlirValue *arg_val = alir_val_var(ctx->module, arg_name); 
         arg_val->type = (VarType){TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)}; 
         
@@ -161,7 +161,7 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     }
     p = fn->params;
     while(p) {
-        char arg_name[16]; sprintf(arg_name, "p%d", param_offset++);
+        char arg_name[16]; snprintf(arg_name, sizeof(arg_name), "p%d", param_offset++);
         AlirValue *arg_val = alir_val_var(ctx->module, arg_name);
         arg_val->type = p->type; 
         
@@ -323,7 +323,7 @@ void alir_gen_flux_yield(AlirCtx *ctx, EmitNode *en) {
         
         emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
         
-        char label[32]; sprintf(label, "resume_%d", next_state);
+        char label[32]; snprintf(label, sizeof(label), "resume_%d", next_state);
         AlirBlock *resume_bb = alir_add_block(ctx->module, ctx->current_func, label);
         ctx->current_block = resume_bb;
         

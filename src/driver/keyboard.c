@@ -26,13 +26,13 @@ static void add_to_cmd_history(const char *line) {
     if (strlen(line) == 0) return;
     if (cmd_history_count > 0 && streq(cmd_history[cmd_history_count - 1], line)) return;
     if (cmd_history_count < MAX_HISTORY) {
-        strcpy(cmd_history[cmd_history_count], line);
+        snprintf(cmd_history[cmd_history_count], MAX_INPUT_LEN, "%s", line);
         cmd_history_count++;
     } else {
         for (int i = 0; i < MAX_HISTORY - 1; i++) {
-            strcpy(cmd_history[i], cmd_history[i + 1]);
+            snprintf(cmd_history[i], MAX_INPUT_LEN, "%s", cmd_history[i + 1]);
         }
-        strcpy(cmd_history[MAX_HISTORY - 1], line);
+        snprintf(cmd_history[MAX_HISTORY - 1], MAX_INPUT_LEN, "%s", line);
     }
 }
 
@@ -404,8 +404,12 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
             }
         } else if (c == 9) { // Tab
             if (suggestion != NULL) {
-                strcpy(input_buffer + word_start, suggestion);
-                int added_len = strlen(suggestion) - word_len;
+                size_t sug_len = strlen(suggestion);
+                size_t remaining = MAX_INPUT_LEN - word_start - 1;
+                if (sug_len > remaining) sug_len = remaining;
+                memcpy(input_buffer + word_start, suggestion, sug_len);
+                input_buffer[word_start + sug_len] = '\0';
+                int added_len = (int)(sug_len - word_len);
                 if (len + added_len + 1 < MAX_INPUT_LEN - 1) {
                     for(int j = len; j >= pos; j--) input_buffer[j + added_len + 1] = input_buffer[j];
                     input_buffer[pos + added_len] = ' ';
@@ -444,8 +448,12 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                 } else if (seq2 == 'C') { // Right
                     if (pos < len) pos++;
                     else if (pos == len && suggestion != NULL) {
-                        strcpy(input_buffer + word_start, suggestion);
-                        int added_len = strlen(suggestion) - word_len;
+                        size_t sug_len = strlen(suggestion);
+                        size_t remaining = MAX_INPUT_LEN - word_start - 1;
+                        if (sug_len > remaining) sug_len = remaining;
+                        memcpy(input_buffer + word_start, suggestion, sug_len);
+                        input_buffer[word_start + sug_len] = '\0';
+                        int added_len = (int)(sug_len - word_len);
                         if (len + added_len < MAX_INPUT_LEN - 1) {
                             len += added_len;
                             pos = len;

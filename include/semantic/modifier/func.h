@@ -5,5 +5,6 @@
 
 void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node);
 void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node);
+void sem_check_call(SemanticCtx *ctx, CallNode *node);
 
 #endif // SEMANTIC_MODIFIER_FUNC_H

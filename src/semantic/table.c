@@ -108,7 +108,7 @@ int sem_get_node_impure(SemanticCtx *ctx, ASTNode *node) {
     return 0;
 }
 
-static SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
+SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
     if (scope->symbol_map) {
         SemSymbol *res = (SemSymbol*)hashmap_get((HashMap*)scope->symbol_map, name);
         if (res && res->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && res->name == scope->class_sym->name) {

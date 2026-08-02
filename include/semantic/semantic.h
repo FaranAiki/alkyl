@@ -20,6 +20,7 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
 
 SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name);
 SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_scope);
+SemSymbol* find_in_scope_direct(SemScope *scope, const char *name);
 SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_count, SemSymbol *first_sym, ASTNode *err_node);
 
 void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type);
@@ -57,10 +58,13 @@ void sem_insert_implicit_cast(SemanticCtx *ctx, ASTNode **node_ptr, VarType targ
 
 #include "emitter.h"
 #include "type.h"
+#include "check.h"
 #include "fragment/lookup.h"
 #include "fragment/switch.h"
 #include "fragment/symbolic.h"
+#include "fragment/field.h"
 #include "modifier/class.h"
 #include "modifier/func.h"
+#include "modifier/taint.h"
 
 #endif // SEMANTIC_H

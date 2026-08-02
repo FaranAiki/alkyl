@@ -20,9 +20,12 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
             if (class_sym && class_sym->kind == SYM_TEMPLATE) {
                 CompoundNode *cn = class_sym->template_node;
                 char expected_types[256] = "";
+                size_t pos = 0;
                 for (int i=0; i<cn->num_type_params; i++) {
-                    strcat(expected_types, cn->type_params[i]);
-                    if (i < cn->num_type_params - 1) strcat(expected_types, ", ");
+                    pos += snprintf(expected_types + pos, sizeof(expected_types) - pos, "%s", cn->type_params[i]);
+                    if (i < cn->num_type_params - 1 && pos < sizeof(expected_types) - 1) {
+                        pos += snprintf(expected_types + pos, sizeof(expected_types) - pos, ", ");
+                    }
                 }
                 sem_error(ctx, (ASTNode*)node, "'%s' needs types [%s]", obj_type.class_name, expected_types);
             } else {
