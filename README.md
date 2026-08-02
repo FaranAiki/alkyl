@@ -44,7 +44,7 @@ Alkyl also features a robust, **fully orthogonal** effect and error-handling typ
 * **`pristine` vs `tainted`**: Determines error-safety. A `tainted` value represents a potential error or failure that must be safely unwrapped (`wash`, `clean`, `untaint`) before it can be used, guaranteeing safety without runtime exceptions.
 
 # Example Code
-```alkyl
+```c
 import "lib/c";
 
 float divby?(float a, float b) {
@@ -70,6 +70,18 @@ int main() {
   printf ("%d", divby(1, 0) ? 2);
   // return 2
 }
+```
+# Building Alkyl
+For full instructions on how to build the project using CMake or Bazel, and how to use the different compiler backends (LLVM, QBE, MLIR, Cranelift), please refer to the detailed build guide:
+* [alkyl/docs/build.md](docs/build.md)
+
+Quick start with CMake:
+```bash
+mkdir build && cd build
+cmake ..
+cmake --build . -j$(nproc)
+./alkyl_llvm ../test/code/general/test_real_faran.kyl --unopt
+./out
 ```
 
 # Docs
