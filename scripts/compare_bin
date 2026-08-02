@@ -8,8 +8,8 @@ set -euo pipefail
 #   --runs N       : number of hyperfine runs (default: 5)
 #   -- <extra>     : pass extra flags directly to the alkyl compiler
 
-COMPILERS=("build/alkyl_llvm" "build/alkyl_qbe" "build/alkyl_mlir")
-BACKENDS=("llvm" "qbe" "mlir")
+COMPILERS=("build/alkyl_llvm" "build/alkyl_qbe" "build/alkyl_mlir" "build/alkyl_cranelift")
+BACKENDS=("llvm" "qbe" "mlir" "cranelift")
 RUNS=5
 MODE="opt"
 EXTRA_FLAGS=()

@@ -1,24 +1,395 @@
-use std::ffi::c_void;
+use std::ffi::{c_char, c_void};
+use std::ffi::CStr;
 use cranelift::prelude::*;
-use cranelift_jit::{JITBuilder, JITModule};
-use cranelift_module::{Module, Linkage, default_libcall_names};
+use cranelift_object::{ObjectBuilder, ObjectModule};
+use cranelift_module::{Module, default_libcall_names};
+use std::fs::File;
+use std::io::Write;
+
+// .. skipped enum definition 
+
+#[repr(C)]
+#[derive(Debug, PartialEq, Eq)]
+pub enum AlirOpcode {
+    Alloca = 0,
+    FreeStack,
+    Store,
+    Load,
+    GetPtr,
+    Bitcast,
+
+    Add, Sub, Mul, Div, Mod,
+    FAdd, FSub, FMul, FDiv,
+
+    And, Or, Xor, Not,
+    Shl, Shr, Rotr, Rotl,
+
+    Lt, Gt, Lte, Gte, Eq, Neq,
+
+    Jump, Condi, Call, Ret, Panic, Fallback,
+
+    Cast, Sizeof, Alignof,
+}
+
+#[repr(C)]
+pub struct AlirValue {
+    pub kind: std::ffi::c_int,
+    pub type_pad: [u8; 48],
+    pub temp_id: std::ffi::c_int,
+    pub val: u64,
+}
+
+#[repr(C)]
+pub struct AlirInst {
+    pub op: AlirOpcode,
+    pub dest: *mut AlirValue,
+    pub op1: *mut AlirValue,
+    pub op2: *mut AlirValue,
+    pub args: *mut *mut AlirValue,
+    pub arg_count: std::ffi::c_int,
+    pub next: *mut AlirInst,
+    pub line: std::ffi::c_int,
+    pub col: std::ffi::c_int,
+}
+
+#[repr(C)]
+pub struct AlirBlock {
+    pub id: std::ffi::c_int,
+    pub label: *mut c_char,
+    pub head: *mut AlirInst,
+    pub tail: *mut AlirInst,
+    pub next: *mut AlirBlock,
+    pub pred: *mut c_void,
+    pub succ: *mut c_void,
+}
+
+#[repr(C)]
+pub struct AlirFunction {
+    pub name: *mut c_char,
+    pub ret_type_pad: [u8; 48],
+    pub params: *mut c_void,
+    pub param_count: std::ffi::c_int,
+    pub blocks: *mut AlirBlock,
+    pub block_count: std::ffi::c_int,
+    pub is_flux: std::ffi::c_int,
+    pub is_varargs: std::ffi::c_int,
+    pub is_extern: std::ffi::c_int,
+    pub is_pure: std::ffi::c_int,
+    pub reason: *mut c_char,
+    pub cconv: *mut c_char,
+    pub next: *mut AlirFunction,
+}
+// VarType in C is a struct, not a pointer. It's too big to guess. 
+// We will just read `functions` using a raw pointer approach if we need to.
+
+#[repr(C)]
+pub struct AlirModule {
+    pub name: *mut c_char,
+    pub globals: *mut c_void,
+    pub functions: *mut c_void, // AlirFunction pointer
+}
 
 #[no_mangle]
-pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void) -> i32 {
-    if alir_ptr.is_null() {
+pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_ptr: *const c_char) -> i32 {
+    if alir_ptr.is_null() || basename_ptr.is_null() {
         return -1;
     }
 
-    let builder = JITBuilder::new(default_libcall_names()).unwrap();
-    let mut module = JITModule::new(builder);
-    
+    let basename = unsafe { CStr::from_ptr(basename_ptr) }.to_string_lossy().into_owned();
+
+    // Use ObjectBuilder instead of JITBuilder
+    let isa = cranelift_native::builder().unwrap().finish(cranelift::codegen::settings::Flags::new(cranelift::codegen::settings::builder())).unwrap();
+    let builder = ObjectBuilder::new(isa, basename.clone() + ".o", cranelift_module::default_libcall_names()).unwrap();
+    let mut module = ObjectModule::new(builder);
     let mut ctx = module.make_context();
     let mut func_ctx = FunctionBuilderContext::new();
 
-    println!("[Cranelift Rust Backend] Successfully initialized Cranelift JIT engine via C Opaque pointer!");
+    let alir = unsafe { &*(alir_ptr as *const AlirModule) };
+    if !alir.name.is_null() {
+        let name = unsafe { CStr::from_ptr(alir.name) };
+        println!("[Cranelift Rust Backend] Compiling module: {:?}", name);
+    }
 
-    // Normally here we would traverse `alir_ptr` (the ALIR AST).
-    // For now we just return 0 to indicate success.
+    // Traverse functions
+    let mut curr_func = alir.functions as *const AlirFunction;
+    while !curr_func.is_null() {
+        let f = unsafe { &*curr_func };
+        
+        let fname = if !f.name.is_null() {
+            unsafe { CStr::from_ptr(f.name) }.to_string_lossy().into_owned()
+        } else {
+            "unknown_func".to_string()
+        };
+        println!("Compiling function: {:?}", fname);
+
+        // We would set up Cranelift function signature here
+        let mut sig = module.make_signature();
+        sig.returns.push(cranelift::codegen::ir::AbiParam::new(cranelift::codegen::ir::types::I64)); // example
+
+        let func_id = module.declare_function(&fname, cranelift_module::Linkage::Export, &sig).unwrap();
+        ctx.func.signature = sig;
+        ctx.func.name = cranelift::codegen::ir::UserFuncName::user(0, func_id.as_u32());
+
+        let mut curr_block = f.blocks as *const AlirBlock;
+        if curr_block.is_null() {
+            // External function
+            curr_func = f.next;
+            continue;
+        }
+
+        let mut builder = cranelift::frontend::FunctionBuilder::new(&mut ctx.func, &mut func_ctx);
+        let mut val_map = std::collections::HashMap::<usize, cranelift::codegen::ir::Value>::new();
+        let mut block_map = std::collections::HashMap::<String, cranelift::codegen::ir::Block>::new();
+
+        // Pre-create all blocks
+        let mut curr_block = f.blocks as *const AlirBlock;
+        while !curr_block.is_null() {
+            let b = unsafe { &*curr_block };
+            if !b.label.is_null() {
+                let lbl = unsafe { CStr::from_ptr(b.label) }.to_string_lossy().into_owned();
+                block_map.insert(lbl, builder.create_block());
+            }
+            curr_block = b.next;
+        }
+
+        curr_block = f.blocks as *const AlirBlock;
+        if !curr_block.is_null() {
+            let b = unsafe { &*curr_block };
+            if !b.label.is_null() {
+                let lbl = unsafe { CStr::from_ptr(b.label) }.to_string_lossy().into_owned();
+                let entry_block = *block_map.get(&lbl).unwrap();
+                builder.append_block_params_for_function_params(entry_block);
+            }
+        }
+
+        while !curr_block.is_null() {
+            let b = unsafe { &*curr_block };
+            if b.label.is_null() {
+                curr_block = b.next;
+                continue;
+            }
+            let lbl = unsafe { CStr::from_ptr(b.label) }.to_string_lossy().into_owned();
+            let cl_block = *block_map.get(&lbl).unwrap();
+            builder.switch_to_block(cl_block);
+
+            
+            let mut curr_inst = b.head as *const AlirInst;
+            let mut terminated = false;
+            while !curr_inst.is_null() {
+                let inst = unsafe { &*curr_inst };
+                
+                let get_val = |v_ptr: *mut AlirValue, bld: &mut cranelift::frontend::FunctionBuilder<'_>, map: &std::collections::HashMap<usize, cranelift::codegen::ir::Value>| -> cranelift::codegen::ir::Value {
+                    if v_ptr.is_null() {
+                        return bld.ins().iconst(cranelift::codegen::ir::types::I64, 0);
+                    }
+                    let v = unsafe { &*v_ptr };
+                    if v.kind == 7 { // CONST
+                        bld.ins().iconst(cranelift::codegen::ir::types::I64, v.val as i64)
+                    } else if let Some(val) = map.get(&(v_ptr as usize)) {
+                        *val
+                    } else {
+                        bld.ins().iconst(cranelift::codegen::ir::types::I64, 0)
+                    }
+                };
+
+                if !terminated {
+                    match inst.op {
+                        AlirOpcode::Add => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let res = builder.ins().iadd(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Sub => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let res = builder.ins().isub(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Mul => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let res = builder.ins().imul(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Div => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let res = builder.ins().sdiv(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Mod => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let res = builder.ins().srem(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Eq => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::Equal, lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Neq => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::NotEqual, lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Lt => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::SignedLessThan, lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Lte => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::SignedLessThanOrEqual, lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Gt => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::SignedGreaterThan, lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Gte => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::SignedGreaterThanOrEqual, lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Ret => {
+                            if !inst.op1.is_null() {
+                                let v = get_val(inst.op1, &mut builder, &val_map);
+                                builder.ins().return_(&[v]);
+                            } else {
+                                let v = builder.ins().iconst(cranelift::codegen::ir::types::I64, 0);
+                                builder.ins().return_(&[v]);
+                            }
+                            terminated = true;
+                        },
+                        AlirOpcode::Jump => {
+                            if !inst.op1.is_null() {
+                                let v1 = unsafe { &*inst.op1 };
+                                if v1.kind == 6 && v1.val != 0 { // ALIR_VAL_LABEL
+                                    let lbl = unsafe { CStr::from_ptr(v1.val as *const c_char) }.to_string_lossy().into_owned();
+                                    if let Some(dest_block) = block_map.get(&lbl) {
+                                        builder.ins().jump(*dest_block, &[]);
+                                        terminated = true;
+                                    }
+                                }
+                            }
+                        },
+                        AlirOpcode::Condi => {
+                            if !inst.op1.is_null() && !inst.op2.is_null() && inst.arg_count > 0 {
+                                let cond = get_val(inst.op1, &mut builder, &val_map);
+                                let v2 = unsafe { &*inst.op2 };
+                                let v3 = unsafe { &*(*inst.args.offset(0)) };
+                                if v2.kind == 6 && v3.kind == 6 && v2.val != 0 && v3.val != 0 {
+                                    let then_lbl = unsafe { CStr::from_ptr(v2.val as *const c_char) }.to_string_lossy().into_owned();
+                                    let else_lbl = unsafe { CStr::from_ptr(v3.val as *const c_char) }.to_string_lossy().into_owned();
+                                    
+                                    if let (Some(then_block), Some(else_block)) = (block_map.get(&then_lbl), block_map.get(&else_lbl)) {
+                                        let c = builder.ins().icmp_imm(cranelift::codegen::ir::condcodes::IntCC::NotEqual, cond, 0);
+                                        builder.ins().brif(c, *then_block, &[], *else_block, &[]);
+                                        terminated = true;
+                                    }
+                                }
+                            }
+                        },
+                        AlirOpcode::Alloca => {
+                            let slot = builder.create_sized_stack_slot(cranelift::codegen::ir::StackSlotData::new(
+                                cranelift::codegen::ir::StackSlotKind::ExplicitSlot,
+                                8
+                            ));
+                            let ptr = builder.ins().stack_addr(cranelift::codegen::ir::types::I64, slot, 0);
+                            val_map.insert(inst.dest as usize, ptr);
+                        },
+                        AlirOpcode::Store => {
+                            if !inst.op1.is_null() && !inst.op2.is_null() {
+                                let val = get_val(inst.op1, &mut builder, &val_map);
+                                let ptr = get_val(inst.op2, &mut builder, &val_map);
+                                builder.ins().store(cranelift::codegen::ir::MemFlags::new(), val, ptr, 0);
+                            }
+                        },
+                        AlirOpcode::Load => {
+                            if !inst.op1.is_null() {
+                                let ptr = get_val(inst.op1, &mut builder, &val_map);
+                                let val = builder.ins().load(cranelift::codegen::ir::types::I64, cranelift::codegen::ir::MemFlags::new(), ptr, 0);
+                                val_map.insert(inst.dest as usize, val);
+                            }
+                        },
+                        AlirOpcode::GetPtr => {
+                            let v = builder.ins().iconst(cranelift::codegen::ir::types::I64, 0);
+                            val_map.insert(inst.dest as usize, v);
+                        },
+                        AlirOpcode::Call => {
+                            if !inst.op1.is_null() {
+                                let v1 = unsafe { &*inst.op1 };
+                                if v1.kind == 4 && v1.val != 0 { // ALIR_VAL_VAR
+                                    let func_name = unsafe { CStr::from_ptr(v1.val as *const c_char) }.to_string_lossy().into_owned();
+                                    
+                                    let mut sig = module.make_signature();
+                                    for _ in 0..inst.arg_count {
+                                        sig.params.push(cranelift::codegen::ir::AbiParam::new(cranelift::codegen::ir::types::I64));
+                                    }
+                                    sig.returns.push(cranelift::codegen::ir::AbiParam::new(cranelift::codegen::ir::types::I64));
+                                    
+                                    let callee_id = module.declare_function(&func_name, cranelift_module::Linkage::Import, &sig).unwrap();
+                                    let local_callee = module.declare_func_in_func(callee_id, &mut builder.func);
+                                    
+                                    let mut call_args = Vec::new();
+                                    for i in 0..inst.arg_count {
+                                        let arg_v = unsafe { *inst.args.offset(i as isize) };
+                                        call_args.push(get_val(arg_v, &mut builder, &val_map));
+                                    }
+                                    
+                                    let call_inst = builder.ins().call(local_callee, &call_args);
+                                    let res = builder.inst_results(call_inst)[0];
+                                    if !inst.dest.is_null() {
+                                        val_map.insert(inst.dest as usize, res);
+                                    }
+                                }
+                            }
+                        },
+                        _ => {}
+                    }
+                }
+
+                curr_inst = inst.next;
+            }
+
+            // Fallback terminator if not explicitly terminated
+            if !terminated {
+                let v = builder.ins().iconst(cranelift::codegen::ir::types::I64, 0);
+                builder.ins().return_(&[v]);
+            }
+
+            curr_block = b.next;
+        }
+        
+        builder.seal_all_blocks();
+        builder.finalize();
+        
+        module.define_function(func_id, &mut ctx).unwrap();
+        module.clear_context(&mut ctx);
+
+        curr_func = f.next;
+    }
+
+    // Write object file to disk
+    let obj = module.finish();
+    let obj_path = format!("{}.o", basename);
+    if let Ok(mut file) = File::create(&obj_path) {
+        let _ = file.write_all(&obj.emit().unwrap());
+        println!("[Cranelift Rust Backend] Successfully wrote {}", obj_path);
+    } else {
+        println!("[Cranelift Rust Backend] Failed to write {}", obj_path);
+        return -1;
+    }
+
     0
 }
 
