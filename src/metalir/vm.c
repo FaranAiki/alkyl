@@ -93,8 +93,16 @@ long long metalir_vm_execute(MetalirVM *vm, AlirModule *module, AlirFunction *fu
     }*/
     SemanticCtx *sem_ctx = (SemanticCtx *)sem_ctx_ptr;
 
-    VMValue local_registers[MAX_VM_STACK];
-    memset(local_registers, 0, sizeof(local_registers));
+    int max_temp_id = MAX_VM_STACK;
+    for (AlirBlock *b = func->blocks; b; b = b->next) {
+        for (AlirInst *i = b->head; i; i = i->next) {
+            if (i->dest && i->dest->kind == ALIR_VAL_TEMP && i->dest->temp_id >= max_temp_id) max_temp_id = i->dest->temp_id + 1;
+            if (i->op1 && i->op1->kind == ALIR_VAL_TEMP && i->op1->temp_id >= max_temp_id) max_temp_id = i->op1->temp_id + 1;
+            if (i->op2 && i->op2->kind == ALIR_VAL_TEMP && i->op2->temp_id >= max_temp_id) max_temp_id = i->op2->temp_id + 1;
+        }
+    }
+
+    VMValue *local_registers = calloc(max_temp_id, sizeof(VMValue));
     VMValue *old_registers = vm->registers;
     vm->registers = local_registers;
     VMValue *registers = local_registers;
@@ -194,6 +202,7 @@ long long metalir_vm_execute(MetalirVM *vm, AlirModule *module, AlirFunction *fu
 
             if (ctx.should_return) {
                 vm->registers = old_registers;
+                free(local_registers);
                 return ret_val;
             }
 
@@ -204,5 +213,6 @@ long long metalir_vm_execute(MetalirVM *vm, AlirModule *module, AlirFunction *fu
     ret_val = vm->status;
 
     vm->registers = old_registers;
+    free(local_registers);
     return ret_val;
 }

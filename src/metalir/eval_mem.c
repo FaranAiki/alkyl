@@ -37,7 +37,18 @@ void vm_eval_mem(VMContext *ctx, AlirInst *inst) {
     switch(inst->op) {
 case ALIR_OP_ALLOCA: {
                     if (inst->dest) {
-                        ctx->registers[inst->dest->temp_id].as.ptr_val = arena_alloc(ctx->vm->arena, 1024); 
+                        long long alloc_size = 1024;
+                        if (inst->op1) {
+                            if (inst->op1->kind == ALIR_VAL_CONST) alloc_size = inst->op1->val.long_long_val;
+                            else if (inst->op1->kind == ALIR_VAL_TEMP) alloc_size = ctx->registers[inst->op1->temp_id].as.int_val;
+                        } else {
+                            VarType t = inst->dest->type;
+                            if (t.ptr_depth > 0) t.ptr_depth--;
+                            alloc_size = alir_get_type_size(t);
+                            if (alloc_size < 1024) alloc_size = 1024;
+                        }
+                        if (alloc_size < 1) alloc_size = 1024;
+                        ctx->registers[inst->dest->temp_id].as.ptr_val = arena_alloc(ctx->vm->arena, alloc_size); 
                     }
                     break;
                 }
