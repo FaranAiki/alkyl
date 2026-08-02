@@ -16,6 +16,8 @@ const char* alkyl_get_linker_command(LinkerType type) {
 }
 
 int alkyl_link(const char *obj_file, const char *output_basename, const char *link_flags, LinkerType linker_type) {
+    if (linker_type == LINKER_NONE) return 0;
+    
     char stamp_file[1024];
     snprintf(stamp_file, sizeof(stamp_file), "%s.link_stamp", output_basename);
 

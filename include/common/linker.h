@@ -8,7 +8,8 @@ typedef enum {
     LINKER_CLANG,
     LINKER_LLD,
     LINKER_MOLD,
-    LINKER_ALYNK
+    LINKER_ALYNK,
+    LINKER_NONE
 } LinkerType;
 
 const char* alkyl_get_linker_command(LinkerType type);

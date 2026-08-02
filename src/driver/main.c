@@ -69,6 +69,8 @@ int main(int argc, char *argv[]) {
             emit_balir = 1;
         } else if (streq(argv[i], "--allow-vector-init")) {
             parser_settings.allow_vector_initialization = 1;
+        } else if (streq(argv[i], "-c")) {
+            current_linker = LINKER_NONE;
         } else if (streq(argv[i], "--unopt") || streq(argv[i], "-O0")) {
             optimization_level = 0;
         } else if (streq(argv[i], "--opt") || streq(argv[i], "-O2")) {
