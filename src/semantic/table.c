@@ -304,9 +304,11 @@ SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
                 if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM || sym->kind == SYM_NAMESPACE || sym->kind == SYM_TEMPLATE)) {
                     if (ctx->settings.namespace_ausearch_warning) {
                         if (ctx->current_node) {
-                            printf("\033[33mWarning:\033[0m Implicitly resolved '%s' to '%s.%s' at line %d\n", name, ns->name, name, ctx->current_node->line);
+                            sem_warning(ctx, ctx->current_node, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
+                            sem_hint(ctx, ctx->current_node, "consider writing %s.%s", ns->name, name);
                         } else {
-                            printf("\033[33mWarning:\033[0m Implicitly resolved '%s' to '%s.%s'\n", name, ns->name, name);
+                            sem_warning(ctx, NULL, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
+                            sem_hint(ctx, NULL, "consider writing %s.%s", ns->name, name);
                         }
                     }
                     return sym;
@@ -427,9 +429,11 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
                 if (sym) {
                     if (ctx->settings.namespace_ausearch_warning) {
                         if (ctx->current_node) {
-                            printf("\033[33mWarning:\033[0m Implicitly resolved '%s' to '%s.%s' at line %d\n", name, ns->name, name, ctx->current_node->line);
+                            sem_warning(ctx, ctx->current_node, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
+                            sem_hint(ctx, ctx->current_node, "consider writing %s.%s", ns->name, name);
                         } else {
-                            printf("\033[33mWarning:\033[0m Implicitly resolved '%s' to '%s.%s'\n", name, ns->name, name);
+                            sem_warning(ctx, NULL, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
+                            sem_hint(ctx, NULL, "consider writing %s.%s", ns->name, name);
                         }
                     }
                     if (out_scope) *out_scope = ns->inner_scope;

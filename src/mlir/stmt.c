@@ -88,6 +88,69 @@ void mlir_gen_stmt(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node) {
             alkyl_mlir_build_scf_while_end(ctx, while_op);
             break;
         }
+        case NODE_PURGE: {
+            PurgeNode *pn = (PurgeNode*)node;
+            VarRefNode *vr = (VarRefNode*)pn->msg;
+            int err_id = 1;
+            alkyl_mlir_build_panic(ctx, err_id, vr->name);
+            break;
+        }
+        case NODE_CLEAN: {
+            CleanNode *cn = (CleanNode*)node;
+            extern HashMap *mlir_vars;
+            AlkylMlirValue target_ptr = hashmap_get(mlir_vars, cn->var_name);
+            AlkylMlirValue target_val = alkyl_mlir_build_load(ctx, target_ptr);
+            
+            AlkylMlirValue err_code = alkyl_mlir_build_load_field(ctx, target_val, 0, 0);
+            AlkylMlirValue zero = alkyl_mlir_build_int_constant(ctx, 0);
+            AlkylMlirValue cond = alkyl_mlir_build_eq(ctx, err_code, zero);
+            
+            void* if_op = alkyl_mlir_build_scf_if_start(ctx, cond, cn->residue_body != NULL || cn->residue_cases != NULL);
+            
+            AlkylMlirValue pristine_val = alkyl_mlir_build_load_field(ctx, target_val, 1, 0);
+            const char *p_name = cn->pristine_var_name ? cn->pristine_var_name : cn->var_name;
+            AlkylMlirValue p_alloc = alkyl_mlir_build_alloca(ctx, p_name);
+            hashmap_put(mlir_vars, p_name, p_alloc);
+            alkyl_mlir_build_store(ctx, pristine_val, p_alloc);
+            
+            ASTNode *stmt = cn->body;
+            while(stmt) { mlir_gen_stmt(ctx, mod, stmt); stmt = stmt->next; }
+            
+            if (cn->residue_body || cn->residue_cases) {
+                alkyl_mlir_build_scf_if_else(ctx, if_op);
+                if (cn->err_var_name) {
+                    AlkylMlirValue e_alloc = alkyl_mlir_build_alloca(ctx, cn->err_var_name);
+                    hashmap_put(mlir_vars, cn->err_var_name, e_alloc);
+                    alkyl_mlir_build_store(ctx, err_code, e_alloc);
+                }
+                
+                ResidueCase *rc = cn->residue_cases;
+                while (rc) {
+                    ASTNode *r_stmt = rc->body;
+                    while(r_stmt) { mlir_gen_stmt(ctx, mod, r_stmt); r_stmt = r_stmt->next; }
+                    rc = rc->next;
+                }
+                stmt = cn->residue_body;
+                while(stmt) { mlir_gen_stmt(ctx, mod, stmt); stmt = stmt->next; }
+            }
+            alkyl_mlir_build_scf_if_end(ctx, if_op);
+            break;
+        }
+        case NODE_UNTAINT: {
+            UntaintNode *un = (UntaintNode*)node;
+            extern HashMap *mlir_vars;
+            AlkylMlirValue target_ptr = hashmap_get(mlir_vars, un->var_name);
+            AlkylMlirValue target_val = alkyl_mlir_build_load(ctx, target_ptr);
+            
+            AlkylMlirValue pristine_val = alkyl_mlir_build_load_field(ctx, target_val, 1, 0);
+            AlkylMlirValue p_alloc = alkyl_mlir_build_alloca(ctx, un->var_name);
+            hashmap_put(mlir_vars, un->var_name, p_alloc);
+            alkyl_mlir_build_store(ctx, pristine_val, p_alloc);
+            break;
+        }
+        case NODE_WASH: {
+            break;
+        }
         case NODE_FOR_IN: {
             ForInNode *for_in = (ForInNode*)node;
             void *while_op = alkyl_mlir_build_scf_while_start(ctx);

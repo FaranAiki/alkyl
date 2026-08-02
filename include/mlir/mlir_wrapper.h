@@ -46,6 +46,8 @@ AlkylMlirValue alkyl_mlir_build_shr(AlkylMlirContext ctx, AlkylMlirValue lhs, Al
 AlkylMlirValue alkyl_mlir_build_and(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
 AlkylMlirValue alkyl_mlir_build_or(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
 AlkylMlirValue alkyl_mlir_build_xor(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
+AlkylMlirValue alkyl_mlir_build_eq(AlkylMlirContext ctx, AlkylMlirValue lhs, AlkylMlirValue rhs);
+void alkyl_mlir_build_panic(AlkylMlirContext ctx, int err_id, const char* msg);
 
 AlkylMlirValue alkyl_mlir_build_load(AlkylMlirContext ctx, AlkylMlirValue ptr);
 AlkylMlirValue alkyl_mlir_build_call(AlkylMlirContext ctx, const char* name, AlkylMlirValue* args, int num_args);

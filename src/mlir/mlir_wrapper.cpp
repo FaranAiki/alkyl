@@ -451,6 +451,44 @@ GEN_BINOP(alkyl_mlir_build_and, mlir::arith::AndIOp)
 GEN_BINOP(alkyl_mlir_build_or, mlir::arith::OrIOp)
 GEN_BINOP(alkyl_mlir_build_xor, mlir::arith::XOrIOp)
 
+AlkylMlirValue alkyl_mlir_build_eq(AlkylMlirContext c_ctx, AlkylMlirValue lhs, AlkylMlirValue rhs) {
+#ifdef HAS_MLIR
+    if (!global_builder) return nullptr;
+    auto l = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(lhs));
+    auto r = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(rhs));
+    auto cmp = global_builder->create<mlir::arith::CmpIOp>(global_builder->getUnknownLoc(), mlir::arith::CmpIPredicate::eq, l, r);
+    return reinterpret_cast<void*>(cmp.getResult().getImpl());
+#else
+    (void)c_ctx; (void)lhs; (void)rhs; return nullptr;
+#endif
+}
+
+void alkyl_mlir_build_panic(AlkylMlirContext c_ctx, int err_id, const char* msg) {
+#ifdef HAS_MLIR
+    if (!global_builder) return;
+    auto* ctx = static_cast<mlir::MLIRContext*>(c_ctx);
+    auto module = global_builder->getBlock()->getParent()->getParentOfType<mlir::ModuleOp>();
+    
+    // Look up or declare 'exit'
+    auto exitFunc = module.lookupSymbol<mlir::func::FuncOp>("exit");
+    if (!exitFunc) {
+        mlir::OpBuilder modBuilder(module.getBodyRegion());
+        auto exitType = modBuilder.getFunctionType({modBuilder.getI32Type()}, {});
+        exitFunc = modBuilder.create<mlir::func::FuncOp>(modBuilder.getUnknownLoc(), "exit", exitType);
+        exitFunc.setPrivate();
+    }
+    
+    // Call 'exit(err_id)'
+    auto errVal = global_builder->create<mlir::arith::ConstantIntOp>(global_builder->getUnknownLoc(), err_id, 32);
+    global_builder->create<mlir::func::CallOp>(global_builder->getUnknownLoc(), exitFunc, mlir::ValueRange{errVal});
+    
+    // Emit unreachable terminator since exit doesn't return
+    global_builder->create<mlir::cf::BranchOp>(global_builder->getUnknownLoc(), global_builder->getBlock());
+#else
+    (void)c_ctx; (void)err_id; (void)msg;
+#endif
+}
+
 AlkylMlirValue alkyl_mlir_build_load(AlkylMlirContext c_ctx, AlkylMlirValue ptr) {
 #ifdef HAS_MLIR
     if (!global_builder) return nullptr;
