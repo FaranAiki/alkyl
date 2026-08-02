@@ -26,16 +26,25 @@ pub enum AlirOpcode {
 
     Lt, Gt, Lte, Gte, Eq, Neq,
 
-    Jump, Condi, Call, Ret, Panic, Fallback,
+    Jump,
+    Condi,
+    Call,
+    Ret,
+    Panic,
+    Fallback,
 
-    Cast, Sizeof, Alignof,
+    Cast,
+    Sizeof,
+    Alignof,
 }
 
 #[repr(C)]
 pub struct AlirValue {
     pub kind: std::ffi::c_int,
+    pub _pad1: [u8; 4],
     pub type_pad: [u8; 48],
     pub temp_id: std::ffi::c_int,
+    pub _pad2: [u8; 4],
     pub val: u64,
 }
 
@@ -47,6 +56,7 @@ pub struct AlirInst {
     pub op2: *mut AlirValue,
     pub args: *mut *mut AlirValue,
     pub arg_count: std::ffi::c_int,
+    pub _pad: [u8; 4],
     pub next: *mut AlirInst,
     pub line: std::ffi::c_int,
     pub col: std::ffi::c_int,
@@ -83,9 +93,17 @@ pub struct AlirFunction {
 // We will just read `functions` using a raw pointer approach if we need to.
 
 #[repr(C)]
+pub struct AlirGlobal {
+    pub name: *const c_char,
+    pub string_content: *const c_char,
+    pub type_padding: [u8; 48],
+    pub next: *mut AlirGlobal,
+}
+
+#[repr(C)]
 pub struct AlirModule {
     pub name: *mut c_char,
-    pub globals: *mut c_void,
+    pub globals: *mut AlirGlobal,
     pub functions: *mut c_void, // AlirFunction pointer
 }
 
@@ -111,6 +129,28 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
     }
 
     // Traverse functions
+    let mut data_desc = cranelift_module::DataDescription::new();
+    let mut global_map = std::collections::HashMap::new();
+    let mut func_map = std::collections::HashMap::new();
+
+    // Iterate over globals
+    let mut curr_glob = alir.globals;
+    while !curr_glob.is_null() {
+        let g = unsafe { &*curr_glob };
+        if !g.name.is_null() && !g.string_content.is_null() {
+            let gname = unsafe { CStr::from_ptr(g.name) }.to_string_lossy().into_owned();
+            let gcontent = unsafe { CStr::from_ptr(g.string_content) };
+            let data_id = module.declare_data(&gname, cranelift_module::Linkage::Export, true, false).unwrap();
+            
+            data_desc.define(gcontent.to_bytes_with_nul().to_vec().into_boxed_slice());
+            module.define_data(data_id, &data_desc).unwrap();
+            data_desc.clear();
+
+            global_map.insert(gname, data_id);
+        }
+        curr_glob = g.next;
+    }
+
     let mut curr_func = alir.functions as *const AlirFunction;
     while !curr_func.is_null() {
         let f = unsafe { &*curr_func };
@@ -124,9 +164,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
 
         // We would set up Cranelift function signature here
         let mut sig = module.make_signature();
+        for _ in 0..f.param_count {
+            sig.params.push(cranelift::codegen::ir::AbiParam::new(cranelift::codegen::ir::types::I64));
+        }
         sig.returns.push(cranelift::codegen::ir::AbiParam::new(cranelift::codegen::ir::types::I64)); // example
 
         let func_id = module.declare_function(&fname, cranelift_module::Linkage::Export, &sig).unwrap();
+        func_map.insert(fname.clone(), func_id);
         ctx.func.signature = sig;
         ctx.func.name = cranelift::codegen::ir::UserFuncName::user(0, func_id.as_u32());
 
@@ -170,21 +214,32 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
             }
             let lbl = unsafe { CStr::from_ptr(b.label) }.to_string_lossy().into_owned();
             let cl_block = *block_map.get(&lbl).unwrap();
-            builder.switch_to_block(cl_block);
+    builder.switch_to_block(cl_block);
 
             
             let mut curr_inst = b.head as *const AlirInst;
             let mut terminated = false;
+            println!("Function: {}", fname);
             while !curr_inst.is_null() {
                 let inst = unsafe { &*curr_inst };
+                println!("  Opcode: {:?}", inst.op);
                 
-                let get_val = |v_ptr: *mut AlirValue, bld: &mut cranelift::frontend::FunctionBuilder<'_>, map: &std::collections::HashMap<usize, cranelift::codegen::ir::Value>| -> cranelift::codegen::ir::Value {
+                let get_val = |v_ptr: *mut AlirValue, bld: &mut cranelift::frontend::FunctionBuilder<'_>, map: &std::collections::HashMap<usize, cranelift::codegen::ir::Value>, module: &mut ObjectModule, global_map: &std::collections::HashMap<String, cranelift_module::DataId>| -> cranelift::codegen::ir::Value {
                     if v_ptr.is_null() {
                         return bld.ins().iconst(cranelift::codegen::ir::types::I64, 0);
                     }
                     let v = unsafe { &*v_ptr };
-                    if v.kind == 7 { // CONST
+                    if v.kind == 7 { // ALIR_VAL_CONST
                         bld.ins().iconst(cranelift::codegen::ir::types::I64, v.val as i64)
+                    } else if v.kind == 9 { // ALIR_VAL_GLOBAL
+                        let gname = unsafe { CStr::from_ptr(v.val as *const c_char) }.to_string_lossy().into_owned();
+                        if let Some(data_id) = global_map.get(&gname) {
+                            let local_id = module.declare_data_in_func(*data_id, &mut bld.func);
+                            bld.ins().symbol_value(cranelift::codegen::ir::types::I64, local_id)
+                        } else {
+                            println!("WARNING: Global not found in get_val: {}", gname);
+                            bld.ins().iconst(cranelift::codegen::ir::types::I64, 0)
+                        }
                     } else if let Some(val) = map.get(&(v_ptr as usize)) {
                         *val
                     } else {
@@ -195,74 +250,74 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                 if !terminated {
                     match inst.op {
                         AlirOpcode::Add => {
-                            let lhs = get_val(inst.op1, &mut builder, &val_map);
-                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
                             let res = builder.ins().iadd(lhs, rhs);
                             val_map.insert(inst.dest as usize, res);
                         },
                         AlirOpcode::Sub => {
-                            let lhs = get_val(inst.op1, &mut builder, &val_map);
-                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
                             let res = builder.ins().isub(lhs, rhs);
                             val_map.insert(inst.dest as usize, res);
                         },
                         AlirOpcode::Mul => {
-                            let lhs = get_val(inst.op1, &mut builder, &val_map);
-                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
                             let res = builder.ins().imul(lhs, rhs);
                             val_map.insert(inst.dest as usize, res);
                         },
                         AlirOpcode::Div => {
-                            let lhs = get_val(inst.op1, &mut builder, &val_map);
-                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
                             let res = builder.ins().sdiv(lhs, rhs);
                             val_map.insert(inst.dest as usize, res);
                         },
                         AlirOpcode::Mod => {
-                            let lhs = get_val(inst.op1, &mut builder, &val_map);
-                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
                             let res = builder.ins().srem(lhs, rhs);
                             val_map.insert(inst.dest as usize, res);
                         },
                         AlirOpcode::Eq => {
-                            let lhs = get_val(inst.op1, &mut builder, &val_map);
-                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
                             let res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::Equal, lhs, rhs);
                             val_map.insert(inst.dest as usize, res);
                         },
                         AlirOpcode::Neq => {
-                            let lhs = get_val(inst.op1, &mut builder, &val_map);
-                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
                             let res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::NotEqual, lhs, rhs);
                             val_map.insert(inst.dest as usize, res);
                         },
                         AlirOpcode::Lt => {
-                            let lhs = get_val(inst.op1, &mut builder, &val_map);
-                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
                             let res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::SignedLessThan, lhs, rhs);
                             val_map.insert(inst.dest as usize, res);
                         },
                         AlirOpcode::Lte => {
-                            let lhs = get_val(inst.op1, &mut builder, &val_map);
-                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
                             let res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::SignedLessThanOrEqual, lhs, rhs);
                             val_map.insert(inst.dest as usize, res);
                         },
                         AlirOpcode::Gt => {
-                            let lhs = get_val(inst.op1, &mut builder, &val_map);
-                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
                             let res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::SignedGreaterThan, lhs, rhs);
                             val_map.insert(inst.dest as usize, res);
                         },
                         AlirOpcode::Gte => {
-                            let lhs = get_val(inst.op1, &mut builder, &val_map);
-                            let rhs = get_val(inst.op2, &mut builder, &val_map);
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
                             let res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::SignedGreaterThanOrEqual, lhs, rhs);
                             val_map.insert(inst.dest as usize, res);
                         },
                         AlirOpcode::Ret => {
                             if !inst.op1.is_null() {
-                                let v = get_val(inst.op1, &mut builder, &val_map);
+                                let v = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
                                 builder.ins().return_(&[v]);
                             } else {
                                 let v = builder.ins().iconst(cranelift::codegen::ir::types::I64, 0);
@@ -284,7 +339,7 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                         },
                         AlirOpcode::Condi => {
                             if !inst.op1.is_null() && !inst.op2.is_null() && inst.arg_count > 0 {
-                                let cond = get_val(inst.op1, &mut builder, &val_map);
+                                let cond = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
                                 let v2 = unsafe { &*inst.op2 };
                                 let v3 = unsafe { &*(*inst.args.offset(0)) };
                                 if v2.kind == 6 && v3.kind == 6 && v2.val != 0 && v3.val != 0 {
@@ -302,34 +357,46 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                         AlirOpcode::Alloca => {
                             let slot = builder.create_sized_stack_slot(cranelift::codegen::ir::StackSlotData::new(
                                 cranelift::codegen::ir::StackSlotKind::ExplicitSlot,
-                                8
+                                1024 // Big enough for structs in Cranelift for now
                             ));
                             let ptr = builder.ins().stack_addr(cranelift::codegen::ir::types::I64, slot, 0);
                             val_map.insert(inst.dest as usize, ptr);
                         },
                         AlirOpcode::Store => {
                             if !inst.op1.is_null() && !inst.op2.is_null() {
-                                let val = get_val(inst.op1, &mut builder, &val_map);
-                                let ptr = get_val(inst.op2, &mut builder, &val_map);
+                                let val = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                                let ptr = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
                                 builder.ins().store(cranelift::codegen::ir::MemFlags::new(), val, ptr, 0);
                             }
                         },
                         AlirOpcode::Load => {
                             if !inst.op1.is_null() {
-                                let ptr = get_val(inst.op1, &mut builder, &val_map);
+                                let ptr = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
                                 let val = builder.ins().load(cranelift::codegen::ir::types::I64, cranelift::codegen::ir::MemFlags::new(), ptr, 0);
                                 val_map.insert(inst.dest as usize, val);
                             }
                         },
                         AlirOpcode::GetPtr => {
-                            let v = builder.ins().iconst(cranelift::codegen::ir::types::I64, 0);
-                            val_map.insert(inst.dest as usize, v);
+                            if !inst.op1.is_null() {
+                                let mut ptr = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                                if !inst.op2.is_null() {
+                                    let idx = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
+                                    let offset = builder.ins().imul_imm(idx, 8); // Assuming 8-byte elements for now
+                                    ptr = builder.ins().iadd(ptr, offset);
+                                }
+                                val_map.insert(inst.dest as usize, ptr);
+                            }
                         },
                         AlirOpcode::Call => {
                             if !inst.op1.is_null() {
                                 let v1 = unsafe { &*inst.op1 };
-                                if v1.kind == 4 && v1.val != 0 { // ALIR_VAL_VAR
-                                    let func_name = unsafe { CStr::from_ptr(v1.val as *const c_char) }.to_string_lossy().into_owned();
+                                
+                                let mut func_name_opt = None;
+                                if (v1.kind == 4 || v1.kind == 9) && v1.val != 0 { // ALIR_VAL_VAR or ALIR_VAL_GLOBAL
+                                    func_name_opt = Some(unsafe { CStr::from_ptr(v1.val as *const c_char) }.to_string_lossy().into_owned());
+                                }
+                                
+                                if let Some(func_name) = func_name_opt {
                                     
                                     let mut sig = module.make_signature();
                                     for _ in 0..inst.arg_count {
@@ -337,21 +404,34 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                     }
                                     sig.returns.push(cranelift::codegen::ir::AbiParam::new(cranelift::codegen::ir::types::I64));
                                     
-                                    let callee_id = module.declare_function(&func_name, cranelift_module::Linkage::Import, &sig).unwrap();
+                                    let sig_ref = builder.import_signature(sig.clone());
+                                    
+                                    let callee_id = if let Some(id) = func_map.get(&func_name) {
+                                        *id
+                                    } else {
+                                        module.declare_function(&func_name, cranelift_module::Linkage::Import, &sig).unwrap()
+                                    };
                                     let local_callee = module.declare_func_in_func(callee_id, &mut builder.func);
+                                    let func_ptr = builder.ins().func_addr(cranelift::codegen::ir::types::I64, local_callee);
                                     
                                     let mut call_args = Vec::new();
                                     for i in 0..inst.arg_count {
-                                        let arg_v = unsafe { *inst.args.offset(i as isize) };
-                                        call_args.push(get_val(arg_v, &mut builder, &val_map));
+                                        let arg_v = unsafe { *(inst.args.offset(i as isize)) };
+                                        call_args.push(get_val(arg_v, &mut builder, &val_map, &mut module, &global_map));
                                     }
                                     
-                                    let call_inst = builder.ins().call(local_callee, &call_args);
+                                    let call_inst = builder.ins().call_indirect(sig_ref, func_ptr, &call_args);
                                     let res = builder.inst_results(call_inst)[0];
                                     if !inst.dest.is_null() {
                                         val_map.insert(inst.dest as usize, res);
                                     }
                                 }
+                            }
+                        },
+                        AlirOpcode::Cast => {
+                            if !inst.op1.is_null() && !inst.dest.is_null() {
+                                let val = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                                val_map.insert(inst.dest as usize, val);
                             }
                         },
                         _ => {}
