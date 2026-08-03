@@ -396,15 +396,15 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
             debug_any("macro: before sem_check_block, ns='%s'\n", diag_get_namespace(ctx->sem->compiler_ctx));
             sem_check_block(ctx->sem, cloned_body);
             debug_any("macro: after sem_check_block, ns='%s'\n", diag_get_namespace(ctx->sem->compiler_ctx));
-            if (old_ns && ctx->sem && ctx->sem->compiler_ctx) {
-                diag_set_namespace(ctx->sem->compiler_ctx, old_ns);
-            }
-
             // Compile the rewritten AST directly into the current caller's ALIR block
             ASTNode *curr = cloned_body;
             while (curr) {
                 alir_gen_stmt(ctx, curr);
                 curr = curr->next;
+            }
+
+            if (old_ns && ctx->sem && ctx->sem->compiler_ctx) {
+                diag_set_namespace(ctx->sem->compiler_ctx, old_ns);
             }
 
             return new_temp(ctx, (VarType){TYPE_VOID, 0});
