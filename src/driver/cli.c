@@ -384,6 +384,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    fprintf(stderr, "Usage: %s [file.kyl] | -m <module> | --module <module>\n", argv[0]);
+    fprintf(stderr, "Usage: %s [file.kyl|file.zyl] | -m <module> | --module <module>\n", argv[0]);
     return 1;
 }

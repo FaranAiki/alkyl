@@ -800,7 +800,18 @@ static char* read_file_content(Parser *p, const char* path) {
         return NULL;
     }
     FILE* f = fopen(path, "rb");
-    if (!f) return NULL;
+    if (!f) {
+        size_t plen = strlen(path);
+        char zyl_path[1024];
+        if (plen + 4 < sizeof(zyl_path)) {
+            memcpy(zyl_path, path, plen);
+            memcpy(zyl_path + plen, ".zyl", 5);
+#ifdef HAVE_LIBZIP
+            return read_zip_file(zyl_path);
+#endif
+        }
+        return NULL;
+    }
     fseek(f, 0, SEEK_END);
     long len = ftell(f);
     if (len <= 0) { fclose(f); return NULL; }
@@ -818,7 +829,7 @@ static char* read_file_content(Parser *p, const char* path) {
 }
 
 char* read_import_file(Parser *p, const char* filename) {
-    const char *exts[] = { ".kyl", ".hky", ".alk", ".alky", ".alkyl", "" };
+    const char *exts[] = { ".kyl", ".hky", ".alk", ".alky", ".alkyl", ".aky", ".zyl", "" };
     char path[1024];
 
     if (p->l && p->l->filename && p->l->filename[0]) {

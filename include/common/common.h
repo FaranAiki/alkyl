@@ -36,6 +36,7 @@ char* escape_string(const char *str);
 // --- Utils ---
 char* read_file(const char* path);
 void write_file(const char* path, const char* content);
+char* read_zip_file(const char *path);
 
 #include <string.h>
 static inline int streq(const char *a, const char *b) {

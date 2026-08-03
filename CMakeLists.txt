@@ -78,6 +78,15 @@ add_compile_options(-Wall -Wextra -O${OPT_LEVEL} -flto=auto
 -Wno-stringop-overflow
 )
 
+find_package(PkgConfig)
+pkg_check_modules(LIBZIP libzip)
+if(LIBZIP_FOUND)
+    message(STATUS "Found libzip ${LIBZIP_VERSION}")
+    add_compile_definitions(HAVE_LIBZIP)
+else()
+    message(STATUS "libzip not found, .zyl support disabled")
+endif()
+
 set(BACKEND "llvm" CACHE STRING "The backend to use for compilation (llvm or qbe)")
 set(BUILDALL "true" CACHE BOOL "Build all backends when true, only the selected backend when false")
 
@@ -186,6 +195,7 @@ set(MLIR_SOURCES
 set(HELPER_SOURCES
     src/common/diagnostic.c
     src/common/common.c
+    src/common/zip.c
     src/common/arena.c
     src/common/context.c
     src/common/hashmap.c
@@ -310,6 +320,11 @@ if (BACKEND_LOWER STREQUAL "llvm" OR BUILDALL)
         target_link_libraries(alkyl_llvm PRIVATE m pthread dl z ncurses readline)
     endif()
 
+    if(LIBZIP_FOUND)
+        target_include_directories(alkyl_llvm PRIVATE ${LIBZIP_INCLUDE_DIRS})
+        target_link_libraries(alkyl_llvm PRIVATE ${LIBZIP_LIBRARIES})
+    endif()
+
     if(WIN32)
         target_sources(alkyl_llvm PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/misc/installer/windows/alkyl.rc)
     endif()
@@ -338,6 +353,11 @@ if (BACKEND_LOWER STREQUAL "qbe" OR BUILDALL)
 
     if(UNIX)
         target_link_libraries(alkyl_qbe PRIVATE m pthread dl z ncurses readline)
+    endif()
+
+    if(LIBZIP_FOUND)
+        target_include_directories(alkyl_qbe PRIVATE ${LIBZIP_INCLUDE_DIRS})
+        target_link_libraries(alkyl_qbe PRIVATE ${LIBZIP_LIBRARIES})
     endif()
 
     if(WIN32)
@@ -401,6 +421,11 @@ if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
         if(UNIX)
             target_link_libraries(alkyl_mlir PRIVATE m pthread dl z ncurses)
         endif()
+
+        if(LIBZIP_FOUND)
+            target_include_directories(alkyl_mlir PRIVATE ${LIBZIP_INCLUDE_DIRS})
+            target_link_libraries(alkyl_mlir PRIVATE ${LIBZIP_LIBRARIES})
+        endif()
     else()
         message(STATUS "MLIR not found, skipping building alkyl_mlir.")
     endif()
@@ -429,6 +454,11 @@ if (BACKEND_LOWER STREQUAL "cranelift" OR BUILDALL)
 
     if(UNIX)
         target_link_libraries(alkyl_cranelift PRIVATE m pthread dl z ncurses)
+    endif()
+
+    if(LIBZIP_FOUND)
+        target_include_directories(alkyl_cranelift PRIVATE ${LIBZIP_INCLUDE_DIRS})
+        target_link_libraries(alkyl_cranelift PRIVATE ${LIBZIP_LIBRARIES})
     endif()
 endif()
 
@@ -460,6 +490,11 @@ endif()
 
 if(UNIX)
     target_link_libraries(ethyl PRIVATE m pthread dl z ncurses)
+endif()
+
+if(LIBZIP_FOUND)
+    target_include_directories(ethyl PRIVATE ${LIBZIP_INCLUDE_DIRS})
+    target_link_libraries(ethyl PRIVATE ${LIBZIP_LIBRARIES})
 endif()
 
 add_custom_target(run-tests

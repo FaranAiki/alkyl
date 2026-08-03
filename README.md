@@ -1,12 +1,12 @@
 # Alkyl Programming Language
 
-A simple programming language written using C as a frontend and backends, such as LLVM-IR (mainly), QBE (experimental), and self-backend, with the philosophy of ARCUY: Always Reasonable Choose Your Way.
+A simple programming language written using C as a frontend and backends, such as LLVM-IR (mainly), QBE (experimental), and self-backend, with the philosophy of ARCUY: Always Reasonably Choose Your Way.
 
 Alkyl is named after aikil (aiki language) and alkyl in chemistry which is a highly reactive and foundational. This means alkyl is a very modularized language that can acts as others. The file extension for Alkyl source code is `.kyl`, a sweet suggestion made by my beloved girlfriend (saysay/kupkup).
 
 # Purpose
 
-Alkyl is a general multipurpose language that is used for experimenting with lexer, parser, and code generation. Its principle is ARCUY: "Always Reasonable Choose Your Way" which means the keyword "reason" is embedded in its lexer and parser. Moreover, Alkyl is similar to C, Dart, Zig, and some other programming languages.
+Alkyl is a general multipurpose language that is used for experimenting with lexer, parser, and code generation. Its principle is ARCUY: "Always Reasonably Choose Your Way" which means the keyword "reason" is embedded in its lexer and parser. Moreover, Alkyl is similar to C, Dart, Zig, and some other programming languages.
 
 Alkyl does not try to compete with other languages, even languages like Racket or Lisp. It is used for personal project and to understand how old compilers and modern compilers work. This is why Alkyl is not a revolution in programming language, it is just a side hobby project that may be useful to me and others.
 
@@ -120,3 +120,7 @@ This hex sequence is derived from hashing the word `faranaiki` with SHA256, taki
 Don't get me wrong, the reason why I use Artificial Intelligence is because I am a programmer, but not a coder. The low-level C project that I never vibecoded is nihwm (my C window manager forked using dwm) and that is not basic setup, but I have to rtfm the X library. Thus, to avoid that painful reading, I gamble and use combined artificial intelligence as the coders.
 
 This is why this project is 60% written by AI, 40% written by myself. Although it is not purely vibecoded as AI cannot generate LLVM and C instructions perfectly, most of the backend and some frontend code is written by Gemini AI, Antigravity, Kilo with Stepfun 3.7, Ling, Hy, and others.
+
+# Why C, not C++, Rust, Zig?
+
+C is the lingua franca of languages. Moreover, C gives you a 100% permission over what you can. This is why Alkyl's basic syntax still looks like C even though many modern programmers use something like `x: int`, but Alkyl still uses `int x` because it is more "computer-like".

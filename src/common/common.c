@@ -119,18 +119,27 @@ void sb_free(StringBuilder *sb) {
 }
 
 char* read_file(const char* path) {
+    size_t len = strlen(path);
+    if (len > 4 && streq(path + len - 4, ".zyl")) {
+#ifdef HAVE_LIBZIP
+        return read_zip_file(path);
+#else
+        fprintf(stderr, "Cannot unzip '%s': Alkyl is not linked to libzip.\n", path);
+        return NULL;
+#endif
+    }
     FILE* f = fopen(path, "rb");
     if (!f) return NULL;
     fseek(f, 0, SEEK_END);
-    long len = ftell(f);
+    long flen = ftell(f);
     fseek(f, 0, SEEK_SET);
-    char* buf = malloc(len + 1);
+    char* buf = malloc(flen + 1);
     if (buf) {
-        if (fread(buf, 1, len, f) != (size_t)len) {
+        if (fread(buf, 1, flen, f) != (size_t)flen) {
             free(buf);
             buf = NULL;
         } else {
-            buf[len] = 0;
+            buf[flen] = 0;
         }
     }
     fclose(f);

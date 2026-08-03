@@ -115,7 +115,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                   fprintf(f, "        ");
                   if (inst->dest) {
                       alir_fprint_val(f, inst->dest);
-                      fprintf(f, " = ");
+                      fprintf(f, " <- ");
                   }
 
                   if (inst->op == ALIR_OP_ALLOCA && inst->dest) {
@@ -135,7 +135,7 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                       } else {
                           fprintf(f, "undef");
                       }
-                      fprintf(f, ", ptr ");
+                      fprintf(f, " -> ");
                       if (inst->op2) alir_fprint_val(f, inst->op2);
                       else fprintf(f, "undef");
                   }
