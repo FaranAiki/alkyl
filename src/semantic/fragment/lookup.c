@@ -92,7 +92,7 @@ int sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                                 curr_arg = &(*curr_arg)->next;
                             }
                         }
-                        goto done_method_search;
+                        return 1;
                     }
             }
         }
