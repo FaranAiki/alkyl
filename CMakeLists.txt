@@ -82,6 +82,9 @@ set(BACKEND "llvm" CACHE STRING "The backend to use for compilation (llvm or qbe
 set(BUILDALL "true" CACHE BOOL "Build all backends when true, only the selected backend when false")
 
 string(TOLOWER "${BACKEND}" BACKEND_LOWER)
+if (BACKEND_LOWER STREQUAL "buildall")
+    set(BUILDALL ON)
+endif()
 
 set(CODEGEN_LLVM_SOURCES
     src/codegen_llvm/codegen.c
@@ -471,9 +474,15 @@ message(STATUS "Backend target: ${ALKYL_BACKEND_TARGET}")
 message(STATUS "Enable Debug Any: ${ENABLE_DEBUG_ANY}")
 message(STATUS "Enable Debug Step: ${ENABLE_DEBUG_STEP}")
 
-install(TARGETS alkyl_llvm ethyl
-    RUNTIME DESTINATION bin
-)
+if (BACKEND_LOWER STREQUAL "llvm" OR BUILDALL)
+    install(TARGETS alkyl_llvm ethyl
+        RUNTIME DESTINATION bin
+    )
+else()
+    install(TARGETS ethyl
+        RUNTIME DESTINATION bin
+    )
+endif()
 
 if (BACKEND_LOWER STREQUAL "qbe" OR BUILDALL)
     install(TARGETS alkyl_qbe
