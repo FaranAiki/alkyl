@@ -200,11 +200,6 @@ int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
     sem_register_builtins(ctx);
     sem_scan_top_level(ctx, root);
     
-    int current_errors = 0;
-    if (ctx->compiler_ctx) current_errors = ctx->compiler_ctx->semantic_error_count;
-
-    if (current_errors > 0) return current_errors;
-    
     // Pass 1.5: Structural validations (Inheritance, Traits)
     ASTNode *curr_val = root;
     while (curr_val) {

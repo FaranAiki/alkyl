@@ -25,6 +25,7 @@ static ASTNode* parse_precedence(Parser *p, int precedence) {
     }
 
     ASTNode *left = prefix_rule(p);
+    if (!left || p->has_error) return NULL;
 
     while (precedence <= get_rule(p->current_token.type)->precedence) {
         type = p->current_token.type;
