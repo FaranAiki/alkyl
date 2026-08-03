@@ -433,7 +433,7 @@ if (BACKEND_LOWER STREQUAL "cranelift" OR BUILDALL)
 endif()
 
 
-if (BACKEND_LOWER STREQUAL "llvm")
+if (BACKEND_LOWER STREQUAL "llvm" OR BUILDALL)
     set(ALKYL_BACKEND_TARGET alkyl_llvm)
 elseif (BACKEND_LOWER STREQUAL "qbe")
     set(ALKYL_BACKEND_TARGET alkyl_qbe)
@@ -441,7 +441,7 @@ endif()
 
 # Create 'alkyl' symlink to the selected backend executable
 add_custom_target(alkyl ALL
-    COMMAND ${CMAKE_COMMAND} -E remove -f alkyl
+    COMMAND ${CMAKE_COMMAND} -E rm -f alkyl
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${ALKYL_BACKEND_TARGET} alkyl
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     DEPENDS ${ALKYL_BACKEND_TARGET}

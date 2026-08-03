@@ -1,0 +1,1 @@
+sed -i 's/let curr_block = f.blocks as \*const AlirBlock;/let curr_block = f.blocks as \*const AlirBlock;\n        if f.block_count == 0 {\n            println!("{} is external (block_count == 0) (skipped)", fname);\n            curr_func = f.next;\n            continue;\n        }/g' src/codegen_cranelift/rust_backend/src/lib.rs
