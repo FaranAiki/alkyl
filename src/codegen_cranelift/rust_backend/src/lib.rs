@@ -281,6 +281,77 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let res = builder.ins().srem(lhs, rhs);
                             val_map.insert(inst.dest as usize, res);
                         },
+                        AlirOpcode::FAdd => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
+                            let res = builder.ins().fadd(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::FSub => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
+                            let res = builder.ins().fsub(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::FMul => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
+                            let res = builder.ins().fmul(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::FDiv => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
+                            let res = builder.ins().fdiv(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::And => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
+                            let res = builder.ins().band(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Or => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
+                            let res = builder.ins().bor(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Xor => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
+                            let res = builder.ins().bxor(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Not => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let res = builder.ins().bnot(lhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Shl => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
+                            let res = builder.ins().ishl(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Shr => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
+                            let res = builder.ins().sshr(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Rotl => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
+                            let res = builder.ins().rotl(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
+                        AlirOpcode::Rotr => {
+                            let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
+                            let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
+                            let res = builder.ins().rotr(lhs, rhs);
+                            val_map.insert(inst.dest as usize, res);
+                        },
                         AlirOpcode::Eq => {
                             let lhs = get_val(inst.op1, &mut builder, &val_map, &mut module, &global_map);
                             let rhs = get_val(inst.op2, &mut builder, &val_map, &mut module, &global_map);
