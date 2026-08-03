@@ -364,6 +364,10 @@ void eat(Parser *p, TokenType type) {
 }
 
 // Composite type parsing helper
+VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name);
+VarType parse_func_sig_decl(Parser *p, VarType ret_type, char **out_name);
+static Token parser_peek_past_parens(Parser *p);
+
 VarType parse_type(Parser *p) {
   VarType t = {0};
   t.base = TYPE_UNKNOWN;
@@ -681,6 +685,12 @@ VarType parse_type(Parser *p) {
       if (next.type == TOKEN_STAR) {
           return parse_func_ptr_decl(p, t, NULL);
     if (p->has_error) return (VarType){0};
+      } else {
+          Token after_parens = parser_peek_past_parens(p);
+          if (after_parens.type != TOKEN_LBRACE) {
+              return parse_func_sig_decl(p, t, NULL);
+    if (p->has_error) return (VarType){0};
+          }
       }
   }
 
@@ -795,6 +805,73 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     return vt;
 }
 
+VarType parse_func_sig_decl(Parser *p, VarType ret_type, char **out_name) {
+    VarType vt = {0};
+    vt.is_func_ptr = 1;
+    vt.fp_ret_type = parser_alloc_raw(p, sizeof(VarType));
+    *vt.fp_ret_type = ret_type;
+
+    eat(p, TOKEN_LPAREN);
+    if (p->has_error) return (VarType){0};
+    if (out_name) *out_name = NULL;
+
+    int cap = 4;
+    vt.fp_param_types = parser_alloc_raw(p, sizeof(VarType) * cap);
+    vt.fp_param_count = 0;
+
+    if (p->current_token.type != TOKEN_RPAREN) {
+        while(1) {
+            if (p->current_token.type == TOKEN_ELLIPSIS) {
+                vt.fp_is_varargs = 1;
+                eat(p, TOKEN_ELLIPSIS);
+                if (p->has_error) return (VarType){0};
+                break;
+            }
+
+            int pmods = parse_modifiers(p);
+            if (p->has_error) return (VarType){0};
+            (void)pmods;
+            VarType pt = parse_type(p);
+            if (p->has_error) return (VarType){0};
+            if (pt.base == TYPE_UNKNOWN) parser_fail(p, "Expected type in function signature params");
+
+            if (p->current_token.type == TOKEN_IDENTIFIER) {
+                eat(p, TOKEN_IDENTIFIER);
+                if (p->has_error) return (VarType){0};
+            }
+
+             if (p->current_token.type == TOKEN_LBRACKET) {
+                 eat(p, TOKEN_LBRACKET);
+                 if (p->has_error) return (VarType){0};
+                 if (p->current_token.type != TOKEN_RBRACKET) {
+                      ASTNode* tmp = parse_expression(p);
+                      if (p->has_error) return (VarType){0};
+                      (void)tmp;
+                 }
+                 eat(p, TOKEN_RBRACKET);
+                 if (p->has_error) return (VarType){0};
+                 pt.ptr_depth++;
+             }
+
+            if (vt.fp_param_count >= cap) {
+                cap *= 2;
+                VarType *new_params = parser_alloc_raw(p, sizeof(VarType) * cap);
+                memcpy(new_params, vt.fp_param_types, sizeof(VarType) * vt.fp_param_count);
+                vt.fp_param_types = new_params;
+            }
+            vt.fp_param_types[vt.fp_param_count++] = pt;
+
+            if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
+            else break;
+        }
+    }
+    eat(p, TOKEN_RPAREN);
+    if (p->has_error) return (VarType){0};
+
+    return vt;
+}
+
+
 static char* read_file_content(Parser *p, const char* path) {
     struct stat st;
     if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
@@ -893,6 +970,47 @@ Token parser_peek_token(Parser *p) {
     }
     if (p->tokens && p->token_pos < p->token_count) {
         return p->tokens[p->token_pos];
+    }
+    Token eof;
+    memset(&eof, 0, sizeof(Token));
+    eof.type = TOKEN_EOF;
+    return eof;
+}
+
+static Token parser_peek_past_parens(Parser *p) {
+    if (p->current_token.type != TOKEN_LPAREN) {
+        return p->current_token;
+    }
+    
+    int depth = 1;
+    int start_idx;
+    Token *tokens;
+    int max_count;
+    
+    if (p->expansion_head) {
+        start_idx = p->expansion_head->pos + 1;
+        tokens = p->expansion_head->tokens;
+        max_count = p->expansion_head->count;
+    } else if (p->tokens) {
+        start_idx = p->token_pos;
+        tokens = p->tokens;
+        max_count = p->token_count;
+    } else {
+        Token eof;
+        memset(&eof, 0, sizeof(Token));
+        eof.type = TOKEN_EOF;
+        return eof;
+    }
+    
+    int i = start_idx;
+    while (i < max_count && depth > 0) {
+        Token t = tokens[i++];
+        if (t.type == TOKEN_LPAREN) depth++;
+        else if (t.type == TOKEN_RPAREN) depth--;
+    }
+    
+    if (i < max_count) {
+        return tokens[i];
     }
     Token eof;
     memset(&eof, 0, sizeof(Token));
