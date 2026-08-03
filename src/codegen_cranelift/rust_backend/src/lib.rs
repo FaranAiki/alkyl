@@ -186,7 +186,7 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
         }
 
         let mut builder = cranelift::frontend::FunctionBuilder::new(&mut ctx.func, &mut func_ctx);
-        let mut var_map = std::collections::HashMap::<usize, Variable>::new();
+        let mut var_map = std::collections::HashMap::<String, Variable>::new();
         let mut next_var_id = 0;
         let mut block_map = std::collections::HashMap::<String, cranelift::codegen::ir::Block>::new();
 
@@ -208,6 +208,22 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                 let lbl = unsafe { CStr::from_ptr(b.label) }.to_string_lossy().into_owned();
                 let entry_block = *block_map.get(&lbl).unwrap();
                 builder.append_block_params_for_function_params(entry_block);
+                builder.switch_to_block(entry_block);
+                
+                // Bind function arguments to var_map
+                for i in 0..f.param_count {
+                    let pname = format!("p{}", i);
+                    let var = *var_map.entry(pname).or_insert_with(|| {
+                        let new_var = Variable::new(next_var_id);
+                        next_var_id += 1;
+                        builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
+                        new_var
+                    });
+                    let param_val = builder.block_params(entry_block)[i as usize];
+                    println!("DEBUG: binding arg {} to var {:?}, param_val {:?}", i, var, param_val);
+                    builder.def_var(var, param_val);
+                    println!("DEBUG: bound arg {}", i);
+                }
             }
         }
 
@@ -234,7 +250,7 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                     bld: &mut cranelift::frontend::FunctionBuilder<'_>, 
                     module: &mut ObjectModule, 
                     global_map: &std::collections::HashMap<String, cranelift_module::DataId>,
-                    var_map: &mut std::collections::HashMap<usize, Variable>,
+                    var_map: &mut std::collections::HashMap<String, Variable>,
                     next_var_id: &mut usize
                 | -> cranelift::codegen::ir::Value {
                     if v_ptr.is_null() {
@@ -252,8 +268,12 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             bld.ins().iconst(cranelift::codegen::ir::types::I64, 0)
                         }
                     } else {
-                        let dest_ptr_addr = v_ptr as usize;
-                        let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                        let key = if v.kind == 4 {
+                            unsafe { CStr::from_ptr(v.val as *const c_char) }.to_string_lossy().into_owned()
+                        } else {
+                            format!("ptr_{:x}", v_ptr as usize)
+                        };
+                        let var = *var_map.entry(key).or_insert_with(|| {
                             let new_var = Variable::new(*next_var_id);
                             *next_var_id += 1;
                             bld.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -270,8 +290,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let rhs = get_val(inst.op2, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().iadd(lhs, rhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -285,8 +310,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let rhs = get_val(inst.op2, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().isub(lhs, rhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -300,8 +330,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let rhs = get_val(inst.op2, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().imul(lhs, rhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -315,8 +350,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let rhs = get_val(inst.op2, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().sdiv(lhs, rhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -330,8 +370,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let rhs = get_val(inst.op2, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().srem(lhs, rhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -348,8 +393,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let f_res = builder.ins().fadd(f_lhs, f_rhs);
                                 let res = builder.ins().bitcast(cranelift::codegen::ir::types::I64, cranelift::codegen::ir::MemFlags::new(), f_res);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -366,8 +416,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let f_res = builder.ins().fsub(f_lhs, f_rhs);
                                 let res = builder.ins().bitcast(cranelift::codegen::ir::types::I64, cranelift::codegen::ir::MemFlags::new(), f_res);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -384,8 +439,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let f_res = builder.ins().fmul(f_lhs, f_rhs);
                                 let res = builder.ins().bitcast(cranelift::codegen::ir::types::I64, cranelift::codegen::ir::MemFlags::new(), f_res);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -402,8 +462,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let f_res = builder.ins().fdiv(f_lhs, f_rhs);
                                 let res = builder.ins().bitcast(cranelift::codegen::ir::types::I64, cranelift::codegen::ir::MemFlags::new(), f_res);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -417,8 +482,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let rhs = get_val(inst.op2, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().band(lhs, rhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -432,8 +502,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let rhs = get_val(inst.op2, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().bor(lhs, rhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -447,8 +522,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let rhs = get_val(inst.op2, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().bxor(lhs, rhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -461,8 +541,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let lhs = get_val(inst.op1, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().bnot(lhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -476,8 +561,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let rhs = get_val(inst.op2, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().ishl(lhs, rhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -491,8 +581,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let rhs = get_val(inst.op2, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().sshr(lhs, rhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -506,8 +601,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let rhs = get_val(inst.op2, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().rotl(lhs, rhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -521,8 +621,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let rhs = get_val(inst.op2, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                             let res = builder.ins().rotr(lhs, rhs);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -537,8 +642,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let b1_res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::Equal, lhs, rhs);
                                 let res = builder.ins().uextend(cranelift::codegen::ir::types::I64, b1_res);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -553,8 +663,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let b1_res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::NotEqual, lhs, rhs);
                                 let res = builder.ins().uextend(cranelift::codegen::ir::types::I64, b1_res);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -569,8 +684,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let b1_res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::SignedLessThan, lhs, rhs);
                                 let res = builder.ins().uextend(cranelift::codegen::ir::types::I64, b1_res);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -585,8 +705,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let b1_res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::SignedLessThanOrEqual, lhs, rhs);
                                 let res = builder.ins().uextend(cranelift::codegen::ir::types::I64, b1_res);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -601,8 +726,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let b1_res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::SignedGreaterThan, lhs, rhs);
                                 let res = builder.ins().uextend(cranelift::codegen::ir::types::I64, b1_res);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -617,8 +747,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             let b1_res = builder.ins().icmp(cranelift::codegen::ir::condcodes::IntCC::SignedGreaterThanOrEqual, lhs, rhs);
                                 let res = builder.ins().uextend(cranelift::codegen::ir::types::I64, b1_res);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -673,8 +808,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             ));
                             let ptr = builder.ins().stack_addr(cranelift::codegen::ir::types::I64, slot, 0);
                             if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -695,8 +835,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let ptr = get_val(inst.op1, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                                 let val = builder.ins().load(cranelift::codegen::ir::types::I64, cranelift::codegen::ir::MemFlags::new(), ptr, 0);
                                 if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -715,8 +860,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                     ptr = builder.ins().iadd(ptr, offset);
                                 }
                                 if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -764,8 +914,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                     let res = builder.inst_results(call_inst)[0];
                                     if !inst.dest.is_null() {
                                         if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
@@ -781,8 +936,13 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                             if !inst.op1.is_null() && !inst.dest.is_null() {
                                 let val = get_val(inst.op1, &mut builder, &mut module, &global_map, &mut var_map, &mut next_var_id);
                                 if !inst.dest.is_null() {
-                                let dest_ptr_addr = inst.dest as usize;
-                                let var = *var_map.entry(dest_ptr_addr).or_insert_with(|| {
+                                let v_dest = unsafe { &*inst.dest };
+                                let key = if v_dest.kind == 4 {
+                                    unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else {
+                                    format!("ptr_{:x}", inst.dest as usize)
+                                };
+                                let var = *var_map.entry(key).or_insert_with(|| {
                                     let new_var = Variable::new(next_var_id);
                                     next_var_id += 1;
                                     builder.declare_var(new_var, cranelift::codegen::ir::types::I64);
