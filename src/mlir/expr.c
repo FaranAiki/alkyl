@@ -4,7 +4,7 @@
 
 AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node) {
     if (!node) return NULL;
-    
+
     switch (node->type) {
         case NODE_LITERAL: {
             LiteralNode *lit = (LiteralNode*)node;
@@ -22,7 +22,7 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                     return alkyl_mlir_build_load(ctx, alloca);
                 }
             }
-            
+
             // If not found in mlir_vars, check if it's an enum variant
             if (var->name) {
                 extern ASTNode *mlir_global_ast_root;
@@ -45,13 +45,13 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
         }
         case NODE_CALL: {
             CallNode *call = (CallNode*)node;
-            
+
             // Handle "print" macro if we are bypassing ALIR
             if (call->name && strcmp(call->name, "print") == 0) {
                 ASTNode *arg = call->args;
                 while (arg) {
                     AlkylMlirValue arg_val = mlir_gen_expr(ctx, mod, arg);
-                    
+
                     // We generate a call to cprintf for each arg.
                     // For a proper implementation, we'd use "%d" or "%s" based on type.
                     // But for this MVP, we'll just pass it to cprintf directly if it's a string,
@@ -71,12 +71,12 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                         AlkylMlirValue cprintf_args[2] = {fmt, arg_val};
                         alkyl_mlir_build_call(ctx, "printf", cprintf_args, 2);
                     }
-                    
+
                     arg = arg->next;
                 }
                 return alkyl_mlir_build_int_constant(ctx, 0);
             }
-            
+
             // Check if it's a constructor (Class type)
             if (call->base.sem_type.base == TYPE_CLASS) {
                 // Find class to count fields
@@ -101,9 +101,9 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                 ASTNode *a = call->args;
                 while (a) { arg_count++; a = a->next; }
                 if (arg_count > num_fields) num_fields = arg_count;
-                
+
                 AlkylMlirValue obj = alkyl_mlir_build_alloc_object(ctx, num_fields);
-                
+
                 // Evaluate arguments and store in fields
                 int i = 0;
                 ASTNode *arg = call->args;
@@ -115,7 +115,7 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                 }
                 return obj;
             }
-            
+
             // Evaluate arguments
             AlkylMlirValue args[32];
             int num_args = 0;
@@ -130,7 +130,7 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
             BinaryOpNode *binop = (BinaryOpNode*)node;
             AlkylMlirValue lhs = mlir_gen_expr(ctx, mod, binop->left);
             AlkylMlirValue rhs = mlir_gen_expr(ctx, mod, binop->right);
-            
+
             if (binop->op == TOKEN_PLUS) return alkyl_mlir_build_add(ctx, lhs, rhs);
             if (binop->op == TOKEN_MINUS) return alkyl_mlir_build_sub(ctx, lhs, rhs);
             if (binop->op == TOKEN_STAR) return alkyl_mlir_build_mul(ctx, lhs, rhs);
@@ -147,20 +147,20 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
             MethodCallNode *mcall = (MethodCallNode*)node;
             AlkylMlirValue args[32];
             int num_args = 0;
-            
+
             if (!mcall->is_static) {
                 args[num_args++] = mlir_gen_expr(ctx, mod, mcall->object);
             }
-            
+
             ASTNode *arg = mcall->args;
             while (arg && num_args < 32) {
                 args[num_args++] = mlir_gen_expr(ctx, mod, arg);
                 arg = arg->next;
             }
-            
+
             char func_name_buf[512];
             char *func_name = mcall->mangled_name ? mcall->mangled_name : mcall->method_name;
-            
+
             if (mcall->object && mcall->object->type == NODE_INDEX_ACCESS) {
                 IndexAccessNode *ia = (IndexAccessNode*)mcall->object;
                 if (ia->target) {
@@ -187,7 +187,7 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
         }
         case NODE_MEMBER_ACCESS: {
             MemberAccessNode *maccess = (MemberAccessNode*)node;
-            printf("DEBUG: member access %s, base=%d, expected TYPE_ENUM=%d, class_name=%s\n", maccess->member_name, maccess->object->sem_type.base, TYPE_ENUM, maccess->object->sem_type.class_name);
+            debug_any("member access %s, base=%d, expected TYPE_ENUM=%d, class_name=%s\n", maccess->member_name, maccess->object->sem_type.base, TYPE_ENUM, maccess->object->sem_type.class_name);
             if (maccess->object->sem_type.base == TYPE_ENUM && maccess->object->sem_type.class_name) {
                 extern ASTNode *mlir_global_ast_root;
                 ASTNode *n = mlir_global_ast_root;
@@ -212,7 +212,7 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                 return alkyl_mlir_build_int_constant(ctx, 0);
             }
             AlkylMlirValue obj = mlir_gen_expr(ctx, mod, maccess->object);
-            
+
             int index = 0;
             extern ASTNode *mlir_global_ast_root;
             ASTNode *n = mlir_global_ast_root;
@@ -266,9 +266,9 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                     n = n->next;
                 }
             }
-            
+
             printf("Member access %s on %s: index %d\n", maccess->member_name, maccess->object->sem_type.class_name ? maccess->object->sem_type.class_name : "unknown", index);
-            
+
             int is_string = (maccess->base.sem_type.base == TYPE_CHAR && maccess->base.sem_type.ptr_depth > 0);
             return alkyl_mlir_build_load_field(ctx, obj, index, is_string);
         }
@@ -278,7 +278,7 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                 char *enum_name = ((VarRefNode*)ia->target)->name;
                 AlkylMlirValue index_val = mlir_gen_expr(ctx, mod, ia->index);
                 AlkylMlirValue dest = alkyl_mlir_build_alloc_object(ctx, 1);
-                
+
                 extern ASTNode *mlir_global_ast_root;
                 ASTNode *n = mlir_global_ast_root;
                 while (n) {
@@ -288,9 +288,9 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                             int num_entries = 0;
                             EnumEntry *ent = en->entries;
                             while (ent) { num_entries++; ent = ent->next; }
-                            
+
                             void *switch_op = alkyl_mlir_build_switch_start(ctx, index_val, num_entries);
-                            
+
                             ent = en->entries;
                             while (ent) {
                                 void alkyl_mlir_build_switch_set_cond_insertion(AlkylMlirContext c_ctx, void* switch_op_ptr);
@@ -302,12 +302,12 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
                                 alkyl_mlir_build_switch_case_end(ctx, switch_op, 0);
                                 ent = ent->next;
                             }
-                            
+
                             alkyl_mlir_build_switch_default_start(ctx, switch_op);
                             AlkylMlirValue unk_val = alkyl_mlir_build_string_constant(ctx, mod, "unknown");
                             alkyl_mlir_build_store_field(ctx, unk_val, dest, 0);
                             alkyl_mlir_build_switch_default_end(ctx, switch_op);
-                            
+
                             alkyl_mlir_build_switch_end(ctx, switch_op);
                             return alkyl_mlir_build_load_field(ctx, dest, 0, 1);
                         }
@@ -372,9 +372,9 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
             int num_elements = 0;
             ASTNode *elem = arr->elements;
             while (elem) { num_elements++; elem = elem->next; }
-            
+
             AlkylMlirValue obj = alkyl_mlir_build_alloc_object(ctx, num_elements);
-            
+
             int i = 0;
             elem = arr->elements;
             while (elem && i < num_elements) {

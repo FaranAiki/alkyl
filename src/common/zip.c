@@ -32,17 +32,13 @@ char* read_zip_file(const char *path) {
         const char *name = zip_get_name(za, i, 0);
         if (!name) continue;
         if (name[0] == '_' && name[1] == '_' && name[2] == 'M') continue;
-        if (zip_stat_index(za, i, 0, NULL) != 0) continue;
         if (!is_alkyl_source(name)) continue;
+
+        zip_stat_t st;
+        if (zip_stat_index(za, i, 0, &st) != 0 || st.size > SIZE_MAX - 1) continue;
 
         zip_file_t *zf = zip_fopen_index(za, i, 0);
         if (!zf) continue;
-
-        zip_stat_t st;
-        if (zip_stat_index(za, i, 0, &st) != 0 || st.size > SIZE_MAX - 1) {
-            zip_fclose(zf);
-            continue;
-        }
 
         char *buf = malloc((size_t)st.size + 1);
         if (!buf) {
@@ -67,4 +63,11 @@ char* read_zip_file(const char *path) {
     zip_close(za);
     return result;
 }
-#endif
+
+#else
+/* Mom, do we have a libzip at home? Libzip at home: */
+char *read_zip_file(const *char path) {
+    return 0;
+}
+
+#endif // HAVE_LIBZIP

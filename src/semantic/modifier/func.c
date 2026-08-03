@@ -164,14 +164,14 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
             ASTNode *args = node->args;
 
             obj->next = args;
-            
+
             CallNode *call = (CallNode*)node;
             call->base.type = NODE_CALL;
             call->name = meth;
             call->mangled_name = NULL;
             call->args = obj;
             call->target = NULL;
-            
+
             extern void sem_check_call(SemanticCtx *ctx, CallNode *node);
             sem_check_call(ctx, call);
         } else {
@@ -255,6 +255,7 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
 }
 
 void sem_check_call(SemanticCtx *ctx, CallNode *node) {
+    debug_any("sem_check_call: name='%s', ns='%s'\n", node->name ? node->name : "(null)", ctx->compiler_ctx ? diag_get_namespace(ctx->compiler_ctx) : "(null)");
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
 
     SemSymbol *sym = NULL;

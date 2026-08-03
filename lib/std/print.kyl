@@ -2,17 +2,12 @@
 // do an abstraction!
 
 namespace __c_lib {
+  extern int printf(char*, ...);
   extern int putchar(int);
   extern int puts(char*);
-  extern void alkyl_print_str(char*);
-  extern void alkyl_print_char(char);
-  extern void alkyl_print_i64(long);
-  extern void alkyl_print_u64(unsigned long);
-  extern void alkyl_print_i32(int);
-  extern void alkyl_print_u32(unsigned int);
-  extern void alkyl_print_f32(single);
-  extern void alkyl_print_f64(double);
 }
+
+define formatted_printf as __c_lib.printf;
 define putchar as __c_lib.putchar;
 
 namespace std {
@@ -21,8 +16,8 @@ void print_int_array(int arr[], unsigned long size) {
     putchar('[');
     unsigned long i = 0;
     while (i < size) {
-        __c_lib.alkyl_print_i32(arr[i]);
-        if (i < size - 1) { __c_lib.alkyl_print_str(", "); }
+        formatted_printf("%d", arr[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
         i += 1;
     }
     putchar(']');
@@ -32,8 +27,8 @@ void print_uint_array(unsigned int arr[], unsigned long size) {
     putchar('[');
     unsigned long i = 0;
     while (i < size) {
-        __c_lib.alkyl_print_u32(arr[i]);
-        if (i < size - 1) { __c_lib.alkyl_print_str(", "); }
+        formatted_printf("%u", arr[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
         i += 1;
     }
     putchar(']');
@@ -43,8 +38,8 @@ void print_long_array(void* arr, unsigned long size) {
     putchar('[');
     unsigned long i = 0;
     while (i < size) {
-        __c_lib.alkyl_print_i64((arr as long*)[i]);
-        if (i < size - 1) { __c_lib.alkyl_print_str(", "); }
+        formatted_printf("%ld", (arr as long*)[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
         i += 1;
     }
     putchar(']');
@@ -54,8 +49,8 @@ void print_ulong_array(void* arr, unsigned long size) {
     putchar('[');
     unsigned long i = 0;
     while (i < size) {
-        __c_lib.alkyl_print_u64((arr as unsigned long*)[i]);
-        if (i < size - 1) { __c_lib.alkyl_print_str(", "); }
+        formatted_printf("%lu", (arr as unsigned long*)[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
         i += 1;
     }
     putchar(']');
@@ -65,8 +60,8 @@ void print_single_array(void* arr, unsigned long size) {
     putchar('[');
     unsigned long i = 0;
     while (i < size) {
-        __c_lib.alkyl_print_f32((arr as single*)[i]);
-        if (i < size - 1) { __c_lib.alkyl_print_str(", "); }
+        formatted_printf("%f", (arr as single*)[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
         i += 1;
     }
     putchar(']');
@@ -76,8 +71,8 @@ void print_double_array(void* arr, unsigned long size) {
     putchar('[');
     unsigned long i = 0;
     while (i < size) {
-        __c_lib.alkyl_print_f64((arr as double*)[i]);
-        if (i < size - 1) { __c_lib.alkyl_print_str(", "); }
+        formatted_printf("%lf", (arr as double*)[i]);
+        if (i < size - 1) { formatted_printf("%s", ", "); }
         i += 1;
     }
     putchar(']');
@@ -90,22 +85,22 @@ void print_double_array(void* arr, unsigned long size) {
 meta void print(...) {
     for arg in ... {
         if (typeof(arg) == typeof(int)) {
-            __c_lib.alkyl_print_i32(arg);
+            formatted_printf("%d", arg);
         } else if (typeof(arg) == typeof(unsigned int)) {
-            __c_lib.alkyl_print_u32(arg);
+            formatted_printf("%u", arg);
         } else if (typeof(arg) == typeof(long)) {
-            __c_lib.alkyl_print_i64(arg);
+            formatted_printf("%ld", arg);
         } else if (typeof(arg) == typeof(unsigned long)) {
-            __c_lib.alkyl_print_u64(arg);
+            formatted_printf("%lu", arg);
         } else if (typeof(arg) == typeof(single)) {
-            __c_lib.alkyl_print_f32(arg);
+            formatted_printf("%f", arg);
         } else if (typeof(arg) == typeof(double)) {
-            __c_lib.alkyl_print_f64(arg);
+            formatted_printf("%lf", arg);
         } else if (typeof(arg) == typeof(char)) {
             if (sizeof(arg) == 1) {
-                __c_lib.alkyl_print_char(arg);
+                formatted_printf("%c", arg);
             } else {
-                __c_lib.alkyl_print_str(arg);
+                formatted_printf("%s", arg);
             }
         } else if (typeof(arg) == typeof(int[])) {
             print_int_array(arg, sizeof(arg) >> 2);
@@ -120,13 +115,13 @@ meta void print(...) {
         } else if (typeof(arg) == typeof(double[])) {
             print_double_array(arg, sizeof(arg) >> 3);
         } else if (typeof(arg) == typeof(char*)) {
-            __c_lib.alkyl_print_str(arg);
+            formatted_printf("%s", arg);
         } else {
             // formatted_printf("%p ", arg);
             // This should raise an error!
         }
     }
-    // __c_lib.alkyl_print_str("\n");
+    // formatted_printf("%s", "\n");
 }
 
 }

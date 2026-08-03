@@ -376,9 +376,29 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
             // Rewrite variable references and varargs inside the cloned body
             cloned_body = ast_rewrite_macro(cctx, cloned_body, varargs_head, param_names, param_args, num_params);
 
-            // Run semantic analysis on the expanded macro body
+            // Run semantic analysis on the expanded macro body in the macro's defining namespace
             extern void sem_check_block(SemanticCtx *ctx, ASTNode *block);
+            const char *old_ns = NULL;
+            char ns_buf[256] = "";
+            if (ctx->sem && ctx->sem->compiler_ctx && fd->mangled_name) {
+                old_ns = arena_strdup(ctx->sem->compiler_ctx->arena, diag_get_namespace(ctx->sem->compiler_ctx));
+                debug_any("macro: mangled='%s', old_ns='%s'\n", fd->mangled_name, old_ns);
+                const char *dot = strrchr(fd->mangled_name, '.');
+                if (dot) {
+                    int ns_len = (int)(dot - fd->mangled_name);
+                    if (ns_len >= (int)sizeof(ns_buf)) ns_len = sizeof(ns_buf) - 1;
+                    memcpy(ns_buf, fd->mangled_name, ns_len);
+                    ns_buf[ns_len] = '\0';
+                    debug_any("macro: setting ns to '%s'\n", ns_buf);
+                    diag_set_namespace(ctx->sem->compiler_ctx, ns_buf);
+                }
+            }
+            debug_any("macro: before sem_check_block, ns='%s'\n", diag_get_namespace(ctx->sem->compiler_ctx));
             sem_check_block(ctx->sem, cloned_body);
+            debug_any("macro: after sem_check_block, ns='%s'\n", diag_get_namespace(ctx->sem->compiler_ctx));
+            if (old_ns && ctx->sem && ctx->sem->compiler_ctx) {
+                diag_set_namespace(ctx->sem->compiler_ctx, old_ns);
+            }
 
             // Compile the rewritten AST directly into the current caller's ALIR block
             ASTNode *curr = cloned_body;

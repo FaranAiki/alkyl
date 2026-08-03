@@ -460,6 +460,7 @@ long long metalir_execute_string(MetalirRunner *r, const char *source,
                                  const char *filename) {
     ASTNode *root = metalir_parse(r, source, filename, NULL);
     if (!root || r->parser.has_error) return 0;
+    metalir_resolve_imports(r, &root);
     return metalir_execute_parse(r, root, source, filename);
 }
 

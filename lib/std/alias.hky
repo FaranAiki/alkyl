@@ -1,18 +1,19 @@
 
+/* For synthetic grammar I guess */
 define prist as pristine;
 define taint as tainted;
 
-// Simplification
+/* This is for simplification OOP if needed */
 define trait as abstract method class;
 define struct as abstract container class;
 define impl as exact method class;
 
-// Mutability
+/* This is for simplification of mutability/immutability if needed */
 define immutable as imut;
 define mutable as mut;
 define auto as let;
 
-// Type definitions
+/* Type definitions */
 typedef i0 as void;
 typedef u0 as void;
 typedef i32 as int;
@@ -23,11 +24,12 @@ typedef i128 as long long;
 typedef u128 as unsigned long long;
 typedef f32 as single;
 typedef f64 as double;
-// typedef f128 as long double;
+// typedef f128 as long double; // NOT yet implemented
 
+/* We still prefer single instead of float */
 typedef float as single;
 
-// More simplification
+/* Literal and pointer literal */
 define Literal as
     i0, u0, i32, u32,
     i64, u64, i128, u128,
@@ -37,3 +39,14 @@ define PointerLiteral as
     i0*, u0*, i32*, u32*,
     i64*, u64*, i128*, u128*,
     f32*, f64*;
+
+define ArrayLiteral as
+    i0[], u0[], i32[], u32[],
+    i64[], u64[], i128[], u128[],
+    f32[], f64[];
+
+
+define noreason as reason "No reason";
+premeta {
+    define noreason as reason "No reason";
+}

@@ -290,7 +290,7 @@ SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
         // If we found a sym but it's not a type (e.g. constructor), keep searching upwards
         scope = scope->parent;
     }
-    
+
     // Check global scope directly if not reached
     SemSymbol *sym = find_in_scope_direct(ctx->global_scope, name);
     if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM || sym->kind == SYM_NAMESPACE || sym->kind == SYM_TEMPLATE)) {
@@ -303,12 +303,15 @@ SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
                 SemSymbol *sym = find_in_scope_direct(ns->inner_scope, name);
                 if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM || sym->kind == SYM_NAMESPACE || sym->kind == SYM_TEMPLATE)) {
                     if (ctx->settings.namespace_ausearch_warning) {
-                        if (ctx->current_node) {
-                            sem_warning(ctx, ctx->current_node, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
-                            sem_hint(ctx, ctx->current_node, "consider writing %s.%s", ns->name, name);
-                        } else {
-                            sem_warning(ctx, NULL, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
-                            sem_hint(ctx, NULL, "consider writing %s.%s", ns->name, name);
+                        const char *current_ns = ctx->compiler_ctx ? diag_get_namespace(ctx->compiler_ctx) : NULL;
+                        if (!current_ns || !streq(current_ns, ns->name)) {
+                            if (ctx->current_node) {
+                                sem_warning(ctx, ctx->current_node, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
+                                sem_hint(ctx, ctx->current_node, "consider writing %s.%s", ns->name, name);
+                            } else {
+                                sem_warning(ctx, NULL, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
+                                sem_hint(ctx, NULL, "consider writing %s.%s", ns->name, name);
+                            }
                         }
                     }
                     return sym;
@@ -317,7 +320,7 @@ SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
             ns = ns->next;
         }
     }
-    
+
     return NULL;
 }
 
@@ -428,12 +431,16 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
                 SemSymbol *sym = find_in_scope_direct(ns->inner_scope, name);
                 if (sym) {
                     if (ctx->settings.namespace_ausearch_warning) {
-                        if (ctx->current_node) {
-                            sem_warning(ctx, ctx->current_node, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
-                            sem_hint(ctx, ctx->current_node, "consider writing %s.%s", ns->name, name);
-                        } else {
-                            sem_warning(ctx, NULL, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
-                            sem_hint(ctx, NULL, "consider writing %s.%s", ns->name, name);
+                        const char *current_ns = ctx->compiler_ctx ? diag_get_namespace(ctx->compiler_ctx) : NULL;
+                        debug_any("table.c lookup: name='%s', found_ns='%s', current_ns='%s'\n", name, ns->name, current_ns ? current_ns : "(null)");
+                        if (!current_ns || !streq(current_ns, ns->name)) {
+                            if (ctx->current_node) {
+                                sem_warning(ctx, ctx->current_node, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
+                                sem_hint(ctx, ctx->current_node, "consider writing %s.%s", ns->name, name);
+                            } else {
+                                sem_warning(ctx, NULL, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
+                                sem_hint(ctx, NULL, "consider writing %s.%s", ns->name, name);
+                            }
                         }
                     }
                     if (out_scope) *out_scope = ns->inner_scope;
@@ -458,14 +465,14 @@ int sem_types_are_equal(VarType a, VarType b) {
     if (a.base == TYPE_CLASS || a.base == TYPE_ENUM || a.base == TYPE_NAMESPACE) {
         if (a.class_name && b.class_name) {
             if (streq(a.class_name, b.class_name)) return 1;
-            
+
             char mangled_a[512] = "";
             char mangled_b[512] = "";
-            
+
             for (int k = 0; k < 2; k++) {
                 const char *src = (k == 0) ? a.class_name : b.class_name;
                 char *dst = (k == 0) ? mangled_a : mangled_b;
-                
+
                 char tmp[512];
                 snprintf(tmp, sizeof(tmp), "%s", src);
                 if (strchr(tmp, '[')) {
@@ -484,9 +491,9 @@ int sem_types_are_equal(VarType a, VarType b) {
                     snprintf(dst, 512, "%s", src);
                 }
             }
-            
+
             if (streq(mangled_a, mangled_b)) return 1;
-            
+
             const char *dot_a = strrchr(mangled_a, '.');
             const char *dot_b = strrchr(mangled_b, '.');
             const char *base_a = dot_a ? dot_a + 1 : mangled_a;
@@ -637,7 +644,7 @@ static void sem_type_to_str_rec(VarType t, char *buf, int max_len, int *pos) {
     int ptrs = t.ptr_depth;
     if (t.array_size > 0) ptrs--;
     if (t.array_depth > 0) ptrs--;
-    
+
     for(int i=0; i<ptrs; i++) {
         if(*pos < max_len - 1) buf[(*pos)++] = '*';
     }
@@ -654,11 +661,11 @@ char* sem_type_to_str(VarType t) {
     static int idx = 0;
     char *buf = buffers[idx];
     idx = (idx + 1) % 16;
-    
+
     int pos = 0;
     sem_type_to_str_rec(t, buf, 1024, &pos);
     buf[pos] = '\0';
-    
+
     return buf;
 }
 char* sem_mangle_type(VarType t) {
@@ -705,7 +712,7 @@ char* sem_mangle_itanium_type(VarType t) {
         case TYPE_DOUBLE: base = "d"; break;
         case TYPE_LONG_DOUBLE: base = "e"; break; // wait, long double is 'e'
         case TYPE_VOID: base = "v"; break;
-        case TYPE_CLASS: 
+        case TYPE_CLASS:
         case TYPE_ENUM: {
             static char cbuf[256];
             snprintf(cbuf, 256, "%zu%s", strlen(t.class_name ? t.class_name : "unknown"), t.class_name ? t.class_name : "unknown");

@@ -5,6 +5,7 @@
 
 void diag_set_namespace(CompilerContext *ctx, const char *ns) {
     if (!ctx) return;
+    debug_any("diag_set_namespace: ns='%s', current='%s', ptr_match=%d\n", ns ? ns : "(null)", ctx->current_namespace, ns == ctx->current_namespace);
     if (ns == ctx->current_namespace) return;
     if (ns && strlen(ns) > 0) {
         strncpy(ctx->current_namespace, ns, 255);
@@ -12,6 +13,7 @@ void diag_set_namespace(CompilerContext *ctx, const char *ns) {
     } else {
         strcpy(ctx->current_namespace, "main");
     }
+    debug_any("diag_set_namespace: after set, current='%s'\n", ctx->current_namespace);
 }
 
 const char* diag_get_namespace(CompilerContext *ctx) {
