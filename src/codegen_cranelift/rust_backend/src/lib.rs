@@ -270,6 +270,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                     } else {
                         let key = if v.kind == 4 {
                             unsafe { CStr::from_ptr(v.val as *const c_char) }.to_string_lossy().into_owned()
+                        } else if v.kind == 5 {
+                            format!("%t{}", v.temp_id)
                         } else {
                             format!("ptr_{:x}", v_ptr as usize)
                         };
@@ -293,6 +295,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -313,6 +317,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -333,6 +339,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -353,6 +361,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -373,6 +383,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -396,6 +408,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -419,6 +433,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -442,6 +458,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -465,6 +483,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -485,6 +505,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -505,6 +527,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -525,6 +549,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -544,6 +570,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -564,6 +592,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -584,6 +614,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -604,6 +636,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -624,6 +658,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -645,6 +681,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -666,6 +704,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -687,6 +727,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -708,6 +750,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -729,6 +773,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -750,6 +796,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -811,6 +859,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -838,6 +888,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -863,6 +915,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -917,6 +971,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };
@@ -939,6 +995,8 @@ pub extern "C" fn alkyl_backend_run_cranelift(alir_ptr: *const c_void, basename_
                                 let v_dest = unsafe { &*inst.dest };
                                 let key = if v_dest.kind == 4 {
                                     unsafe { CStr::from_ptr(v_dest.val as *const c_char) }.to_string_lossy().into_owned()
+                                } else if v_dest.kind == 5 {
+                                    format!("%t{}", v_dest.temp_id)
                                 } else {
                                     format!("ptr_{:x}", inst.dest as usize)
                                 };

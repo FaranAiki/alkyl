@@ -13,7 +13,7 @@ int backend_run_alir(AlirModule *module, const char *basename, const char *link_
     if (ret != 0) return ret;
 
     char cmd[1024];
-    snprintf(cmd, sizeof(cmd), "gcc %s.o -o %s %s -lm", basename, basename, link_flags);
+    snprintf(cmd, sizeof(cmd), "gcc %s.o src/runtime.c -o %s %s -lm", basename, basename, link_flags);
     printf("[Cranelift C Driver] Linking with: %s\n", cmd);
     return system(cmd);
 }

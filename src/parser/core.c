@@ -860,6 +860,7 @@ char* read_import_file(Parser *p, const char* filename) {
 void parser_set_default_import_paths(ParserSettings *ps) {
     static const char *paths[4];
     int count = 0;
+    paths[count++] = "lib/";
     paths[count++] = "/usr/share/alkyl";
     paths[count++] = "/usr/local/share/alkyl";
     const char *home = getenv("HOME");
