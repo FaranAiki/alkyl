@@ -71,6 +71,10 @@ int main() {
   // return 2
 }
 ```
+# Interactive REPL (Ethyl)
+
+Alkyl comes with `ethyl`, a powerful, highly interactive Read-Eval-Print Loop (REPL). It allows you to write Alkyl code line-by-line, test expressions dynamically, and see immediate feedback without needing a full AOT compilation step. Ethyl leverages the internal `MetaVM` to seamlessly JIT-execute statements, making it excellent for rapid prototyping, debugging, and learning the language.
+
 # Building Alkyl
 For full instructions on how to build the project using CMake or Bazel, and how to use the different compiler backends (LLVM, QBE, MLIR, Cranelift), please refer to the detailed build guide:
 * [alkyl/docs/build.md](docs/build.md)

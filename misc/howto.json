@@ -42,6 +42,9 @@
     },
     "ffi": {
       "conventions": "Calling conventions and name mangling schemas (like C++ Itanium) can be set directly on externs and functions using the `@identifier` syntax (e.g., `@cpp extern { int foo(); }` or `@rust int bar();`). This bypasses the need for verbose pragmas and allows seamless integration with foreign libraries."
+    },
+    "repl": {
+      "ethyl": "Alkyl includes 'ethyl', a highly interactive REPL. It allows you to evaluate expressions, declare variables, and define functions on the fly using the internal MetaVM. It provides immediate feedback, tracks last evaluated expressions automatically in a global variable called 'res', and gracefully recovers from errors without crashing, making it an excellent tool for rapid prototyping and learning."
     }
   }
 }
