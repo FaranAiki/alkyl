@@ -29,6 +29,7 @@ void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char
       l->settings.require_semicolons = 1;
       l->settings.double_quote_as_string = 0; // default to 0, user can override in premeta string
       l->settings.import_require_double_quotes = 1;
+      l->settings.warning_indent_deep = 4;
   }
 }
 
@@ -661,9 +662,14 @@ Token lexer_next(Lexer *l) {
               report_error(l, (Token){TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col}, "Indentation too deep");
               return (Token){TOKEN_EOF, NULL, 0, 0, 0.0, l->line, l->col};
           }
-          Token lbrace = {TOKEN_LBRACE, NULL, 0, 0, 0.0, l->line, 1};
-          l->pending_tokens[l->pending_count++] = lbrace;
-          l->indent_stack[++l->indent_level] = new_indent;
+           Token lbrace = {TOKEN_LBRACE, NULL, 0, 0, 0.0, l->line, 1};
+           l->pending_tokens[l->pending_count++] = lbrace;
+           l->indent_stack[++l->indent_level] = new_indent;
+           if (l->settings.warning_indent_deep > 0 && l->indent_level >= l->settings.warning_indent_deep) {
+               char warn_msg[128];
+               snprintf(warn_msg, sizeof(warn_msg), "Indentation is more than %d levels deep; consider refactoring", l->settings.warning_indent_deep - 1);
+               report_warning(l, (Token){TOKEN_UNKNOWN, NULL, 0, 0, 0.0, l->line, l->col}, warn_msg);
+           }
       } else if (new_indent < l->indent_level) {
           while (l->indent_level > 0 && l->indent_stack[l->indent_level] > new_indent) {
               if (l->pending_count >= 16) {

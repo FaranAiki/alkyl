@@ -233,6 +233,7 @@ typedef struct {
     int require_semicolons;  // 1: semicolons are strictly required
     int double_quote_as_string; // 1: treat "..." as string(c"..."), 0: treat "..." as c"..."
     int import_require_double_quotes;
+    int warning_indent_deep; // 0: never warn, >0: warn when indent_level reaches this depth
 } LexerSettings;
 
 typedef struct {
