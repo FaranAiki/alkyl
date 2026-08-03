@@ -1,0 +1,18 @@
+namespace functools {
+
+// Fix this because Type(Type, Type) should be possible as a type of a function!
+compound [type Type]
+Type reduce(Type[] list, Type(Type, Type) fn) {
+    Type rt = list[0];
+
+    for i in (sizeof(fn)/sizeof(Type)) - 1 {
+        rt = fn(list[i], rt);
+    }
+
+    return rt;
+}
+
+compound [type Type]
+Type map(Type[] list, Type(Type, Type) fn) {
+    // Do not know lol
+}

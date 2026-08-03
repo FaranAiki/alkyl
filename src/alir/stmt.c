@@ -330,7 +330,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                     v = alir_gen_expr(ctx, rn->value);
                     if (!v) {
                         char buf[256];
-                        snprintf(buf, sizeof(buf), "Unresolved expression");
+                        snprintf(buf, sizeof(buf), "Unresolved expression: node->type=%d", rn->value->type);  
                         AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, (VarType){TYPE_CLASS, 1, (char*)"string"});
                         emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, NULL));
                         return;
