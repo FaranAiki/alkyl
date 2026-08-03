@@ -64,3 +64,6 @@ Mutable and arrays
 
 ## 0.1.2
 * new diagnostic but too shitty and make it does not like C lol
+
+## 0.X.X?
+* To be fair, I didn't have any changelogs... so yeah. Just see the git commit

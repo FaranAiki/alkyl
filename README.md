@@ -1,8 +1,8 @@
 # Alkyl Programming Language
 
-A simple programming language written using C as a frontend and backends, such as LLVM-IR (mainly), QBE (experimental), and self-backend, with the philosophy of ARCUY: Always Reasonably Choose Your Way.
+A simple programming language written using C as a frontend and backends, such as LLVM-IR (mainly), QBE (experimental, but well done), MLIR (very experimental), and Cranelift (mismatch between standard library), and self-backend (to be implemented), with the philosophy of ARCUY: Always Reasonably Choose Your Way.
 
-Alkyl is named after aikil (aiki language) and alkyl in chemistry which is a highly reactive and foundational. This means alkyl is a very modularized language that can acts as others. The file extension for Alkyl source code is `.kyl`, a sweet suggestion made by my beloved girlfriend (saysay/kupkup).
+Alkyl is named after aikil (aiki language: sorry, kind of NPD here as this is a personal project) and alkyl in chemistry which is a highly reactive and foundational. This means alkyl is a very modularized language that can acts as others. The file extension for Alkyl source code is `.kyl`, a sweet suggestion made by my beloved girlfriend (saysay/kupkup), whereas for the header file it is `.hky` because it sounds... *hacky*.
 
 # Purpose
 
@@ -27,22 +27,22 @@ lexer (tokenize)
 -> alick (checked alir)
 -> optlir (optimized alir codes)
 -> alick (checked optimized alir)
--> llvm [alir to llvm-ir ssa] (results in machine code)
+-> *llvm* (alir to llvm-ir ssa) (results in machine code)
 
 ### ALIR to QBE IR (.ssa)
 The one we will need to self-host using QBE (run quite slower at its peak, the binary is slower too)
 ... (still the same up to the last alick)
--> qbe [alir to qbe ssa] (results in machine code)
+-> *qbe* (alir to qbe ssa) (results in machine code)
 
 ### From Parser to MLIR (.mlir)
 This is the least supported and still experimental (just to check if Alkyl is possible to use MLIR)
 ... (still the same up to semantic checker)
--> mlir (to "alir" using MLIR .td)
--> llvm [from mlir] (results in machine code)
+-> *mlir* (to Alkyl's MLIR dialect using .td)
+-> llvm (from mlir) (results in machine code)
 
-This is the most unsupported as Cranelift's library (Rust architecture) is different than C's. This is why the usage of cranelift is only for experimental, unless the standard library for Alkyl is really implemented, e.g. abstracts the real usage of print, input, .etc without having to hardcode-link to musl/glibc.
+This is the most **unsupported** as Cranelift's library (Rust architecture) is different than C's. This is why the usage of cranelift is only for experimental, unless the standard library for Alkyl is really implemented, e.g. abstracts the real usage of print, input, .etc without having to hardcode-link to musl/glibc.
 ... (still the same up to the last alick)
--> cranelift [alir to clif] (results in machine code)
+-> *cranelift* (alir to clif) (results in machine code)
 
 # Core Feature
 
@@ -51,8 +51,9 @@ Core feature is the high-level and simplicity of C, combined with C++'s' and Jav
 Alkyl also features a robust, **fully orthogonal** effect and error-handling type system which is heavily similar to Zig:
 * **`pure` vs `impure`**: Determines if a function has side-effects (state mutation, IO).
 * **`pristine` vs `tainted`**: Determines error-safety. A `tainted` value represents a potential error or failure that must be safely unwrapped (`wash`, `clean`, `untaint`) before it can be used, guaranteeing safety without runtime exceptions.
+* **`mutable` vs `immutable`**: Determines if a variable can be modified or not. The default is "mutable" (but marked as immutable for optimization, unless the compiler can prove that it is not immutable)
 
-It also has UFCS (unified function call syntax), e.g. call is treated as if it were a method_call. By default, this is true, but can be set to false in the premeta tags.
+It also has UFCS (unified function call syntax), e.g. call is treated as if it were a method call. By default, this is true, but can be set to false in the premeta tags.
 
 # Example Code
 ```c
@@ -77,7 +78,7 @@ meta {
 
 int main() {
   reason "numerator must be an integer"
-  int num = 2, denum = 0;
+  immutable int num = 2, denum = 0;
   printf ("%d", divby(1, 0) ? 2);
   // return 2
 }
