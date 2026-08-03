@@ -13,6 +13,7 @@ typedef struct {
   bool inject_enum_as_cstring;
   bool double_quote_as_string;
   long long big_array_literal_as_flux_emit;
+  bool resolve_method_call_as_call;
 } CompilerSettings;
 
 // Holds the global state for a single compilation session

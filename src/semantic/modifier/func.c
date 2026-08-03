@@ -13,8 +13,12 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
         return;
     }
 
+    int ufcs_fallback = 0;
+
     if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
-        sem_lookup_class_call(ctx, node);
+        if (!sem_lookup_class_call(ctx, node)) {
+            ufcs_fallback = 1;
+        }
     } else if (obj_type.base == TYPE_NAMESPACE && obj_type.class_name) {
         SemSymbol *ns_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
         if (!ns_sym || ns_sym->kind != SYM_NAMESPACE) {
@@ -147,12 +151,39 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
 
         done_ns_method_search:
         if (!found) {
-             sem_error(ctx, (ASTNode*)node, "Function '%s' not found in namespace '%s'", node->method_name, obj_type.class_name);
-             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+             ufcs_fallback = 1;
         }
     } else {
-        sem_error(ctx, (ASTNode*)node, "Cannot call method on non-class/non-namespace type");
-        sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+        ufcs_fallback = 1;
+    }
+
+    if (ufcs_fallback) {
+        if (ctx->compiler_ctx->settings.resolve_method_call_as_call) {
+            ASTNode *obj = node->object;
+            char *meth = node->method_name;
+            ASTNode *args = node->args;
+
+            obj->next = args;
+            
+            CallNode *call = (CallNode*)node;
+            call->base.type = NODE_CALL;
+            call->name = meth;
+            call->mangled_name = NULL;
+            call->args = obj;
+            call->target = NULL;
+            
+            extern void sem_check_call(SemanticCtx *ctx, CallNode *node);
+            sem_check_call(ctx, call);
+        } else {
+            if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
+                sem_error(ctx, (ASTNode*)node, "Method '%s' not found in class '%s'", node->method_name, obj_type.class_name);
+            } else if (obj_type.base == TYPE_NAMESPACE && obj_type.class_name) {
+                sem_error(ctx, (ASTNode*)node, "Function '%s' not found in namespace '%s'", node->method_name, obj_type.class_name);
+            } else {
+                sem_error(ctx, (ASTNode*)node, "Cannot call method on non-class/non-namespace type");
+            }
+            sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+        }
     }
 }
 

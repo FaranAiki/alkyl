@@ -450,6 +450,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
                           SET_COMP_BOOL(inject_enum_as_cstring);
                           SET_COMP_BOOL(double_quote_as_string);
                           SET_COMP_INT(big_array_literal_as_flux_emit);
+                          SET_COMP_BOOL(resolve_method_call_as_call);
                           if (streq(key, "default_cconv")) {
                               p->ctx->settings.default_cconv = val;
                               matched = 1;
