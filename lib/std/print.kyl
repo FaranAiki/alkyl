@@ -80,6 +80,8 @@ void print_double_array(void* arr, unsigned long size) {
 
 // TODO: make sure that meta can accepts optional params, e.g.
 // print(..., sep='', end='\n', file=stdout, flush=1)
+// and yes, this implementation is so slow!
+// make sure that this is not that slow
 meta void print(...) {
     for arg in ... {
         if (typeof(arg) == typeof(int)) {
