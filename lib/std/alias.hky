@@ -23,5 +23,17 @@ typedef i128 as long long;
 typedef u128 as unsigned long long;
 typedef f32 as single;
 typedef f64 as double;
+// typedef f128 as long double;
 
 typedef float as single;
+
+// More simplification
+define Literal as
+    i0, u0, i32, u32,
+    i64, u64, i128, u128,
+    f32, f64;
+
+define PointerLiteral as
+    i0*, u0*, i32*, u32*,
+    i64*, u64*, i128*, u128*,
+    f32*, f64*;

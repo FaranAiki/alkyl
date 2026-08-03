@@ -1,0 +1,33 @@
+import "std/print";
+
+int this_df_1(int p) {
+    defer std.print p;
+    std.print "Hello, World!";
+}
+
+int this_df_0(char *p) {
+    defer std.print "Hello!";
+    std.print p;
+    return 0;
+}
+
+int defer_1(char *p) {
+    std.print p;
+    return 0;
+}
+
+int defer_0(int t) {
+    std.print t;
+    return 0;
+}
+
+int main() {
+    defer defer_0(5);
+    defer defer_1("4");
+    this_df_0("1");
+    defer this_df_1(3);
+
+    std.print 2;
+
+    return 0;
+}

@@ -441,6 +441,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
 #define SET_COMP_BOOL(fname) if (streq(key, #fname)) { p->ctx->settings.fname = (streq(val, "true") || streq(val, "1")); matched = 1; }
 #define SET_LEX_BOOL(fname)  if (streq(key, #fname)) { p->l->settings.fname = (streq(val, "true") || streq(val, "1")); matched = 1; }
 #define SET_PARS_BOOL(fname) if (streq(key, #fname)) { p->settings.fname = (streq(val, "true") || streq(val, "1")); matched = 1; }
+#define SET_COMP_INT(fname) if (streq(key, #fname)) { p->ctx->settings.fname = atoll(val); matched = 1; }
 
                   if (streq(domain, "compiler")) {
                       if (val) {
@@ -448,6 +449,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
                           SET_COMP_BOOL(allocator_arc);
                           SET_COMP_BOOL(inject_enum_as_cstring);
                           SET_COMP_BOOL(double_quote_as_string);
+                          SET_COMP_INT(big_array_literal_as_flux_emit);
                           if (streq(key, "default_cconv")) {
                               p->ctx->settings.default_cconv = val;
                               matched = 1;

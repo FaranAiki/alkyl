@@ -39,6 +39,7 @@ void context_init(CompilerContext *ctx, Arena *arena) {
     ctx->settings.allocator_arc = false;
     ctx->settings.inject_enum_as_cstring = true;
     ctx->settings.default_cconv = NULL;
+    ctx->settings.big_array_literal_as_flux_emit = -1;
 }
 
 const char* context_intern(CompilerContext *ctx, const char *str) {

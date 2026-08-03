@@ -435,7 +435,7 @@ ASTNode* parse_factor(Parser *p) {
     if (p->current_token.type != TOKEN_RBRACKET) {
       *curr_elem = parse_expression(p);
 
-      if (p->current_token.type >= TOKEN_RANGE_INCL && p->current_token.type <= TOKEN_RANGE_INCL_LTE || p->current_token.type == TOKEN_RANGE) {
+      if ((p->current_token.type >= TOKEN_RANGE_INCL && p->current_token.type <= TOKEN_RANGE_INCL_LTE) || p->current_token.type == TOKEN_RANGE) {
           TokenType range_type = p->current_token.type;
           eat(p, range_type);
           ASTNode *end_expr = parse_expression(p);
@@ -459,18 +459,104 @@ ASTNode* parse_factor(Parser *p) {
                   }
 
                   if (step > 0 ? (start_val <= end_val) : (start_val >= end_val)) {
-                      start_lit->val.int_val = start_val;
-                      int i = start_val + step;
-                      while (step > 0 ? (i <= end_val) : (i >= end_val)) {
-                          LiteralNode *new_lit = parser_alloc(p, sizeof(LiteralNode));
-                          new_lit->base.type = NODE_LITERAL;
-                          new_lit->var_type = start_lit->var_type;
-                          new_lit->val.int_val = i;
-                          (*curr_elem)->next = (ASTNode*)new_lit;
-                          curr_elem = &(*curr_elem)->next;
-                          i += step;
+                      long long count = (step > 0 ? ((long long)end_val - start_val) : ((long long)start_val - end_val)) / (step > 0 ? step : -step) + 1;
+                      int make_flux = 0;
+                      if (p->ctx->settings.big_array_literal_as_flux_emit != -1) {
+                          if (p->ctx->settings.big_array_literal_as_flux_emit == 0 || count > p->ctx->settings.big_array_literal_as_flux_emit) {
+                              make_flux = 1;
+                          }
                       }
-                      curr_elem = &(*curr_elem)->next; // point to next of the last element
+
+                      if (make_flux) {
+                          static int synthetic_flux_counter = 0;
+                          char flux_name[64];
+                          snprintf(flux_name, sizeof(flux_name), "__synthetic_array_flux_%d", synthetic_flux_counter++);
+
+                          FuncDefNode *fn = parser_alloc(p, sizeof(FuncDefNode));
+                          fn->base.type = NODE_FUNC_DEF;
+                          fn->name = parser_strdup(p, flux_name);
+                          fn->is_flux = 1;
+                          fn->ret_type = start_lit->var_type;
+                          fn->has_body = 1;
+
+                          VarDeclNode *decl = parser_alloc(p, sizeof(VarDeclNode));
+                          decl->base.type = NODE_VAR_DECL;
+                          decl->name = parser_strdup(p, "i");
+                          decl->var_type = start_lit->var_type;
+                          LiteralNode *start_node = parser_alloc(p, sizeof(LiteralNode));
+                          start_node->base.type = NODE_LITERAL;
+                          start_node->var_type = start_lit->var_type;
+                          start_node->val.int_val = start_val;
+                          decl->initializer = (ASTNode*)start_node;
+
+                          WhileNode *wh = parser_alloc(p, sizeof(WhileNode));
+                          wh->base.type = NODE_WHILE;
+
+                          BinaryOpNode *cond = parser_alloc(p, sizeof(BinaryOpNode));
+                          cond->base.type = NODE_BINARY_OP;
+                          cond->op = (step > 0) ? TOKEN_LTE : TOKEN_GTE;
+                          VarRefNode *ref_i = parser_alloc(p, sizeof(VarRefNode));
+                          ref_i->base.type = NODE_VAR_REF;
+                          ref_i->name = parser_strdup(p, "i");
+                          cond->left = (ASTNode*)ref_i;
+                          LiteralNode *end_node = parser_alloc(p, sizeof(LiteralNode));
+                          end_node->base.type = NODE_LITERAL;
+                          end_node->var_type = start_lit->var_type;
+                          end_node->val.int_val = end_val;
+                          cond->right = (ASTNode*)end_node;
+                          wh->condition = (ASTNode*)cond;
+
+                          EmitNode *em = parser_alloc(p, sizeof(EmitNode));
+                          em->base.type = NODE_EMIT;
+                          VarRefNode *ref_i2 = parser_alloc(p, sizeof(VarRefNode));
+                          ref_i2->base.type = NODE_VAR_REF;
+                          ref_i2->name = parser_strdup(p, "i");
+                          em->value = (ASTNode*)ref_i2;
+
+                          AssignNode *inc = parser_alloc(p, sizeof(AssignNode));
+                          inc->base.type = NODE_ASSIGN;
+                          inc->op = TOKEN_PLUS_ASSIGN;
+                          VarRefNode *ref_i3 = parser_alloc(p, sizeof(VarRefNode));
+                          ref_i3->base.type = NODE_VAR_REF;
+                          ref_i3->name = parser_strdup(p, "i");
+                          inc->target = (ASTNode*)ref_i3;
+                          LiteralNode *step_node = parser_alloc(p, sizeof(LiteralNode));
+                          step_node->base.type = NODE_LITERAL;
+                          step_node->var_type = start_lit->var_type;
+                          step_node->val.int_val = step;
+                          inc->value = (ASTNode*)step_node;
+
+                          em->base.next = (ASTNode*)inc;
+                          wh->body = (ASTNode*)em;
+
+                          decl->base.next = (ASTNode*)wh;
+                          fn->body = (ASTNode*)decl;
+
+                          fn->base.next = p->synthetic_classes;
+                          p->synthetic_classes = (ASTNode*)fn;
+
+                          CallNode *call = parser_alloc(p, sizeof(CallNode));
+                          call->base.type = NODE_CALL;
+                          call->name = parser_strdup(p, flux_name);
+                          call->target = NULL;
+                          call->args = NULL;
+
+                          *curr_elem = (ASTNode*)call;
+                          curr_elem = &(*curr_elem)->next;
+                      } else {
+                          start_lit->val.int_val = start_val;
+                          int i = start_val + step;
+                          while (step > 0 ? (i <= end_val) : (i >= end_val)) {
+                              LiteralNode *new_lit = parser_alloc(p, sizeof(LiteralNode));
+                              new_lit->base.type = NODE_LITERAL;
+                              new_lit->var_type = start_lit->var_type;
+                              new_lit->val.int_val = i;
+                              (*curr_elem)->next = (ASTNode*)new_lit;
+                              curr_elem = &(*curr_elem)->next;
+                              i += step;
+                          }
+                          curr_elem = &(*curr_elem)->next; // point to next of the last element
+                      }
                   } else {
                       *curr_elem = NULL; // empty
                   }
@@ -493,7 +579,7 @@ ASTNode* parse_factor(Parser *p) {
 
         *curr_elem = parse_expression(p);
 
-        if (p->current_token.type >= TOKEN_RANGE_INCL && p->current_token.type <= TOKEN_RANGE_INCL_LTE || p->current_token.type == TOKEN_RANGE) {
+        if ((p->current_token.type >= TOKEN_RANGE_INCL && p->current_token.type <= TOKEN_RANGE_INCL_LTE) || p->current_token.type == TOKEN_RANGE) {
             TokenType range_type = p->current_token.type;
             eat(p, range_type);
             ASTNode *end_expr = parse_expression(p);
@@ -509,18 +595,104 @@ ASTNode* parse_factor(Parser *p) {
                         else { step = 1; start_val = 1; end_val = 0; *curr_elem = NULL; }
                     }
                     if (step > 0 ? (start_val <= end_val) : (start_val >= end_val)) {
-                        start_lit->val.int_val = start_val;
-                        int i = start_val + step;
-                        while (step > 0 ? (i <= end_val) : (i >= end_val)) {
-                            LiteralNode *new_lit = parser_alloc(p, sizeof(LiteralNode));
-                            new_lit->base.type = NODE_LITERAL;
-                            new_lit->var_type = start_lit->var_type;
-                            new_lit->val.int_val = i;
-                            (*curr_elem)->next = (ASTNode*)new_lit;
-                            curr_elem = &(*curr_elem)->next;
-                            i += step;
+                        long long count = (step > 0 ? ((long long)end_val - start_val) : ((long long)start_val - end_val)) / (step > 0 ? step : -step) + 1;
+                        int make_flux = 0;
+                        if (p->ctx->settings.big_array_literal_as_flux_emit != -1) {
+                            if (p->ctx->settings.big_array_literal_as_flux_emit == 0 || count > p->ctx->settings.big_array_literal_as_flux_emit) {
+                                make_flux = 1;
+                            }
                         }
-                        curr_elem = &(*curr_elem)->next;
+
+                        if (make_flux) {
+                            static int synthetic_flux_counter = 0;
+                            char flux_name[64];
+                            snprintf(flux_name, sizeof(flux_name), "__synthetic_array_flux_%d", synthetic_flux_counter++);
+
+                            FuncDefNode *fn = parser_alloc(p, sizeof(FuncDefNode));
+                            fn->base.type = NODE_FUNC_DEF;
+                            fn->name = parser_strdup(p, flux_name);
+                            fn->is_flux = 1;
+                            fn->ret_type = start_lit->var_type;
+                            fn->has_body = 1;
+
+                            VarDeclNode *decl = parser_alloc(p, sizeof(VarDeclNode));
+                            decl->base.type = NODE_VAR_DECL;
+                            decl->name = parser_strdup(p, "i");
+                            decl->var_type = start_lit->var_type;
+                            LiteralNode *start_node = parser_alloc(p, sizeof(LiteralNode));
+                            start_node->base.type = NODE_LITERAL;
+                            start_node->var_type = start_lit->var_type;
+                            start_node->val.int_val = start_val;
+                            decl->initializer = (ASTNode*)start_node;
+
+                            WhileNode *wh = parser_alloc(p, sizeof(WhileNode));
+                            wh->base.type = NODE_WHILE;
+
+                            BinaryOpNode *cond = parser_alloc(p, sizeof(BinaryOpNode));
+                            cond->base.type = NODE_BINARY_OP;
+                            cond->op = (step > 0) ? TOKEN_LTE : TOKEN_GTE;
+                            VarRefNode *ref_i = parser_alloc(p, sizeof(VarRefNode));
+                            ref_i->base.type = NODE_VAR_REF;
+                            ref_i->name = parser_strdup(p, "i");
+                            cond->left = (ASTNode*)ref_i;
+                            LiteralNode *end_node = parser_alloc(p, sizeof(LiteralNode));
+                            end_node->base.type = NODE_LITERAL;
+                            end_node->var_type = start_lit->var_type;
+                            end_node->val.int_val = end_val;
+                            cond->right = (ASTNode*)end_node;
+                            wh->condition = (ASTNode*)cond;
+
+                            EmitNode *em = parser_alloc(p, sizeof(EmitNode));
+                            em->base.type = NODE_EMIT;
+                            VarRefNode *ref_i2 = parser_alloc(p, sizeof(VarRefNode));
+                            ref_i2->base.type = NODE_VAR_REF;
+                            ref_i2->name = parser_strdup(p, "i");
+                            em->value = (ASTNode*)ref_i2;
+
+                            AssignNode *inc = parser_alloc(p, sizeof(AssignNode));
+                            inc->base.type = NODE_ASSIGN;
+                            inc->op = TOKEN_PLUS_ASSIGN;
+                            VarRefNode *ref_i3 = parser_alloc(p, sizeof(VarRefNode));
+                            ref_i3->base.type = NODE_VAR_REF;
+                            ref_i3->name = parser_strdup(p, "i");
+                            inc->target = (ASTNode*)ref_i3;
+                            LiteralNode *step_node = parser_alloc(p, sizeof(LiteralNode));
+                            step_node->base.type = NODE_LITERAL;
+                            step_node->var_type = start_lit->var_type;
+                            step_node->val.int_val = step;
+                            inc->value = (ASTNode*)step_node;
+
+                            em->base.next = (ASTNode*)inc;
+                            wh->body = (ASTNode*)em;
+
+                            decl->base.next = (ASTNode*)wh;
+                            fn->body = (ASTNode*)decl;
+
+                            fn->base.next = p->synthetic_classes;
+                            p->synthetic_classes = (ASTNode*)fn;
+
+                            CallNode *call = parser_alloc(p, sizeof(CallNode));
+                            call->base.type = NODE_CALL;
+                            call->name = parser_strdup(p, flux_name);
+                            call->target = NULL;
+                            call->args = NULL;
+
+                            *curr_elem = (ASTNode*)call;
+                            curr_elem = &(*curr_elem)->next;
+                        } else {
+                            start_lit->val.int_val = start_val;
+                            int i = start_val + step;
+                            while (step > 0 ? (i <= end_val) : (i >= end_val)) {
+                                LiteralNode *new_lit = parser_alloc(p, sizeof(LiteralNode));
+                                new_lit->base.type = NODE_LITERAL;
+                                new_lit->var_type = start_lit->var_type;
+                                new_lit->val.int_val = i;
+                                (*curr_elem)->next = (ASTNode*)new_lit;
+                                curr_elem = &(*curr_elem)->next;
+                                i += step;
+                            }
+                            curr_elem = &(*curr_elem)->next;
+                        }
                     } else {
                         *curr_elem = NULL;
                     }
