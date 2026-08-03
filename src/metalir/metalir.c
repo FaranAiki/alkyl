@@ -447,7 +447,8 @@ long long metalir_execute_parse(MetalirRunner *r, ASTNode *root,
             metalir_run_link(r, (LinkNode*)curr);
         } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
         } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
-                   curr->type != NODE_ENUM && curr->type != NODE_ERRNUM) {
+                   curr->type != NODE_ENUM && curr->type != NODE_ERRNUM &&
+                   curr->type != NODE_IMPORT) {
             result = metalir_run_expr(r, curr, id++, 0, NULL);
         }
         curr = curr->next;

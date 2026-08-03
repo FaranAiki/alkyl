@@ -71,9 +71,7 @@ int run_repl(void) {
     sem_settings.namespace_ausearch_warning = false;
     MetalirRunner *r = metalir_runner_create("ethyl_repl", &sem_settings, 0);
 
-    metalir_load_module(r, "std/math");
-    metalir_load_module(r, "std/heap");
-    metalir_load_module(r, "std/print");
+    metalir_load_module(r, "std/ethyl");
 
     signal(SIGINT, SIG_IGN);
 
@@ -159,7 +157,8 @@ int run_repl(void) {
                 metalir_run_link(r, (LinkNode*)curr);
             } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
 } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
-                   curr->type != NODE_ENUM && curr->type != NODE_ERRNUM) {
+                   curr->type != NODE_ENUM && curr->type != NODE_ERRNUM &&
+                   curr->type != NODE_IMPORT) {
                 VarType chk = sem_get_node_type(&r->sem, curr);
                 int is_type_sym = 0;
                 if ((chk.base == TYPE_NAMESPACE || chk.base == TYPE_CLASS) && curr->type == NODE_VAR_REF) {
@@ -317,7 +316,8 @@ int run_file(const char *filename) {
                 metalir_run_link(r, (LinkNode*)curr);
             } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
             } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
-                       curr->type != NODE_ENUM && curr->type != NODE_ERRNUM) {
+                       curr->type != NODE_ENUM && curr->type != NODE_ERRNUM &&
+                       curr->type != NODE_IMPORT) {
                 VarType chk = sem_get_node_type(&r->sem, curr);
                 int is_type_sym = 0;
                 if ((chk.base == TYPE_NAMESPACE || chk.base == TYPE_CLASS) && curr->type == NODE_VAR_REF) {
