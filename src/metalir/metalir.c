@@ -343,6 +343,9 @@ long long metalir_run_expr(MetalirRunner *r, ASTNode *curr, int seq,
     fn->has_body = 1;
     if (out_type) *out_type = fn->ret_type;
 
+    debug_any("metalir_run_expr: curr->type=%d\n", curr->type);
+    debug_any("metalir_run_expr: fn->ret_type.base=%d\n", fn->ret_type.base);
+
     if (curr->type == NODE_IF || curr->type == NODE_WHILE || curr->type == NODE_FOR_IN ||
         curr->type == NODE_LOOP || curr->type == NODE_SWITCH || curr->type == NODE_BREAK ||
         curr->type == NODE_CONTINUE || curr->type == NODE_RETURN || curr->type == NODE_DEFER) {

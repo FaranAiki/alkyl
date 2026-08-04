@@ -6,8 +6,8 @@
 void eat_semi(Parser *p) {
     if (p->current_token.type == TOKEN_SEMICOLON) {
         eat(p, TOKEN_SEMICOLON);
-    } else if (p->current_token.type == TOKEN_ELSE || 
-               p->current_token.type == TOKEN_RBRACE || 
+    } else if (p->current_token.type == TOKEN_ELSE ||
+               p->current_token.type == TOKEN_RBRACE ||
                p->current_token.type == TOKEN_EOF) {
         // Implicit
     } else if (p->l->settings.require_semicolons == 0) {
@@ -25,9 +25,9 @@ ASTNode* parse_return(Parser *p) {
   int line = p->current_token.line, col = p->current_token.col;
   eat(p, TOKEN_RETURN);
   ASTNode *val = NULL;
-  if (p->current_token.type != TOKEN_SEMICOLON && 
-      p->current_token.type != TOKEN_ELSE && 
-      p->current_token.type != TOKEN_RBRACE && 
+  if (p->current_token.type != TOKEN_SEMICOLON &&
+      p->current_token.type != TOKEN_ELSE &&
+      p->current_token.type != TOKEN_RBRACE &&
       p->current_token.type != TOKEN_EOF) {
     val = parse_expression(p);
   }
@@ -44,7 +44,7 @@ ASTNode* parse_emit(Parser *p) {
     eat(p, TOKEN_EMIT);
     ASTNode *val = parse_expression(p);
     eat_semi(p);
-    
+
     EmitNode *node = parser_alloc(p, sizeof(EmitNode));
     node->base.type = NODE_EMIT;
     node->value = val;
@@ -54,15 +54,15 @@ ASTNode* parse_emit(Parser *p) {
 
 ASTNode* parse_assignment_or_call(Parser *p) {
   Token start_token = p->current_token;
-  if (start_token.text) start_token.text = parser_strdup(p, start_token.text); 
+  if (start_token.text) start_token.text = parser_strdup(p, start_token.text);
 
   int line = p->current_token.line;
   int col = p->current_token.col;
 
   char *name = p->current_token.text; // already arena alloc from lexer/strdup
-  p->current_token.text = NULL; 
+  p->current_token.text = NULL;
   eat(p, TOKEN_IDENTIFIER);
-  
+
   ASTNode *node = parser_alloc(p, sizeof(VarRefNode));
   ((VarRefNode*)node)->base.type = NODE_VAR_REF;
   ((VarRefNode*)node)->name = name;
@@ -93,33 +93,33 @@ ASTNode* parse_assignment_or_call(Parser *p) {
 
   if (is_assign) {
     int op = p->current_token.type;
-    eat(p, op); 
+    eat(p, op);
     ASTNode *expr = parse_expression(p);
-    eat_semi(p); 
+    eat_semi(p);
 
     AssignNode *an = parser_alloc(p, sizeof(AssignNode));
     an->base.type = NODE_ASSIGN;
     an->value = expr;
     an->op = op;
-    
+
     if (node->type == NODE_VAR_REF) {
         an->name = ((VarRefNode*)node)->name;
-        ((VarRefNode*)node)->name = NULL; 
+        ((VarRefNode*)node)->name = NULL;
         // No free(node)
     } else {
-        an->target = node; 
+        an->target = node;
     }
     set_loc((ASTNode*)an, line, col);
     // No free(start_token.text)
     return (ASTNode*)an;
   }
-  
+
   if (node->type == NODE_VAR_REF || node->type == NODE_TEMPLATE_INSTANTIATION) {
       TokenType t = p->current_token.type;
-      int is_arg_start = (t == TOKEN_NUMBER || t == TOKEN_SINGLE_LIT || t == TOKEN_STRING || 
+      int is_arg_start = (t == TOKEN_NUMBER || t == TOKEN_SINGLE_LIT || t == TOKEN_STRING ||
             t == TOKEN_C_STRING || t == TOKEN_BYTE_STRING ||
-            t == TOKEN_CHAR_LIT || t == TOKEN_TRUE || t == TOKEN_FALSE || 
-            t == TOKEN_IDENTIFIER || t == TOKEN_LPAREN || t == TOKEN_LBRACKET || 
+            t == TOKEN_CHAR_LIT || t == TOKEN_TRUE || t == TOKEN_FALSE ||
+            t == TOKEN_IDENTIFIER || t == TOKEN_LPAREN || t == TOKEN_LBRACKET ||
             t == TOKEN_NOT || t == TOKEN_BIT_NOT || t == TOKEN_MINUS || t == TOKEN_PLUS || t == TOKEN_STAR || t == TOKEN_AND || t == TOKEN_TYPEOF);
 
       if (is_arg_start) {
@@ -132,10 +132,10 @@ ASTNode* parse_assignment_or_call(Parser *p) {
                   fname = ((VarRefNode*)ti->target)->name;
               }
           }
-          
+
           ASTNode *args_head = NULL;
           ASTNode **curr_arg = &args_head;
-          
+
           *curr_arg = parse_expression(p);
           curr_arg = &(*curr_arg)->next;
 
@@ -144,21 +144,21 @@ ASTNode* parse_assignment_or_call(Parser *p) {
               *curr_arg = parse_expression(p);
               curr_arg = &(*curr_arg)->next;
           }
-          eat_semi(p); 
+          eat_semi(p);
 
           CallNode *cn = parser_alloc(p, sizeof(CallNode));
           cn->base.type = NODE_CALL;
           cn->name = fname;
           cn->target = node; // Store the original node (e.g. VarRef or TemplateInst)
           cn->args = args_head;
-          
+
           // If it was a template instantiation, wrap it or handle it!
           // Wait! Semantic analyzer looks at CallNode's `name` only!
           // But if it's a template instantiation, `name` is the original template name...
           // BUT wait! In expr.c (postfix), if it's `map[int]`, `parse_postfix` wraps the VarRef in TemplateInstNode.
           // In an expression statement, we should probably set `cn->name` to `fname`, BUT `map[int]` is lost?
           // No! If `cn->name` is just `map`, it won't know `[int]`!
-          
+
           // Oh, wait! The Semantic Analyzer currently treats `map[int](...)` as a CallNode with name = `map`. Wait, no, `expr.c` line 80 parse_postfix gives `TemplateInstNode`.
           // Let's check how `expr.c` parses `map[int]()`!
           set_loc((ASTNode*)cn, line, col);
@@ -166,22 +166,22 @@ ASTNode* parse_assignment_or_call(Parser *p) {
           return (ASTNode*)cn;
       }
   }
-  if (p->current_token.type == TOKEN_SEMICOLON || 
-      p->current_token.type == TOKEN_ELSE || 
-      p->current_token.type == TOKEN_RBRACE || 
+  if (p->current_token.type == TOKEN_SEMICOLON ||
+      p->current_token.type == TOKEN_ELSE ||
+      p->current_token.type == TOKEN_RBRACE ||
       p->current_token.type == TOKEN_EOF) {
-      
+
       eat_semi(p);
       // No free
-      return node; 
+      return node;
   }
-  
+
   char msg[256];
-  snprintf(msg, sizeof(msg), "Invalid statement starting with identifier '%s'.", 
+  snprintf(msg, sizeof(msg), "Invalid statement starting with identifier '%s'.",
            ((VarRefNode*)node)->name);
-  
+
   const char *keyword_suggestion = find_closest_keyword(((VarRefNode*)node)->name);
-  
+
   // Custom fail reporting to avoid exit
   report_error(p->l, start_token, msg);
   if (keyword_suggestion) {
@@ -191,11 +191,11 @@ ASTNode* parse_assignment_or_call(Parser *p) {
   }
 
   // No frees needed
-  
+
   if (p->ctx) p->ctx->error_count++;
-  
+
   return NULL;
-  
+
 
   return NULL;
 }
@@ -210,9 +210,9 @@ ASTNode* parse_single_statement_or_block(Parser *p) {
         reason_str = parser_strdup(p, p->current_token.text);
         eat(p, TOKEN_STRING);
     }
-    
+
     ASTNode *node = parse_single_statement_or_block_internal(p);
-    
+
     if (reason_str && node) {
         ASTNode *curr = node;
         while (curr) {
@@ -288,7 +288,7 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
     eat(p, TOKEN_RBRACE);
     return block;
   }
-  
+
   int line = p->current_token.line, col = p->current_token.col;
 
   if (p->current_token.type == TOKEN_CLEAN) {
@@ -334,7 +334,7 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected variable to untaint");
       char *var_name = parser_strdup(p, p->current_token.text);
       eat(p, TOKEN_IDENTIFIER);
-      
+
       eat(p, TOKEN_RESIDUE);
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected error variable name after residue");
       char *err_var = parser_strdup(p, p->current_token.text);
@@ -362,10 +362,10 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
   if (p->current_token.type == TOKEN_RETURN) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_return(p); }
   if (p->current_token.type == TOKEN_BREAK) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_break(p); }
   if (p->current_token.type == TOKEN_CONTINUE) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_continue(p); }
-  
+
   if (p->current_token.type == TOKEN_EMIT) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_emit(p); }
-  if (p->current_token.type == TOKEN_PURGE) { 
-      if(modifiers) parser_fail(p, "Invalid modifier here"); 
+  if (p->current_token.type == TOKEN_PURGE) {
+      if(modifiers) parser_fail(p, "Invalid modifier here");
       eat(p, TOKEN_PURGE);
       PurgeNode *n = parser_alloc(p, sizeof(PurgeNode));
       n->base.type = NODE_PURGE;
@@ -376,10 +376,10 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       return (ASTNode*)n;
   }
   if (p->current_token.type == TOKEN_FOR) { if(modifiers) parser_fail(p, "Invalid modifier here"); return parse_for_in(p); }
-  if (p->current_token.type == TOKEN_DEFINE) { 
-      if(modifiers) parser_fail(p, "Modifiers not allowed"); 
+  if (p->current_token.type == TOKEN_DEFINE) {
+      if(modifiers) parser_fail(p, "Modifiers not allowed");
       extern ASTNode* parse_define(Parser *p);
-      return parse_define(p); 
+      return parse_define(p);
   }
   if (p->current_token.type == TOKEN_EXTERN) {
       extern ASTNode* parse_extern(Parser *p, int modifiers);
@@ -389,7 +389,7 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
   if (p->current_token.type == TOKEN_DEFER) {
       if(modifiers) parser_fail(p, "Modifiers not allowed");
       eat(p, TOKEN_DEFER);
-      
+
       ASTNode *body;
       if (p->current_token.type == TOKEN_LBRACE) {
           eat(p, TOKEN_LBRACE);
@@ -398,7 +398,7 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       } else {
           body = parse_single_statement_or_block(p);
       }
-      
+
       DeferNode *dn = parser_alloc(p, sizeof(DeferNode));
       dn->base.type = NODE_DEFER;
       dn->body = body;
@@ -410,7 +410,7 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       if(modifiers) parser_fail(p, "Modifiers not allowed");
       bool is_post = (p->current_token.type == TOKEN_POSTMETA);
       eat(p, p->current_token.type);
-      
+
       ASTNode *body_head = NULL;
       if (p->current_token.type == TOKEN_IF) {
           body_head = parse_if(p);
@@ -421,7 +421,7 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
           body_head = parse_statements(p);
           eat(p, TOKEN_RBRACE);
       }
-      
+
       MetaNode *mn = parser_alloc(p, sizeof(MetaNode));
       mn->base.type = is_post ? NODE_POSTMETA : NODE_META;
       mn->is_post = is_post;
@@ -430,7 +430,8 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       return (ASTNode*)mn;
   }
 
-  VarType peek_t = parse_type(p); 
+  VarType peek_t = parse_type(p);
+  debug_any("DEBUG stmt: after parse_type, peek_t.base=%d, current_token.type=%d\n", peek_t.base, p->current_token.type);
   if (peek_t.base != TYPE_UNKNOWN) {
       if (peek_t.base == TYPE_CLASS && p->current_token.type == TOKEN_LPAREN) {
           if(modifiers) parser_fail(p, "Invalid modifier here");
@@ -443,22 +444,22 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
           set_loc(call, line, col);
           return call;
       }
-      
+
       if (p->current_token.type == TOKEN_LPAREN) {
           char *name = NULL;
           VarType fp_type = parse_func_ptr_decl(p, peek_t, &name);
-          
+
           ASTNode *init = parse_initializer(p, fp_type);
           eat_semi(p);
-          
+
           VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
           node->base.type = NODE_VAR_DECL;
           node->var_type = fp_type;
           node->name = name;
           node->initializer = init;
-          node->is_mutable = 1; 
+          node->is_mutable = 1;
           set_loc((ASTNode*)node, line, col);
-          
+
           apply_var_modifiers(node, modifiers);
           return (ASTNode*)node;
       }
@@ -466,12 +467,12 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       int is_mut = 1;
       if (p->current_token.type == TOKEN_KW_MUT) { is_mut = 1; eat(p, TOKEN_KW_MUT); }
       else if (p->current_token.type == TOKEN_KW_IMUT) { is_mut = 0; eat(p, TOKEN_KW_IMUT); }
-      
+
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected variable name in declaration");
       char *name = p->current_token.text;
       p->current_token.text = NULL;
       eat(p, TOKEN_IDENTIFIER);
-      
+
       if (p->settings.allow_postfix_types && p->current_token.type == TOKEN_COLON) {
           eat(p, TOKEN_COLON);
           VarType pt = parse_type(p);
@@ -479,14 +480,14 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
               peek_t = pt;
           }
       }
-      
+
       int is_array = 0;
       ASTNode *array_size = NULL;
       ASTNode **curr_sz = &array_size;
-      
+
       while (p->current_token.type == TOKEN_LBRACKET) { if (p->has_error) break;
         is_array = 1;
-        peek_t.ptr_depth++; 
+        peek_t.ptr_depth++;
         eat(p, TOKEN_LBRACKET);
         ASTNode *sz = NULL;
         if (p->current_token.type != TOKEN_RBRACKET) sz = parse_expression(p);
@@ -513,11 +514,11 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       node->is_array = is_array;
       node->array_size = array_size;
       set_loc((ASTNode*)node, line, col);
-      
+
       apply_var_modifiers(node, modifiers);
       return (ASTNode*)node;
   }
-  
+
   if (p->current_token.type == TOKEN_KW_MUT || p->current_token.type == TOKEN_KW_IMUT) {
       ASTNode *var = parse_var_decl_internal(p);
       ASTNode *curr = var;
@@ -531,9 +532,10 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
   if (modifiers) parser_fail(p, "Invalid modifier on statement");
 
   // if (p->current_token.type == TOKEN_IDENTIFIER) return parse_assignment_or_call(p);
-  
+
   ASTNode *expr = parse_expression(p);
-  eat_semi(p); 
+  debug_any("DEBUG stmt: expr->type=%d\n", expr ? expr->type : -1);
+  eat_semi(p);
   return expr;
 }
 

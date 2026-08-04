@@ -215,6 +215,8 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
         else if (p->current_token.type == TOKEN_LBRACKET && p->disable_space_call == 0 && (!p->current_token.has_space_before || p->in_space_separated_call > 0)) {
             eat(p, TOKEN_LBRACKET);
 
+            debug_any("DEBUG parser: after eat LBRACKET, current_token.type=%d, is_type_start=%d\n", p->current_token.type, is_type_start(p));
+
             if (is_type_start(p)) {
                 int max_args = 16;
                 VarType *types = parser_alloc_raw(p, sizeof(VarType) * max_args);
@@ -234,6 +236,8 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                 }
                 eat(p, TOKEN_RBRACKET);
 
+                debug_any("DEBUG parser: created TEMPLATE_INSTANTIATION, num_types=%d\n", num_types);
+
                 TemplateInstNode *ti = parser_alloc(p, sizeof(TemplateInstNode));
                 ti->base.type = NODE_TEMPLATE_INSTANTIATION;
                 ti->target = node;
@@ -241,6 +245,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                 ti->num_template_types = num_types;
                 node = (ASTNode*)ti;
             } else {
+                debug_any("DEBUG parser: creating INDEX_ACCESS instead\n");
                 ASTNode *index = parse_expression(p);
                 eat(p, TOKEN_RBRACKET);
 
@@ -949,7 +954,8 @@ ASTNode* parse_factor(Parser *p) {
       }
   }
 
-  return parse_postfix(p, node);
+  debug_any("DEBUG parse_postfix END: node->type=%d, current_token.type=%d\n", node ? node->type : -1, p->current_token.type);
+  return node;
 }
 
 ASTNode* parse_unary(Parser *p) {
@@ -1179,6 +1185,7 @@ ASTNode* parse_dollar(Parser *p) {
       set_loc((ASTNode*)node, line, col);
       return (ASTNode*)node;
   }
+  debug_any("DEBUG parse_postfix: returning type=%d\n", lhs ? lhs->type : -1);
   return lhs;
 }
 
@@ -1225,7 +1232,9 @@ ASTNode* parse_assignment(Parser *p) {
 
 ASTNode* parse_expression(Parser *p) {
   if (p->has_error) return NULL;
-  return parse_assignment(p);
+  ASTNode *result = parse_assignment(p);
+  debug_any("DEBUG parse_expression: result->type=%d\n", result ? result->type : -1);
+  return result;
 }
 ASTNode* parse_initializer(Parser *p, VarType vtype) {
     if (p->current_token.type == TOKEN_ASSIGN) {

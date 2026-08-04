@@ -95,6 +95,8 @@ int run_repl(void) {
         ASTNode *root = metalir_parse(r, buffer, "ethyl_repl", NULL);
         if (!root || r->parser.has_error) continue;
 
+        debug_any("REPL after parse: root->type=%d\n", root->type);
+
         r->sem.current_source = buffer;
         r->sem.current_filename = "ethyl_repl";
 
@@ -106,6 +108,8 @@ int run_repl(void) {
             r->ctx.error_count = 0;
             continue;
         }
+
+        debug_any("REPL after sem: root->type=%d\n", root->type);
 
         metalir_alir_generate(r, root);
 
