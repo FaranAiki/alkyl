@@ -3,6 +3,8 @@
     "effects": {
       "pure": "Indicates a function has no side effects. By default, functions, variables, and classes are pure. If an implicitly pure function performs an impure action (e.g., calling an impure function), it is silently downgraded to impure. However, if it is EXPLICITLY declared 'pure', performing an impure action will throw a semantic error.",
       "impure": "Indicates a function has side effects (e.g., IO, mutation of external state). Extern functions are always implicitly impure.",
+      "total": "Indicates a function is guaranteed to terminate and not loop infinitely. Functions are 'total' by default. If a function contains a loop (while, for, loop) or calls a partial function, it is silently downgraded to partial. If explicitly declared 'total', calling a partial function or using a loop will throw a semantic error.",
+      "partial": "Indicates a function might not terminate (e.g., contains infinite loops or recursive structures without clear bounds).",
       "extern": "Extern functions (like printf) interface with C. They are always IMPURE, and their arguments (including varargs) are FORCED to be PRISTINE because C does not understand tainted semantics."
     },
     "error_handling": {

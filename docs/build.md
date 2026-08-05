@@ -120,3 +120,29 @@ The generic driver `alkyl` supports standard compiler flags, such as `-c`, to ou
 ```bash
 ./build/alkyl -c my_lib.kyl -o my_lib.o
 ```
+
+## 6. Testing and Benchmarking
+
+Alkyl includes automated tools for verifying compiler correctness and performance.
+
+### Running Tests
+The official test runner script `scripts/run_tests.sh` executes all `.kyl` test files under `test/code/` across the chosen compiler backends and optimization levels (`--opt` and `--unopt`). It verifies that the compilation succeeds (or fails as expected), the program executes correctly, and the output logs match the expected output.
+
+```bash
+# Run all tests using the default build/alkyl compiler in parallel
+./scripts/run_tests.sh --parallel
+
+# Run tests targeting only the LLVM backend
+./scripts/run_tests.sh --llvm --parallel
+
+# Update expected output logs for all tests
+./scripts/run_tests.sh --update
+```
+
+### Benchmarking with compare_bin
+The `scripts/compare_bin` utility uses `hyperfine` to comprehensively benchmark and compare the various backends (LLVM, QBE, MLIR, Cranelift). It measures compilation time, execution time, output binary size, and cache performance (using `valgrind`).
+
+```bash
+# Compare a specific test file across all backends over 50 runs
+./scripts/compare_bin test/code/examples/mandelbrot.kyl --opt --runs 50
+```

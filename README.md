@@ -50,6 +50,7 @@ Core feature is the high-level and simplicity of C, combined with C++'s' and Jav
 
 Alkyl also features a robust, **fully orthogonal** effect and error-handling type system which is heavily similar to Zig:
 * **`pure` vs `impure`**: Determines if a function has side-effects (state mutation, IO).
+* **`total` vs `partial`**: Determines if a function is guaranteed to terminate. A `total` function must not contain infinite loops or call `partial` functions.
 * **`pristine` vs `tainted`**: Determines error-safety. A `tainted` value represents a potential error or failure that must be safely unwrapped (`wash`, `clean`, `untaint`) before it can be used, guaranteeing safety without runtime exceptions.
 * **`mutable` vs `immutable`**: Determines if a variable can be modified or not. The default is "mutable" (but marked as immutable for optimization, unless the compiler can prove that it is not immutable)
 
@@ -100,7 +101,20 @@ cmake ..
 cmake --build . -j$(nproc)
 ./alkyl_llvm ../test/code/general/test_real_faran.kyl --unopt
 ./out
+./out
 ```
+
+# Testing and Benchmarking
+Alkyl comes with two very helpful shell scripts inside `scripts/`:
+
+* **`scripts/run_tests.sh`**: The official test runner. It verifies compilation, execution, and output logging of all test cases in `test/code/`. It runs them in `unopt` and `opt` modes. You can run it via:
+  ```bash
+  ./scripts/run_tests.sh --parallel
+  ```
+* **`scripts/compare_bin`**: A benchmarking utility using `hyperfine` (make sure it is installed) and `valgrind`. It compiles a given `.kyl` file across the four compiler backends (LLVM, QBE, MLIR, Cranelift) and compares their compilation time, execution time, binary sizes, and cache misses!
+  ```bash
+  ./scripts/compare_bin test/code/examples/mandelbrot.kyl --opt --runs 50
+  ```
 
 # Docs
 For further information, look at
