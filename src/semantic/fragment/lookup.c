@@ -173,9 +173,6 @@ int sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                 current_class = NULL;
             }
         }
-
-
-    done_method_search:
     return 0;
 }
 
