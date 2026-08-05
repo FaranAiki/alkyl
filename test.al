@@ -1,1 +1,0 @@
-print "A" "HELLO" "A"

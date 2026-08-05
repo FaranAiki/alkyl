@@ -1,1 +1,0 @@
-sed -i 's/void pass1_register(AlirCtx \*ctx, ASTNode \*n, const char \*current_ns) {/void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {\n    ASTNode *tmp = n; while(tmp) { printf("debug: alir: pass1_register visiting node type=%d\\n", tmp->type); tmp = tmp->next; }/' src/alir/generator.c
