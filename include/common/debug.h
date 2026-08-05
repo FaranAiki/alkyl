@@ -47,10 +47,22 @@
   #define to_sem_out(p, f)
 #endif // DEBUG_PARSER_OUT
 
-#ifdef DEBUG_ANY
-  #define debug_any(msg, ...) fprintf(stderr, DIAG_CYAN "debug: " DIAG_RESET msg "", ##__VA_ARGS__)
+#ifndef NDEBUG
+  #define debug_any(msg, ...) fprintf(stderr, DIAG_CYAN "debug: " DIAG_RESET msg, ##__VA_ARGS__)
+  #define debug_parser(msg, ...) debug_any("parser: " msg, ##__VA_ARGS__)
+  #define debug_alir(msg, ...) debug_any("alir: " msg, ##__VA_ARGS__)
+  #define debug_alick(msg, ...) debug_any("alick: " msg, ##__VA_ARGS__)
+  #define debug_lexer(msg, ...) debug_any("lexer: " msg, ##__VA_ARGS__)
+  #define debug_codegen(msg, ...) debug_any("codegen: " msg, ##__VA_ARGS__)
+  #define debug_semantic(msg, ...) debug_any("semantic: " msg, ##__VA_ARGS__)
 #else
   #define debug_any(msg, ...)
-#endif // DEBUG_ANY
+  #define debug_parser(msg, ...)
+  #define debug_alir(msg, ...)
+  #define debug_alick(msg, ...)
+  #define debug_lexer(msg, ...)
+  #define debug_codegen(msg, ...)
+  #define debug_semantic(msg, ...)
+#endif // NDEBUG
 
 #endif // COMPILER_DEBUG_H

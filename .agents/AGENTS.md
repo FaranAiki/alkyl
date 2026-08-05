@@ -2,7 +2,7 @@ Here is the architectural documentation and programming guide for the **Alkyl** 
 
 <RULE>
 **Debugging Print Rule:**
-Every `fprintf` or `printf` that is used for debugging MUST be replaced by `debug_any("msg", ...);`. Do NOT use `printf("DEBUG: ...")` or `fprintf(stderr, ...)`.
+Every `fprintf` or `printf` that is used for debugging MUST be replaced by a module-specific debug macro (e.g. `debug_parser`, `debug_alir`, `debug_lexer`, `debug_semantic`, `debug_codegen`) or `debug_any("msg", ...);` if none fit. Do NOT use `printf("DEBUG: ...")` or `fprintf(stderr, ...)`.
 
 **String Comparison Rule:**
 Do NOT use `strcmp` for string comparisons inside the compiler codebase. ALWAYS use the inline function `streq(const char *a, const char *b)` defined in `include/common/common.h` which performs pointer equality first for speed.
