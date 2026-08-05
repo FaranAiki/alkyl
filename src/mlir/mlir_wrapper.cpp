@@ -1,3 +1,4 @@
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include "mlir/mlir_wrapper.h"
 
 // TODO make sure that the wrapper
@@ -182,6 +183,7 @@ void alkyl_mlir_set_insertion_point_to_end(AlkylMlirContext c_ctx, AlkylMlirBloc
 }
 
 void alkyl_mlir_build_return(AlkylMlirContext c_ctx, AlkylMlirValue val) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (global_builder) {
         mlir::Block *block = global_builder->getBlock();
@@ -260,6 +262,7 @@ AlkylMlirValue alkyl_mlir_build_alloc_object(AlkylMlirContext c_ctx, int num_fie
 }
 
 void alkyl_mlir_build_store(AlkylMlirContext c_ctx, AlkylMlirValue val, AlkylMlirValue ptr) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || !val || !ptr) return;
     auto v = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(val));
@@ -294,6 +297,7 @@ void alkyl_mlir_build_store(AlkylMlirContext c_ctx, AlkylMlirValue val, AlkylMli
 }
 
 void alkyl_mlir_build_store_field(AlkylMlirContext c_ctx, AlkylMlirValue val, AlkylMlirValue ptr, int index) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || !val || !ptr) return;
     auto* ctx = static_cast<mlir::MLIRContext*>(c_ctx);
@@ -464,6 +468,7 @@ AlkylMlirValue alkyl_mlir_build_eq(AlkylMlirContext c_ctx, AlkylMlirValue lhs, A
 }
 
 void alkyl_mlir_build_panic(AlkylMlirContext c_ctx, int err_id, const char* msg) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder) return;
     auto* ctx = static_cast<mlir::MLIRContext*>(c_ctx);
@@ -565,6 +570,7 @@ AlkylMlirValue alkyl_mlir_build_call(AlkylMlirContext c_ctx, const char* name, A
 }
 
 void* alkyl_mlir_build_scf_if_start(AlkylMlirContext c_ctx, AlkylMlirValue cond, int has_else) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder) return nullptr;
     auto condition = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(cond));
@@ -600,6 +606,7 @@ void* alkyl_mlir_build_scf_if_start(AlkylMlirContext c_ctx, AlkylMlirValue cond,
 }
 
 void alkyl_mlir_build_scf_if_else(AlkylMlirContext c_ctx, void* if_op_ptr) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || !if_op_ptr) return;
     auto op = static_cast<mlir::Operation*>(if_op_ptr);
@@ -617,6 +624,7 @@ void alkyl_mlir_build_scf_if_else(AlkylMlirContext c_ctx, void* if_op_ptr) {
 }
 
 void alkyl_mlir_build_scf_if_end(AlkylMlirContext c_ctx, void* if_op_ptr) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || !if_op_ptr) return;
     auto op = static_cast<mlir::Operation*>(if_op_ptr);
@@ -636,6 +644,7 @@ static std::vector<CfgLoopBlocks*> loop_stack;
 #endif
 
 void* alkyl_mlir_build_scf_while_start(AlkylMlirContext c_ctx) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder) return nullptr;
     auto *condBlock = new mlir::Block();
@@ -661,6 +670,7 @@ void* alkyl_mlir_build_scf_while_start(AlkylMlirContext c_ctx) {
 }
 
 void alkyl_mlir_build_scf_while_cond_yield(AlkylMlirContext c_ctx, void* while_op_ptr, AlkylMlirValue cond) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || !while_op_ptr) return;
     CfgLoopBlocks *loop = reinterpret_cast<CfgLoopBlocks*>(while_op_ptr);
@@ -680,6 +690,7 @@ void alkyl_mlir_build_scf_while_cond_yield(AlkylMlirContext c_ctx, void* while_o
 }
 
 void alkyl_mlir_build_scf_while_end(AlkylMlirContext c_ctx, void* while_op_ptr) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || !while_op_ptr) return;
     CfgLoopBlocks *loop = reinterpret_cast<CfgLoopBlocks*>(while_op_ptr);
@@ -700,6 +711,7 @@ void alkyl_mlir_build_scf_while_end(AlkylMlirContext c_ctx, void* while_op_ptr) 
 }
 
 void alkyl_mlir_build_scf_break(AlkylMlirContext c_ctx) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || loop_stack.empty()) return;
     CfgLoopBlocks *loop = loop_stack.back();
@@ -712,6 +724,7 @@ void alkyl_mlir_build_scf_break(AlkylMlirContext c_ctx) {
 }
 
 void alkyl_mlir_build_scf_continue(AlkylMlirContext c_ctx) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || loop_stack.empty()) return;
     CfgLoopBlocks *loop = loop_stack.back();
@@ -724,6 +737,8 @@ void alkyl_mlir_build_scf_continue(AlkylMlirContext c_ctx) {
 }
 
 void* alkyl_mlir_build_switch_start(AlkylMlirContext c_ctx, AlkylMlirValue cond, int num_cases) {
+    (void)num_cases;
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder) return nullptr;
     auto state = new SwitchState();
@@ -742,6 +757,7 @@ void* alkyl_mlir_build_switch_start(AlkylMlirContext c_ctx, AlkylMlirValue cond,
 }
 
 void alkyl_mlir_build_switch_set_cond_insertion(AlkylMlirContext c_ctx, void* switch_op_ptr) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || !switch_op_ptr) return;
     auto state = static_cast<SwitchState*>(switch_op_ptr);
@@ -752,6 +768,8 @@ void alkyl_mlir_build_switch_set_cond_insertion(AlkylMlirContext c_ctx, void* sw
 }
 
 void alkyl_mlir_build_switch_case_start(AlkylMlirContext c_ctx, void* switch_op_ptr, AlkylMlirValue val, int is_leak) {
+    (void)is_leak;
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || !switch_op_ptr) return;
     auto state = static_cast<SwitchState*>(switch_op_ptr);
@@ -799,6 +817,8 @@ void alkyl_mlir_build_switch_case_start(AlkylMlirContext c_ctx, void* switch_op_
 }
 
 void alkyl_mlir_build_switch_case_end(AlkylMlirContext c_ctx, void* switch_op_ptr, int is_leak) {
+    (void)is_leak;
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || !switch_op_ptr) return;
     auto state = static_cast<SwitchState*>(switch_op_ptr);
@@ -813,6 +833,7 @@ void alkyl_mlir_build_switch_case_end(AlkylMlirContext c_ctx, void* switch_op_pt
 }
 
 void alkyl_mlir_build_switch_default_start(AlkylMlirContext c_ctx, void* switch_op_ptr) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || !switch_op_ptr) return;
     auto state = static_cast<SwitchState*>(switch_op_ptr);
@@ -840,6 +861,7 @@ void alkyl_mlir_build_switch_default_start(AlkylMlirContext c_ctx, void* switch_
 }
 
 void alkyl_mlir_build_switch_default_end(AlkylMlirContext c_ctx, void* switch_op_ptr) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || !switch_op_ptr) return;
     auto state = static_cast<SwitchState*>(switch_op_ptr);
@@ -850,6 +872,7 @@ void alkyl_mlir_build_switch_default_end(AlkylMlirContext c_ctx, void* switch_op
 }
 
 void alkyl_mlir_build_switch_end(AlkylMlirContext c_ctx, void* switch_op_ptr) {
+    (void)c_ctx;
 #ifdef HAS_MLIR
     if (!global_builder || !switch_op_ptr) return;
     auto state = static_cast<SwitchState*>(switch_op_ptr);

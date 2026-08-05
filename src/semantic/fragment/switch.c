@@ -133,7 +133,7 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
     SemScope *found_in_scope = NULL;
     SemSymbol *sym = sem_symbol_lookup(ctx, ref->name, &found_in_scope);
 
-    if (sym) {
+        if (sym) {
         if (!sym->is_pristine) {
             sym->type.is_tainted = 1;
         } else if (sym->must_pristine) {
@@ -141,6 +141,7 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
         }
 
         sem_set_node_type(ctx, node, sym->type);
+        ref->mangled_name = arena_strdup(ctx->compiler_ctx->arena, sym->mangled_name ? sym->mangled_name : sym->name);
 
         if (sym->kind == SYM_VAR && ctx->current_func_sym && ctx->current_func_sym->is_pure) {
             if (!sym->is_pure) {

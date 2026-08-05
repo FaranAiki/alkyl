@@ -197,7 +197,8 @@ long long metalir_vm_execute(MetalirVM *vm, AlirModule *module, AlirFunction *fu
                 } else {
                     fprintf(stderr, "Compile-time purge executed.\n");
                 }
-                exit(1);
+                ctx.should_return = 1;
+                ret_val = 0;
             }
 
             if (ctx.should_return) {

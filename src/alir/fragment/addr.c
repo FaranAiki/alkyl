@@ -387,6 +387,9 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
             VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
             t.ptr_depth++; // Make it a pointer type because it's an address
             ptr = alir_val_global(ctx->module, sym->mangled_name ? sym->mangled_name : vn->name, t);
+        } else if (sym && (sym->kind == SYM_TEMPLATE || sym->kind == SYM_NAMESPACE)) {
+            // Naked template or namespace reference. Just return 0 to avoid JIT panic.
+            return alir_const_int(ctx->module, 0);
         } else {
             return NULL; // Safety guard against unresolved allocas
         }

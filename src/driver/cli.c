@@ -158,7 +158,7 @@ int run_repl(void) {
             } else if (curr->type == NODE_META || curr->type == NODE_POSTMETA) {
 } else if (curr->type != NODE_NAMESPACE && curr->type != NODE_ROOT &&
                    curr->type != NODE_ENUM && curr->type != NODE_ERRNUM &&
-                   curr->type != NODE_IMPORT) {
+                   curr->type != NODE_IMPORT && curr->type != NODE_COMPOUND) {
                 VarType chk = sem_get_node_type(&r->sem, curr);
                 int is_type_sym = 0;
                 if ((chk.base == TYPE_NAMESPACE || chk.base == TYPE_CLASS) && curr->type == NODE_VAR_REF) {
