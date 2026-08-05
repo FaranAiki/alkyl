@@ -105,7 +105,7 @@ static ConstVal eval_const_unary(int op, ConstVal v, VarType type) {
     }
 
     switch (op) {
-        case ALIR_OP_NOT: res.int_val = ~v.int_val; break;
+        case ALIR_OP_NOT: res.int_val = type.base == TYPE_BOOL ? !v.int_val : ~v.int_val; break;
         default: res.is_const = 0; return res;
     }
     res.is_const = 1;

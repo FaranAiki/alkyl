@@ -115,28 +115,31 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                   fprintf(f, "        ");
                   if (inst->dest) {
                       alir_fprint_val(f, inst->dest);
-                      fprintf(f, " <- ");
+                      fprintf(f, " = ");
                   }
 
                   if (inst->op == ALIR_OP_ALLOCA && inst->dest) {
-                      fprintf(f, "alloc ");
+                      fprintf(f, "alloc[");
                       alir_fprint_type(f, inst->dest->type);
+                      fprintf(f, "]");
                       if (inst->op1) {
                         fprintf(f, " ");
                         alir_fprint_val(f, inst->op1);
                       }
                   }
                   else if (inst->op == ALIR_OP_STORE) {
-                      fprintf(f, "store ");
+                      if (inst->op2) alir_fprint_val(f, inst->op2);
+                      else fprintf(f, "undef");
+                      
+                      fprintf(f, " <-[");
                       if (inst->op1) {
                           alir_fprint_type(f, inst->op1->type);
-                          fprintf(f, " ");
-                          alir_fprint_val(f, inst->op1);
                       } else {
                           fprintf(f, "undef");
                       }
-                      fprintf(f, " -> ");
-                      if (inst->op2) alir_fprint_val(f, inst->op2);
+                      fprintf(f, "] ");
+                      
+                      if (inst->op1) alir_fprint_val(f, inst->op1);
                       else fprintf(f, "undef");
                   }
                   else if (inst->op == ALIR_OP_CONDI) {
@@ -151,23 +154,29 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                       else fprintf(f, "undef");
                       fprintf(f, " ");
                   }
-                  else {
-                      // [FIX] Add required typing to the instruction output
-                      // this is the getptr isn't
-                      fprintf(f, "%s ", alir_op_str(inst->op));
-
-                      if (inst->dest && inst->op != ALIR_OP_CALL) {
-                          alir_fprint_type(f, inst->dest->type);
-                          fprintf(f, " ");
-                      } else if (inst->op == ALIR_OP_RET && inst->op1) {
+                  else if (inst->op == ALIR_OP_RET) {
+                      fprintf(f, "-> [");
+                      if (inst->op1) {
                           alir_fprint_type(f, inst->op1->type);
-                          fprintf(f, " ");
+                          fprintf(f, "] ");
+                          alir_fprint_val(f, inst->op1);
+                      } else {
+                          fprintf(f, "void]");
                       }
+                  }
+                  else {
+                      fprintf(f, "%s", alir_op_str(inst->op));
+
+                      if (inst->dest) {
+                          fprintf(f, "[");
+                          alir_fprint_type(f, inst->dest->type);
+                          fprintf(f, "]");
+                      }
+                      
+                      fprintf(f, " ");
 
                       if (inst->op1) {
                           alir_fprint_val(f, inst->op1);
-                      } else if (inst->op == ALIR_OP_RET && !inst->op1) {
-                          fprintf(f, "void");
                       }
 
                       if (inst->op2) {
