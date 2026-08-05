@@ -203,8 +203,14 @@ void exec_link(Executor *e, LinkNode *ln, int is_repl) {
 // TODO make sure this is possible to use the
 // import std.print okay
 static void print_repl_value(VarType rt, long long result) {
-    if (rt.base == TYPE_VOID) {
+    if (rt.is_func_ptr) {
+        printf("-> %p (%s)\n", (void*)(intptr_t)result, sem_type_to_str(rt));
+    } else if (rt.base == TYPE_VOID && rt.ptr_depth == 0) {
         printf("-> (void)\n");
+    } else if (rt.base == TYPE_UNKNOWN && rt.ptr_depth == 0) {
+        printf("-> (unknown)\n");
+    } else if (rt.base == TYPE_BOOL && rt.ptr_depth == 0 && rt.array_size == 0) {
+        printf("-> %s (bool)\n", result ? "true" : "false");
     } else if (rt.base != TYPE_UNKNOWN) {
         if ((rt.base == TYPE_INT || rt.base == TYPE_LONG || rt.base == TYPE_LONG_LONG || rt.base == TYPE_UNSIGNED_INT || rt.base == TYPE_UNSIGNED_LONG || rt.base == TYPE_UNSIGNED_LONG_LONG) && rt.ptr_depth == 0 && rt.array_size == 0) {
             if (rt.is_unsigned || rt.base == TYPE_UNSIGNED_INT || rt.base == TYPE_UNSIGNED_LONG || rt.base == TYPE_UNSIGNED_LONG_LONG || rt.base == TYPE_UNSIGNED_CHAR)

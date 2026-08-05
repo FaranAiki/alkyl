@@ -392,6 +392,10 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         if (resolved) {
             node->mangled_name = resolved->mangled_name;
             sym = resolved; // Update sym to the resolved one
+            if (node->target && node->target->type == NODE_VAR_REF) {
+                ((VarRefNode*)node->target)->mangled_name = resolved->mangled_name;
+                sem_set_node_type(ctx, node->target, resolved->type);
+            }
         }
     }
 
@@ -497,6 +501,10 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                         if (resolved) {
                             node->mangled_name = resolved->mangled_name;
                             sym = resolved;
+                            if (node->target && node->target->type == NODE_VAR_REF) {
+                                ((VarRefNode*)node->target)->mangled_name = resolved->mangled_name;
+                                sem_set_node_type(ctx, node->target, resolved->type);
+                            }
                         }
                         sem_set_node_type(ctx, (ASTNode*)node, sym->type);
 

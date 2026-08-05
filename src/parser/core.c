@@ -476,19 +476,23 @@ VarType parse_type(Parser *p) {
                    char base_name[512];
                    snprintf(base_name, sizeof(base_name), "%s", full_type_name);
 
-                   if (p->current_token.type == TOKEN_LBRACKET) {
+                   if (p->current_token.type == TOKEN_LBRACKET || p->current_token.type == TOKEN_LT) {
                        char full_name[1024];
                        snprintf(full_name, sizeof(full_name), "%s", base_name);
 
-                       eat(p, TOKEN_LBRACKET);
+                       TokenType end_token = (p->current_token.type == TOKEN_LBRACKET) ? TOKEN_RBRACKET : TOKEN_GT;
+                       char start_char = (p->current_token.type == TOKEN_LBRACKET) ? '[' : '<';
+                       char end_char = (p->current_token.type == TOKEN_LBRACKET) ? ']' : '>';
+
+                       eat(p, p->current_token.type);
                        if (p->has_error) return (VarType){0};
                        size_t fn_len = strlen(full_name);
                        if (fn_len + 1 < sizeof(full_name)) {
-                           full_name[fn_len] = '[';
+                           full_name[fn_len] = start_char;
                            full_name[fn_len + 1] = '\0';
                        }
 
-                        while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) {
+                        while (p->current_token.type != end_token && p->current_token.type != TOKEN_EOF) {
                             fn_len = strlen(full_name);
                             if (fn_len + 1 < sizeof(full_name)) {
                                 const char *txt;
@@ -506,11 +510,11 @@ VarType parse_type(Parser *p) {
                             eat(p, p->current_token.type);
                             if (p->has_error) return (VarType){0};
                         }
-                       eat(p, TOKEN_RBRACKET);
+                       eat(p, end_token);
                        if (p->has_error) return (VarType){0};
                        fn_len = strlen(full_name);
                        if (fn_len + 1 < sizeof(full_name)) {
-                           full_name[fn_len] = ']';
+                           full_name[fn_len] = end_char;
                            full_name[fn_len + 1] = '\0';
                        }
                        t.class_name = parser_strdup(p, full_name);

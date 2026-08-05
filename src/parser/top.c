@@ -160,7 +160,14 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
   int col = p->current_token.col;
   (void)modifiers;
   eat(p, TOKEN_COMPOUND);
-  eat(p, TOKEN_LBRACKET);
+
+  TokenType end_token = TOKEN_RBRACKET;
+  if (p->current_token.type == TOKEN_LT) {
+      end_token = TOKEN_GT;
+      eat(p, TOKEN_LT);
+  } else {
+      eat(p, TOKEN_LBRACKET);
+  }
 
   int max_params = 16;
   char **type_params = parser_alloc_raw(p, sizeof(char*) * max_params);
@@ -168,15 +175,16 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
   int *num_allowed = parser_alloc_raw(p, sizeof(int) * max_params);
   int num_params = 0;
 
-  while (p->current_token.type != TOKEN_RBRACKET) { if (p->has_error) break;
+  while (p->current_token.type != end_token) { if (p->has_error) break;
       VarType *curr_allowed = NULL;
       int curr_num = 0;
       if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text && streq(p->current_token.text, "type")) {
           eat(p, TOKEN_IDENTIFIER);
-          if (p->current_token.type == TOKEN_LBRACKET) {
-              eat(p, TOKEN_LBRACKET);
+          if (p->current_token.type == TOKEN_LBRACKET || p->current_token.type == TOKEN_LT) {
+              TokenType inner_end_token = (p->current_token.type == TOKEN_LBRACKET) ? TOKEN_RBRACKET : TOKEN_GT;
+              eat(p, p->current_token.type);
               curr_allowed = parser_alloc_raw(p, sizeof(VarType) * 16);
-              while (p->current_token.type != TOKEN_RBRACKET && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
+              while (p->current_token.type != inner_end_token && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
                   curr_allowed[curr_num++] = parse_type(p);
                   if (p->current_token.type == TOKEN_COMMA) {
                       eat(p, TOKEN_COMMA);
@@ -184,7 +192,7 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
                       break;
                   }
               }
-              eat(p, TOKEN_RBRACKET);
+              eat(p, inner_end_token);
           }
       } else {
           parser_fail(p, "Expected 'type' keyword in compound");
@@ -209,7 +217,7 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
       }
   }
 
-  eat(p, TOKEN_RBRACKET);
+  eat(p, end_token);
 
   ASTNode *body = NULL;
   if (p->current_token.type == TOKEN_LBRACE) {

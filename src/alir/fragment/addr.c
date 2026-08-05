@@ -364,8 +364,18 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
 
     AlirValue *ptr = alir_gen_addr(ctx, (ASTNode*)vn);
     if (!ptr) {
-        // If it's a global function or global variable
         SemSymbol *sym = sem_symbol_lookup(ctx->sem, vn->name, NULL);
+        if (sym && vn->mangled_name) {
+            SemSymbol *s = sym;
+            while (s) {
+                if (s->mangled_name && streq(s->mangled_name, vn->mangled_name)) {
+                    sym = s;
+                    break;
+                }
+                s = s->overload_next;
+            }
+        }
+
         if (sym && sym->kind == SYM_FUNC) {
             VarType t = sem_get_node_type(ctx->sem, (ASTNode*)vn);
             // Function pointer type needs to be treated as a pointer

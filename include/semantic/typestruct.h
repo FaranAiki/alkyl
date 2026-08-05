@@ -58,6 +58,8 @@ typedef struct SemSymbol {
     bool must_pristine : 1; // Checker to see if it must pristine tagged as pristine 
     bool is_total : 1;
     bool must_total : 1;
+    bool is_partial : 1;
+    bool must_partial : 1;
     bool is_union : 1;
     
     // Attached error set (`errnum [...]`) for tainted functions.

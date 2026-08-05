@@ -212,15 +212,27 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             }
             set_loc(node, line, col);
         }
-        else if (p->current_token.type == TOKEN_LBRACKET && p->disable_space_call == 0 && (!p->current_token.has_space_before || p->in_space_separated_call > 0)) {
-            eat(p, TOKEN_LBRACKET);
+        else if ((p->current_token.type == TOKEN_LBRACKET || p->current_token.type == TOKEN_LT) && p->disable_space_call == 0 && (!p->current_token.has_space_before || p->in_space_separated_call > 0)) {
+            int is_lt = (p->current_token.type == TOKEN_LT);
+            int saved_pos = p->token_pos;
+            Token saved_tok = p->current_token;
+
+            eat(p, p->current_token.type);
+
+            if (is_lt && !is_type_start(p)) {
+                p->token_pos = saved_pos;
+                p->current_token = saved_tok;
+                break;
+            }
+
+            TokenType end_token = is_lt ? TOKEN_GT : TOKEN_RBRACKET;
 
             if (is_type_start(p)) {
                 int max_args = 16;
                 VarType *types = parser_alloc_raw(p, sizeof(VarType) * max_args);
                 int num_types = 0;
 
-                while (p->current_token.type != TOKEN_RBRACKET) { if (p->has_error) break;
+                while (p->current_token.type != end_token) { if (p->has_error) break;
                     if (num_types >= max_args) {
                         report_error(p->l, p->current_token, "Too many template type parameters");
                         break;
@@ -232,7 +244,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                         break;
                     }
                 }
-                eat(p, TOKEN_RBRACKET);
+                eat(p, end_token);
 
                 TemplateInstNode *ti = parser_alloc(p, sizeof(TemplateInstNode));
                 ti->base.type = NODE_TEMPLATE_INSTANTIATION;
@@ -242,7 +254,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                 node = (ASTNode*)ti;
             } else {
                 ASTNode *index = parse_expression(p);
-                eat(p, TOKEN_RBRACKET);
+                eat(p, end_token);
 
                 IndexAccessNode *aa = parser_alloc(p, sizeof(IndexAccessNode));
                 aa->base.type = NODE_INDEX_ACCESS;

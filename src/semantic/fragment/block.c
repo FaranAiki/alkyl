@@ -206,6 +206,9 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_WHILE: {
             WhileNode *wn = (WhileNode*)node;
             if (ctx->current_func_sym) {
+                if (ctx->current_func_sym->must_total) {
+                    sem_error(ctx, node, "Function '%s' is marked total but contains a while loop", ctx->current_func_sym->name);
+                }
                 ctx->current_func_sym->is_total = false;
             }
             sem_check_expr(ctx, wn->condition);
@@ -221,6 +224,9 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_LOOP: {
             LoopNode *ln = (LoopNode*)node;
             if (ctx->current_func_sym) {
+                if (ctx->current_func_sym->must_total) {
+                    sem_error(ctx, node, "Function '%s' is marked total but contains a loop", ctx->current_func_sym->name);
+                }
                 ctx->current_func_sym->is_total = false;
             }
             sem_check_expr(ctx, ln->iterations);
@@ -235,6 +241,9 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         }
         case NODE_FOR_IN: {
             if (ctx->current_func_sym) {
+                if (ctx->current_func_sym->must_total) {
+                    sem_error(ctx, node, "Function '%s' is marked total but contains a for-in loop", ctx->current_func_sym->name);
+                }
                 ctx->current_func_sym->is_total = false;
             }
             sem_check_for_in(ctx, node);

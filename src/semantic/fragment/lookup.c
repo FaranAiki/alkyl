@@ -248,7 +248,27 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
                     sem_check_expr(ctx, matched_args[i]);
                     VarType arg_t = sem_get_node_type(ctx, matched_args[i]);
                     if (!sem_types_are_compatible(ctx, p->type, arg_t)) { match = 0; break; }
-                    if (p->type.base == arg_t.base && p->type.ptr_depth == arg_t.ptr_depth) exact_matches++;
+                    if (p->type.base == arg_t.base && p->type.ptr_depth == arg_t.ptr_depth) {
+                        exact_matches += 100;
+                    } else if (is_numeric(p->type) && is_numeric(arg_t)) {
+                        int r_p = 0, r_a = 0;
+                        switch (p->type.base) {
+                            case TYPE_BOOL: r_p = 1; break; case TYPE_CHAR: r_p = 2; break; case TYPE_SHORT: r_p = 3; break;
+                            case TYPE_INT: r_p = 4; break; case TYPE_LONG: r_p = 5; break; case TYPE_LONG_LONG: r_p = 6; break;
+                            case TYPE_SINGLE: r_p = 7; break; case TYPE_DOUBLE: r_p = 8; break; case TYPE_LONG_DOUBLE: r_p = 9; break;
+                            default: break;
+                        }
+                        switch (arg_t.base) {
+                            case TYPE_BOOL: r_a = 1; break; case TYPE_CHAR: r_a = 2; break; case TYPE_SHORT: r_a = 3; break;
+                            case TYPE_INT: r_a = 4; break; case TYPE_LONG: r_a = 5; break; case TYPE_LONG_LONG: r_a = 6; break;
+                            case TYPE_SINGLE: r_a = 7; break; case TYPE_DOUBLE: r_a = 8; break; case TYPE_LONG_DOUBLE: r_a = 9; break;
+                            default: break;
+                        }
+                        if (r_p > r_a) exact_matches += 10;
+                        else exact_matches += 1;
+                    } else {
+                        exact_matches += 5;
+                    }
                 }
             }
 

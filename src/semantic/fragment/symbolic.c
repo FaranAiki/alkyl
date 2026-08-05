@@ -12,6 +12,8 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
     sym->has_explicit_pristine = fd->has_explicit_pristine;
     sym->is_total = fd->is_total;
     sym->must_total = fd->has_explicit_total;
+    sym->is_partial = fd->is_partial;
+    sym->must_partial = fd->has_explicit_partial;
     sym->is_flux = fd->is_flux;
     sym->is_macro = fd->is_macro;
     sym->node_ptr = node;

@@ -135,6 +135,8 @@ void apply_func_modifiers(FuncDefNode* node, int modifiers) {
 
     node->is_total = !(modifiers & MODIFIER_PARTIAL);
     node->has_explicit_total = (modifiers & MODIFIER_TOTAL) != 0;
+    node->is_partial = (modifiers & MODIFIER_PARTIAL) != 0;
+    node->has_explicit_partial = (modifiers & MODIFIER_PARTIAL) != 0;
 
 }
 

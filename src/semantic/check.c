@@ -492,7 +492,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                         }
                     }
                 }
-                if (!sem_types_are_compatible(ctx, cn->var_type, op_t)) {
+                if (!sem_types_are_castable(ctx, cn->var_type, op_t)) {
                     char *t1 = sem_type_to_str(op_t);
                     char *t2 = sem_type_to_str(cn->var_type);
                     sem_error(ctx, node, "Cannot cast '%s' to '%s' (types are not compatible)", t1, t2);

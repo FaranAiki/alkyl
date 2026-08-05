@@ -139,3 +139,4 @@ This is why this project is 60% written by AI, 40% written by myself. Although i
 # Why C, not C++, Rust, Zig?
 
 C is the lingua franca of languages. Moreover, C gives you a 100% permission over what you can. This is why Alkyl's basic syntax still looks like C even though many modern programmers use something like `x: int`, but Alkyl still uses `int x` because it is more "computer-like".
+Check docs/testing.md for details on testing scripts.

@@ -579,10 +579,24 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
     // casting char*, int* to void* or int* to void*
     if ((dest.base == TYPE_VOID && dest.ptr_depth > 0 && src.ptr_depth > 0) || (src.base == TYPE_VOID && src.ptr_depth > 0 && dest.ptr_depth > 0)) return true;
 
-    // allow casting between pointers and integers
+    // We shouldn't allow implicit casting between pointers and integers (except maybe for 0, but that needs to be handled via literals)
+
+    return false;
+}
+
+bool sem_types_are_castable(SemanticCtx *ctx, VarType dest, VarType src) {
+    if (sem_types_are_compatible(ctx, dest, src)) return true;
+    
+    int dest_is_num = (dest.base >= TYPE_INT && dest.base <= TYPE_LONG_DOUBLE);
+    int src_is_num = (src.base >= TYPE_INT && src.base <= TYPE_LONG_DOUBLE);
+    
+    // Explicit casts between pointer and integer
     if (dest_is_num && dest.ptr_depth == 0 && src.ptr_depth > 0) return true;
     if (src_is_num && src.ptr_depth == 0 && dest.ptr_depth > 0) return true;
-
+    
+    // Explicit casts between pointer and pointer (handled by void* implicitly usually, but explicit cast allows any pointer to any pointer)
+    if (dest.ptr_depth > 0 && src.ptr_depth > 0) return true;
+    
     return false;
 }
 
@@ -595,7 +609,7 @@ static void sem_type_to_str_rec(VarType t, char *buf, int max_len, int *pos) {
         } else {
             *pos += snprintf(buf + *pos, max_len - *pos, "void");
         }
-        *pos += snprintf(buf + *pos, max_len - *pos, "(*)(");
+        *pos += snprintf(buf + *pos, max_len - *pos, "(");
         if (t.fp_param_count > 0 || t.fp_is_varargs) {
             for (int i=0; i<t.fp_param_count; i++) {
                 if (i > 0) *pos += snprintf(buf + *pos, max_len - *pos, ", ");

@@ -1,0 +1,9 @@
+--- src/parser/core.c
++++ src/parser/core.c
+@@ -467,6 +467,7 @@
+            }
+ 
+            int kind = get_typename_kind(p, full_type_name);
++           printf("DEBUG: full_type_name=%s, kind=%d\n", full_type_name, kind);
+            if (kind != 0) {
+                if (kind == 2) {
