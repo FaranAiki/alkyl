@@ -1273,7 +1273,8 @@ ASTNode* parse_initializer(Parser *p, VarType vtype) {
         cnode->base.line = p->current_token.line;
         cnode->base.col = p->current_token.col;
         if (vtype.class_name) {
-            char *cls_name = parser_strdup(p, vtype.class_name);
+            char cls_name[1024];
+            snprintf(cls_name, sizeof(cls_name), "%s", vtype.class_name);
             char *bracket = strchr(cls_name, '[');
             if (bracket) {
                 *bracket = '\0';
