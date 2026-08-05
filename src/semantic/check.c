@@ -743,6 +743,9 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
         }
         case NODE_TEMPLATE_INSTANTIATION: {
             TemplateInstNode *ti = (TemplateInstNode*)node;
+            if (ti->is_evaluated) {
+                break;
+            }
             char target_name[256] = "";
             SemSymbol *sym = NULL;
             SemScope *found_in_scope = NULL;
@@ -941,6 +944,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     ti->target = (ASTNode*)new_vr;
                 }
             }
+            ti->is_evaluated = 1;
             break;
         }
         default: break;

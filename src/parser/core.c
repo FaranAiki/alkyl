@@ -96,8 +96,24 @@ int is_type_start(Parser *p) {
         ct == TOKEN_KW_VOID || ct == TOKEN_KW_BOOL || ct == TOKEN_KW_UNSIGNED || ct == TOKEN_KW_SIGNED) {
         return 1;
     }
-    if (ct == TOKEN_IDENTIFIER && is_typename(p, p->current_token.text)) {
-        return 1;
+    if (ct == TOKEN_IDENTIFIER) {
+        if (is_typename(p, p->current_token.text)) {
+            return 1;
+        }
+        
+        // Peek ahead for namespaced types e.g. std.string
+        Lexer l_copy = *p->l;
+        Token next1 = lexer_next(&l_copy);
+        if (next1.type == TOKEN_DOT) {
+            Token next2 = lexer_next(&l_copy);
+            if (next2.type == TOKEN_IDENTIFIER) {
+                char full_name[512];
+                snprintf(full_name, sizeof(full_name), "%s.%s", p->current_token.text, next2.text);
+                if (is_typename(p, full_name)) {
+                    return 1;
+                }
+            }
+        }
     }
     return 0;
 }

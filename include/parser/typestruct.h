@@ -266,6 +266,7 @@ typedef struct {
   ASTNode *target;
   VarType *template_types;
   int num_template_types;
+  bool is_evaluated : 1;
 } TemplateInstNode;
 
 typedef struct {

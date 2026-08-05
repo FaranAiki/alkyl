@@ -165,12 +165,18 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
 
             obj->next = args;
 
+            VarRefNode *vr = arena_alloc_type(ctx->compiler_ctx->arena, VarRefNode);
+            vr->base.type = NODE_VAR_REF;
+            vr->base.line = node->base.line;
+            vr->base.col = node->base.col;
+            vr->name = meth;
+
             CallNode *call = (CallNode*)node;
             call->base.type = NODE_CALL;
             call->name = meth;
             call->mangled_name = NULL;
             call->args = obj;
-            call->target = NULL;
+            call->target = (ASTNode*)vr;
 
             extern void sem_check_call(SemanticCtx *ctx, CallNode *node);
             sem_check_call(ctx, call);
@@ -252,6 +258,24 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
     sem_scope_exit(ctx);
 
     ctx->current_func_sym = old_func;
+}
+
+#include <string.h>
+
+static int get_type_rank(VarType t) {
+    if (t.ptr_depth > 0 || t.array_size > 0 || t.array_depth > 0) return 100;
+    switch (t.base) {
+        case TYPE_BOOL: return 1;
+        case TYPE_CHAR: return 2;
+        case TYPE_SHORT: return 3;
+        case TYPE_INT: return 4;
+        case TYPE_LONG: return 5;
+        case TYPE_LONG_LONG: return 6;
+        case TYPE_SINGLE: return 7;
+        case TYPE_DOUBLE: return 8;
+        case TYPE_LONG_DOUBLE: return 9;
+        default: return 0;
+    }
 }
 
 void sem_check_call(SemanticCtx *ctx, CallNode *node) {
@@ -383,7 +407,19 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                                 inferred_flags[i] = 1;
                             } else {
                                 if (!sem_types_are_equal(inferred_types[i], arg_t)) {
-                                    deduction_failed = 1;
+                                    if (sem_types_are_compatible(ctx, inferred_types[i], arg_t) && sem_types_are_compatible(ctx, arg_t, inferred_types[i])) {
+                                        int rank_inf = get_type_rank(inferred_types[i]);
+                                        int rank_arg = get_type_rank(arg_t);
+                                        if (rank_arg > rank_inf) {
+                                            inferred_types[i] = arg_t;
+                                        }
+                                    } else if (sem_types_are_compatible(ctx, inferred_types[i], arg_t)) {
+                                        // Keep inferred_types[i]
+                                    } else if (sem_types_are_compatible(ctx, arg_t, inferred_types[i])) {
+                                        inferred_types[i] = arg_t;
+                                    } else {
+                                        deduction_failed = 1;
+                                    }
                                 }
                             }
                             break;
