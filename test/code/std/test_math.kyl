@@ -1,0 +1,11 @@
+import "std/math";
+
+int main() {
+    if cos(pi) > -0.99 then return 1;
+    if sin(0) != 0 then return 2;
+
+    if cos(0) != 1 then return 3;
+    if sin(pi) > 0.001 || sin(pi) < -0.001 then return 4;
+
+    return 0;
+}

@@ -546,6 +546,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
            if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
        }
        eat(p, TOKEN_RBRACE);
+       if (p->current_token.type == TOKEN_EOF) return NULL;
        return parse_top_level(p);
    }
 
@@ -592,6 +593,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
               if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
           }
           eat(p, TOKEN_RBRACKET);
+          if (p->current_token.type == TOKEN_EOF) return NULL;
           return parse_top_level(p); // parse the decorated element
       }
 
