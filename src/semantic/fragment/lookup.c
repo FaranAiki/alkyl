@@ -253,16 +253,30 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
                     } else if (is_numeric(p->type) && is_numeric(arg_t)) {
                         int r_p = 0, r_a = 0;
                         switch (p->type.base) {
-                            case TYPE_BOOL: r_p = 1; break; case TYPE_CHAR: r_p = 2; break; case TYPE_SHORT: r_p = 3; break;
-                            case TYPE_INT: r_p = 4; break; case TYPE_LONG: r_p = 5; break; case TYPE_LONG_LONG: r_p = 6; break;
-                            case TYPE_SINGLE: r_p = 7; break; case TYPE_DOUBLE: r_p = 8; break; case TYPE_LONG_DOUBLE: r_p = 9; break;
-                            default: break;
+                            case TYPE_BOOL: r_p = 1; break; 
+                            case TYPE_CHAR: case TYPE_UNSIGNED_CHAR: r_p = 2; break; 
+                            case TYPE_SHORT: r_p = 3; break;
+                            case TYPE_INT: case TYPE_UNSIGNED_INT: case TYPE_ENUM: r_p = 4; break; 
+                            case TYPE_LONG: case TYPE_UNSIGNED_LONG: r_p = 5; break; 
+                            case TYPE_LONG_LONG: case TYPE_UNSIGNED_LONG_LONG: r_p = 6; break;
+                            case TYPE_SINGLE: r_p = 7; break; 
+                            case TYPE_DOUBLE: r_p = 8; break; 
+                            case TYPE_LONG_DOUBLE: r_p = 9; break;
+                            case TYPE_VOID: case TYPE_ARRAY: case TYPE_AUTO: case TYPE_CLASS: 
+                            case TYPE_NAMESPACE: case TYPE_ERROR: case TYPE_UNKNOWN: break;
                         }
                         switch (arg_t.base) {
-                            case TYPE_BOOL: r_a = 1; break; case TYPE_CHAR: r_a = 2; break; case TYPE_SHORT: r_a = 3; break;
-                            case TYPE_INT: r_a = 4; break; case TYPE_LONG: r_a = 5; break; case TYPE_LONG_LONG: r_a = 6; break;
-                            case TYPE_SINGLE: r_a = 7; break; case TYPE_DOUBLE: r_a = 8; break; case TYPE_LONG_DOUBLE: r_a = 9; break;
-                            default: break;
+                            case TYPE_BOOL: r_a = 1; break; 
+                            case TYPE_CHAR: case TYPE_UNSIGNED_CHAR: r_a = 2; break; 
+                            case TYPE_SHORT: r_a = 3; break;
+                            case TYPE_INT: case TYPE_UNSIGNED_INT: case TYPE_ENUM: r_a = 4; break; 
+                            case TYPE_LONG: case TYPE_UNSIGNED_LONG: r_a = 5; break; 
+                            case TYPE_LONG_LONG: case TYPE_UNSIGNED_LONG_LONG: r_a = 6; break;
+                            case TYPE_SINGLE: r_a = 7; break; 
+                            case TYPE_DOUBLE: r_a = 8; break; 
+                            case TYPE_LONG_DOUBLE: r_a = 9; break;
+                            case TYPE_VOID: case TYPE_ARRAY: case TYPE_AUTO: case TYPE_CLASS: 
+                            case TYPE_NAMESPACE: case TYPE_ERROR: case TYPE_UNKNOWN: break;
                         }
                         if (r_p > r_a) exact_matches += 10;
                         else exact_matches += 1;
