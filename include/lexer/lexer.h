@@ -292,7 +292,6 @@ static const KeywordDef keywords[] = {
     {"extern", TOKEN_EXTERN},
     {"false", TOKEN_FALSE},
     {"final", TOKEN_FINAL},
-    {"float", TOKEN_KW_SINGLE},
     {"flux", TOKEN_FLUX},
     {"for", TOKEN_FOR},
     {"frame", TOKEN_FRAME},

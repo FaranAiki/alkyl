@@ -329,15 +329,14 @@ void parser_fail(Parser *p, const char *msg) {
 }
 
 void parser_sync(Parser *p) {
+    p->has_error = 0; // Clear error so eat() can consume tokens
     while (p->current_token.type != TOKEN_EOF) {
         if (p->current_token.type == TOKEN_SEMICOLON) {
             eat_semi(p);
-            if (p->has_error) return;
             return;
         }
         if (p->current_token.type == TOKEN_RBRACE) {
             eat(p, TOKEN_RBRACE);
-            if (p->has_error) return;
             return;
         }
         switch (p->current_token.type) {
@@ -358,7 +357,7 @@ void parser_sync(Parser *p) {
                 return;
             default:
                 eat(p, p->current_token.type);
-                if (p->has_error) return;
+                p->has_error = 0;
                 break;
         }
     }
