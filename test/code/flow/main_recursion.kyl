@@ -1,0 +1,7 @@
+import "std/print";
+
+int main(int argc, char **argv) {
+    print argv[argc - 1], "\n";
+    if argc == 2 then return 0;
+    main(argc - 1, argv);
+}

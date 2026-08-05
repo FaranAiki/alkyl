@@ -1,0 +1,12 @@
+import "std/print";
+
+partial int recurse_me(int i) {
+    print "Hello I am ", i, "!\n";
+    if i == 0 then return 0;
+    recurse_me(i - 1);
+}
+
+int main() {
+    recurse_me(100);
+    return 0;
+}
