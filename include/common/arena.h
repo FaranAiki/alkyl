@@ -12,9 +12,16 @@ typedef struct ArenaBlock {
 } ArenaBlock;
 
 typedef struct {
+    const char **strings;
+    size_t capacity;
+    size_t count;
+} ArenaInterner;
+
+typedef struct {
     ArenaBlock *head;
     ArenaBlock *current;
     size_t default_block_size;
+    ArenaInterner interner;
 } Arena;
 
 // Initialize the arena

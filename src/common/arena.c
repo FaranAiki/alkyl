@@ -17,6 +17,12 @@ void arena_init(Arena *a) {
         a->head = NULL;
         a->current = NULL;
         a->default_block_size = ARENA_BLOCK_SIZE;
+        a->interner.capacity = 1024;
+        a->interner.count = 0;
+        a->interner.strings = (const char**)malloc(sizeof(const char*) * 1024);
+        if (a->interner.strings) {
+            memset(a->interner.strings, 0, sizeof(const char*) * 1024);
+        }
     }
 }
 
@@ -82,24 +88,79 @@ void arena_free(Arena *a) {
     }
     a->head = NULL;
     a->current = NULL;
+    if (a->interner.strings) {
+        free(a->interner.strings);
+        a->interner.strings = NULL;
+    }
+}
+
+static uint32_t hash_str(const char *str, size_t len) {
+    uint32_t hash = 2166136261u;
+    for (size_t i = 0; i < len; i++) {
+        hash ^= (uint8_t)str[i];
+        hash *= 16777619;
+    }
+    return hash;
+}
+
+static const char* intern_string(Arena *a, const char *str, size_t len) {
+    if (!a || !a->interner.strings) {
+        char *new_str = (char*)arena_alloc(a, len + 1);
+        if (new_str) {
+            memcpy(new_str, str, len);
+            new_str[len] = '\0';
+        }
+        return new_str;
+    }
+
+    if (a->interner.count * 2 >= a->interner.capacity) {
+        size_t old_cap = a->interner.capacity;
+        const char **old_strings = a->interner.strings;
+        
+        a->interner.capacity = old_cap ? old_cap * 2 : 1024;
+        a->interner.strings = (const char**)calloc(a->interner.capacity, sizeof(const char*));
+        a->interner.count = 0;
+        
+        if (old_strings) {
+            for (size_t i = 0; i < old_cap; i++) {
+                if (old_strings[i]) {
+                    uint32_t h = hash_str(old_strings[i], strlen(old_strings[i])) & (a->interner.capacity - 1);
+                    while (a->interner.strings[h]) {
+                        h = (h + 1) & (a->interner.capacity - 1);
+                    }
+                    a->interner.strings[h] = old_strings[i];
+                    a->interner.count++;
+                }
+            }
+            free(old_strings);
+        }
+    }
+
+    uint32_t h = hash_str(str, len) & (a->interner.capacity - 1);
+    while (a->interner.strings[h]) {
+        const char *existing = a->interner.strings[h];
+        if (strncmp(existing, str, len) == 0 && existing[len] == '\0') {
+            return existing;
+        }
+        h = (h + 1) & (a->interner.capacity - 1);
+    }
+
+    char *new_str = (char*)arena_alloc(a, len + 1);
+    if (new_str) {
+        memcpy(new_str, str, len);
+        new_str[len] = '\0';
+        a->interner.strings[h] = new_str;
+        a->interner.count++;
+    }
+    return new_str;
 }
 
 char* arena_strdup(Arena *a, const char *str) {
     if (!str) return NULL;
-    size_t len = strlen(str);
-    char *new_str = (char*)arena_alloc(a, len + 1);
-    if (new_str) {
-        strcpy(new_str, str);
-    }
-    return new_str;
+    return (char*)intern_string(a, str, strlen(str));
 }
 
 char* arena_strndup(Arena *a, const char *str, size_t len) {
     if (!str) return NULL;
-    char *new_str = (char*)arena_alloc(a, len + 1);
-    if (new_str) {
-        strncpy(new_str, str, len);
-        new_str[len] = '\0';
-    }
-    return new_str;
+    return (char*)intern_string(a, str, len);
 }
