@@ -31,6 +31,8 @@
 #define MODIFIER_CONTAINER (1 << 19)
 #define MODIFIER_FRAME     (1 << 20)
 #define MODIFIER_META      (1 << 21)
+#define MODIFIER_TOTAL     (1 << 22)
+#define MODIFIER_PARTIAL   (1 << 23)
 
 int parse_modifiers(Parser* p);
 void apply_class_modifiers(ClassNode* node, int modifiers);

@@ -1,0 +1,25 @@
+partial int some_partial_func() {
+    return 1;
+}
+
+int another_partial_func() {
+    while (1) {
+    }
+    return 2;
+}
+
+int some_total_func() {
+    return 3;
+}
+
+total int force_total_func() {
+    return 4;
+}
+
+total int force_total_error() {
+    return some_partial_func();
+}
+
+int main() {
+    return 0;
+}

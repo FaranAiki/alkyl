@@ -94,6 +94,8 @@ typedef enum {
   TOKEN_TAINTED,
   TOKEN_CLEAN,
   TOKEN_PRISTINE,
+  TOKEN_PARTIAL,
+  TOKEN_TOTAL,
 
   // goated compo
   TOKEN_CLASS,
@@ -324,6 +326,7 @@ static const KeywordDef keywords[] = {
     {"not", TOKEN_NOT},
     {"once", TOKEN_ONCE},
     {"open", TOKEN_OPEN},
+    {"partial", TOKEN_PARTIAL},
     {"postmeta", TOKEN_POSTMETA},
     {"pragma", TOKEN_PRAGMA},
     {"prefop", TOKEN_PREFOP},
@@ -350,6 +353,7 @@ static const KeywordDef keywords[] = {
     {"switch", TOKEN_SWITCH},
     {"tainted", TOKEN_TAINTED},
     {"then", TOKEN_THEN},
+    {"total", TOKEN_TOTAL},
     {"true", TOKEN_TRUE},
     {"typedef", TOKEN_TYPEDEF},
     {"typeof", TOKEN_TYPEOF},

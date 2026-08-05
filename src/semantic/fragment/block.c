@@ -205,6 +205,9 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         }
         case NODE_WHILE: {
             WhileNode *wn = (WhileNode*)node;
+            if (ctx->current_func_sym) {
+                ctx->current_func_sym->is_total = false;
+            }
             sem_check_expr(ctx, wn->condition);
             ctx->in_loop++;
 
@@ -217,6 +220,9 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         }
         case NODE_LOOP: {
             LoopNode *ln = (LoopNode*)node;
+            if (ctx->current_func_sym) {
+                ctx->current_func_sym->is_total = false;
+            }
             sem_check_expr(ctx, ln->iterations);
             ctx->in_loop++;
 
@@ -228,6 +234,9 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             break;
         }
         case NODE_FOR_IN: {
+            if (ctx->current_func_sym) {
+                ctx->current_func_sym->is_total = false;
+            }
             sem_check_for_in(ctx, node);
             break;
         }

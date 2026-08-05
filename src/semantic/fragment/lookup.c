@@ -44,6 +44,13 @@ int sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                         }
                     }
 
+                    if (ctx->current_func_sym && ctx->current_func_sym->is_total) {
+                        if (member->kind == SYM_FUNC && !member->is_total) {
+                            if (ctx->current_func_sym->must_total) sem_error(ctx, (ASTNode*)node, "Total function '%s' cannot call partial method '%s'", ctx->current_func_sym->name, member->name);
+                            ctx->current_func_sym->is_total = false;
+                        }
+                    }
+
                     if (member->kind == SYM_FUNC && !member->is_pristine) {
                         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
                     }

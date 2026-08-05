@@ -21,6 +21,8 @@ int parse_modifiers(Parser* p) {
             case TOKEN_TAINTED: modifiers |= MODIFIER_TAINTED; eat(p, TOKEN_TAINTED); break;
             case TOKEN_COVALENT: modifiers |= MODIFIER_COVALENT; eat(p, TOKEN_COVALENT); break;
             case TOKEN_ABSTRACT: modifiers |= MODIFIER_ABSTRACT; eat(p, TOKEN_ABSTRACT); break;
+            case TOKEN_PARTIAL: modifiers |= MODIFIER_PARTIAL; eat(p, TOKEN_PARTIAL); break;
+            case TOKEN_TOTAL: modifiers |= MODIFIER_TOTAL; eat(p, TOKEN_TOTAL); break;
             case TOKEN_EXACT: modifiers |= MODIFIER_EXACT; eat(p, TOKEN_EXACT); break;
             case TOKEN_PRAGMA: modifiers |= MODIFIER_PRAGMA; eat(p, TOKEN_PRAGMA); break;
             case TOKEN_METHOD: modifiers |= MODIFIER_METHOD; eat(p, TOKEN_METHOD); break;
@@ -131,6 +133,8 @@ void apply_func_modifiers(FuncDefNode* node, int modifiers) {
     }
     node->has_explicit_pristine = (modifiers & MODIFIER_PRISTINE) != 0;
 
+    node->is_total = !(modifiers & MODIFIER_PARTIAL);
+    node->has_explicit_total = (modifiers & MODIFIER_TOTAL) != 0;
 
 }
 

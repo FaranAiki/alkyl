@@ -1,6 +1,8 @@
-int(int) a;
+int fun(int a) {
+    return a - 5;
+}
 
 int main() {
-    int result = a(5);
-    return 0;
+    int(int) a = fun;
+    return a(5);
 }

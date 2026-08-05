@@ -159,6 +159,8 @@ typedef struct {
   bool has_explicit_pure : 1;
   bool is_pristine : 1;
   bool has_explicit_pristine : 1;
+  bool is_total : 1;
+  bool has_explicit_total : 1;
   bool is_extern : 1;
   bool has_body : 1;
   bool is_covalent : 1;

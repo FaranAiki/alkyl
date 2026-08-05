@@ -273,6 +273,8 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_IMPURE: return "impure";
         case TOKEN_TAINTED: return "tainted";
         case TOKEN_CLEAN: return "clean";
+        case TOKEN_PARTIAL: return "partial";
+        case TOKEN_TOTAL: return "total";
 
         case TOKEN_TYPEOF: return "typeof";
         case TOKEN_HASMETHOD: return "hasmethod";

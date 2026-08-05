@@ -86,6 +86,30 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
 
             if (!func) break;
             
+            if (LLVMGetValueKind(func) != LLVMFunctionValueKind) {
+                // TODO(Safety): Null Pointer Safety Check for indirect calls
+                // If uncommented, this introduces a slight overhead but prevents SIGSEGV.
+                /*
+                LLVMValueRef is_not_null = LLVMBuildIsNotNull(ctx->builder, func, "func_not_null");
+                LLVMBasicBlockRef current_bb = LLVMGetInsertBlock(ctx->builder);
+                LLVMValueRef current_func = LLVMGetBasicBlockParent(current_bb);
+                LLVMBasicBlockRef ok_bb = LLVMAppendBasicBlockInContext(ctx->llvm_ctx, current_func, "call_ok");
+                LLVMBasicBlockRef err_bb = LLVMAppendBasicBlockInContext(ctx->llvm_ctx, current_func, "call_err");
+                
+                LLVMBuildCondBr(ctx->builder, is_not_null, ok_bb, err_bb);
+                
+                LLVMPositionBuilderAtEnd(ctx->builder, err_bb);
+                LLVMTypeRef abort_type = LLVMFunctionType(LLVMVoidTypeInContext(ctx->llvm_ctx), NULL, 0, 0);
+                LLVMValueRef abort_func = LLVMGetNamedFunction(ctx->llvm_mod, "abort");
+                if (!abort_func) {
+                    abort_func = LLVMAddFunction(ctx->llvm_mod, "abort", abort_type);
+                }
+                LLVMBuildCall2(ctx->builder, abort_type, abort_func, NULL, 0, "");
+                LLVMBuildUnreachable(ctx->builder);
+                
+                LLVMPositionBuilderAtEnd(ctx->builder, ok_bb);
+                */
+            }
             int __args_sz = inst->arg_count > 0 ? inst->arg_count : 1; LLVMValueRef args[__args_sz];
             unsigned num_params = LLVMCountParamTypes(func_ty);
             int __pn_sz = num_params > 0 ? num_params : 1; LLVMTypeRef param_tys[__pn_sz];

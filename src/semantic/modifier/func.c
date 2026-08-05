@@ -48,6 +48,15 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                         }
                     }
 
+                    if (ctx->current_func_sym && ctx->current_func_sym->is_total) {
+                        if (member->kind == SYM_FUNC && !member->is_total) {
+                            if (ctx->current_func_sym->must_total) {
+                                sem_error(ctx, (ASTNode*)node, "Total function '%s' cannot call partial method '%s'", ctx->current_func_sym->name, member->name);
+                            }
+                            ctx->current_func_sym->is_total = false;
+                        }
+                    }
+
                     if (member->kind == SYM_FUNC && !member->is_pristine) {
                         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
                     }
@@ -360,6 +369,15 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                 }
             }
             ctx->current_func_sym->is_pure = false;
+        }
+    }
+
+    if (ctx->current_func_sym && ctx->current_func_sym->is_total) {
+        if (!sym->is_total && sym->kind == SYM_FUNC) {
+            if (ctx->current_func_sym->must_total) {
+                sem_error(ctx, (ASTNode*)node, "Total function '%s' cannot call partial function '%s'", ctx->current_func_sym->name, sym->name);
+            }
+            ctx->current_func_sym->is_total = false;
         }
     }
 
