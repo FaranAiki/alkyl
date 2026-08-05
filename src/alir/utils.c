@@ -19,7 +19,7 @@ void emit(AlirCtx *ctx, AlirInst *i) {
         i->col = ctx->current_col;
     }
     if (ctx->current_func && streq(ctx->current_func->name, "main")) {
-         debug_any("func=%s op=%d dest_kind=%d dest_type_base=%d op1_kind=%d op1_type_base=%d\n",
+         debug_alir("func=%s op=%d dest_kind=%d dest_type_base=%d op1_kind=%d op1_type_base=%d\n",
              ctx->current_func->name,
              (int)(i ? i->op : 0),
              (int)(i && i->dest ? i->dest->kind : 0),

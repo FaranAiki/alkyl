@@ -57,7 +57,7 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
     if (glob_sym && glob_sym->kind == SYM_VAR) {
         VarType t = sem_get_node_type(ctx->sem, node);
         t.ptr_depth++;
-        debug_any("GLOBAL VAR ADDR: %s\n", vn->name); return alir_val_global(ctx->module, glob_sym->mangled_name ? glob_sym->mangled_name : vn->name, t);
+        debug_alir("GLOBAL VAR ADDR: %s\n", vn->name); return alir_val_global(ctx->module, glob_sym->mangled_name ? glob_sym->mangled_name : vn->name, t);
     }
 
     // Implicit this indexing
@@ -376,7 +376,7 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
                 *ptr_type.fp_ret_type = t;
                 t = ptr_type;
             }
-            debug_any("GLOBAL VAR ADDR: %s\n", vn->name); return alir_val_global(ctx->module, sym->mangled_name ? sym->mangled_name : vn->name, t);
+            debug_alir("GLOBAL VAR ADDR: %s\n", vn->name); return alir_val_global(ctx->module, sym->mangled_name ? sym->mangled_name : vn->name, t);
                 } else if (sym && sym->kind == SYM_CLASS) {
             unsigned int hash = 5381;
             char *str = sym->name;

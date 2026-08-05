@@ -178,7 +178,7 @@ void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
     while(n) {
         if (n->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)n;
-            debug_any("Visiting class %s\n", cn->name);
+            debug_alir("Visiting class %s\n", cn->name);
             char *fqn = cn->name;
             if (current_ns && strlen(current_ns) > 0) {
                 char buf[512];
@@ -567,7 +567,7 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
             }
         } else if (curr->type == NODE_VAR_DECL) {
             VarDeclNode *vd = (VarDeclNode*)curr;
-            debug_any("Found top-level VAR_DECL %s\n", vd->name);
+            debug_alir("Found top-level VAR_DECL %s\n", vd->name);
             AlirGlobal *g = alir_alloc(ctx->module, sizeof(AlirGlobal));
             g->name = alir_strdup(ctx->module, vd->name);
             g->type = vd->var_type;
@@ -596,7 +596,7 @@ AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
     // 1. SCAN AND REGISTER CLASSES & ENUMS
     alir_scan_and_register_classes(&ctx, root);
 
-    debug_any("DEBUG_PASS1_END: struct list:\n");
+    debug_alir("DEBUG_PASS1_END: struct list:\n");
     fflush(stdout);
     AlirStruct *ds = ctx.module->structs;
     while (ds) {

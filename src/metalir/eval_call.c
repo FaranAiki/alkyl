@@ -14,7 +14,7 @@ void vm_eval_call(VMContext *ctx, AlirInst *inst) {
 case ALIR_OP_CALL: {
                     if (inst->op1 && (inst->op1->kind == ALIR_VAL_VAR || inst->op1->kind == ALIR_VAL_GLOBAL)) {
                         if (inst->op1->val.str_val) {
-                            debug_any("VM CALL: %s\n", inst->op1->val.str_val);
+                            debug_metalir("VM CALL: %s\n", inst->op1->val.str_val);
                         }
                         if (inst->op1->val.str_val && streq(inst->op1->val.str_val, "print")) {
                             for (int i = 0; i < inst->arg_count; i++) {
@@ -82,7 +82,7 @@ case ALIR_OP_CALL: {
                                 }
 
                                 if (streq(inst->op1->val.str_val, "malloc")) {
-                                    debug_any("DLSYM MALLOC: %p\n", func_ptr);
+                                    debug_metalir("DLSYM MALLOC: %p\n", func_ptr);
                                 }
 
                                 if (func_ptr) {
@@ -170,7 +170,7 @@ case ALIR_OP_CALL: {
                                         }
                                         ffi_call(&cif, func_ptr, rc, arg_values);
                                         if (streq(inst->op1->val.str_val, "malloc")) {
-                                            debug_any("MALLOC FFI RETURN: %lld\n", rc_int);
+                                            debug_metalir("MALLOC FFI RETURN: %lld\n", rc_int);
                                         }
                                         if (inst->dest) {
                                             if (inst->dest->type.base == TYPE_DOUBLE) ctx->registers[inst->dest->temp_id].as.single_val = rc_double;

@@ -55,6 +55,10 @@
   #define debug_lexer(msg, ...) debug_any("lexer: " msg, ##__VA_ARGS__)
   #define debug_codegen(msg, ...) debug_any("codegen: " msg, ##__VA_ARGS__)
   #define debug_semantic(msg, ...) debug_any("semantic: " msg, ##__VA_ARGS__)
+  #define debug_metalir(msg, ...) debug_any("metalir: " msg, ##__VA_ARGS__)
+  #define debug_mlir(msg, ...) debug_any("mlir: " msg, ##__VA_ARGS__)
+  #define debug_optlir(msg, ...) debug_any("optlir: " msg, ##__VA_ARGS__)
+  #define debug_driver(msg, ...) debug_any("driver: " msg, ##__VA_ARGS__)
 #else
   #define debug_any(msg, ...)
   #define debug_parser(msg, ...)
@@ -63,6 +67,10 @@
   #define debug_lexer(msg, ...)
   #define debug_codegen(msg, ...)
   #define debug_semantic(msg, ...)
+  #define debug_metalir(msg, ...)
+  #define debug_mlir(msg, ...)
+  #define debug_optlir(msg, ...)
+  #define debug_driver(msg, ...)
 #endif // NDEBUG
 
 #endif // COMPILER_DEBUG_H

@@ -69,7 +69,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
         }
     }
 
-    debug_any("alir_gen_function_def fn->name=%s class_name=%s fn->mangled_name=%s -> func_name=%s\n", fn->name, class_name ? class_name : "NULL", fn->mangled_name ? fn->mangled_name : "NULL", func_name);
+    debug_alir("alir_gen_function_def fn->name=%s class_name=%s fn->mangled_name=%s -> func_name=%s\n", fn->name, class_name ? class_name : "NULL", fn->mangled_name ? fn->mangled_name : "NULL", func_name);
 
     ctx->current_func = alir_add_function(ctx->module, func_name, fn->ret_type, 0);
     ctx->current_func->is_varargs = fn->is_varargs;
@@ -318,7 +318,7 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
     }
 
     // Check if it's a constructor call via Struct Registry
-    if (alir_find_struct(ctx->module, target_name)) { debug_any("Found struct %s\n", target_name);
+    if (alir_find_struct(ctx->module, target_name)) { debug_alir("Found struct %s\n", target_name);
         int count = 0; ASTNode *a = cn->args; while(a) { count++; a=a->next; }
         if (count == 1 && ctx->sem) {
             VarType arg_t = sem_get_node_type(ctx->sem, cn->args);
@@ -331,15 +331,15 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
 
     // Intercept Macro function calls
     if (ctx->sem) {
-        debug_any("Looking up '%s'\n", target_name);
+        debug_alir("Looking up '%s'\n", target_name);
         SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, NULL);
         if (!sym && cn->name && !streq(target_name, cn->name)) {
             sym = sem_symbol_lookup(ctx->sem, cn->name, NULL);
         }
         if (sym) {
-            debug_any("Found symbol %s, kind=%d, is_macro=%d, node_ptr=%p\n", sym->name, sym->kind, sym->is_macro, sym->node_ptr);
+            debug_alir("Found symbol %s, kind=%d, is_macro=%d, node_ptr=%p\n", sym->name, sym->kind, sym->is_macro, sym->node_ptr);
         } else {
-            debug_any("Symbol '%s' not found!\n", target_name);
+            debug_alir("Symbol '%s' not found!\n", target_name);
         }
         if (sym && sym->kind == SYM_FUNC && sym->is_macro && sym->node_ptr) {
             FuncDefNode *fd = (FuncDefNode*)sym->node_ptr;
@@ -382,20 +382,20 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
             char ns_buf[256] = "";
             if (ctx->sem && ctx->sem->compiler_ctx && fd->mangled_name) {
                 old_ns = arena_strdup(ctx->sem->compiler_ctx->arena, diag_get_namespace(ctx->sem->compiler_ctx));
-                debug_any("macro: mangled='%s', old_ns='%s'\n", fd->mangled_name, old_ns);
+                debug_alir("macro: mangled='%s', old_ns='%s'\n", fd->mangled_name, old_ns);
                 const char *dot = strrchr(fd->mangled_name, '.');
                 if (dot) {
                     int ns_len = (int)(dot - fd->mangled_name);
                     if (ns_len >= (int)sizeof(ns_buf)) ns_len = sizeof(ns_buf) - 1;
                     memcpy(ns_buf, fd->mangled_name, ns_len);
                     ns_buf[ns_len] = '\0';
-                    debug_any("macro: setting ns to '%s'\n", ns_buf);
+                    debug_alir("macro: setting ns to '%s'\n", ns_buf);
                     diag_set_namespace(ctx->sem->compiler_ctx, ns_buf);
                 }
             }
-            debug_any("macro: before sem_check_block, ns='%s'\n", diag_get_namespace(ctx->sem->compiler_ctx));
+            debug_alir("macro: before sem_check_block, ns='%s'\n", diag_get_namespace(ctx->sem->compiler_ctx));
             sem_check_block(ctx->sem, cloned_body);
-            debug_any("macro: after sem_check_block, ns='%s'\n", diag_get_namespace(ctx->sem->compiler_ctx));
+            debug_alir("macro: after sem_check_block, ns='%s'\n", diag_get_namespace(ctx->sem->compiler_ctx));
             // Compile the rewritten AST directly into the current caller's ALIR block
             ASTNode *curr = cloned_body;
             while (curr) {

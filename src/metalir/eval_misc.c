@@ -28,7 +28,7 @@ case ALIR_OP_FALLBACK:
 case ALIR_OP_SIZEOF: {
     if (inst->dest && inst->op1) {
         VarType t = inst->op1->type;
-        debug_any("ALIR_OP_SIZEOF: base=%d, ptr_depth=%d, array_depth=%d, array_size=%d\n", 
+        debug_metalir("ALIR_OP_SIZEOF: base=%d, ptr_depth=%d, array_depth=%d, array_size=%d\n", 
             t.base, t.ptr_depth, t.array_depth, t.array_size);
         long sz = 0;
         if (t.is_tainted) {

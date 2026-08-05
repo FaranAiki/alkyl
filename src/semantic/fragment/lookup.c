@@ -4,9 +4,9 @@ int sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
     VarType obj_type = sem_get_node_type(ctx, node->object);
 
     SemSymbol *class_sym = sem_symbol_lookup_type(ctx, obj_type.class_name);
-    debug_any("sem_lookup_class_call for '%s', class_sym=%p\n", obj_type.class_name, class_sym);
+    debug_semantic("sem_lookup_class_call for '%s', class_sym=%p\n", obj_type.class_name, class_sym);
     if (!class_sym || class_sym->kind != SYM_CLASS) {
-        if (class_sym) { debug_any("'%s' kind is %d\n", obj_type.class_name, class_sym->kind); }
+        if (class_sym) { debug_semantic("'%s' kind is %d\n", obj_type.class_name, class_sym->kind); }
         if (class_sym && class_sym->kind == SYM_TEMPLATE) {
             CompoundNode *cn = class_sym->template_node;
             char expected_types[256] = "";

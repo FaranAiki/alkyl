@@ -76,7 +76,7 @@ static void collect_called_functions(AlirModule *module, UsedSet *called) {
 static void check_type_for_struct(Arena *arena, UsedSet *used_structs, VarType *type) {
     if (!type) return;
     if (type->base == TYPE_CLASS && type->class_name) {
-        debug_any("Check Type for Struct Marking %s\n", type->class_name);
+        debug_optlir("Check Type for Struct Marking %s\n", type->class_name);
         used_set_add(arena, used_structs, type->class_name);
     }
 }
@@ -134,7 +134,7 @@ static void collect_used_structs(AlirModule *module, UsedSet *used_structs) {
                 AlirField *field = st->fields;
                 while (field) {
                     if (field->type.base == TYPE_CLASS && field->type.class_name && !used_set_has(used_structs, field->type.class_name)) {
-                        debug_any("ALIR Struct Marking field dep %s\n", field->type.class_name);
+                        debug_optlir("ALIR Struct Marking field dep %s\n", field->type.class_name);
                         used_set_add(arena, used_structs, field->type.class_name);
                         changed = 1;
                     }

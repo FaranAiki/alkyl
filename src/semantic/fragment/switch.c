@@ -193,7 +193,7 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
 }
 
 void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) {
-  debug_any("sem_check_index_access type base: %d, array_size: %d\n", sem_get_node_type(ctx, ((IndexAccessNode*)node)->target).base, sem_get_node_type(ctx, ((IndexAccessNode*)node)->target).array_size);
+  debug_semantic("sem_check_index_access type base: %d, array_size: %d\n", sem_get_node_type(ctx, ((IndexAccessNode*)node)->target).base, sem_get_node_type(ctx, ((IndexAccessNode*)node)->target).array_size);
     IndexAccessNode *aa = (IndexAccessNode*)node;
     sem_check_expr(ctx, aa->target);
     sem_check_expr(ctx, aa->index);

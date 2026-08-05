@@ -326,7 +326,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
     ctx->current_node = node;
     if (node->is_macro_arg) return;
 
-    debug_any("sem_check_expr: type=%d line=%d col=%d node=%p\n", node->type, node->line, node->col, (void*)node);
+    debug_semantic("sem_check_expr: type=%d line=%d col=%d node=%p\n", node->type, node->line, node->col, (void*)node);
 
     switch(node->type) {
         case NODE_LITERAL: {
@@ -883,7 +883,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             // 2. Clone the body with replacements AND renames
             ASTNode *cloned_body = ast_clone(ctx->compiler_ctx, cn->body, cn->type_params, ti->template_types, ti->num_template_types, rename_from, rename_to, num_renames);
 
-                debug_any("&ctx->ast_tail=%p, ctx->ast_tail=%p, *ctx->ast_tail=%p\n", &ctx->ast_tail, ctx->ast_tail, ctx->ast_tail ? *ctx->ast_tail : NULL);
+                debug_semantic("&ctx->ast_tail=%p, ctx->ast_tail=%p, *ctx->ast_tail=%p\n", &ctx->ast_tail, ctx->ast_tail, ctx->ast_tail ? *ctx->ast_tail : NULL);
                 if (ctx->ast_tail) {
                     *ctx->ast_tail = cloned_body;
                     while (*ctx->ast_tail) {

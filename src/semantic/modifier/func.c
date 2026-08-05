@@ -279,7 +279,7 @@ static int get_type_rank(VarType t) {
 }
 
 void sem_check_call(SemanticCtx *ctx, CallNode *node) {
-    debug_any("sem_check_call: name='%s', ns='%s'\n", node->name ? node->name : "(null)", ctx->compiler_ctx ? diag_get_namespace(ctx->compiler_ctx) : "(null)");
+    debug_semantic("sem_check_call: name='%s', ns='%s'\n", node->name ? node->name : "(null)", ctx->compiler_ctx ? diag_get_namespace(ctx->compiler_ctx) : "(null)");
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
 
     SemSymbol *sym = NULL;
@@ -288,7 +288,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         sem_check_expr(ctx, node->target);
         int after_type = node->target->type;
         if (before_type != after_type) {
-            debug_any("sem_check_call: TARGET MODIFIED! node=%p before=%d after=%d\n", (void*)node, before_type, after_type);
+            debug_semantic("sem_check_call: TARGET MODIFIED! node=%p before=%d after=%d\n", (void*)node, before_type, after_type);
         }
         if (node->target->type == NODE_TEMPLATE_INSTANTIATION) {
             // target->target was updated to VarRef inside sem_check_expr
@@ -312,7 +312,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         } else if (node->target->type == NODE_MEMBER_ACCESS) {
             node->name = ((MemberAccessNode*)node->target)->member_name;
         } else if (node->target->type == NODE_METHOD_CALL) {
-            debug_any("CallNode has MethodCall target! method_name=%s\n", ((MethodCallNode*)node->target)->method_name);
+            debug_semantic("CallNode has MethodCall target! method_name=%s\n", ((MethodCallNode*)node->target)->method_name);
         }
     }
 
@@ -344,7 +344,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         if (node->name) {
             sem_error(ctx, (ASTNode*)node, "Undefined function or class '%s'", node->name);
         } else {
-            debug_any("Cannot call non-function type at line %d col %d, node type %d, target type %d\n", node->base.line, node->base.col, node->base.type, node->target ? (int)node->target->type : -1); sem_error(ctx, (ASTNode*)node, "Cannot call non-function type");
+            debug_semantic("Cannot call non-function type at line %d col %d, node type %d, target type %d\n", node->base.line, node->base.col, node->base.type, node->target ? (int)node->target->type : -1); sem_error(ctx, (ASTNode*)node, "Cannot call non-function type");
         }
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         return;
@@ -581,7 +581,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                  int is_copy = 0;
                  if (arg_count == 1) {
                      VarType arg_type = sem_get_node_type(ctx, node->args);
-                     debug_any("copy check: base=%d expected=%d class_name=%s sym_name=%s\n", arg_type.base, TYPE_CLASS, arg_type.class_name ? arg_type.class_name : "(null)", sym->name);
+                     debug_semantic("copy check: base=%d expected=%d class_name=%s sym_name=%s\n", arg_type.base, TYPE_CLASS, arg_type.class_name ? arg_type.class_name : "(null)", sym->name);
                      if (arg_type.base == TYPE_CLASS && arg_type.class_name && streq(arg_type.class_name, sym->name)) {
                          is_copy = 1;
                      }

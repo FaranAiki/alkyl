@@ -192,7 +192,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
     AlirStruct *st = ctx->alir_mod->structs;
     while (st) {
         LLVMTypeRef struct_ty = LLVMStructCreateNamed(ctx->llvm_ctx, st->name);
-        debug_any("struct=%s fields=%d\n", st->name, st->field_count);
+        debug_codegen("struct=%s fields=%d\n", st->name, st->field_count);
         fflush(stdout);
         hashmap_put(&ctx->struct_map, st->name, struct_ty);
         st = st->next;
@@ -267,7 +267,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                     field_tys[f->index] = get_llvm_type(ctx, f->type);
                     f = f->next;
                 }
-                for(int i=0; i<st->field_count; i++) { debug_any("Field %d: base=%d ptr_depth=%d\n", i, (int)st->fields[i].type.base, st->fields[i].type.ptr_depth); } LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
+                for(int i=0; i<st->field_count; i++) { debug_codegen("Field %d: base=%d ptr_depth=%d\n", i, (int)st->fields[i].type.base, st->fields[i].type.ptr_depth); } LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
             }
         }
         st = st->next;

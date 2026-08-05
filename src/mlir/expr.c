@@ -187,7 +187,7 @@ AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode 
         }
         case NODE_MEMBER_ACCESS: {
             MemberAccessNode *maccess = (MemberAccessNode*)node;
-            debug_any("member access %s, base=%d, expected TYPE_ENUM=%d, class_name=%s\n", maccess->member_name, maccess->object->sem_type.base, TYPE_ENUM, maccess->object->sem_type.class_name);
+            debug_mlir("member access %s, base=%d, expected TYPE_ENUM=%d, class_name=%s\n", maccess->member_name, maccess->object->sem_type.base, TYPE_ENUM, maccess->object->sem_type.class_name);
             if (maccess->object->sem_type.base == TYPE_ENUM && maccess->object->sem_type.class_name) {
                 extern ASTNode *mlir_global_ast_root;
                 ASTNode *n = mlir_global_ast_root;

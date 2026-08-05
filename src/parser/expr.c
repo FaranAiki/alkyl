@@ -59,7 +59,7 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
     mc->mangled_name = NULL;
     mc->owner_class = NULL;
     mc->is_static = 0;
-    debug_any("Created MethodCall for member '%s' line=%d col=%d\n", mc->method_name, mc->base.line, mc->base.col);
+    debug_parser("Created MethodCall for member '%s' line=%d col=%d\n", mc->method_name, mc->base.line, mc->base.col);
     return (ASTNode*)mc;
   }
 
@@ -68,7 +68,7 @@ ASTNode* parse_call(Parser *p, ASTNode *target) {
   node->name = name;
   node->target = target;
   node->args = args_head;
-  debug_any("Created Call name=%s target_type=%d line=%d col=%d node=%p target=%p\n", node->name ? node->name : "(null)", target ? (int)target->type : -1, node->base.line, node->base.col, (void*)node, (void*)target);
+  debug_parser("Created Call name=%s target_type=%d line=%d col=%d node=%p target=%p\n", node->name ? node->name : "(null)", target ? (int)target->type : -1, node->base.line, node->base.col, (void*)node, (void*)target);
   return (ASTNode*)node;
 }
 
@@ -275,7 +275,7 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             set_loc(node, line, col);
         }
         else if (p->current_token.type == TOKEN_LPAREN) {
-            debug_any("parse_postfix: before parse_call, node->type=%d\n", node ? (int)node->type : -1);
+            debug_parser("parse_postfix: before parse_call, node->type=%d\n", node ? (int)node->type : -1);
             node = parse_call(p, node);
             set_loc(node, line, col);
         }

@@ -586,7 +586,7 @@ void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
     AlirValue *limit = alir_const_int(ctx->module, limit_val);
 
     if (col && col->type.base == TYPE_CLASS && col->type.class_name && strncmp(col->type.class_name, "FluxCtx_", 8) == 0) {
-        debug_any("FluxCtx ptr_depth = %d\n", col->type.ptr_depth);
+        debug_alir("FluxCtx ptr_depth = %d\n", col->type.ptr_depth);
         if (col->type.ptr_depth == 0 && col_ptr) {
             emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, col, col_ptr));
             col = col_ptr;

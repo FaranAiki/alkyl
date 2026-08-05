@@ -292,7 +292,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
           }
 
           VarType vt = parse_type(p);
-          debug_any("after parse_type, vt.base=%d, token.type=%d\n", vt.base, p->current_token.type);
+          debug_parser("after parse_type, vt.base=%d, token.type=%d\n", vt.base, p->current_token.type);
           if (vt.base != TYPE_UNKNOWN || (vt.base == TYPE_UNKNOWN && vt.class_name != NULL)) {
               if (p->current_token.type == TOKEN_LPAREN) {
                   Token next = parser_peek_token(p);
@@ -319,7 +319,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                       continue;
                   } else {
                       if (vt.class_name != NULL) {
-                  debug_any("constructor check: vt.class_name='%s', class_name='%s'\n", vt.class_name, class_name);
+                  debug_parser("constructor check: vt.class_name='%s', class_name='%s'\n", vt.class_name, class_name);
                       }
                       if ((vt.base == TYPE_CLASS || vt.base == TYPE_UNKNOWN) && vt.class_name != NULL &&
                              (streq(vt.class_name, class_name) ||

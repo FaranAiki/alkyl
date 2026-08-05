@@ -432,7 +432,7 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
                 if (sym) {
                     if (ctx->settings.namespace_ausearch_warning) {
                         const char *current_ns = ctx->compiler_ctx ? diag_get_namespace(ctx->compiler_ctx) : NULL;
-                        debug_any("table.c lookup: name='%s', found_ns='%s', current_ns='%s'\n", name, ns->name, current_ns ? current_ns : "(null)");
+                        debug_semantic("table.c lookup: name='%s', found_ns='%s', current_ns='%s'\n", name, ns->name, current_ns ? current_ns : "(null)");
                         if (!current_ns || !streq(current_ns, ns->name)) {
                             if (ctx->current_node) {
                                 sem_warning(ctx, ctx->current_node, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);

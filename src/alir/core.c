@@ -170,7 +170,7 @@ void alir_append_inst(AlirBlock *block, AlirInst *inst) {
 
 void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields, int is_union) {
     AlirStruct *st = alir_alloc(mod, sizeof(AlirStruct));
-    debug_any("DEBUG_REGISTER: st=%p name=%s next=%p\n", st, name, mod->structs);
+    debug_alir("DEBUG_REGISTER: st=%p name=%s next=%p\n", st, name, mod->structs);
     fflush(stdout);
     st->is_union = is_union;
     st->name = alir_strdup(mod, name);
