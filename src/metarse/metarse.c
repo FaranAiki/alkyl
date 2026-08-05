@@ -21,7 +21,7 @@ void executor_init(Executor *e, const char *module_name,
     if (module_name && strstr(module_name, "repl")) {
         ps.multiplication_if_digit_word = 1;
         ps.exponentation_if_word_digit = 1;
-        ps.greedy_space_calls = 1;
+        ps.greedy_space_calls = 0;
     }
     parser_init(&e->p, &dummy, &ps);
 
