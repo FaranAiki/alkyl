@@ -409,6 +409,21 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             sem_check_index_access(ctx, node);
             break;
         }
+
+        case NODE_BEING: {
+            BeingNode *bn = (BeingNode*)node;
+            sem_check_expr(ctx, bn->operand);
+            if (sem_get_node_tainted(ctx, bn->operand)) {
+                sem_set_node_tainted(ctx, node, 1);
+            }
+            VarType op_t = sem_get_node_type(ctx, bn->operand);
+            if (op_t.base == TYPE_VOID && op_t.ptr_depth == 0) {
+                sem_error(ctx, node, "Cannot use \"being\" on \"void\" value");
+            }
+            sem_set_node_type(ctx, node, bn->var_type);
+            break;
+        }
+
         case NODE_CAST: {
             CastNode *cn = (CastNode*)node;
             cn->custom_cast_method = NULL;

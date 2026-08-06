@@ -145,7 +145,9 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                     ASTNode *l = bin->left;
                     ASTNode *r = bin->right;
                     if (l && l->type == NODE_CAST) l = ((CastNode*)l)->operand;
+                    if (l && l->type == NODE_BEING) l = ((BeingNode*)l)->operand;
                     if (r && r->type == NODE_CAST) r = ((CastNode*)r)->operand;
+                    if (r && r->type == NODE_BEING) r = ((BeingNode*)r)->operand;
 
                     if (l && r && l->type == NODE_TYPEOF && r->type == NODE_TYPEOF) {
                         SizeOfNode *sl = (SizeOfNode*)l;
@@ -266,6 +268,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_LITERAL:
         case NODE_ARRAY_LIT:
         case NODE_CAST:
+        case NODE_BEING:
         case NODE_TYPEOF:
         case NODE_SIZEOF:
         case NODE_ALIGNOF:

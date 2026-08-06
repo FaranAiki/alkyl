@@ -44,6 +44,18 @@ AlirValue* alir_gen_inc_dec(AlirCtx *ctx, IncDecNode *id) {
     return val;
 }
 
+
+AlirValue* alir_gen_being(AlirCtx *ctx, BeingNode *bn) {
+    AlirValue *op_val = alir_gen_expr(ctx, bn->operand);
+    AlirValue *res = new_temp(ctx, bn->var_type);
+    
+    AlirInst *inst = mk_inst(ctx->module, ALIR_OP_BITCAST, res, op_val, NULL);
+    inst->custom_flag = bn->endian;
+    emit(ctx, inst);
+    
+    return res;
+}
+
 AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
     if (cn->custom_cast_method) {
         VarType obj_t = sem_get_node_type(ctx->sem, cn->operand);
@@ -509,6 +521,7 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
         case NODE_UNARY_OP: return alir_gen_unary_op(ctx, (UnaryOpNode*)node);
         case NODE_INC_DEC: return alir_gen_inc_dec(ctx, (IncDecNode*)node);
         case NODE_CAST: return alir_gen_cast(ctx, (CastNode*)node);
+        case NODE_BEING: return alir_gen_being(ctx, (BeingNode*)node);
         // TODO size of should be diffrent
         case NODE_SIZEOF:
         case NODE_ALIGNOF: {

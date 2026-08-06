@@ -1,0 +1,24 @@
+namespace __c_lib_io {
+    impure extern int scanf(char*, ...);
+    impure extern char* fgets(char*, int, void*);
+    impure extern int fgetc(void*);
+    impure extern int getchar();
+    impure extern int fscanf(void*, char*, ...);
+}
+
+define scanf as __c_lib_io.scanf;
+define fscanf as __c_lib_io.fscanf;
+
+namespace std {
+    char* fgets(char* str, int n, void* stream) {
+        return __c_lib_io.fgets(str, n, stream);
+    }
+
+    int fgetc(void* stream) {
+        return __c_lib_io.fgetc(stream);
+    }
+
+    int getchar() {
+        return __c_lib_io.getchar();
+    }
+}

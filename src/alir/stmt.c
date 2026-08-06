@@ -356,6 +356,7 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
         case NODE_HAS_METHOD:
         case NODE_HAS_ATTRIBUTE:
         case NODE_CAST:
+        case NODE_BEING:
         case NODE_INC_DEC:
         case NODE_COMPOUND:
         case NODE_TEMPLATE_INSTANTIATION:

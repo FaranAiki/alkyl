@@ -486,54 +486,92 @@ static void remove_unreachable_blocks_function(AlirModule *module, AlirFunction 
     block_set_free(&reachable);
 }
 
-static int merge_entry_jump_function(AlirModule *module, AlirFunction *func) {
+static int merge_blocks_function(AlirModule *module, AlirFunction *func) {
     if (!func || !func->blocks) return 0;
 
     Arena *arena = module->compiler_ctx ? module->compiler_ctx->arena : NULL;
-    {
+    int overall_changed = 0;
+    int changed;
+    
+    do {
+        changed = 0;
+        {
+            AlirBlock *b = func->blocks;
+            while (b) {
+                free_edges(b->pred);
+                free_edges(b->succ);
+                b->pred = NULL;
+                b->succ = NULL;
+                b = b->next;
+            }
+            build_pred_succ(func, arena);
+        }
+
         AlirBlock *b = func->blocks;
         while (b) {
-            free_edges(b->pred);
-            free_edges(b->succ);
-            b->pred = NULL;
-            b->succ = NULL;
+            AlirInst *tail = b->head;
+            AlirInst *tail_prev = NULL;
+            while (tail && tail->next) {
+                tail_prev = tail;
+                tail = tail->next;
+            }
+
+            if (tail && tail->op == ALIR_OP_JUMP && tail->op1 && tail->op1->kind == ALIR_VAL_LABEL) {
+                const char *target_label = tail->op1->val.str_val;
+                AlirBlock *target = find_block_by_label(func, target_label);
+                
+                if (target && target != b && target != func->blocks) {
+                    int pred_count = 0;
+                    for (BlockEdge *e = target->pred; e; e = e->next) pred_count++;
+                    
+                    if (pred_count == 1) {
+                        // Remove jump from b
+                        if (b->head == tail) {
+                            b->head = NULL;
+                        } else {
+                            tail_prev->next = NULL;
+                        }
+
+                        // Append target instructions to b
+                        if (target->head) {
+                            if (b->head) {
+                                AlirInst *last = b->head;
+                                while (last->next) last = last->next;
+                                last->next = target->head;
+                            } else {
+                                b->head = target->head;
+                            }
+                        }
+
+                        // Remove target from block list
+                        AlirBlock *t_prev = NULL;
+                        AlirBlock *curr = func->blocks;
+                        while (curr && curr != target) {
+                            t_prev = curr;
+                            curr = curr->next;
+                        }
+                        if (curr == target) {
+                            if (t_prev) t_prev->next = target->next;
+                            else func->blocks = target->next;
+                            func->block_count--;
+                        }
+
+                        // If anything referenced the target label, redirect it to b's label
+                        if (!streq(b->label, target_label)) {
+                            redirect_label_in_all_blocks(module, func, target_label, b->label);
+                        }
+
+                        changed = 1;
+                        overall_changed = 1;
+                        break;
+                    }
+                }
+            }
             b = b->next;
         }
-        build_pred_succ(func, arena);
-    }
+    } while (changed);
 
-    AlirBlock *entry = func->blocks;
-    if (!entry || !entry->head) return 0;
-
-    AlirInst *i = entry->head;
-    if (i->op != ALIR_OP_JUMP || i->op1 == NULL || i->op1->kind != ALIR_VAL_LABEL) return 0;
-    if (i->next != NULL) return 0;
-
-    const char *target_label = i->op1->val.str_val;
-    AlirBlock *target = find_block_by_label(func, target_label);
-    if (!target || target == entry) return 0;
-
-    int pred_count = 0;
-    for (BlockEdge *e = target->pred; e; e = e->next) pred_count++;
-    if (pred_count != 1) return 0;
-
-    if (func->blocks == entry) {
-        func->blocks = entry->next;
-    } else {
-        AlirBlock *prev_entry = func->blocks;
-        while (prev_entry && prev_entry->next != entry) prev_entry = prev_entry->next;
-        if (prev_entry) prev_entry->next = entry->next;
-    }
-    func->block_count--;
-
-    if (!streq(entry->label, target_label)) {
-        redirect_label_in_all_blocks(module, func, entry->label, target_label);
-    }
-
-    free_edges(entry->pred);
-    free_edges(entry->succ);
-
-    return 1;
+    return overall_changed;
 }
 
 static int value_is_used_somewhere(AlirFunction *func, AlirValue *val) {
@@ -769,7 +807,7 @@ void optlir_optimize(AlirModule *module, int opt_level) {
                 if (opt_level >= 2) {
                     constant_propagate_function(module, func);
                     fold_branches_function(module, func);
-                    merge_entry_jump_function(module, func);
+                    merge_blocks_function(module, func);
                     remove_dead_stores_function(module, func);
                     propagate_param_copies_function(module, func);
                 }

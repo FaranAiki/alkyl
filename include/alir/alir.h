@@ -71,6 +71,7 @@ typedef struct AlirInst {
     // For Calls or Switches
     AlirValue **args;
     int arg_count;
+    int custom_flag;
 
     struct AlirInst *next;
 

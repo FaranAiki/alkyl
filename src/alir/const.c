@@ -363,6 +363,7 @@ static AlirValue* fold_const_expr_ahead(AlirCtx *ctx, ASTNode *node) {
             return NULL;
         }
 
+        case NODE_BEING:
         case NODE_CAST: {
             CastNode *cn = (CastNode*)node;
             AlirValue *val = fold_const_expr_ahead(ctx, cn->operand);

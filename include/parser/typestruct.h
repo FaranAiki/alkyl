@@ -36,6 +36,7 @@ typedef enum {
   NODE_HAS_METHOD,
   NODE_HAS_ATTRIBUTE,
   NODE_CAST,
+  NODE_BEING,
   NODE_EMIT,
   NODE_FOR_IN,
   NODE_WASH,
@@ -301,6 +302,19 @@ typedef struct {
     ASTNode *operand;
     char *custom_cast_method;
 } CastNode;
+
+typedef enum {
+    ENDIAN_NATIVE,
+    ENDIAN_LITTLE,
+    ENDIAN_BIG
+} Endianness;
+
+typedef struct {
+    ASTNode base;
+    VarType var_type;
+    ASTNode *operand;
+    Endianness endian;
+} BeingNode;
 
 typedef struct {
   ASTNode base;

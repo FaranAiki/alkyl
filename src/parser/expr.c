@@ -286,6 +286,35 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             node = (ASTNode*)cn;
             set_loc(node, line, col);
         }
+        else if (p->current_token.type == TOKEN_BEING) {
+            eat(p, TOKEN_BEING);
+            Endianness endian = ENDIAN_NATIVE;
+            if (p->current_token.type == TOKEN_LBRACKET) {
+                eat(p, TOKEN_LBRACKET);
+                if (p->current_token.type == TOKEN_IDENTIFIER) {
+                    if (streq(p->current_token.text, "little")) {
+                        endian = ENDIAN_LITTLE;
+                    } else if (streq(p->current_token.text, "big")) {
+                        endian = ENDIAN_BIG;
+                    } else {
+                        parser_fail(p, "Invalid endianness specifier for being, expected \"little\" or \"big\"");
+                    }
+                    eat(p, TOKEN_IDENTIFIER);
+                } else {
+                    parser_fail(p, "Expected endianness specifier \"little\" or \"big\"");
+                }
+                eat(p, TOKEN_RBRACKET);
+            }
+            VarType t = parse_type(p);
+
+            BeingNode *bn = parser_alloc(p, sizeof(BeingNode));
+            bn->base.type = NODE_BEING;
+            bn->operand = node;
+            bn->var_type = t;
+            bn->endian = endian;
+            node = (ASTNode*)bn;
+            set_loc(node, line, col);
+        }
         else if (p->current_token.type == TOKEN_LPAREN) {
             debug_parser("parse_postfix: before parse_call, node->type=%d\n", node ? (int)node->type : -1);
             node = parse_call(p, node);

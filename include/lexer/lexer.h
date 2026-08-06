@@ -72,6 +72,7 @@ typedef enum {
   TOKEN_UNTAINT, // run first, then error
   TOKEN_DEFINE,
   TOKEN_AS,
+  TOKEN_BEING,
   TOKEN_TYPEDEF,
   TOKEN_META,
   TOKEN_POSTMETA,
@@ -269,6 +270,7 @@ static const KeywordDef keywords[] = {
     {"alignof", TOKEN_KW_ALIGNOF},
     {"alir", TOKEN_ALIR},
     {"as", TOKEN_AS},
+    {"being", TOKEN_BEING},
     {"bool", TOKEN_KW_BOOL},
     {"break", TOKEN_BREAK},
     {"case", TOKEN_CASE},
