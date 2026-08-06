@@ -20,16 +20,18 @@ Do NOT use `strcmp` for string comparisons inside the compiler codebase. ALWAYS 
 3. **Control Flow**: 
    - Standard `if`, `while`, `switch`.
 4. **Functions & Macros**: 
-   - Functions: `func int add(int a, int b) { return a + b; }`
+   - Functions are defined using C-like syntax WITHOUT a `func` keyword: `int add(int a, int b) { return a + b; }`
    - Macros are defined with `meta void` and are expanded at the AST level. Never eagerly compile an unexpanded macro to ALIR.
+   - Nullability: Alkyl does not use null pointers (e.g. `0 as void*`). Instead, absence of a value is represented as an error state (e.g., `purge ErrNull`).
 5. **Foreign Function Interface (FFI) & Calling Conventions**:
    - Use `@identifier` before `extern` or `func` to specify calling conventions or name mangling schemas without using pragmas. 
    - Example: `@cpp extern { int some_cpp_func(); }` will use C++ Itanium name mangling.
    - Example: `@stdcall int my_func();`
    - Example: `@rust extern int get_rust_data();`
 
-
 Here is the architectural documentation for the **Alkyl** compiler project.
+
+**CRITICAL RULE:** Always consult `misc/howto.json` for essential information about Alkyl's syntax, design notes (effects like pure/impure/total/partial), error handling (pristine/tainted), generics, and OOP keywords. `howto.json` is the definitive source of truth for Alkyl's language semantics!
 
 ---
 

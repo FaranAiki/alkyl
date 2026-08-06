@@ -1,0 +1,17 @@
+private namespace __c_lib {
+    @c extern {
+        impure int rand();
+        impure void srand(unsigned int seed);
+        impure long time(void* tloc);
+    }
+}
+
+namespace random {
+    void init() {
+        __c_lib.srand(__c_lib.time(0 as void*) as unsigned int);
+    }
+
+    int fast_random() {
+        return __c_lib.rand();
+    }
+}

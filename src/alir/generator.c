@@ -540,7 +540,9 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
                     if (streq(fn->name, cn->name) || streq(fn->name, "init")) {
                         has_constructor = 1;
                     }
-                    alir_gen_function_def(ctx, fn, fqn);
+                    if (!fn->is_macro) {
+                        alir_gen_function_def(ctx, fn, fqn);
+                    }
                 }
                 mem = mem->next;
             }
