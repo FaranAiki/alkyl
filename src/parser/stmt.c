@@ -283,6 +283,7 @@ static ResidueCase* parse_residue_cases(Parser *p, char *default_err_var) {
 }
 
 ASTNode* parse_single_statement_or_block_internal(Parser *p) {
+  if (p->has_error) return NULL;
   if (p->current_token.type == TOKEN_LBRACE) {
     eat(p, TOKEN_LBRACE);
     ASTNode *block = parse_statements(p);
