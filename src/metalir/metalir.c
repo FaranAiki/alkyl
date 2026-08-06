@@ -211,8 +211,19 @@ void metalir_print_repl_value(VarType rt, long long result) {
                     printf("-> %p (%s)\n", (void*)(intptr_t)result, sem_type_to_str(rt));
                 }
             }
-            else
-                printf("-> %lld (%s)\n", result, sem_type_to_str(rt));
+            else {
+                if (rt.base == TYPE_CHAR) {
+                    char c = (char)result;
+                    if (c >= 32 && c <= 126) printf("-> %lld | '%c' (%s)\n", result, c, sem_type_to_str(rt));
+                    else if (c == '\n') printf("-> %lld | '\\n' (%s)\n", result, sem_type_to_str(rt));
+                    else if (c == '\r') printf("-> %lld | '\\r' (%s)\n", result, sem_type_to_str(rt));
+                    else if (c == '\t') printf("-> %lld | '\\t' (%s)\n", result, sem_type_to_str(rt));
+                    else if (c == '\0') printf("-> %lld | '\\0' (%s)\n", result, sem_type_to_str(rt));
+                    else printf("-> %lld (%s)\n", result, sem_type_to_str(rt));
+                } else {
+                    printf("-> %lld (%s)\n", result, sem_type_to_str(rt));
+                }
+            }
         }
     }
 }
@@ -469,7 +480,11 @@ long long metalir_execute_string(MetalirRunner *r, const char *source,
                                  const char *filename) {
     ASTNode *root = metalir_parse(r, source, filename, NULL);
     if (!root || r->parser.has_error) return 0;
+    ASTNode *c = root;
+    while(c) { debug_metalir("Parsed node type %d\n", c->type); c = c->next; }
     metalir_resolve_imports(r, &root);
+    c = root;
+    while(c) { debug_metalir("Resolved node type %d\n", c->type); c = c->next; }
     return metalir_execute_parse(r, root, source, filename);
 }
 
@@ -481,7 +496,8 @@ int metalir_load_module(MetalirRunner *r, const char *path) {
     } else {
         from_malloc = 1;
     }
-    if (!src) return -1;
+    if (!src) { debug_metalir("Failed to read %s\n", path); return -1; }
+    debug_metalir("Executing module %s\n", path);
     metalir_execute_string(r, src, path);
     if (from_malloc) free(src);
     r->ctx.semantic_error_count = 0;

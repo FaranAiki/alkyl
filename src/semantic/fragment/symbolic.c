@@ -144,19 +144,34 @@ void sem_symbolic_node_enum(SemanticCtx *ctx, ASTNode *node) {
 void sem_symbolic_namespace(SemanticCtx *ctx, ASTNode *node) {
     NamespaceNode *ns = (NamespaceNode*)node;
     VarType ns_type = {TYPE_NAMESPACE, 0, arena_strdup(ctx->compiler_ctx->arena, ns->name), 0, 0, NULL, NULL, 0, 0, 0, 0};
-    SemSymbol *sym = sem_symbol_add(ctx, ns->name, SYM_NAMESPACE, ns_type);
     
-    SemScope *ns_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
-    memset(ns_scope, 0, sizeof(SemScope));
+    SemSymbol *existing = sem_symbol_lookup(ctx, ns->name, NULL);
+    SemSymbol *sym = NULL;
 
-    ns_scope->symbols = NULL;
-    ns_scope->parent = ctx->current_scope;
-    ns_scope->is_function_scope = 0;
-    ns_scope->is_class_scope = 0;
-    sym->inner_scope = ns_scope;
+    if (existing && existing->kind == SYM_NAMESPACE) {
+        if (existing->is_closed) {
+            sem_error(ctx, node, "namespace '%s' is closed and cannot be reopened", ns->name);
+        } else if (ns->is_closed) {
+            sem_error(ctx, node, "cannot close open namespace '%s'", ns->name);
+        }
+        sym = existing;
+    } else {
+        sym = sem_symbol_add(ctx, ns->name, SYM_NAMESPACE, ns_type);
+        sym->is_closed = ns->is_closed;
+        sym->is_private = ns->is_private;
+        sym->filename = node->filename;
+
+        SemScope *ns_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
+        memset(ns_scope, 0, sizeof(SemScope));
+        ns_scope->symbols = NULL;
+        ns_scope->parent = ctx->current_scope;
+        ns_scope->is_function_scope = 0;
+        ns_scope->is_class_scope = 0;
+        sym->inner_scope = ns_scope;
+    }
     
     SemScope *old = ctx->current_scope;
-    ctx->current_scope = ns_scope;
+    ctx->current_scope = sym->inner_scope;
     
     const char *old_ns = arena_strdup(ctx->compiler_ctx->arena, diag_get_namespace(ctx->compiler_ctx));
     diag_set_namespace(ctx->compiler_ctx, ns->name);

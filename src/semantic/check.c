@@ -71,6 +71,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
 
     // TODO change this into switch instead of if-else
     while (node) {
+        if (node->filename) ctx->current_filename = node->filename;
         ctx->current_node = node;
         if (node->type == NODE_FUNC_DEF) {
             FuncDefNode *fd = (FuncDefNode*)node;
@@ -356,6 +357,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
 // because this is too big!
 void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
+    if (node->filename) ctx->current_filename = node->filename;
     ctx->current_node = node;
     if (node->is_macro_arg) return;
 

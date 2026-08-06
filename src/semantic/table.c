@@ -284,7 +284,9 @@ SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
     while (scope) {
         SemSymbol *sym = find_in_scope_direct(scope, name);
         if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM || sym->kind == SYM_NAMESPACE || sym->kind == SYM_TEMPLATE)) {
-            return sym;
+            if (!(sym->is_private && ctx->current_filename && sym->filename && strcmp(ctx->current_filename, sym->filename) != 0)) {
+                return sym;
+            }
         }
 
         // If we found a sym but it's not a type (e.g. constructor), keep searching upwards
@@ -294,7 +296,9 @@ SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
     // Check global scope directly if not reached
     SemSymbol *sym = find_in_scope_direct(ctx->global_scope, name);
     if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM || sym->kind == SYM_NAMESPACE || sym->kind == SYM_TEMPLATE)) {
-        return sym;
+        if (!(sym->is_private && ctx->current_filename && sym->filename && strcmp(ctx->current_filename, sym->filename) != 0)) {
+            return sym;
+        }
     }
     if (ctx->settings.namespace_auto_search) {
         SemSymbol *ns = ctx->global_scope->symbols;
@@ -302,6 +306,9 @@ SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
             if (ns->kind == SYM_NAMESPACE && ns->inner_scope) {
                 SemSymbol *sym = find_in_scope_direct(ns->inner_scope, name);
                 if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM || sym->kind == SYM_NAMESPACE || sym->kind == SYM_TEMPLATE)) {
+                    if (sym->is_private && ctx->current_filename && sym->filename && strcmp(ctx->current_filename, sym->filename) != 0) {
+                        continue;
+                    }
                     if (ctx->settings.namespace_ausearch_warning) {
                         const char *current_ns = ctx->compiler_ctx ? diag_get_namespace(ctx->compiler_ctx) : NULL;
                         if (!current_ns || !streq(current_ns, ns->name)) {
@@ -366,8 +373,10 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
     while (scope) {
         SemSymbol *sym = find_in_scope_direct(scope, name);
         if (sym) {
-            if (out_scope) *out_scope = scope;
-            return sym;
+            if (!(sym->is_private && ctx->current_filename && sym->filename && strcmp(ctx->current_filename, sym->filename) != 0)) {
+                if (out_scope) *out_scope = scope;
+                return sym;
+            }
         }
 
         sym = scope->symbols;
@@ -430,6 +439,9 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
             if (ns->kind == SYM_NAMESPACE && ns->inner_scope) {
                 SemSymbol *sym = find_in_scope_direct(ns->inner_scope, name);
                 if (sym) {
+                    if (sym->is_private && ctx->current_filename && sym->filename && strcmp(ctx->current_filename, sym->filename) != 0) {
+                        continue;
+                    }
                     if (ctx->settings.namespace_ausearch_warning) {
                         const char *current_ns = ctx->compiler_ctx ? diag_get_namespace(ctx->compiler_ctx) : NULL;
                         debug_semantic("table.c lookup: name='%s', found_ns='%s', current_ns='%s'\n", name, ns->name, current_ns ? current_ns : "(null)");

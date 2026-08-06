@@ -365,11 +365,22 @@ ASTNode* parse_top_level_internal(Parser *p) {
   }
 
   if (p->current_token.type == TOKEN_NAMESPACE) {
-      if (modifiers) parser_fail(p, "Modifiers not allowed on namespace");
       eat(p, TOKEN_NAMESPACE);
-      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected namespace name");
-      char *ns_name = parser_strdup(p, p->current_token.text);
-      eat(p, TOKEN_IDENTIFIER);
+      
+      char *ns_name = NULL;
+      if (p->current_token.type == TOKEN_IDENTIFIER) {
+          ns_name = parser_strdup(p, p->current_token.text);
+          eat(p, TOKEN_IDENTIFIER);
+      } else if (p->current_token.type == TOKEN_LBRACE) {
+          char buf[64];
+          static int anon_ns_counter = 0;
+          snprintf(buf, sizeof(buf), "__anon_ns_%d", ++anon_ns_counter);
+          ns_name = parser_strdup(p, buf);
+          modifiers |= MODIFIER_PRIVATE;
+      } else {
+          parser_fail(p, "Expected namespace name or '{'");
+          return NULL;
+      }
 
       char *old_ns = parser_strdup(p, diag_get_namespace(p->ctx));
       diag_set_namespace(p->ctx, ns_name);
@@ -394,6 +405,15 @@ ASTNode* parse_top_level_internal(Parser *p) {
       ns->base.type = NODE_NAMESPACE;
       ns->name = ns_name;
       ns->body = body_head;
+      
+      ns->is_open = 1; // default
+      if (modifiers & MODIFIER_CLOSED) {
+          ns->is_open = 0;
+          ns->is_closed = 1;
+      }
+      if (modifiers & MODIFIER_PRIVATE) {
+          ns->is_private = 1;
+      }
       return (ASTNode*)ns;
   }
 

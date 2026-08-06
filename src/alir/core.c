@@ -41,6 +41,7 @@ AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
 }
 
  AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, int is_flux) {
+     debug_alir("alir_add_function: %s\n", name);
      AlirFunction *existing = hashmap_get(&mod->func_map, name);
      if (existing) {
          existing->ret_type = ret;

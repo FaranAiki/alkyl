@@ -265,7 +265,6 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_POSTMETA: return "'postmeta'";
         case TOKEN_PUBLIC: return "public";
         case TOKEN_PRIVATE: return "private";
-        case TOKEN_FINAL: return "final";
         case TOKEN_NAKED: return "naked";
         case TOKEN_REACTIVE: return "reactive";
         case TOKEN_INERT: return "inert";

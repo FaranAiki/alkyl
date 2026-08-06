@@ -302,7 +302,26 @@ void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) {
         is_valid = 1;
         t.ptr_depth--;
     }
-    else if (t.base == TYPE_ENUM || t.base == TYPE_ARRAY || (t.base == TYPE_CLASS && t.class_name && (streq(t.class_name, "string") || streq(t.class_name, "vector") || streq(t.class_name, "hashmap")))) {
+    else if (t.base == TYPE_CLASS && t.class_name && streq(t.class_name, "string")) {
+        MemberAccessNode *ma = arena_alloc(ctx->compiler_ctx->arena, sizeof(MemberAccessNode));
+        memset(ma, 0, sizeof(MemberAccessNode));
+        ma->base.type = NODE_MEMBER_ACCESS;
+        ma->base.line = aa->target->line;
+        ma->base.col = aa->target->col;
+        ma->object = aa->target;
+        ma->member_name = "data";
+        
+        // Define the type of 'data' which is char*
+        VarType data_type = (VarType){ .base = TYPE_CHAR, .ptr_depth = 1 };
+        sem_set_node_type(ctx, (ASTNode*)ma, data_type);
+        
+        aa->target = (ASTNode*)ma;
+        
+        is_valid = 1;
+        t = data_type;
+        t.ptr_depth--;
+    }
+    else if (t.base == TYPE_ENUM || t.base == TYPE_ARRAY || (t.base == TYPE_CLASS && t.class_name && (streq(t.class_name, "vector") || streq(t.class_name, "hashmap")))) {
          // for now wait!
          sem_set_node_type(ctx, node, (VarType){ .base = TYPE_CLASS, .class_name = (char*)"string" });
          return;

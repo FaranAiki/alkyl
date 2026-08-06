@@ -38,6 +38,7 @@ case ALIR_OP_CALL: {
                         else {
                             AlirFunction *target_fn = NULL;
                             if (ctx->module) {
+
                                 AlirFunction *f = ctx->module->functions;
                                 while(f) {
                                     if (streq(f->name, inst->op1->val.str_val)) {

@@ -14,7 +14,6 @@
 #define MODIFIER_OPEN      (1 << 2)
 #define MODIFIER_CLOSED    (1 << 3)
 #define MODIFIER_CONST     (1 << 4)
-#define MODIFIER_FINAL     (1 << 5)
 #define MODIFIER_INERT     (1 << 6)
 #define MODIFIER_REACTIVE  (1 << 7)
 #define MODIFIER_NAKED     (1 << 8)

@@ -205,6 +205,8 @@ typedef struct {
   bool has_explicit_pure : 1;
   bool is_tainted : 1;
   bool is_extended : 1;
+  bool is_closed : 1;
+  bool is_private : 1;
 } ClassNode;
 
 typedef struct {
@@ -281,6 +283,9 @@ typedef struct {
   ASTNode base;
   char *name;
   ASTNode *body;
+  bool is_open : 1;
+  bool is_closed : 1;
+  bool is_private : 1;
 } NamespaceNode;
 
 typedef struct {

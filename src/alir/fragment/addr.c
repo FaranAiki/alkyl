@@ -24,7 +24,16 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
         }
         if (idx == -1) {
             idx = alir_robust_get_field_index(ctx, class_name, vn->name);
-            if (idx != -1) {
+            
+            if (class_name && streq(class_name, "string")) {
+                if (streq(vn->name, "data")) {
+                    field_type = (VarType){ .base = TYPE_CHAR, .ptr_depth = 1 };
+                } else if (streq(vn->name, "len")) {
+                    field_type = (VarType){ .base = TYPE_UNSIGNED_INT, .ptr_depth = 0 };
+                }
+            }
+            
+            if (idx != -1 && field_type.base == TYPE_AUTO) {
                 AlirStruct *search = ctx->module->structs;
                 while (search) {
                     AlirField *f = search->fields;
@@ -85,6 +94,16 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
             }
         }
 
+        if (this_sym->type.class_name && streq(this_sym->type.class_name, "string")) {
+            if (streq(vn->name, "data")) {
+                idx = 1;
+                field_type = (VarType){ .base = TYPE_CHAR, .ptr_depth = 1 };
+            } else if (streq(vn->name, "len")) {
+                idx = 0;
+                field_type = (VarType){ .base = TYPE_UNSIGNED_INT, .ptr_depth = 0 };
+            }
+        }
+        
         if (idx == -1) {
             AlirStruct *search = ctx->module->structs;
             while (search) {
@@ -146,7 +165,17 @@ AlirValue* alir_gen_addr_member_access(AlirCtx *ctx, ASTNode *node) {
     int idx = -1;
     VarType field_type = {TYPE_AUTO, 0, NULL};
 
-    if (class_name) {
+    if (class_name && streq(class_name, "string")) {
+        if (streq(ma->member_name, "data")) {
+            idx = 1;
+            field_type = (VarType){ .base = TYPE_CHAR, .ptr_depth = 1 };
+        } else if (streq(ma->member_name, "len")) {
+            idx = 0;
+            field_type = (VarType){ .base = TYPE_UNSIGNED_INT, .ptr_depth = 0 };
+        }
+    }
+
+    if (class_name && idx == -1) {
         AlirStruct *st = alir_find_struct(ctx->module, class_name);
         if (st) {
             AlirField *f = st->fields;
@@ -233,7 +262,16 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
 
         // Find field type for precise IR typing
         VarType field_type = {TYPE_AUTO, 0, NULL};
-        if (class_name) {
+        
+        if (class_name && streq(class_name, "string")) {
+            if (streq(ma->member_name, "data")) {
+                field_type = (VarType){ .base = TYPE_CHAR, .ptr_depth = 1 };
+            } else if (streq(ma->member_name, "len")) {
+                field_type = (VarType){ .base = TYPE_UNSIGNED_INT, .ptr_depth = 0 };
+            }
+        }
+        
+        if (class_name && field_type.base == TYPE_AUTO) {
             AlirStruct *st = alir_find_struct(ctx->module, class_name);
             if (st) {
                 AlirField *f = st->fields;

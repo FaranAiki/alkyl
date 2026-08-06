@@ -63,6 +63,11 @@ int alir_get_struct_size(AlirModule *mod, const char *struct_name) {
 }
 
 int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char *field_name) {
+    if (hint_class && streq(hint_class, "string")) {
+        if (streq(field_name, "data")) return 1;
+        if (streq(field_name, "len")) return 0;
+    }
+    
     int idx = -1;
     if (hint_class) {
         idx = alir_get_field_index(ctx->module, hint_class, field_name);

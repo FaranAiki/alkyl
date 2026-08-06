@@ -11,7 +11,6 @@ int parse_modifiers(Parser* p) {
             case TOKEN_OPEN: modifiers |= MODIFIER_OPEN; eat(p, TOKEN_OPEN); break;
             case TOKEN_CLOSED: modifiers |= MODIFIER_CLOSED; eat(p, TOKEN_CLOSED); break;
             case TOKEN_CONST: modifiers |= MODIFIER_CONST; eat(p, TOKEN_CONST); break;
-            case TOKEN_FINAL: modifiers |= MODIFIER_FINAL; eat(p, TOKEN_FINAL); break;
             case TOKEN_INERT: modifiers |= MODIFIER_INERT; eat(p, TOKEN_INERT); break;
             case TOKEN_REACTIVE: modifiers |= MODIFIER_REACTIVE; eat(p, TOKEN_REACTIVE); break;
             case TOKEN_NAKED: modifiers |= MODIFIER_NAKED; eat(p, TOKEN_NAKED); break;
@@ -87,7 +86,7 @@ void apply_class_modifiers(ClassNode* node, int modifiers) {
     node->has_explicit_pure = (modifiers & MODIFIER_PURE) != 0;
     
     // IS-A constraints (Inheritance)
-    if (modifiers & MODIFIER_FINAL) {
+    if (modifiers & MODIFIER_CLOSED) {
         node->is_is_a = IS_A_FINAL;
     } else if (modifiers & MODIFIER_NAKED) {
         node->is_is_a = IS_A_NAKED;

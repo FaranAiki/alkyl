@@ -518,6 +518,7 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
     while(curr) {
         if (curr->type == NODE_FUNC_DEF) {
             FuncDefNode *fn = (FuncDefNode*)curr;
+            debug_alir("Found func_def %s\n", fn->name);
             if (!fn->is_macro) {
                 alir_gen_function_def(ctx, fn, fn->class_name);
             }
@@ -553,12 +554,14 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
             }
         } else if (curr->type == NODE_NAMESPACE) {
             NamespaceNode *ns = (NamespaceNode*)curr;
+            debug_alir("Found namespace %s\n", ns->name);
             const char *next_ns = ns->name;
             if (current_ns && strlen(current_ns) > 0) {
                 char buf[512];
                 snprintf(buf, sizeof(buf), "%s.%s", current_ns, ns->name);
                 next_ns = alir_strdup(ctx->module, buf);
             }
+            
             alir_gen_functions_recursive(ctx, ns->body, next_ns);
         } else if (curr->type == NODE_IMPORT) {
             ImportNode *in = (ImportNode*)curr;

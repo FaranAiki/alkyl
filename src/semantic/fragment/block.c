@@ -2,6 +2,7 @@
 
 void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
+    if (node->filename) ctx->current_filename = node->filename;
     if (node->is_macro_arg) return;
     ctx->current_node = node;
 
@@ -308,6 +309,8 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
 }
 
 void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
+    if (!node) return;
+    if (node->filename) ctx->current_filename = node->filename;
     if (node->type == NODE_FUNC_DEF) sem_check_func_def(ctx, (FuncDefNode*)node);
     else if (node->type == NODE_CLASS) {
         ClassNode *cn = (ClassNode*)node;

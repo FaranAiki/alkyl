@@ -17,6 +17,7 @@ typedef struct SemSymbol {
     char *mangled_name;
     SymbolKind kind;
     VarType type;         // For VAR, FUNC (return type)
+    char *filename;
     
     // Function specific
     Parameter *params;
@@ -58,6 +59,8 @@ typedef struct SemSymbol {
     bool must_pristine : 1; // Checker to see if it must pristine tagged as pristine 
     bool is_total : 1;
     bool must_total : 1;
+    bool is_closed : 1;
+    bool is_private : 1;
     bool is_partial : 1;
     bool must_partial : 1;
     bool is_union : 1;

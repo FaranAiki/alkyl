@@ -29,9 +29,7 @@ static void add_to_cmd_history(const char *line) {
         snprintf(cmd_history[cmd_history_count], MAX_INPUT_LEN, "%s", line);
         cmd_history_count++;
     } else {
-        for (int i = 0; i < MAX_HISTORY - 1; i++) {
-            snprintf(cmd_history[i], MAX_INPUT_LEN, "%s", cmd_history[i + 1]);
-        }
+        memmove(cmd_history[0], cmd_history[1], (MAX_HISTORY - 1) * MAX_INPUT_LEN);
         snprintf(cmd_history[MAX_HISTORY - 1], MAX_INPUT_LEN, "%s", line);
     }
 }
@@ -343,14 +341,22 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
 
         redraw(base_prompt, base_prompt_no_color, input_buffer, len, pos, suggestion, word_len, &last_cursor_row);
 
-        char c = getchar();
+        int c = getchar();
 
-        if (c == '\n') {
-            insert_newline_line(input_buffer, &len, &pos);
-            if (history_view_idx == cmd_history_count) {
-                strcpy(temp_buffer, input_buffer);
-            }
-        } else if (c == '\r') {
+        if (c == EOF || c == 4) {
+            tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+            printf("\n");
+            return NULL;
+        } else if (c == 3) {
+            len = 0;
+            pos = 0;
+            input_buffer[0] = '\0';
+            continue;
+        }
+
+        if (c == '\n' || c == '\r') {
+            if (len == 0 && c == '\n') continue;
+
             int paren = 0, bracket = 0, brace = 0;
             int in_str = 0, in_char = 0;
             for (int i = 0; i < len; i++) {
@@ -564,7 +570,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                     }
                 }
             }
-        } else if (c >= 32 && c <= 126) {
+        } else if (c >= 32 && c != 127) {
             if (c == '}' && pos > current_line_start) {
                 int only_spaces = 1;
                 for (int i = current_line_start; i < pos; i++) {
