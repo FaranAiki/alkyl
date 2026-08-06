@@ -51,7 +51,14 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
     }
 
     AlirSymbol *sym = alir_find_symbol(ctx, vn->name);
-    if (sym) return sym->ptr;
+    if (sym) {
+        if (vn->is_implicit_deref) {
+            AlirValue *loaded = new_temp(ctx, sym->type);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded, sym->ptr, NULL));
+            return loaded;
+        }
+        return sym->ptr;
+    }
 
     SemSymbol *glob_sym = sem_symbol_lookup(ctx->sem, vn->name, NULL);
     if (glob_sym && glob_sym->kind == SYM_VAR) {

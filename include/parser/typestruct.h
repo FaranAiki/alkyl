@@ -419,6 +419,7 @@ typedef struct {
   int error_id;
   bool is_class_member : 1;
   bool is_error_id : 1;
+  bool is_implicit_deref : 1;
 } VarRefNode;
 
 typedef struct {

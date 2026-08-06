@@ -79,7 +79,13 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
     if (fn->cconv) ctx->current_func->cconv = alir_strdup(ctx->module, fn->cconv);
 
     if (class_name) {
-        VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)};
+        VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+        if (streq(class_name, "int")) { this_t.base = TYPE_INT; this_t.class_name = NULL; }
+        else if (streq(class_name, "char")) { this_t.base = TYPE_CHAR; this_t.class_name = NULL; }
+        else if (streq(class_name, "bool")) { this_t.base = TYPE_BOOL; this_t.class_name = NULL; }
+        else if (streq(class_name, "single")) { this_t.base = TYPE_SINGLE; this_t.class_name = NULL; }
+        else if (streq(class_name, "double")) { this_t.base = TYPE_DOUBLE; this_t.class_name = NULL; }
+
         alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
     }
 
@@ -99,7 +105,12 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
     int p_idx = 0;
 
     if (class_name) {
-        VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name)};
+        VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+        if (streq(class_name, "int")) { this_t.base = TYPE_INT; this_t.class_name = NULL; }
+        else if (streq(class_name, "char")) { this_t.base = TYPE_CHAR; this_t.class_name = NULL; }
+        else if (streq(class_name, "bool")) { this_t.base = TYPE_BOOL; this_t.class_name = NULL; }
+        else if (streq(class_name, "single")) { this_t.base = TYPE_SINGLE; this_t.class_name = NULL; }
+        else if (streq(class_name, "double")) { this_t.base = TYPE_DOUBLE; this_t.class_name = NULL; }
 
         char pname[16]; snprintf(pname, sizeof(pname), "p%d", p_idx++);
         AlirValue *pval = alir_val_var(ctx->module, pname);

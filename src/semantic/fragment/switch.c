@@ -140,7 +140,14 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
             sym->type.is_pristine = 1;
         }
 
-        sem_set_node_type(ctx, node, sym->type);
+        if (streq(ref->name, "this") && sym->type.base != TYPE_CLASS && sym->type.ptr_depth > 0) {
+            ref->is_implicit_deref = 1;
+            VarType t = sym->type;
+            t.ptr_depth--;
+            sem_set_node_type(ctx, node, t);
+        } else {
+            sem_set_node_type(ctx, node, sym->type);
+        }
         ref->mangled_name = arena_strdup(ctx->compiler_ctx->arena, sym->mangled_name ? sym->mangled_name : sym->name);
 
         if (sym->kind == SYM_VAR && ctx->current_func_sym && ctx->current_func_sym->is_pure) {

@@ -203,6 +203,7 @@ ASTNode* parse_assignment_or_call(Parser *p) {
 ASTNode* parse_single_statement_or_block_internal(Parser *p);
 
 ASTNode* parse_single_statement_or_block(Parser *p) {
+    if (p->has_error) return NULL;
     char *reason_str = NULL;
     if (p->current_token.type == TOKEN_REASON) {
         eat(p, TOKEN_REASON);
