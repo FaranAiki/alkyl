@@ -154,8 +154,12 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
                       else fprintf(f, "undef");
                       fprintf(f, " ");
                   }
+                  else if (inst->op == ALIR_OP_FREE_STACK) {
+                      inst = inst->next;
+                      continue;
+                  }
                   else if (inst->op == ALIR_OP_RET) {
-                      fprintf(f, "-> [");
+                      fprintf(f, "->[");
                       if (inst->op1) {
                           alir_fprint_type(f, inst->op1->type);
                           fprintf(f, "] ");

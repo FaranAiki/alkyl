@@ -225,7 +225,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (emit_alir) {
-            alir_emit_to_file(alir_module, BASENAME ".opt.alir");
+            alir_emit_to_file(alir_module, BASENAME ".alir");
         }
     }
 #endif
