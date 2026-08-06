@@ -107,12 +107,14 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
                         sym = sem_symbol_add(ctx, cn->name, SYM_CLASS, type_class);
                     } else {
                         sem_error(ctx, node, "Cannot extend non-existent class '%s'", cn->name);
+                        node = node->next;
                         continue; // skip
                     }
                 }
                 
                 if (sym->is_is_a == IS_A_FINAL) {
                     sem_error(ctx, node, "Cannot extend final class '%s'", cn->name);
+                    node = node->next;
                     continue; // skip
                 }
                 
@@ -469,7 +471,16 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 sem_error(ctx, node, "Cannot cast 'void' value");
             }
 
-            if (op_t.base == TYPE_CLASS && op_t.class_name) {
+            const char *op_class_name = op_t.class_name;
+            if (!op_class_name && op_t.ptr_depth == 0 && op_t.array_size == 0) {
+                if (op_t.base == TYPE_INT) op_class_name = "int";
+                else if (op_t.base == TYPE_CHAR) op_class_name = "char";
+                else if (op_t.base == TYPE_BOOL) op_class_name = "bool";
+                else if (op_t.base == TYPE_SINGLE) op_class_name = "single";
+                else if (op_t.base == TYPE_DOUBLE) op_class_name = "double";
+            }
+
+            if (op_class_name) {
                 char as_name[256];
                 if (cn->var_type.base == TYPE_CLASS || cn->var_type.base == TYPE_UNKNOWN) {
                     snprintf(as_name, sizeof(as_name), "as_%s", cn->var_type.class_name ? cn->var_type.class_name : "");
@@ -481,13 +492,13 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     snprintf(as_name, sizeof(as_name), "as_type%d", cn->var_type.base);
                 }
 
-                SemSymbol *class_sym = sem_symbol_lookup(ctx, op_t.class_name, NULL);
+                SemSymbol *class_sym = sem_symbol_lookup(ctx, op_class_name, NULL);
                 if (class_sym && class_sym->inner_scope) {
                     SemSymbol *member = class_sym->inner_scope->symbols;
                     while (member) {
                         if (member->kind == SYM_FUNC && streq(member->name, as_name)) {
                             char mangled[512];
-                            snprintf(mangled, sizeof(mangled), "%s_%s", op_t.class_name, as_name);
+                            snprintf(mangled, sizeof(mangled), "%s_%s", op_class_name, as_name);
                             cn->custom_cast_method = arena_strdup(ctx->compiler_ctx->arena, member->mangled_name ? member->mangled_name : mangled);
                             break;
                         }
