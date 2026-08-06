@@ -83,9 +83,19 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
           eat(p, TOKEN_QUESTION);
       }
 
-      if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected name after 'class', 'struct' or 'union'");
-      char *class_name = parser_strdup(p, p->current_token.text);
-      eat(p, TOKEN_IDENTIFIER);
+      if (p->current_token.type != TOKEN_IDENTIFIER && 
+          p->current_token.type != TOKEN_KW_INT && 
+          p->current_token.type != TOKEN_KW_CHAR && 
+          p->current_token.type != TOKEN_KW_BOOL && 
+          p->current_token.type != TOKEN_KW_SINGLE && 
+          p->current_token.type != TOKEN_KW_DOUBLE && 
+          p->current_token.type != TOKEN_KW_SHORT && 
+          p->current_token.type != TOKEN_KW_LONG && 
+          p->current_token.type != TOKEN_KW_VOID) {
+          parser_fail(p, "Expected name after 'class', 'struct' or 'union'");
+      }
+      char *class_name = parser_strdup(p, p->current_token.text ? p->current_token.text : token_type_to_string(p->current_token.type));
+      eat(p, p->current_token.type);
 
       if (p->current_token.type == TOKEN_QUESTION) {
           is_tainted_class = 1;

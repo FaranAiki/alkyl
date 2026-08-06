@@ -13,10 +13,20 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
         return;
     }
     
-    if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
-        SemSymbol *class_sym = sem_symbol_lookup_type(ctx, obj_type.class_name);
+    const char *primitive_class_name = NULL;
+    if (obj_type.base != TYPE_CLASS && obj_type.ptr_depth == 0) {
+        if (obj_type.base == TYPE_INT) primitive_class_name = "int";
+        else if (obj_type.base == TYPE_CHAR) primitive_class_name = "char";
+        else if (obj_type.base == TYPE_BOOL) primitive_class_name = "bool";
+        else if (obj_type.base == TYPE_SINGLE) primitive_class_name = "single";
+        else if (obj_type.base == TYPE_DOUBLE) primitive_class_name = "double";
+    }
+
+    if ((obj_type.base == TYPE_CLASS && obj_type.class_name) || primitive_class_name) {
+        const char *lookup_name = primitive_class_name ? primitive_class_name : obj_type.class_name;
+        SemSymbol *class_sym = sem_symbol_lookup_type(ctx, lookup_name);
         if (!class_sym || class_sym->kind != SYM_CLASS) {
-            if (class_sym) { debug_semantic("'%s' kind is %d in class.c\n", obj_type.class_name, class_sym->kind); }
+            if (class_sym) { debug_semantic("'%s' kind is %d in class.c\n", lookup_name, class_sym->kind); }
             if (class_sym && class_sym->kind == SYM_TEMPLATE) {
                 CompoundNode *cn = class_sym->template_node;
                 char expected_types[256] = "";
@@ -27,9 +37,9 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
                         pos += snprintf(expected_types + pos, sizeof(expected_types) - pos, ", ");
                     }
                 }
-                sem_error(ctx, (ASTNode*)node, "'%s' needs types [%s]", obj_type.class_name, expected_types);
+                sem_error(ctx, (ASTNode*)node, "'%s' needs types [%s]", lookup_name, expected_types);
             } else {
-                sem_error(ctx, (ASTNode*)node, "Type '%s' is not a class/struct", obj_type.class_name);
+                sem_error(ctx, (ASTNode*)node, "Type '%s' is not a class/struct", lookup_name);
             }
             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             return;
@@ -151,19 +161,23 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
 void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sym) {
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
 
-    SemScope *class_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
-    memset(class_scope, 0, sizeof(SemScope));
-
-    class_scope->symbols = NULL;
-    class_scope->symbol_map = arena_alloc_type(ctx->compiler_ctx->arena, HashMap);
-    hashmap_init((HashMap*)class_scope->symbol_map, ctx->compiler_ctx->arena, 16);
-    class_scope->parent = ctx->current_scope; 
-    class_scope->is_function_scope = 0;
-    class_scope->is_class_scope = 1; 
-    class_scope->class_sym = class_sym; 
-    class_scope->expected_ret_type = (VarType){0};
-    
-    class_sym->inner_scope = class_scope;
+    SemScope *class_scope = NULL;
+    if (cn->is_extended && class_sym->inner_scope) {
+        class_scope = class_sym->inner_scope;
+    } else {
+        class_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
+        memset(class_scope, 0, sizeof(SemScope));
+        class_scope->symbols = NULL;
+        class_scope->symbol_map = arena_alloc_type(ctx->compiler_ctx->arena, HashMap);
+        hashmap_init((HashMap*)class_scope->symbol_map, ctx->compiler_ctx->arena, 16);
+        class_scope->parent = ctx->current_scope; 
+        class_scope->is_function_scope = 0;
+        class_scope->is_class_scope = 1; 
+        class_scope->class_sym = class_sym; 
+        class_scope->expected_ret_type = (VarType){0};
+        
+        class_sym->inner_scope = class_scope;
+    }
     
     SemScope *old_scope = ctx->current_scope;
     ctx->current_scope = class_scope;
@@ -174,6 +188,17 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
         if (mem->type == NODE_VAR_DECL) {
             sem_symbolic_var_decl(ctx, mem);
         } else if (mem->type == NODE_FUNC_DEF) {
+            FuncDefNode *fd = (FuncDefNode*)mem;
+            if (cn->is_extended) {
+                SemSymbol *existing = hashmap_get((HashMap*)class_scope->symbol_map, fd->name);
+                if (existing) {
+                    if (!fd->is_override) {
+                        sem_error(ctx, mem, "method '%s' already exists in class '%s', use override to force it", fd->name, class_sym->name);
+                    } else {
+                        sem_warning(ctx, mem, "overriding method '%s' in extended class", fd->name);
+                    }
+                }
+            }
             sem_symbolic_func_def(ctx, mem);
         } else if (mem->type == NODE_COMPOUND) {
             CompoundNode *cn = (CompoundNode*)mem;

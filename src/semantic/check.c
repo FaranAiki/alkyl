@@ -93,25 +93,56 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
         }
         else if (node->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)node;
-            VarType type_class = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, cn->name), 0, 0, NULL, NULL, 0, 0, 0, cn->is_tainted, 0};
-            SemSymbol *sym = sem_symbol_add(ctx, cn->name, SYM_CLASS, type_class);
-            sym->is_is_a = cn->is_is_a;
-            sym->is_has_a = cn->is_has_a;
-            sym->is_pure = cn->is_pure && !cn->is_extern;
-            sym->must_pure = cn->has_explicit_pure;
-            sym->is_union = cn->is_union;
-            sym->node_ptr = node;
-            if (cn->parent_name) {
-                sym->parent_name = arena_strdup(ctx->compiler_ctx->arena, cn->parent_name);
-            }
-            if (cn->traits.count > 0) {
-                sym->trait_count = cn->traits.count;
-                sym->traits = arena_alloc(ctx->compiler_ctx->arena, sizeof(char*) * sym->trait_count);
-                for (int i = 0; i < sym->trait_count; i++) {
-                    sym->traits[i] = arena_strdup(ctx->compiler_ctx->arena, cn->traits.names[i]);
+            
+            if (cn->is_extended) {
+                if (!cn->is_method_class) {
+                    sem_warning(ctx, node, "try extended method instead of extended as it can cause memory issue");
                 }
+                
+                SemSymbol *sym = sem_symbol_lookup(ctx, cn->name, NULL);
+                if (!sym) {
+                    // Try to create primitive class wrapper if it's a primitive name
+                    if (streq(cn->name, "int") || streq(cn->name, "char") || streq(cn->name, "bool") || streq(cn->name, "single") || streq(cn->name, "double")) {
+                        VarType type_class = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, cn->name), 0, 0, NULL, NULL, 0, 0, 0, 0, 0};
+                        sym = sem_symbol_add(ctx, cn->name, SYM_CLASS, type_class);
+                    } else {
+                        sem_error(ctx, node, "Cannot extend non-existent class '%s'", cn->name);
+                        continue; // skip
+                    }
+                }
+                
+                if (sym->is_is_a == IS_A_FINAL) {
+                    sem_error(ctx, node, "Cannot extend final class '%s'", cn->name);
+                    continue; // skip
+                }
+                
+                // Inherit class properties if not explicitly a method class (to simulate copy behavior for normal extended)
+                if (!cn->is_method_class) {
+                    // "copy" or basically makes everything that is defined in the Vector "local" - handled by scanning members into the same scope
+                }
+                
+                sem_scan_class_members(ctx, cn, sym);
+            } else {
+                VarType type_class = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, cn->name), 0, 0, NULL, NULL, 0, 0, 0, cn->is_tainted, 0};
+                SemSymbol *sym = sem_symbol_add(ctx, cn->name, SYM_CLASS, type_class);
+                sym->is_is_a = cn->is_is_a;
+                sym->is_has_a = cn->is_has_a;
+                sym->is_pure = cn->is_pure && !cn->is_extern;
+                sym->must_pure = cn->has_explicit_pure;
+                sym->is_union = cn->is_union;
+                sym->node_ptr = node;
+                if (cn->parent_name) {
+                    sym->parent_name = arena_strdup(ctx->compiler_ctx->arena, cn->parent_name);
+                }
+                if (cn->traits.count > 0) {
+                    sym->trait_count = cn->traits.count;
+                    sym->traits = arena_alloc(ctx->compiler_ctx->arena, sizeof(char*) * sym->trait_count);
+                    for (int i = 0; i < sym->trait_count; i++) {
+                        sym->traits[i] = arena_strdup(ctx->compiler_ctx->arena, cn->traits.names[i]);
+                    }
+                }
+                sem_scan_class_members(ctx, cn, sym);
             }
-            sem_scan_class_members(ctx, cn, sym);
         }
 
         else if (node->type == NODE_STRUCT) {

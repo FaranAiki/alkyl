@@ -167,6 +167,8 @@ typedef struct {
   bool is_extern : 1;
   bool has_body : 1;
   bool is_covalent : 1;
+  bool is_override : 1;
+  bool is_mutable : 1;
   char *cconv;
   char *extern_name;
   char **err_names;       // error set attached via `errnum [...]`
@@ -202,6 +204,7 @@ typedef struct {
   bool is_pure : 1;
   bool has_explicit_pure : 1;
   bool is_tainted : 1;
+  bool is_extended : 1;
 } ClassNode;
 
 typedef struct {

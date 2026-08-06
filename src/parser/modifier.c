@@ -26,6 +26,9 @@ int parse_modifiers(Parser* p) {
             case TOKEN_EXACT: modifiers |= MODIFIER_EXACT; eat(p, TOKEN_EXACT); break;
             case TOKEN_PRAGMA: modifiers |= MODIFIER_PRAGMA; eat(p, TOKEN_PRAGMA); break;
             case TOKEN_METHOD: modifiers |= MODIFIER_METHOD; eat(p, TOKEN_METHOD); break;
+            case TOKEN_KW_MUT: modifiers |= MODIFIER_MUTABLE; eat(p, TOKEN_KW_MUT); break;
+            case TOKEN_EXTENDED: modifiers |= MODIFIER_EXTENDED; eat(p, TOKEN_EXTENDED); break;
+            case TOKEN_OVERRIDE: modifiers |= MODIFIER_OVERRIDE; eat(p, TOKEN_OVERRIDE); break;
             case TOKEN_CONTAINER: modifiers |= MODIFIER_CONTAINER; eat(p, TOKEN_CONTAINER); break;
             case TOKEN_FRAME: modifiers |= MODIFIER_FRAME; eat(p, TOKEN_FRAME); break;
             case TOKEN_META: {
@@ -76,6 +79,7 @@ void apply_class_modifiers(ClassNode* node, int modifiers) {
     
     if (modifiers & MODIFIER_METHOD) node->is_method_class = 1;
     if (modifiers & MODIFIER_CONTAINER) node->is_container = 1;
+    if (modifiers & MODIFIER_EXTENDED) node->is_extended = 1;
     if (modifiers & MODIFIER_FRAME) node->is_frame = 1;
     if (!node->is_method_class && !node->is_container) node->is_frame = 1; // default
 
@@ -108,6 +112,8 @@ void apply_func_modifiers(FuncDefNode* node, int modifiers) {
     if (modifiers & MODIFIER_OPEN) node->is_open = 1;
     if (modifiers & MODIFIER_CLOSED) node->is_open = 0;
     if (modifiers & MODIFIER_STATIC) node->is_static = 1;
+    if (modifiers & MODIFIER_OVERRIDE) node->is_override = 1;
+    if (modifiers & MODIFIER_MUTABLE) node->is_mutable = 1;
     if (modifiers & MODIFIER_META) node->is_macro = 1;
     if (modifiers & MODIFIER_COVALENT) node->is_covalent = 1;
     

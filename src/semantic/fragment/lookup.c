@@ -3,10 +3,20 @@
 int sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
     VarType obj_type = sem_get_node_type(ctx, node->object);
 
-    SemSymbol *class_sym = sem_symbol_lookup_type(ctx, obj_type.class_name);
-    debug_semantic("sem_lookup_class_call for '%s', class_sym=%p\n", obj_type.class_name, class_sym);
+    const char *primitive_class_name = NULL;
+    if (obj_type.base != TYPE_CLASS && obj_type.ptr_depth == 0) {
+        if (obj_type.base == TYPE_INT) primitive_class_name = "int";
+        else if (obj_type.base == TYPE_CHAR) primitive_class_name = "char";
+        else if (obj_type.base == TYPE_BOOL) primitive_class_name = "bool";
+        else if (obj_type.base == TYPE_SINGLE) primitive_class_name = "single";
+        else if (obj_type.base == TYPE_DOUBLE) primitive_class_name = "double";
+    }
+    
+    const char *lookup_name = primitive_class_name ? primitive_class_name : obj_type.class_name;
+    SemSymbol *class_sym = sem_symbol_lookup_type(ctx, lookup_name);
+    debug_semantic("sem_lookup_class_call for '%s', class_sym=%p\n", lookup_name, class_sym);
     if (!class_sym || class_sym->kind != SYM_CLASS) {
-        if (class_sym) { debug_semantic("'%s' kind is %d\n", obj_type.class_name, class_sym->kind); }
+        if (class_sym) { debug_semantic("'%s' kind is %d\n", lookup_name, class_sym->kind); }
         if (class_sym && class_sym->kind == SYM_TEMPLATE) {
             CompoundNode *cn = class_sym->template_node;
             char expected_types[256] = "";

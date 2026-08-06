@@ -33,6 +33,9 @@
 #define MODIFIER_META      (1 << 21)
 #define MODIFIER_TOTAL     (1 << 22)
 #define MODIFIER_PARTIAL   (1 << 23)
+#define MODIFIER_EXTENDED  (1 << 24)
+#define MODIFIER_OVERRIDE  (1 << 25)
+#define MODIFIER_MUTABLE   (1 << 26)
 
 int parse_modifiers(Parser* p);
 void apply_class_modifiers(ClassNode* node, int modifiers);

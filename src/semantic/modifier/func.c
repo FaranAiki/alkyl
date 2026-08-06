@@ -14,8 +14,17 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
     }
 
     int ufcs_fallback = 0;
+    
+    const char *primitive_class_name = NULL;
+    if (obj_type.base != TYPE_CLASS && obj_type.ptr_depth == 0) {
+        if (obj_type.base == TYPE_INT) primitive_class_name = "int";
+        else if (obj_type.base == TYPE_CHAR) primitive_class_name = "char";
+        else if (obj_type.base == TYPE_BOOL) primitive_class_name = "bool";
+        else if (obj_type.base == TYPE_SINGLE) primitive_class_name = "single";
+        else if (obj_type.base == TYPE_DOUBLE) primitive_class_name = "double";
+    }
 
-    if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
+    if ((obj_type.base == TYPE_CLASS && obj_type.class_name) || primitive_class_name) {
         if (!sem_lookup_class_call(ctx, node)) {
             ufcs_fallback = 1;
         }
@@ -229,7 +238,17 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
 
     if (node->class_name) {
         VarType this_type = {TYPE_CLASS, 1, arena_strdup(ctx->compiler_ctx->arena, node->class_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
-        sem_symbol_add(ctx, "this", SYM_VAR, this_type);
+        
+        if (streq(node->class_name, "int")) { this_type.base = TYPE_INT; this_type.class_name = NULL; }
+        else if (streq(node->class_name, "char")) { this_type.base = TYPE_CHAR; this_type.class_name = NULL; }
+        else if (streq(node->class_name, "bool")) { this_type.base = TYPE_BOOL; this_type.class_name = NULL; }
+        else if (streq(node->class_name, "single")) { this_type.base = TYPE_SINGLE; this_type.class_name = NULL; }
+        else if (streq(node->class_name, "double")) { this_type.base = TYPE_DOUBLE; this_type.class_name = NULL; }
+        
+        SemSymbol *this_sym = sem_symbol_add(ctx, "this", SYM_VAR, this_type);
+        if (!node->is_mutable) {
+            this_sym->is_mutable = false;
+        }
     }
 
     Parameter *p = node->params;
