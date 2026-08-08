@@ -356,6 +356,20 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             clone = (ASTNode*)n;
             break;
         }
+        case NODE_TEMPLATE_INSTANTIATION: {
+            TemplateInstNode *orig = (TemplateInstNode*)node;
+            TemplateInstNode *n = arena_alloc(ctx->arena, sizeof(TemplateInstNode));
+            *n = *orig;
+            n->target = ast_clone(ctx, orig->target, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            if (orig->num_template_types > 0 && orig->template_types) {
+                n->template_types = arena_alloc(ctx->arena, orig->num_template_types * sizeof(VarType));
+                for (int i = 0; i < orig->num_template_types; i++) {
+                    n->template_types[i] = clone_var_type(ctx, orig->template_types[i], type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+                }
+            }
+            clone = (ASTNode*)n;
+            break;
+        }
         case NODE_TYPEOF:
         case NODE_SIZEOF:
         case NODE_ALIGNOF: {

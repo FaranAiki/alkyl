@@ -1,21 +1,21 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55976537c7e8 target=0x55976537c6c8
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x556d961e47e8 target=0x556d961e46c8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x55976537c300
-debug: semantic: sem_check_expr: type=14 line=4 col=19 node=0x55976537c620
-debug: semantic: sem_check_expr: type=28 line=4 col=9 node=0x55976537c460
-debug: semantic: sem_check_expr: type=13 line=4 col=16 node=0x55976537c500
-debug: semantic: sem_check_expr: type=28 line=4 col=22 node=0x55976537c580
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x556d961e4300
+debug: semantic: sem_check_expr: type=14 line=4 col=19 node=0x556d961e4620
+debug: semantic: sem_check_expr: type=28 line=4 col=9 node=0x556d961e4460
+debug: semantic: sem_check_expr: type=13 line=4 col=16 node=0x556d961e4500
+debug: semantic: sem_check_expr: type=28 line=4 col=22 node=0x556d961e4580
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: Call line=5 col=15 name=printf target_type=13 node=0x55976537c7e8
-debug: semantic: sem_check_expr: type=2 line=5 col=15 node=0x55976537c7e8
+debug: semantic: sem_check_block: Call line=5 col=15 name=printf target_type=13 node=0x556d961e47e8
+debug: semantic: sem_check_expr: type=2 line=5 col=15 node=0x556d961e47e8
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x55976537c6c8
-debug: semantic: sem_check_expr: type=16 line=5 col=16 node=0x55976537c748
-debug: semantic: sem_check_expr: type=16 line=5 col=16 node=0x55976537c748
-debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55976537c900
+debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x556d961e46c8
+debug: semantic: sem_check_expr: type=16 line=5 col=16 node=0x556d961e4748
+debug: semantic: sem_check_expr: type=16 line=5 col=16 node=0x556d961e4748
+debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x556d961e4900
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -30,7 +30,7 @@ debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_bas
 debug: alir: typeof string='int'
 debug: alir: typeof string='int'
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55976537c210
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x556d961e4210
 debug: alir: GLOBAL VAR ADDR: printf
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1

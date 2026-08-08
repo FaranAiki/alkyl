@@ -11,27 +11,27 @@ debug: diag_set_namespace: after set, current='main'
 debug: diag_set_namespace: ns='ns', current='main', ptr_match=0
 debug: diag_set_namespace: after set, current='ns'
 debug: semantic: sem_check_block: ns='ns'
-debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x558df06e9198
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x55b8df776198
 debug: diag_set_namespace: ns='main', current='ns', ptr_match=0
 debug: diag_set_namespace: after set, current='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=27 line=8 col=17 node=0x558df06e9498
-debug: semantic: sem_check_expr: type=13 line=8 col=15 node=0x558df06e9418
+debug: semantic: sem_check_expr: type=27 line=8 col=17 node=0x55b8df776498
+debug: semantic: sem_check_expr: type=13 line=8 col=15 node=0x55b8df776418
 debug: semantic: sem_check_call: name='ns.Clib', ns='main'
-debug: semantic: sem_check_expr: type=13 line=8 col=17 node=0x558df06eab60
+debug: semantic: sem_check_expr: type=13 line=8 col=17 node=0x55b8df777b60
 debug: parser: clone_var_type fallback: class_name=(null) array_size=0 array_depth=0
-debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x558df06eac78
-debug: semantic: sem_check_expr: type=14 line=9 col=10 node=0x558df06e9788
-debug: semantic: sem_check_expr: type=26 line=9 col=7 node=0x558df06e9670
-debug: semantic: sem_check_expr: type=13 line=9 col=6 node=0x558df06e95f0
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x558df06e96e8
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x55b8df777c78
+debug: semantic: sem_check_expr: type=14 line=9 col=10 node=0x55b8df776788
+debug: semantic: sem_check_expr: type=26 line=9 col=7 node=0x55b8df776670
+debug: semantic: sem_check_expr: type=13 line=9 col=6 node=0x55b8df7765f0
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55b8df7766e8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=9 col=22 node=0x558df06e9830
-debug: semantic: sem_check_expr: type=16 line=9 col=32 node=0x558df06e99c0
+debug: semantic: sem_check_expr: type=16 line=9 col=22 node=0x55b8df776830
+debug: semantic: sem_check_expr: type=16 line=9 col=32 node=0x55b8df7769c0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Clib
-debug: alir: DEBUG_REGISTER: st=0x558df06ee938 name=ns.Clib next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55b8df77b938 name=ns.Clib next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - ns.Clib fields: 1
 debug: alir: Found namespace ns

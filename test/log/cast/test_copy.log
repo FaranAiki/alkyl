@@ -1,36 +1,36 @@
 step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=16, token.type=31
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55615dd31fe8 target=0x55615dd31e28
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x563fba424fe8 target=0x563fba424e28
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=8 col=24 node=0x55615dd31fe8
+debug: semantic: sem_check_expr: type=2 line=8 col=24 node=0x563fba424fe8
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=8 col=19 node=0x55615dd31e28
-debug: semantic: &ctx->ast_tail=0x7ffc621f2548, ctx->ast_tail=0x55615dd32a08, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_expr: type=16 line=8 col=25 node=0x55615dd31ea8
-debug: semantic: sem_check_expr: type=16 line=8 col=28 node=0x55615dd31f48
-debug: semantic: sem_check_expr: type=2 line=9 col=25 node=0x55615dd321d0
+debug: semantic: sem_check_expr: type=47 line=8 col=19 node=0x563fba424e28
+debug: semantic: &ctx->ast_tail=0x7ffe1741d008, ctx->ast_tail=0x563fba425a08, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=16 line=8 col=25 node=0x563fba424ea8
+debug: semantic: sem_check_expr: type=16 line=8 col=28 node=0x563fba424f48
+debug: semantic: sem_check_expr: type=2 line=9 col=25 node=0x563fba4251d0
 debug: semantic: sem_check_call: name='Vector[int]', ns='main'
-debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x55615dd32150
+debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x563fba425150
 debug: semantic: copy check: base=16 expected=16 class_name=Vector_int sym_name=Vector_int
-debug: semantic: sem_check_expr: type=16 line=10 col=11 node=0x55615dd32520
-debug: semantic: sem_check_expr: type=26 line=10 col=6 node=0x55615dd324a8
-debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x55615dd32428
-debug: semantic: sem_check_block: Call line=11 col=12 name=printf target_type=13 node=0x55615dd32968
-debug: semantic: sem_check_expr: type=2 line=11 col=12 node=0x55615dd32968
+debug: semantic: sem_check_expr: type=16 line=10 col=11 node=0x563fba425520
+debug: semantic: sem_check_expr: type=26 line=10 col=6 node=0x563fba4254a8
+debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x563fba425428
+debug: semantic: sem_check_block: Call line=11 col=12 name=printf target_type=13 node=0x563fba425968
+debug: semantic: sem_check_expr: type=2 line=11 col=12 node=0x563fba425968
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x55615dd32658
-debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x55615dd326d8
-debug: semantic: sem_check_expr: type=26 line=11 col=38 node=0x55615dd327f8
-debug: semantic: sem_check_expr: type=13 line=11 col=37 node=0x55615dd32778
-debug: semantic: sem_check_expr: type=26 line=11 col=43 node=0x55615dd328f0
-debug: semantic: sem_check_expr: type=13 line=11 col=42 node=0x55615dd32870
-debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x55615dd326d8
+debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x563fba425658
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x563fba4256d8
+debug: semantic: sem_check_expr: type=26 line=11 col=38 node=0x563fba4257f8
+debug: semantic: sem_check_expr: type=13 line=11 col=37 node=0x563fba425778
+debug: semantic: sem_check_expr: type=26 line=11 col=43 node=0x563fba4258f0
+debug: semantic: sem_check_expr: type=13 line=11 col=42 node=0x563fba425870
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x563fba4256d8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Vector_int
-debug: alir: DEBUG_REGISTER: st=0x55615dd37cd0 name=Vector_int next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x563fba42acd0 name=Vector_int next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - Vector_int fields: 2
 debug: alir: Found func_def printf
@@ -47,7 +47,7 @@ debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_bas
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55615dd312b8
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x563fba4242b8
 debug: alir: GLOBAL VAR ADDR: printf
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1

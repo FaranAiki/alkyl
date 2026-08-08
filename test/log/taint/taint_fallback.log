@@ -1,23 +1,23 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=add target_type=13 line=0 col=0 node=0x55942def68f0 target=0x55942def6680
+debug: parser: Created Call name=add target_type=13 line=0 col=0 node=0x55b9dd2418f0 target=0x55b9dd241680
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=2 col=14 node=0x55942def6318
-debug: semantic: sem_check_expr: type=13 line=2 col=12 node=0x55942def61f8
-debug: semantic: sem_check_expr: type=16 line=2 col=16 node=0x55942def6278
+debug: semantic: sem_check_expr: type=14 line=2 col=14 node=0x55b9dd241318
+debug: semantic: sem_check_expr: type=13 line=2 col=12 node=0x55b9dd2411f8
+debug: semantic: sem_check_expr: type=16 line=2 col=16 node=0x55b9dd241278
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x55942def6520
-debug: semantic: sem_check_block: Call line=9 col=8 name=add target_type=13 node=0x55942def68f0
-debug: semantic: sem_check_expr: type=2 line=9 col=8 node=0x55942def68f0
+debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x55b9dd241520
+debug: semantic: sem_check_block: Call line=9 col=8 name=add target_type=13 node=0x55b9dd2418f0
+debug: semantic: sem_check_expr: type=2 line=9 col=8 node=0x55b9dd2418f0
 debug: semantic: sem_check_call: name='add', ns='main'
-debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x55942def6680
-debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x55942def6820
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55942def6700
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55942def6780
-debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x55942def6820
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55942def6700
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55942def6780
-debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x55942def6988
+debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x55b9dd241680
+debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x55b9dd241820
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55b9dd241700
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55b9dd241780
+debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x55b9dd241820
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55b9dd241700
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55b9dd241780
+debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x55b9dd241988
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -30,7 +30,7 @@ debug: alir: alir_add_function: main
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 debug: alir: Looking up 'main_add_i32'
-debug: alir: Found symbol add, kind=1, is_macro=0, node_ptr=0x55942def6430
+debug: alir: Found symbol add, kind=1, is_macro=0, node_ptr=0x55b9dd241430
 debug: alir: GLOBAL VAR ADDR: add
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1

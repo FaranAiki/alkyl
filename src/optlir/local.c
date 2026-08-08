@@ -183,26 +183,45 @@ static void build_pred_succ(AlirFunction *func, Arena *arena) {
     while (b) {
         AlirInst *i = b->head;
         while (i) {
-            AlirBlock *t = NULL;
             if (i->op == ALIR_OP_JUMP && i->op1 && i->op1->kind == ALIR_VAL_LABEL) {
-                t = find_block_by_label(func, i->op1->val.str_val);
+                AlirBlock *t = find_block_by_label(func, i->op1->val.str_val);
+                if (t && t != b) {
+                    BlockEdge *se = arena_alloc_type(arena, BlockEdge);
+                    se->block = t;
+                    se->next = b->succ;
+                    b->succ = se;
+                    BlockEdge *pe = arena_alloc_type(arena, BlockEdge);
+                    pe->block = b;
+                    pe->next = t->pred;
+                    t->pred = pe;
+                }
             } else if (i->op == ALIR_OP_CONDI) {
                 if (i->op2 && i->op2->kind == ALIR_VAL_LABEL) {
-                    t = find_block_by_label(func, i->op2->val.str_val);
+                    AlirBlock *t = find_block_by_label(func, i->op2->val.str_val);
+                    if (t && t != b) {
+                        BlockEdge *se = arena_alloc_type(arena, BlockEdge);
+                        se->block = t;
+                        se->next = b->succ;
+                        b->succ = se;
+                        BlockEdge *pe = arena_alloc_type(arena, BlockEdge);
+                        pe->block = b;
+                        pe->next = t->pred;
+                        t->pred = pe;
+                    }
                 }
-                if (!t && i->arg_count > 0 && i->args[0] && i->args[0]->kind == ALIR_VAL_LABEL) {
-                    t = find_block_by_label(func, i->args[0]->val.str_val);
+                if (i->arg_count > 0 && i->args[0] && i->args[0]->kind == ALIR_VAL_LABEL) {
+                    AlirBlock *t = find_block_by_label(func, i->args[0]->val.str_val);
+                    if (t && t != b) {
+                        BlockEdge *se = arena_alloc_type(arena, BlockEdge);
+                        se->block = t;
+                        se->next = b->succ;
+                        b->succ = se;
+                        BlockEdge *pe = arena_alloc_type(arena, BlockEdge);
+                        pe->block = b;
+                        pe->next = t->pred;
+                        t->pred = pe;
+                    }
                 }
-            }
-            if (t && t != b) {
-                BlockEdge *se = arena_alloc_type(arena, BlockEdge);
-                se->block = t;
-                se->next = b->succ;
-                b->succ = se;
-                BlockEdge *pe = arena_alloc_type(arena, BlockEdge);
-                pe->block = b;
-                pe->next = t->pred;
-                t->pred = pe;
             }
             i = i->next;
         }
@@ -584,6 +603,13 @@ static int value_is_used_somewhere(AlirFunction *func, AlirValue *val) {
     while (b) {
         AlirInst *i = b->head;
         while (i) {
+            if (i->op == ALIR_OP_STORE) {
+                if (i->op1 == val) return 1;
+                // op2 is the destination, so it's a def, not a use
+                i = i->next;
+                continue;
+            }
+            
             if (i->op1 == val) return 1;
             if (i->op2 == val) return 1;
             if (i->dest == val) {
@@ -633,6 +659,13 @@ static int is_temp_used_except_in_load(AlirFunction *func, AlirValue *temp, Alir
                 i = i->next;
                 continue;
             }
+            if (i->op == ALIR_OP_STORE) {
+                if (i->op1 == temp) return 1;
+                // op2 is the destination, so it's a def, not a use
+                i = i->next;
+                continue;
+            }
+
             if (i->op1 == temp) return 1;
             if (i->op2 == temp) return 1;
             if (i->dest == temp) return 1;

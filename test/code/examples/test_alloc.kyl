@@ -2,7 +2,7 @@ import "std/heap";
 import "std/print";
 
 int main() {
-    tainted int* arr = default_allocator.alloc[int](10);
+    tainted int* arr = default_allocator.alloc[int](10 as long);
     arr[0] = 5;
     arr[1] = 10;
 

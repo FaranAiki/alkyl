@@ -15,8 +15,6 @@ namespace heap {
         compound [type T]
         T* alloc(long count);
 
-        compound [type T]
-        T* alloc();
     }
 
     open class CAllocator is Allocator {
@@ -32,11 +30,6 @@ namespace heap {
         compound [type T]
         T* alloc(long count) {
             return this.malloc(count * sizeof(T)) as T*;
-        }
-
-        compound [type T]
-        T* alloc() {
-            return this.alloc[T](1);
         }
 
         void free(tainted void* ptr) {
@@ -137,11 +130,6 @@ namespace heap {
         mut compound [type T]
         T* alloc(long count) {
             return this.malloc(count * sizeof(T)) as T*;
-        }
-
-        mut compound [type T]
-        T* alloc() {
-            return this.alloc[T](1);
         }
 
     public tainted:
