@@ -1,16 +1,16 @@
 step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x55ffff24a210
+debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x561a5157f210
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x55ffff24a4b8
+debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x561a5157f4b8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Range
-debug: alir: DEBUG_REGISTER: st=0x55ffff24f7e0 name=Range next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x561a515847e0 name=Range next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - Range fields: 1
-debug: alir: DEBUG_REGISTER: st=0x55ffff24f9e0 name=FluxCtx_main_Range_iterate next=0x55ffff24f7e0
+debug: alir: DEBUG_REGISTER: st=0x561a515849e0 name=FluxCtx_main_Range_iterate next=0x561a515847e0
 debug: alir: alir_add_function: main_Range_iterate
 debug: alir: alir_add_function: main_Range_iterate_Resume
 debug: alir: alir_add_function: Range
@@ -20,12 +20,10 @@ debug: alir: alir_add_function: main
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
+debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
+debug: optlir: Check Type for Struct Marking Range
+debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
+debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
+debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
 step: Finished alir optimization. Start code generation using LLVM codegen
-debug: codegen: struct=FluxCtx_main_Range_iterate fields=5
-debug: codegen: struct=Range fields=1
-debug: codegen: Field 0: base=1 ptr_depth=0
-debug: codegen: Field 1: base=-14354208 ptr_depth=22015
-debug: codegen: Field 2: base=1768843622 ptr_depth=1684367475
-debug: codegen: Field 3: base=2 ptr_depth=0
-debug: codegen: Field 4: base=0 ptr_depth=0
-debug: codegen: Field 0: base=1 ptr_depth=0

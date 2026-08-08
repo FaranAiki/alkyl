@@ -1,13 +1,13 @@
 step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=13 line=4 col=11 node=0x55c68e69b128
-debug: semantic: sem_check_expr: type=13 line=5 col=11 node=0x55c68e69b268
-debug: semantic: sem_check_expr: type=14 line=6 col=9 node=0x55c68e69b4a8
-debug: semantic: sem_check_expr: type=13 line=6 col=7 node=0x55c68e69b3a8
-debug: semantic: sem_check_expr: type=13 line=6 col=12 node=0x55c68e69b428
+debug: semantic: sem_check_expr: type=13 line=4 col=11 node=0x559a4d0370e8
+debug: semantic: sem_check_expr: type=13 line=5 col=11 node=0x559a4d037228
+debug: semantic: sem_check_expr: type=14 line=6 col=9 node=0x559a4d037468
+debug: semantic: sem_check_expr: type=13 line=6 col=7 node=0x559a4d037368
+debug: semantic: sem_check_expr: type=13 line=6 col=12 node=0x559a4d0373e8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55c68e69b550
-debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x55c68e69b6e0
+debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x559a4d037510
+debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x559a4d0376a0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -26,13 +26,4 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-at namespace main:
-in .../code/purge/test_err_var.kyl:
-6:12: error: [ALIR: @main -> entry] JUMP target label 'then' does not exist in function.
-  |   if (x == y) {
-  |            ^
-7:12: error: [ALIR: @main -> entry] Early terminator 'ret' found. Instructions following this in the same block are unreachable.
-  |     return 1;
-  |            ^
-ALICK Verification Failed: 2 errors, 0 warnings found.
-Error occured in alick after optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen

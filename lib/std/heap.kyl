@@ -9,11 +9,14 @@
 namespace heap {
     abstract method class Allocator {
     public tainted:
-        void* alloc(long size);
+        void* malloc(long size);
         void free(tainted void* ptr);
 
         compound [type T]
-        T* alloc_type(long count);
+        T* alloc(long count);
+
+        compound [type T]
+        T* alloc();
     }
 
     open class CAllocator is Allocator {
@@ -21,14 +24,19 @@ namespace heap {
         CAllocator() {}
 
     public tainted:
-        void* alloc(long size) {
+        void* malloc(long size) {
             if size < 0 { purge ErrOutOfMemory; }
             return my.malloc(size);
         }
 
         compound [type T]
-        T* alloc_type(long count) {
-            return my.malloc(count * sizeof(T)) as T*;
+        T* alloc(long count) {
+            return this.malloc(count * sizeof(T)) as T*;
+        }
+
+        compound [type T]
+        T* alloc() {
+            return this.alloc[T](1);
         }
 
         void free(tainted void* ptr) {
@@ -40,8 +48,8 @@ namespace heap {
     public CAllocator default_allocator;
 
     // Global helper functions
-    public tainted void* alloc(long size) {
-        return default_allocator.alloc(size);
+    public tainted void* malloc(long size) {
+        return default_allocator.malloc(size);
     }
 
     public tainted void free(tainted void* ptr) {
@@ -63,15 +71,15 @@ namespace heap {
 
 
     public tainted:
-        mut void* alloc(long size) {
-            return this.alloc_aligned(size, 8); // Default 8-byte alignment
+        mut void* malloc(long size) {
+            return this.malloc_aligned(size, 8); // Default 8-byte alignment
         }
 
-        mut void* alloc_aligned(long size, long align) {
+        mut void* malloc_aligned(long size, long align) {
             if size < 0 || align <= 0 then return my.nil;
 
             if this.head == my.nil {
-                return this.new_block_and_alloc(size, align);
+                return this.new_block_and_malloc(size, align);
             }
 
             long current_used = this.head.used;
@@ -84,7 +92,7 @@ namespace heap {
 
             // Check for integer overflow and capacity
             if end_index < current_used || end_index > this.head.capacity {
-                return this.new_block_and_alloc(size, align);
+                return this.new_block_and_malloc(size, align);
             }
 
             char* base = this.head.data as char*;
@@ -94,16 +102,16 @@ namespace heap {
         }
 
     private tainted:
-        mut void* new_block_and_alloc(long size, long align) {
+        mut void* new_block_and_malloc(long size, long align) {
             long cap = this.default_block_size;
             if size + align > cap then cap = size + align;
 
-            tainted ArenaBlock* new_block = default_allocator.alloc(sizeof(ArenaBlock)) as ArenaBlock*;
+            tainted ArenaBlock* new_block = default_allocator.malloc(sizeof(ArenaBlock)) as ArenaBlock*;
             untaint new_block residue err_1 {
                 purge ErrOutOfMemory;
             }
 
-            tainted void* raw_data = default_allocator.alloc(cap);
+            tainted void* raw_data = default_allocator.malloc(cap);
             untaint raw_data residue err_2 {
                 default_allocator.free(new_block as void*);
                 purge ErrOutOfMemory;
@@ -127,8 +135,13 @@ namespace heap {
         }
 
         mut compound [type T]
-        T* alloc_type(long count) {
-            return this.alloc(count * sizeof(T)) as T*;
+        T* alloc(long count) {
+            return this.malloc(count * sizeof(T)) as T*;
+        }
+
+        mut compound [type T]
+        T* alloc() {
+            return this.alloc[T](1);
         }
 
     public tainted:

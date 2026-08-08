@@ -14,14 +14,14 @@ debug: semantic: sem_check_block: ns='ns'
 debug: diag_set_namespace: ns='main', current='ns', ptr_match=0
 debug: diag_set_namespace: after set, current='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=8 col=15 node=0x55a23f1e33e8
+debug: semantic: sem_check_expr: type=2 line=8 col=15 node=0x5642fd61d3e8
 debug: semantic: sem_check_call: name='ns.Clib', ns='main'
-debug: semantic: sem_check_expr: type=16 line=8 col=13 node=0x55a23f1e3348
-debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x55a23f1e3540
+debug: semantic: sem_check_expr: type=16 line=8 col=13 node=0x5642fd61d348
+debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x5642fd61d540
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Clib
-debug: alir: DEBUG_REGISTER: st=0x55a23f1e87e0 name=ns.Clib next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x5642fd6227e0 name=ns.Clib next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - ns.Clib fields: 1
 debug: alir: Found namespace ns
@@ -34,6 +34,14 @@ debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_ba
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
 step: Finished alir optimization. Start code generation using LLVM codegen
 debug: codegen: struct=ns.Clib fields=1
 debug: codegen: Field 0: base=1 ptr_depth=0

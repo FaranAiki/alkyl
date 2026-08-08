@@ -15,15 +15,15 @@ debug: semantic: sem_check_block: ns='ns'
 debug: diag_set_namespace: ns='main', current='ns', ptr_match=0
 debug: diag_set_namespace: after set, current='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=0 col=0 node=0x55ba4c5787e0
+debug: semantic: sem_check_expr: type=2 line=0 col=0 node=0x55e7035e07e0
 debug: semantic: sem_check_call: name='ns.Clib', ns='main'
-debug: semantic: sem_check_expr: type=27 line=9 col=4 node=0x55ba4c5774b8
-debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x55ba4c577438
-debug: semantic: sem_lookup_class_call for 'ns.Clib', class_sym=0x55ba4c577fa8
+debug: semantic: sem_check_expr: type=27 line=9 col=4 node=0x55e7035df4b8
+debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x55e7035df438
+debug: semantic: sem_lookup_class_call for 'ns.Clib', class_sym=0x55e7035dffa8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Clib
-debug: alir: DEBUG_REGISTER: st=0x55ba4c57c7e0 name=ns.Clib next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55e7035e47e0 name=ns.Clib next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - ns.Clib fields: 0
 debug: alir: Found namespace ns

@@ -1,30 +1,30 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=divbytwo target_type=13 line=0 col=0 node=0x555e3ac53da8 target=0x555e3ac53be8
+debug: parser: Created Call name=divbytwo target_type=13 line=0 col=0 node=0x55d689104d50 target=0x55d689104b90
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=5 col=8 node=0x555e3ac536c0
-debug: semantic: sem_check_expr: type=13 line=5 col=6 node=0x555e3ac535a0
-debug: semantic: sem_check_expr: type=16 line=5 col=11 node=0x555e3ac53620
+debug: semantic: sem_check_expr: type=14 line=5 col=8 node=0x55d689104668
+debug: semantic: sem_check_expr: type=13 line=5 col=6 node=0x55d689104548
+debug: semantic: sem_check_expr: type=16 line=5 col=11 node=0x55d6891045c8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=6 col=12 node=0x555e3ac539d8
-debug: semantic: sem_check_expr: type=13 line=6 col=10 node=0x555e3ac538d8
-debug: semantic: sem_check_expr: type=13 line=6 col=14 node=0x555e3ac53958
+debug: semantic: sem_check_expr: type=14 line=6 col=12 node=0x55d689104980
+debug: semantic: sem_check_expr: type=13 line=6 col=10 node=0x55d689104880
+debug: semantic: sem_check_expr: type=13 line=6 col=14 node=0x55d689104900
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=10 col=27 node=0x555e3ac53da8
+debug: semantic: sem_check_expr: type=2 line=10 col=27 node=0x55d689104d50
 debug: semantic: sem_check_call: name='divbytwo', ns='main'
-debug: semantic: sem_check_expr: type=13 line=10 col=19 node=0x555e3ac53be8
-debug: semantic: sem_check_expr: type=16 line=10 col=28 node=0x555e3ac53c68
-debug: semantic: sem_check_expr: type=16 line=10 col=33 node=0x555e3ac53d08
-debug: semantic: sem_check_expr: type=16 line=10 col=28 node=0x555e3ac53c68
-debug: semantic: sem_check_expr: type=16 line=10 col=33 node=0x555e3ac53d08
+debug: semantic: sem_check_expr: type=13 line=10 col=19 node=0x55d689104b90
+debug: semantic: sem_check_expr: type=16 line=10 col=28 node=0x55d689104c10
+debug: semantic: sem_check_expr: type=16 line=10 col=33 node=0x55d689104cb0
+debug: semantic: sem_check_expr: type=16 line=10 col=28 node=0x55d689104c10
+debug: semantic: sem_check_expr: type=16 line=10 col=33 node=0x55d689104cb0
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: Call line=12 col=11 name=print target_type=13 node=0x555e3ac54048
-debug: semantic: sem_check_expr: type=2 line=12 col=11 node=0x555e3ac54048
+debug: semantic: sem_check_block: Call line=12 col=11 name=print target_type=13 node=0x55d689104ff0
+debug: semantic: sem_check_expr: type=2 line=12 col=11 node=0x55d689104ff0
 debug: semantic: sem_check_call: name='print', ns='main'
-debug: semantic: sem_check_expr: type=13 line=12 col=5 node=0x555e3ac53f28
-debug: semantic: sem_check_expr: type=16 line=12 col=11 node=0x555e3ac53fa8
-debug: semantic: sem_check_expr: type=16 line=12 col=11 node=0x555e3ac53fa8
+debug: semantic: sem_check_expr: type=13 line=12 col=5 node=0x55d689104ed0
+debug: semantic: sem_check_expr: type=16 line=12 col=11 node=0x55d689104f50
+debug: semantic: sem_check_expr: type=16 line=12 col=11 node=0x55d689104f50
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -38,7 +38,7 @@ debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 debug: alir: alir_add_function: main
 debug: alir: Looking up 'main_divbytwo_i32_i32'
-debug: alir: Found symbol divbytwo, kind=1, is_macro=0, node_ptr=0x555e3ac53af0
+debug: alir: Found symbol divbytwo, kind=1, is_macro=0, node_ptr=0x55d689104a98
 debug: alir: GLOBAL VAR ADDR: divbytwo
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
@@ -59,4 +59,4 @@ debug: optlir: Check Type for Struct Marking string
 debug: optlir: Check Type for Struct Marking string
 debug: optlir: Check Type for Struct Marking string
 step: Finished alir optimization. Start code generation using LLVM codegen
-Setting body for string: class_type=0x555e3ac81840 types[0]=0x555e3ac7f3c0 types[1]=0x555e3ac81820 i32=0x555e3ac7f3c0
+Setting body for string: class_type=0x55d689132840 types[0]=0x55d6891303c0 types[1]=0x55d689132820 i32=0x55d6891303c0
