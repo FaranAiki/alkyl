@@ -239,16 +239,28 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 has_err = LLVMBuildICmp(ctx->builder, LLVMIntEQ, err_id, target_err, "has_target_err");
                 
                 LLVMValueRef new_err_id = LLVMBuildSelect(ctx->builder, has_err, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), err_id, "new_err_id");
-                LLVMValueRef new_val = LLVMBuildSelect(ctx->builder, has_err, op2, val, "new_val");
                 
-                LLVMValueRef new_struct = LLVMGetUndef(LLVMTypeOf(op1));
-                new_struct = LLVMBuildInsertValue(ctx->builder, new_struct, new_err_id, 0, "ins_err");
-                if (LLVMCountStructElementTypes(LLVMTypeOf(op1)) > 1) {
-                    new_struct = LLVMBuildInsertValue(ctx->builder, new_struct, new_val, 1, "ins_val");
+                if (LLVMTypeOf(op2) != LLVMTypeOf(val)) {
+                    if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMPointerTypeKind) {
+                        op2 = LLVMBuildIntToPtr(ctx->builder, op2, LLVMTypeOf(val), "cast_fallback_ptr");
+                    } else if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMIntegerTypeKind && LLVMGetTypeKind(LLVMTypeOf(op2)) == LLVMIntegerTypeKind) {
+                        op2 = LLVMBuildIntCast(ctx->builder, op2, LLVMTypeOf(val), "cast_fallback_int");
+                    }
                 }
-                res = new_struct;
+                
+                LLVMValueRef new_val = LLVMBuildSelect(ctx->builder, has_err, op2, val, "new_val");
+                res = new_val;
             } else {
                 has_err = LLVMBuildICmp(ctx->builder, LLVMIntNE, err_id, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), "has_err");
+                
+                if (LLVMTypeOf(op2) != LLVMTypeOf(val)) {
+                    if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMPointerTypeKind) {
+                        op2 = LLVMBuildIntToPtr(ctx->builder, op2, LLVMTypeOf(val), "cast_fallback_ptr");
+                    } else if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMIntegerTypeKind && LLVMGetTypeKind(LLVMTypeOf(op2)) == LLVMIntegerTypeKind) {
+                        op2 = LLVMBuildIntCast(ctx->builder, op2, LLVMTypeOf(val), "cast_fallback_int");
+                    }
+                }
+                
                 res = LLVMBuildSelect(ctx->builder, has_err, op2, val, "fallback_res");
             }
             break;

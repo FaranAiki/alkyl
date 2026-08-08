@@ -247,13 +247,8 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     }
 
     if (node->op == TOKEN_QUESTION || node->op == TOKEN_QUESTION_QUESTION) {
-        if (node->fallback_err_name) {
-            // It filters a specific error. Without full union types, we just keep it tainted if the left was tainted.
-            sem_set_node_tainted(ctx, (ASTNode*)node, sem_get_node_tainted(ctx, node->left));
-        } else {
-            // Catch-all
-            sem_set_node_tainted(ctx, (ASTNode*)node, 0); // Result is pristine!
-        }
+        // Any fallback operator (even with specific error name) washes the taintedness.
+        sem_set_node_tainted(ctx, (ASTNode*)node, 0); // Result is pristine!
     } else if (sem_get_node_tainted(ctx, node->left) || sem_get_node_tainted(ctx, node->right)) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
     } else if (node->op == TOKEN_SLASH) {

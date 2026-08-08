@@ -1,0 +1,25 @@
+import "std/print";
+
+errnum[ErrTwo, ErrNotOne]
+tainted bool hasError(int a) {
+    if a == 1 then return true;
+    if a == 2 then purge ErrTwo;
+    purge ErrNotOne;
+}
+
+int main() {
+    let p = hasError(0);
+    if p ? false {
+        std.print "Shall not printed!";
+    }
+
+    let v = hasError(1);
+    if v ? false {
+        std.print "Shall be printed\n";
+    }
+
+    let t = hasError(2);
+    if t ?[ErrTwo] true {
+        std.print "Shall be printed\n";
+    }
+}

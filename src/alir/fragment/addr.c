@@ -359,7 +359,7 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
             case TYPE_UNSIGNED_CHAR:
                 return alir_const_unsigned_char(ctx->module, ln->val.unsigned_char_val);
             case TYPE_BOOL:
-                return alir_const_int(ctx->module, ln->val.long_val);
+                return alir_const_bool(ctx->module, ln->val.long_val);
             default: break; // TODO here
         }
     }

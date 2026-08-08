@@ -249,6 +249,8 @@ AlirStruct* alir_find_struct(AlirModule *mod, const char *name);
 int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *field_name);
 
 void alir_register_enum(AlirModule *mod, const char *name, AlirEnumEntry *entries);
+AlirValue* alir_const_int(AlirModule *mod, long val);
+AlirValue* alir_const_bool(AlirModule *mod, int val);
 AlirEnum* alir_find_enum(AlirModule *mod, const char *name);
 int alir_get_enum_value(AlirModule *mod, const char *enum_name, const char *entry_name, long *out_val);
 

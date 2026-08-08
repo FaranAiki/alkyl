@@ -9,6 +9,14 @@ AlirValue* alir_const_int(AlirModule *mod, long val) {
     return v;
 }
 
+AlirValue* alir_const_bool(AlirModule *mod, int val) {
+    AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
+    v->kind = ALIR_VAL_CONST;
+    v->type = (VarType){TYPE_BOOL, 0};
+    v->val.int_val = val;
+    return v;
+}
+
 AlirValue* alir_const_char(AlirModule *mod, char val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
