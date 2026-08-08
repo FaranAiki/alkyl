@@ -27,6 +27,8 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type);
 VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node);
 
 void sem_set_node_tainted(SemanticCtx *ctx, ASTNode *node, int is_tainted);
+void sem_check_residue_exhaustive(SemanticCtx *ctx, ASTNode *where, SemSymbol *err_sym, ResidueCase *cases, int default_case);
+void sem_emit_fallback_hint(SemanticCtx *ctx, ASTNode *condition);
 void sem_set_node_impure(SemanticCtx *ctx, ASTNode *node, int is_impure);
 int sem_get_node_tainted(SemanticCtx *ctx, ASTNode *node);
 int sem_get_node_impure(SemanticCtx *ctx, ASTNode *node);

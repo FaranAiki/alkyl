@@ -1,3 +1,8 @@
+/* Premeta stuff */
+define noreason as reason "No reason";
+premeta {
+    define noreason as reason "No reason";
+}
 
 /* For synthetic grammar I guess */
 define prist as pristine;
@@ -45,8 +50,9 @@ define ArrayLiteral as
     i64[], u64[], i128[], u128[],
     f32[], f64[];
 
-
-define noreason as reason "No reason";
-premeta {
-    define noreason as reason "No reason";
-}
+/* Syntatic sugar */
+define otherwise as ?;
+define catch as ?;
+define final as closed;
+define throw as purge;
+define raise as purge;

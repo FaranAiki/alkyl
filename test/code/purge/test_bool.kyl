@@ -1,16 +1,17 @@
 import "std/print";
 
-errnum[ErrTwo, ErrNotOne]
+errnum[ErrTwo, ErrThree, ErrNotOne]
 tainted bool hasError(int a) {
     if a == 1 then return true;
     if a == 2 then purge ErrTwo;
+    if a == 3 then purge ErrThree;
     purge ErrNotOne;
 }
 
 int main() {
     let p = hasError(0);
     if p ? false {
-        std.print "Shall not printed!";
+        std.print "Shall not be printed!";
     }
 
     let v = hasError(1);
@@ -19,7 +20,12 @@ int main() {
     }
 
     let t = hasError(2);
-    if t ?[ErrTwo] true {
+    if t ?[ErrTwo] true ? false {
         std.print "Shall be printed\n";
+    }
+
+    let z = hasError(3);
+    if z ?[ErrThree] false ? true {
+        std.print "Shall not be printed!\n";
     }
 }

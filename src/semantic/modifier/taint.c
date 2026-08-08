@@ -53,3 +53,36 @@ void sem_check_residue_exhaustive(SemanticCtx *ctx, ASTNode *where,
     }
 }
 
+void sem_emit_fallback_hint(SemanticCtx *ctx, ASTNode *condition) {
+    if (condition->type == NODE_BINARY_OP && (((BinaryOpNode*)condition)->op == TOKEN_QUESTION || ((BinaryOpNode*)condition)->op == TOKEN_QUESTION_QUESTION)) {
+        BinaryOpNode *bin = (BinaryOpNode*)condition;
+        SemSymbol *err_sym = sem_get_errnum_func_sym(ctx, bin->left);
+        char unhandled[1024] = "";
+        if (err_sym) {
+            int first = 1;
+            for (int i = 0; i < err_sym->num_err; i++) {
+                const char *ename = err_sym->err_names[i];
+                int found = 0;
+                for (ResidueCase *rc = bin->cases; rc; rc = rc->next) {
+                    if (rc->is_default) { found = 1; continue; }
+                    for (int j = 0; j < rc->num_err; j++) {
+                        if (streq_lit(rc->err_names[j], ename)) { found = 1; break; }
+                    }
+                    if (found) break;
+                }
+                if (!found) {
+                    if (!first) strncat(unhandled, ", ", sizeof(unhandled) - strlen(unhandled) - 1);
+                    strncat(unhandled, ename, sizeof(unhandled) - strlen(unhandled) - 1);
+                    first = 0;
+                }
+            }
+        }
+        if (unhandled[0] != '\0') {
+            sem_hint(ctx, condition, "The fallback operator does not cover all possible errors: %s. Chain with a catch-all ? operator to handle them.", unhandled);
+        } else {
+            sem_hint(ctx, condition, "The fallback operator does not cover all possible errors. Chain with a catch-all ? operator to handle the remaining error states.");
+        }
+    } else {
+        sem_hint(ctx, condition, "Use untaint, wash, clean, or ? operator to handle the error state");
+    }
+}
