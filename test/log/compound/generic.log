@@ -2,31 +2,31 @@ step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=16, token.type=31
 debug: parser: after parse_type, vt.base=16, token.type=31
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x5559cc36ccf0 target=0x5559cc36cb30
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x56360b39acf0 target=0x56360b39ab30
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x5559cc36d158 target=0x5559cc36ce48
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x56360b39b158 target=0x56360b39ae48
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=10 col=34 node=0x5559cc36ccf0
+debug: semantic: sem_check_expr: type=2 line=10 col=34 node=0x56360b39acf0
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=10 col=21 node=0x5559cc36cb30
-debug: semantic: &ctx->ast_tail=0x7ffc188f90b8, ctx->ast_tail=0x5559cc36d1f8, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_expr: type=16 line=10 col=35 node=0x5559cc36cbb0
-debug: semantic: sem_check_expr: type=16 line=10 col=39 node=0x5559cc36cc50
-debug: semantic: sem_check_block: Call line=11 col=9 name=printf target_type=13 node=0x5559cc36d158
-debug: semantic: sem_check_expr: type=2 line=11 col=9 node=0x5559cc36d158
+debug: semantic: sem_check_expr: type=47 line=10 col=21 node=0x56360b39ab30
+debug: semantic: &ctx->ast_tail=0x7ffda3944738, ctx->ast_tail=0x56360b39b1f8, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=16 line=10 col=35 node=0x56360b39abb0
+debug: semantic: sem_check_expr: type=16 line=10 col=39 node=0x56360b39ac50
+debug: semantic: sem_check_block: Call line=11 col=9 name=printf target_type=13 node=0x56360b39b158
+debug: semantic: sem_check_expr: type=2 line=11 col=9 node=0x56360b39b158
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=11 col=3 node=0x5559cc36ce48
-debug: semantic: sem_check_expr: type=16 line=11 col=10 node=0x5559cc36cec8
-debug: semantic: sem_check_expr: type=26 line=11 col=36 node=0x5559cc36cfe8
-debug: semantic: sem_check_expr: type=13 line=11 col=29 node=0x5559cc36cf68
-debug: semantic: sem_check_expr: type=26 line=11 col=51 node=0x5559cc36d0e0
-debug: semantic: sem_check_expr: type=13 line=11 col=44 node=0x5559cc36d060
-debug: semantic: sem_check_expr: type=16 line=11 col=10 node=0x5559cc36cec8
+debug: semantic: sem_check_expr: type=13 line=11 col=3 node=0x56360b39ae48
+debug: semantic: sem_check_expr: type=16 line=11 col=10 node=0x56360b39aec8
+debug: semantic: sem_check_expr: type=26 line=11 col=36 node=0x56360b39afe8
+debug: semantic: sem_check_expr: type=13 line=11 col=29 node=0x56360b39af68
+debug: semantic: sem_check_expr: type=26 line=11 col=51 node=0x56360b39b0e0
+debug: semantic: sem_check_expr: type=13 line=11 col=44 node=0x56360b39b060
+debug: semantic: sem_check_expr: type=16 line=11 col=10 node=0x56360b39aec8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Pair_int_double
-debug: alir: DEBUG_REGISTER: st=0x5559cc372278 name=Pair_int_double next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x56360b3a0278 name=Pair_int_double next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - Pair_int_double fields: 2
 debug: alir: Found func_def printf
@@ -38,7 +38,7 @@ debug: alir: alir_add_function: main
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
 debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x5559cc36c2c0
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x56360b39a2c0
 debug: alir: GLOBAL VAR ADDR: printf
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1

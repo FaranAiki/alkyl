@@ -101,7 +101,7 @@ namespace heap {
             ArenaBlock* new_block = default_allocator.alloc(sizeof(ArenaBlock)) as ArenaBlock*;
             if new_block == my.nil purge ErrOutOfMemory;
 
-            void* raw_data = default_allocator.alloc(cap);
+            void* raw_data = default_allocator.alloc(cap) as void*;
             if raw_data == my.nil {
                 default_allocator.free(new_block as void*);
                 purge ErrOutOfMemory;

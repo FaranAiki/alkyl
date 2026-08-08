@@ -1,23 +1,23 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=cmalloc target_type=13 line=0 col=0 node=0x5604ac127590 target=0x5604ac127470
+debug: parser: Created Call name=cmalloc target_type=13 line=0 col=0 node=0x563a7897c590 target=0x563a7897c470
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=cfree target_type=13 line=0 col=0 node=0x5604ac1277e8 target=0x5604ac1276e8
+debug: parser: Created Call name=cfree target_type=13 line=0 col=0 node=0x563a7897c7e8 target=0x563a7897c6e8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x5604ac127590
+debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x563a7897c590
 debug: semantic: sem_check_call: name='cmalloc', ns='main'
-debug: semantic: sem_check_expr: type=13 line=8 col=15 node=0x5604ac127470
-debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x5604ac1274f0
-debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x5604ac1274f0
-debug: semantic: sem_check_block: Call line=10 col=10 name=cfree target_type=13 node=0x5604ac1277e8
-debug: semantic: sem_check_expr: type=2 line=10 col=10 node=0x5604ac1277e8
+debug: semantic: sem_check_expr: type=13 line=8 col=15 node=0x563a7897c470
+debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x563a7897c4f0
+debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x563a7897c4f0
+debug: semantic: sem_check_block: Call line=10 col=10 name=cfree target_type=13 node=0x563a7897c7e8
+debug: semantic: sem_check_expr: type=2 line=10 col=10 node=0x563a7897c7e8
 debug: semantic: sem_check_call: name='cfree', ns='main'
-debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x5604ac1276e8
-debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x5604ac127768
-debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x5604ac127768
-debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x5604ac127880
+debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x563a7897c6e8
+debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x563a7897c768
+debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x563a7897c768
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x563a7897c880
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -31,13 +31,13 @@ debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 debug: alir: alir_add_function: main
 debug: alir: Looking up 'malloc'
-debug: alir: Found symbol cmalloc, kind=1, is_macro=0, node_ptr=0x5604ac127240
+debug: alir: Found symbol cmalloc, kind=1, is_macro=0, node_ptr=0x563a7897c240
 debug: alir: GLOBAL VAR ADDR: cmalloc
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=0 op1_kind=0 op1_type_base=0
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=0
 debug: alir: Looking up 'free'
-debug: alir: Found symbol cfree, kind=1, is_macro=0, node_ptr=0x5604ac127380
+debug: alir: Found symbol cfree, kind=1, is_macro=0, node_ptr=0x563a7897c380
 debug: alir: GLOBAL VAR ADDR: cfree
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=0 op1_kind=5 op1_type_base=0
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
