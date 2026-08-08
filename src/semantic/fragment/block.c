@@ -138,6 +138,10 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_IF: {
             IfNode *ifn = (IfNode*)node;
             sem_check_expr(ctx, ifn->condition);
+            if (sem_get_node_tainted(ctx, ifn->condition)) {
+                sem_error(ctx, ifn->condition, "Condition is tainted");
+                sem_hint(ctx, ifn->condition, "Use untaint, wash, clean, or ? operator to handle the error state");
+            }
 
             int cond_val = -1;
             if (ifn->condition->type == NODE_BINARY_OP) {
@@ -181,6 +185,10 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_SWITCH: {
             SwitchNode *sn = (SwitchNode*)node;
             sem_check_expr(ctx, sn->condition);
+            if (sem_get_node_tainted(ctx, sn->condition)) {
+                sem_error(ctx, sn->condition, "Condition is tainted");
+                sem_hint(ctx, sn->condition, "Use untaint, wash, clean, or ? operator to handle the error state");
+            }
 
             CaseNode *sc = (CaseNode*)sn->cases;
             while (sc) {
@@ -215,6 +223,10 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 ctx->current_func_sym->is_total = false;
             }
             sem_check_expr(ctx, wn->condition);
+            if (sem_get_node_tainted(ctx, wn->condition)) {
+                sem_error(ctx, wn->condition, "Condition is tainted");
+                sem_hint(ctx, wn->condition, "Use untaint, wash, clean, or ? operator to handle the error state");
+            }
             ctx->in_loop++;
 
             sem_scope_enter(ctx, 0, (VarType){0});
@@ -233,6 +245,10 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 ctx->current_func_sym->is_total = false;
             }
             sem_check_expr(ctx, ln->iterations);
+            if (sem_get_node_tainted(ctx, ln->iterations)) {
+                sem_error(ctx, ln->iterations, "Loop iterations expression is tainted");
+                sem_hint(ctx, ln->iterations, "Use untaint, wash, clean, or ? operator to handle the error state");
+            }
             ctx->in_loop++;
 
             sem_scope_enter(ctx, 0, (VarType){0});
@@ -243,13 +259,21 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             break;
         }
         case NODE_FOR_IN: {
+            ForInNode *fn = (ForInNode*)node;
             if (ctx->current_func_sym) {
                 if (ctx->current_func_sym->must_total) {
                     sem_error(ctx, node, "Function '%s' is marked total but contains a for-in loop", ctx->current_func_sym->name);
                 }
                 ctx->current_func_sym->is_total = false;
             }
+            sem_check_expr(ctx, fn->collection);
+            if (sem_get_node_tainted(ctx, fn->collection)) {
+                sem_error(ctx, fn->collection, "Collection is tainted");
+                sem_hint(ctx, fn->collection, "Use untaint, wash, clean, or ? operator to handle the error state");
+            }
+            ctx->in_loop++;
             sem_check_for_in(ctx, node);
+            ctx->in_loop--;
             break;
         }
         case NODE_BREAK:

@@ -40,18 +40,24 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
 VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
 
+    VarType res = {TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     unsigned int idx = hash_ptr(node);
     TypeEntry *curr = ctx->type_buckets[idx];
     while (curr) {
-        if (curr->node == node && curr->type.base != TYPE_UNKNOWN) return curr->type;
+        if (curr->node == node && curr->type.base != TYPE_UNKNOWN) {
+            res = curr->type;
+            break;
+        }
         curr = curr->next;
     }
 
-    if (node->sem_type.base != TYPE_UNKNOWN) {
-        return node->sem_type;
+    if (res.base == TYPE_UNKNOWN && node->sem_type.base != TYPE_UNKNOWN) {
+        res = node->sem_type;
     }
 
-    return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+    res.is_tainted = sem_get_node_tainted(ctx, node) || res.is_tainted;
+
+    return res;
 }
 
 void sem_set_node_tainted(SemanticCtx *ctx, ASTNode *node, int is_tainted) {
