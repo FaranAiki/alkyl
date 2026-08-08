@@ -85,7 +85,11 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
 
         int expr_tainted = sem_get_node_tainted(ctx, node->initializer);
         if (node->is_pristine && expr_tainted) {
-            node->is_pristine = false;
+            if (node->var_type.base != TYPE_AUTO) {
+                sem_error(ctx, (ASTNode*)node, "Cannot implicitly cast tainted expression to pristine variable '%s' (add 'tainted' to declaration or cast 'as %s' to wash)", node->name, sem_type_to_str(node->var_type));
+            } else {
+                node->is_pristine = false;
+            }
         }
 
         if (node->var_type.base == TYPE_AUTO) {
@@ -300,7 +304,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
             }
 
 
-            if (sym->must_pristine && expr_tainted) {
+            if (sym->is_pristine && expr_tainted) {
                 sem_error(ctx, (ASTNode*)node, "Cannot assign a tainted value to pristine variable '%s'", sym->name);
             }
 

@@ -6,9 +6,12 @@ int main() {
     arr[0] = 5;
     arr[1] = 10;
 
-    // cast to int to drop tainted, not safe but fine for testing
-    int x = arr[0] as int;
-    int y = arr[1] as int;
+    untaint arr residue err {
+        std.print("Allocation failed");
+        return 1;
+    }
+    int x = arr[0];
+    int y = arr[1];
     std.print x ? 0, " ", y ? 0, "\n";
     default_allocator.free(arr as void*);
     return 0;

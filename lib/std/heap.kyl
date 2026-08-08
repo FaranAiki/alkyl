@@ -98,11 +98,13 @@ namespace heap {
             long cap = this.default_block_size;
             if size + align > cap then cap = size + align;
 
-            ArenaBlock* new_block = default_allocator.alloc(sizeof(ArenaBlock)) as ArenaBlock*;
-            if new_block == my.nil purge ErrOutOfMemory;
+            tainted ArenaBlock* new_block = default_allocator.alloc(sizeof(ArenaBlock)) as ArenaBlock*;
+            untaint new_block residue err_1 {
+                purge ErrOutOfMemory;
+            }
 
-            void* raw_data = default_allocator.alloc(cap) as void*;
-            if raw_data == my.nil {
+            tainted void* raw_data = default_allocator.alloc(cap);
+            untaint raw_data residue err_2 {
                 default_allocator.free(new_block as void*);
                 purge ErrOutOfMemory;
             }
