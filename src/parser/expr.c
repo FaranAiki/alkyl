@@ -104,7 +104,7 @@ static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
     }
 
     if (!p->settings.greedy_space_calls) p->in_space_separated_call++;
-    ASTNode *expr = parse_expression(p);
+    ASTNode *expr = parse_unary(p);
     if (!p->settings.greedy_space_calls) p->in_space_separated_call--;
 
     if (!expr) break;

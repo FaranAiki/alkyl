@@ -165,19 +165,35 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
       ASTNode *members_head = NULL;
       ASTNode **curr_member = &members_head;
 
-      int current_label_modifiers = 0; // Tracks active label modifiers like `public:`
+      int label_modifier_stack[16];
+      int stack_depth = 0;
+      label_modifier_stack[0] = 0;
 
-      while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
+      while ((p->current_token.type != TOKEN_RBRACE || stack_depth > 0) && p->current_token.type != TOKEN_EOF) { 
           if (p->has_error) break;
+
+          if (p->current_token.type == TOKEN_RBRACE && stack_depth > 0) {
+              eat(p, TOKEN_RBRACE);
+              stack_depth--;
+              continue;
+          }
+
           int member_modifiers = parse_modifiers(p);
 
           if (p->current_token.type == TOKEN_COLON) {
               eat(p, TOKEN_COLON);
-              current_label_modifiers = member_modifiers;
+              label_modifier_stack[stack_depth] = member_modifiers;
               continue;
           }
 
-          member_modifiers |= current_label_modifiers;
+          if (p->current_token.type == TOKEN_LBRACE && member_modifiers != 0) {
+              eat(p, TOKEN_LBRACE);
+              stack_depth++;
+              label_modifier_stack[stack_depth] = label_modifier_stack[stack_depth-1] | member_modifiers;
+              continue;
+          }
+
+          member_modifiers |= label_modifier_stack[stack_depth];
 
           int member_open = is_open;
           if (member_modifiers & MODIFIER_OPEN) member_open = 1;
@@ -329,6 +345,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
           }
 
           VarType vt = parse_type(p);
+          member_modifiers |= parse_modifiers(p);
           debug_parser("after parse_type, vt.base=%d, token.type=%d\n", vt.base, p->current_token.type);
           if (vt.base != TYPE_UNKNOWN || (vt.base == TYPE_UNKNOWN && vt.class_name != NULL)) {
               if (p->current_token.type == TOKEN_LPAREN) {

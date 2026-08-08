@@ -1,27 +1,28 @@
 
 /* private closed */ namespace my {
-  extern void *malloc(unsigned int);
-  extern void free(void*);
+  @c extern void *malloc(unsigned int);
+  @c extern void free(void*);
 
   const void *nil = 0;
 }
 
-namespace heap {
+public open namespace heap {
     abstract method class Allocator {
-    public tainted:
+    public tainted {
         void* malloc(long size);
         void free(tainted void* ptr);
 
         compound [type T]
         T* alloc(long count);
-
+    }
     }
 
     open class CAllocator is Allocator {
-    public:
+    public {
         CAllocator() {}
+    }
 
-    public tainted:
+    public tainted {
         void* malloc(long size) {
             if size < 0 { purge ErrOutOfMemory; }
             return my.malloc(size);
@@ -35,6 +36,7 @@ namespace heap {
         void free(tainted void* ptr) {
             my.free(ptr); // from lib/c
         }
+    }
     }
 
     // Initialize a global allocator instance
@@ -50,20 +52,21 @@ namespace heap {
     }
 
     exact container class ArenaBlock {
-    public:
+    public {
         void* data = my.nil;
         long capacity = 0;
         long used = 0;
         ArenaBlock* next = my.nil;
     }
+    }
 
     open class ArenaAllocator {
-    public:
+    public {
         ArenaBlock* head = my.nil;
         long default_block_size = 65536;
+    }
 
-
-    public tainted:
+    public tainted {
         mut void* malloc(long size) {
             return this.malloc_aligned(size, 8); // Default 8-byte alignment
         }
@@ -93,8 +96,9 @@ namespace heap {
             this.head.used = end_index;
             return ptr;
         }
+    }
 
-    private tainted:
+    private tainted {
         mut void* new_block_and_malloc(long size, long align) {
             long cap = this.default_block_size;
             if size + align > cap then cap = size + align;
@@ -131,8 +135,9 @@ namespace heap {
         T* alloc(long count) {
             return this.malloc(count * sizeof(T)) as T*;
         }
+    }
 
-    public tainted:
+    public tainted {
         // free() returns all memory back to the OS/default allocator
         mut void free() {
             ArenaBlock* curr = this.head;
@@ -154,5 +159,6 @@ namespace heap {
                 curr = curr.next;
             }
         }
+    }
     }
 }

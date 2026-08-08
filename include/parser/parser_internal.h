@@ -41,6 +41,7 @@ void apply_class_modifiers(ClassNode* node, int modifiers);
 void apply_func_modifiers(FuncDefNode* node, int modifiers);
 ASTNode* parse_initializer(Parser *p, VarType vtype);
 void apply_var_modifiers(VarDeclNode* node, int modifiers);
+void apply_modifiers_to_node(ASTNode *node, int modifiers);
 void apply_param_modifiers(Parameter* param, int modifiers);
 
 struct Macro {

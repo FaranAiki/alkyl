@@ -3,10 +3,11 @@ import "lib/c";
 // TODO not that implemented yet!
 compound[type Type]
 class vector {
-public pristine:
+public pristine {
     unsigned int size = 0;
     unsigned int capacity = 0;
-public:
+}
+public {
     Type* data = 0 as Type*;
 
     void push_back(Type val) {
@@ -91,4 +92,5 @@ public:
     bool is_empty() {
         return this.size == 0;
     }
+}
 }

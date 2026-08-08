@@ -285,8 +285,15 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
                             case TYPE_VOID: case TYPE_ARRAY: case TYPE_AUTO: case TYPE_CLASS: 
                             case TYPE_NAMESPACE: case TYPE_ERROR: case TYPE_UNKNOWN: break;
                         }
-                        if (r_p > r_a) exact_matches += 10;
-                        else exact_matches += 1;
+                        if (r_p > r_a) {
+                            int score = 20 - (r_p - r_a);
+                            if (p->type.base == TYPE_DOUBLE && r_a <= 6) {
+                                score += 2; // prioritize double over single for integers
+                            }
+                            exact_matches += score;
+                        } else {
+                            exact_matches += 1;
+                        }
                     } else {
                         exact_matches += 5;
                     }

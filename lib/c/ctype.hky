@@ -2,19 +2,21 @@
 // reference https://www.w3schools.com/c/c_ref_ctype.php
 
 // Character Classification Functions
-extern int isalnum(int);
-extern int isalpha(int);
-extern int isblank(int);
-extern int iscntrl(int);
-extern int isdigit(int);
-extern int isgraph(int);
-extern int islower(int);
-extern int isprint(int);
-extern int ispunct(int);
-extern int isspace(int);
-extern int isupper(int);
-extern int isxdigit(int);
+reason "Definition of a function" extern int {
+    isalnum(int);
+    isalpha(int);
+    isblank(int);
+    iscntrl(int);
+    isdigit(int);
+    isgraph(int);
+    islower(int);
+    isprint(int);
+    ispunct(int);
+    isspace(int);
+    isupper(int);
+    isxdigit(int);
 
-// Character Conversion Functions
-extern int tolower(int);
-extern int toupper(int);
+    // Character Conversion Functions
+    tolower(int);
+    toupper(int);
+}

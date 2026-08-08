@@ -184,3 +184,10 @@ void apply_param_modifiers(Parameter* param, int modifiers) {
     param->has_explicit_pristine = (modifiers & MODIFIER_PRISTINE) != 0;
 }
 
+
+void apply_modifiers_to_node(ASTNode *node, int modifiers) {
+    if (!node) return;
+    if (node->type == NODE_CLASS) apply_class_modifiers((ClassNode*)node, modifiers);
+    else if (node->type == NODE_FUNC_DEF) apply_func_modifiers((FuncDefNode*)node, modifiers);
+    else if (node->type == NODE_VAR_DECL) apply_var_modifiers((VarDeclNode*)node, modifiers);
+}

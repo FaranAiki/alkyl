@@ -360,6 +360,27 @@ ASTNode* parse_top_level_internal(Parser *p) {
 
   int modifiers = parse_modifiers(p);
 
+  if (p->current_token.type == TOKEN_LBRACE && modifiers != 0) {
+      eat(p, TOKEN_LBRACE);
+      ASTNode *head = NULL;
+      ASTNode **curr = &head;
+      while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {
+          if (p->has_error) break;
+          ASTNode *n = parse_top_level(p);
+          if (n) {
+              ASTNode *n_curr = n;
+              while (n_curr) {
+                  apply_modifiers_to_node(n_curr, modifiers);
+                  n_curr = n_curr->next;
+              }
+              *curr = n;
+              while (*curr) curr = &(*curr)->next;
+          }
+      }
+      eat(p, TOKEN_RBRACE);
+      return head;
+  }
+
   if (p->current_token.type == TOKEN_COMPOUND) {
       return parse_compound(p, modifiers);
   }
@@ -680,6 +701,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
   }
 
   VarType vtype = parse_type(p);
+  modifiers |= parse_modifiers(p);
   if (vtype.base == TYPE_UNKNOWN) {
       if (modifiers) parser_fail(p, "Modifiers not allowed on statement");
       return parse_single_statement_or_block(p);

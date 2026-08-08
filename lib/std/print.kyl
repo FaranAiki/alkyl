@@ -10,7 +10,7 @@ namespace __c_lib {
 define formatted_printf as __c_lib.printf;
 define putchar as __c_lib.putchar;
 
-namespace std {
+public open namespace std {
 
 void print_int_array(int arr[], unsigned long size) {
     putchar('[');

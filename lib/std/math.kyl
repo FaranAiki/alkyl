@@ -1,113 +1,116 @@
 link m;
 
 private namespace __raw_math {
-    reason "math library" pure extern double sin(double);
-    reason "math library" pure extern double cos(double);
-    reason "math library" pure extern double tan(double);
-    reason "math library" pure extern double asin(double);
-    reason "math library" pure extern double acos(double);
-    reason "math library" pure extern double atan(double);
-    reason "math library" pure extern double atan2(double, double);
+    reason "math library" pure extern {
 
-    reason "math library" pure extern double sinh(double);
-    reason "math library" pure extern double cosh(double);
-    reason "math library" pure extern double tanh(double);
+    double sin(double);
+    double cos(double);
+    double tan(double);
+    double asin(double);
+    double acos(double);
+    double atan(double);
+    double atan2(double, double);
 
-    reason "math library" pure extern double exp(double);
-    reason "math library" pure extern double exp2(double);
-    reason "math library" pure extern double expm1(double);
-    reason "math library" pure extern double log(double);
-    reason "math library" pure extern double log10(double);
-    reason "math library" pure extern double log2(double);
-    reason "math library" pure extern double log1p(double);
+    double sinh(double);
+    double cosh(double);
+    double tanh(double);
 
-    reason "math library" pure extern double pow(double, double);
-    reason "math library" pure extern double sqrt(double);
-    reason "math library" pure extern double cbrt(double);
-    reason "math library" pure extern double hypot(double, double);
+    double exp(double);
+    double exp2(double);
+    double expm1(double);
+    double log(double);
+    double log10(double);
+    double log2(double);
+    double log1p(double);
 
-    reason "math library" pure extern double erf(double);
-    reason "math library" pure extern double erfc(double);
-    reason "math library" pure extern double lgamma(double);
-    reason "math library" pure extern double tgamma(double);
+    double pow(double, double);
+    double sqrt(double);
+    double cbrt(double);
+    double hypot(double, double);
 
-    reason "math library" pure extern double ceil(double);
-    reason "math library" pure extern double floor(double);
-    reason "math library" pure extern double round(double);
-    reason "math library" pure extern double trunc(double);
-    reason "math library" pure extern double nearbyint(double);
-    reason "math library" pure extern double rint(double);
+    double erf(double);
+    double erfc(double);
+    double lgamma(double);
+    double tgamma(double);
 
-    reason "math library" pure extern double fabs(double);
-    reason "math library" pure extern double fmod(double, double);
-    reason "math library" pure extern double fmax(double, double);
-    reason "math library" pure extern double fmin(double, double);
-    reason "math library" pure extern double remainder(double, double);
-    reason "math library" pure extern double copysign(double, double);
+    double ceil(double);
+    double floor(double);
+    double round(double);
+    double trunc(double);
+    double nearbyint(double);
+    double rint(double);
 
-    reason "math library" pure extern double frexp(double, int*);
-    reason "math library" pure extern double modf(double, double*);
+    double fabs(double);
+    double fmod(double, double);
+    double fmax(double, double);
+    double fmin(double, double);
+    double remainder(double, double);
+    double copysign(double, double);
 
-    reason "math library" pure extern double nextafter(double, double);
-    reason "math library" pure extern double fma(double, double, double);
+    double frexp(double, int*);
+    double modf(double, double*);
 
-    reason "math library" pure extern int ilogb(double);
-    reason "math library" pure extern double scalbn(double, int);
-    reason "math library" pure extern double scalbln(double, long);
+    double nextafter(double, double);
+    double fma(double, double, double);
 
-    reason "math library" pure extern single sinf(single);
-    reason "math library" pure extern single cosf(single);
-    reason "math library" pure extern single tanf(single);
-    reason "math library" pure extern single asinf(single);
-    reason "math library" pure extern single acosf(single);
-    reason "math library" pure extern single atanf(single);
-    reason "math library" pure extern single atan2f(single, single);
+    int ilogb(double);
+    double scalbn(double, int);
+    double scalbln(double, long);
 
-    reason "math library" pure extern single sinhf(single);
-    reason "math library" pure extern single coshf(single);
-    reason "math library" pure extern single tanhf(single);
+    single sinf(single);
+    single cosf(single);
+    single tanf(single);
+    single asinf(single);
+    single acosf(single);
+    single atanf(single);
+    single atan2f(single, single);
 
-    reason "math library" pure extern single expf(single);
-    reason "math library" pure extern single exp2f(single);
-    reason "math library" pure extern single expm1f(single);
-    reason "math library" pure extern single logf(single);
-    reason "math library" pure extern single log10f(single);
-    reason "math library" pure extern single log2f(single);
-    reason "math library" pure extern single log1pf(single);
+    single sinhf(single);
+    single coshf(single);
+    single tanhf(single);
 
-    reason "math library" pure extern single powf(single, single);
-    reason "math library" pure extern single sqrtf(single);
-    reason "math library" pure extern single cbrtf(single);
-    reason "math library" pure extern single hypotf(single, single);
+    single expf(single);
+    single exp2f(single);
+    single expm1f(single);
+    single logf(single);
+    single log10f(single);
+    single log2f(single);
+    single log1pf(single);
 
-    reason "math library" pure extern single erff(single);
-    reason "math library" pure extern single erfcf(single);
-    reason "math library" pure extern single lgammaf(single);
-    reason "math library" pure extern single tgammaf(single);
+    single powf(single, single);
+    single sqrtf(single);
+    single cbrtf(single);
+    single hypotf(single, single);
 
-    reason "math library" pure extern single ceilf(single);
-    reason "math library" pure extern single floorf(single);
-    reason "math library" pure extern single roundf(single);
-    reason "math library" pure extern single truncf(single);
-    reason "math library" pure extern single nearbyintf(single);
-    reason "math library" pure extern single rintf(single);
+    single erff(single);
+    single erfcf(single);
+    single lgammaf(single);
+    single tgammaf(single);
 
-    reason "math library" pure extern single fabsf(single);
-    reason "math library" pure extern single fmodf(single, single);
-    reason "math library" pure extern single fmaxf(single, single);
-    reason "math library" pure extern single fminf(single, single);
-    reason "math library" pure extern single remainderf(single, single);
-    reason "math library" pure extern single copysignf(single, single);
+    single ceilf(single);
+    single floorf(single);
+    single roundf(single);
+    single truncf(single);
+    single nearbyintf(single);
+    single rintf(single);
 
-    reason "math library" pure extern single frexpf(single, int*);
-    reason "math library" pure extern single modff(single, single*);
+    single fabsf(single);
+    single fmodf(single, single);
+    single fmaxf(single, single);
+    single fminf(single, single);
+    single remainderf(single, single);
+    single copysignf(single, single);
 
-    reason "math library" pure extern single nextafterf(single, single);
-    reason "math library" pure extern single fmaf(single, single, single);
+    single frexpf(single, int*);
+    single modff(single, single*);
 
-    reason "math library" pure extern int ilogbf(single);
-    reason "math library" pure extern single scalbnf(single, int);
-    reason "math library" pure extern single scalblnf(single, long);
+    single nextafterf(single, single);
+    single fmaf(single, single, single);
+
+    int ilogbf(single);
+    single scalbnf(single, int);
+    single scalblnf(single, long);
+    }
 }
 
 /* static define */
@@ -219,7 +222,7 @@ define _r_ilogbf as __raw_math.ilogbf;
 define _r_scalbnf as __raw_math.scalbnf;
 define _r_scalblnf as __raw_math.scalblnf;
 
-namespace math {
+public open namespace math {
 
 const double pi = 3.14159265358979323846;
 // const Complex i = Complex();
