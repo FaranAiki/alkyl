@@ -24,7 +24,7 @@ static int history_view_idx = 0;
 
 static void add_to_cmd_history(const char *line) {
     if (strlen(line) == 0) return;
-    if (cmd_history_count > 0 && streq(cmd_history[cmd_history_count - 1], line)) return;
+    if (cmd_history_count > 0 && streq_lit(cmd_history[cmd_history_count - 1], line)) return;
     if (cmd_history_count < MAX_HISTORY) {
         snprintf(cmd_history[cmd_history_count], MAX_INPUT_LEN, "%s", line);
         cmd_history_count++;

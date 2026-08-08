@@ -50,7 +50,7 @@ int parse_modifiers(Parser* p) {
                 break;
             }
             case TOKEN_IDENTIFIER: {
-                if (streq(p->current_token.text, "static")) {
+                if (streq_lit(p->current_token.text, "static")) {
                     modifiers |= MODIFIER_STATIC;
                     eat(p, TOKEN_IDENTIFIER);
                     break;

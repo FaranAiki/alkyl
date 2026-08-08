@@ -15,9 +15,9 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
     if (fn->mangled_name) {
         int is_inherited = 0;
         if (class_name && fn->class_name) {
-            if (!streq(class_name, fn->class_name)) {
+            if (!streq_lit(class_name, fn->class_name)) {
                 const char *dot = strrchr(class_name, '.');
-                if (!dot || !streq(dot + 1, fn->class_name)) {
+                if (!dot || !streq_lit(dot + 1, fn->class_name)) {
                     is_inherited = 1;
                 }
             }
@@ -59,7 +59,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
         }
     } else {
         if (class_name) {
-            if (streq(fn->name, "init") || streq(fn->name, class_name)) {
+            if (streq_lit(fn->name, "init") || streq_lit(fn->name, class_name)) {
                 snprintf(func_name, sizeof(func_name), "%s", class_name);
             } else {
                 snprintf(func_name, sizeof(func_name), "%s_%s", class_name, fn->name);
@@ -80,11 +80,11 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
 
     if (class_name) {
         VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
-        if (streq(class_name, "int")) { this_t.base = TYPE_INT; this_t.class_name = NULL; }
-        else if (streq(class_name, "char")) { this_t.base = TYPE_CHAR; this_t.class_name = NULL; }
-        else if (streq(class_name, "bool")) { this_t.base = TYPE_BOOL; this_t.class_name = NULL; }
-        else if (streq(class_name, "single")) { this_t.base = TYPE_SINGLE; this_t.class_name = NULL; }
-        else if (streq(class_name, "double")) { this_t.base = TYPE_DOUBLE; this_t.class_name = NULL; }
+        if (streq_lit(class_name, "int")) { this_t.base = TYPE_INT; this_t.class_name = NULL; }
+        else if (streq_lit(class_name, "char")) { this_t.base = TYPE_CHAR; this_t.class_name = NULL; }
+        else if (streq_lit(class_name, "bool")) { this_t.base = TYPE_BOOL; this_t.class_name = NULL; }
+        else if (streq_lit(class_name, "single")) { this_t.base = TYPE_SINGLE; this_t.class_name = NULL; }
+        else if (streq_lit(class_name, "double")) { this_t.base = TYPE_DOUBLE; this_t.class_name = NULL; }
 
         alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
     }
@@ -106,11 +106,11 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
 
     if (class_name) {
         VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
-        if (streq(class_name, "int")) { this_t.base = TYPE_INT; this_t.class_name = NULL; }
-        else if (streq(class_name, "char")) { this_t.base = TYPE_CHAR; this_t.class_name = NULL; }
-        else if (streq(class_name, "bool")) { this_t.base = TYPE_BOOL; this_t.class_name = NULL; }
-        else if (streq(class_name, "single")) { this_t.base = TYPE_SINGLE; this_t.class_name = NULL; }
-        else if (streq(class_name, "double")) { this_t.base = TYPE_DOUBLE; this_t.class_name = NULL; }
+        if (streq_lit(class_name, "int")) { this_t.base = TYPE_INT; this_t.class_name = NULL; }
+        else if (streq_lit(class_name, "char")) { this_t.base = TYPE_CHAR; this_t.class_name = NULL; }
+        else if (streq_lit(class_name, "bool")) { this_t.base = TYPE_BOOL; this_t.class_name = NULL; }
+        else if (streq_lit(class_name, "single")) { this_t.base = TYPE_SINGLE; this_t.class_name = NULL; }
+        else if (streq_lit(class_name, "double")) { this_t.base = TYPE_DOUBLE; this_t.class_name = NULL; }
 
         char pname[16]; snprintf(pname, sizeof(pname), "p%d", p_idx++);
         AlirValue *pval = alir_val_var(ctx->module, pname);
@@ -153,9 +153,9 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
             ctx->current_line = fn->base.line;
             ctx->current_col = fn->base.col;
 
-            if (streq(func_name, "main")) {
+            if (streq_lit(func_name, "main")) {
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, alir_const_int(ctx->module, 0), NULL));
-            } else if (fn->ret_type.base == TYPE_VOID || (class_name && (streq(fn->name, "init") || streq(fn->name, class_name)))) {
+            } else if (fn->ret_type.base == TYPE_VOID || (class_name && (streq_lit(fn->name, "init") || streq_lit(fn->name, class_name)))) {
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
             } else {
                 // Fallback for non-void functions that missed a return
@@ -214,7 +214,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
             if (class_sym && class_sym->inner_scope) {
                 SemSymbol *s = class_sym->inner_scope->symbols;
                 while (s) {
-                    if (streq(s->name, cn->name)) {
+                    if (streq_lit(s->name, cn->name)) {
                         sym = s;
                         break;
                     }
@@ -256,7 +256,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
         SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, NULL);
         if (sym && sym->kind == SYM_CLASS) {
             VarType arg_t = sem_get_node_type(ctx->sem, cn->args);
-            if (arg_t.base == TYPE_CLASS && arg_t.class_name && streq(arg_t.class_name, target_name)) {
+            if (arg_t.base == TYPE_CLASS && arg_t.class_name && streq_lit(arg_t.class_name, target_name)) {
                 AlirValue *arg_val = alir_gen_expr(ctx, cn->args);
                 AlirValue *ptr = new_temp(ctx, arg_t);
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, ptr, NULL, NULL));
@@ -302,7 +302,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
         // Fallback if Semantic Analyzer runs dry or was cleaned up by driver
         AlirFunction *f = ctx->module->functions;
         while(f) {
-            if (f->name && streq(f->name, target_name) && f->is_flux) {
+            if (f->name && streq_lit(f->name, target_name) && f->is_flux) {
                 ret_type = f->ret_type;
                 found = 1;
                 break;
@@ -333,7 +333,7 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
         int count = 0; ASTNode *a = cn->args; while(a) { count++; a=a->next; }
         if (count == 1 && ctx->sem) {
             VarType arg_t = sem_get_node_type(ctx->sem, cn->args);
-            if (arg_t.base == TYPE_CLASS && arg_t.class_name && streq(arg_t.class_name, target_name)) {
+            if (arg_t.base == TYPE_CLASS && arg_t.class_name && streq_lit(arg_t.class_name, target_name)) {
                 return alir_gen_expr(ctx, cn->args);
             }
         }
@@ -344,7 +344,7 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
     if (ctx->sem) {
         debug_alir("Looking up '%s'\n", target_name);
         SemSymbol *sym = sem_symbol_lookup(ctx->sem, target_name, NULL);
-        if (!sym && cn->name && !streq(target_name, cn->name)) {
+        if (!sym && cn->name && !streq_lit(target_name, cn->name)) {
             sym = sem_symbol_lookup(ctx->sem, cn->name, NULL);
         }
         if (sym) {

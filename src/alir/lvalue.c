@@ -362,7 +362,7 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
         if (class_sym && class_sym->inner_scope) {
             SemSymbol *method_sym = class_sym->inner_scope->symbols;
             while(method_sym) {
-                if (streq(method_sym->name, mc->method_name)) {
+                if (streq_lit(method_sym->name, mc->method_name)) {
                     if (method_sym->is_flux) {
                         char struct_name[1024];
                         snprintf(struct_name, sizeof(struct_name), "FluxCtx_%s", func_name);
@@ -379,7 +379,7 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     if (!found_flux && ctx->module) {
         AlirFunction *f = ctx->module->functions;
         while(f) {
-            if (streq(f->name, func_name) && f->is_flux) {
+            if (streq_lit(f->name, func_name) && f->is_flux) {
                 ret_type = f->ret_type;
                 break;
             }
@@ -571,7 +571,7 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
             // CRITICAL FIX: Trait access is a direct bitcast, no memory load!
             if (elem_t.base == TYPE_CLASS && target_t.base == TYPE_CLASS &&
                 elem_t.class_name && target_t.class_name &&
-                !streq(elem_t.class_name, target_t.class_name)) {
+                !streq_lit(elem_t.class_name, target_t.class_name)) {
 
                 AlirValue *target_val = alir_gen_expr(ctx, aa->target);
                 if (!target_val) return NULL;

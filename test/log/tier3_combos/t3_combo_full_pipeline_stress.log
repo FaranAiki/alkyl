@@ -1,0 +1,27 @@
+step: Finished lexing. Start parsing.
+debug: parser: after parse_type, vt.base=8, token.type=31
+debug: parser: after parse_type, vt.base=1, token.type=31
+debug: parser: after parse_type, vt.base=12, token.type=31
+at namespace main:
+in .../code/tier3_combos/t3_combo_full_pipeline_stress.kyl:
+13:16: error: Expected variable name in declaration
+  |     mut double total = cfg.timeout;
+  |                ^
+16:15: error: Invalid modifier on statement
+  |         total = total + 0.5;
+  |               ^
+18:5: error: Unexpected token in expression: '}'
+  |     }
+  |     ^
+19:12: error: Unexpected token in expression: 'total'
+  |     return total;
+  |            ^
+20:1: error: Unexpected token in expression: '}'
+  | }
+  | ^
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=AppConfig target_type=13 line=0 col=0 node=0x557b28a57fb8 target=0x557b28a57d58
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=compute_total_timeout target_type=13 line=0 col=0 node=0x557b28a582b0 target=0x557b28a58110
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x557b28a588e8 target=0x557b28a584d8

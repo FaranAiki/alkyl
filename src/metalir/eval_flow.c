@@ -54,7 +54,7 @@ case ALIR_OP_RET: {
                             if (ctx->vm) {
                                 VMGlobal *vg = ctx->vm->globals;
                                 while(vg) {
-                                    if (streq(vg->name, inst->op1->val.str_val)) {
+                                    if (streq_lit(vg->name, inst->op1->val.str_val)) {
                                         (*ctx->ret_val) = (long long)(intptr_t)vg->ptr_val;
                                         ctx->should_return = 1; return;
                                     }
@@ -64,7 +64,7 @@ case ALIR_OP_RET: {
                             if (ctx->module) {
                                 AlirGlobal *g = ctx->module->globals;
                                 while(g) {
-                                    if (streq(g->name, inst->op1->val.str_val) && g->string_content) {
+                                    if (streq_lit(g->name, inst->op1->val.str_val) && g->string_content) {
                                         (*ctx->ret_val) = (intptr_t)g->string_content;
                                         ctx->should_return = 1; return;
                                     }

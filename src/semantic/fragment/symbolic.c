@@ -44,7 +44,7 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
     char *mangled = fd->name;
     if (fd->is_extern) {
         if (fd->extern_name) mangled = fd->extern_name;
-    } else if (!streq(fd->name, "main")) {
+    } else if (!streq_lit(fd->name, "main")) {
         const char *current_ns = diag_get_namespace(ctx->compiler_ctx);
         char *ns_class = NULL;
         if (current_ns && strlen(current_ns) > 0) {
@@ -69,7 +69,7 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
             }
         } else {
             if (fd->cconv) {
-                if (streq(fd->cconv, "cpp")) {
+                if (streq_lit(fd->cconv, "cpp")) {
                     mangled = sem_mangle_itanium_func_name(ctx, ns_class, fd->name, fd->params);
                 } else {
                     mangled = fd->name; // basic extern for other languages for now
@@ -112,6 +112,8 @@ void sem_symbolic_node_enum(SemanticCtx *ctx, ASTNode *node) {
     memset(enum_scope, 0, sizeof(SemScope));
 
     enum_scope->symbols = NULL;
+    enum_scope->symbol_map = arena_alloc_type(ctx->compiler_ctx->arena, HashMap);
+    hashmap_init((HashMap*)enum_scope->symbol_map, ctx->compiler_ctx->arena, 16);
     enum_scope->parent = ctx->current_scope;
     enum_scope->is_function_scope = 0;
     enum_scope->is_class_scope = 0; 
@@ -136,6 +138,7 @@ void sem_symbolic_node_enum(SemanticCtx *ctx, ASTNode *node) {
         
         mem->next = enum_scope->symbols;
         enum_scope->symbols = mem;
+        hashmap_put((HashMap*)enum_scope->symbol_map, mem->name, mem);
         
         entry = entry->next;
     }
@@ -164,6 +167,8 @@ void sem_symbolic_namespace(SemanticCtx *ctx, ASTNode *node) {
         SemScope *ns_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
         memset(ns_scope, 0, sizeof(SemScope));
         ns_scope->symbols = NULL;
+        ns_scope->symbol_map = arena_alloc_type(ctx->compiler_ctx->arena, HashMap);
+        hashmap_init((HashMap*)ns_scope->symbol_map, ctx->compiler_ctx->arena, 16);
         ns_scope->parent = ctx->current_scope;
         ns_scope->is_function_scope = 0;
         ns_scope->is_class_scope = 0;

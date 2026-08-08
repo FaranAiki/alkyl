@@ -35,7 +35,7 @@ void sem_check_residue_exhaustive(SemanticCtx *ctx, ASTNode *where,
         for (ResidueCase *rc = cases; rc; rc = rc->next) {
             if (rc->is_default) { found = 1; continue; }
             for (int j = 0; j < rc->num_err; j++) {
-                if (streq(rc->err_names[j], ename)) { found = 1; break; }
+                if (streq_lit(rc->err_names[j], ename)) { found = 1; break; }
             }
             if (found) break;
         }

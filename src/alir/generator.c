@@ -86,7 +86,7 @@ long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
        while(e) {
            AlirEnumEntry *ent = e->entries;
            while(ent) {
-               if (streq(ent->name, vr->name)) return ent->value;
+               if (streq_lit(ent->name, vr->name)) return ent->value;
                ent = ent->next;
            }
            e = e->next;
@@ -471,7 +471,7 @@ void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_
             while (mem) {
                 if (mem->type == NODE_FUNC_DEF) {
                     FuncDefNode *fn = (FuncDefNode*)mem;
-                    if (!streq(fn->name, pcn->name) && !streq(fn->name, "init")) {
+                    if (!streq_lit(fn->name, pcn->name) && !streq_lit(fn->name, "init")) {
                         int is_overridden = 0;
                         if (target_node && hashmap_has(&target_methods, fn->name)) {
                             is_overridden = 1;
@@ -496,7 +496,7 @@ void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_
             while (mem) {
                 if (mem->type == NODE_FUNC_DEF) {
                     FuncDefNode *fn = (FuncDefNode*)mem;
-                    if (!streq(fn->name, tcn->name) && !streq(fn->name, "init")) {
+                    if (!streq_lit(fn->name, tcn->name) && !streq_lit(fn->name, "init")) {
                         int is_overridden = 0;
                         if (target_node && hashmap_has(&target_methods, fn->name)) {
                             is_overridden = 1;
@@ -537,7 +537,7 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
             while(mem) {
                 if (mem->type == NODE_FUNC_DEF) {
                     FuncDefNode *fn = (FuncDefNode*)mem;
-                    if (streq(fn->name, cn->name) || streq(fn->name, "init")) {
+                    if (streq_lit(fn->name, cn->name) || streq_lit(fn->name, "init")) {
                         has_constructor = 1;
                     }
                     if (!fn->is_macro) {

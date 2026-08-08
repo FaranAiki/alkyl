@@ -43,7 +43,7 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
                 member = hashmap_get((HashMap*)ns_sym->inner_scope->symbol_map, node->method_name);
             } else {
                 member = ns_sym->inner_scope->symbols;
-                while (member && !streq(member->name, node->method_name)) {
+                while (member && !streq_lit(member->name, node->method_name)) {
                     member = member->next;
                 }
             }
@@ -239,11 +239,11 @@ void sem_check_func_def(SemanticCtx *ctx, FuncDefNode *node) {
     if (node->class_name) {
         VarType this_type = {TYPE_CLASS, 1, arena_strdup(ctx->compiler_ctx->arena, node->class_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
         
-        if (streq(node->class_name, "int")) { this_type.base = TYPE_INT; this_type.class_name = NULL; }
-        else if (streq(node->class_name, "char")) { this_type.base = TYPE_CHAR; this_type.class_name = NULL; }
-        else if (streq(node->class_name, "bool")) { this_type.base = TYPE_BOOL; this_type.class_name = NULL; }
-        else if (streq(node->class_name, "single")) { this_type.base = TYPE_SINGLE; this_type.class_name = NULL; }
-        else if (streq(node->class_name, "double")) { this_type.base = TYPE_DOUBLE; this_type.class_name = NULL; }
+        if (streq_lit(node->class_name, "int")) { this_type.base = TYPE_INT; this_type.class_name = NULL; }
+        else if (streq_lit(node->class_name, "char")) { this_type.base = TYPE_CHAR; this_type.class_name = NULL; }
+        else if (streq_lit(node->class_name, "bool")) { this_type.base = TYPE_BOOL; this_type.class_name = NULL; }
+        else if (streq_lit(node->class_name, "single")) { this_type.base = TYPE_SINGLE; this_type.class_name = NULL; }
+        else if (streq_lit(node->class_name, "double")) { this_type.base = TYPE_DOUBLE; this_type.class_name = NULL; }
         
         SemSymbol *this_sym = sem_symbol_add(ctx, "this", SYM_VAR, this_type);
         if (!node->is_mutable) {
@@ -440,7 +440,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
             while (param && arg) {
                 if (param->type.base == TYPE_CLASS && param->type.class_name && param->type.ptr_depth == 0 && param->type.array_depth == 0) {
                     for (int i = 0; i < cn->num_type_params; i++) {
-                        if (streq(param->type.class_name, cn->type_params[i])) {
+                        if (streq_lit(param->type.class_name, cn->type_params[i])) {
                             VarType arg_t = sem_get_node_type(ctx, arg);
 
                             if (!inferred_flags[i]) {
@@ -559,7 +559,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
         if (sym->inner_scope) {
             SemSymbol *s = sym->inner_scope->symbols;
             while (s) {
-                if (streq(s->name, sym->name) || streq(s->name, "init")) {
+                if (streq_lit(s->name, sym->name) || streq_lit(s->name, "init")) {
                      constructor_head = s;
                      break;
                 }
@@ -588,7 +588,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                 if (trait_sym && trait_sym->inner_scope) {
                     SemSymbol *s = trait_sym->inner_scope->symbols;
                     while (s) {
-                        if (streq(s->name, trait_sym->name) || streq(s->name, "init")) {
+                        if (streq_lit(s->name, trait_sym->name) || streq_lit(s->name, "init")) {
                             constructor_head = s;
                             break;
                         }
@@ -627,7 +627,7 @@ void sem_check_call(SemanticCtx *ctx, CallNode *node) {
                  if (arg_count == 1) {
                      VarType arg_type = sem_get_node_type(ctx, node->args);
                      debug_semantic("copy check: base=%d expected=%d class_name=%s sym_name=%s\n", arg_type.base, TYPE_CLASS, arg_type.class_name ? arg_type.class_name : "(null)", sym->name);
-                     if (arg_type.base == TYPE_CLASS && arg_type.class_name && streq(arg_type.class_name, sym->name)) {
+                     if (arg_type.base == TYPE_CLASS && arg_type.class_name && streq_lit(arg_type.class_name, sym->name)) {
                          is_copy = 1;
                      }
                  }

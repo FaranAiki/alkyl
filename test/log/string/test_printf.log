@@ -1,0 +1,40 @@
+step: Finished lexing. Start parsing.
+debug: diag_set_namespace: ns='clib', current='main', ptr_match=0
+debug: diag_set_namespace: after set, current='clib'
+debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
+debug: diag_set_namespace: after set, current='main'
+debug: diag_set_namespace: ns='clib', current='main', ptr_match=0
+debug: diag_set_namespace: after set, current='clib'
+debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
+debug: diag_set_namespace: after set, current='main'
+debug: diag_set_namespace: ns='clib', current='main', ptr_match=0
+debug: diag_set_namespace: after set, current='clib'
+debug: semantic: sem_check_block: ns='clib'
+debug: semantic: sem_check_block: ns='clib'
+debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
+debug: diag_set_namespace: after set, current='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=27 line=4 col=17 node=0x55cd2cc3f588
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55cd2cc3f2b0
+debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55cd2cc3f3a8
+debug: semantic: sem_check_expr: type=16 line=4 col=31 node=0x55cd2cc3f448
+debug: semantic: sem_check_expr: type=16 line=4 col=40 node=0x55cd2cc3f4e8
+debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55cd2cc3f3a8
+debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x55cd2cc3f620
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found namespace clib
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen

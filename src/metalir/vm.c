@@ -31,7 +31,7 @@ void metalir_vm_free(MetalirVM *vm) {
 AlirBlock* find_block(AlirFunction *func, const char *label) {
     AlirBlock *curr = func->blocks;
     while(curr) {
-        if (curr->label && streq(curr->label, label)) return curr;
+        if (curr->label && streq_lit(curr->label, label)) return curr;
         curr = curr->next;
     }
     return NULL;
@@ -49,14 +49,14 @@ long long metalir_vm_resolve_var(AlirValue *val, AlirModule *module, MetalirVM *
         if (vm) {
             VMGlobal *g = vm->globals;
             while(g) {
-                if (streq(g->name, name)) return (long long)(intptr_t)g->ptr_val;
+                if (streq_lit(g->name, name)) return (long long)(intptr_t)g->ptr_val;
                 g = g->next;
             }
         }
         if (module) {
             AlirGlobal *g = module->globals;
             while(g) {
-                if (streq(g->name, name)) return (long long)(intptr_t)g->string_content;
+                if (streq_lit(g->name, name)) return (long long)(intptr_t)g->string_content;
                 g = g->next;
             }
         }
@@ -65,14 +65,14 @@ long long metalir_vm_resolve_var(AlirValue *val, AlirModule *module, MetalirVM *
         if (vm) {
             VMGlobal *g = vm->globals;
             while(g) {
-                if (streq(g->name, name)) return (long long)(intptr_t)g->ptr_val;
+                if (streq_lit(g->name, name)) return (long long)(intptr_t)g->ptr_val;
                 g = g->next;
             }
         }
         if (module) {
             AlirGlobal *g = module->globals;
             while(g) {
-                if (streq(g->name, name)) return (long long)(intptr_t)g->string_content;
+                if (streq_lit(g->name, name)) return (long long)(intptr_t)g->string_content;
                 g = g->next;
             }
         }
@@ -85,7 +85,7 @@ long long metalir_vm_execute(MetalirVM *vm, AlirModule *module, AlirFunction *fu
 
     // What the fuck is this
     /*
-    if (streq(func->name, "Vector_as_int")) {
+    if (streq_lit(func->name, "Vector_as_int")) {
         AlirInst *i = func->blocks ? func->blocks->head : NULL;
         while(i) {
             i = i->next;
@@ -183,7 +183,7 @@ long long metalir_vm_execute(MetalirVM *vm, AlirModule *module, AlirFunction *fu
                     if (inst->op1->kind == ALIR_VAL_GLOBAL && inst->op1->val.str_val && module) {
                         AlirGlobal *g = module->globals;
                         while(g) {
-                            if (streq(g->name, inst->op1->val.str_val)) {
+                            if (streq_lit(g->name, inst->op1->val.str_val)) {
                                 fprintf(stderr, "Compile-time purge: %s\n", g->string_content);
                                 break;
                             }

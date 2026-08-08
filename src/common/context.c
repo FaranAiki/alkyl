@@ -45,5 +45,5 @@ void context_init(CompilerContext *ctx, Arena *arena) {
 
 const char* context_intern(CompilerContext *ctx, const char *str) {
     if (!ctx || !str) return NULL;
-    return hashmap_intern(&ctx->string_pool, str);
+    return arena_strdup(ctx->arena, str);
 }

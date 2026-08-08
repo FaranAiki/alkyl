@@ -4,11 +4,11 @@ int sem_count_required_class_fields(SemanticCtx *ctx, SemSymbol *sym);
 #include <stdio.h>
 
 void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarType src) {
-    int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && streq(dest.class_name, "string") && dest.ptr_depth == 0);
+    int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && streq_lit(dest.class_name, "string") && dest.ptr_depth == 0);
     int src_is_char = (src.base == TYPE_CHAR && (src.ptr_depth > 0 || src.array_size > 0));
 
     int dest_is_char = (dest.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0));
-    int src_is_str = (src.base == TYPE_CLASS && src.class_name && streq(src.class_name, "string") && src.ptr_depth == 0);
+    int src_is_str = (src.base == TYPE_CLASS && src.class_name && streq_lit(src.class_name, "string") && src.ptr_depth == 0);
 
     if (dest_is_str && src_is_char) {
         sem_info(ctx, node, "Implicit cast from 'char%s' to 'string'", (src.array_size > 0) ? "[]" : "*");
@@ -17,7 +17,7 @@ void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarT
 
         if (node->type == NODE_LITERAL) {
             LiteralNode *lit = (LiteralNode*)node;
-            if (lit->var_type.base == TYPE_CLASS && lit->var_type.class_name && streq(lit->var_type.class_name, "string") && lit->val.str_val) {
+            if (lit->var_type.base == TYPE_CLASS && lit->var_type.class_name && streq_lit(lit->var_type.class_name, "string") && lit->val.str_val) {
                 sem_hint(ctx, node, "Use c\"%s\" for a C-style string", lit->val.str_val);
                 return;
             }
@@ -98,7 +98,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             }
         }
         else {
-            int is_stack_ctor = (node->var_type.base == TYPE_CLASS && node->var_type.ptr_depth == 0 && init_type.base == TYPE_CLASS && init_type.ptr_depth == 1 && node->var_type.class_name && init_type.class_name && streq(node->var_type.class_name, init_type.class_name));
+            int is_stack_ctor = (node->var_type.base == TYPE_CLASS && node->var_type.ptr_depth == 0 && init_type.base == TYPE_CLASS && init_type.ptr_depth == 1 && node->var_type.class_name && init_type.class_name && streq_lit(node->var_type.class_name, init_type.class_name));
             if (!sem_types_are_compatible(ctx,node->var_type, init_type) && !is_stack_ctor) {
                 char *t1 = sem_type_to_str(node->var_type);
                 char *t2 = sem_type_to_str(init_type);
@@ -145,7 +145,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
                     if (sym->kind == SYM_ENUM && sym->inner_scope) {
                         SemSymbol *mem = sym->inner_scope->symbols;
                         while (mem) {
-                            if (streq(mem->name, node->name)) {
+                            if (streq_lit(mem->name, node->name)) {
                                 shadow = mem;
                                 shadow_scope = sym->inner_scope;
                                 break;
@@ -217,9 +217,13 @@ static bool sem_is_lvalue_mutable(SemanticCtx *ctx, ASTNode *node) {
         return true;
     } else if (node->type == NODE_MEMBER_ACCESS) {
         MemberAccessNode *ma = (MemberAccessNode*)node;
+        VarType obj_t = sem_get_node_type(ctx, ma->object);
+        if (obj_t.ptr_depth > 0) return true;
         return sem_is_lvalue_mutable(ctx, ma->object);
     } else if (node->type == NODE_INDEX_ACCESS) {
         IndexAccessNode *aa = (IndexAccessNode*)node;
+        VarType target_t = sem_get_node_type(ctx, aa->target);
+        if (target_t.ptr_depth > 0 || target_t.array_size > 0) return true;
         return sem_is_lvalue_mutable(ctx, aa->target);
     } else if (node->type == NODE_UNARY_OP) {
         // e.g. pointer dereference `*ptr`
@@ -357,7 +361,7 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
             if (class_sym && class_sym->inner_scope) {
                 SemSymbol *s = class_sym->inner_scope->symbols;
                 while (s) {
-                    if (streq(s->name, name_buf)) { sym = s; is_method = 1; break; }
+                    if (streq_lit(s->name, name_buf)) { sym = s; is_method = 1; break; }
                     s = s->next;
                 }
             }
@@ -549,6 +553,6 @@ int is_bool(VarType t) {
 }
 
 int is_pointer(VarType t) {
-    return t.ptr_depth > 0 || t.array_size > 0 || (t.base == TYPE_CLASS && t.class_name && (streq(t.class_name, "string") || streq(t.class_name, "vector"))) || t.is_func_ptr;
+    return t.ptr_depth > 0 || t.array_size > 0 || (t.base == TYPE_CLASS && t.class_name && (streq_lit(t.class_name, "string") || streq_lit(t.class_name, "vector"))) || t.is_func_ptr;
 }
 

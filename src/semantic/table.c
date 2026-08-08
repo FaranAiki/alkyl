@@ -119,8 +119,8 @@ SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
     // Fallback if hashmap is not initialized
     SemSymbol *sym = scope->symbols;
     while (sym) {
-        if (streq(sym->name, name)) {
-            if (sym->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && streq(sym->name, scope->class_sym->name)) {
+        if (streq_lit(sym->name, name)) {
+            if (sym->kind == SYM_FUNC && scope->is_class_scope && scope->class_sym && streq_lit(sym->name, scope->class_sym->name)) {
                 // skip constructor
             } else {
                 return sym;
@@ -311,7 +311,7 @@ SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
                     }
                     if (ctx->settings.namespace_ausearch_warning) {
                         const char *current_ns = ctx->compiler_ctx ? diag_get_namespace(ctx->compiler_ctx) : NULL;
-                        if (!current_ns || !streq(current_ns, ns->name)) {
+                        if (!current_ns || !streq_lit(current_ns, ns->name)) {
                             if (ctx->current_node) {
                                 sem_warning(ctx, ctx->current_node, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
                                 sem_hint(ctx, ctx->current_node, "consider writing %s.%s", ns->name, name);
@@ -384,7 +384,7 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
             if (sym->kind == SYM_ENUM && sym->inner_scope) {
                 SemSymbol *mem = sym->inner_scope->symbols;
                 while (mem) {
-                    if (streq(mem->name, name)) {
+                    if (streq_lit(mem->name, name)) {
                         if (out_scope) *out_scope = sym->inner_scope;
                         return mem;
                     }
@@ -445,7 +445,7 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
                     if (ctx->settings.namespace_ausearch_warning) {
                         const char *current_ns = ctx->compiler_ctx ? diag_get_namespace(ctx->compiler_ctx) : NULL;
                         debug_semantic("table.c lookup: name='%s', found_ns='%s', current_ns='%s'\n", name, ns->name, current_ns ? current_ns : "(null)");
-                        if (!current_ns || !streq(current_ns, ns->name)) {
+                        if (!current_ns || !streq_lit(current_ns, ns->name)) {
                             if (ctx->current_node) {
                                 sem_warning(ctx, ctx->current_node, "Implicitly resolved '%s' to '%s.%s'", name, ns->name, name);
                                 sem_hint(ctx, ctx->current_node, "consider writing %s.%s", ns->name, name);
@@ -476,7 +476,7 @@ int sem_types_are_equal(VarType a, VarType b) {
 
     if (a.base == TYPE_CLASS || a.base == TYPE_ENUM || a.base == TYPE_NAMESPACE) {
         if (a.class_name && b.class_name) {
-            if (streq(a.class_name, b.class_name)) return 1;
+            if (streq_lit(a.class_name, b.class_name)) return 1;
 
             char mangled_a[512] = "";
             char mangled_b[512] = "";
@@ -504,13 +504,13 @@ int sem_types_are_equal(VarType a, VarType b) {
                 }
             }
 
-            if (streq(mangled_a, mangled_b)) return 1;
+            if (streq_lit(mangled_a, mangled_b)) return 1;
 
             const char *dot_a = strrchr(mangled_a, '.');
             const char *dot_b = strrchr(mangled_b, '.');
             const char *base_a = dot_a ? dot_a + 1 : mangled_a;
             const char *base_b = dot_b ? dot_b + 1 : mangled_b;
-            return streq(base_a, base_b);
+            return streq_lit(base_a, base_b);
         }
         return 0;
     }
@@ -521,12 +521,12 @@ int sem_types_are_equal(VarType a, VarType b) {
 bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
     if (dest.base == TYPE_CLASS && src.base == TYPE_CLASS && dest.class_name && src.class_name) {
         if (dest.ptr_depth == src.ptr_depth) {
-            if (streq(dest.class_name, src.class_name)) return true;
+            if (streq_lit(dest.class_name, src.class_name)) return true;
 
             // Check inheritance
             SemSymbol *src_sym = sem_symbol_lookup(ctx, src.class_name, NULL);
             while (src_sym && src_sym->kind == SYM_CLASS && src_sym->parent_name) {
-                if (streq(src_sym->parent_name, dest.class_name)) return true;
+                if (streq_lit(src_sym->parent_name, dest.class_name)) return true;
                 src_sym = sem_symbol_lookup(ctx, src_sym->parent_name, NULL);
             }
 
@@ -534,7 +534,7 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
             src_sym = sem_symbol_lookup(ctx, src.class_name, NULL);
             while (src_sym && src_sym->kind == SYM_CLASS) {
                 for (int i = 0; i < src_sym->trait_count; i++) {
-                    if (streq(src_sym->traits[i], dest.class_name)) return true;
+                    if (streq_lit(src_sym->traits[i], dest.class_name)) return true;
 
                     // Recursive trait check (traits can have traits)
                     SemSymbol *trait_sym = sem_symbol_lookup(ctx, src_sym->traits[i], NULL);
@@ -555,8 +555,8 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
 
     if (dest.base == TYPE_AUTO) return true;
 
-    if (dest.base == TYPE_CLASS && dest.class_name && streq(dest.class_name, "string") && src.base == TYPE_CHAR) return true;
-    if (src.base == TYPE_CLASS && src.class_name && streq(src.class_name, "string") && dest.base == TYPE_CHAR) return true; // Adding this just in case
+    if (dest.base == TYPE_CLASS && dest.class_name && streq_lit(dest.class_name, "string") && src.base == TYPE_CHAR) return true;
+    if (src.base == TYPE_CLASS && src.class_name && streq_lit(src.class_name, "string") && dest.base == TYPE_CHAR) return true; // Adding this just in case
     if (dest.base == TYPE_CHAR && src.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0) && (src.ptr_depth > 0 || src.array_size > 0)) return true;
 
     // TODO make this more proper!
@@ -573,8 +573,8 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
         return true;
     }
 
-    int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && streq(dest.class_name, "string") && dest.ptr_depth == 0);
-    int src_is_str = (src.base == TYPE_CLASS && src.class_name && streq(src.class_name, "string") && src.ptr_depth == 0);
+    int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && streq_lit(dest.class_name, "string") && dest.ptr_depth == 0);
+    int src_is_str = (src.base == TYPE_CLASS && src.class_name && streq_lit(src.class_name, "string") && src.ptr_depth == 0);
 
     int dest_is_char_p = (dest.base == TYPE_CHAR && (dest.ptr_depth > 0 || dest.array_size > 0));
     int src_is_char_p = (src.base == TYPE_CHAR && (src.ptr_depth > 0 || src.array_size > 0));

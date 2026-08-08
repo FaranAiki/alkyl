@@ -393,7 +393,7 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
             char call_dt = dt;
             if (inst->op1 && inst->op1->kind == ALIR_VAL_VAR && inst->op1->val.str_val) {
                 for (AlirFunction *f = module->functions; f; f = f->next) {
-                    if (f->name && streq(f->name, inst->op1->val.str_val)) {
+                    if (f->name && streq_lit(f->name, inst->op1->val.str_val)) {
                         char rt = qbe_type(f->ret_type);
                         if (f->ret_type.base == TYPE_CLASS && f->ret_type.ptr_depth == 0) call_dt = 'l';
                         else if (rt != 'v') call_dt = rt;

@@ -12,7 +12,7 @@ static void used_set_init(UsedSet *set) {
 static void used_set_add(Arena *arena, UsedSet *set, const char *name) {
     if (!name) return;
     for (int i = 0; i < set->count; i++) {
-        if (streq(set->names[i], name)) return;
+        if (streq_lit(set->names[i], name)) return;
     }
     if (set->count >= set->capacity) {
         int new_cap = set->capacity ? set->capacity * 2 : 16;
@@ -29,7 +29,7 @@ static void used_set_add(Arena *arena, UsedSet *set, const char *name) {
 static int used_set_has(const UsedSet *set, const char *name) {
     if (!name) return 0;
     for (int i = 0; i < set->count; i++) {
-        if (streq(set->names[i], name)) return 1;
+        if (streq_lit(set->names[i], name)) return 1;
     }
     return 0;
 }

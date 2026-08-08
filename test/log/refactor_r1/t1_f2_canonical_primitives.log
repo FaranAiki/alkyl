@@ -1,0 +1,70 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55f5f9248f50 target=0x55f5f9248b40
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55f5f9249208 target=0x55f5f9248fe8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=4 col=13 node=0x55f5f9248460
+debug: semantic: sem_check_expr: type=16 line=5 col=14 node=0x55f5f92485c0
+debug: semantic: sem_check_expr: type=16 line=6 col=14 node=0x55f5f9248720
+debug: semantic: sem_check_expr: type=16 line=7 col=16 node=0x55f5f9248880
+debug: semantic: sem_check_expr: type=16 line=8 col=16 node=0x55f5f92489e0
+debug: semantic: sem_check_block: Call line=10 col=11 name=printf target_type=13 node=0x55f5f9248f50
+debug: semantic: sem_check_expr: type=2 line=10 col=11 node=0x55f5f9248f50
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x55f5f9248b40
+debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x55f5f9248bc0
+debug: semantic: sem_check_expr: type=13 line=10 col=45 node=0x55f5f9248c60
+debug: semantic: sem_check_expr: type=13 line=10 col=48 node=0x55f5f9248ce0
+debug: semantic: sem_check_expr: type=14 line=10 col=53 node=0x55f5f9248e80
+debug: semantic: sem_check_expr: type=13 line=10 col=51 node=0x55f5f9248d60
+debug: semantic: sem_check_expr: type=16 line=10 col=55 node=0x55f5f9248de0
+debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x55f5f9248bc0
+debug: semantic: sem_check_block: Call line=11 col=11 name=printf target_type=13 node=0x55f5f9249208
+debug: semantic: sem_check_expr: type=2 line=11 col=11 node=0x55f5f9249208
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x55f5f9248fe8
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x55f5f9249068
+debug: semantic: sem_check_expr: type=13 line=11 col=40 node=0x55f5f9249108
+debug: semantic: sem_check_expr: type=13 line=11 col=43 node=0x55f5f9249188
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x55f5f9249068
+debug: semantic: sem_check_expr: type=16 line=12 col=12 node=0x55f5f92492a0
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=8
+debug: alir: func=main op=35 dest_kind=5 dest_type_base=10 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=10 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=11 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=11
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=12 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=12
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55f5f9248370
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55f5f9248370
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=11 op1_kind=5 op1_type_base=11
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=12 op1_kind=5 op1_type_base=12
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen

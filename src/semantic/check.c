@@ -8,7 +8,7 @@ SemSymbol* lookup_local_symbol(SemanticCtx *ctx, const char *name) {
     if (!ctx->current_scope) return NULL;
     SemSymbol *sym = ctx->current_scope->symbols;
     while (sym) {
-        if (streq(sym->name, name)) return sym;
+        if (streq_lit(sym->name, name)) return sym;
         sym = sym->next;
     }
     return NULL;
@@ -103,7 +103,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
                 SemSymbol *sym = sem_symbol_lookup(ctx, cn->name, NULL);
                 if (!sym) {
                     // Try to create primitive class wrapper if it's a primitive name
-                    if (streq(cn->name, "int") || streq(cn->name, "char") || streq(cn->name, "bool") || streq(cn->name, "single") || streq(cn->name, "double")) {
+                    if (streq_lit(cn->name, "int") || streq_lit(cn->name, "char") || streq_lit(cn->name, "bool") || streq_lit(cn->name, "single") || streq_lit(cn->name, "double")) {
                         VarType type_class = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, cn->name), 0, 0, NULL, NULL, 0, 0, 0, 0, 0};
                         sym = sem_symbol_add(ctx, cn->name, SYM_CLASS, type_class);
                     } else {
@@ -339,7 +339,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     else if (is_integer(l) && is_pointer(r)) {
          sem_set_node_type(ctx, (ASTNode*)node, r);
     }
-    else if ((l.base == TYPE_CLASS && l.class_name && streq(l.class_name, "string")) || (r.base == TYPE_CLASS && r.class_name && streq(r.class_name, "string"))) {
+    else if ((l.base == TYPE_CLASS && l.class_name && streq_lit(l.class_name, "string")) || (r.base == TYPE_CLASS && r.class_name && streq_lit(r.class_name, "string"))) {
          if (node->op == TOKEN_PLUS)
             sem_set_node_type(ctx, (ASTNode*)node, (VarType){ .base = TYPE_CLASS, .class_name = (char*)"string" });
          else {
@@ -392,7 +392,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 if (class_sym && class_sym->inner_scope) {
                     SemSymbol *member = class_sym->inner_scope->symbols;
                     while (member) {
-                        if (member->kind == SYM_FUNC && streq(member->name, as_name)) {
+                        if (member->kind == SYM_FUNC && streq_lit(member->name, as_name)) {
                             comp = true;
                             break;
                         }
@@ -498,7 +498,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 if (class_sym && class_sym->inner_scope) {
                     SemSymbol *member = class_sym->inner_scope->symbols;
                     while (member) {
-                        if (member->kind == SYM_FUNC && streq(member->name, as_name)) {
+                        if (member->kind == SYM_FUNC && streq_lit(member->name, as_name)) {
                             char mangled[512];
                             snprintf(mangled, sizeof(mangled), "%s_%s", op_class_name, as_name);
                             cn->custom_cast_method = arena_strdup(ctx->compiler_ctx->arena, member->mangled_name ? member->mangled_name : mangled);
@@ -609,14 +609,14 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 if (class_sym && class_sym->inner_scope) {
                     SemSymbol *s = class_sym->inner_scope->symbols;
                     while (s) {
-                        if (streq(s->name, name_buf)) { sym = s; is_method = 1; break; }
+                        if (streq_lit(s->name, name_buf)) { sym = s; is_method = 1; break; }
                         s = s->next;
                     }
                     if (!sym) {
                         snprintf(name_buf, sizeof(name_buf), "__op_%d_%d", id->is_prefix ? TOKEN_PREFOP : TOKEN_SUFFOP, id->op);
                         s = class_sym->inner_scope->symbols;
                         while (s) {
-                            if (streq(s->name, name_buf)) { sym = s; is_method = 1; break; }
+                            if (streq_lit(s->name, name_buf)) { sym = s; is_method = 1; break; }
                             s = s->next;
                         }
                     }
@@ -968,7 +968,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                     if (!inst_sym) {
                         SemSymbol *s = found_in_scope->symbols;
                         while (s) {
-                            if (streq(s->name, mangled)) {
+                            if (streq_lit(s->name, mangled)) {
                                 inst_sym = s;
                                 break;
                             }

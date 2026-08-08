@@ -1,0 +1,51 @@
+step: Finished lexing. Start parsing.
+debug: diag_set_namespace: ns='ns', current='main', ptr_match=0
+debug: diag_set_namespace: after set, current='ns'
+debug: parser: after parse_type, vt.base=1, token.type=31
+debug: diag_set_namespace: ns='main', current='ns', ptr_match=0
+debug: diag_set_namespace: after set, current='main'
+debug: diag_set_namespace: ns='ns', current='main', ptr_match=0
+debug: diag_set_namespace: after set, current='ns'
+debug: diag_set_namespace: ns='main', current='ns', ptr_match=0
+debug: diag_set_namespace: after set, current='main'
+debug: diag_set_namespace: ns='ns', current='main', ptr_match=0
+debug: diag_set_namespace: after set, current='ns'
+debug: semantic: sem_check_block: ns='ns'
+debug: diag_set_namespace: ns='main', current='ns', ptr_match=0
+debug: diag_set_namespace: after set, current='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=9 col=9 node=0x561831bba530
+debug: semantic: sem_check_expr: type=26 line=9 col=4 node=0x561831bba4b8
+debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x561831bba438
+debug: semantic: sem_check_expr: type=14 line=10 col=10 node=0x561831bba800
+debug: semantic: sem_check_expr: type=26 line=10 col=7 node=0x561831bba6e8
+debug: semantic: sem_check_expr: type=13 line=10 col=6 node=0x561831bba668
+debug: semantic: sem_check_expr: type=16 line=10 col=13 node=0x561831bba760
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=10 col=24 node=0x561831bba8a8
+debug: semantic: sem_check_expr: type=16 line=11 col=10 node=0x561831bbaa38
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: Visiting class Clib
+debug: alir: DEBUG_REGISTER: st=0x561831bbf820 name=ns.Clib next=(nil)
+debug: alir: DEBUG_PASS1_END: struct list:
+ - ns.Clib fields: 1
+debug: alir: Found namespace ns
+debug: alir: alir_add_function: ns.Clib
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: struct=ns.Clib fields=1
+debug: codegen: Field 0: base=1 ptr_depth=0

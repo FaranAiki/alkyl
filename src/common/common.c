@@ -120,7 +120,7 @@ void sb_free(StringBuilder *sb) {
 
 char* read_file(const char* path) {
     size_t len = strlen(path);
-    if (len > 4 && streq(path + len - 4, ".zyl")) {
+    if (len > 4 && streq_lit(path + len - 4, ".zyl")) {
 #ifdef HAVE_LIBZIP
         return read_zip_file(path);
 #else

@@ -39,7 +39,7 @@ static EvalVal eval_pure_function_impl(AlirModule *module, AlirFunction *func, A
         p = p ? p->next : NULL;
     }
 
-    if (streq(func->name, "abs") && arg_count == 1) {
+    if (streq_lit(func->name, "abs") && arg_count == 1) {
         res = arg_vals[0];
         if (res.is_float) {
             if (res.double_val < 0) res.double_val = -res.double_val;

@@ -368,6 +368,7 @@ endif()
 
 
 if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
+    set(MLIR_DIR "${CMAKE_SOURCE_DIR}/cmake_patches")
     if (LLVM_DIR OR MLIR_DIR)
         find_package(MLIR CONFIG QUIET)
     endif()

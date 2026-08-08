@@ -1,0 +1,129 @@
+step: Finished lexing. Start parsing.
+debug: parser: after parse_type, vt.base=12, token.type=31
+debug: parser: after parse_type, vt.base=12, token.type=31
+debug: parser: after parse_type, vt.base=1, token.type=31
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=Panel target_type=13 line=0 col=0 node=0x560c20f0bf78 target=0x560c20f0bd18
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=compute_area target_type=13 line=0 col=0 node=0x560c20f0c1d0 target=0x560c20f0c0d0
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x560c20f0c5c0 target=0x560c20f0c328
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=14 line=13 col=20 node=0x560c20f0bb10
+debug: semantic: sem_check_expr: type=26 line=13 col=13 node=0x560c20f0b9a0
+debug: semantic: sem_check_expr: type=13 line=13 col=12 node=0x560c20f0b920
+at namespace main:
+in .../code/tier3_combos/t3_combo_trait_bidi_lowering.kyl:
+13:13: warning: width is from Measurable, consider p[Measurable]
+  |     return p.width * p.height; // Bidirectional checking of width * height into double return context
+  |             ^
+debug: semantic: sem_check_expr: type=26 line=13 col=23 node=0x560c20f0ba98
+debug: semantic: sem_check_expr: type=13 line=13 col=22 node=0x560c20f0ba18
+13:23: warning: height is from Measurable, consider p[Measurable]
+  |     return p.width * p.height; // Bidirectional checking of width * height into double return context
+  |                       ^
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=2 line=17 col=20 node=0x560c20f0bf78
+debug: semantic: sem_check_call: name='Panel', ns='main'
+debug: semantic: sem_check_expr: type=13 line=17 col=15 node=0x560c20f0bd18
+17:20: warning: no initialization from Panel, using Measurable as a constructor
+  |     Panel p = Panel(10, 20, 101); // 10 and 20 are ints checked into double fields
+  |                    ^
+debug: semantic: sem_check_expr: type=16 line=17 col=21 node=0x560c20f0bd98
+debug: semantic: sem_check_expr: type=16 line=17 col=25 node=0x560c20f0be38
+debug: semantic: sem_check_expr: type=16 line=17 col=29 node=0x560c20f0bed8
+debug: semantic: sem_check_expr: type=2 line=18 col=31 node=0x560c20f0c1d0
+debug: semantic: sem_check_call: name='compute_area', ns='main'
+debug: semantic: sem_check_expr: type=13 line=18 col=19 node=0x560c20f0c0d0
+debug: semantic: sem_check_expr: type=13 line=18 col=32 node=0x560c20f0c150
+debug: semantic: sem_check_expr: type=13 line=18 col=32 node=0x560c20f0c150
+debug: semantic: sem_check_block: Call line=19 col=11 name=printf target_type=13 node=0x560c20f0c5c0
+debug: semantic: sem_check_expr: type=2 line=19 col=11 node=0x560c20f0c5c0
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=19 col=5 node=0x560c20f0c328
+debug: semantic: sem_check_expr: type=16 line=19 col=12 node=0x560c20f0c3a8
+debug: semantic: sem_check_expr: type=26 line=19 col=41 node=0x560c20f0c4c8
+debug: semantic: sem_check_expr: type=13 line=19 col=40 node=0x560c20f0c448
+debug: semantic: sem_check_expr: type=13 line=19 col=46 node=0x560c20f0c540
+debug: semantic: sem_check_expr: type=16 line=19 col=12 node=0x560c20f0c3a8
+debug: semantic: sem_check_expr: type=16 line=20 col=12 node=0x560c20f0c658
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: Visiting class Measurable
+debug: alir: DEBUG_REGISTER: st=0x560c20f11e80 name=Measurable next=(nil)
+debug: alir: Visiting class Panel
+debug: alir: DEBUG_REGISTER: st=0x560c20f11ea0 name=Panel next=0x560c20f11e80
+debug: alir: DEBUG_PASS1_END: struct list:
+ - Panel fields: 3
+ - Measurable fields: 2
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: alir_add_function: Measurable
+debug: alir: alir_add_function: Panel
+debug: alir: Found func_def compute_area
+debug: alir: alir_gen_function_def fn->name=compute_area class_name=NULL fn->mangled_name=main_compute_area_Panel -> func_name=main_compute_area_Panel
+debug: alir: alir_add_function: main_compute_area_Panel
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: Looking up 'main_compute_area_Panel'
+debug: alir: Found symbol compute_area, kind=1, is_macro=0, node_ptr=0x560c20f0bc28
+debug: alir: GLOBAL VAR ADDR: compute_area
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=16 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=12 op1_kind=9 op1_type_base=12
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=12 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=12
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x560c20f0b440
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=12 op1_kind=5 op1_type_base=12
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+debug: optlir: Check Type for Struct Marking Panel
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: struct=Panel fields=3
+debug: codegen: Field 0: base=12 ptr_depth=0
+debug: codegen: Field 1: base=12 ptr_depth=0
+debug: codegen: Field 2: base=1 ptr_depth=0
+Call parameter type does not match function signature!
+i32 10
+ double  call void @Panel(ptr %alloc, i32 10, i32 20, i32 101)

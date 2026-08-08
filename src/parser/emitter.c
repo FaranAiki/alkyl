@@ -458,7 +458,7 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
             else if (ln->var_type.base == TYPE_DOUBLE || ln->var_type.base == TYPE_LONG_DOUBLE) {
                  sb_append_fmt(sb, "%f", ln->val.double_val);
             }
-            else if (ln->var_type.base == TYPE_CLASS && ln->var_type.class_name && streq(ln->var_type.class_name, "string")) {
+            else if (ln->var_type.base == TYPE_CLASS && ln->var_type.class_name && streq_lit(ln->var_type.class_name, "string")) {
                 sb_append(sb, "\"");
                 if (ln->val.str_val && (long)ln->val.str_val > 0x1000) {
                     sb_append_escaped(sb, ln->val.str_val);

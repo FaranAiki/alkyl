@@ -62,7 +62,7 @@ case ALIR_OP_STORE: {
                         else if (inst->op1->kind == ALIR_VAL_GLOBAL && ctx->module) {
                             AlirGlobal *g = ctx->module->globals;
                             while(g) {
-                                if (streq(g->name, inst->op1->val.str_val)) {
+                                if (streq_lit(g->name, inst->op1->val.str_val)) {
                                     val = (long long)(intptr_t)g->string_content;
                                     break;
                                 }
@@ -75,7 +75,7 @@ case ALIR_OP_STORE: {
                         else if (inst->op2->kind == ALIR_VAL_GLOBAL) {
                             VMGlobal *g = ctx->vm->globals;
                             while(g) {
-                                if (streq(g->name, inst->op2->val.str_val)) {
+                                if (streq_lit(g->name, inst->op2->val.str_val)) {
                                     ptr = g->ptr_val;
                                     break;
                                 }
@@ -98,7 +98,7 @@ case ALIR_OP_STORE: {
                             else if (inst->op1->kind == ALIR_VAL_VAR) src_ptr = (void*)(intptr_t)metalir_vm_resolve_var(inst->op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
                         }
                         
-                        if (inst->op1->type.base == TYPE_CLASS && inst->op1->type.ptr_depth == 0 && inst->op1->type.class_name && streq(inst->op1->type.class_name, "string") && inst->op1->kind == ALIR_VAL_GLOBAL) {
+                        if (inst->op1->type.base == TYPE_CLASS && inst->op1->type.ptr_depth == 0 && inst->op1->type.class_name && streq_lit(inst->op1->type.class_name, "string") && inst->op1->kind == ALIR_VAL_GLOBAL) {
                             if (ptr) {
                                 unsigned int len = strlen((char*)(intptr_t)val);
                                 *(unsigned int*)ptr = len;
@@ -130,7 +130,7 @@ case ALIR_OP_LOAD: {
                         else if (inst->op1->kind == ALIR_VAL_GLOBAL) {
                             VMGlobal *g = ctx->vm->globals;
                             while(g) {
-                                if (streq(g->name, inst->op1->val.str_val)) {
+                                if (streq_lit(g->name, inst->op1->val.str_val)) {
                                     ptr = g->ptr_val;
                                     break;
                                 }
@@ -139,7 +139,7 @@ case ALIR_OP_LOAD: {
                             if (!ptr) {
                                 AlirGlobal *ag = ctx->module->globals;
                                 while(ag) {
-                                    if (streq(ag->name, inst->op1->val.str_val)) {
+                                    if (streq_lit(ag->name, inst->op1->val.str_val)) {
                                         ptr = (void*)(intptr_t)ag->string_content;
                                         break;
                                     }
@@ -149,7 +149,7 @@ case ALIR_OP_LOAD: {
                         }
                         if (ptr) {
                             if (inst->dest->type.base == TYPE_CLASS && inst->dest->type.ptr_depth == 0) {
-                                if (inst->dest->type.class_name && streq(inst->dest->type.class_name, "string")) {
+                                if (inst->dest->type.class_name && streq_lit(inst->dest->type.class_name, "string")) {
                                     void *copy = arena_alloc(ctx->vm->arena, 16);
                                     unsigned int len = strlen((char*)ptr);
                                     *(unsigned int*)copy = len;
@@ -187,13 +187,13 @@ case ALIR_OP_GET_PTR: {
                         else if (inst->op1->kind == ALIR_VAL_GLOBAL) {
                             VMGlobal *g = ctx->vm->globals;
                             while(g) {
-                                if (streq(g->name, inst->op1->val.str_val)) { base_ptr = g->ptr_val; break; }
+                                if (streq_lit(g->name, inst->op1->val.str_val)) { base_ptr = g->ptr_val; break; }
                                 g = g->next;
                             }
                             if (!base_ptr) {
                                 AlirGlobal *ag = ctx->module->globals;
                                 while(ag) {
-                                    if (streq(ag->name, inst->op1->val.str_val)) {
+                                    if (streq_lit(ag->name, inst->op1->val.str_val)) {
                                         base_ptr = (void*)(intptr_t)ag->string_content;
                                         break;
                                     }

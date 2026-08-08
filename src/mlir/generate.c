@@ -49,12 +49,12 @@ static void generate_inherited_methods(AlkylMlirContext ctx, AlkylMlirModule mod
             while (mem) {
                 if (mem->type == NODE_FUNC_DEF) {
                     FuncDefNode *fn = (FuncDefNode*)mem;
-                    if (!fn->is_macro && !streq(fn->name, pcn->name) && !streq(fn->name, "init")) {
+                    if (!fn->is_macro && !streq_lit(fn->name, pcn->name) && !streq_lit(fn->name, "init")) {
                         int overridden = 0;
                         if (target_node) {
                             ASTNode *tmem = target_node->members;
                             while (tmem) {
-                                if (tmem->type == NODE_FUNC_DEF && streq(((FuncDefNode*)tmem)->name, fn->name)) {
+                                if (tmem->type == NODE_FUNC_DEF && streq_lit(((FuncDefNode*)tmem)->name, fn->name)) {
                                     overridden = 1;
                                     break;
                                 }
@@ -63,7 +63,7 @@ static void generate_inherited_methods(AlkylMlirContext ctx, AlkylMlirModule mod
                         }
                         if (!overridden) {
                             char func_name[512];
-                            if (fn->mangled_name && target_class_name && fn->class_name && !streq(target_class_name, fn->class_name)) {
+                            if (fn->mangled_name && target_class_name && fn->class_name && !streq_lit(target_class_name, fn->class_name)) {
                                 char *mangled = mlir_re_mangle_inherited(fn->mangled_name, fn->name, target_class_name);
                                 if (mangled) {
                                     snprintf(func_name, sizeof(func_name), "%s", mangled);
@@ -135,12 +135,12 @@ static void generate_inherited_methods(AlkylMlirContext ctx, AlkylMlirModule mod
             while (mem) {
                 if (mem->type == NODE_FUNC_DEF) {
                     FuncDefNode *fn = (FuncDefNode*)mem;
-                    if (!fn->is_macro && !streq(fn->name, tcn->name) && !streq(fn->name, "init")) {
+                    if (!fn->is_macro && !streq_lit(fn->name, tcn->name) && !streq_lit(fn->name, "init")) {
                         int overridden = 0;
                         if (target_node) {
                             ASTNode *tmem = target_node->members;
                             while (tmem) {
-                                if (tmem->type == NODE_FUNC_DEF && streq(((FuncDefNode*)tmem)->name, fn->name)) {
+                                if (tmem->type == NODE_FUNC_DEF && streq_lit(((FuncDefNode*)tmem)->name, fn->name)) {
                                     overridden = 1;
                                     break;
                                 }
@@ -149,7 +149,7 @@ static void generate_inherited_methods(AlkylMlirContext ctx, AlkylMlirModule mod
                         }
                         if (!overridden) {
                             char func_name[512];
-                            if (fn->mangled_name && target_class_name && fn->class_name && !streq(target_class_name, fn->class_name)) {
+                            if (fn->mangled_name && target_class_name && fn->class_name && !streq_lit(target_class_name, fn->class_name)) {
                                 char *mangled = mlir_re_mangle_inherited(fn->mangled_name, fn->name, target_class_name);
                                 if (mangled) {
                                     snprintf(func_name, sizeof(func_name), "%s", mangled);

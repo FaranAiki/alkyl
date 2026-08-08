@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
       return 1;
     }
 
-    if (argc == 2 && streq(argv[1], "--lsp")) {
+    if (argc == 2 && streq_lit(argv[1], "--lsp")) {
         start_lsp_server();
         return 0;
     }
@@ -62,39 +62,39 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "Too many link flags\n");
                 return 1;
             }
-        } else if (streq(argv[i], "--emit-alir")) {
+        } else if (streq_lit(argv[i], "--emit-alir")) {
             emit_alir = 1;
-        } else if (streq(argv[i], "--emit-balir")) {
+        } else if (streq_lit(argv[i], "--emit-balir")) {
             emit_balir = 1;
-        } else if (streq(argv[i], "--allow-vector-init")) {
+        } else if (streq_lit(argv[i], "--allow-vector-init")) {
             parser_settings.allow_vector_initialization = 1;
-        } else if (streq(argv[i], "-c")) {
+        } else if (streq_lit(argv[i], "-c")) {
             current_linker = LINKER_NONE;
-        } else if (streq(argv[i], "--unopt") || streq(argv[i], "-O0")) {
+        } else if (streq_lit(argv[i], "--unopt") || streq_lit(argv[i], "-O0")) {
             optimization_level = 0;
-        } else if (streq(argv[i], "--opt") || streq(argv[i], "-O2")) {
+        } else if (streq_lit(argv[i], "--opt") || streq_lit(argv[i], "-O2")) {
             optimization_level = 2;
-        } else if (streq(argv[i], "-O1")) {
+        } else if (streq_lit(argv[i], "-O1")) {
             optimization_level = 1;
-        } else if (streq(argv[i], "-O3")) {
+        } else if (streq_lit(argv[i], "-O3")) {
             optimization_level = 3;
-        } else if (streq(argv[i], "-Os")) {
+        } else if (streq_lit(argv[i], "-Os")) {
             optimization_level = 4;
-        } else if (streq(argv[i], "-Oz")) {
+        } else if (streq_lit(argv[i], "-Oz")) {
             optimization_level = 5;
-        } else if (streq(argv[i], "-o")) {
+        } else if (streq_lit(argv[i], "-o")) {
             if (i + 1 < argc) {
                 strncpy(custom_output_basename, argv[++i], sizeof(custom_output_basename) - 1);
                 custom_output_basename[sizeof(custom_output_basename) - 1] = '\0';
             }
-        } else if (streq(argv[i], "--linker")) {
+        } else if (streq_lit(argv[i], "--linker")) {
             if (i + 1 < argc) {
                 i++;
-                if (streq(argv[i], "gcc")) current_linker = LINKER_GCC;
-                else if (streq(argv[i], "clang")) current_linker = LINKER_CLANG;
-                else if (streq(argv[i], "lld")) current_linker = LINKER_LLD;
-                else if (streq(argv[i], "mold")) current_linker = LINKER_MOLD;
-                else if (streq(argv[i], "alynk")) current_linker = LINKER_MOLD;
+                if (streq_lit(argv[i], "gcc")) current_linker = LINKER_GCC;
+                else if (streq_lit(argv[i], "clang")) current_linker = LINKER_CLANG;
+                else if (streq_lit(argv[i], "lld")) current_linker = LINKER_LLD;
+                else if (streq_lit(argv[i], "mold")) current_linker = LINKER_MOLD;
+                else if (streq_lit(argv[i], "alynk")) current_linker = LINKER_MOLD;
             }
         } else {
             filename = argv[i];

@@ -1,0 +1,32 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=cprintf target_type=13 line=0 col=0 node=0x5649304df628 target=0x5649304df328
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: Call line=3 col=12 name=cprintf target_type=13 node=0x5649304df628
+debug: semantic: sem_check_expr: type=2 line=3 col=12 node=0x5649304df628
+debug: semantic: sem_check_call: name='cprintf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=3 col=5 node=0x5649304df328
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x5649304df3a8
+debug: semantic: sem_check_expr: type=16 line=3 col=27 node=0x5649304df448
+debug: semantic: sem_check_expr: type=16 line=3 col=36 node=0x5649304df4e8
+debug: semantic: sem_check_expr: type=16 line=3 col=40 node=0x5649304df588
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x5649304df3a8
+debug: semantic: sem_check_expr: type=16 line=4 col=12 node=0x5649304df6c0
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found func_def cprintf
+debug: alir: alir_gen_function_def fn->name=cprintf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x5649304df238
+debug: alir: GLOBAL VAR ADDR: cprintf
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen

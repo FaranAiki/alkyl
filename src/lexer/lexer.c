@@ -39,31 +39,11 @@ static inline char advance(Lexer *l) {
 }
 
 static char* intern_string(Lexer *l, const char *str) {
-    if (!str) return NULL;
-
-    void *existing = hashmap_get(&l->ctx->string_pool, str);
-    if (existing) {
-        return (char*)existing; // Reuse the pointer!
-    }
-
-    char *new_str = arena_strdup(l->ctx->arena, str);
-
-    // Both key and value are the same pointer, saving space.
-    hashmap_put(&l->ctx->string_pool, new_str, new_str);
-    return new_str;
+    return arena_strdup(l->ctx->arena, str);
 }
 
 static char* intern_strndup(Lexer *l, const char *str, size_t len) {
-    void *existing = hashmap_get_n(&l->ctx->string_pool, str, len);
-    if (existing) {
-        return (char*)existing;
-    }
-    
-    char *new_str = arena_alloc(l->ctx->arena, len + 1);
-    memcpy(new_str, str, len);
-    new_str[len] = '\0';
-    hashmap_put(&l->ctx->string_pool, new_str, new_str);
-    return new_str;
+    return arena_strndup(l->ctx->arena, str, len);
 }
 
 void skip_whitespace_and_comments(Lexer *l) {

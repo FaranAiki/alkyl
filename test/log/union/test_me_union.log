@@ -1,0 +1,70 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55ce3e697e90 target=0x55ce3e697c78
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55ce3e698170 target=0x55ce3e697f28
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55ce3e697b40
+debug: semantic: sem_check_expr: type=47 line=7 col=4 node=0x55ce3e697ac0
+debug: semantic: sem_check_expr: type=18 line=7 col=4 node=0x55ce3e697ac0
+debug: semantic: sem_check_expr: type=13 line=7 col=3 node=0x55ce3e697740
+debug: semantic: sem_check_expr: type=16 line=7 col=4 node=0x55ce3e699418
+debug: semantic: sem_check_index_access type base: 16, array_size: 0
+debug: semantic: sem_check_block: Call line=8 col=9 name=printf target_type=13 node=0x55ce3e697e90
+debug: semantic: sem_check_expr: type=2 line=8 col=9 node=0x55ce3e697e90
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=8 col=3 node=0x55ce3e697c78
+debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x55ce3e697cf8
+debug: semantic: sem_check_expr: type=26 line=8 col=35 node=0x55ce3e697e18
+debug: semantic: sem_check_expr: type=13 line=8 col=34 node=0x55ce3e697d98
+debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x55ce3e697cf8
+debug: semantic: sem_check_block: Call line=9 col=9 name=printf target_type=13 node=0x55ce3e698170
+debug: semantic: sem_check_expr: type=2 line=9 col=9 node=0x55ce3e698170
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x55ce3e697f28
+debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x55ce3e697fa8
+debug: semantic: sem_check_expr: type=31 line=9 col=31 node=0x55ce3e6980c8
+debug: semantic: sem_check_expr: type=13 line=9 col=29 node=0x55ce3e698048
+debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x55ce3e697fa8
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: Visiting class __Union_suka__f0
+debug: alir: DEBUG_REGISTER: st=0x55ce3e69d030 name=__Union_suka__f0 next=(nil)
+debug: alir: DEBUG_PASS1_END: struct list:
+ - __Union_suka__f0 fields: 2
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55ce3e697300
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55ce3e697300
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: alir_add_function: __Union_suka__f0
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking __Union_suka__f0
+debug: optlir: Check Type for Struct Marking __Union_suka__f0
+debug: optlir: Check Type for Struct Marking __Union_suka__f0
+debug: optlir: Check Type for Struct Marking __Union_suka__f0
+debug: optlir: Check Type for Struct Marking __Union_suka__f0
+debug: optlir: Check Type for Struct Marking __Union_suka__f0
+debug: optlir: Check Type for Struct Marking __Union_suka__f0
+debug: optlir: Check Type for Struct Marking __Union_suka__f0
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: struct=__Union_suka__f0 fields=2

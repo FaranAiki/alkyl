@@ -9,12 +9,12 @@
 static int is_alkyl_source(const char *name) {
     const char *ext = strrchr(name, '.');
     if (!ext) return 1;
-    if (streq(ext, ".kyl")) return 1;
-    if (streq(ext, ".hky")) return 1;
-    if (streq(ext, ".alk")) return 1;
-    if (streq(ext, ".alky")) return 1;
-    if (streq(ext, ".alkyl")) return 1;
-    if (streq(ext, ".aky")) return 1;
+    if (streq_lit(ext, ".kyl")) return 1;
+    if (streq_lit(ext, ".hky")) return 1;
+    if (streq_lit(ext, ".alk")) return 1;
+    if (streq_lit(ext, ".alky")) return 1;
+    if (streq_lit(ext, ".alkyl")) return 1;
+    if (streq_lit(ext, ".aky")) return 1;
     return 0;
 }
 

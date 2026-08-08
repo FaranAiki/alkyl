@@ -18,7 +18,7 @@ void emit(AlirCtx *ctx, AlirInst *i) {
         i->line = ctx->current_line;
         i->col = ctx->current_col;
     }
-    if (ctx->current_func && streq(ctx->current_func->name, "main")) {
+    if (ctx->current_func && streq_lit(ctx->current_func->name, "main")) {
          debug_alir("func=%s op=%d dest_kind=%d dest_type_base=%d op1_kind=%d op1_type_base=%d\n",
              ctx->current_func->name,
              (int)(i ? i->op : 0),
@@ -61,7 +61,7 @@ AlirSymbol* alir_find_symbol(AlirCtx *ctx, const char *name) {
     // Fallback to linked list in case map wasn't initialized properly in some legacy code paths
     s = ctx->symbols;
     while(s) {
-        if (streq(s->name, name)) return s;
+        if (streq_lit(s->name, name)) return s;
         s = s->next;
     }
     return NULL;
@@ -85,7 +85,7 @@ AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *
     if (sym && sym->inner_scope) {
          SemSymbol *constructor = sym->inner_scope->symbols;
          while (constructor) {
-             if (streq(constructor->name, class_name) || streq(constructor->name, "init")) {
+             if (streq_lit(constructor->name, class_name) || streq_lit(constructor->name, "init")) {
                  ctor_exists = 1;
                  if (constructor->mangled_name) ctor_name = constructor->mangled_name;
                  break;

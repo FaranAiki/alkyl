@@ -1,0 +1,26 @@
+step: Finished lexing. Start parsing.
+debug: parser: after parse_type, vt.base=1, token.type=31
+debug: parser: after parse_type, vt.base=1, token.type=31
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=Widget target_type=13 line=0 col=0 node=0x55a4a0f0a868 target=0x55a4a0f0a6a8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=2 line=12 col=22 node=0x55a4a0f0a868
+debug: semantic: sem_check_call: name='Widget', ns='main'
+debug: semantic: sem_check_expr: type=13 line=12 col=16 node=0x55a4a0f0a6a8
+at namespace main:
+in .../code/refactor_r2/t2_f4_missing_trait_method_err.kyl:
+12:22: warning: no initialization from Widget, using Printable as a constructor
+  |     Widget w = Widget(1, 10);
+  |                      ^
+debug: semantic: sem_check_expr: type=16 line=12 col=23 node=0x55a4a0f0a728
+debug: semantic: sem_check_expr: type=16 line=12 col=26 node=0x55a4a0f0a7c8
+debug: semantic: sem_check_expr: type=27 line=13 col=6 node=0x55a4a0f0aa40
+debug: semantic: sem_check_expr: type=13 line=13 col=5 node=0x55a4a0f0a9c0
+debug: semantic: sem_lookup_class_call for 'Widget', class_sym=0x55a4a0f0b7d0
+debug: semantic: sem_check_call: name='non_existent_trait_method', ns='main'
+13:6: error: Undefined function or class 'non_existent_trait_method'
+  |     w.non_existent_trait_method();
+  |      ^
+debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x55a4a0f0aad8
+Semantic analysis failed with 1 errors.

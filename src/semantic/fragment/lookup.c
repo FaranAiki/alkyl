@@ -88,7 +88,7 @@ int sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                         if (member->kind == SYM_FUNC) {
                             SemSymbol *resolved = sem_resolve_overload(ctx, &node->args, NULL, member, (ASTNode*)node);
                             if (resolved && resolved->mangled_name) {
-                                if (!streq(actual_class_name, current_class->name)) {
+                                if (!streq_lit(actual_class_name, current_class->name)) {
                                     int prefix_len = strlen(current_class->name);
                                     if (strncmp(resolved->mangled_name, current_class->name, prefix_len) == 0 && resolved->mangled_name[prefix_len] == '_') {
                                         char buf[512];
@@ -137,7 +137,7 @@ int sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
                                         IndexAccessNode *aa = (IndexAccessNode*)node->object;
                                         if (aa->index->type == NODE_VAR_REF) {
                                             VarRefNode *vr = (VarRefNode*)aa->index;
-                                            if (streq(vr->name, trait_sym->name)) {
+                                            if (streq_lit(vr->name, trait_sym->name)) {
                                                 should_warn = 0; // Explicitly qualified
                                             }
                                         }
@@ -223,7 +223,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
                     int found = -1;
                     Parameter *p = sym->params;
                     for (int i=0; p; i++, p=p->next) {
-                        if (p->name && streq(p->name, narg->name)) { found = i; break; }
+                        if (p->name && streq_lit(p->name, narg->name)) { found = i; break; }
                     }
                     if (found == -1 || matched_args[found] != NULL) { match = 0; break; }
                     matched_args[found] = narg->value;

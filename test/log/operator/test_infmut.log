@@ -1,0 +1,30 @@
+step: Finished lexing. Start parsing.
+debug: parser: after parse_type, vt.base=1, token.type=31
+debug: parser: after parse_type, vt.base=0, token.type=163
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=14 line=5 col=29 node=0x564a888f55a8
+debug: semantic: sem_check_expr: type=26 line=5 col=24 node=0x564a888f54b0
+debug: semantic: sem_check_expr: type=13 line=5 col=20 node=0x564a888f5430
+debug: semantic: sem_check_expr: type=13 line=5 col=31 node=0x564a888f5528
+debug: semantic: sem_check_expr: type=26 line=5 col=13 node=0x564a888f53b8
+debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x564a888f5338
+at namespace main:
+in .../code/operator/test_infmut.kyl:
+5:18: error: Cannot assign to immutable variable/member
+  |         this.val = this.val + amt;
+  |                  ^
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=11 col=13 node=0x564a888f5a30
+debug: semantic: sem_check_expr: type=26 line=11 col=6 node=0x564a888f59b8
+debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x564a888f5938
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x564a888f5be8
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x564a888f5be8
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x564a888f5be8
+debug: semantic: sem_check_expr: type=14 line=13 col=15 node=0x564a888f5eb8
+debug: semantic: sem_check_expr: type=26 line=13 col=10 node=0x564a888f5da0
+debug: semantic: sem_check_expr: type=13 line=13 col=9 node=0x564a888f5d20
+debug: semantic: sem_check_expr: type=16 line=13 col=18 node=0x564a888f5e18
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=13 col=29 node=0x564a888f5f60
+debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x564a888f60f0
+Semantic analysis failed with 1 errors.

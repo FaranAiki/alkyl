@@ -1,0 +1,61 @@
+step: Finished lexing. Start parsing.
+debug: parser: after parse_type, vt.base=12, token.type=31
+debug: parser: after parse_type, vt.base=12, token.type=31
+debug: parser: after parse_type, vt.base=0, token.type=31
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55ca72924ab0 target=0x55ca72924890
+debug: parser: after parse_type, vt.base=0, token.type=31
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55ca72925368 target=0x55ca72925058
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=Point target_type=13 line=0 col=0 node=0x55ca72925750 target=0x55ca72925590
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x55ca72924530
+debug: semantic: sem_check_expr: type=16 line=5 col=16 node=0x55ca72924690
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: Call line=8 col=15 name=printf target_type=13 node=0x55ca72924ab0
+debug: semantic: sem_check_expr: type=2 line=8 col=15 node=0x55ca72924ab0
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=8 col=9 node=0x55ca72924890
+debug: semantic: sem_check_expr: type=16 line=8 col=16 node=0x55ca72924910
+debug: semantic: sem_check_expr: type=13 line=8 col=47 node=0x55ca729249b0
+debug: semantic: sem_check_expr: type=13 line=8 col=57 node=0x55ca72924a30
+debug: semantic: sem_check_expr: type=16 line=8 col=16 node=0x55ca72924910
+debug: semantic: sem_check_expr: type=13 line=9 col=18 node=0x55ca72924c40
+debug: semantic: sem_check_expr: type=26 line=9 col=13 node=0x55ca72924bc8
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55ca72924b48
+at namespace main:
+in .../code/class/test_init.kyl:
+9:16: error: Cannot assign to immutable variable/member
+  |         this.x = initialX;
+  |                ^
+debug: semantic: sem_check_expr: type=13 line=10 col=18 node=0x55ca72924e50
+debug: semantic: sem_check_expr: type=26 line=10 col=13 node=0x55ca72924dd8
+debug: semantic: sem_check_expr: type=13 line=10 col=9 node=0x55ca72924d58
+10:16: error: Cannot assign to immutable variable/member
+  |         this.y = initialY;
+  |                ^
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: Call line=14 col=15 name=printf target_type=13 node=0x55ca72925368
+debug: semantic: sem_check_expr: type=2 line=14 col=15 node=0x55ca72925368
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=14 col=9 node=0x55ca72925058
+debug: semantic: sem_check_expr: type=16 line=14 col=16 node=0x55ca729250d8
+debug: semantic: sem_check_expr: type=26 line=14 col=47 node=0x55ca729251f8
+debug: semantic: sem_check_expr: type=13 line=14 col=43 node=0x55ca72925178
+debug: semantic: sem_check_expr: type=26 line=14 col=55 node=0x55ca729252f0
+debug: semantic: sem_check_expr: type=13 line=14 col=51 node=0x55ca72925270
+debug: semantic: sem_check_expr: type=16 line=14 col=16 node=0x55ca729250d8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=2 line=19 col=18 node=0x55ca72925750
+debug: semantic: sem_check_call: name='Point', ns='main'
+debug: semantic: sem_check_expr: type=13 line=19 col=13 node=0x55ca72925590
+debug: semantic: sem_check_expr: type=16 line=19 col=19 node=0x55ca72925610
+debug: semantic: sem_check_expr: type=16 line=19 col=24 node=0x55ca729256b0
+debug: semantic: sem_check_expr: type=16 line=19 col=19 node=0x55ca72925610
+debug: semantic: sem_check_expr: type=16 line=19 col=24 node=0x55ca729256b0
+debug: semantic: sem_check_expr: type=27 line=20 col=6 node=0x55ca72925928
+debug: semantic: sem_check_expr: type=13 line=20 col=5 node=0x55ca729258a8
+debug: semantic: sem_lookup_class_call for 'Point', class_sym=0x55ca72926448
+debug: semantic: sem_check_expr: type=16 line=21 col=12 node=0x55ca729259c0
+Semantic analysis failed with 2 errors.

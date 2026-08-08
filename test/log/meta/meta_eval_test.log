@@ -1,0 +1,51 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x560fc91dd478 target=0x560fc91dd358
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x560fc91ddcf0 target=0x560fc91ddbf0
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x560fc91de070 target=0x560fc91ddf50
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x560fc91de228 target=0x560fc91de108
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x560fc91de460 target=0x560fc91de340
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x560fc91de798 target=0x560fc91de678
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=30 col=12 node=0x560fc91deae0
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: metalir: VM CALL: print
+debug: metalir: VM CALL: print
+debug: metalir: VM CALL: print
+debug: metalir: VM CALL: print
+debug: metalir: VM CALL: print
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: metalir: VM CALL: print
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen
+--- Start Meta Execution ---
+Result of 10 + 25 = 
+35
+Branching works: 35 is greater than 30!
+--- End Meta Execution ---
+a

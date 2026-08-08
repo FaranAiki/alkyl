@@ -103,11 +103,11 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
     if (vn->initializer && vn->initializer->type == NODE_CALL) {
         CallNode *cn = (CallNode*)vn->initializer;
         if (actual_type.base == TYPE_CLASS && vn->var_type.ptr_depth == 0) {
-            if (alir_find_struct(ctx->module, cn->name) && actual_type.class_name && streq(actual_type.class_name, cn->name)) {
+            if (alir_find_struct(ctx->module, cn->name) && actual_type.class_name && streq_lit(actual_type.class_name, cn->name)) {
                 int arg_count = 0; ASTNode *a = cn->args; while(a) { arg_count++; a=a->next; }
                 if (arg_count == 1 && ctx->sem) {
                     VarType arg_t = sem_get_node_type(ctx->sem, cn->args);
-                    if (arg_t.base == TYPE_CLASS && arg_t.class_name && streq(arg_t.class_name, cn->name)) {
+                    if (arg_t.base == TYPE_CLASS && arg_t.class_name && streq_lit(arg_t.class_name, cn->name)) {
                         is_stack_ctor = 2; // Copy constructor
                     } else { is_stack_ctor = 1; }
                 } else {

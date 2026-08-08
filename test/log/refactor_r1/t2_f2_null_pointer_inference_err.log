@@ -1,0 +1,21 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x560694d5e710 target=0x560694d5e4e8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x560694d5e388
+at namespace main:
+in .../code/refactor_r1/t2_f2_null_pointer_inference_err.kyl:
+4:5: error: Type mismatch in declaration of 'p'. Expected 'int*', got 'char*'
+  |     int* p = "invalid_string_to_int_ptr";
+  |     ^
+debug: semantic: sem_check_block: Call line=5 col=11 name=printf target_type=13 node=0x560694d5e710
+debug: semantic: sem_check_expr: type=2 line=5 col=11 node=0x560694d5e710
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=5 col=5 node=0x560694d5e4e8
+debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x560694d5e568
+debug: semantic: sem_check_expr: type=15 line=5 col=25 node=0x560694d5e688
+debug: semantic: sem_check_expr: type=13 line=5 col=26 node=0x560694d5e608
+debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x560694d5e568
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x560694d5e7a8
+Semantic analysis failed with 1 errors.

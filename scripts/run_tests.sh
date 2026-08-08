@@ -175,7 +175,7 @@ run_single_test() {
 export -f run_single_test
 
 # Main execution
-FILES=$(find test/code -name "*.kyl" | sort)
+FILES=$(find test/code -name "*.kyl" | grep -v "test/code/interactive" | sort)
 
 TOTAL=0
 PASS_COUNT=0

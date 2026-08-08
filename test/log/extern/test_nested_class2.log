@@ -1,0 +1,43 @@
+step: Finished lexing. Start parsing.
+debug: diag_set_namespace: ns='ns', current='main', ptr_match=0
+debug: diag_set_namespace: after set, current='ns'
+debug: parser: after parse_type, vt.base=1, token.type=31
+debug: diag_set_namespace: ns='main', current='ns', ptr_match=0
+debug: diag_set_namespace: after set, current='main'
+debug: diag_set_namespace: ns='ns', current='main', ptr_match=0
+debug: diag_set_namespace: after set, current='ns'
+debug: diag_set_namespace: ns='main', current='ns', ptr_match=0
+debug: diag_set_namespace: after set, current='main'
+debug: diag_set_namespace: ns='ns', current='main', ptr_match=0
+debug: diag_set_namespace: after set, current='ns'
+debug: semantic: sem_check_block: ns='ns'
+debug: semantic: sem_check_block: ns='ns'
+debug: diag_set_namespace: ns='main', current='ns', ptr_match=0
+debug: diag_set_namespace: after set, current='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=2 line=0 col=0 node=0x5567d9fa67e0
+debug: semantic: sem_check_call: name='ns.Clib', ns='main'
+debug: semantic: sem_check_expr: type=27 line=9 col=4 node=0x5567d9fa54b8
+debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x5567d9fa5438
+debug: semantic: sem_lookup_class_call for 'ns.Clib', class_sym=0x5567d9fa5fa8
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: Visiting class Clib
+debug: alir: DEBUG_REGISTER: st=0x5567d9faa7e0 name=ns.Clib next=(nil)
+debug: alir: DEBUG_PASS1_END: struct list:
+ - ns.Clib fields: 0
+debug: alir: Found namespace ns
+debug: alir: alir_gen_function_def fn->name=foo class_name=ns.Clib fn->mangled_name=ns_Clib_foo -> func_name=ns_Clib_foo
+debug: alir: alir_add_function: ns_Clib_foo
+debug: alir: alir_add_function: ns.Clib
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: struct=ns.Clib fields=0

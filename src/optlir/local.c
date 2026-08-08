@@ -141,19 +141,19 @@ static void free_edges(BlockEdge *e) {
 }
 
 static void redirect_label_to(AlirModule *module, AlirBlock *b, const char *old_label, const char *new_label) {
-    if (!b || !old_label || !new_label || streq(old_label, new_label)) return;
+    if (!b || !old_label || !new_label || streq_lit(old_label, new_label)) return;
     AlirInst *i = b->head;
     while (i) {
         if (i->op == ALIR_OP_JUMP && i->op1 && i->op1->kind == ALIR_VAL_LABEL &&
-            streq(i->op1->val.str_val, old_label)) {
+            streq_lit(i->op1->val.str_val, old_label)) {
             i->op1 = alir_val_label(module, new_label);
         } else if (i->op == ALIR_OP_CONDI) {
             if (i->op2 && i->op2->kind == ALIR_VAL_LABEL &&
-                streq(i->op2->val.str_val, old_label)) {
+                streq_lit(i->op2->val.str_val, old_label)) {
                 i->op2 = alir_val_label(module, new_label);
             }
             if (i->arg_count > 0 && i->args[0] && i->args[0]->kind == ALIR_VAL_LABEL &&
-                streq(i->args[0]->val.str_val, old_label)) {
+                streq_lit(i->args[0]->val.str_val, old_label)) {
                 i->args[0] = alir_val_label(module, new_label);
             }
         }
@@ -401,7 +401,7 @@ static AlirBlock* find_block_by_label(AlirFunction *func, const char *label) {
     if (!func || !label) return NULL;
     AlirBlock *b = func->blocks;
     while (b) {
-        if (b->label && streq(b->label, label)) return b;
+        if (b->label && streq_lit(b->label, label)) return b;
         b = b->next;
     }
     return NULL;
@@ -541,6 +541,9 @@ static int merge_blocks_function(AlirModule *module, AlirFunction *func) {
                             } else {
                                 b->head = target->head;
                             }
+                            b->tail = target->tail;
+                        } else {
+                            b->tail = tail_prev;
                         }
 
                         // Remove target from block list
@@ -557,7 +560,7 @@ static int merge_blocks_function(AlirModule *module, AlirFunction *func) {
                         }
 
                         // If anything referenced the target label, redirect it to b's label
-                        if (!streq(b->label, target_label)) {
+                        if (!streq_lit(b->label, target_label)) {
                             redirect_label_in_all_blocks(module, func, target_label, b->label);
                         }
 
@@ -714,7 +717,7 @@ static void eval_pure_call_function(AlirModule *module, AlirFunction *func) {
             if (i->op == ALIR_OP_CALL && i->op1 && i->op1->kind == ALIR_VAL_VAR && i->dest && all_args_const(i)) {
                 AlirFunction *callee = module->functions;
                 while (callee) {
-                    if (streq(callee->name, i->op1->val.str_val) && callee->is_pure && !callee->is_extern && callee->block_count > 0) {
+                    if (streq_lit(callee->name, i->op1->val.str_val) && callee->is_pure && !callee->is_extern && callee->block_count > 0) {
                         ConstVal res = eval_pure_function(module, callee, i->args, i->arg_count, i->dest->type);
                         if (res.is_const) {
                             i->dest->kind = ALIR_VAL_CONST;
@@ -754,7 +757,7 @@ static void forward_empty_blocks_function(AlirModule *module, AlirFunction *func
             if (b != func->blocks && b->head && b->head->op == ALIR_OP_JUMP && b->head->next == NULL) {
                 if (b->head->op1 && b->head->op1->kind == ALIR_VAL_LABEL) {
                     const char *target_label = b->head->op1->val.str_val;
-                    if (!streq(b->label, target_label)) {
+                    if (!streq_lit(b->label, target_label)) {
                         redirect_label_in_all_blocks(module, func, b->label, target_label);
                         // Prevent infinite loop by making it jump to itself, it will be removed as unreachable
                         b->head->op1->val.str_val = b->label;

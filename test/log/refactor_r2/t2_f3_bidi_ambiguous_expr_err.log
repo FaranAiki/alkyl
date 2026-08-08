@@ -1,0 +1,28 @@
+step: Finished lexing. Start parsing.
+debug: parser: after parse_type, vt.base=1, token.type=31
+debug: parser: after parse_type, vt.base=1, token.type=31
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=Beta target_type=13 line=0 col=0 node=0x55684a3f0788 target=0x55684a3f0668
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55684a3f0af8 target=0x55684a3f08e0
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=2 line=7 col=19 node=0x55684a3f0788
+debug: semantic: sem_check_call: name='Beta', ns='main'
+debug: semantic: sem_check_expr: type=13 line=7 col=15 node=0x55684a3f0668
+debug: semantic: sem_check_expr: type=16 line=7 col=20 node=0x55684a3f06e8
+at namespace main:
+in .../code/refactor_r2/t2_f3_bidi_ambiguous_expr_err.kyl:
+7:5: error: Type mismatch in declaration of 'x'. Expected 'Alpha', got 'Beta'
+  |     Alpha x = Beta(10);
+  |     ^
+debug: semantic: sem_check_block: Call line=8 col=11 name=printf target_type=13 node=0x55684a3f0af8
+debug: semantic: sem_check_expr: type=2 line=8 col=11 node=0x55684a3f0af8
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=8 col=5 node=0x55684a3f08e0
+debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x55684a3f0960
+debug: semantic: sem_check_expr: type=26 line=8 col=26 node=0x55684a3f0a80
+debug: semantic: sem_check_expr: type=13 line=8 col=25 node=0x55684a3f0a00
+debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x55684a3f0960
+debug: semantic: sem_check_expr: type=16 line=9 col=12 node=0x55684a3f0b90
+Semantic analysis failed with 1 errors.

@@ -88,7 +88,7 @@ int run_repl(void) {
         while(len > 0 && (buffer[len-1] == ' ' || buffer[len-1] == '\n' || buffer[len-1] == '\r')) len--;
         buffer[len] = '\0';
 
-        if (streq(buffer, "exit") || streq(buffer, "quit")) {
+        if (streq_lit(buffer, "exit") || streq_lit(buffer, "quit")) {
             break;
         }
 
@@ -130,7 +130,7 @@ int run_repl(void) {
                     }
                     VMGlobal *g = r->vm->globals;
                     void *ptr = NULL;
-                    while(g) { if (streq(g->name, "res")) { ptr = g->ptr_val; break; } g = g->next; }
+                    while(g) { if (streq_lit(g->name, "res")) { ptr = g->ptr_val; break; } g = g->next; }
                     if (!ptr) {
                         VMGlobal *vg = arena_alloc(&r->vm_arena, sizeof(VMGlobal));
                         vg->name = arena_strdup(&r->vm_arena, "res");
@@ -184,7 +184,7 @@ int run_repl(void) {
                         }
                         VMGlobal *g = r->vm->globals;
                         void *ptr = NULL;
-                        while(g) { if (streq(g->name, "res")) { ptr = g->ptr_val; break; } g = g->next; }
+                        while(g) { if (streq_lit(g->name, "res")) { ptr = g->ptr_val; break; } g = g->next; }
                         if (!ptr) {
                             VMGlobal *vg = arena_alloc(&r->vm_arena, sizeof(VMGlobal));
                             vg->name = arena_strdup(&r->vm_arena, "res");
@@ -206,7 +206,7 @@ int run_repl(void) {
                             const char *target_name = ((AssignNode*)curr)->name;
                             VMGlobal *vg2 = r->vm->globals;
                             while(vg2) {
-                                if (streq(vg2->name, target_name)) {
+                                if (streq_lit(vg2->name, target_name)) {
                                     if (expr_rt.base == TYPE_CLASS && expr_rt.ptr_depth == 0 && res_val) {
                                         int struct_size = 1024;
                                         if (r->module && expr_rt.class_name) { struct_size = alir_get_struct_size(r->module, expr_rt.class_name); if (struct_size < 8) struct_size = 8; }
@@ -294,7 +294,7 @@ int run_file(const char *filename) {
 
     AlirFunction *main_fn = r->module->functions;
     while (main_fn) {
-        if (streq(main_fn->name, "main")) break;
+        if (streq_lit(main_fn->name, "main")) break;
         main_fn = main_fn->next;
     }
 
@@ -358,7 +358,7 @@ int main(int argc, char *argv[]) {
     }
 
     for (int i = 1; i < argc; i++) {
-        if (streq(argv[i], "-m") || streq(argv[i], "--module")) {
+        if (streq_lit(argv[i], "-m") || streq_lit(argv[i], "--module")) {
             if (i + 1 >= argc) {
                 fprintf(stderr, "Error: -m/--module requires a module name\n");
                 return 1;

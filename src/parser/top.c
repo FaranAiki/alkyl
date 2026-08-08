@@ -178,7 +178,7 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
   while (p->current_token.type != end_token) { if (p->has_error) break;
       VarType *curr_allowed = NULL;
       int curr_num = 0;
-      if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text && streq(p->current_token.text, "type")) {
+      if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text && streq_lit(p->current_token.text, "type")) {
           eat(p, TOKEN_IDENTIFIER);
           if (p->current_token.type == TOKEN_LBRACKET || p->current_token.type == TOKEN_LT) {
               TokenType inner_end_token = (p->current_token.type == TOKEN_LBRACKET) ? TOKEN_RBRACKET : TOKEN_GT;
@@ -471,12 +471,12 @@ ASTNode* parse_top_level_internal(Parser *p) {
                    }
 
                    int matched = 0;
-#define SET_COMP_BOOL(fname) if (streq(key, #fname)) { p->ctx->settings.fname = (streq(val, "true") || streq(val, "1")); matched = 1; }
-#define SET_LEX_BOOL(fname)  if (streq(key, #fname)) { p->l->settings.fname = (streq(val, "true") || streq(val, "1")); matched = 1; }
-#define SET_PARS_BOOL(fname) if (streq(key, #fname)) { p->settings.fname = (streq(val, "true") || streq(val, "1")); matched = 1; }
-#define SET_COMP_INT(fname) if (streq(key, #fname)) { p->ctx->settings.fname = atoll(val); matched = 1; }
+#define SET_COMP_BOOL(fname) if (streq_lit(key, #fname)) { p->ctx->settings.fname = (streq_lit(val, "true") || streq_lit(val, "1")); matched = 1; }
+#define SET_LEX_BOOL(fname)  if (streq_lit(key, #fname)) { p->l->settings.fname = (streq_lit(val, "true") || streq_lit(val, "1")); matched = 1; }
+#define SET_PARS_BOOL(fname) if (streq_lit(key, #fname)) { p->settings.fname = (streq_lit(val, "true") || streq_lit(val, "1")); matched = 1; }
+#define SET_COMP_INT(fname) if (streq_lit(key, #fname)) { p->ctx->settings.fname = atoll(val); matched = 1; }
 
-                   if (streq(domain, "compiler")) {
+                   if (streq_lit(domain, "compiler")) {
                        if (val) {
                            SET_COMP_BOOL(no_purge);
                            SET_COMP_BOOL(allocator_arc);
@@ -484,25 +484,25 @@ ASTNode* parse_top_level_internal(Parser *p) {
                            SET_COMP_BOOL(double_quote_as_string);
                            SET_COMP_INT(big_array_literal_as_flux_emit);
                            SET_COMP_BOOL(resolve_method_call_as_call);
-                           if (streq(key, "default_cconv")) {
+                           if (streq_lit(key, "default_cconv")) {
                                p->ctx->settings.default_cconv = val;
                                matched = 1;
                            }
                        }
-                    } else if (streq(domain, "lexer")) {
+                    } else if (streq_lit(domain, "lexer")) {
                         if (val) {
                             SET_LEX_BOOL(require_semicolons);
                             SET_LEX_BOOL(double_quote_as_string);
                             SET_LEX_BOOL(import_require_double_quotes);
                             
-                            if (streq(key, "double_quote_as_string")) {
+                            if (streq_lit(key, "double_quote_as_string")) {
                                 p->ctx->settings.double_quote_as_string = p->l->settings.double_quote_as_string; // Sync
                             }
                             
-                            if (streq(key, "scope_style")) {
-                                if (streq(val, "SCOPE_INDENTATION")) {
+                            if (streq_lit(key, "scope_style")) {
+                                if (streq_lit(val, "SCOPE_INDENTATION")) {
                                     p->l->settings.scope_style = SCOPE_INDENTATION;
-                                } else if (streq(val, "SCOPE_BRACKETS")) {
+                                } else if (streq_lit(val, "SCOPE_BRACKETS")) {
                                     p->l->settings.scope_style = SCOPE_BRACKETS;
                                 } else {
                                     parser_fail(p, "Unknown scope_style value");
@@ -510,12 +510,12 @@ ASTNode* parse_top_level_internal(Parser *p) {
                                 matched = 1;
                             }
                             
-                            if (streq(key, "warning_indent_deep")) {
+                            if (streq_lit(key, "warning_indent_deep")) {
                                 p->l->settings.warning_indent_deep = atoi(val);
                                 matched = 1;
                             }
                        }
-                   } else if (streq(domain, "parser")) {
+                   } else if (streq_lit(domain, "parser")) {
                        if (val) {
                            SET_PARS_BOOL(require_parens_for_conditions);
                            SET_PARS_BOOL(allow_implicit_return);
@@ -556,7 +556,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
                        parser_fail(p, "no reason to set setting");
                    }
 
-                   if (streq(domain, "cconv") && val) {
+                   if (streq_lit(domain, "cconv") && val) {
                        p->ctx->settings.default_cconv = val;
                    }
                }
@@ -601,7 +601,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
                               p->current_token.col = col;
                               parser_fail(p, "no reason to set setting");
                           }
-                          if (streq(key, "cconv")) {
+                          if (streq_lit(key, "cconv")) {
                               p->pending_cconv = parser_strdup(p, p->current_token.text);
                           }
                           eat(p, p->current_token.type);

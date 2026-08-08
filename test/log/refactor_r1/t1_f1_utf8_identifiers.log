@@ -1,0 +1,34 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x56489f28a6a0 target=0x56489f28a500
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=4 col=15 node=0x56489f28a3a0
+debug: semantic: sem_check_block: Call line=5 col=11 name=printf target_type=13 node=0x56489f28a6a0
+debug: semantic: sem_check_expr: type=2 line=5 col=11 node=0x56489f28a6a0
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=5 col=5 node=0x56489f28a500
+debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x56489f28a580
+debug: semantic: sem_check_expr: type=13 line=5 col=20 node=0x56489f28a620
+debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x56489f28a580
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x56489f28a738
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=8
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x56489f28a2b0
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen

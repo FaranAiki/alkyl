@@ -16,12 +16,12 @@ case ALIR_OP_CALL: {
                         if (inst->op1->val.str_val) {
                             debug_metalir("VM CALL: %s\n", inst->op1->val.str_val);
                         }
-                        if (inst->op1->val.str_val && streq(inst->op1->val.str_val, "print")) {
+                        if (inst->op1->val.str_val && streq_lit(inst->op1->val.str_val, "print")) {
                             for (int i = 0; i < inst->arg_count; i++) {
                                 AlirValue *arg = inst->args[i];
                                 if (arg->kind == ALIR_VAL_CONST) {
                                     if (arg->type.base == TYPE_INT) printf("%lld", arg->val.long_long_val);
-                                    else if (arg->type.base == TYPE_CLASS && arg->type.class_name && streq(arg->type.class_name, "string")) printf("%s", arg->val.str_val);
+                                    else if (arg->type.base == TYPE_CLASS && arg->type.class_name && streq_lit(arg->type.class_name, "string")) printf("%s", arg->val.str_val);
                                 } else if (arg->kind == ALIR_VAL_TEMP) {
                                     printf("%lld", ctx->registers[arg->temp_id].as.int_val);
                                 } else if (arg->kind == ALIR_VAL_VAR) {
@@ -41,7 +41,7 @@ case ALIR_OP_CALL: {
 
                                 AlirFunction *f = ctx->module->functions;
                                 while(f) {
-                                    if (streq(f->name, inst->op1->val.str_val)) {
+                                    if (streq_lit(f->name, inst->op1->val.str_val)) {
                                         target_fn = f;
                                         break;
                                     }
@@ -65,7 +65,7 @@ case ALIR_OP_CALL: {
                             else new_args[i] = 0;
                                 }
                                 long long rc = metalir_vm_execute(ctx->vm, ctx->module, target_fn, ctx->sem_ctx, new_args, inst->arg_count);
-                                if (streq(target_fn->name, "Vector_as_int")) {
+                                if (streq_lit(target_fn->name, "Vector_as_int")) {
                                 }
 
                                 if (inst->dest) {
@@ -77,12 +77,12 @@ case ALIR_OP_CALL: {
                                 if (ctx->module) {
                                     AlirFunction *curr = ctx->module->functions;
                                     while(curr) {
-                                        if (streq(curr->name, inst->op1->val.str_val)) { ext_func = curr; break; }
+                                        if (streq_lit(curr->name, inst->op1->val.str_val)) { ext_func = curr; break; }
                                         curr = curr->next;
                                     }
                                 }
 
-                                if (streq(inst->op1->val.str_val, "malloc")) {
+                                if (streq_lit(inst->op1->val.str_val, "malloc")) {
                                     debug_metalir("DLSYM MALLOC: %p\n", func_ptr);
                                 }
 
@@ -129,7 +129,7 @@ case ALIR_OP_CALL: {
                                                 else { float f; memcpy(&f, &raw, sizeof(float)); *(float*)val = f; }
                                             }
                                             arg_values[i] = val;
-                                        } else if ((arg->type.base == TYPE_CLASS && arg->type.class_name && streq(arg->type.class_name, "string")) || arg->type.base == TYPE_AUTO || arg->type.ptr_depth > 0) {
+                                        } else if ((arg->type.base == TYPE_CLASS && arg->type.class_name && streq_lit(arg->type.class_name, "string")) || arg->type.base == TYPE_AUTO || arg->type.ptr_depth > 0) {
                                             arg_types[i] = &ffi_type_pointer;
                                             void **val = (void**)&arg_data[i];
                                             *val = NULL;
@@ -170,7 +170,7 @@ case ALIR_OP_CALL: {
                                             else if (inst->dest->type.base == TYPE_SINGLE) rc = &rc_float;
                                         }
                                         ffi_call(&cif, func_ptr, rc, arg_values);
-                                        if (streq(inst->op1->val.str_val, "malloc")) {
+                                        if (streq_lit(inst->op1->val.str_val, "malloc")) {
                                             debug_metalir("MALLOC FFI RETURN: %lld\n", rc_int);
                                         }
                                         if (inst->dest) {

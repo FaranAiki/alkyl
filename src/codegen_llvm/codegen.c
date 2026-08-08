@@ -71,12 +71,12 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
                     }
 
                     while (st) {
-                        if (streq(st->name, mangled_t)) {
+                        if (streq_lit(st->name, mangled_t)) {
                             base = hashmap_get(&ctx->struct_map, st->name);
                             if (base) break;
                         }
                         const char *dot = strrchr(st->name, '.');
-                        if (dot && (streq(dot + 1, t.class_name) || streq(dot + 1, mangled_t))) {
+                        if (dot && (streq_lit(dot + 1, t.class_name) || streq_lit(dot + 1, mangled_t))) {
                             base = hashmap_get(&ctx->struct_map, st->name);
                             if (base) break;
                         }
@@ -280,7 +280,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
         if (g->string_content) {
             LLVMValueRef init_str = LLVMConstStringInContext(ctx->llvm_ctx, g->string_content, strlen(g->string_content), 0);
 
-            if (g->type.base == TYPE_CLASS && g->type.class_name && streq(g->type.class_name, "string")) {
+            if (g->type.base == TYPE_CLASS && g->type.class_name && streq_lit(g->type.class_name, "string")) {
                 LLVMTypeRef str_array_ty = LLVMTypeOf(init_str);
                 char internal_name[256];
                 snprintf(internal_name, sizeof(internal_name), "%s_data", g->name);
@@ -355,11 +355,11 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
         LLVMValueRef llvm_func = LLVMAddFunction(ctx->llvm_mod, func->name, func_ty);
 
         if (func->cconv) {
-            if (streq(func->cconv, "stdcall") || streq(func->cconv, "\"stdcall\"")) {
+            if (streq_lit(func->cconv, "stdcall") || streq_lit(func->cconv, "\"stdcall\"")) {
                 LLVMSetFunctionCallConv(llvm_func, 64); // LLVMX86StdcallCallConv
-            } else if (streq(func->cconv, "fastcall") || streq(func->cconv, "\"fastcall\"")) {
+            } else if (streq_lit(func->cconv, "fastcall") || streq_lit(func->cconv, "\"fastcall\"")) {
                 LLVMSetFunctionCallConv(llvm_func, 65); // LLVMX86FastcallCallConv
-            } else if (streq(func->cconv, "cdecl") || streq(func->cconv, "\"cdecl\"")) {
+            } else if (streq_lit(func->cconv, "cdecl") || streq_lit(func->cconv, "\"cdecl\"")) {
                 LLVMSetFunctionCallConv(llvm_func, 0); // LLVMCCallConv
             }
         }

@@ -1,0 +1,146 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=get_shared_str1 target_type=13 line=0 col=0 node=0x55f9a30e2a80 target=0x55f9a30e2a00
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=get_shared_str2 target_type=13 line=0 col=0 node=0x55f9a30e2c58 target=0x55f9a30e2bd8
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55f9a30e2f50 target=0x55f9a30e2db0
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55f9a30e3188 target=0x55f9a30e2fe8
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55f9a30e3fb0 target=0x55f9a30e3e10
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=4 col=12 node=0x55f9a30e2600
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x55f9a30e2800
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=2 line=12 col=31 node=0x55f9a30e2a80
+debug: semantic: sem_check_call: name='get_shared_str1', ns='main'
+debug: semantic: sem_check_expr: type=13 line=12 col=16 node=0x55f9a30e2a00
+debug: semantic: sem_check_expr: type=2 line=13 col=31 node=0x55f9a30e2c58
+debug: semantic: sem_check_call: name='get_shared_str2', ns='main'
+debug: semantic: sem_check_expr: type=13 line=13 col=16 node=0x55f9a30e2bd8
+debug: semantic: sem_check_block: Call line=14 col=11 name=printf target_type=13 node=0x55f9a30e2f50
+debug: semantic: sem_check_expr: type=2 line=14 col=11 node=0x55f9a30e2f50
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=14 col=5 node=0x55f9a30e2db0
+debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x55f9a30e2e30
+debug: semantic: sem_check_expr: type=13 line=14 col=24 node=0x55f9a30e2ed0
+debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x55f9a30e2e30
+debug: semantic: sem_check_block: Call line=15 col=11 name=printf target_type=13 node=0x55f9a30e3188
+debug: semantic: sem_check_expr: type=2 line=15 col=11 node=0x55f9a30e3188
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=15 col=5 node=0x55f9a30e2fe8
+debug: semantic: sem_check_expr: type=16 line=15 col=12 node=0x55f9a30e3068
+debug: semantic: sem_check_expr: type=13 line=15 col=24 node=0x55f9a30e3108
+debug: semantic: sem_check_expr: type=16 line=15 col=12 node=0x55f9a30e3068
+debug: semantic: sem_check_expr: type=16 line=16 col=21 node=0x55f9a30e3220
+debug: semantic: sem_check_expr: type=14 line=17 col=24 node=0x55f9a30e3b30
+debug: semantic: sem_check_expr: type=14 line=17 col=15 node=0x55f9a30e36b0
+debug: semantic: sem_check_expr: type=18 line=17 col=11 node=0x55f9a30e34a0
+debug: semantic: sem_check_expr: type=13 line=17 col=9 node=0x55f9a30e3380
+debug: semantic: sem_check_expr: type=16 line=17 col=12 node=0x55f9a30e3400
+debug: semantic: sem_check_index_access type base: 8, array_size: 0
+debug: semantic: sem_check_expr: type=18 line=17 col=20 node=0x55f9a30e3638
+debug: semantic: sem_check_expr: type=13 line=17 col=18 node=0x55f9a30e3518
+debug: semantic: sem_check_expr: type=16 line=17 col=21 node=0x55f9a30e3598
+debug: semantic: sem_check_index_access type base: 8, array_size: 0
+debug: semantic: sem_check_expr: type=14 line=17 col=33 node=0x55f9a30e3a88
+debug: semantic: sem_check_expr: type=18 line=17 col=29 node=0x55f9a30e3878
+debug: semantic: sem_check_expr: type=13 line=17 col=27 node=0x55f9a30e3758
+debug: semantic: sem_check_expr: type=16 line=17 col=30 node=0x55f9a30e37d8
+debug: semantic: sem_check_index_access type base: 8, array_size: 0
+debug: semantic: sem_check_expr: type=18 line=17 col=38 node=0x55f9a30e3a10
+debug: semantic: sem_check_expr: type=13 line=17 col=36 node=0x55f9a30e38f0
+debug: semantic: sem_check_expr: type=16 line=17 col=39 node=0x55f9a30e3970
+debug: semantic: sem_check_index_access type base: 8, array_size: 0
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=18 col=17 node=0x55f9a30e3c58
+debug: semantic: sem_check_block: Call line=20 col=11 name=printf target_type=13 node=0x55f9a30e3fb0
+debug: semantic: sem_check_expr: type=2 line=20 col=11 node=0x55f9a30e3fb0
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=20 col=5 node=0x55f9a30e3e10
+debug: semantic: sem_check_expr: type=16 line=20 col=12 node=0x55f9a30e3e90
+debug: semantic: sem_check_expr: type=13 line=20 col=40 node=0x55f9a30e3f30
+debug: semantic: sem_check_expr: type=16 line=20 col=12 node=0x55f9a30e3e90
+debug: semantic: sem_check_expr: type=16 line=21 col=12 node=0x55f9a30e4048
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: Found func_def get_shared_str1
+debug: alir: alir_gen_function_def fn->name=get_shared_str1 class_name=NULL fn->mangled_name=main_get_shared_str1 -> func_name=main_get_shared_str1
+debug: alir: alir_add_function: main_get_shared_str1
+debug: alir: Found func_def get_shared_str2
+debug: alir: alir_gen_function_def fn->name=get_shared_str2 class_name=NULL fn->mangled_name=main_get_shared_str2 -> func_name=main_get_shared_str2
+debug: alir: alir_add_function: main_get_shared_str2
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: Looking up 'main_get_shared_str1'
+debug: alir: Found symbol get_shared_str1, kind=1, is_macro=0, node_ptr=0x55f9a30e2710
+debug: alir: GLOBAL VAR ADDR: get_shared_str1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=8 op1_kind=9 op1_type_base=8
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=8
+debug: alir: Looking up 'main_get_shared_str2'
+debug: alir: Found symbol get_shared_str2, kind=1, is_macro=0, node_ptr=0x55f9a30e2910
+debug: alir: GLOBAL VAR ADDR: get_shared_str2
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=8 op1_kind=9 op1_type_base=8
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=8
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55f9a30e2510
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55f9a30e2510
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=6 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55f9a30e2510
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+at namespace main:
+in .../code/refactor_r1/t1_f1_string_literal_pool.kyl:
+18:17: error: [ALIR: @main -> then] JUMP target label 'merge' does not exist in function.
+  |         match = 1;
+  |                 ^
+21:12: error: [ALIR: @main -> then] Early terminator 'ret' found. Instructions following this in the same block are unreachable.
+  |     return 0;
+  |            ^
+ALICK Verification Failed: 2 errors, 0 warnings found.
+Error occured in alick after optimization.

@@ -99,7 +99,7 @@ void metalir_alir_generate(MetalirRunner *r, ASTNode *root) {
 long long metalir_execute_alir(MetalirRunner *r, const char *func_name) {
     AlirFunction *f = r->module->functions;
     while (f) {
-        if (streq(f->name, func_name)) break;
+        if (streq_lit(f->name, func_name)) break;
         f = f->next;
     }
     if (!f) return 0;
@@ -109,7 +109,7 @@ long long metalir_execute_alir(MetalirRunner *r, const char *func_name) {
 static AlirFunction* find_func(MetalirRunner *r, const char *name) {
     AlirFunction *f = r->module->functions;
     while (f) {
-        if (streq(f->name, name)) return f;
+        if (streq_lit(f->name, name)) return f;
         f = f->next;
     }
     return NULL;
@@ -139,7 +139,7 @@ void metalir_print_repl_value(VarType rt, long long result) {
             union { long long i; double d; } u; u.i = result;
             printf("-> %f (double)\n", u.d);
         }
-        else if ((rt.base == TYPE_CLASS && rt.class_name && streq(rt.class_name, "string")) || (rt.base == TYPE_CHAR && rt.ptr_depth == 1 && rt.array_size == 0)) {
+        else if ((rt.base == TYPE_CLASS && rt.class_name && streq_lit(rt.class_name, "string")) || (rt.base == TYPE_CHAR && rt.ptr_depth == 1 && rt.array_size == 0)) {
             if ((unsigned long long)result < 0x10000) {
                 printf("-> %p (char*)\n", (void*)(intptr_t)result);
             } else {
@@ -392,7 +392,7 @@ long long metalir_run_expr(MetalirRunner *r, ASTNode *curr, int seq,
     if (curr->type == NODE_ASSIGN && ((AssignNode*)curr)->is_implicit_let) {
         VMGlobal *g = r->vm->globals;
         while (g) {
-            if (streq(g->name, ((AssignNode*)curr)->name)) {
+            if (streq_lit(g->name, ((AssignNode*)curr)->name)) {
                 if (fn->ret_type.array_size > 0) {
                     g->ptr_val = (void*)(intptr_t)result;
                 } else if (fn->ret_type.base == TYPE_CLASS && fn->ret_type.ptr_depth == 0) {

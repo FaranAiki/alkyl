@@ -208,7 +208,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   if (p->has_error) break;
                   VarType *curr_allowed = NULL;
                   int curr_num = 0;
-                  if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text && streq(p->current_token.text, "type")) {
+                  if (p->current_token.type == TOKEN_IDENTIFIER && p->current_token.text && streq_lit(p->current_token.text, "type")) {
                       eat(p, TOKEN_IDENTIFIER);
                       if (p->current_token.type == TOKEN_LBRACKET) {
                           eat(p, TOKEN_LBRACKET);
@@ -359,8 +359,8 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   debug_parser("constructor check: vt.class_name='%s', class_name='%s'\n", vt.class_name, class_name);
                       }
                       if ((vt.base == TYPE_CLASS || vt.base == TYPE_UNKNOWN) && vt.class_name != NULL &&
-                             (streq(vt.class_name, class_name) ||
-                              (strlen(vt.class_name) > strlen(class_name) && streq(vt.class_name + strlen(vt.class_name) - strlen(class_name), class_name)))) {
+                             (streq_lit(vt.class_name, class_name) ||
+                              (strlen(vt.class_name) > strlen(class_name) && streq_lit(vt.class_name + strlen(vt.class_name) - strlen(class_name), class_name)))) {
                       // Constructor detected: ClassName(...)
                       char *mem_name = parser_strdup(p, vt.class_name);
                       vt.base = TYPE_VOID; // Constructors implicitly return void or handle specially

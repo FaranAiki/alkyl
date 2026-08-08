@@ -14,7 +14,7 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
         if (st) {
             AlirField *f = st->fields;
             while(f) {
-                if (streq(f->name, vn->name)) {
+                if (streq_lit(f->name, vn->name)) {
                     idx = f->index;
                     field_type = f->type;
                     break;
@@ -25,10 +25,10 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
         if (idx == -1) {
             idx = alir_robust_get_field_index(ctx, class_name, vn->name);
             
-            if (class_name && streq(class_name, "string")) {
-                if (streq(vn->name, "data")) {
+            if (class_name && streq_lit(class_name, "string")) {
+                if (streq_lit(vn->name, "data")) {
                     field_type = (VarType){ .base = TYPE_CHAR, .ptr_depth = 1 };
-                } else if (streq(vn->name, "len")) {
+                } else if (streq_lit(vn->name, "len")) {
                     field_type = (VarType){ .base = TYPE_UNSIGNED_INT, .ptr_depth = 0 };
                 }
             }
@@ -38,7 +38,7 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
                 while (search) {
                     AlirField *f = search->fields;
                     while(f) {
-                        if (streq(f->name, vn->name)) { field_type = f->type; break; }
+                        if (streq_lit(f->name, vn->name)) { field_type = f->type; break; }
                         f = f->next;
                     }
                     search = search->next;
@@ -85,7 +85,7 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
         if (st) {
             AlirField *f = st->fields;
             while(f) {
-                if (streq(f->name, vn->name)) {
+                if (streq_lit(f->name, vn->name)) {
                     idx = f->index;
                     field_type = f->type;
                     break;
@@ -94,11 +94,11 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
             }
         }
 
-        if (this_sym->type.class_name && streq(this_sym->type.class_name, "string")) {
-            if (streq(vn->name, "data")) {
+        if (this_sym->type.class_name && streq_lit(this_sym->type.class_name, "string")) {
+            if (streq_lit(vn->name, "data")) {
                 idx = 1;
                 field_type = (VarType){ .base = TYPE_CHAR, .ptr_depth = 1 };
-            } else if (streq(vn->name, "len")) {
+            } else if (streq_lit(vn->name, "len")) {
                 idx = 0;
                 field_type = (VarType){ .base = TYPE_UNSIGNED_INT, .ptr_depth = 0 };
             }
@@ -109,7 +109,7 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
             while (search) {
                 AlirField *f = search->fields;
                 while(f) {
-                    if (streq(f->name, vn->name)) { idx = f->index; field_type = f->type; break; }
+                    if (streq_lit(f->name, vn->name)) { idx = f->index; field_type = f->type; break; }
                     f = f->next;
                 }
                 if (idx != -1) break;
@@ -165,11 +165,11 @@ AlirValue* alir_gen_addr_member_access(AlirCtx *ctx, ASTNode *node) {
     int idx = -1;
     VarType field_type = {TYPE_AUTO, 0, NULL};
 
-    if (class_name && streq(class_name, "string")) {
-        if (streq(ma->member_name, "data")) {
+    if (class_name && streq_lit(class_name, "string")) {
+        if (streq_lit(ma->member_name, "data")) {
             idx = 1;
             field_type = (VarType){ .base = TYPE_CHAR, .ptr_depth = 1 };
-        } else if (streq(ma->member_name, "len")) {
+        } else if (streq_lit(ma->member_name, "len")) {
             idx = 0;
             field_type = (VarType){ .base = TYPE_UNSIGNED_INT, .ptr_depth = 0 };
         }
@@ -180,7 +180,7 @@ AlirValue* alir_gen_addr_member_access(AlirCtx *ctx, ASTNode *node) {
         if (st) {
             AlirField *f = st->fields;
             while(f) {
-                if (streq(f->name, ma->member_name)) {
+                if (streq_lit(f->name, ma->member_name)) {
                     idx = f->index;
                     field_type = f->type;
                     break;
@@ -195,7 +195,7 @@ AlirValue* alir_gen_addr_member_access(AlirCtx *ctx, ASTNode *node) {
         while (search) {
             AlirField *f = search->fields;
             while(f) {
-                if (streq(f->name, ma->member_name)) {
+                if (streq_lit(f->name, ma->member_name)) {
                     idx = f->index;
                     field_type = f->type;
                     break;
@@ -263,10 +263,10 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
         // Find field type for precise IR typing
         VarType field_type = {TYPE_AUTO, 0, NULL};
         
-        if (class_name && streq(class_name, "string")) {
-            if (streq(ma->member_name, "data")) {
+        if (class_name && streq_lit(class_name, "string")) {
+            if (streq_lit(ma->member_name, "data")) {
                 field_type = (VarType){ .base = TYPE_CHAR, .ptr_depth = 1 };
-            } else if (streq(ma->member_name, "len")) {
+            } else if (streq_lit(ma->member_name, "len")) {
                 field_type = (VarType){ .base = TYPE_UNSIGNED_INT, .ptr_depth = 0 };
             }
         }
@@ -276,7 +276,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
             if (st) {
                 AlirField *f = st->fields;
                 while(f) {
-                    if (streq(f->name, ma->member_name)) { field_type = f->type; break; }
+                    if (streq_lit(f->name, ma->member_name)) { field_type = f->type; break; }
                     f = f->next;
                 }
             }
@@ -287,7 +287,7 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
             while (search) {
                 AlirField *f = search->fields;
                 while(f) {
-                    if (streq(f->name, ma->member_name)) { field_type = f->type; break; }
+                    if (streq_lit(f->name, ma->member_name)) { field_type = f->type; break; }
                     f = f->next;
                 }
                 if (field_type.base != TYPE_AUTO) break;
@@ -364,13 +364,13 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
         }
     }
 
-    if ((ln->var_type.base == TYPE_CLASS && ln->var_type.class_name && streq(ln->var_type.class_name, "string")) || (ln->var_type.base == TYPE_CHAR && ln->var_type.ptr_depth > 0)) {
+    if ((ln->var_type.base == TYPE_CLASS && ln->var_type.class_name && streq_lit(ln->var_type.class_name, "string")) || (ln->var_type.base == TYPE_CHAR && ln->var_type.ptr_depth > 0)) {
         if (!ln->val.str_val || (long)ln->val.str_val <= 0x1000) {
             return alir_const_int(ctx->module, ln->val.long_val);
         }
 
         AlirValue *glob = alir_module_add_string_literal(ctx->module, ln->val.str_val, ln->var_type);
-        if (ln->var_type.base == TYPE_CLASS && streq(ln->var_type.class_name, "string")) {
+        if (ln->var_type.base == TYPE_CLASS && streq_lit(ln->var_type.class_name, "string")) {
             AlirValue *val = new_temp(ctx, ln->var_type);
             emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, val, glob, NULL));
             return val;
@@ -413,7 +413,7 @@ AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
         if (sym && vn->mangled_name) {
             SemSymbol *s = sym;
             while (s) {
-                if (s->mangled_name && streq(s->mangled_name, vn->mangled_name)) {
+                if (s->mangled_name && streq_lit(s->mangled_name, vn->mangled_name)) {
                     sym = s;
                     break;
                 }

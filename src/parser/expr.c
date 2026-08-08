@@ -292,9 +292,9 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             if (p->current_token.type == TOKEN_LBRACKET) {
                 eat(p, TOKEN_LBRACKET);
                 if (p->current_token.type == TOKEN_IDENTIFIER) {
-                    if (streq(p->current_token.text, "little")) {
+                    if (streq_lit(p->current_token.text, "little")) {
                         endian = ENDIAN_LITTLE;
-                    } else if (streq(p->current_token.text, "big")) {
+                    } else if (streq_lit(p->current_token.text, "big")) {
                         endian = ENDIAN_BIG;
                     } else {
                         parser_fail(p, "Invalid endianness specifier for being, expected \"little\" or \"big\"");

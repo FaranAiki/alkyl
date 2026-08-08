@@ -39,11 +39,15 @@ void write_file(const char* path, const char* content);
 char* read_zip_file(const char *path);
 
 #include <string.h>
+static inline int streq_lit(const char *interned, const char *lit) {
+    if (interned == lit) return 1;
+    if (!interned || !lit) return 0;
+    if (interned[0] != lit[0]) return 0;
+    return strcmp(interned, lit) == 0;
+}
+
 static inline int streq(const char *a, const char *b) {
-    if (a == b) return 1;
-    if (!a || !b) return 0;
-    if (a[0] != b[0]) return 0;
-    return strcmp(a, b) == 0;
+    return a == b;
 }
 
 #include "arena.h"
