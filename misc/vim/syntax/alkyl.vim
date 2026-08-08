@@ -18,6 +18,9 @@ syn keyword alkylBuiltinType int void char bool single double short long unsigne
 syn keyword alkylBoolean true false null
 syn keyword alkylOperatorKeyword infop prefop suffop infmut premut sufmut
 
+" Attributes/Pragmas
+syn match alkylAttribute "@[a-zA-Z_][a-zA-Z0-9_]*\>"
+
 " Numbers
 syn match alkylNumber "\<\d\+\>"
 syn match alkylFloat "\<\d\+\.\d\+\>"
@@ -31,7 +34,7 @@ syn match alkylChar /'.'|'\\.'/
 syn match alkylClass "\<[A-Z][a-zA-Z0-9_]*\>"
 
 " Functions
-syn match alkylFunction "\<[a-zA-Z_][a-zA-Z0-9_]*\>\s*("me=e-1
+syn match alkylFunction "\<[a-zA-Z_][a-zA-Z0-9_]*[!?]\?\s*("me=e-1
 
 " Delimiters and Punctuation
 syn match alkylDelimiter "[(){}\[\];,]"
@@ -54,6 +57,7 @@ hi def link alkylClass Type
 hi def link alkylFunction Function
 hi def link alkylBoolean Boolean
 hi def link alkylOperatorKeyword Keyword
+hi def link alkylAttribute PreProc
 
 hi def link alkylNumber Number
 hi def link alkylFloat Float

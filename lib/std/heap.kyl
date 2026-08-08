@@ -66,12 +66,12 @@ public open namespace heap {
         long default_block_size = 65536;
     }
 
-    public tainted {
-        mut void* malloc(long size) {
+    public tainted mutable {
+        void* malloc(long size) {
             return this.malloc_aligned(size, 8); // Default 8-byte alignment
         }
 
-        mut void* malloc_aligned(long size, long align) {
+        void* malloc_aligned(long size, long align) {
             if size < 0 || align <= 0 then return my.nil;
 
             if this.head == my.nil {
@@ -98,8 +98,8 @@ public open namespace heap {
         }
     }
 
-    private tainted {
-        mut void* new_block_and_malloc(long size, long align) {
+    private tainted mutable {
+        void* new_block_and_malloc(long size, long align) {
             long cap = this.default_block_size;
             if size + align > cap then cap = size + align;
 
@@ -131,15 +131,15 @@ public open namespace heap {
             return (base + offset) as void*;
         }
 
-        mut compound [type T]
+        compound [type T]
         T* alloc(long count) {
             return this.malloc(count * sizeof(T)) as T*;
         }
     }
 
-    public tainted {
+    public tainted mutable {
         // free() returns all memory back to the OS/default allocator
-        mut void free() {
+        void free() {
             ArenaBlock* curr = this.head;
             while curr != my.nil {
                 ArenaBlock* next = curr.next;
@@ -152,7 +152,7 @@ public open namespace heap {
 
         // reset() keeps the allocated memory blocks but marks them as completely empty,
         // allowing extremely fast O(1) bulk deallocation and reuse across loop iterations.
-        mut void reset() {
+        void reset() {
             ArenaBlock* curr = this.head;
             while curr != my.nil {
                 curr.used = 0;
