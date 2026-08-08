@@ -249,7 +249,13 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 }
                 
                 LLVMValueRef new_val = LLVMBuildSelect(ctx->builder, has_err, op2, val, "new_val");
-                res = new_val;
+                
+                LLVMValueRef new_struct = LLVMGetUndef(LLVMTypeOf(op1));
+                new_struct = LLVMBuildInsertValue(ctx->builder, new_struct, new_err_id, 0, "ins_err");
+                if (LLVMCountStructElementTypes(LLVMTypeOf(op1)) > 1) {
+                    new_struct = LLVMBuildInsertValue(ctx->builder, new_struct, new_val, 1, "ins_val");
+                }
+                res = new_struct;
             } else {
                 has_err = LLVMBuildICmp(ctx->builder, LLVMIntNE, err_id, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), "has_err");
                 

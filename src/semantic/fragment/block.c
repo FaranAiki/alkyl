@@ -140,7 +140,11 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             sem_check_expr(ctx, ifn->condition);
             if (sem_get_node_tainted(ctx, ifn->condition)) {
                 sem_error(ctx, ifn->condition, "Condition is tainted");
-                sem_hint(ctx, ifn->condition, "Use untaint, wash, clean, or ? operator to handle the error state");
+                if (ifn->condition->type == NODE_BINARY_OP && (((BinaryOpNode*)ifn->condition)->op == TOKEN_QUESTION || ((BinaryOpNode*)ifn->condition)->op == TOKEN_QUESTION_QUESTION)) {
+                    sem_hint(ctx, ifn->condition, "The fallback operator does not cover all possible errors. Chain with a catch-all ? operator to handle the remaining error states");
+                } else {
+                    sem_hint(ctx, ifn->condition, "Use untaint, wash, clean, or ? operator to handle the error state");
+                }
             }
 
             int cond_val = -1;
@@ -187,7 +191,11 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
             sem_check_expr(ctx, sn->condition);
             if (sem_get_node_tainted(ctx, sn->condition)) {
                 sem_error(ctx, sn->condition, "Condition is tainted");
-                sem_hint(ctx, sn->condition, "Use untaint, wash, clean, or ? operator to handle the error state");
+                if (sn->condition->type == NODE_BINARY_OP && (((BinaryOpNode*)sn->condition)->op == TOKEN_QUESTION || ((BinaryOpNode*)sn->condition)->op == TOKEN_QUESTION_QUESTION)) {
+                    sem_hint(ctx, sn->condition, "The fallback operator does not cover all possible errors. Chain with a catch-all ? operator to handle the remaining error states");
+                } else {
+                    sem_hint(ctx, sn->condition, "Use untaint, wash, clean, or ? operator to handle the error state");
+                }
             }
 
             CaseNode *sc = (CaseNode*)sn->cases;
@@ -223,9 +231,13 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 ctx->current_func_sym->is_total = false;
             }
             sem_check_expr(ctx, wn->condition);
-            if (sem_get_node_tainted(ctx, wn->condition)) {
+            if (wn->condition && sem_get_node_tainted(ctx, wn->condition)) {
                 sem_error(ctx, wn->condition, "Condition is tainted");
-                sem_hint(ctx, wn->condition, "Use untaint, wash, clean, or ? operator to handle the error state");
+                if (wn->condition->type == NODE_BINARY_OP && (((BinaryOpNode*)wn->condition)->op == TOKEN_QUESTION || ((BinaryOpNode*)wn->condition)->op == TOKEN_QUESTION_QUESTION)) {
+                    sem_hint(ctx, wn->condition, "The fallback operator does not cover all possible errors. Chain with a catch-all ? operator to handle the remaining error states");
+                } else {
+                    sem_hint(ctx, wn->condition, "Use untaint, wash, clean, or ? operator to handle the error state");
+                }
             }
             ctx->in_loop++;
 
