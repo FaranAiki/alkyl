@@ -41,13 +41,21 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
                 void *val = hashmap_get(&ctx->sem->compiler_ctx->error_table, vr->name);
                 if (val) err_id = (int)(intptr_t)val;
             }
-            char buf[512];
-            // TODO fix this
-            snprintf(buf, sizeof(buf), "purge: %s\n", vr->name);
-            VarType str_type = { .base = TYPE_CLASS, .class_name = (char*)"string", .ptr_depth = 0 };
-            AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, str_type);
-            AlirValue *id_val = alir_const_int(ctx->module, err_id);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, id_val));
+            if (pn->target) {
+                AlirValue *target_val = alir_gen_addr(ctx, pn->target);
+                AlirValue *id_val = alir_const_int(ctx->module, err_id);
+                AlirValue *err_ptr = new_temp(ctx, (VarType){TYPE_INT, 1, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, err_ptr, target_val, alir_const_int(ctx->module, 0)));
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, id_val, err_ptr));
+            } else {
+                char buf[512];
+                // TODO fix this
+                snprintf(buf, sizeof(buf), "purge: %s\n", vr->name);
+                VarType str_type = { .base = TYPE_CLASS, .class_name = (char*)"string", .ptr_depth = 0 };
+                AlirValue *msg_val = alir_module_add_string_literal(ctx->module, buf, str_type);
+                AlirValue *id_val = alir_const_int(ctx->module, err_id);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_PANIC, NULL, msg_val, id_val));
+            }
             break;
         }
         case NODE_CLEAN: {

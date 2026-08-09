@@ -553,6 +553,8 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
             } else {
                 op_type = sn->target_type;
             }
+            op_type.is_tainted = 0;
+            op_type.is_pristine = 0;
             unsigned int hash = 5381;
             char *str = sem_type_to_str(op_type);
             debug_alir("typeof string='%s'\n", str);

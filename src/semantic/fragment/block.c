@@ -10,11 +10,11 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_PURGE: {
             PurgeNode *pn = (PurgeNode*)node;
 
-            if (ctx->current_func_sym) {
+            if (!pn->target && ctx->current_func_sym) {
                 if (ctx->current_func_sym->has_explicit_pristine) {
-                    sem_error(ctx, node, "Pristine function '%s' cannot use purge", ctx->current_func_sym->name);
+                    sem_error(ctx, node, "Pristine function '%s' cannot use purge without a target", ctx->current_func_sym->name);
                 } else if (!ctx->current_func_sym->type.is_tainted) {
-                    sem_hint(ctx, node, "Function '%s' uses purge, consider marking it as tainted", ctx->current_func_sym->name);
+                    sem_hint(ctx, node, "Function '%s' uses purge without a target, consider marking it as tainted", ctx->current_func_sym->name);
                 }
             }
 
@@ -28,6 +28,17 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 // No further type check on var because it's just an error identifier
             } else {
                 sem_error(ctx, node, "purge requires an error identifier (e.g., ErrDivisionByZero)");
+            }
+
+            if (pn->target) {
+                sem_check_expr(ctx, pn->target);
+                VarType target_type = sem_get_node_type(ctx, pn->target);
+                if (!target_type.is_tainted) {
+                    sem_error(ctx, pn->target, "Cannot purge into a pristine or non-tainted variable");
+                }
+                if (pn->target->type != NODE_VAR_REF && pn->target->type != NODE_MEMBER_ACCESS && pn->target->type != NODE_INDEX_ACCESS) {
+                    sem_error(ctx, pn->target, "Target of purge must be a mutable lvalue");
+                }
             }
             break;
         }

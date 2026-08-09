@@ -38,6 +38,7 @@ private namespace __alkyl_io {
 
 namespace std {
     // TODO: make this more robust
+    // TODO: make sure that there is like purge Error for mismatch values!
     meta void input(...) {
         for arg in ... {
             if typeof(arg) == typeof(int*) {

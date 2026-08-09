@@ -335,6 +335,7 @@ typedef struct {
 typedef struct {
   ASTNode base;
   ASTNode *msg;
+  ASTNode *target;
 } PurgeNode;
 
 typedef struct {

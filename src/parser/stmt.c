@@ -374,6 +374,12 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       n->base.line = line;
       n->base.col = col;
       n->msg = parse_expression(p);
+      if (p->current_token.type == TOKEN_IN) {
+          eat(p, TOKEN_IN);
+          n->target = parse_expression(p);
+      } else {
+          n->target = NULL;
+      }
       eat_semi(p);
       return (ASTNode*)n;
   }
