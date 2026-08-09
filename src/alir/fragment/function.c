@@ -404,9 +404,19 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
                     diag_set_namespace(ctx->sem->compiler_ctx, ns_buf);
                 }
             }
+            SemScope *macro_scope = arena_alloc(ctx->module->compiler_ctx->arena, sizeof(SemScope));
+            memset(macro_scope, 0, sizeof(SemScope));
+            macro_scope->parent = ctx->sem->current_scope;
+            macro_scope->is_function_scope = 1;
+            ctx->sem->current_scope = macro_scope;
+
             debug_alir("macro: before sem_check_block, ns='%s'\n", diag_get_namespace(ctx->sem->compiler_ctx));
             sem_check_block(ctx->sem, cloned_body);
             debug_alir("macro: after sem_check_block, ns='%s'\n", diag_get_namespace(ctx->sem->compiler_ctx));
+            
+            // Pop the scope
+            ctx->sem->current_scope = macro_scope->parent;
+
             // Compile the rewritten AST directly into the current caller's ALIR block
             ASTNode *curr = cloned_body;
             while (curr) {

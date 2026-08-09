@@ -4,69 +4,69 @@ debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=Person target_type=13 line=0 col=0 node=0x563de2773898 target=0x563de27736d8
+debug: parser: Created Call name=Person target_type=13 line=0 col=0 node=0x5576ce966a38 target=0x5576ce966878
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: Call line=9 col=13 name=cprintf target_type=13 node=0x563de2772800
-debug: semantic: sem_check_expr: type=2 line=9 col=13 node=0x563de2772800
+debug: semantic: sem_check_block: Call line=9 col=13 name=cprintf target_type=13 node=0x5576ce9659a0
+debug: semantic: sem_check_expr: type=2 line=9 col=13 node=0x5576ce9659a0
 debug: semantic: sem_check_call: name='cprintf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x563de27726e0
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x563de2772760
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x563de2772760
-debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x563de2772898
+debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x5576ce965880
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x5576ce965900
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x5576ce965900
+debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x5576ce965a38
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: Call line=16 col=13 name=cprintf target_type=13 node=0x563de2772d70
-debug: semantic: sem_check_expr: type=2 line=16 col=13 node=0x563de2772d70
+debug: semantic: sem_check_block: Call line=16 col=13 name=cprintf target_type=13 node=0x5576ce965f10
+debug: semantic: sem_check_expr: type=2 line=16 col=13 node=0x5576ce965f10
 debug: semantic: sem_check_call: name='cprintf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=16 col=5 node=0x563de2772b58
-debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x563de2772bd8
-debug: semantic: sem_check_expr: type=26 line=16 col=35 node=0x563de2772cf8
-debug: semantic: sem_check_expr: type=13 line=16 col=31 node=0x563de2772c78
+debug: semantic: sem_check_expr: type=13 line=16 col=5 node=0x5576ce965cf8
+debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x5576ce965d78
+debug: semantic: sem_check_expr: type=26 line=16 col=35 node=0x5576ce965e98
+debug: semantic: sem_check_expr: type=13 line=16 col=31 node=0x5576ce965e18
 at namespace main:
 in .../code/composition/test_field.kyl:
 16:35: warning: age is from Identity, consider this[Identity]
   |     cprintf "I am %d y.o.\n", this.age;
   |                                   ^
-debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x563de2772bd8
-debug: semantic: sem_check_block: Call line=17 col=13 name=cprintf target_type=13 node=0x563de27733a0
-debug: semantic: sem_check_expr: type=2 line=17 col=13 node=0x563de27733a0
+debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x5576ce965d78
+debug: semantic: sem_check_block: Call line=17 col=13 name=cprintf target_type=13 node=0x5576ce966540
+debug: semantic: sem_check_expr: type=2 line=17 col=13 node=0x5576ce966540
 debug: semantic: sem_check_call: name='cprintf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=17 col=5 node=0x563de2772e08
-debug: semantic: sem_check_expr: type=16 line=17 col=13 node=0x563de2772e88
-debug: semantic: sem_check_expr: type=26 line=17 col=46 node=0x563de2773328
-debug: semantic: sem_check_expr: type=47 line=17 col=36 node=0x563de27732a8
-debug: semantic: sem_check_expr: type=18 line=17 col=36 node=0x563de27732a8
+debug: semantic: sem_check_expr: type=13 line=17 col=5 node=0x5576ce965fa8
+debug: semantic: sem_check_expr: type=16 line=17 col=13 node=0x5576ce966028
+debug: semantic: sem_check_expr: type=26 line=17 col=46 node=0x5576ce9664c8
+debug: semantic: sem_check_expr: type=47 line=17 col=36 node=0x5576ce966448
+debug: semantic: sem_check_expr: type=18 line=17 col=36 node=0x5576ce966448
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=17 col=32 node=0x563de2772f28
-debug: semantic: sem_check_expr: type=16 line=17 col=36 node=0x563de2775ca0
-debug: semantic: sem_check_expr: type=16 line=17 col=13 node=0x563de2772e88
-debug: semantic: sem_check_expr: type=16 line=18 col=12 node=0x563de2773438
+debug: semantic: sem_check_expr: type=13 line=17 col=32 node=0x5576ce9660c8
+debug: semantic: sem_check_expr: type=16 line=17 col=36 node=0x5576ce968e40
+debug: semantic: sem_check_expr: type=16 line=17 col=13 node=0x5576ce966028
+debug: semantic: sem_check_expr: type=16 line=18 col=12 node=0x5576ce9665d8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=23 col=20 node=0x563de2773898
+debug: semantic: sem_check_expr: type=2 line=23 col=20 node=0x5576ce966a38
 debug: semantic: sem_check_call: name='Person', ns='main'
-debug: semantic: sem_check_expr: type=13 line=23 col=14 node=0x563de27736d8
+debug: semantic: sem_check_expr: type=13 line=23 col=14 node=0x5576ce966878
 23:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-debug: semantic: sem_check_expr: type=16 line=23 col=21 node=0x563de2773758
-debug: semantic: sem_check_expr: type=16 line=23 col=35 node=0x563de27737f8
-debug: semantic: sem_check_expr: type=27 line=24 col=14 node=0x563de2773df0
-debug: semantic: sem_check_expr: type=47 line=24 col=4 node=0x563de2773d70
-debug: semantic: sem_check_expr: type=18 line=24 col=4 node=0x563de2773d70
+debug: semantic: sem_check_expr: type=16 line=23 col=21 node=0x5576ce9668f8
+debug: semantic: sem_check_expr: type=16 line=23 col=35 node=0x5576ce966998
+debug: semantic: sem_check_expr: type=27 line=24 col=14 node=0x5576ce966f90
+debug: semantic: sem_check_expr: type=47 line=24 col=4 node=0x5576ce966f10
+debug: semantic: sem_check_expr: type=18 line=24 col=4 node=0x5576ce966f10
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=24 col=3 node=0x563de27739f0
-debug: semantic: sem_check_expr: type=16 line=24 col=4 node=0x563de2776288
-debug: semantic: sem_lookup_class_call for 'Identity', class_sym=0x563de27749d0
-debug: semantic: sem_check_expr: type=27 line=25 col=4 node=0x563de2773f08
-debug: semantic: sem_check_expr: type=13 line=25 col=3 node=0x563de2773e88
-debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x563de2774ec0
-debug: semantic: sem_check_expr: type=16 line=26 col=10 node=0x563de2773fa0
+debug: semantic: sem_check_expr: type=13 line=24 col=3 node=0x5576ce966b90
+debug: semantic: sem_check_expr: type=16 line=24 col=4 node=0x5576ce969428
+debug: semantic: sem_lookup_class_call for 'Identity', class_sym=0x5576ce967b70
+debug: semantic: sem_check_expr: type=27 line=25 col=4 node=0x5576ce9670a8
+debug: semantic: sem_check_expr: type=13 line=25 col=3 node=0x5576ce967028
+debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x5576ce968060
+debug: semantic: sem_check_expr: type=16 line=26 col=10 node=0x5576ce967140
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Identity
-debug: alir: DEBUG_REGISTER: st=0x563de2779ca8 name=Identity next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x5576ce96ce48 name=Identity next=(nil)
 debug: alir: Visiting class Person
-debug: alir: DEBUG_REGISTER: st=0x563de2779cc8 name=Person next=0x563de2779ca8
+debug: alir: DEBUG_REGISTER: st=0x5576ce96ce68 name=Person next=0x5576ce96ce48
 debug: alir: DEBUG_PASS1_END: struct list:
  - Person fields: 2
  - Identity fields: 2
@@ -76,21 +76,21 @@ debug: alir: alir_add_function: printf
 debug: alir: alir_gen_function_def fn->name=speak class_name=Identity fn->mangled_name=main_Identity_speak -> func_name=main_Identity_speak
 debug: alir: alir_add_function: main_Identity_speak
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x563de2772470
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x5576ce965610
 debug: alir: GLOBAL VAR ADDR: cprintf
 debug: alir: alir_add_function: Identity
 debug: alir: alir_gen_function_def fn->name=intro class_name=Person fn->mangled_name=main_Person_intro -> func_name=main_Person_intro
 debug: alir: alir_add_function: main_Person_intro
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x563de2772470
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x5576ce965610
 debug: alir: GLOBAL VAR ADDR: cprintf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x563de2772470
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x5576ce965610
 debug: alir: GLOBAL VAR ADDR: cprintf
 debug: alir: alir_gen_function_def fn->name=speak class_name=Person fn->mangled_name=main_Identity_speak -> func_name=main_Person_speak
 debug: alir: alir_add_function: main_Person_speak
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x563de2772470
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x5576ce965610
 debug: alir: GLOBAL VAR ADDR: cprintf
 debug: alir: alir_add_function: Person
 debug: alir: Found func_def main
@@ -144,10 +144,4 @@ debug: optlir: Check Type for Struct Marking Identity
 debug: optlir: Check Type for Struct Marking Person
 debug: optlir: Check Type for Struct Marking Identity
 debug: optlir: Check Type for Struct Marking Person
-step: Finished alir optimization. Start code generation using LLVM codegen
-debug: codegen: struct=Person fields=2
-debug: codegen: struct=Identity fields=2
-debug: codegen: Field 0: base=8 ptr_depth=1
-debug: codegen: Field 1: base=1 ptr_depth=0
-debug: codegen: Field 0: base=8 ptr_depth=1
-debug: codegen: Field 1: base=1 ptr_depth=0
+step: Finished alir optimization. Start code generation using qbe codegen

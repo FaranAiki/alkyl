@@ -121,7 +121,17 @@ meta void print(...) {
             // This should raise an error!
         }
     }
-    // formatted_printf("%s", "\n");
+}
+
+meta void printf(char* fmt, ...) {
+    let _parts = metas.split(fmt, c"{}");
+    let _i = 0;
+    formatted_printf("%s", _parts[_i]);
+    for arg in ... {
+        _i += 1;
+        print(arg);
+        formatted_printf("%s", _parts[_i]);
+    }
 }
 
 }

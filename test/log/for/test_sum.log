@@ -14,16 +14,17 @@ debug: semantic: sem_check_block: ns='clib'
 debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
 debug: diag_set_namespace: after set, current='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x558fd5e82268
-debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x558fd5e823c8
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x56116dee0408
+debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x56116dee0568
+debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x56116dee0568
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=13 line=4 col=25 node=0x558fd5e824e8
-debug: semantic: sem_check_expr: type=27 line=5 col=17 node=0x558fd5e828c8
-debug: semantic: sem_check_expr: type=13 line=5 col=5 node=0x558fd5e826b0
-debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x558fd5e827a8
-debug: semantic: sem_check_expr: type=13 line=5 col=26 node=0x558fd5e82848
-debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x558fd5e827a8
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x558fd5e82960
+debug: semantic: sem_check_expr: type=13 line=4 col=25 node=0x56116dee0688
+debug: semantic: sem_check_expr: type=27 line=5 col=17 node=0x56116dee0a68
+debug: semantic: sem_check_expr: type=13 line=5 col=5 node=0x56116dee0850
+debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x56116dee0948
+debug: semantic: sem_check_expr: type=13 line=5 col=26 node=0x56116dee09e8
+debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x56116dee0948
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x56116dee0b00
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -57,4 +58,4 @@ debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_ba
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
+step: Finished alir optimization. Start code generation using qbe codegen

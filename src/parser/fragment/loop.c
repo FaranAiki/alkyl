@@ -17,7 +17,15 @@ ASTNode* parse_while(Parser *p) {
         cond = parse_expression(p);
         eat(p, TOKEN_RPAREN);
     } else {
-        cond = parse_expression(p);
+        if (p->current_token.type == TOKEN_LBRACE) {
+            LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
+            ln->base.type = NODE_LITERAL;
+            ln->var_type.base = TYPE_INT;
+            ln->val.int_val = 1;
+            cond = (ASTNode*)ln;
+        } else {
+            cond = parse_expression(p);
+        }
     }
     ASTNode *body = parse_single_statement_or_block(p);
     WhileNode *node = parser_alloc(p, sizeof(WhileNode));
@@ -44,6 +52,22 @@ ASTNode* parse_loop(Parser *p) {
 ASTNode* parse_for_in(Parser *p) {
     int line = p->current_token.line, col = p->current_token.col;
     eat(p, TOKEN_FOR);
+    
+    if (p->current_token.type == TOKEN_LBRACE) {
+        LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
+        ln->base.type = NODE_LITERAL;
+        ln->var_type.base = TYPE_INT;
+        ln->val.int_val = 1;
+        
+        ASTNode *body = parse_single_statement_or_block(p);
+        WhileNode *node = parser_alloc(p, sizeof(WhileNode));
+        node->base.type = NODE_WHILE;
+        node->condition = (ASTNode*)ln;
+        node->body = body;
+        node->is_do_while = 0;
+        set_loc((ASTNode*)node, line, col);
+        return (ASTNode*)node;
+    }
     
     if (p->settings.require_parens_for_conditions) eat(p, TOKEN_LPAREN);
     

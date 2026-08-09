@@ -1,18 +1,18 @@
 step: Finished lexing. Start parsing.
-debug: semantic: sem_check_expr: type=16 line=1 col=23 node=0x55b91ca2d1a0
-debug: semantic: sem_check_expr: type=16 line=2 col=24 node=0x55b91ca2d300
+debug: semantic: sem_check_expr: type=16 line=1 col=23 node=0x55e98b8f3340
+debug: semantic: sem_check_expr: type=16 line=2 col=24 node=0x55e98b8f34a0
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=5 col=13 node=0x55b91ca2d580
-debug: semantic: sem_check_expr: type=13 line=5 col=6 node=0x55b91ca2d460
-debug: semantic: sem_check_expr: type=16 line=5 col=16 node=0x55b91ca2d4e0
+debug: semantic: sem_check_expr: type=14 line=5 col=13 node=0x55e98b8f3720
+debug: semantic: sem_check_expr: type=13 line=5 col=6 node=0x55e98b8f3600
+debug: semantic: sem_check_expr: type=16 line=5 col=16 node=0x55e98b8f3680
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=5 col=32 node=0x55b91ca2d628
-debug: semantic: sem_check_expr: type=14 line=6 col=14 node=0x55b91ca2d8d8
-debug: semantic: sem_check_expr: type=13 line=6 col=6 node=0x55b91ca2d7b8
-debug: semantic: sem_check_expr: type=16 line=6 col=17 node=0x55b91ca2d838
+debug: semantic: sem_check_expr: type=16 line=5 col=32 node=0x55e98b8f37c8
+debug: semantic: sem_check_expr: type=14 line=6 col=14 node=0x55e98b8f3a78
+debug: semantic: sem_check_expr: type=13 line=6 col=6 node=0x55e98b8f3958
+debug: semantic: sem_check_expr: type=16 line=6 col=17 node=0x55e98b8f39d8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=6 col=34 node=0x55b91ca2d980
-debug: semantic: sem_check_expr: type=16 line=7 col=10 node=0x55b91ca2db10
+debug: semantic: sem_check_expr: type=16 line=6 col=34 node=0x55e98b8f3b20
+debug: semantic: sem_check_expr: type=16 line=7 col=10 node=0x55e98b8f3cb0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -24,4 +24,4 @@ debug: alir: alir_add_function: main
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
+step: Finished alir optimization. Start code generation using qbe codegen

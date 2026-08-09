@@ -14,14 +14,14 @@ debug: semantic: sem_check_block: ns='ns'
 debug: diag_set_namespace: ns='main', current='ns', ptr_match=0
 debug: diag_set_namespace: after set, current='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=8 col=15 node=0x55ab5e53c3e8
+debug: semantic: sem_check_expr: type=2 line=8 col=15 node=0x56267b8db588
 debug: semantic: sem_check_call: name='ns.Clib', ns='main'
-debug: semantic: sem_check_expr: type=16 line=8 col=13 node=0x55ab5e53c348
-debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x55ab5e53c540
+debug: semantic: sem_check_expr: type=16 line=8 col=13 node=0x56267b8db4e8
+debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x56267b8db6e0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Clib
-debug: alir: DEBUG_REGISTER: st=0x55ab5e5417e0 name=ns.Clib next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x56267b8e0980 name=ns.Clib next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - ns.Clib fields: 1
 debug: alir: Found namespace ns
@@ -42,6 +42,4 @@ debug: optlir: Check Type for Struct Marking ns.Clib
 debug: optlir: Check Type for Struct Marking ns.Clib
 debug: optlir: Check Type for Struct Marking ns.Clib
 debug: optlir: Check Type for Struct Marking ns.Clib
-step: Finished alir optimization. Start code generation using LLVM codegen
-debug: codegen: struct=ns.Clib fields=1
-debug: codegen: Field 0: base=1 ptr_depth=0
+step: Finished alir optimization. Start code generation using qbe codegen

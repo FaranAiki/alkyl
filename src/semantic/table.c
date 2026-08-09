@@ -439,6 +439,16 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
 
         scope = scope->parent;
     }
+
+    // Check global scope directly if not reached
+    SemSymbol *sym = find_in_scope_direct(ctx->global_scope, name);
+    if (sym) {
+        if (!(sym->is_private && ctx->current_filename && sym->filename && strcmp(ctx->current_filename, sym->filename) != 0)) {
+            if (out_scope) *out_scope = ctx->global_scope;
+            return sym;
+        }
+    }
+
     if (ctx->settings.namespace_auto_search) {
         SemSymbol *ns = ctx->global_scope->symbols;
         while (ns) {

@@ -22,3 +22,38 @@ namespace std {
         return __c_lib_io.getchar();
     }
 }
+
+private namespace __alkyl_io {
+    // Abstracted internal reads, allowing us to change the backend implementation
+    // away from scanf later without breaking the user-facing `input` macro.
+    impure int _read_int(int* val) { return __c_lib_io.scanf("%d", val); }
+    impure int _read_uint(unsigned int* val) { return __c_lib_io.scanf("%u", val); }
+    impure int _read_long(long* val) { return __c_lib_io.scanf("%ld", val); }
+    impure int _read_ulong(unsigned long* val) { return __c_lib_io.scanf("%lu", val); }
+    impure int _read_single(single* val) { return __c_lib_io.scanf("%f", val); }
+    impure int _read_double(double* val) { return __c_lib_io.scanf("%lf", val); }
+    impure int _read_char(char* val) { return __c_lib_io.scanf("%c", val); }
+    impure int _read_string(char* val) { return __c_lib_io.scanf("%s", val); }
+}
+
+namespace std {
+    meta void input(arg) {
+        if typeof(arg) == "int*" {
+            __alkyl_io._read_int(arg);
+        } else if typeof(arg) == "unsigned int*" {
+            __alkyl_io._read_uint(arg);
+        } else if typeof(arg) == "long*" {
+            __alkyl_io._read_long(arg);
+        } else if typeof(arg) == "unsigned long*" {
+            __alkyl_io._read_ulong(arg);
+        } else if typeof(arg) == "single*" {
+            __alkyl_io._read_single(arg);
+        } else if typeof(arg) == "double*" {
+            __alkyl_io._read_double(arg);
+        } else if typeof(arg) == "char*" {
+            __alkyl_io._read_string(arg);
+        } else if typeof(arg) == "char**" {
+            __alkyl_io._read_char(arg); // If they did input(&char_var)
+        }
+    }
+}

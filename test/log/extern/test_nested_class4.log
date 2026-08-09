@@ -14,20 +14,20 @@ debug: semantic: sem_check_block: ns='ns'
 debug: diag_set_namespace: ns='main', current='ns', ptr_match=0
 debug: diag_set_namespace: after set, current='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=9 col=9 node=0x556e28f26530
-debug: semantic: sem_check_expr: type=26 line=9 col=4 node=0x556e28f264b8
-debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x556e28f26438
-debug: semantic: sem_check_expr: type=14 line=10 col=10 node=0x556e28f26800
-debug: semantic: sem_check_expr: type=26 line=10 col=7 node=0x556e28f266e8
-debug: semantic: sem_check_expr: type=13 line=10 col=6 node=0x556e28f26668
-debug: semantic: sem_check_expr: type=16 line=10 col=13 node=0x556e28f26760
+debug: semantic: sem_check_expr: type=16 line=9 col=9 node=0x563bbe0fd6d0
+debug: semantic: sem_check_expr: type=26 line=9 col=4 node=0x563bbe0fd658
+debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x563bbe0fd5d8
+debug: semantic: sem_check_expr: type=14 line=10 col=10 node=0x563bbe0fd9a0
+debug: semantic: sem_check_expr: type=26 line=10 col=7 node=0x563bbe0fd888
+debug: semantic: sem_check_expr: type=13 line=10 col=6 node=0x563bbe0fd808
+debug: semantic: sem_check_expr: type=16 line=10 col=13 node=0x563bbe0fd900
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=10 col=24 node=0x556e28f268a8
-debug: semantic: sem_check_expr: type=16 line=11 col=10 node=0x556e28f26a38
+debug: semantic: sem_check_expr: type=16 line=10 col=24 node=0x563bbe0fda48
+debug: semantic: sem_check_expr: type=16 line=11 col=10 node=0x563bbe0fdbd8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Clib
-debug: alir: DEBUG_REGISTER: st=0x556e28f2b820 name=ns.Clib next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x563bbe1029c0 name=ns.Clib next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - ns.Clib fields: 1
 debug: alir: Found namespace ns
@@ -52,6 +52,4 @@ debug: optlir: Check Type for Struct Marking ns.Clib
 debug: optlir: Check Type for Struct Marking ns.Clib
 debug: optlir: Check Type for Struct Marking ns.Clib
 debug: optlir: Check Type for Struct Marking ns.Clib
-step: Finished alir optimization. Start code generation using LLVM codegen
-debug: codegen: struct=ns.Clib fields=1
-debug: codegen: Field 0: base=1 ptr_depth=0
+step: Finished alir optimization. Start code generation using qbe codegen

@@ -11,7 +11,7 @@ endif
 syn keyword alkylStatement return break continue defer emit purge link import as is in has meta premeta postmeta define defined accept reject flux leak once reason alir
 syn keyword alkylConditional if else elif then switch case default
 syn keyword alkylRepeat while for loop
-syn keyword alkylKeyword let mut imut immutable const pristine reactive covalent inert wash pure impure tainted untaint residue clean errnum not mutable
+syn keyword alkylKeyword let mut imut immutable const pristine reactive covalent inert wash pure impure tainted untaint residue clean errnum not mutable total partial
 syn keyword alkylModifier public private open closed extern naked abstract exact method container frame pragma extended
 syn keyword alkylTypeKeyword class struct enum union namespace typedef compound type
 syn keyword alkylBuiltinType int void char bool single double short long unsigned typeof sizeof alignof hasmethod hasattribute

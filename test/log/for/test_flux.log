@@ -1,6 +1,6 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=random_generator target_type=13 line=0 col=0 node=0x55c7ecf96000 target=0x55c7ecf95ee0
+debug: parser: Created Call name=random_generator target_type=13 line=0 col=0 node=0x55fce77231a0 target=0x55fce7723080
 debug: diag_set_namespace: ns='clib', current='main', ptr_match=0
 debug: diag_set_namespace: after set, current='clib'
 debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
@@ -16,34 +16,39 @@ debug: semantic: sem_check_block: ns='clib'
 debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
 debug: diag_set_namespace: after set, current='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x55c7ecf95428
-debug: semantic: sem_check_expr: type=14 line=5 col=16 node=0x55c7ecf95688
-debug: semantic: sem_check_expr: type=13 line=5 col=11 node=0x55c7ecf95588
-debug: semantic: sem_check_expr: type=13 line=5 col=18 node=0x55c7ecf95608
+debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x55fce77225c8
+debug: semantic: sem_check_expr: type=14 line=5 col=16 node=0x55fce7722828
+debug: semantic: sem_check_expr: type=13 line=5 col=11 node=0x55fce7722728
+debug: semantic: sem_check_expr: type=13 line=5 col=18 node=0x55fce77227a8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=19 line=6 col=13 node=0x55c7ecf957b0
-debug: semantic: sem_check_expr: type=13 line=6 col=9 node=0x55c7ecf95730
-debug: semantic: sem_check_expr: type=27 line=7 col=21 node=0x55c7ecf95ad8
-debug: semantic: sem_check_expr: type=13 line=7 col=9 node=0x55c7ecf95840
-debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x55c7ecf95938
-debug: semantic: sem_check_expr: type=13 line=7 col=60 node=0x55c7ecf959d8
-debug: semantic: sem_check_expr: type=13 line=7 col=66 node=0x55c7ecf95a58
-debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x55c7ecf95938
-debug: semantic: sem_check_expr: type=13 line=8 col=14 node=0x55c7ecf95b70
-debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x55c7ecf95ce0
+debug: semantic: sem_check_expr: type=19 line=6 col=13 node=0x55fce7722950
+debug: semantic: sem_check_expr: type=13 line=6 col=9 node=0x55fce77228d0
+debug: semantic: sem_check_expr: type=27 line=7 col=21 node=0x55fce7722c78
+debug: semantic: sem_check_expr: type=13 line=7 col=9 node=0x55fce77229e0
+debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x55fce7722ad8
+debug: semantic: sem_check_expr: type=13 line=7 col=60 node=0x55fce7722b78
+debug: semantic: sem_check_expr: type=13 line=7 col=66 node=0x55fce7722bf8
+debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x55fce7722ad8
+debug: semantic: sem_check_expr: type=13 line=8 col=14 node=0x55fce7722d10
+debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x55fce7722e80
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=14 col=30 node=0x55c7ecf96000
+debug: semantic: sem_check_expr: type=2 line=14 col=30 node=0x55fce77231a0
 debug: semantic: sem_check_call: name='random_generator', ns='main'
-debug: semantic: sem_check_expr: type=13 line=14 col=14 node=0x55c7ecf95ee0
-debug: semantic: sem_check_expr: type=16 line=14 col=31 node=0x55c7ecf95f60
-debug: semantic: sem_check_expr: type=16 line=14 col=31 node=0x55c7ecf95f60
+debug: semantic: sem_check_expr: type=13 line=14 col=14 node=0x55fce7723080
+debug: semantic: sem_check_expr: type=16 line=14 col=31 node=0x55fce7723100
+debug: semantic: sem_check_expr: type=16 line=14 col=31 node=0x55fce7723100
+debug: semantic: sem_check_expr: type=2 line=14 col=30 node=0x55fce77231a0
+debug: semantic: sem_check_call: name='random_generator', ns='main'
+debug: semantic: sem_check_expr: type=13 line=14 col=14 node=0x55fce7723080
+debug: semantic: sem_check_expr: type=16 line=14 col=31 node=0x55fce7723100
+debug: semantic: sem_check_expr: type=16 line=14 col=31 node=0x55fce7723100
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=27 line=15 col=21 node=0x55c7ecf962b0
-debug: semantic: sem_check_expr: type=13 line=15 col=9 node=0x55c7ecf96098
-debug: semantic: sem_check_expr: type=16 line=15 col=21 node=0x55c7ecf96190
-debug: semantic: sem_check_expr: type=13 line=15 col=35 node=0x55c7ecf96230
-debug: semantic: sem_check_expr: type=16 line=15 col=21 node=0x55c7ecf96190
-debug: semantic: sem_check_expr: type=16 line=17 col=12 node=0x55c7ecf963f8
+debug: semantic: sem_check_expr: type=27 line=15 col=21 node=0x55fce7723450
+debug: semantic: sem_check_expr: type=13 line=15 col=9 node=0x55fce7723238
+debug: semantic: sem_check_expr: type=16 line=15 col=21 node=0x55fce7723330
+debug: semantic: sem_check_expr: type=13 line=15 col=35 node=0x55fce77233d0
+debug: semantic: sem_check_expr: type=16 line=15 col=21 node=0x55fce7723330
+debug: semantic: sem_check_expr: type=16 line=17 col=12 node=0x55fce7723598
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -52,14 +57,14 @@ debug: alir: Found func_def printf
 debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
 debug: alir: alir_add_function: printf
 debug: alir: Found func_def random_generator
-debug: alir: DEBUG_REGISTER: st=0x55c7ecfaabe0 name=FluxCtx_main_random_generator_i32 next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55fce7737d80 name=FluxCtx_main_random_generator_i32 next=(nil)
 debug: alir: alir_add_function: main_random_generator_i32
 debug: alir: alir_add_function: main_random_generator_i32_Resume
 debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 debug: alir: alir_add_function: main
 debug: alir: Looking up 'main_random_generator_i32'
-debug: alir: Found symbol random_generator, kind=1, is_macro=0, node_ptr=0x55c7ecf95df0
+debug: alir: Found symbol random_generator, kind=1, is_macro=0, node_ptr=0x55fce7722f90
 debug: alir: GLOBAL VAR ADDR: random_generator
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=16 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
@@ -131,11 +136,4 @@ debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
 debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
 debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
 debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
-step: Finished alir optimization. Start code generation using LLVM codegen
-debug: codegen: struct=FluxCtx_main_random_generator_i32 fields=6
-debug: codegen: Field 0: base=1 ptr_depth=0
-debug: codegen: Field 1: base=-319116648 ptr_depth=21959
-debug: codegen: Field 2: base=1768843622 ptr_depth=1684367475
-debug: codegen: Field 3: base=2 ptr_depth=0
-debug: codegen: Field 4: base=0 ptr_depth=0
-debug: codegen: Field 5: base=0 ptr_depth=0
+step: Finished alir optimization. Start code generation using qbe codegen

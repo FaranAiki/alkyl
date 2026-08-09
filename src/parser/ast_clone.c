@@ -522,6 +522,56 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
             MethodCallNode *mcn = (MethodCallNode*)node;
             mcn->object = ast_rewrite_macro(ctx, mcn->object, varargs_head, param_names, param_args, num_params);
             mcn->args = ast_rewrite_macro(ctx, mcn->args, varargs_head, param_names, param_args, num_params);
+            
+            if (mcn->object && mcn->object->type == NODE_VAR_REF && ((VarRefNode*)mcn->object)->name && streq_lit(((VarRefNode*)mcn->object)->name, "metas")) {
+                printf("debug: found metas.method_name = %s\n", mcn->method_name);
+                if (mcn->method_name && streq_lit(mcn->method_name, "split")) {
+                    printf("debug: metas.split! args: %p, type=%d\n", (void*)mcn->args, mcn->args ? mcn->args->type : -1);
+                    if (mcn->args && mcn->args->next) printf("debug: args->next type=%d\n", mcn->args->next->type);
+                    if (mcn->args && mcn->args->type == NODE_LITERAL && mcn->args->next && mcn->args->next->type == NODE_LITERAL) {
+                        LiteralNode *str_node = (LiteralNode*)mcn->args;
+                        LiteralNode *delim_node = (LiteralNode*)mcn->args->next;
+                        printf("debug: string vals: %p %p\n", (void*)str_node->val.str_val, (void*)delim_node->val.str_val);
+                        if (str_node->val.str_val && delim_node->val.str_val) {
+                            const char *str = str_node->val.str_val;
+                            const char *delim = delim_node->val.str_val;
+                            
+                            printf("debug: metas.split intercepted! str=%s, delim=%s\n", str, delim);
+                            
+                            ArrayLitNode *arr = arena_alloc(ctx->arena, sizeof(ArrayLitNode));
+                            memset(arr, 0, sizeof(ArrayLitNode));
+                            arr->base.type = NODE_ARRAY_LIT;
+                            arr->elements = NULL;
+                            ASTNode **curr_elem = &arr->elements;
+                            
+                            const char *pt = str;
+                            int delim_len = strlen(delim);
+                            while (1) {
+                                const char *match = strstr(pt, delim);
+                                int part_len = match ? (match - pt) : strlen(pt);
+                                
+                                LiteralNode *part = arena_alloc(ctx->arena, sizeof(LiteralNode));
+                                memset(part, 0, sizeof(LiteralNode));
+                                part->base.type = NODE_LITERAL;
+                                part->var_type.base = TYPE_CHAR;
+                                part->var_type.ptr_depth = 1;
+                                char *part_str = arena_strndup(ctx->arena, pt, part_len);
+                                part->val.str_val = part_str;
+                                part->base.next = NULL;
+                                
+                                *curr_elem = (ASTNode*)part;
+                                curr_elem = &part->base.next;
+                                
+                                if (!match) break;
+                                pt = match + delim_len;
+                            }
+                            
+                            arr->base.next = ast_rewrite_macro(ctx, node->next, varargs_head, param_names, param_args, num_params);
+                            return (ASTNode*)arr;
+                        }
+                    }
+                }
+            }
             break;
         }
         case NODE_RETURN: {

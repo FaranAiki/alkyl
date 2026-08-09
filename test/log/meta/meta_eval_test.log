@@ -1,18 +1,18 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55deb582d448 target=0x55deb582d328
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55b3abeb4808 target=0x55b3abeb46e8
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55deb582dcc0 target=0x55deb582dbc0
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55b3abeb5080 target=0x55b3abeb4f80
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55deb582e040 target=0x55deb582df20
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55b3abeb5400 target=0x55b3abeb52e0
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55deb582e1f8 target=0x55deb582e0d8
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55b3abeb55b8 target=0x55b3abeb5498
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55deb582e430 target=0x55deb582e310
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55b3abeb57f0 target=0x55b3abeb56d0
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55deb582e768 target=0x55deb582e648
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55b3abeb5b28 target=0x55b3abeb5a08
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=30 col=12 node=0x55deb582eab0
+debug: semantic: sem_check_expr: type=16 line=30 col=12 node=0x55b3abeb5e70
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -42,7 +42,7 @@ debug: metalir: VM CALL: print
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
+step: Finished alir optimization. Start code generation using qbe codegen
 --- Start Meta Execution ---
 Result of 10 + 25 = 
 35

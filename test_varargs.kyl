@@ -1,0 +1,11 @@
+import "lib/c";
+
+meta void test_meta(...) {
+    printf("Arg 0 is %d\n", ...[0]);
+    printf("Arg 1 is %d\n", ...[1]);
+}
+
+int main() {
+    test_meta(100, 200);
+    return 0;
+}

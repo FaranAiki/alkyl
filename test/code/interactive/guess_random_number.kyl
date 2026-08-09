@@ -1,0 +1,12 @@
+import "std/print";
+import "std/input";
+import "std/random";
+
+int main() {
+    random.init();
+    let total_point = 0;
+    std.print("A simple guess the number game!");
+    while {
+        std.printf("Guess the number! [Current point: {}]", total_point);
+    }
+}

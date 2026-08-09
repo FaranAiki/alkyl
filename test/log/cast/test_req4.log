@@ -1,26 +1,26 @@
 step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=16, token.type=31
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55cb5e758df8 target=0x55cb5e758c38
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55ccf2bcdf98 target=0x55ccf2bcddd8
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55cb5e7593d0 target=0x55cb5e7592d0
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55ccf2bce570 target=0x55ccf2bce470
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x55cb5e758df8
+debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x55ccf2bcdf98
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=8 col=17 node=0x55cb5e758c38
-debug: semantic: &ctx->ast_tail=0x7ffebd063b78, ctx->ast_tail=0x55cb5e759640, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x55cb5e758cb8
-debug: semantic: sem_check_expr: type=16 line=8 col=26 node=0x55cb5e758d58
-debug: semantic: sem_check_expr: type=2 line=9 col=22 node=0x55cb5e7593d0
+debug: semantic: sem_check_expr: type=47 line=8 col=17 node=0x55ccf2bcddd8
+debug: semantic: &ctx->ast_tail=0x7ffc0cad07e8, ctx->ast_tail=0x55ccf2bce7e0, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x55ccf2bcde58
+debug: semantic: sem_check_expr: type=16 line=8 col=26 node=0x55ccf2bcdef8
+debug: semantic: sem_check_expr: type=2 line=9 col=22 node=0x55ccf2bce570
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=9 col=17 node=0x55cb5e7592d0
-debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x55cb5e759350
+debug: semantic: sem_check_expr: type=47 line=9 col=17 node=0x55ccf2bce470
+debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x55ccf2bce4f0
 debug: semantic: copy check: base=16 expected=16 class_name=Vector_int sym_name=Vector_int
-debug: semantic: sem_check_expr: type=16 line=10 col=10 node=0x55cb5e759528
+debug: semantic: sem_check_expr: type=16 line=10 col=10 node=0x55ccf2bce6c8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Vector_int
-debug: alir: DEBUG_REGISTER: st=0x55cb5e75e3f0 name=Vector_int next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55ccf2bd3590 name=Vector_int next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - Vector_int fields: 2
 debug: alir: Found func_def main
@@ -35,7 +35,21 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 debug: alir: alir_add_function: Vector_int
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-debug: codegen: struct=Vector_int fields=2
-debug: codegen: Field 0: base=1 ptr_depth=0
-debug: codegen: Field 1: base=1 ptr_depth=0
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+step: Finished alir optimization. Start code generation using qbe codegen
