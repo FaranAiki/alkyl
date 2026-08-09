@@ -637,7 +637,21 @@ static void remove_dead_stores_function(AlirModule *module, AlirFunction *func) 
         while (*pip) {
             AlirInst *inst = *pip;
             if (inst->op == ALIR_OP_STORE && inst->op2 && inst->op2->kind == ALIR_VAL_TEMP) {
-                if (!value_is_used_somewhere(func, inst->op2)) {
+                int is_alloca = 0;
+                AlirBlock *db = func->blocks;
+                while (db && !is_alloca) {
+                    AlirInst *di = db->head;
+                    while (di) {
+                        if (di->dest == inst->op2 && di->op == ALIR_OP_ALLOCA) {
+                            is_alloca = 1;
+                            break;
+                        }
+                        di = di->next;
+                    }
+                    db = db->next;
+                }
+                
+                if (is_alloca && !value_is_used_somewhere(func, inst->op2)) {
                     *pip = inst->next;
                     continue;
                 }
