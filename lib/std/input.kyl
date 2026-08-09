@@ -6,8 +6,8 @@ private namespace __c_lib_io {
     impure extern int fscanf(void*, char*, ...);
 }
 
-define scanf as __c_lib_io.scanf;
-define fscanf as __c_lib_io.fscanf;
+// define scanf as __c_lib_io.scanf;
+// define fscanf as __c_lib_io.fscanf;
 
 namespace std {
     char* fgets(char* str, int n, void* stream) {
@@ -37,23 +37,40 @@ private namespace __alkyl_io {
 }
 
 namespace std {
-    meta void input(arg) {
-        if typeof(arg) == "int*" {
-            __alkyl_io._read_int(arg);
-        } else if typeof(arg) == "unsigned int*" {
-            __alkyl_io._read_uint(arg);
-        } else if typeof(arg) == "long*" {
-            __alkyl_io._read_long(arg);
-        } else if typeof(arg) == "unsigned long*" {
-            __alkyl_io._read_ulong(arg);
-        } else if typeof(arg) == "single*" {
-            __alkyl_io._read_single(arg);
-        } else if typeof(arg) == "double*" {
-            __alkyl_io._read_double(arg);
-        } else if typeof(arg) == "char*" {
-            __alkyl_io._read_string(arg);
-        } else if typeof(arg) == "char**" {
-            __alkyl_io._read_char(arg); // If they did input(&char_var)
+    // TODO: make this more robust
+    meta void input(...) {
+        for arg in ... {
+            if typeof(arg) == typeof(int*) {
+                __alkyl_io._read_int(arg);
+            } else if typeof(arg) == typeof(unsigned int*) {
+                __alkyl_io._read_uint(arg);
+            } else if typeof(arg) == typeof(long*) {
+                __alkyl_io._read_long(arg);
+            } else if typeof(arg) == typeof(unsigned long*) {
+                __alkyl_io._read_ulong(arg);
+            } else if typeof(arg) == typeof(single*) {
+                __alkyl_io._read_single(arg);
+            } else if typeof(arg) == typeof(double*) {
+                __alkyl_io._read_double(arg);
+            } else if typeof(arg) == typeof(char**) {
+                __alkyl_io._read_string(arg);
+            } else if typeof(arg) == typeof(char*) {
+                __alkyl_io._read_char(arg); // If they did input(&char_var)
+            }
+            else if typeof(arg) == typeof(int) {
+                __alkyl_io._read_int(&arg);
+            } else if typeof(arg) == typeof(unsigned int) {
+                __alkyl_io._read_uint(arg);
+            } else if typeof(arg) == typeof(long) {
+                __alkyl_io._read_long(arg);
+            } else if typeof(arg) == typeof(unsigned long) {
+                __alkyl_io._read_ulong(arg);
+            } else if typeof(arg) == typeof(single) {
+                __alkyl_io._read_single(arg);
+            } else if typeof(arg) == typeof(double) {
+                __alkyl_io._read_double(arg);
+            }
+
         }
     }
 }

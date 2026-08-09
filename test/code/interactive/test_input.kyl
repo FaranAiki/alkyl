@@ -1,0 +1,13 @@
+import "std/input";
+
+int main() {
+    tainted int t = 1;
+    std.input(&t);
+
+    if (t ? -1) != 1 then return 1;
+
+    std.input(&t);
+    if (t ? -1) != 2 then return 2;
+
+    return 0;
+}

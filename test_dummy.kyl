@@ -1,0 +1,10 @@
+namespace std {
+    tainted int* __dummy_tainted_int_ptr;
+}
+int main() {
+    tainted int x = 0;
+    if (typeof(&x) == typeof(std.__dummy_tainted_int_ptr)) {
+        return 1;
+    }
+    return 0;
+}
