@@ -35,8 +35,7 @@ AlirValue* new_temp(AlirCtx *ctx, VarType t) {
 }
 
 AlirValue* promote(AlirCtx *ctx, AlirValue *v, VarType target) {
-    // Basic Promotion Logic: Check base types
-    if (v->type.base == target.base && v->type.ptr_depth == target.ptr_depth) return v;
+    if (v->type.base == target.base && v->type.ptr_depth == target.ptr_depth && v->type.is_tainted == target.is_tainted) return v;
 
     AlirValue *dest = new_temp(ctx, target);
     emit(ctx, mk_inst(ctx->module, ALIR_OP_CAST, dest, v, NULL));

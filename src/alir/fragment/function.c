@@ -282,6 +282,32 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
         a = a->next;
     }
 
+    // When passing a tainted pointer to a function expecting a plain pointer,
+    // extract the inner value field so the callee writes/reads the real data,
+    // not the err_code header.
+    if (ctx->module && target_name) {
+        AlirFunction *f = ctx->module->functions;
+        while (f) {
+            if (f->name && streq_lit(f->name, target_name)) {
+                AlirParam *param = f->params;
+                for (int j = 0; j < count && param; j++) {
+                    VarType arg_t = call->args[j]->type;
+                    VarType param_t = param->type;
+                    if (arg_t.ptr_depth > 0 && arg_t.is_tainted &&
+                        param_t.ptr_depth > 0 && !param_t.is_tainted &&
+                        arg_t.base == param_t.base) {
+                        AlirValue *ptr = new_temp(ctx, param_t);
+                        emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, ptr, call->args[j], alir_const_int(ctx->module, 1)));
+                        call->args[j] = ptr;
+                    }
+                    param = param->next;
+                }
+                break;
+            }
+            f = f->next;
+        }
+    }
+
     // Result type from Semantic Table
     VarType ret_type = sem_get_node_type(ctx->sem, (ASTNode*)cn);
 

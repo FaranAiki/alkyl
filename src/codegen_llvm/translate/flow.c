@@ -147,12 +147,6 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         LLVMBuildStore(ctx->builder, args[i], alloca);
                         args[i] = alloca;
                     }
-                    // If arg is tainted (struct) but function expects pristine (non-struct), extract inner value
-                    if (LLVMGetTypeKind(expected_ty) != LLVMStructTypeKind && LLVMGetTypeKind(LLVMTypeOf(args[i])) == LLVMStructTypeKind) {
-                        if (LLVMCountStructElementTypes(LLVMTypeOf(args[i])) > 1) {
-                            args[i] = LLVMBuildExtractValue(ctx->builder, args[i], 1, "ext_taint_arg");
-                        }
-                    }
                 } else if (LLVMGetTypeKind(arg_ty) == LLVMIntegerTypeKind) {
                     if (inst->args[i]->type.base == TYPE_UNKNOWN || inst->args[i]->type.base == TYPE_AUTO) {
                          if (LLVMGetIntTypeWidth(arg_ty) < 64) {

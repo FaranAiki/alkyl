@@ -248,13 +248,11 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
 
     if (node->op == TOKEN_QUESTION || node->op == TOKEN_QUESTION_QUESTION) {
         if (node->fallback_err_name) {
-            // It filters a specific error. Without full union types, we just keep it tainted if the left was tainted.
-            sem_set_node_tainted(ctx, (ASTNode*)node, sem_get_node_tainted(ctx, node->left));
+            sem_set_node_tainted(ctx, (ASTNode*)node, sem_get_node_type(ctx, node->left).is_tainted);
         } else {
-            // Catch-all
             sem_set_node_tainted(ctx, (ASTNode*)node, 0); // Result is pristine!
         }
-    } else if (sem_get_node_tainted(ctx, node->left) || sem_get_node_tainted(ctx, node->right)) {
+    } else if (sem_get_node_type(ctx, node->left).is_tainted || sem_get_node_type(ctx, node->right).is_tainted) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
     } else if (node->op == TOKEN_SLASH) {
         if (!sem_is_constant_nonzero(node->right)) {
@@ -280,7 +278,7 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
 
     if (node->op == TOKEN_QUESTION || node->op == TOKEN_QUESTION_QUESTION) {
         // Fallback uses the type of the left hand side, but preserve the taint state we just calculated
-        int calculated_taint = sem_get_node_tainted(ctx, (ASTNode*)node);
+        int calculated_taint = sem_get_node_tainted(ctx, (ASTNode*)node) || sem_get_node_type(ctx, (ASTNode*)node).is_tainted;
         VarType res_ty = l;
         res_ty.is_tainted = calculated_taint;
         sem_set_node_type(ctx, (ASTNode*)node, res_ty);
@@ -436,7 +434,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             NamedArgNode *narg = (NamedArgNode*)node;
             sem_check_expr(ctx, narg->value);
             sem_set_node_type(ctx, node, sem_get_node_type(ctx, narg->value));
-            if (sem_get_node_tainted(ctx, narg->value)) sem_set_node_tainted(ctx, node, 1);
+            if (sem_get_node_type(ctx, narg->value).is_tainted) sem_set_node_tainted(ctx, node, 1);
             break;
         }
         case NODE_MEMBER_ACCESS: sem_check_member_access(ctx, (MemberAccessNode*)node); break;
@@ -448,7 +446,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
         case NODE_BEING: {
             BeingNode *bn = (BeingNode*)node;
             sem_check_expr(ctx, bn->operand);
-            if (sem_get_node_tainted(ctx, bn->operand)) {
+            if (sem_get_node_type(ctx, bn->operand).is_tainted) {
                 sem_set_node_tainted(ctx, node, 1);
             }
             VarType op_t = sem_get_node_type(ctx, bn->operand);
@@ -464,7 +462,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             cn->custom_cast_method = NULL;
             sem_check_expr(ctx, cn->operand);
 
-            if (sem_get_node_tainted(ctx, cn->operand)) {
+            if (sem_get_node_type(ctx, cn->operand).is_tainted) {
                 sem_set_node_tainted(ctx, node, 1);
             }
 
@@ -667,7 +665,7 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             if (!is_numeric(t) && !is_pointer(t) && t.base != TYPE_UNKNOWN) {
                 sem_error(ctx, node, "Cannot increment/decrement non-numeric/non-pointer type");
             }
-            if (sem_get_node_tainted(ctx, id->target)) sem_set_node_tainted(ctx, node, 1);
+            if (sem_get_node_type(ctx, id->target).is_tainted) sem_set_node_tainted(ctx, node, 1);
             sem_set_node_type(ctx, node, t);
             break;
         }

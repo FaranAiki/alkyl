@@ -149,7 +149,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_IF: {
             IfNode *ifn = (IfNode*)node;
             sem_check_expr(ctx, ifn->condition);
-            if (sem_get_node_tainted(ctx, ifn->condition)) {
+            if (sem_get_node_type(ctx, ifn->condition).is_tainted) {
                 sem_error(ctx, ifn->condition, "Condition is tainted");
                 sem_emit_fallback_hint(ctx, ifn->condition);
             }
@@ -196,7 +196,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_SWITCH: {
             SwitchNode *sn = (SwitchNode*)node;
             sem_check_expr(ctx, sn->condition);
-            if (sem_get_node_tainted(ctx, sn->condition)) {
+            if (sem_get_node_type(ctx, sn->condition).is_tainted) {
                 sem_error(ctx, sn->condition, "Condition is tainted");
                 sem_emit_fallback_hint(ctx, sn->condition);
             }
@@ -234,7 +234,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 ctx->current_func_sym->is_total = false;
             }
             sem_check_expr(ctx, wn->condition);
-            if (wn->condition && sem_get_node_tainted(ctx, wn->condition)) {
+            if (wn->condition && sem_get_node_type(ctx, wn->condition).is_tainted) {
                 sem_error(ctx, wn->condition, "Condition is tainted");
                 sem_emit_fallback_hint(ctx, wn->condition);
             }
@@ -256,7 +256,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 ctx->current_func_sym->is_total = false;
             }
             sem_check_expr(ctx, ln->iterations);
-            if (sem_get_node_tainted(ctx, ln->iterations)) {
+            if (sem_get_node_type(ctx, ln->iterations).is_tainted) {
                 sem_error(ctx, ln->iterations, "Loop iterations expression is tainted");
                 sem_hint(ctx, ln->iterations, "Use untaint, wash, clean, or ? operator to handle the error state");
             }
@@ -278,7 +278,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                 ctx->current_func_sym->is_total = false;
             }
             sem_check_expr(ctx, fn->collection);
-            if (sem_get_node_tainted(ctx, fn->collection)) {
+            if (sem_get_node_type(ctx, fn->collection).is_tainted) {
                 sem_error(ctx, fn->collection, "Collection is tainted");
                 sem_hint(ctx, fn->collection, "Use untaint, wash, clean, or ? operator to handle the error state");
             }

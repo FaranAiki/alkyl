@@ -161,10 +161,6 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
             }
         }
 
-        if (!sym->is_pristine) {
-            sem_set_node_tainted(ctx, node, 1);
-        }
-
         if (sym->kind == SYM_VAR && !sym->is_initialized) {
             sem_error(ctx, node, "Use of uninitialized variable '%s'", ref->name);
         }
