@@ -1,36 +1,38 @@
 step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=16, token.type=31
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55ffb3d44188 target=0x55ffb3d43fc8
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x564eab6d7fe8 target=0x564eab6d7e28
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=8 col=24 node=0x55ffb3d44188
+debug: semantic: sem_check_expr: type=2 line=8 col=24 node=0x564eab6d7fe8
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=8 col=19 node=0x55ffb3d43fc8
-debug: semantic: &ctx->ast_tail=0x7ffd6a0261e8, ctx->ast_tail=0x55ffb3d44ba8, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_expr: type=16 line=8 col=25 node=0x55ffb3d44048
-debug: semantic: sem_check_expr: type=16 line=8 col=28 node=0x55ffb3d440e8
-debug: semantic: sem_check_expr: type=2 line=9 col=25 node=0x55ffb3d44370
+debug: semantic: sem_check_expr: type=47 line=8 col=19 node=0x564eab6d7e28
+debug: semantic: &ctx->ast_tail=0x7ffdb9fc24c8, ctx->ast_tail=0x564eab6d8a08, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=16 line=8 col=25 node=0x564eab6d7ea8
+debug: semantic: sem_check_expr: type=16 line=8 col=28 node=0x564eab6d7f48
+debug: semantic: sem_check_expr: type=2 line=9 col=25 node=0x564eab6d81d0
 debug: semantic: sem_check_call: name='Vector[int]', ns='main'
-debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x55ffb3d442f0
+debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x564eab6d8150
 debug: semantic: copy check: base=16 expected=16 class_name=Vector_int sym_name=Vector_int
-debug: semantic: sem_check_expr: type=16 line=10 col=11 node=0x55ffb3d446c0
-debug: semantic: sem_check_expr: type=26 line=10 col=6 node=0x55ffb3d44648
-debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x55ffb3d445c8
-debug: semantic: sem_check_block: Call line=11 col=12 name=printf target_type=13 node=0x55ffb3d44b08
-debug: semantic: sem_check_expr: type=2 line=11 col=12 node=0x55ffb3d44b08
+debug: semantic: sem_check_expr: type=16 line=10 col=11 node=0x564eab6d8520
+debug: semantic: sem_check_expr: type=26 line=10 col=6 node=0x564eab6d84a8
+debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x564eab6d8428
+debug: semantic: sem_check_block: Call line=11 col=12 name=printf target_type=13 node=0x564eab6d8968
+debug: semantic: sem_check_expr: type=2 line=11 col=12 node=0x564eab6d8968
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x55ffb3d447f8
-debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x55ffb3d44878
-debug: semantic: sem_check_expr: type=26 line=11 col=38 node=0x55ffb3d44998
-debug: semantic: sem_check_expr: type=13 line=11 col=37 node=0x55ffb3d44918
-debug: semantic: sem_check_expr: type=26 line=11 col=43 node=0x55ffb3d44a90
-debug: semantic: sem_check_expr: type=13 line=11 col=42 node=0x55ffb3d44a10
-debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x55ffb3d44878
+debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x564eab6d8658
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x564eab6d86d8
+debug: semantic: sem_check_expr: type=26 line=11 col=38 node=0x564eab6d87f8
+debug: semantic: sem_check_expr: type=13 line=11 col=37 node=0x564eab6d8778
+debug: semantic: sem_check_expr: type=26 line=11 col=43 node=0x564eab6d88f0
+debug: semantic: sem_check_expr: type=13 line=11 col=42 node=0x564eab6d8870
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x564eab6d86d8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Vector_int
-debug: alir: DEBUG_REGISTER: st=0x55ffb3d49e70 name=Vector_int next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x564eab6ddcd0 name=Vector_int next=(nil)
+debug: inferring type for a, init_type.base=16
+debug: inferred type Vector_int for a
 debug: alir: DEBUG_PASS1_END: struct list:
  - Vector_int fields: 2
 debug: alir: Found func_def printf
@@ -47,12 +49,16 @@ debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_bas
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55ffb3d43458
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x564eab6d72b8
+CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+TAINTED PTR: ctx->module=0x564eab6da558 target_name=printf count=3
+TAINTED PTR: checking func printf
+TAINTED PTR CHECK: arg_t.base=8 arg_t.ptr_depth=1 arg_t.is_tainted=0 param_t.base=8 param_t.ptr_depth=1 param_t.is_tainted=0 target=printf param=
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 debug: alir: alir_add_function: Vector_int
@@ -84,4 +90,7 @@ debug: optlir: Check Type for Struct Marking Vector_int
 debug: optlir: Check Type for Struct Marking Vector_int
 debug: optlir: Check Type for Struct Marking Vector_int
 debug: optlir: Check Type for Struct Marking Vector_int
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: struct=Vector_int fields=2
+debug: codegen: Field 0: base=1 ptr_depth=0
+debug: codegen: Field 1: base=1 ptr_depth=0

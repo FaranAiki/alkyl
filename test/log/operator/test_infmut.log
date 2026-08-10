@@ -2,30 +2,30 @@ step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=0, token.type=163
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=5 col=29 node=0x55d26b7e8718
-debug: semantic: sem_check_expr: type=26 line=5 col=24 node=0x55d26b7e8620
-debug: semantic: sem_check_expr: type=13 line=5 col=20 node=0x55d26b7e85a0
-debug: semantic: sem_check_expr: type=13 line=5 col=31 node=0x55d26b7e8698
-debug: semantic: sem_check_expr: type=26 line=5 col=13 node=0x55d26b7e8528
-debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x55d26b7e84a8
+debug: semantic: sem_check_expr: type=14 line=5 col=29 node=0x563fe965d578
+debug: semantic: sem_check_expr: type=26 line=5 col=24 node=0x563fe965d480
+debug: semantic: sem_check_expr: type=13 line=5 col=20 node=0x563fe965d400
+debug: semantic: sem_check_expr: type=13 line=5 col=31 node=0x563fe965d4f8
+debug: semantic: sem_check_expr: type=26 line=5 col=13 node=0x563fe965d388
+debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x563fe965d308
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=11 col=13 node=0x55d26b7e8ba0
-debug: semantic: sem_check_expr: type=26 line=11 col=6 node=0x55d26b7e8b28
-debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x55d26b7e8aa8
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x55d26b7e8d58
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x55d26b7e8d58
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x55d26b7e8d58
-debug: semantic: sem_check_expr: type=14 line=13 col=15 node=0x55d26b7e9028
-debug: semantic: sem_check_expr: type=26 line=13 col=10 node=0x55d26b7e8f10
-debug: semantic: sem_check_expr: type=13 line=13 col=9 node=0x55d26b7e8e90
-debug: semantic: sem_check_expr: type=16 line=13 col=18 node=0x55d26b7e8f88
+debug: semantic: sem_check_expr: type=16 line=11 col=13 node=0x563fe965da00
+debug: semantic: sem_check_expr: type=26 line=11 col=6 node=0x563fe965d988
+debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x563fe965d908
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x563fe965dbb8
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x563fe965dbb8
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x563fe965dbb8
+debug: semantic: sem_check_expr: type=14 line=13 col=15 node=0x563fe965de88
+debug: semantic: sem_check_expr: type=26 line=13 col=10 node=0x563fe965dd70
+debug: semantic: sem_check_expr: type=13 line=13 col=9 node=0x563fe965dcf0
+debug: semantic: sem_check_expr: type=16 line=13 col=18 node=0x563fe965dde8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=13 col=29 node=0x55d26b7e90d0
-debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x55d26b7e9260
+debug: semantic: sem_check_expr: type=16 line=13 col=29 node=0x563fe965df30
+debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x563fe965e0c0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Counter
-debug: alir: DEBUG_REGISTER: st=0x55d26b7ee4d8 name=Counter next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x563fe9663338 name=Counter next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - Counter fields: 1
 debug: alir: alir_gen_function_def fn->name=__op_163_33 class_name=Counter fn->mangled_name=main_Counter___op_163_33_i32 -> func_name=main_Counter___op_163_33_i32
@@ -68,4 +68,6 @@ debug: optlir: Check Type for Struct Marking Counter
 debug: optlir: Check Type for Struct Marking Counter
 debug: optlir: Check Type for Struct Marking Counter
 debug: optlir: Check Type for Struct Marking Counter
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: struct=Counter fields=1
+debug: codegen: Field 0: base=1 ptr_depth=0

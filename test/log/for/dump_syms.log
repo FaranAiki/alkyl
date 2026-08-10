@@ -1,16 +1,16 @@
 step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x5558834ec3b0
+debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x5627a857d210
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x5558834ec658
+debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x5627a857d4b8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Range
-debug: alir: DEBUG_REGISTER: st=0x5558834f1980 name=Range next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x5627a85827e0 name=Range next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - Range fields: 1
-debug: alir: DEBUG_REGISTER: st=0x5558834f1b80 name=FluxCtx_main_Range_iterate next=0x5558834f1980
+debug: alir: DEBUG_REGISTER: st=0x5627a85829e0 name=FluxCtx_main_Range_iterate next=0x5627a85827e0
 debug: alir: alir_add_function: main_Range_iterate
 debug: alir: alir_add_function: main_Range_iterate_Resume
 debug: alir: alir_add_function: Range
@@ -26,4 +26,4 @@ debug: optlir: Check Type for Struct Marking Range
 debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
 debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
 debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen

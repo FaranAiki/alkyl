@@ -1,11 +1,13 @@
 step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=28 line=2 col=13 node=0x5626512882a8
-debug: semantic: sem_check_expr: type=16 line=2 col=20 node=0x562651288348
-debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x5626512884a8
+debug: semantic: sem_check_expr: type=28 line=2 col=13 node=0x55cbf503c108
+debug: semantic: sem_check_expr: type=16 line=2 col=20 node=0x55cbf503c1a8
+debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x55cbf503c308
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
+debug: inferring type for x, init_type.base=6
+debug: inferred type unsigned long for x
 debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 debug: alir: alir_add_function: main
@@ -16,4 +18,4 @@ debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_bas
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen

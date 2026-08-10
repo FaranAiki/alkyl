@@ -1,8 +1,8 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x563de010c5c0 target=0x563de010c4c0
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55db80368420 target=0x55db80368320
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x563de010cee8 target=0x563de010cde8
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55db80368d48 target=0x55db80368c48
 debug: diag_set_namespace: ns='clib', current='main', ptr_match=0
 debug: diag_set_namespace: after set, current='clib'
 debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
@@ -18,47 +18,47 @@ debug: semantic: sem_check_block: ns='clib'
 debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
 debug: diag_set_namespace: after set, current='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=9 col=16 node=0x563de010bdc8
-debug: semantic: sem_check_expr: type=27 line=10 col=15 node=0x563de010c658
-debug: semantic: sem_check_expr: type=13 line=10 col=3 node=0x563de010bf28
-debug: semantic: sem_check_expr: type=16 line=10 col=15 node=0x563de010c020
-debug: semantic: sem_check_expr: type=13 line=10 col=37 node=0x563de010c0c0
-debug: semantic: sem_check_expr: type=2 line=10 col=56 node=0x563de010c5c0
+debug: semantic: sem_check_expr: type=16 line=9 col=16 node=0x55db80367c28
+debug: semantic: sem_check_expr: type=27 line=10 col=15 node=0x55db803684b8
+debug: semantic: sem_check_expr: type=13 line=10 col=3 node=0x55db80367d88
+debug: semantic: sem_check_expr: type=16 line=10 col=15 node=0x55db80367e80
+debug: semantic: sem_check_expr: type=13 line=10 col=37 node=0x55db80367f20
+debug: semantic: sem_check_expr: type=2 line=10 col=56 node=0x55db80368420
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=10 col=51 node=0x563de010c4c0
-debug: semantic: &ctx->ast_tail=0x7ffdcf5fae78, ctx->ast_tail=0x563de010d130, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=47 line=10 col=51 node=0x55db80368320
+debug: semantic: &ctx->ast_tail=0x7ffdbec72da8, ctx->ast_tail=0x55db80368f90, *ctx->ast_tail=(nil)
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=5 col=17 node=0x563de011cda8
-debug: semantic: sem_check_expr: type=13 line=5 col=10 node=0x563de011ce50
-debug: semantic: sem_check_expr: type=13 line=5 col=19 node=0x563de011ced0
-debug: semantic: sem_check_expr: type=13 line=10 col=57 node=0x563de010c540
-debug: semantic: sem_check_expr: type=13 line=10 col=57 node=0x563de010c540
-debug: semantic: sem_check_expr: type=16 line=10 col=15 node=0x563de010c020
-debug: semantic: sem_check_expr: type=16 line=13 col=20 node=0x563de010c6f0
-debug: semantic: sem_check_expr: type=27 line=14 col=15 node=0x563de010cf80
-debug: semantic: sem_check_expr: type=13 line=14 col=3 node=0x563de010c850
-debug: semantic: sem_check_expr: type=16 line=14 col=15 node=0x563de010c948
-debug: semantic: sem_check_expr: type=13 line=14 col=39 node=0x563de010c9e8
-debug: semantic: sem_check_expr: type=2 line=14 col=62 node=0x563de010cee8
+debug: semantic: sem_check_expr: type=14 line=5 col=17 node=0x55db80378c08
+debug: semantic: sem_check_expr: type=13 line=5 col=10 node=0x55db80378cb0
+debug: semantic: sem_check_expr: type=13 line=5 col=19 node=0x55db80378d30
+debug: semantic: sem_check_expr: type=13 line=10 col=57 node=0x55db803683a0
+debug: semantic: sem_check_expr: type=13 line=10 col=57 node=0x55db803683a0
+debug: semantic: sem_check_expr: type=16 line=10 col=15 node=0x55db80367e80
+debug: semantic: sem_check_expr: type=16 line=13 col=20 node=0x55db80368550
+debug: semantic: sem_check_expr: type=27 line=14 col=15 node=0x55db80368de0
+debug: semantic: sem_check_expr: type=13 line=14 col=3 node=0x55db803686b0
+debug: semantic: sem_check_expr: type=16 line=14 col=15 node=0x55db803687a8
+debug: semantic: sem_check_expr: type=13 line=14 col=39 node=0x55db80368848
+debug: semantic: sem_check_expr: type=2 line=14 col=62 node=0x55db80368d48
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=14 col=54 node=0x563de010cde8
-debug: semantic: &ctx->ast_tail=0x7ffdcf5fae78, ctx->ast_tail=0x563de011cc00, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=47 line=14 col=54 node=0x55db80368c48
+debug: semantic: &ctx->ast_tail=0x7ffdbec72da8, ctx->ast_tail=0x55db80378a60, *ctx->ast_tail=(nil)
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=5 col=17 node=0x563de011d928
-debug: semantic: sem_check_expr: type=13 line=5 col=10 node=0x563de011d9d0
-debug: semantic: sem_check_expr: type=13 line=5 col=19 node=0x563de011da50
-debug: semantic: sem_check_expr: type=13 line=14 col=63 node=0x563de010ce68
-debug: semantic: sem_check_expr: type=13 line=14 col=63 node=0x563de010ce68
-debug: semantic: sem_check_expr: type=16 line=14 col=15 node=0x563de010c948
-debug: semantic: sem_check_expr: type=16 line=16 col=10 node=0x563de010d018
+debug: semantic: sem_check_expr: type=14 line=5 col=17 node=0x55db80379788
+debug: semantic: sem_check_expr: type=13 line=5 col=10 node=0x55db80379830
+debug: semantic: sem_check_expr: type=13 line=5 col=19 node=0x55db803798b0
+debug: semantic: sem_check_expr: type=13 line=14 col=63 node=0x55db80368cc8
+debug: semantic: sem_check_expr: type=13 line=14 col=63 node=0x55db80368cc8
+debug: semantic: sem_check_expr: type=16 line=14 col=15 node=0x55db803687a8
+debug: semantic: sem_check_expr: type=16 line=16 col=10 node=0x55db80368e78
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=5 col=17 node=0x563de011cda8
-debug: semantic: sem_check_expr: type=13 line=5 col=10 node=0x563de011ce50
-debug: semantic: sem_check_expr: type=13 line=5 col=19 node=0x563de011ced0
+debug: semantic: sem_check_expr: type=14 line=5 col=17 node=0x55db80378c08
+debug: semantic: sem_check_expr: type=13 line=5 col=10 node=0x55db80378cb0
+debug: semantic: sem_check_expr: type=13 line=5 col=19 node=0x55db80378d30
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=5 col=17 node=0x563de011d928
-debug: semantic: sem_check_expr: type=13 line=5 col=10 node=0x563de011d9d0
-debug: semantic: sem_check_expr: type=13 line=5 col=19 node=0x563de011da50
+debug: semantic: sem_check_expr: type=14 line=5 col=17 node=0x55db80379788
+debug: semantic: sem_check_expr: type=13 line=5 col=10 node=0x55db80379830
+debug: semantic: sem_check_expr: type=13 line=5 col=19 node=0x55db803798b0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -75,8 +75,12 @@ debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_ba
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: Looking up 'main_square_int_i32'
-debug: alir: Found symbol square_int, kind=1, is_macro=0, node_ptr=0x563de011cbf8
+debug: alir: Found symbol square_int, kind=1, is_macro=0, node_ptr=0x55db80378a58
+CALL_STD: name=square_int mangled=main_square_int_i32 target_type=47
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+TAINTED PTR: ctx->module=0x55db8037a3e8 target_name=main_square_int_i32 count=1
+TAINTED PTR: checking func printf
+TAINTED PTR: checking func main
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 debug: alir: func=main op=35 dest_kind=5 dest_type_base=12 op1_kind=7 op1_type_base=1
@@ -86,8 +90,12 @@ debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_ba
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=12 op1_kind=5 op1_type_base=12
 debug: alir: Looking up 'main_square_double_f64'
-debug: alir: Found symbol square_double, kind=1, is_macro=0, node_ptr=0x563de011d778
+debug: alir: Found symbol square_double, kind=1, is_macro=0, node_ptr=0x55db803795d8
+CALL_STD: name=square_double mangled=main_square_double_f64 target_type=47
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=12 op1_kind=5 op1_type_base=12
+TAINTED PTR: ctx->module=0x55db8037a3e8 target_name=main_square_double_f64 count=1
+TAINTED PTR: checking func printf
+TAINTED PTR: checking func main
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=12 op1_kind=4 op1_type_base=0
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
@@ -99,4 +107,4 @@ debug: alir: alir_gen_function_def fn->name=square_double class_name=NULL fn->ma
 debug: alir: alir_add_function: main_square_double_f64
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen

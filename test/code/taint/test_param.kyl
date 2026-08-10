@@ -1,0 +1,24 @@
+import "std/print";
+
+tainted void set(tainted int *t) {
+    *t = 2;
+    return;
+}
+
+errnum[ErrSome]
+tainted int set_purged() {
+    purge ErrSome;
+}
+
+int main() {
+    tainted int t = 1;
+    std.print (t ? -1, "\n"); // expect 1
+
+    tainted int p = 1;
+    set(&p);
+    std.print (p ? -1, "\n"); // expect 2
+
+    tainted int k = set_purged();
+    std.print (k ? 3, "\n"); // expect 3
+    return 0;
+}

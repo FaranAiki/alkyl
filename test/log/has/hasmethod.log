@@ -5,20 +5,20 @@ debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: Call line=9 col=11 name=cprintf target_type=13 node=0x557398229a90
-debug: semantic: sem_check_expr: type=2 line=9 col=11 node=0x557398229a90
+debug: semantic: sem_check_block: Call line=9 col=11 name=cprintf target_type=13 node=0x5588f9c518f0
+debug: semantic: sem_check_expr: type=2 line=9 col=11 node=0x5588f9c518f0
 debug: semantic: sem_check_call: name='cprintf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x557398229750
-debug: semantic: sem_check_expr: type=16 line=9 col=11 node=0x5573982297d0
-debug: semantic: sem_check_expr: type=18 line=9 col=37 node=0x557398229a18
+debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x5588f9c515b0
+debug: semantic: sem_check_expr: type=16 line=9 col=11 node=0x5588f9c51630
+debug: semantic: sem_check_expr: type=18 line=9 col=37 node=0x5588f9c51878
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=29 line=9 col=19 node=0x5573982298f0
-debug: semantic: sem_check_expr: type=16 line=9 col=38 node=0x557398229978
-debug: semantic: sem_check_expr: type=16 line=9 col=11 node=0x5573982297d0
+debug: semantic: sem_check_expr: type=29 line=9 col=19 node=0x5588f9c51750
+debug: semantic: sem_check_expr: type=16 line=9 col=38 node=0x5588f9c517d8
+debug: semantic: sem_check_expr: type=16 line=9 col=11 node=0x5588f9c51630
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class MyClass
-debug: alir: DEBUG_REGISTER: st=0x55739822ee88 name=MyClass next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x5588f9c56ce8 name=MyClass next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - MyClass fields: 0
 debug: alir: Found func_def cprintf
@@ -33,7 +33,8 @@ debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 debug: alir: alir_add_function: main
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x5573982293e0
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x5588f9c51240
+CALL_STD: name=cprintf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: cprintf
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=0 op1_type_base=0
 debug: alir: func=main op=35 dest_kind=5 dest_type_base=8 op1_kind=7 op1_type_base=1
@@ -45,8 +46,11 @@ debug: alir: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_bas
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=8
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+TAINTED PTR: ctx->module=0x5588f9c53570 target_name=printf count=2
+TAINTED PTR: checking func printf
+TAINTED PTR CHECK: arg_t.base=8 arg_t.ptr_depth=1 arg_t.is_tainted=0 param_t.base=8 param_t.ptr_depth=1 param_t.is_tainted=0 target=printf param=
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen

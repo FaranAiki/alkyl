@@ -1,13 +1,15 @@
 step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=1 col=22 node=0x55ca22b632a8
-debug: semantic: sem_check_expr: type=14 line=1 col=27 node=0x55ca22b63528
-debug: semantic: sem_check_expr: type=13 line=1 col=25 node=0x55ca22b63408
-debug: semantic: sem_check_expr: type=16 line=1 col=29 node=0x55ca22b63488
-debug: semantic: sem_check_expr: type=16 line=1 col=41 node=0x55ca22b635d0
+debug: semantic: sem_check_expr: type=16 line=1 col=22 node=0x55563c1a5108
+debug: semantic: sem_check_expr: type=14 line=1 col=27 node=0x55563c1a5388
+debug: semantic: sem_check_expr: type=13 line=1 col=25 node=0x55563c1a5268
+debug: semantic: sem_check_expr: type=16 line=1 col=29 node=0x55563c1a52e8
+debug: semantic: sem_check_expr: type=16 line=1 col=41 node=0x55563c1a5430
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
+debug: inferring type for x, init_type.base=1
+debug: inferred type int for x
 debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 debug: alir: alir_add_function: main
@@ -18,4 +20,4 @@ debug: alir: func=main op=6 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_bas
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
