@@ -31,7 +31,7 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     LLVMTypeRef ptr_ty = LLVMTypeOf(ptr);
                     if (LLVMGetTypeKind(ptr_ty) == LLVMPointerTypeKind) {
                         LLVMTypeRef pointed = LLVMGetElementType(ptr_ty);
-                        if (LLVMGetTypeKind(pointed) == LLVMStructTypeKind && LLVMCountStructElementTypes(pointed) > 1) {
+                        if (pointed && LLVMGetTypeKind(pointed) == LLVMStructTypeKind && LLVMCountStructElementTypes(pointed) > 1) {
                             LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
                             LLVMValueRef wrapped = LLVMGetUndef(pointed);
                             wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, zero, 0, "wrap_err");

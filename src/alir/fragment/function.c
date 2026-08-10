@@ -172,6 +172,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
 }
 
 AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
+    fprintf(stderr, "CALL_STD: name=%s mangled=%s target_type=%d\n", cn->name ? cn->name : "NULL", cn->mangled_name ? cn->mangled_name : "NULL", cn->target ? (int)cn->target->type : -1);
     const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
     if (!target_name && cn->target) {
         if (cn->target->type == NODE_VAR_REF) {
@@ -285,17 +286,24 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
     // When passing a tainted pointer to a function expecting a plain pointer,
     // extract the inner value field so the callee writes/reads the real data,
     // not the err_code header.
+    fprintf(stderr, "TAINTED PTR: ctx->module=%p target_name=%s count=%d\n", ctx->module, target_name ? target_name : "NULL", count);
     if (ctx->module && target_name) {
         AlirFunction *f = ctx->module->functions;
         while (f) {
+            fprintf(stderr, "TAINTED PTR: checking func %s\n", f->name ? f->name : "NULL");
             if (f->name && streq_lit(f->name, target_name)) {
                 AlirParam *param = f->params;
                 for (int j = 0; j < count && param; j++) {
                     VarType arg_t = call->args[j]->type;
                     VarType param_t = param->type;
+                    fprintf(stderr, "TAINTED PTR CHECK: arg_t.base=%d arg_t.ptr_depth=%d arg_t.is_tainted=%d param_t.base=%d param_t.ptr_depth=%d param_t.is_tainted=%d target=%s param=%s\n",
+                        arg_t.base, arg_t.ptr_depth, arg_t.is_tainted,
+                        param_t.base, param_t.ptr_depth, param_t.is_tainted,
+                        target_name, param->name);
                     if (arg_t.ptr_depth > 0 && arg_t.is_tainted &&
                         param_t.ptr_depth > 0 && !param_t.is_tainted &&
                         arg_t.base == param_t.base) {
+                        fprintf(stderr, "TAINTED PTR ADJUST: arg %d for func %s\n", j, target_name);
                         AlirValue *ptr = new_temp(ctx, param_t);
                         emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, ptr, call->args[j], alir_const_int(ctx->module, 1)));
                         call->args[j] = ptr;
@@ -344,6 +352,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
 }
 
 AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
+    fprintf(stderr, "GEN_CALL: name=%s mangled=%s\n", cn->name ? cn->name : "NULL", cn->mangled_name ? cn->mangled_name : "NULL");
     const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
 
     // Resolve target_name through semantic table if possible, to handle namespace imports
