@@ -2,6 +2,7 @@
 #define C_LEXER_H
 
 #include "../common/context.h"
+#include "../common/hashmap.h"
 
 typedef enum {
     C_TOKEN_EOF,
@@ -175,6 +176,21 @@ typedef struct {
     int col;
 } CToken;
 
+typedef struct CFileStackEntry {
+    const char *filename;
+    const char *src;
+    int pos;
+    int line;
+    int col;
+} CFileStackEntry;
+
+typedef struct {
+    CFileStackEntry *entries;
+    int count;
+    int capacity;
+    Arena *arena;
+} CFileStack;
+
 typedef struct CLexer {
     CompilerContext *ctx;
     const char *src;
@@ -183,6 +199,9 @@ typedef struct CLexer {
     int line;
     int col;
     int has_error;
+    CFileStack file_stack;
+    HashMap *included_files;
+    int include_depth;
 } CLexer;
 
 void c_lexer_init(CLexer *l, CompilerContext *ctx, const char *filename, const char *src);

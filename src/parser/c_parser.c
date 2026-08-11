@@ -86,6 +86,9 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
     while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT)) {
         c_eat(p, p->current.type);
     }
+    while (c_match(p, C_TOKEN_IDENTIFIER) && strcmp(p->current.text, "__extension__") == 0) {
+        c_eat(p, C_TOKEN_IDENTIFIER);
+    }
 
     if (c_match(p, C_TOKEN_SIGNED)) {
         is_signed = 1;
@@ -103,6 +106,62 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
     while (c_match(p, C_TOKEN_LONG)) {
         long_count++;
         c_eat(p, C_TOKEN_LONG);
+    }
+
+    if (c_match(p, C_TOKEN_LPAREN)) {
+        c_eat(p, C_TOKEN_LPAREN);
+        if (c_match(p, C_TOKEN_STAR)) {
+            c_eat(p, C_TOKEN_STAR);
+            type.is_func_ptr = 1;
+            type.fp_ret_type = arena_alloc(p->ctx->arena, sizeof(VarType));
+            *type.fp_ret_type = type;
+            type.fp_param_count = 0;
+
+            if (c_match(p, C_TOKEN_IDENTIFIER)) {
+                c_eat(p, C_TOKEN_IDENTIFIER);
+            }
+
+            c_eat(p, C_TOKEN_RPAREN);
+
+            c_eat(p, C_TOKEN_LPAREN);
+            int cap = 16;
+            type.fp_param_types = arena_alloc(p->ctx->arena, sizeof(VarType) * cap);
+            while (!c_match(p, C_TOKEN_RPAREN) && !p->has_error) {
+                VarType pt = c_parse_c_type(p, &ptr_depth, &array_size);
+                (void)ptr_depth; (void)array_size;
+                if (type.fp_param_count >= cap) {
+                    cap *= 2;
+                    VarType *new_arr = arena_alloc(p->ctx->arena, sizeof(VarType) * cap);
+                    memcpy(new_arr, type.fp_param_types, sizeof(VarType) * type.fp_param_count);
+                    type.fp_param_types = new_arr;
+                }
+                type.fp_param_types[type.fp_param_count++] = pt;
+                if (c_match(p, C_TOKEN_COMMA)) c_eat(p, C_TOKEN_COMMA);
+                else if (c_match(p, C_TOKEN_ELLIPSIS)) {
+                    type.fp_is_varargs = 1;
+                    c_eat(p, C_TOKEN_ELLIPSIS);
+                    break;
+                }
+                else break;
+            }
+            c_eat(p, C_TOKEN_RPAREN);
+
+            type.base = TYPE_VOID;
+            type.class_name = NULL;
+            type.ptr_depth = 0;
+            type.array_size = 0;
+            if (out_ptr_depth) *out_ptr_depth = 0;
+            if (out_array_size) *out_array_size = 0;
+            return type;
+        } else {
+            int depth = 1;
+            while (depth > 0 && !p->has_error) {
+                if (c_match(p, C_TOKEN_LPAREN)) { depth++; c_eat(p, C_TOKEN_LPAREN); }
+                else if (c_match(p, C_TOKEN_RPAREN)) { depth--; c_eat(p, C_TOKEN_RPAREN); }
+                else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
+                else { c_eat(p, p->current.type); }
+            }
+        }
     }
 
     if (c_match(p, C_TOKEN_VOID)) {
@@ -169,6 +228,99 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
         } else {
             type.class_name = arena_strdup(p->ctx->arena, "__anonymous_enum");
         }
+    } else if (c_match(p, C_TOKEN_SIZE_T)) {
+        type.base = TYPE_UNSIGNED_LONG;
+        c_eat(p, C_TOKEN_SIZE_T);
+    } else if (c_match(p, C_TOKEN_PTRDIFF_T)) {
+        type.base = TYPE_LONG;
+        c_eat(p, C_TOKEN_PTRDIFF_T);
+    } else if (c_match(p, C_TOKEN_WCHAR_T)) {
+        type.base = TYPE_SHORT;
+        c_eat(p, C_TOKEN_WCHAR_T);
+    } else if (c_match(p, C_TOKEN_INT8_T)) {
+        type.base = TYPE_CHAR;
+        c_eat(p, C_TOKEN_INT8_T);
+    } else if (c_match(p, C_TOKEN_UINT8_T)) {
+        type.base = TYPE_UNSIGNED_CHAR;
+        c_eat(p, C_TOKEN_UINT8_T);
+    } else if (c_match(p, C_TOKEN_INT16_T)) {
+        type.base = TYPE_SHORT;
+        c_eat(p, C_TOKEN_INT16_T);
+    } else if (c_match(p, C_TOKEN_UINT16_T)) {
+        type.base = TYPE_UNSIGNED_INT;
+        c_eat(p, C_TOKEN_UINT16_T);
+    } else if (c_match(p, C_TOKEN_INT32_T)) {
+        type.base = TYPE_INT;
+        c_eat(p, C_TOKEN_INT32_T);
+    } else if (c_match(p, C_TOKEN_UINT32_T)) {
+        type.base = TYPE_UNSIGNED_INT;
+        c_eat(p, C_TOKEN_UINT32_T);
+    } else if (c_match(p, C_TOKEN_INT64_T)) {
+        type.base = TYPE_LONG_LONG;
+        c_eat(p, C_TOKEN_INT64_T);
+    } else if (c_match(p, C_TOKEN_UINT64_T)) {
+        type.base = TYPE_UNSIGNED_LONG_LONG;
+        c_eat(p, C_TOKEN_UINT64_T);
+    } else if (c_match(p, C_TOKEN_INT_LEAST8_T)) {
+        type.base = TYPE_CHAR;
+        c_eat(p, C_TOKEN_INT_LEAST8_T);
+    } else if (c_match(p, C_TOKEN_UINT_LEAST8_T)) {
+        type.base = TYPE_UNSIGNED_CHAR;
+        c_eat(p, C_TOKEN_UINT_LEAST8_T);
+    } else if (c_match(p, C_TOKEN_INT_LEAST16_T)) {
+        type.base = TYPE_SHORT;
+        c_eat(p, C_TOKEN_INT_LEAST16_T);
+    } else if (c_match(p, C_TOKEN_UINT_LEAST16_T)) {
+        type.base = TYPE_UNSIGNED_INT;
+        c_eat(p, C_TOKEN_UINT_LEAST16_T);
+    } else if (c_match(p, C_TOKEN_INT_LEAST32_T)) {
+        type.base = TYPE_INT;
+        c_eat(p, C_TOKEN_INT_LEAST32_T);
+    } else if (c_match(p, C_TOKEN_UINT_LEAST32_T)) {
+        type.base = TYPE_UNSIGNED_INT;
+        c_eat(p, C_TOKEN_UINT_LEAST32_T);
+    } else if (c_match(p, C_TOKEN_INT_LEAST64_T)) {
+        type.base = TYPE_LONG_LONG;
+        c_eat(p, C_TOKEN_INT_LEAST64_T);
+    } else if (c_match(p, C_TOKEN_UINT_LEAST64_T)) {
+        type.base = TYPE_UNSIGNED_LONG_LONG;
+        c_eat(p, C_TOKEN_UINT_LEAST64_T);
+    } else if (c_match(p, C_TOKEN_INT_FAST8_T)) {
+        type.base = TYPE_CHAR;
+        c_eat(p, C_TOKEN_INT_FAST8_T);
+    } else if (c_match(p, C_TOKEN_UINT_FAST8_T)) {
+        type.base = TYPE_UNSIGNED_CHAR;
+        c_eat(p, C_TOKEN_UINT_FAST8_T);
+    } else if (c_match(p, C_TOKEN_INT_FAST16_T)) {
+        type.base = TYPE_SHORT;
+        c_eat(p, C_TOKEN_INT_FAST16_T);
+    } else if (c_match(p, C_TOKEN_UINT_FAST16_T)) {
+        type.base = TYPE_UNSIGNED_INT;
+        c_eat(p, C_TOKEN_UINT_FAST16_T);
+    } else if (c_match(p, C_TOKEN_INT_FAST32_T)) {
+        type.base = TYPE_INT;
+        c_eat(p, C_TOKEN_INT_FAST32_T);
+    } else if (c_match(p, C_TOKEN_UINT_FAST32_T)) {
+        type.base = TYPE_UNSIGNED_INT;
+        c_eat(p, C_TOKEN_UINT_FAST32_T);
+    } else if (c_match(p, C_TOKEN_INT_FAST64_T)) {
+        type.base = TYPE_LONG_LONG;
+        c_eat(p, C_TOKEN_INT_FAST64_T);
+    } else if (c_match(p, C_TOKEN_UINT_FAST64_T)) {
+        type.base = TYPE_UNSIGNED_LONG_LONG;
+        c_eat(p, C_TOKEN_UINT_FAST64_T);
+    } else if (c_match(p, C_TOKEN_INTMAX_T)) {
+        type.base = TYPE_LONG_LONG;
+        c_eat(p, C_TOKEN_INTMAX_T);
+    } else if (c_match(p, C_TOKEN_UINTMAX_T)) {
+        type.base = TYPE_UNSIGNED_LONG_LONG;
+        c_eat(p, C_TOKEN_UINTMAX_T);
+    } else if (c_match(p, C_TOKEN_NULLPTR_T)) {
+        type.base = TYPE_VOID;
+        c_eat(p, C_TOKEN_NULLPTR_T);
+    } else if (c_match(p, C_TOKEN_MAX_ALIGN_T)) {
+        type.base = TYPE_LONG_LONG;
+        c_eat(p, C_TOKEN_MAX_ALIGN_T);
     } else if (c_match(p, C_TOKEN_IDENTIFIER)) {
         VarType typedef_type = c_lookup_typedef(p, p->current.text);
         if (typedef_type.base != TYPE_UNKNOWN) {
@@ -188,23 +340,27 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
         while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT)) {
             c_eat(p, p->current.type);
         }
+        while (c_match(p, C_TOKEN_IDENTIFIER)) {
+            if (strcmp(p->current.text, "__restrict") == 0 ||
+                strcmp(p->current.text, "__volatile") == 0 ||
+                strcmp(p->current.text, "__const") == 0 ||
+                strcmp(p->current.text, "__restrict__") == 0) {
+                c_eat(p, C_TOKEN_IDENTIFIER);
+            } else {
+                break;
+            }
+        }
     }
 
     while (c_match(p, C_TOKEN_LBRACKET)) {
         c_eat(p, C_TOKEN_LBRACKET);
-        if (c_match(p, C_TOKEN_NUMBER)) {
-            array_size = (int)p->current.int_val;
-            c_eat(p, C_TOKEN_NUMBER);
-        } else if (c_match(p, C_TOKEN_IDENTIFIER) && strcmp(p->current.text, "static") == 0) {
-            c_eat(p, C_TOKEN_IDENTIFIER);
-            if (c_match(p, C_TOKEN_NUMBER)) {
-                array_size = (int)p->current.int_val;
-                c_eat(p, C_TOKEN_NUMBER);
-            }
-        } else {
-            array_size = 0;
+        int depth = 1;
+        while (depth > 0 && !p->has_error) {
+            if (c_match(p, C_TOKEN_LBRACKET)) { depth++; c_eat(p, C_TOKEN_LBRACKET); }
+            else if (c_match(p, C_TOKEN_RBRACKET)) { depth--; c_eat(p, C_TOKEN_RBRACKET); }
+            else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
+            else { c_eat(p, p->current.type); }
         }
-        c_eat(p, C_TOKEN_RBRACKET);
     }
 
     if (c_match(p, C_TOKEN_LPAREN)) {
@@ -253,8 +409,13 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
             if (out_array_size) *out_array_size = 0;
             return type;
         } else {
-            // Not a function pointer, consume the LPAREN
-            // This is a simplified handling
+            int depth = 1;
+            while (depth > 0 && !p->has_error) {
+                if (c_match(p, C_TOKEN_LPAREN)) { depth++; c_eat(p, C_TOKEN_LPAREN); }
+                else if (c_match(p, C_TOKEN_RPAREN)) { depth--; c_eat(p, C_TOKEN_RPAREN); }
+                else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
+                else { c_eat(p, p->current.type); }
+            }
         }
     }
 
@@ -300,6 +461,10 @@ static ASTNode* c_parse_extern_function(CParser *p) {
     }
 
     c_eat(p, C_TOKEN_EXTERN);
+
+    while (c_match(p, C_TOKEN_STRING)) {
+        c_eat(p, C_TOKEN_STRING);
+    }
 
     while (1) {
         if (c_match(p, C_TOKEN_STDCALL)) { cconv = arena_strdup(p->ctx->arena, "__stdcall"); c_eat(p, C_TOKEN_STDCALL); }
@@ -357,9 +522,49 @@ static ASTNode* c_parse_extern_function(CParser *p) {
     if (c_match(p, C_TOKEN_LPAREN)) {
         c_eat(p, C_TOKEN_LPAREN);
         if (!c_match(p, C_TOKEN_RPAREN)) {
+            fprintf(stderr, "DEBUG params start: current=%s\n", p->current.text ? p->current.text : "NONAME");
             params = c_parse_parameters(p);
+            fprintf(stderr, "DEBUG params end: current=%s\n", p->current.text ? p->current.text : "NONAME");
         }
         c_eat(p, C_TOKEN_RPAREN);
+    }
+
+    // Skip trailing annotations like __THROW, __attribute__((...)), __nonnull, __asm, etc.
+    while (!c_match(p, C_TOKEN_SEMICOLON) && !p->has_error) {
+        if (c_match(p, C_TOKEN_ATTRIBUTE)) {
+            c_eat(p, C_TOKEN_ATTRIBUTE);
+            c_eat(p, C_TOKEN_LPAREN);
+            c_eat(p, C_TOKEN_LPAREN);
+            int depth = 2;
+            while (depth > 0 && !p->has_error) {
+                if (c_match(p, C_TOKEN_LPAREN)) depth++;
+                else if (c_match(p, C_TOKEN_RPAREN)) depth--;
+                c_eat(p, p->current.type);
+            }
+        } else if (c_match(p, C_TOKEN_ASM)) {
+            c_eat(p, C_TOKEN_ASM);
+            if (c_match(p, C_TOKEN_LPAREN)) {
+                c_eat(p, C_TOKEN_LPAREN);
+                int depth = 1;
+                while (depth > 0 && !p->has_error) {
+                    if (c_match(p, C_TOKEN_LPAREN)) depth++;
+                    else if (c_match(p, C_TOKEN_RPAREN)) depth--;
+                    c_eat(p, p->current.type);
+                }
+            }
+        } else if (c_match(p, C_TOKEN_IDENTIFIER)) {
+            c_eat(p, C_TOKEN_IDENTIFIER);
+        } else if (c_match(p, C_TOKEN_LPAREN)) {
+            int depth = 1;
+            while (depth > 0 && !p->has_error) {
+                if (c_match(p, C_TOKEN_LPAREN)) { depth++; c_eat(p, C_TOKEN_LPAREN); }
+                else if (c_match(p, C_TOKEN_RPAREN)) { depth--; c_eat(p, C_TOKEN_RPAREN); }
+                else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
+                else { c_eat(p, p->current.type); }
+            }
+        } else {
+            break;
+        }
     }
 
     c_eat(p, C_TOKEN_SEMICOLON);
@@ -387,20 +592,26 @@ static Parameter* c_parse_parameters(CParser *p) {
     Parameter **curr = &head;
 
     while (!c_match(p, C_TOKEN_RPAREN) && !p->has_error) {
+        fprintf(stderr, "DEBUG param: current=%s type=%d\n", p->current.text ? p->current.text : "NONAME", p->current.type);
         int ptr_depth = 0;
         int array_size = 0;
         VarType param_type = c_parse_c_type(p, &ptr_depth, &array_size);
+        fprintf(stderr, "DEBUG after c_type: current=%s type=%d base=%d\n", p->current.text ? p->current.text : "NONAME", p->current.type, param_type.base);
 
         if (c_match(p, C_TOKEN_IDENTIFIER)) {
+            fprintf(stderr, "DEBUG consuming identifier: %s\n", p->current.text);
             c_eat(p, C_TOKEN_IDENTIFIER);
         }
 
         while (c_match(p, C_TOKEN_LBRACKET)) {
             c_eat(p, C_TOKEN_LBRACKET);
-            if (c_match(p, C_TOKEN_NUMBER)) {
-                c_eat(p, C_TOKEN_NUMBER);
+            int depth = 1;
+            while (depth > 0 && !p->has_error) {
+                if (c_match(p, C_TOKEN_LBRACKET)) { depth++; c_eat(p, C_TOKEN_LBRACKET); }
+                else if (c_match(p, C_TOKEN_RBRACKET)) { depth--; c_eat(p, C_TOKEN_RBRACKET); }
+                else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
+                else { c_eat(p, p->current.type); }
             }
-            c_eat(p, C_TOKEN_RBRACKET);
         }
 
         if (c_match(p, C_TOKEN_ASSIGN)) {
@@ -418,6 +629,8 @@ static Parameter* c_parse_parameters(CParser *p) {
         *curr = param;
         curr = &param->next;
 
+        fprintf(stderr, "DEBUG before comma check: current=%s\n", p->current.text ? p->current.text : "NONAME");
+
         if (c_match(p, C_TOKEN_COMMA)) {
             c_eat(p, C_TOKEN_COMMA);
             if (c_match(p, C_TOKEN_ELLIPSIS)) {
@@ -429,6 +642,7 @@ static Parameter* c_parse_parameters(CParser *p) {
                 break;
             }
         } else {
+            fprintf(stderr, "DEBUG breaking from param loop, current=%s\n", p->current.text ? p->current.text : "NONAME");
             break;
         }
     }
@@ -483,8 +697,11 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
             c_eat(p, p->current.type);
         }
 
-        while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT)) {
+        while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_EXTENSION)) {
             c_eat(p, p->current.type);
+        }
+        while (c_match(p, C_TOKEN_IDENTIFIER) && strcmp(p->current.text, "__extension__") == 0) {
+            c_eat(p, C_TOKEN_IDENTIFIER);
         }
 
         int ptr_depth = 0;
@@ -506,11 +723,13 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
 
             while (c_match(p, C_TOKEN_LBRACKET)) {
                 c_eat(p, C_TOKEN_LBRACKET);
-                if (c_match(p, C_TOKEN_NUMBER)) {
-                    array_size = (int)p->current.int_val;
-                    c_eat(p, C_TOKEN_NUMBER);
+                int depth = 1;
+                while (depth > 0 && !p->has_error) {
+                    if (c_match(p, C_TOKEN_LBRACKET)) { depth++; c_eat(p, C_TOKEN_LBRACKET); }
+                    else if (c_match(p, C_TOKEN_RBRACKET)) { depth--; c_eat(p, C_TOKEN_RBRACKET); }
+                    else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
+                    else { c_eat(p, p->current.type); }
                 }
-                c_eat(p, C_TOKEN_RBRACKET);
             }
 
             if (c_match(p, C_TOKEN_COLON)) {
@@ -560,10 +779,13 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
 
         while (c_match(p, C_TOKEN_LBRACKET)) {
             c_eat(p, C_TOKEN_LBRACKET);
-            if (c_match(p, C_TOKEN_NUMBER)) {
-                c_eat(p, C_TOKEN_NUMBER);
+            int depth = 1;
+            while (depth > 0 && !p->has_error) {
+                if (c_match(p, C_TOKEN_LBRACKET)) { depth++; c_eat(p, C_TOKEN_LBRACKET); }
+                else if (c_match(p, C_TOKEN_RBRACKET)) { depth--; c_eat(p, C_TOKEN_RBRACKET); }
+                else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
+                else { c_eat(p, p->current.type); }
             }
-            c_eat(p, C_TOKEN_RBRACKET);
         }
     }
 
@@ -699,6 +921,7 @@ static ASTNode* c_parse_typedef(CParser *p) {
                     while (c_match(p, C_TOKEN_LBRACKET)) {
                         c_eat(p, C_TOKEN_LBRACKET);
                         if (c_match(p, C_TOKEN_NUMBER)) c_eat(p, C_TOKEN_NUMBER);
+                        else if (c_match(p, C_TOKEN_IDENTIFIER)) c_eat(p, C_TOKEN_IDENTIFIER);
                         c_eat(p, C_TOKEN_RBRACKET);
                     }
 
@@ -735,13 +958,32 @@ static ASTNode* c_parse_typedef(CParser *p) {
             c_eat(p, C_TOKEN_SEMICOLON);
             return (ASTNode*)sn;
         } else {
+            int ptr_depth = 0;
+            while (c_match(p, C_TOKEN_STAR)) {
+                c_eat(p, C_TOKEN_STAR);
+                ptr_depth++;
+                while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT)) {
+                    c_eat(p, p->current.type);
+                }
+                while (c_match(p, C_TOKEN_IDENTIFIER)) {
+                    if (strcmp(p->current.text, "__restrict") == 0 ||
+                        strcmp(p->current.text, "__volatile") == 0 ||
+                        strcmp(p->current.text, "__const") == 0 ||
+                        strcmp(p->current.text, "__restrict__") == 0) {
+                        c_eat(p, C_TOKEN_IDENTIFIER);
+                    } else {
+                        break;
+                    }
+                }
+            }
+
             if (c_match(p, C_TOKEN_IDENTIFIER)) {
                 char *typedef_name = arena_strdup(p->ctx->arena, p->current.text);
                 c_eat(p, C_TOKEN_IDENTIFIER);
                 VarType typedef_type;
                 typedef_type.base = TYPE_CLASS;
                 typedef_type.class_name = tag_name ? arena_strdup(p->ctx->arena, tag_name) : arena_strdup(p->ctx->arena, "__unknown");
-                typedef_type.ptr_depth = 0;
+                typedef_type.ptr_depth = ptr_depth;
                 c_register_typedef(p, typedef_name, typedef_type);
             }
             c_eat(p, C_TOKEN_SEMICOLON);
@@ -759,11 +1001,56 @@ static ASTNode* c_parse_typedef(CParser *p) {
 
         while (c_match(p, C_TOKEN_LBRACKET)) {
             c_eat(p, C_TOKEN_LBRACKET);
-            if (c_match(p, C_TOKEN_NUMBER)) {
-                array_size = (int)p->current.int_val;
-                c_eat(p, C_TOKEN_NUMBER);
+            int depth = 1;
+            while (depth > 0 && !p->has_error) {
+                if (c_match(p, C_TOKEN_LBRACKET)) { depth++; c_eat(p, C_TOKEN_LBRACKET); }
+                else if (c_match(p, C_TOKEN_RBRACKET)) { depth--; c_eat(p, C_TOKEN_RBRACKET); }
+                else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
+                else { c_eat(p, p->current.type); }
             }
-            c_eat(p, C_TOKEN_RBRACKET);
+        }
+
+        if (c_match(p, C_TOKEN_LPAREN)) {
+            if (!c_match(p, C_TOKEN_STAR)) {
+                int depth2 = 1;
+                while (depth2 > 0 && !p->has_error) {
+                    if (c_match(p, C_TOKEN_LPAREN)) { depth2++; c_eat(p, C_TOKEN_LPAREN); }
+                    else if (c_match(p, C_TOKEN_RPAREN)) { depth2--; c_eat(p, C_TOKEN_RPAREN); }
+                    else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
+                    else { c_eat(p, p->current.type); }
+                }
+            } else {
+                c_eat(p, C_TOKEN_STAR);
+                char *fp_name = NULL;
+                if (c_match(p, C_TOKEN_IDENTIFIER)) {
+                    fp_name = arena_strdup(p->ctx->arena, p->current.text);
+                    c_eat(p, C_TOKEN_IDENTIFIER);
+                }
+                c_eat(p, C_TOKEN_RPAREN);
+
+                Parameter *params = NULL;
+                Parameter **curr_param = &params;
+                if (c_match(p, C_TOKEN_LPAREN)) {
+                    c_eat(p, C_TOKEN_LPAREN);
+                    if (!c_match(p, C_TOKEN_RPAREN)) {
+                        params = c_parse_parameters(p);
+                    }
+                    c_eat(p, C_TOKEN_RPAREN);
+                }
+
+                VarType fp_type;
+                memset(&fp_type, 0, sizeof(VarType));
+                fp_type.base = TYPE_VOID;
+                fp_type.is_func_ptr = 1;
+                fp_type.fp_ret_type = arena_alloc(p->ctx->arena, sizeof(VarType));
+                *fp_type.fp_ret_type = base_type;
+                fp_type.fp_param_count = 0;
+                fp_type.fp_param_types = NULL;
+
+                if (fp_name) {
+                    c_register_typedef(p, fp_name, fp_type);
+                }
+            }
         }
 
         VarType typedef_type = base_type;
@@ -771,36 +1058,45 @@ static ASTNode* c_parse_typedef(CParser *p) {
         typedef_type.array_size = array_size > 0 ? array_size : base_type.array_size;
         c_register_typedef(p, typedef_name, typedef_type);
     } else if (c_match(p, C_TOKEN_LPAREN)) {
-        c_eat(p, C_TOKEN_LPAREN);
-        c_eat(p, C_TOKEN_STAR);
-        char *fp_name = NULL;
-        if (c_match(p, C_TOKEN_IDENTIFIER)) {
-            fp_name = arena_strdup(p->ctx->arena, p->current.text);
-            c_eat(p, C_TOKEN_IDENTIFIER);
-        }
-        c_eat(p, C_TOKEN_RPAREN);
-
-        Parameter *params = NULL;
-        Parameter **curr_param = &params;
-        if (c_match(p, C_TOKEN_LPAREN)) {
-            c_eat(p, C_TOKEN_LPAREN);
-            if (!c_match(p, C_TOKEN_RPAREN)) {
-                params = c_parse_parameters(p);
+        if (!c_match(p, C_TOKEN_STAR)) {
+            int depth2 = 1;
+            while (depth2 > 0 && !p->has_error) {
+                if (c_match(p, C_TOKEN_LPAREN)) { depth2++; c_eat(p, C_TOKEN_LPAREN); }
+                else if (c_match(p, C_TOKEN_RPAREN)) { depth2--; c_eat(p, C_TOKEN_RPAREN); }
+                else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
+                else { c_eat(p, p->current.type); }
+            }
+        } else {
+            c_eat(p, C_TOKEN_STAR);
+            char *fp_name = NULL;
+            if (c_match(p, C_TOKEN_IDENTIFIER)) {
+                fp_name = arena_strdup(p->ctx->arena, p->current.text);
+                c_eat(p, C_TOKEN_IDENTIFIER);
             }
             c_eat(p, C_TOKEN_RPAREN);
-        }
 
-        VarType fp_type;
-        memset(&fp_type, 0, sizeof(VarType));
-        fp_type.base = TYPE_VOID;
-        fp_type.is_func_ptr = 1;
-        fp_type.fp_ret_type = arena_alloc(p->ctx->arena, sizeof(VarType));
-        *fp_type.fp_ret_type = base_type;
-        fp_type.fp_param_count = 0;
-        fp_type.fp_param_types = NULL;
+            Parameter *params = NULL;
+            Parameter **curr_param = &params;
+            if (c_match(p, C_TOKEN_LPAREN)) {
+                c_eat(p, C_TOKEN_LPAREN);
+                if (!c_match(p, C_TOKEN_RPAREN)) {
+                    params = c_parse_parameters(p);
+                }
+                c_eat(p, C_TOKEN_RPAREN);
+            }
 
-        if (fp_name) {
-            c_register_typedef(p, fp_name, fp_type);
+            VarType fp_type;
+            memset(&fp_type, 0, sizeof(VarType));
+            fp_type.base = TYPE_VOID;
+            fp_type.is_func_ptr = 1;
+            fp_type.fp_ret_type = arena_alloc(p->ctx->arena, sizeof(VarType));
+            *fp_type.fp_ret_type = base_type;
+            fp_type.fp_param_count = 0;
+            fp_type.fp_param_types = NULL;
+
+            if (fp_name) {
+                c_register_typedef(p, fp_name, fp_type);
+            }
         }
     }
 
@@ -888,14 +1184,29 @@ static ASTNode* c_parse_declaration(CParser *p) {
             }
         }
 
+        while (c_match(p, C_TOKEN_STRING)) {
+            c_eat(p, C_TOKEN_STRING);
+        }
+
         int is_function = 0;
         if (c_match(p, C_TOKEN_VOID) || c_match(p, C_TOKEN_CHAR_KW) || c_match(p, C_TOKEN_SHORT) ||
             c_match(p, C_TOKEN_INT) || c_match(p, C_TOKEN_LONG) || c_match(p, C_TOKEN_FLOAT) ||
             c_match(p, C_TOKEN_DOUBLE) || c_match(p, C_TOKEN_SIGNED) || c_match(p, C_TOKEN_UNSIGNED) ||
             c_match(p, C_TOKEN_BOOL) || c_match(p, C_TOKEN_STRUCT) || c_match(p, C_TOKEN_UNION) ||
-            c_match(p, C_TOKEN_ENUM) || c_match(p, C_TOKEN_IDENTIFIER)) {
+            c_match(p, C_TOKEN_ENUM) || c_match(p, C_TOKEN_SIZE_T) || c_match(p, C_TOKEN_PTRDIFF_T) ||
+            c_match(p, C_TOKEN_WCHAR_T) || c_match(p, C_TOKEN_IDENTIFIER)) {
             c_eat(p, p->current.type);
-            while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE)) c_eat(p, p->current.type);
+            while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT)) c_eat(p, p->current.type);
+            while (c_match(p, C_TOKEN_STAR)) c_eat(p, C_TOKEN_STAR);
+            // Consume multi-word type specifiers like "long int", "unsigned long", "short int", "signed char", "long double"
+            while (c_match(p, C_TOKEN_SHORT) || c_match(p, C_TOKEN_INT) || c_match(p, C_TOKEN_LONG) ||
+                   c_match(p, C_TOKEN_CHAR_KW) || c_match(p, C_TOKEN_SIGNED) || c_match(p, C_TOKEN_UNSIGNED) ||
+                   c_match(p, C_TOKEN_DOUBLE) || c_match(p, C_TOKEN_FLOAT)) {
+                c_eat(p, p->current.type);
+                while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT)) c_eat(p, p->current.type);
+                while (c_match(p, C_TOKEN_STAR)) c_eat(p, C_TOKEN_STAR);
+            }
+            while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT)) c_eat(p, p->current.type);
             while (c_match(p, C_TOKEN_STAR)) c_eat(p, C_TOKEN_STAR);
             if (c_match(p, C_TOKEN_IDENTIFIER)) {
                 c_eat(p, C_TOKEN_IDENTIFIER);

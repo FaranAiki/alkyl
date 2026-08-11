@@ -14,14 +14,68 @@ static char* intern_string(CLexer *l, const char *str) {
     return arena_strdup(l->ctx->arena, str);
 }
 
-void c_lexer_init(CLexer *l, CompilerContext *ctx, const char *filename, const char *src) {
-    l->src = src;
+static void c_file_stack_push(CLexer *l, const char *filename, const char *src) {
+    if (l->file_stack.count >= l->file_stack.capacity) {
+        int new_cap = l->file_stack.capacity == 0 ? 8 : l->file_stack.capacity * 2;
+        l->file_stack.entries = arena_alloc(l->ctx->arena, sizeof(CFileStackEntry) * new_cap);
+        l->file_stack.capacity = new_cap;
+    }
+    CFileStackEntry *entry = &l->file_stack.entries[l->file_stack.count++];
+    entry->filename = l->filename;
+    entry->src = l->src;
+    entry->pos = l->pos;
+    entry->line = l->line;
+    entry->col = l->col;
     l->filename = filename;
+    l->src = src;
     l->pos = 0;
     l->line = 1;
     l->col = 1;
+}
+
+static int c_file_stack_pop(CLexer *l) {
+    if (l->file_stack.count <= 0) return 0;
+    CFileStackEntry *entry = &l->file_stack.entries[--l->file_stack.count];
+    l->filename = entry->filename;
+    l->src = entry->src;
+    l->pos = entry->pos;
+    l->line = entry->line;
+    l->col = entry->col;
+    l->include_depth--;
+    return 1;
+}
+
+static char* c_read_include_file(CLexer *l, const char *filename) {
+    FILE *f = fopen(filename, "rb");
+    if (!f) return NULL;
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    if (size < 0) { fclose(f); return NULL; }
+    fseek(f, 0, SEEK_SET);
+    char *buf = arena_alloc(l->ctx->arena, (size_t)size + 1);
+    if (fread(buf, 1, (size_t)size, f) != (size_t)size) {
+        fclose(f);
+        return NULL;
+    }
+    fclose(f);
+    buf[size] = '\0';
+    return buf;
+}
+
+void c_lexer_init(CLexer *l, CompilerContext *ctx, const char *filename, const char *src) {
     l->ctx = ctx;
+    l->filename = filename;
+    l->src = src;
+    l->pos = 0;
+    l->line = 1;
+    l->col = 1;
     l->has_error = 0;
+    l->file_stack.entries = NULL;
+    l->file_stack.count = 0;
+    l->file_stack.capacity = 0;
+    l->file_stack.arena = ctx->arena;
+    l->included_files = &ctx->import_cache;
+    l->include_depth = 0;
 }
 
 static void skip_whitespace(CLexer *l) {
@@ -76,93 +130,107 @@ static void skip_to_line_end(CLexer *l) {
     }
 }
 
-static int c_lex_keyword(const char *str) {
-    if (strcmp(str, "auto") == 0) return C_TOKEN_AUTO;
-    if (strcmp(str, "break") == 0) return C_TOKEN_BREAK;
-    if (strcmp(str, "case") == 0) return C_TOKEN_CASE;
-    if (strcmp(str, "char") == 0) return C_TOKEN_CHAR_KW;
-    if (strcmp(str, "const") == 0) return C_TOKEN_CONST;
-    if (strcmp(str, "continue") == 0) return C_TOKEN_CONTINUE;
-    if (strcmp(str, "default") == 0) return C_TOKEN_DEFAULT;
-    if (strcmp(str, "do") == 0) return C_TOKEN_DO;
-    if (strcmp(str, "double") == 0) return C_TOKEN_DOUBLE;
-    if (strcmp(str, "else") == 0) return C_TOKEN_ELSE;
-    if (strcmp(str, "enum") == 0) return C_TOKEN_ENUM;
-    if (strcmp(str, "extern") == 0) return C_TOKEN_EXTERN;
-    if (strcmp(str, "float") == 0) return C_TOKEN_FLOAT;
-    if (strcmp(str, "for") == 0) return C_TOKEN_FOR;
-    if (strcmp(str, "goto") == 0) return C_TOKEN_GOTO;
-    if (strcmp(str, "if") == 0) return C_TOKEN_IF_KW;
-    if (strcmp(str, "inline") == 0) return C_TOKEN_INLINE;
-    if (strcmp(str, "int") == 0) return C_TOKEN_INT;
-    if (strcmp(str, "long") == 0) return C_TOKEN_LONG;
-    if (strcmp(str, "register") == 0) return C_TOKEN_REGISTER;
-    if (strcmp(str, "restrict") == 0) return C_TOKEN_RESTRICT;
-    if (strcmp(str, "return") == 0) return C_TOKEN_RETURN;
-    if (strcmp(str, "short") == 0) return C_TOKEN_SHORT;
-    if (strcmp(str, "signed") == 0) return C_TOKEN_SIGNED;
-    if (strcmp(str, "sizeof") == 0) return C_TOKEN_SIZEOF_KW;
-    if (strcmp(str, "static") == 0) return C_TOKEN_STATIC;
-    if (strcmp(str, "struct") == 0) return C_TOKEN_STRUCT;
-    if (strcmp(str, "switch") == 0) return C_TOKEN_SWITCH;
-    if (strcmp(str, "typedef") == 0) return C_TOKEN_TYPEDEF;
-    if (strcmp(str, "union") == 0) return C_TOKEN_UNION;
-    if (strcmp(str, "unsigned") == 0) return C_TOKEN_UNSIGNED;
-    if (strcmp(str, "void") == 0) return C_TOKEN_VOID;
-    if (strcmp(str, "volatile") == 0) return C_TOKEN_VOLATILE;
-    if (strcmp(str, "while") == 0) return C_TOKEN_WHILE;
-    if (strcmp(str, "_Bool") == 0 || strcmp(str, "bool") == 0) return C_TOKEN_BOOL;
-    // MSVC / Windows
-    if (strcmp(str, "__stdcall") == 0) return C_TOKEN_STDCALL;
-    if (strcmp(str, "__cdecl") == 0) return C_TOKEN_CDECL;
-    if (strcmp(str, "__fastcall") == 0) return C_TOKEN_FASTCALL;
-    if (strcmp(str, "__thiscall") == 0) return C_TOKEN_THISCALL;
-    if (strcmp(str, "__vectorcall") == 0) return C_TOKEN_VECTORCALL;
-    if (strcmp(str, "__declspec") == 0) return C_TOKEN_DECLSPEC;
-    if (strcmp(str, "__attribute__") == 0) return C_TOKEN_ATTRIBUTE;
-    if (strcmp(str, "__extension__") == 0) return C_TOKEN_EXTENSION;
-    if (strcmp(str, "__asm") == 0 || strcmp(str, "asm") == 0) return C_TOKEN_ASM;
-    // Standard types
-    if (strcmp(str, "size_t") == 0) return C_TOKEN_SIZE_T;
-    if (strcmp(str, "ptrdiff_t") == 0) return C_TOKEN_PTRDIFF_T;
-    if (strcmp(str, "wchar_t") == 0) return C_TOKEN_WCHAR_T;
-    if (strcmp(str, "char16_t") == 0) return C_TOKEN_CHAR16_T;
-    if (strcmp(str, "char32_t") == 0) return C_TOKEN_CHAR32_T;
-    if (strcmp(str, "int8_t") == 0) return C_TOKEN_INT8_T;
-    if (strcmp(str, "int16_t") == 0) return C_TOKEN_INT16_T;
-    if (strcmp(str, "int32_t") == 0) return C_TOKEN_INT32_T;
-    if (strcmp(str, "int64_t") == 0) return C_TOKEN_INT64_T;
-    if (strcmp(str, "uint8_t") == 0) return C_TOKEN_UINT8_T;
-    if (strcmp(str, "uint16_t") == 0) return C_TOKEN_UINT16_T;
-    if (strcmp(str, "uint32_t") == 0) return C_TOKEN_UINT32_T;
-    if (strcmp(str, "uint64_t") == 0) return C_TOKEN_UINT64_T;
-    if (strcmp(str, "int_least8_t") == 0) return C_TOKEN_INT_LEAST8_T;
-    if (strcmp(str, "int_least16_t") == 0) return C_TOKEN_INT_LEAST16_T;
-    if (strcmp(str, "int_least32_t") == 0) return C_TOKEN_INT_LEAST32_T;
-    if (strcmp(str, "int_least64_t") == 0) return C_TOKEN_INT_LEAST64_T;
-    if (strcmp(str, "uint_least8_t") == 0) return C_TOKEN_UINT_LEAST8_T;
-    if (strcmp(str, "uint_least16_t") == 0) return C_TOKEN_UINT_LEAST16_T;
-    if (strcmp(str, "uint_least32_t") == 0) return C_TOKEN_UINT_LEAST32_T;
-    if (strcmp(str, "uint_least64_t") == 0) return C_TOKEN_UINT_LEAST64_T;
-    if (strcmp(str, "int_fast8_t") == 0) return C_TOKEN_INT_FAST8_T;
-    if (strcmp(str, "int_fast16_t") == 0) return C_TOKEN_INT_FAST16_T;
-    if (strcmp(str, "int_fast32_t") == 0) return C_TOKEN_INT_FAST32_T;
-    if (strcmp(str, "int_fast64_t") == 0) return C_TOKEN_INT_FAST64_T;
-    if (strcmp(str, "uint_fast8_t") == 0) return C_TOKEN_UINT_FAST8_T;
-    if (strcmp(str, "uint_fast16_t") == 0) return C_TOKEN_UINT_FAST16_T;
-    if (strcmp(str, "uint_fast32_t") == 0) return C_TOKEN_UINT_FAST32_T;
-    if (strcmp(str, "uint_fast64_t") == 0) return C_TOKEN_UINT_FAST64_T;
-    if (strcmp(str, "intmax_t") == 0) return C_TOKEN_INTMAX_T;
-    if (strcmp(str, "uintmax_t") == 0) return C_TOKEN_UINTMAX_T;
-    if (strcmp(str, "nullptr_t") == 0) return C_TOKEN_NULLPTR_T;
-    if (strcmp(str, "max_align_t") == 0) return C_TOKEN_MAX_ALIGN_T;
-    if (strcmp(str, "_Bool") == 0) return C_TOKEN_BOOL_KA;
-    if (strcmp(str, "_Complex") == 0 || strcmp(str, "complex") == 0) return C_TOKEN_COMPLEX;
-    if (strcmp(str, "_Imaginary") == 0 || strcmp(str, "imaginary") == 0) return C_TOKEN_IMAGINARY;
-    if (strcmp(str, "true") == 0) return C_TOKEN_TRUE;
-    if (strcmp(str, "false") == 0) return C_TOKEN_FALSE;
-    if (strcmp(str, "NULL") == 0) return C_TOKEN_NULL;
-    if (strcmp(str, "nullptr") == 0) return C_TOKEN_NULLPTR;
+static CToken c_lex_identifier(CLexer *l, char first);
+
+static HashMap keyword_map;
+static int keyword_map_initialized = 0;
+
+static void init_keyword_map(Arena *arena) {
+    if (keyword_map_initialized) return;
+    hashmap_init(&keyword_map, arena, 256);
+    hashmap_put(&keyword_map, "auto", (void*)(intptr_t)C_TOKEN_AUTO);
+    hashmap_put(&keyword_map, "break", (void*)(intptr_t)C_TOKEN_BREAK);
+    hashmap_put(&keyword_map, "case", (void*)(intptr_t)C_TOKEN_CASE);
+    hashmap_put(&keyword_map, "char", (void*)(intptr_t)C_TOKEN_CHAR_KW);
+    hashmap_put(&keyword_map, "const", (void*)(intptr_t)C_TOKEN_CONST);
+    hashmap_put(&keyword_map, "continue", (void*)(intptr_t)C_TOKEN_CONTINUE);
+    hashmap_put(&keyword_map, "default", (void*)(intptr_t)C_TOKEN_DEFAULT);
+    hashmap_put(&keyword_map, "do", (void*)(intptr_t)C_TOKEN_DO);
+    hashmap_put(&keyword_map, "double", (void*)(intptr_t)C_TOKEN_DOUBLE);
+    hashmap_put(&keyword_map, "else", (void*)(intptr_t)C_TOKEN_ELSE);
+    hashmap_put(&keyword_map, "enum", (void*)(intptr_t)C_TOKEN_ENUM);
+    hashmap_put(&keyword_map, "extern", (void*)(intptr_t)C_TOKEN_EXTERN);
+    hashmap_put(&keyword_map, "float", (void*)(intptr_t)C_TOKEN_FLOAT);
+    hashmap_put(&keyword_map, "for", (void*)(intptr_t)C_TOKEN_FOR);
+    hashmap_put(&keyword_map, "goto", (void*)(intptr_t)C_TOKEN_GOTO);
+    hashmap_put(&keyword_map, "if", (void*)(intptr_t)C_TOKEN_IF_KW);
+    hashmap_put(&keyword_map, "inline", (void*)(intptr_t)C_TOKEN_INLINE);
+    hashmap_put(&keyword_map, "int", (void*)(intptr_t)C_TOKEN_INT);
+    hashmap_put(&keyword_map, "long", (void*)(intptr_t)C_TOKEN_LONG);
+    hashmap_put(&keyword_map, "register", (void*)(intptr_t)C_TOKEN_REGISTER);
+    hashmap_put(&keyword_map, "restrict", (void*)(intptr_t)C_TOKEN_RESTRICT);
+    hashmap_put(&keyword_map, "return", (void*)(intptr_t)C_TOKEN_RETURN);
+    hashmap_put(&keyword_map, "short", (void*)(intptr_t)C_TOKEN_SHORT);
+    hashmap_put(&keyword_map, "signed", (void*)(intptr_t)C_TOKEN_SIGNED);
+    hashmap_put(&keyword_map, "sizeof", (void*)(intptr_t)C_TOKEN_SIZEOF_KW);
+    hashmap_put(&keyword_map, "static", (void*)(intptr_t)C_TOKEN_STATIC);
+    hashmap_put(&keyword_map, "struct", (void*)(intptr_t)C_TOKEN_STRUCT);
+    hashmap_put(&keyword_map, "switch", (void*)(intptr_t)C_TOKEN_SWITCH);
+    hashmap_put(&keyword_map, "typedef", (void*)(intptr_t)C_TOKEN_TYPEDEF);
+    hashmap_put(&keyword_map, "union", (void*)(intptr_t)C_TOKEN_UNION);
+    hashmap_put(&keyword_map, "unsigned", (void*)(intptr_t)C_TOKEN_UNSIGNED);
+    hashmap_put(&keyword_map, "void", (void*)(intptr_t)C_TOKEN_VOID);
+    hashmap_put(&keyword_map, "volatile", (void*)(intptr_t)C_TOKEN_VOLATILE);
+    hashmap_put(&keyword_map, "while", (void*)(intptr_t)C_TOKEN_WHILE);
+    hashmap_put(&keyword_map, "_Bool", (void*)(intptr_t)C_TOKEN_BOOL_KA);
+    hashmap_put(&keyword_map, "bool", (void*)(intptr_t)C_TOKEN_BOOL);
+    hashmap_put(&keyword_map, "__stdcall", (void*)(intptr_t)C_TOKEN_STDCALL);
+    hashmap_put(&keyword_map, "__cdecl", (void*)(intptr_t)C_TOKEN_CDECL);
+    hashmap_put(&keyword_map, "__fastcall", (void*)(intptr_t)C_TOKEN_FASTCALL);
+    hashmap_put(&keyword_map, "__thiscall", (void*)(intptr_t)C_TOKEN_THISCALL);
+    hashmap_put(&keyword_map, "__vectorcall", (void*)(intptr_t)C_TOKEN_VECTORCALL);
+    hashmap_put(&keyword_map, "__declspec", (void*)(intptr_t)C_TOKEN_DECLSPEC);
+    hashmap_put(&keyword_map, "__attribute__", (void*)(intptr_t)C_TOKEN_ATTRIBUTE);
+    hashmap_put(&keyword_map, "__extension__", (void*)(intptr_t)C_TOKEN_EXTENSION);
+    hashmap_put(&keyword_map, "__asm", (void*)(intptr_t)C_TOKEN_ASM);
+    hashmap_put(&keyword_map, "asm", (void*)(intptr_t)C_TOKEN_ASM);
+    hashmap_put(&keyword_map, "size_t", (void*)(intptr_t)C_TOKEN_SIZE_T);
+    hashmap_put(&keyword_map, "ptrdiff_t", (void*)(intptr_t)C_TOKEN_PTRDIFF_T);
+    hashmap_put(&keyword_map, "wchar_t", (void*)(intptr_t)C_TOKEN_WCHAR_T);
+    hashmap_put(&keyword_map, "char16_t", (void*)(intptr_t)C_TOKEN_CHAR16_T);
+    hashmap_put(&keyword_map, "char32_t", (void*)(intptr_t)C_TOKEN_CHAR32_T);
+    hashmap_put(&keyword_map, "int8_t", (void*)(intptr_t)C_TOKEN_INT8_T);
+    hashmap_put(&keyword_map, "int16_t", (void*)(intptr_t)C_TOKEN_INT16_T);
+    hashmap_put(&keyword_map, "int32_t", (void*)(intptr_t)C_TOKEN_INT32_T);
+    hashmap_put(&keyword_map, "int64_t", (void*)(intptr_t)C_TOKEN_INT64_T);
+    hashmap_put(&keyword_map, "uint8_t", (void*)(intptr_t)C_TOKEN_UINT8_T);
+    hashmap_put(&keyword_map, "uint16_t", (void*)(intptr_t)C_TOKEN_UINT16_T);
+    hashmap_put(&keyword_map, "uint32_t", (void*)(intptr_t)C_TOKEN_UINT32_T);
+    hashmap_put(&keyword_map, "uint64_t", (void*)(intptr_t)C_TOKEN_UINT64_T);
+    hashmap_put(&keyword_map, "int_least8_t", (void*)(intptr_t)C_TOKEN_INT_LEAST8_T);
+    hashmap_put(&keyword_map, "int_least16_t", (void*)(intptr_t)C_TOKEN_INT_LEAST16_T);
+    hashmap_put(&keyword_map, "int_least32_t", (void*)(intptr_t)C_TOKEN_INT_LEAST32_T);
+    hashmap_put(&keyword_map, "int_least64_t", (void*)(intptr_t)C_TOKEN_INT_LEAST64_T);
+    hashmap_put(&keyword_map, "uint_least8_t", (void*)(intptr_t)C_TOKEN_UINT_LEAST8_T);
+    hashmap_put(&keyword_map, "uint_least16_t", (void*)(intptr_t)C_TOKEN_UINT_LEAST16_T);
+    hashmap_put(&keyword_map, "uint_least32_t", (void*)(intptr_t)C_TOKEN_UINT_LEAST32_T);
+    hashmap_put(&keyword_map, "uint_least64_t", (void*)(intptr_t)C_TOKEN_UINT_LEAST64_T);
+    hashmap_put(&keyword_map, "int_fast8_t", (void*)(intptr_t)C_TOKEN_INT_FAST8_T);
+    hashmap_put(&keyword_map, "int_fast16_t", (void*)(intptr_t)C_TOKEN_INT_FAST16_T);
+    hashmap_put(&keyword_map, "int_fast32_t", (void*)(intptr_t)C_TOKEN_INT_FAST32_T);
+    hashmap_put(&keyword_map, "int_fast64_t", (void*)(intptr_t)C_TOKEN_INT_FAST64_T);
+    hashmap_put(&keyword_map, "uint_fast8_t", (void*)(intptr_t)C_TOKEN_UINT_FAST8_T);
+    hashmap_put(&keyword_map, "uint_fast16_t", (void*)(intptr_t)C_TOKEN_UINT_FAST16_T);
+    hashmap_put(&keyword_map, "uint_fast32_t", (void*)(intptr_t)C_TOKEN_UINT_FAST32_T);
+    hashmap_put(&keyword_map, "uint_fast64_t", (void*)(intptr_t)C_TOKEN_UINT_FAST64_T);
+    hashmap_put(&keyword_map, "intmax_t", (void*)(intptr_t)C_TOKEN_INTMAX_T);
+    hashmap_put(&keyword_map, "uintmax_t", (void*)(intptr_t)C_TOKEN_UINTMAX_T);
+    hashmap_put(&keyword_map, "nullptr_t", (void*)(intptr_t)C_TOKEN_NULLPTR_T);
+    hashmap_put(&keyword_map, "max_align_t", (void*)(intptr_t)C_TOKEN_MAX_ALIGN_T);
+    hashmap_put(&keyword_map, "_Complex", (void*)(intptr_t)C_TOKEN_COMPLEX);
+    hashmap_put(&keyword_map, "complex", (void*)(intptr_t)C_TOKEN_COMPLEX);
+    hashmap_put(&keyword_map, "_Imaginary", (void*)(intptr_t)C_TOKEN_IMAGINARY);
+    hashmap_put(&keyword_map, "imaginary", (void*)(intptr_t)C_TOKEN_IMAGINARY);
+    hashmap_put(&keyword_map, "true", (void*)(intptr_t)C_TOKEN_TRUE);
+    hashmap_put(&keyword_map, "false", (void*)(intptr_t)C_TOKEN_FALSE);
+    hashmap_put(&keyword_map, "NULL", (void*)(intptr_t)C_TOKEN_NULL);
+    hashmap_put(&keyword_map, "nullptr", (void*)(intptr_t)C_TOKEN_NULLPTR);
+    keyword_map_initialized = 1;
+}
+
+static CTokenType c_lex_keyword(const char *str) {
+    void *val = hashmap_get(&keyword_map, str);
+    if (val) return (CTokenType)(intptr_t)val;
     return C_TOKEN_IDENTIFIER;
 }
 
@@ -183,6 +251,7 @@ static CToken c_lex_identifier(CLexer *l, char first) {
     memcpy(buf + 1, l->src + l->pos - len + 1, len - 1);
     buf[len] = '\0';
 
+    if (!keyword_map_initialized) init_keyword_map(l->ctx->arena);
     t.type = c_lex_keyword(buf);
     t.text = intern_string(l, buf);
     t.int_val = 0;
@@ -227,7 +296,6 @@ static CToken c_lex_number(CLexer *l, char first) {
         }
     }
 
-    // Suffixes
     if (peek(l) == 'u' || peek(l) == 'U') { advance(l); l->col++; }
     if (peek(l) == 'l' || peek(l) == 'L') {
         advance(l); l->col++;
@@ -337,7 +405,6 @@ CToken c_lexer_next(CLexer *l) {
             return eof;
         }
 
-        // Skip comments
         if (peek(l) == '/' && l->src[l->pos + 1] == '/') {
             skip_comment(l);
             continue;
@@ -347,9 +414,8 @@ CToken c_lexer_next(CLexer *l) {
             continue;
         }
 
-        // Preprocessor directive
         if (peek(l) == '#') {
-            advance(l); // consume #
+            advance(l);
             skip_whitespace(l);
 
             int len = 0;
@@ -367,26 +433,74 @@ CToken c_lexer_next(CLexer *l) {
             memcpy(buf, l->src + l->pos - len, len);
             buf[len] = '\0';
 
-            if (strcmp(buf, "define") == 0) {
-                skip_to_line_end(l);
-                continue;
-            } else if (strcmp(buf, "ifdef") == 0 || strcmp(buf, "ifndef") == 0 || strcmp(buf, "if") == 0) {
-                skip_to_line_end(l);
-                continue;
-            } else if (strcmp(buf, "else") == 0 || strcmp(buf, "elif") == 0) {
-                skip_to_line_end(l);
-                continue;
-            } else if (strcmp(buf, "endif") == 0) {
-                skip_to_line_end(l);
-                continue;
-            } else if (strcmp(buf, "undef") == 0) {
-                skip_to_line_end(l);
-                continue;
-            } else {
-                // Unknown preprocessor directive, skip line
+            if (strcmp(buf, "include") == 0) {
+                if (l->include_depth >= 50) {
+                    skip_to_line_end(l);
+                    continue;
+                }
+                skip_whitespace(l);
+                char include_type = 0;
+                if (peek(l) == '"') include_type = '"';
+                else if (peek(l) == '<') include_type = '<';
+                
+                if (include_type) {
+                    char end_char = (include_type == '"') ? '"' : '>';
+                    advance(l);
+                    int fname_len = 0;
+                    int start_pos = l->pos;
+                    while (peek(l) != '\0' && peek(l) != end_char && peek(l) != '\n') {
+                        advance(l);
+                        fname_len++;
+                    }
+                    if (peek(l) == end_char) advance(l);
+                    
+                    char *fname_buf = arena_alloc(l->ctx->arena, fname_len + 1);
+                    memcpy(fname_buf, l->src + start_pos, fname_len);
+                    fname_buf[fname_len] = '\0';
+                    
+                    char *full_path = NULL;
+                    if (include_type == '"') {
+                        int dir_len = 0;
+                        const char *slash = strrchr(l->filename, '/');
+                        if (slash) dir_len = (int)(slash - l->filename) + 1;
+                        full_path = arena_alloc(l->ctx->arena, dir_len + fname_len + 1);
+                        memcpy(full_path, l->filename, dir_len);
+                        memcpy(full_path + dir_len, fname_buf, fname_len);
+                        full_path[dir_len + fname_len] = '\0';
+                    } else {
+                        full_path = arena_alloc(l->ctx->arena, fname_len + 12);
+                        sprintf(full_path, "/usr/include/%s", fname_buf);
+                    }
+                    
+                    if (hashmap_has(l->included_files, full_path)) {
+                        skip_to_line_end(l);
+                        continue;
+                    }
+                    hashmap_put(l->included_files, full_path, (void*)1);
+                    
+                    char *inc_src = c_read_include_file(l, full_path);
+                    if (inc_src) {
+                        l->include_depth++;
+                        c_file_stack_push(l, full_path, inc_src);
+                    } else {
+                        skip_to_line_end(l);
+                    }
+                    continue;
+                }
+            }
+
+            if (strcmp(buf, "define") == 0 || strcmp(buf, "ifdef") == 0 ||
+                strcmp(buf, "ifndef") == 0 || strcmp(buf, "if") == 0 ||
+                strcmp(buf, "else") == 0 || strcmp(buf, "elif") == 0 ||
+                strcmp(buf, "endif") == 0 || strcmp(buf, "undef") == 0 ||
+                strcmp(buf, "pragma") == 0 || strcmp(buf, "error") == 0 ||
+                strcmp(buf, "line") == 0) {
                 skip_to_line_end(l);
                 continue;
             }
+
+            skip_to_line_end(l);
+            continue;
         }
 
         break;
@@ -401,212 +515,183 @@ CToken c_lexer_next(CLexer *l) {
 
     char c = peek(l);
     if (c == '\0') {
+        if (l->file_stack.count > 0) {
+            c_file_stack_pop(l);
+            return c_lexer_next(l);
+        }
         t.type = C_TOKEN_EOF;
         return t;
     }
 
-    // Identifier or keyword
     if (isalpha((unsigned char)c) || c == '_') {
         return c_lex_identifier(l, advance(l));
     }
 
-    // Number
     if (isdigit((unsigned char)c)) {
         return c_lex_number(l, advance(l));
     }
 
-    // String literal
     if (c == '"') {
         return c_lex_string(l);
     }
 
-    // Character literal
     if (c == '\'') {
         return c_lex_char(l);
     }
 
     // Two-character operators
     if (c == '-' && l->src[l->pos + 1] == '>') {
-        advance(l); advance(l);
+        l->pos += 2; l->col += 2;
         t.type = C_TOKEN_ARROW;
-        l->col += 2;
         return t;
     }
     if (c == '-' && l->src[l->pos + 1] == '=') {
-        advance(l); advance(l);
+        l->pos += 2; l->col += 2;
         t.type = C_TOKEN_MINUS_ASSIGN;
-        l->col += 2;
         return t;
     }
     if (c == '+' && l->src[l->pos + 1] == '=') {
-        advance(l); advance(l);
+        l->pos += 2; l->col += 2;
         t.type = C_TOKEN_PLUS_ASSIGN;
-        l->col += 2;
-        return t;
-    }
-    if (c == '*' && l->src[l->pos + 1] == '=') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_STAR_ASSIGN;
-        l->col += 2;
-        return t;
-    }
-    if (c == '/' && l->src[l->pos + 1] == '=') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_SLASH_ASSIGN;
-        l->col += 2;
-        return t;
-    }
-    if (c == '%' && l->src[l->pos + 1] == '=') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_MOD_ASSIGN;
-        l->col += 2;
-        return t;
-    }
-    if (c == '&' && l->src[l->pos + 1] == '&') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_AND;
-        l->col += 2;
-        return t;
-    }
-    if (c == '|' && l->src[l->pos + 1] == '|') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_OR;
-        l->col += 2;
-        return t;
-    }
-    if (c == '=' && l->src[l->pos + 1] == '=') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_EQ;
-        l->col += 2;
-        return t;
-    }
-    if (c == '!' && l->src[l->pos + 1] == '=') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_NEQ;
-        l->col += 2;
-        return t;
-    }
-    if (c == '<' && l->src[l->pos + 1] == '=') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_LTE;
-        l->col += 2;
-        return t;
-    }
-    if (c == '>' && l->src[l->pos + 1] == '=') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_GTE;
-        l->col += 2;
-        return t;
-    }
-    if (c == '<' && l->src[l->pos + 1] == '<') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_LSHIFT;
-        l->col += 2;
-        return t;
-    }
-    if (c == '>' && l->src[l->pos + 1] == '>') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_RSHIFT;
-        l->col += 2;
-        return t;
-    }
-    if (c == '&' && l->src[l->pos + 1] == '=') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_AND_ASSIGN;
-        l->col += 2;
-        return t;
-    }
-    if (c == '|' && l->src[l->pos + 1] == '=') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_OR_ASSIGN;
-        l->col += 2;
-        return t;
-    }
-    if (c == '^' && l->src[l->pos + 1] == '=') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_XOR_ASSIGN;
-        l->col += 2;
-        return t;
-    }
-    if (c == '-' && l->src[l->pos + 1] == '-') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_DECREMENT;
-        l->col += 2;
         return t;
     }
     if (c == '+' && l->src[l->pos + 1] == '+') {
-        advance(l); advance(l);
+        l->pos += 2; l->col += 2;
         t.type = C_TOKEN_INCREMENT;
-        l->col += 2;
         return t;
     }
-    if (c == '.' && l->src[l->pos + 1] == '.') {
-        if (l->src[l->pos + 2] == '.') {
-            advance(l); advance(l); advance(l);
-            t.type = C_TOKEN_ELLIPSIS;
-            l->col += 3;
-            return t;
-        }
-        advance(l); advance(l);
-        t.type = C_TOKEN_UNKNOWN;
-        l->col += 2;
+    if (c == '=' && l->src[l->pos + 1] == '=') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_EQ;
+        return t;
+    }
+    if (c == '!' && l->src[l->pos + 1] == '=') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_NEQ;
+        return t;
+    }
+    if (c == '<' && l->src[l->pos + 1] == '=') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_LTE;
+        return t;
+    }
+    if (c == '>' && l->src[l->pos + 1] == '=') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_GTE;
+        return t;
+    }
+    if (c == '&' && l->src[l->pos + 1] == '&') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_AND;
+        return t;
+    }
+    if (c == '|' && l->src[l->pos + 1] == '|') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_OR;
+        return t;
+    }
+    if (c == '&' && l->src[l->pos + 1] == '=') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_AND_ASSIGN;
+        return t;
+    }
+    if (c == '|' && l->src[l->pos + 1] == '=') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_OR_ASSIGN;
+        return t;
+    }
+    if (c == '^' && l->src[l->pos + 1] == '=') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_XOR_ASSIGN;
+        return t;
+    }
+    if (c == '<' && l->src[l->pos + 1] == '<') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_LSHIFT;
+        return t;
+    }
+    if (c == '>' && l->src[l->pos + 1] == '>') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_RSHIFT;
+        return t;
+    }
+    if (c == '<' && l->src[l->pos + 1] == '<' && l->src[l->pos + 2] == '=') {
+        l->pos += 3; l->col += 3;
+        t.type = C_TOKEN_LSHIFT_ASSIGN;
+        return t;
+    }
+    if (c == '>' && l->src[l->pos + 1] == '>' && l->src[l->pos + 2] == '=') {
+        l->pos += 3; l->col += 3;
+        t.type = C_TOKEN_RSHIFT_ASSIGN;
+        return t;
+    }
+    if (c == '*' && l->src[l->pos + 1] == '=') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_STAR_ASSIGN;
+        return t;
+    }
+    if (c == '/' && l->src[l->pos + 1] == '=') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_SLASH_ASSIGN;
+        return t;
+    }
+    if (c == '%' && l->src[l->pos + 1] == '=') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_MOD_ASSIGN;
+        return t;
+    }
+    if (c == '-' && l->src[l->pos + 1] == '-') {
+        l->pos += 2; l->col += 2;
+        t.type = C_TOKEN_DECREMENT;
+        return t;
+    }
+    if (c == '.' && l->src[l->pos + 1] == '.' && l->src[l->pos + 2] == '.') {
+        l->pos += 3; l->col += 3;
+        t.type = C_TOKEN_ELLIPSIS;
         return t;
     }
     if (c == '.' && l->src[l->pos + 1] == '*') {
-        advance(l); advance(l);
+        l->pos += 2; l->col += 2;
         t.type = C_TOKEN_DOT_STAR;
-        l->col += 2;
         return t;
     }
-    if (c == '-' && l->src[l->pos + 1] == '>' && l->src[l->pos + 2] == '*') {
-        advance(l); advance(l); advance(l);
+    if (c == '-' && l->src[l->pos + 1] == '>') {
+        l->pos += 2; l->col += 2;
         t.type = C_TOKEN_ARROW_STAR;
-        l->col += 3;
-        return t;
-    }
-    if (c == '<' && l->src[l->pos + 1] == '%') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_LSHIFT;
-        l->col += 2;
-        return t;
-    }
-    if (c == '%' && l->src[l->pos + 1] == '>') {
-        advance(l); advance(l);
-        t.type = C_TOKEN_RSHIFT;
-        l->col += 2;
         return t;
     }
 
-    // Single-character operators
-    advance(l);
-    l->col++;
+    l->pos++; l->col++;
     switch (c) {
-        case ',': t.type = C_TOKEN_COMMA; break;
-        case ':': t.type = C_TOKEN_COLON; break;
-        case ';': t.type = C_TOKEN_SEMICOLON; break;
         case '(': t.type = C_TOKEN_LPAREN; break;
         case ')': t.type = C_TOKEN_RPAREN; break;
         case '[': t.type = C_TOKEN_LBRACKET; break;
         case ']': t.type = C_TOKEN_RBRACKET; break;
         case '{': t.type = C_TOKEN_LBRACE; break;
         case '}': t.type = C_TOKEN_RBRACE; break;
+        case ';': t.type = C_TOKEN_SEMICOLON; break;
+        case ',': t.type = C_TOKEN_COMMA; break;
         case '.': t.type = C_TOKEN_DOT; break;
-        case '&': t.type = C_TOKEN_AMPERSAND; break;
-        case '*': t.type = C_TOKEN_STAR; break;
+        case '~': t.type = C_TOKEN_TILDE; break;
+        case '!': t.type = C_TOKEN_NOT; break;
+        case '^': t.type = C_TOKEN_XOR; break;
         case '+': t.type = C_TOKEN_PLUS; break;
         case '-': t.type = C_TOKEN_MINUS; break;
+        case '*': t.type = C_TOKEN_STAR; break;
         case '/': t.type = C_TOKEN_SLASH; break;
         case '%': t.type = C_TOKEN_PERCENT; break;
         case '=': t.type = C_TOKEN_ASSIGN; break;
         case '<': t.type = C_TOKEN_LT; break;
         case '>': t.type = C_TOKEN_GT; break;
-        case '!': t.type = C_TOKEN_NOT; break;
-        case '~': t.type = C_TOKEN_TILDE; break;
-        case '^': t.type = C_TOKEN_XOR; break;
+        case '&': t.type = C_TOKEN_AMPERSAND; break;
+        case '|': t.type = C_TOKEN_OR; break;
+        case ':': t.type = C_TOKEN_COLON; break;
         case '?': t.type = C_TOKEN_QUESTION; break;
-        default: t.type = C_TOKEN_UNKNOWN; break;
+        default:
+            fprintf(stderr, "%s:%d:%d: warning: unknown character '%c'\n", l->filename, l->line, l->col, c);
+            t.type = C_TOKEN_UNKNOWN;
+            break;
     }
-
     return t;
 }
 
