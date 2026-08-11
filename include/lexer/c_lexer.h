@@ -1,0 +1,192 @@
+#ifndef C_LEXER_H
+#define C_LEXER_H
+
+#include "../common/context.h"
+
+typedef enum {
+    C_TOKEN_EOF,
+    C_TOKEN_IDENTIFIER,
+    C_TOKEN_NUMBER,
+    C_TOKEN_STRING,
+    C_TOKEN_CHAR,
+    C_TOKEN_LPAREN,
+    C_TOKEN_RPAREN,
+    C_TOKEN_LBRACKET,
+    C_TOKEN_RBRACKET,
+    C_TOKEN_LBRACE,
+    C_TOKEN_RBRACE,
+    C_TOKEN_SEMICOLON,
+    C_TOKEN_COMMA,
+    C_TOKEN_DOT,
+    C_TOKEN_ARROW,
+    C_TOKEN_ELLIPSIS,
+    C_TOKEN_STAR,
+    C_TOKEN_AMPERSAND,
+    C_TOKEN_PLUS,
+    C_TOKEN_MINUS,
+    C_TOKEN_SLASH,
+    C_TOKEN_PERCENT,
+    C_TOKEN_EQ,
+    C_TOKEN_NEQ,
+    C_TOKEN_LT,
+    C_TOKEN_GT,
+    C_TOKEN_LTE,
+    C_TOKEN_GTE,
+    C_TOKEN_AND,
+    C_TOKEN_OR,
+    C_TOKEN_XOR,
+    C_TOKEN_NOT,
+    C_TOKEN_TILDE,
+    C_TOKEN_LSHIFT,
+    C_TOKEN_RSHIFT,
+    C_TOKEN_ASSIGN,
+    C_TOKEN_PLUS_ASSIGN,
+    C_TOKEN_MINUS_ASSIGN,
+    C_TOKEN_STAR_ASSIGN,
+    C_TOKEN_SLASH_ASSIGN,
+    C_TOKEN_MOD_ASSIGN,
+    C_TOKEN_AND_ASSIGN,
+    C_TOKEN_OR_ASSIGN,
+    C_TOKEN_XOR_ASSIGN,
+    C_TOKEN_LSHIFT_ASSIGN,
+    C_TOKEN_RSHIFT_ASSIGN,
+    C_TOKEN_INCREMENT,
+    C_TOKEN_DECREMENT,
+    C_TOKEN_ARROW_STAR,
+    C_TOKEN_DOT_STAR,
+    C_TOKEN_QUESTION,
+    C_TOKEN_COLON,
+    C_TOKEN_SIZEOF,
+    C_TOKEN_ALIGNOF,
+    C_TOKEN_TYPEOF,
+    // Keywords
+    C_TOKEN_AUTO,
+    C_TOKEN_BREAK,
+    C_TOKEN_CASE,
+    C_TOKEN_CHAR_KW,
+    C_TOKEN_CONST,
+    C_TOKEN_CONTINUE,
+    C_TOKEN_DEFAULT,
+    C_TOKEN_DO,
+    C_TOKEN_DOUBLE,
+    C_TOKEN_ELSE,
+    C_TOKEN_ENUM,
+    C_TOKEN_EXTERN,
+    C_TOKEN_FLOAT,
+    C_TOKEN_FOR,
+    C_TOKEN_GOTO,
+    C_TOKEN_IF_KW,
+    C_TOKEN_INLINE,
+    C_TOKEN_INT,
+    C_TOKEN_LONG,
+    C_TOKEN_REGISTER,
+    C_TOKEN_RESTRICT,
+    C_TOKEN_RETURN,
+    C_TOKEN_SHORT,
+    C_TOKEN_SIGNED,
+    C_TOKEN_SIZEOF_KW,
+    C_TOKEN_STATIC,
+    C_TOKEN_STRUCT,
+    C_TOKEN_SWITCH,
+    C_TOKEN_TYPEDEF,
+    C_TOKEN_UNION,
+    C_TOKEN_UNSIGNED,
+    C_TOKEN_VOID,
+    C_TOKEN_VOLATILE,
+    C_TOKEN_WHILE,
+    C_TOKEN_BOOL,
+    // MSVC / GCC / Clang extensions
+    C_TOKEN_STDCALL,
+    C_TOKEN_CDECL,
+    C_TOKEN_FASTCALL,
+    C_TOKEN_THISCALL,
+    C_TOKEN_VECTORCALL,
+    C_TOKEN_DECLSPEC,
+    C_TOKEN_ATTRIBUTE,
+    C_TOKEN_EXTENSION,
+    C_TOKEN_BUILTIN,
+    C_TOKEN_ASM,
+    C_TOKEN_ALIGNOF_KW,
+    // Preprocessor
+    C_TOKEN_DEFINE,
+    C_TOKEN_IFDEF,
+    C_TOKEN_IFNDEF,
+    C_TOKEN_IF_PP,
+    C_TOKEN_ELIF,
+    C_TOKEN_ENDIF,
+    C_TOKEN_UNDEF,
+    C_TOKEN_INCLUDE,
+    C_TOKEN_PRAGMA,
+    C_TOKEN_ERROR,
+    C_TOKEN_LINE,
+    C_TOKEN_DEFINED,
+    C_TOKEN_HAS_INCLUDE,
+    C_TOKEN_HAS_CPP_ATTRIBUTE,
+    // Special C types
+    C_TOKEN_SIZE_T,
+    C_TOKEN_PTRDIFF_T,
+    C_TOKEN_WCHAR_T,
+    C_TOKEN_CHAR16_T,
+    C_TOKEN_CHAR32_T,
+    C_TOKEN_INT8_T,
+    C_TOKEN_INT16_T,
+    C_TOKEN_INT32_T,
+    C_TOKEN_INT64_T,
+    C_TOKEN_UINT8_T,
+    C_TOKEN_UINT16_T,
+    C_TOKEN_UINT32_T,
+    C_TOKEN_UINT64_T,
+    C_TOKEN_INT_LEAST8_T,
+    C_TOKEN_INT_LEAST16_T,
+    C_TOKEN_INT_LEAST32_T,
+    C_TOKEN_INT_LEAST64_T,
+    C_TOKEN_UINT_LEAST8_T,
+    C_TOKEN_UINT_LEAST16_T,
+    C_TOKEN_UINT_LEAST32_T,
+    C_TOKEN_UINT_LEAST64_T,
+    C_TOKEN_INT_FAST8_T,
+    C_TOKEN_INT_FAST16_T,
+    C_TOKEN_INT_FAST32_T,
+    C_TOKEN_INT_FAST64_T,
+    C_TOKEN_UINT_FAST8_T,
+    C_TOKEN_UINT_FAST16_T,
+    C_TOKEN_UINT_FAST32_T,
+    C_TOKEN_UINT_FAST64_T,
+    C_TOKEN_INTMAX_T,
+    C_TOKEN_UINTMAX_T,
+    C_TOKEN_NULLPTR_T,
+    C_TOKEN_MAX_ALIGN_T,
+    C_TOKEN_BOOL_KA,
+    C_TOKEN_COMPLEX,
+    C_TOKEN_IMAGINARY,
+    C_TOKEN_TRUE,
+    C_TOKEN_FALSE,
+    C_TOKEN_NULL,
+    C_TOKEN_NULLPTR,
+    C_TOKEN_UNKNOWN
+} CTokenType;
+
+typedef struct {
+    CTokenType type;
+    char *text;
+    long long int_val;
+    double double_val;
+    int line;
+    int col;
+} CToken;
+
+typedef struct CLexer {
+    CompilerContext *ctx;
+    const char *src;
+    const char *filename;
+    int pos;
+    int line;
+    int col;
+    int has_error;
+} CLexer;
+
+void c_lexer_init(CLexer *l, CompilerContext *ctx, const char *filename, const char *src);
+CToken c_lexer_next(CLexer *l);
+const char* c_token_type_to_string(CTokenType type);
+
+#endif

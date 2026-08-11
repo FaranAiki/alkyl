@@ -10,6 +10,7 @@
 #include "optlir/unused.h"
 #include "optlir/local.h"
 #include "common/linker.h"
+#include "parser/c_parser.h"
 
 #define BASENAME "build/out"
 #define BASENAME_OPT "build/opt_out"
@@ -20,13 +21,57 @@
 
 #include "driver/lsp.h"
 
+static void print_c_ast_node(ASTNode *node, int indent) {
+    if (!node) return;
+    for (int i = 0; i < indent; i++) fprintf(stdout, "  ");
+    
+    switch (node->type) {
+        case NODE_FUNC_DEF: {
+            FuncDefNode *fn = (FuncDefNode*)node;
+            fprintf(stdout, "FUNC_DEF: %s extern=%d has_body=%d cconv=%s\n",
+                    fn->name, fn->is_extern, fn->has_body, fn->cconv ? fn->cconv : "none");
+            break;
+        }
+        case NODE_STRUCT: {
+            StructNode *sn = (StructNode*)node;
+            fprintf(stdout, "STRUCT: %s is_union=%d has_body=%d\n",
+                    sn->name, sn->is_union, sn->has_body);
+            ASTNode *member = sn->members;
+            while (member) {
+                print_c_ast_node(member, indent + 1);
+                member = member->next;
+            }
+            break;
+        }
+        case NODE_ENUM: {
+            EnumNode *en = (EnumNode*)node;
+            fprintf(stdout, "ENUM: %s\n", en->name);
+            EnumEntry *entry = en->entries;
+            while (entry) {
+                for (int i = 0; i < indent + 1; i++) fprintf(stdout, "  ");
+                fprintf(stdout, "  %s = %d\n", entry->name, entry->value);
+                entry = entry->next;
+            }
+            break;
+        }
+        case NODE_VAR_DECL: {
+            VarDeclNode *var = (VarDeclNode*)node;
+            fprintf(stdout, "VAR_DECL: %s\n", var->name);
+            break;
+        }
+        default:
+            fprintf(stdout, "NODE_TYPE=%d\n", node->type);
+            break;
+    }
+}
+
 int main(int argc, char *argv[]) {
     Arena arena;
     CompilerContext comp_ctx;
 
     // TODO add this;
     if (argc < 2) {
-        printf("Usage: %s <file.kyl|file.zyl> [-l<lib>] [--linker gcc|clang|lld|mold] | --lsp\n", argv[0]);
+        printf("Usage: %s <file.kyl|file.zyl> [-l<lib>] [--linker gcc|clang|lld|mold] | --lsp | --parse-c <file.h>\n", argv[0]);
       return 1;
     }
 
@@ -34,6 +79,9 @@ int main(int argc, char *argv[]) {
         start_lsp_server();
         return 0;
     }
+
+    int parse_c_mode = 0;
+    char *c_header_file = NULL;
 
     char *filename = NULL;
     char link_flags[1024] = {0};
@@ -84,7 +132,8 @@ int main(int argc, char *argv[]) {
             optimization_level = 5;
         } else if (streq_lit(argv[i], "-o")) {
             if (i + 1 < argc) {
-                strncpy(custom_output_basename, argv[++i], sizeof(custom_output_basename) - 1);
+                i++;
+                strncpy(custom_output_basename, argv[i], sizeof(custom_output_basename) - 1);
                 custom_output_basename[sizeof(custom_output_basename) - 1] = '\0';
             }
         } else if (streq_lit(argv[i], "--linker")) {
@@ -96,9 +145,56 @@ int main(int argc, char *argv[]) {
                 else if (streq_lit(argv[i], "mold")) current_linker = LINKER_MOLD;
                 else if (streq_lit(argv[i], "alynk")) current_linker = LINKER_MOLD;
             }
+        } else if (streq_lit(argv[i], "--parse-c")) {
+            if (i + 1 < argc) {
+                i++;
+                c_header_file = argv[i];
+                parse_c_mode = 1;
+            } else {
+                fprintf(stderr, "--parse-c requires a file argument\n");
+                return 1;
+            }
         } else {
             filename = argv[i];
         }
+    }
+
+    if (parse_c_mode) {
+        if (!c_header_file) {
+            fprintf(stderr, "No C header file specified for --parse-c\n");
+            return 1;
+        }
+
+        char *code = read_file(c_header_file);
+        if (!code) {
+            fprintf(stderr, "Could not read C header file: %s\n", c_header_file);
+            return 1;
+        }
+
+        arena_init(&arena);
+        context_init(&comp_ctx, &arena);
+
+        CParser cp;
+        c_parser_init(&cp, &comp_ctx, c_header_file, code);
+
+        fprintf(stdout, "Parsing C header: %s\n", c_header_file);
+        ASTNode *root = c_parse_header(&cp);
+
+        int node_count = 0;
+        ASTNode *curr = root;
+        while (curr) {
+            node_count++;
+            print_c_ast_node(curr, 0);
+            curr = curr->next;
+        }
+
+        fprintf(stdout, "\nTotal nodes: %d\n", node_count);
+        fprintf(stdout, "Typedefs registered: %d\n", cp.typedefs.count);
+        fprintf(stdout, "Macros defined: %d\n", cp.defines.count);
+
+        free(code);
+        arena_free(&arena);
+        return 0;
     }
 
     const char *output_basename_ptr = custom_output_basename[0] ? custom_output_basename : (optimization_level > 0 ? BASENAME_OPT : BASENAME);

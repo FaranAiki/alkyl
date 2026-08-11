@@ -1,35 +1,35 @@
 step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=0, token.type=163
+debug: parser: after parse_type, vt.base=0, token.type=164
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=5 col=29 node=0x563fe965d578
-debug: semantic: sem_check_expr: type=26 line=5 col=24 node=0x563fe965d480
-debug: semantic: sem_check_expr: type=13 line=5 col=20 node=0x563fe965d400
-debug: semantic: sem_check_expr: type=13 line=5 col=31 node=0x563fe965d4f8
-debug: semantic: sem_check_expr: type=26 line=5 col=13 node=0x563fe965d388
-debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x563fe965d308
+debug: semantic: sem_check_expr: type=14 line=5 col=29 node=0x55915629b578
+debug: semantic: sem_check_expr: type=26 line=5 col=24 node=0x55915629b480
+debug: semantic: sem_check_expr: type=13 line=5 col=20 node=0x55915629b400
+debug: semantic: sem_check_expr: type=13 line=5 col=31 node=0x55915629b4f8
+debug: semantic: sem_check_expr: type=26 line=5 col=13 node=0x55915629b388
+debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x55915629b308
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=11 col=13 node=0x563fe965da00
-debug: semantic: sem_check_expr: type=26 line=11 col=6 node=0x563fe965d988
-debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x563fe965d908
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x563fe965dbb8
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x563fe965dbb8
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x563fe965dbb8
-debug: semantic: sem_check_expr: type=14 line=13 col=15 node=0x563fe965de88
-debug: semantic: sem_check_expr: type=26 line=13 col=10 node=0x563fe965dd70
-debug: semantic: sem_check_expr: type=13 line=13 col=9 node=0x563fe965dcf0
-debug: semantic: sem_check_expr: type=16 line=13 col=18 node=0x563fe965dde8
+debug: semantic: sem_check_expr: type=16 line=11 col=13 node=0x55915629ba00
+debug: semantic: sem_check_expr: type=26 line=11 col=6 node=0x55915629b988
+debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x55915629b908
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x55915629bbb8
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x55915629bbb8
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x55915629bbb8
+debug: semantic: sem_check_expr: type=14 line=13 col=15 node=0x55915629be88
+debug: semantic: sem_check_expr: type=26 line=13 col=10 node=0x55915629bd70
+debug: semantic: sem_check_expr: type=13 line=13 col=9 node=0x55915629bcf0
+debug: semantic: sem_check_expr: type=16 line=13 col=18 node=0x55915629bde8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=13 col=29 node=0x563fe965df30
-debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x563fe965e0c0
+debug: semantic: sem_check_expr: type=16 line=13 col=29 node=0x55915629bf30
+debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x55915629c0c0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Counter
-debug: alir: DEBUG_REGISTER: st=0x563fe9663338 name=Counter next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x5591562a1338 name=Counter next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - Counter fields: 1
-debug: alir: alir_gen_function_def fn->name=__op_163_33 class_name=Counter fn->mangled_name=main_Counter___op_163_33_i32 -> func_name=main_Counter___op_163_33_i32
-debug: alir: alir_add_function: main_Counter___op_163_33_i32
+debug: alir: alir_gen_function_def fn->name=__op_164_33 class_name=Counter fn->mangled_name=main_Counter___op_164_33_i32 -> func_name=main_Counter___op_164_33_i32
+debug: alir: alir_add_function: main_Counter___op_164_33_i32
 debug: alir: alir_add_function: Counter
 debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main

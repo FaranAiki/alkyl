@@ -14,14 +14,14 @@ debug: semantic: sem_check_block: ns='ns'
 debug: diag_set_namespace: ns='main', current='ns', ptr_match=0
 debug: diag_set_namespace: after set, current='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=8 col=15 node=0x55a85cc193e8
+debug: semantic: sem_check_expr: type=2 line=8 col=15 node=0x557048a543e8
 debug: semantic: sem_check_call: name='ns.Clib', ns='main'
-debug: semantic: sem_check_expr: type=16 line=8 col=13 node=0x55a85cc19348
-debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x55a85cc19540
+debug: semantic: sem_check_expr: type=16 line=8 col=13 node=0x557048a54348
+debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x557048a54540
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Clib
-debug: alir: DEBUG_REGISTER: st=0x55a85cc1e7e0 name=ns.Clib next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x557048a597e0 name=ns.Clib next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - ns.Clib fields: 1
 debug: alir: Found namespace ns

@@ -114,9 +114,10 @@ set(CODEGEN_QBE_SOURCES
 
 
 
-set(FRONTEND_SOURCES
+  set(FRONTEND_SOURCES
     src/lexer/lexer.c
     src/lexer/emitter.c
+    src/lexer/c_lexer.c
 
     src/parser/core.c
     src/parser/expr.c
@@ -131,7 +132,8 @@ set(FRONTEND_SOURCES
     src/parser/link.c
     src/parser/modif.c
     src/parser/modifier.c
-)
+    src/parser/c_parser.c
+  )
 
 set(SEMANTIC_SOURCES
     src/semantic/check.c
