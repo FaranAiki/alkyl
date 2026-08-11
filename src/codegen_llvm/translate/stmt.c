@@ -28,17 +28,28 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     if (LLVMGetTypeKind(LLVMTypeOf(ptr)) != LLVMPointerTypeKind) {
                         ptr = LLVMBuildIntToPtr(ctx->builder, ptr, LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0), "store_cast");
                     }
-                    LLVMTypeRef ptr_ty = LLVMTypeOf(ptr);
-                    if (LLVMGetTypeKind(ptr_ty) == LLVMPointerTypeKind) {
-                        LLVMTypeRef pointed = LLVMGetElementType(ptr_ty);
-                        if (pointed && LLVMGetTypeKind(pointed) == LLVMStructTypeKind && LLVMCountStructElementTypes(pointed) > 1) {
-                            LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
-                            LLVMValueRef wrapped = LLVMGetUndef(pointed);
-                            wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, zero, 0, "wrap_err");
-                            wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, val, 1, "wrap_val");
-                            LLVMBuildStore(ctx->builder, wrapped, ptr);
-                            break;
+                    LLVMTypeRef pointed = NULL;
+                    if (inst->op2) {
+                        VarType ptr_t = inst->op2->type;
+                        if (ptr_t.ptr_depth > 0) ptr_t.ptr_depth--;
+                        else if (ptr_t.array_size > 0) ptr_t.array_size = 0;
+                        pointed = get_llvm_type(ctx, ptr_t);
+                        if (inst->op2->type.is_tainted || ptr_t.is_tainted) {
+                            printf("DEBUG STORE: is_tainted! val is:\n");
+                            LLVMDumpValue(val);
+                            printf("\n");
                         }
+                    }
+                    
+                    if (pointed && LLVMGetTypeKind(pointed) == LLVMStructTypeKind && LLVMCountStructElementTypes(pointed) > 1 &&
+                        LLVMGetTypeKind(LLVMTypeOf(val)) != LLVMStructTypeKind) {
+                        printf("DEBUG: wrapping value in store!\n");
+                        LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
+                        LLVMValueRef wrapped = LLVMGetUndef(pointed);
+                        wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, zero, 0, "wrap_err");
+                        wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, val, 1, "wrap_val");
+                        LLVMBuildStore(ctx->builder, wrapped, ptr);
+                        break;
                     }
                     LLVMBuildStore(ctx->builder, val, ptr);
                 }
