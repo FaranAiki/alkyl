@@ -184,39 +184,6 @@ static void init_keyword_map(Arena *arena) {
     hashmap_put(&keyword_map, "__extension__", (void*)(intptr_t)C_TOKEN_EXTENSION);
     hashmap_put(&keyword_map, "__asm", (void*)(intptr_t)C_TOKEN_ASM);
     hashmap_put(&keyword_map, "asm", (void*)(intptr_t)C_TOKEN_ASM);
-    hashmap_put(&keyword_map, "size_t", (void*)(intptr_t)C_TOKEN_SIZE_T);
-    hashmap_put(&keyword_map, "ptrdiff_t", (void*)(intptr_t)C_TOKEN_PTRDIFF_T);
-    hashmap_put(&keyword_map, "wchar_t", (void*)(intptr_t)C_TOKEN_WCHAR_T);
-    hashmap_put(&keyword_map, "char16_t", (void*)(intptr_t)C_TOKEN_CHAR16_T);
-    hashmap_put(&keyword_map, "char32_t", (void*)(intptr_t)C_TOKEN_CHAR32_T);
-    hashmap_put(&keyword_map, "int8_t", (void*)(intptr_t)C_TOKEN_INT8_T);
-    hashmap_put(&keyword_map, "int16_t", (void*)(intptr_t)C_TOKEN_INT16_T);
-    hashmap_put(&keyword_map, "int32_t", (void*)(intptr_t)C_TOKEN_INT32_T);
-    hashmap_put(&keyword_map, "int64_t", (void*)(intptr_t)C_TOKEN_INT64_T);
-    hashmap_put(&keyword_map, "uint8_t", (void*)(intptr_t)C_TOKEN_UINT8_T);
-    hashmap_put(&keyword_map, "uint16_t", (void*)(intptr_t)C_TOKEN_UINT16_T);
-    hashmap_put(&keyword_map, "uint32_t", (void*)(intptr_t)C_TOKEN_UINT32_T);
-    hashmap_put(&keyword_map, "uint64_t", (void*)(intptr_t)C_TOKEN_UINT64_T);
-    hashmap_put(&keyword_map, "int_least8_t", (void*)(intptr_t)C_TOKEN_INT_LEAST8_T);
-    hashmap_put(&keyword_map, "int_least16_t", (void*)(intptr_t)C_TOKEN_INT_LEAST16_T);
-    hashmap_put(&keyword_map, "int_least32_t", (void*)(intptr_t)C_TOKEN_INT_LEAST32_T);
-    hashmap_put(&keyword_map, "int_least64_t", (void*)(intptr_t)C_TOKEN_INT_LEAST64_T);
-    hashmap_put(&keyword_map, "uint_least8_t", (void*)(intptr_t)C_TOKEN_UINT_LEAST8_T);
-    hashmap_put(&keyword_map, "uint_least16_t", (void*)(intptr_t)C_TOKEN_UINT_LEAST16_T);
-    hashmap_put(&keyword_map, "uint_least32_t", (void*)(intptr_t)C_TOKEN_UINT_LEAST32_T);
-    hashmap_put(&keyword_map, "uint_least64_t", (void*)(intptr_t)C_TOKEN_UINT_LEAST64_T);
-    hashmap_put(&keyword_map, "int_fast8_t", (void*)(intptr_t)C_TOKEN_INT_FAST8_T);
-    hashmap_put(&keyword_map, "int_fast16_t", (void*)(intptr_t)C_TOKEN_INT_FAST16_T);
-    hashmap_put(&keyword_map, "int_fast32_t", (void*)(intptr_t)C_TOKEN_INT_FAST32_T);
-    hashmap_put(&keyword_map, "int_fast64_t", (void*)(intptr_t)C_TOKEN_INT_FAST64_T);
-    hashmap_put(&keyword_map, "uint_fast8_t", (void*)(intptr_t)C_TOKEN_UINT_FAST8_T);
-    hashmap_put(&keyword_map, "uint_fast16_t", (void*)(intptr_t)C_TOKEN_UINT_FAST16_T);
-    hashmap_put(&keyword_map, "uint_fast32_t", (void*)(intptr_t)C_TOKEN_UINT_FAST32_T);
-    hashmap_put(&keyword_map, "uint_fast64_t", (void*)(intptr_t)C_TOKEN_UINT_FAST64_T);
-    hashmap_put(&keyword_map, "intmax_t", (void*)(intptr_t)C_TOKEN_INTMAX_T);
-    hashmap_put(&keyword_map, "uintmax_t", (void*)(intptr_t)C_TOKEN_UINTMAX_T);
-    hashmap_put(&keyword_map, "nullptr_t", (void*)(intptr_t)C_TOKEN_NULLPTR_T);
-    hashmap_put(&keyword_map, "max_align_t", (void*)(intptr_t)C_TOKEN_MAX_ALIGN_T);
     hashmap_put(&keyword_map, "_Complex", (void*)(intptr_t)C_TOKEN_COMPLEX);
     hashmap_put(&keyword_map, "complex", (void*)(intptr_t)C_TOKEN_COMPLEX);
     hashmap_put(&keyword_map, "_Imaginary", (void*)(intptr_t)C_TOKEN_IMAGINARY);
@@ -230,7 +197,12 @@ static void init_keyword_map(Arena *arena) {
 
 static CTokenType c_lex_keyword(const char *str) {
     void *val = hashmap_get(&keyword_map, str);
-    if (val) return (CTokenType)(intptr_t)val;
+    if (val) {
+        CTokenType tt = (CTokenType)(intptr_t)val;
+        if (strcmp(str, "void") == 0 || strcmp(str, "short") == 0) {
+        }
+        return tt;
+    }
     return C_TOKEN_IDENTIFIER;
 }
 

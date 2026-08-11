@@ -173,6 +173,8 @@ void hashmap_put(HashMap *map, const char *key, void *value) {
         if ((uint32_t)idx != TOMBSTONE) {
             if (entries[idx].hash == hash &&
                 (entries[idx].key == key || streq_lit(entries[idx].key, key))) {
+                if (strcmp(key, "void") == 0 || strcmp(key, "short") == 0 || strcmp(key, "int") == 0) {
+                }
                 entries[idx].value = value;
                 return;
             }
@@ -193,6 +195,8 @@ void hashmap_put(HashMap *map, const char *key, void *value) {
         entries[new_idx].key = key;
     }
     entries[new_idx].value = value;
+    if (strcmp(key, "void") == 0 || strcmp(key, "short") == 0 || strcmp(key, "int") == 0) {
+    }
 }
 
 const char* hashmap_intern(HashMap *map, const char *key) {
@@ -250,18 +254,23 @@ void* hashmap_get(HashMap *map, const char *key) {
     int32_t *indices = (int32_t *)map->buckets;
     DictEntry *entries = (DictEntry *)(indices + map->capacity);
 
+    int steps = 0;
     while (indices[i] != -1) {
         int idx = indices[i];
         if ((uint32_t)idx != TOMBSTONE) {
             if (entries[idx].hash == hash &&
                 (entries[idx].key == key || streq_lit(entries[idx].key, key))) {
+                if (steps > 3 || strcmp(key, "void") == 0 || strcmp(key, "short") == 0 || strcmp(key, "int") == 0) {
+                }
                 return entries[idx].value;
             }
         }
         i = (i * 5 + 1 + perturb) & mask;
         perturb >>= PERTURB_SHIFT;
+        steps++;
     }
-
+    if (strcmp(key, "void") == 0 || strcmp(key, "short") == 0 || strcmp(key, "int") == 0) {
+    }
     return NULL;
 }
 
