@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+Token parser_peek_token_n(Parser *p, int offset);
+
 // TODO modularize this
 void apply_implicit_return(Parser *p, ASTNode **body_ptr) {
     if (!p->settings.allow_implicit_return || !body_ptr || !*body_ptr) return;
@@ -356,6 +358,38 @@ ASTNode* parse_top_level_internal(Parser *p) {
   if (p->current_token.type == TOKEN_SEMICOLON) {
       eat_semi(p);
       return NULL;
+  }
+
+  if (p->current_token.type == TOKEN_AT) {
+      Token after_at = parser_peek_token(p);
+      if (after_at.type == TOKEN_IDENTIFIER && streq_lit(after_at.text, "c")) {
+          Token after_c = parser_peek_token_n(p, 1);
+          if (after_c.type == TOKEN_IMPORT) {
+              eat(p, TOKEN_AT);
+              eat(p, TOKEN_IDENTIFIER);
+              eat(p, TOKEN_IMPORT);
+              char* fname = NULL;
+              if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
+                  fname = parser_strdup(p, p->current_token.text);
+                  eat(p, p->current_token.type);
+              } else if (p->current_token.type == TOKEN_IDENTIFIER) {
+                  fname = parser_strdup(p, p->current_token.text);
+                  eat(p, TOKEN_IDENTIFIER);
+              } else {
+                  parser_fail(p, "Expected file path after '@c import'");
+                  return NULL;
+              }
+              if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
+              ImportNode *imp = parser_alloc(p, sizeof(ImportNode));
+              imp->base.type = NODE_IMPORT;
+              imp->base.line = p->current_token.line;
+              imp->base.col = p->current_token.col;
+              imp->path = fname;
+              imp->resolved_body = NULL;
+              imp->header = HEADER_C;
+              return (ASTNode*)imp;
+          }
+      }
   }
 
   int modifiers = parse_modifiers(p);

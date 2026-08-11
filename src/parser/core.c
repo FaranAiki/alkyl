@@ -996,6 +996,22 @@ Token parser_peek_token(Parser *p) {
     return eof;
 }
 
+Token parser_peek_token_n(Parser *p, int offset) {
+    if (p->expansion_head) {
+        int pos = p->expansion_head->pos + offset;
+        if (pos < p->expansion_head->count) {
+            return p->expansion_head->tokens[pos];
+        }
+    }
+    if (p->tokens && p->token_pos + offset < p->token_count) {
+        return p->tokens[p->token_pos + offset];
+    }
+    Token eof;
+    memset(&eof, 0, sizeof(Token));
+    eof.type = TOKEN_EOF;
+    return eof;
+}
+
 static Token parser_peek_past_parens(Parser *p) {
     if (p->current_token.type != TOKEN_LPAREN) {
         return p->current_token;

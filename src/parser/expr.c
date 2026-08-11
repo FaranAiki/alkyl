@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+Token parser_peek_token_n(Parser *p, int offset);
 
 ASTNode* parse_unary(Parser *p);
 
@@ -461,6 +462,28 @@ ASTNode* parse_factor(Parser *p) {
       u->operand = expr;
       node = (ASTNode*)u;
       set_loc(node, line, col);
+  }
+  else if (p->current_token.type == TOKEN_AT) {
+      Token after_at = parser_peek_token(p);
+      if (after_at.type == TOKEN_IDENTIFIER && streq_lit(after_at.text, "c")) {
+          Token after_c = parser_peek_token_n(p, 1);
+          if (after_c.type == TOKEN_IMPORT) {
+              eat(p, TOKEN_AT);
+              eat(p, TOKEN_IDENTIFIER);
+              eat(p, TOKEN_IMPORT);
+              eat(p, TOKEN_LPAREN);
+              ASTNode *path_expr = parse_expression(p);
+              eat(p, TOKEN_RPAREN);
+              ImportExprNode *ie = parser_alloc(p, sizeof(ImportExprNode));
+              ie->base.type = NODE_IMPORT_EXPR;
+              ie->path = NULL;
+              if (path_expr && path_expr->type == NODE_LITERAL && ((LiteralNode*)path_expr)->var_type.base == TYPE_CHAR && ((LiteralNode*)path_expr)->var_type.ptr_depth == 1) {
+                  ie->path = parser_strdup(p, ((LiteralNode*)path_expr)->val.str_val);
+              }
+              node = (ASTNode*)ie;
+              set_loc(node, line, col);
+          }
+      }
   }
   else if (p->current_token.type == TOKEN_IMPORT) {
       eat(p, TOKEN_IMPORT);

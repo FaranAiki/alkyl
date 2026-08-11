@@ -1,4 +1,34 @@
 #include "link.h"
+#include "../parser/c_parser.h"
+
+static ASTNode* resolve_c_import(Parser *p, const char *fname) {
+    if (p->ctx) {
+        ASTNode *cached = (ASTNode*)hashmap_get(&p->ctx->import_cache, fname);
+        if (cached) return NULL;
+    }
+
+    char *src = read_import_file(p, fname);
+    if (!src) {
+        char msg[512];
+        snprintf(msg, 512, "Could not open C header file: '%s'", fname);
+        parser_fail(p, msg);
+        return NULL;
+    }
+
+    CParser cp;
+    c_parser_init(&cp, p->ctx, fname, src);
+    ASTNode *c_nodes = c_parse_header(&cp);
+
+    if (p->ctx) {
+        if (!c_nodes) {
+            c_nodes = parser_alloc(p, sizeof(ASTNode));
+            c_nodes->type = NODE_ROOT;
+        }
+        hashmap_put(&p->ctx->import_cache, fname, c_nodes);
+    }
+
+    return c_nodes;
+}
 
 ASTNode* parse_import_internal(Parser *p, const char *fname) {
    if (p->ctx) {
@@ -166,7 +196,12 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
         
         import_stack_push(stack, path);
         
-        ASTNode *resolved = parse_import_internal(p, path);
+        ASTNode *resolved = NULL;
+        if (in->header == HEADER_C) {
+            resolved = resolve_c_import(p, path);
+        } else {
+            resolved = parse_import_internal(p, path);
+        }
         
         import_stack_pop(stack);
         

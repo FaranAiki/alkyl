@@ -67,6 +67,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
 VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarType *replace_with, int num_params, char **rename_from, char **rename_to, int num_renames);
 
 Token parser_peek_token(Parser *p);
+Token parser_peek_token_n(Parser *p, int offset);
 void parser_prescan(Parser *p);
 void parser_set_default_import_paths(ParserSettings *ps);
 

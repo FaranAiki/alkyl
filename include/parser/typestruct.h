@@ -548,10 +548,17 @@ typedef struct {
   ASTNode *value;
 } NamedArgNode;
 
+typedef enum {
+  HEADER_ALKYL,
+  HEADER_C,
+  HEADER_CPP
+} HeaderType;
+
 typedef struct {
   ASTNode base;
   char *path;
   ASTNode *resolved_body;
+  HeaderType header;
 } ImportNode;
 
 typedef struct {
