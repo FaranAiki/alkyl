@@ -222,120 +222,122 @@ define _r_ilogbf as __raw_math.ilogbf;
 define _r_scalbnf as __raw_math.scalbnf;
 define _r_scalblnf as __raw_math.scalblnf;
 
-public open namespace math {
+/* export */ public open namespace math {
 
 const double pi = 3.14159265358979323846;
 // const Complex i = Complex();
 
-pure double atan2(double y, double x) { return _r_atan2(y, x); }
-pure single atan2(single y, single x) { return _r_atan2f(y, x); }
+pure {
+double atan2(double y, double x) { return _r_atan2(y, x); }
+single atan2(single y, single x) { return _r_atan2f(y, x); }
 
-pure single sin(single n) { return _r_sinf(n); }
-pure single cos(single n) { return _r_cosf(n); }
-pure single tan(single n) { return _r_tanf(n); }
+single sin(single n) { return _r_sinf(n); }
+single cos(single n) { return _r_cosf(n); }
+single tan(single n) { return _r_tanf(n); }
 
-pure double sin(double n) { return _r_sin(n); }
-pure double cos(double n) { return _r_cos(n); }
-pure double tan(double n) { return _r_tan(n); }
+double sin(double n) { return _r_sin(n); }
+double cos(double n) { return _r_cos(n); }
+double tan(double n) { return _r_tan(n); }
 
-pure single asin(single n) { return _r_asinf(n); }
-pure single acos(single n) { return _r_acosf(n); }
-pure single atan(single n) { return _r_atanf(n); }
+single asin(single n) { return _r_asinf(n); }
+single acos(single n) { return _r_acosf(n); }
+single atan(single n) { return _r_atanf(n); }
 
-pure double asin(double n) { return _r_asin(n); }
-pure double acos(double n) { return _r_acos(n); }
-pure double atan(double n) { return _r_atan(n); }
+double asin(double n) { return _r_asin(n); }
+double acos(double n) { return _r_acos(n); }
+double atan(double n) { return _r_atan(n); }
 
-pure single sinh(single n) { return _r_sinhf(n); }
-pure single cosh(single n) { return _r_coshf(n); }
-pure single tanh(single n) { return _r_tanhf(n); }
+single sinh(single n) { return _r_sinhf(n); }
+single cosh(single n) { return _r_coshf(n); }
+single tanh(single n) { return _r_tanhf(n); }
 
-pure double sinh(double n) { return _r_sinh(n); }
-pure double cosh(double n) { return _r_cosh(n); }
-pure double tanh(double n) { return _r_tanh(n); }
+double sinh(double n) { return _r_sinh(n); }
+double cosh(double n) { return _r_cosh(n); }
+double tanh(double n) { return _r_tanh(n); }
 
-pure single exp(single n) { return _r_expf(n); }
-pure single exp2(single n) { return _r_exp2f(n); }
-pure single expm1(single n) { return _r_expm1f(n); }
+single exp(single n) { return _r_expf(n); }
+single exp2(single n) { return _r_exp2f(n); }
+single expm1(single n) { return _r_expm1f(n); }
 
-pure double exp(double n) { return _r_exp(n); }
-pure double exp2(double n) { return _r_exp2(n); }
-pure double expm1(double n) { return _r_expm1(n); }
+double exp(double n) { return _r_exp(n); }
+double exp2(double n) { return _r_exp2(n); }
+double expm1(double n) { return _r_expm1(n); }
 
-pure single log(single n) { return _r_logf(n); }
-pure single log10(single n) { return _r_log10f(n); }
-pure single log2(single n) { return _r_log2f(n); }
-pure single log1p(single n) { return _r_log1pf(n); }
+single log(single n) { return _r_logf(n); }
+single log10(single n) { return _r_log10f(n); }
+single log2(single n) { return _r_log2f(n); }
+single log1p(single n) { return _r_log1pf(n); }
 
-pure double log(double n) { return _r_log(n); }
-pure double log10(double n) { return _r_log10(n); }
-pure double log2(double n) { return _r_log2(n); }
-pure double log1p(double n) { return _r_log1p(n); }
+double log(double n) { return _r_log(n); }
+double log10(double n) { return _r_log10(n); }
+double log2(double n) { return _r_log2(n); }
+double log1p(double n) { return _r_log1p(n); }
 
-pure single pow(single a, single b) { return _r_powf(a, b); }
-pure single sqrt(single n) { return _r_sqrtf(n); }
-pure single cbrt(single n) { return _r_cbrtf(n); }
-pure single hypot(single a, single b) { return _r_hypotf(a, b); }
+single pow(single a, single b) { return _r_powf(a, b); }
+single sqrt(single n) { return _r_sqrtf(n); }
+single cbrt(single n) { return _r_cbrtf(n); }
+single hypot(single a, single b) { return _r_hypotf(a, b); }
 
-pure double pow(double a, double b) { return _r_pow(a, b); }
-pure double sqrt(double n) { return _r_sqrt(n); }
-pure double cbrt(double n) { return _r_cbrt(n); }
-pure double hypot(double a, double b) { return _r_hypot(a, b); }
+double pow(double a, double b) { return _r_pow(a, b); }
+double sqrt(double n) { return _r_sqrt(n); }
+double cbrt(double n) { return _r_cbrt(n); }
+double hypot(double a, double b) { return _r_hypot(a, b); }
 
-pure single erf(single n) { return _r_erff(n); }
-pure single erfc(single n) { return _r_erfcf(n); }
-pure single lgamma(single n) { return _r_lgammaf(n); }
-pure single tgamma(single n) { return _r_tgammaf(n); }
+single erf(single n) { return _r_erff(n); }
+single erfc(single n) { return _r_erfcf(n); }
+single lgamma(single n) { return _r_lgammaf(n); }
+single tgamma(single n) { return _r_tgammaf(n); }
 
-pure double erf(double n) { return _r_erf(n); }
-pure double erfc(double n) { return _r_erfc(n); }
-pure double lgamma(double n) { return _r_lgamma(n); }
-pure double tgamma(double n) { return _r_tgamma(n); }
+double erf(double n) { return _r_erf(n); }
+double erfc(double n) { return _r_erfc(n); }
+double lgamma(double n) { return _r_lgamma(n); }
+double tgamma(double n) { return _r_tgamma(n); }
 
-pure single ceil(single n) { return _r_ceilf(n); }
-pure single floor(single n) { return _r_floorf(n); }
-pure single round(single n) { return _r_roundf(n); }
-pure single trunc(single n) { return _r_truncf(n); }
-pure single nearbyint(single n) { return _r_nearbyintf(n); }
-pure single rint(single n) { return _r_rintf(n); }
+single ceil(single n) { return _r_ceilf(n); }
+single floor(single n) { return _r_floorf(n); }
+single round(single n) { return _r_roundf(n); }
+single trunc(single n) { return _r_truncf(n); }
+single nearbyint(single n) { return _r_nearbyintf(n); }
+single rint(single n) { return _r_rintf(n); }
 
-pure double ceil(double n) { return _r_ceil(n); }
-pure double floor(double n) { return _r_floor(n); }
-pure double round(double n) { return _r_round(n); }
-pure double trunc(double n) { return _r_trunc(n); }
-pure double nearbyint(double n) { return _r_nearbyint(n); }
-pure double rint(double n) { return _r_rint(n); }
+double ceil(double n) { return _r_ceil(n); }
+double floor(double n) { return _r_floor(n); }
+double round(double n) { return _r_round(n); }
+double trunc(double n) { return _r_trunc(n); }
+double nearbyint(double n) { return _r_nearbyint(n); }
+double rint(double n) { return _r_rint(n); }
 
-pure single abs(single n) { return _r_fabsf(n); }
-pure double abs(double n) { return _r_fabs(n); }
+single abs(single n) { return _r_fabsf(n); }
+double abs(double n) { return _r_fabs(n); }
 
-pure single fmod(single a, single b) { return _r_fmodf(a, b); }
-pure single fmax(single a, single b) { return _r_fmaxf(a, b); }
-pure single fmin(single a, single b) { return _r_fminf(a, b); }
-pure single remainder(single a, single b) { return _r_remainderf(a, b); }
+single fmod(single a, single b) { return _r_fmodf(a, b); }
+single fmax(single a, single b) { return _r_fmaxf(a, b); }
+single fmin(single a, single b) { return _r_fminf(a, b); }
+single remainder(single a, single b) { return _r_remainderf(a, b); }
 
-pure double fmod(double a, double b) { return _r_fmod(a, b); }
-pure double fmax(double a, double b) { return _r_fmax(a, b); }
-pure double fmin(double a, double b) { return _r_fmin(a, b); }
-pure double remainder(double a, double b) { return _r_remainder(a, b); }
+double fmod(double a, double b) { return _r_fmod(a, b); }
+double fmax(double a, double b) { return _r_fmax(a, b); }
+double fmin(double a, double b) { return _r_fmin(a, b); }
+double remainder(double a, double b) { return _r_remainder(a, b); }
 
-pure single nextafter(single from, single to) { return _r_nextafterf(from, to); }
-pure single fma(single a, single b, single c) { return _r_fmaf(a, b, c); }
+single nextafter(single from, single to) { return _r_nextafterf(from, to); }
+single fma(single a, single b, single c) { return _r_fmaf(a, b, c); }
 
-pure double nextafter(double from, double to) { return _r_nextafter(from, to); }
-pure double fma(double a, double b, double c) { return _r_fma(a, b, c); }
+double nextafter(double from, double to) { return _r_nextafter(from, to); }
+double fma(double a, double b, double c) { return _r_fma(a, b, c); }
 
-pure int ilogb(double n) { return _r_ilogb(n); }
-pure int ilogb(single n) { return _r_ilogbf(n); }
+int ilogb(double n) { return _r_ilogb(n); }
+int ilogb(single n) { return _r_ilogbf(n); }
 
-pure single scalbn(single n, int result_exp) { return _r_scalbnf(n, result_exp); }
-pure double scalbn(double n, int result_exp) { return _r_scalbn(n, result_exp); }
+single scalbn(single n, int result_exp) { return _r_scalbnf(n, result_exp); }
+double scalbn(double n, int result_exp) { return _r_scalbn(n, result_exp); }
 
-pure single scalbln(single n, long result_exp) { return _r_scalblnf(n, result_exp); }
-pure double scalbln(double n, long result_exp) { return _r_scalbln(n, result_exp); }
+single scalbln(single n, long result_exp) { return _r_scalblnf(n, result_exp); }
+double scalbln(double n, long result_exp) { return _r_scalbln(n, result_exp); }
 
-pure single copysign(single mag, single sgn) { return _r_copysignf(mag, sgn); }
-pure double copysign(double mag, double sgn) { return _r_copysign(mag, sgn); }
+single copysign(single mag, single sgn) { return _r_copysignf(mag, sgn); }
+double copysign(double mag, double sgn) { return _r_copysign(mag, sgn); }
+}
 
 compound[type Type] abstract container class frexp_result {
     Type mantissa;

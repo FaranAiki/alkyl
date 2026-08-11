@@ -5,9 +5,9 @@
 // Helper to construct a temporary lexer for reporting
 static void setup_report_lexer(Lexer *l, SemanticCtx *ctx, const char *filename, const char *source) {
     if (ctx->compiler_ctx) {
-        lexer_init(l, ctx->compiler_ctx, 
-            filename ? filename : ctx->current_filename, 
-            source ? source : ctx->current_source, 
+        lexer_init(l, ctx->compiler_ctx,
+            filename ? filename : ctx->current_filename,
+            source ? source : ctx->current_source,
             NULL);
     } else {
         l->ctx = NULL;
@@ -26,15 +26,15 @@ void sem_hint(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     if (node && ctx->current_source) {
         Lexer l;
         setup_report_lexer(&l, ctx, node->filename, node->source);
-        
+
         Token t;
         t.line = node->line;
         t.col = node->col;
-        t.type = TOKEN_UNKNOWN; 
+        t.type = TOKEN_UNKNOWN;
         t.text = NULL;
-        t.int_val = 0; 
+        t.int_val = 0;
         t.double_val = 0.0;
-        
+
         report_hint(&l, t, msg);
     } else {
         fprintf(stderr, "%shint:%s %s\n", DIAG_YELLOW, DIAG_RESET, msg);
@@ -45,7 +45,7 @@ void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     if (ctx->compiler_ctx) {
         ctx->compiler_ctx->semantic_error_count++;
     }
-    
+
     char msg[1024];
     va_list args;
     va_start(args, fmt);
@@ -55,15 +55,15 @@ void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     if (node && ctx->current_source) {
         Lexer l;
         setup_report_lexer(&l, ctx, node->filename, node->source);
-        
+
         Token t;
         t.line = node->line;
         t.col = node->col;
-        t.type = TOKEN_UNKNOWN; 
+        t.type = TOKEN_UNKNOWN;
         t.text = NULL;
-        t.int_val = 0; 
+        t.int_val = 0;
         t.double_val = 0.0;
-        
+
         report_error(&l, t, msg);
     } else {
         if (node) {
@@ -81,9 +81,9 @@ static int check_class_size_cycle(SemanticCtx *ctx, SemSymbol *sym) {
         return 0; // Cycle detected
     }
     if (sym->must_pristine) return 1; // already visited
-    
+
     sym->must_pure = 1; // mark as visiting
-    
+
     // Check parent
     if (sym->parent_name) {
         SemSymbol *p = sem_symbol_lookup(ctx, sym->parent_name, NULL);
@@ -105,7 +105,7 @@ static int check_class_size_cycle(SemanticCtx *ctx, SemSymbol *sym) {
             f = f->next;
         }
     }
-    
+
     sym->must_pure = 0;
     sym->must_pristine = 1; // marked as fully visited
     return 1;
@@ -121,13 +121,13 @@ void sem_warning(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     if (node && ctx->current_source) {
         Lexer l;
         setup_report_lexer(&l, ctx, node->filename, node->source);
-        
+
         Token t;
         t.line = node->line;
         t.col = node->col;
-        t.type = TOKEN_UNKNOWN; 
+        t.type = TOKEN_UNKNOWN;
         t.text = NULL;
-        
+
         report_warning(&l, t, msg);
     } else {
         if (node) {
@@ -148,30 +148,32 @@ void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     if (ctx->current_source && node) {
         Lexer l;
         setup_report_lexer(&l, ctx, node->filename, node->source);
-        
+
         Token t;
         t.line = node->line;
         t.col = node->col;
-        t.type = TOKEN_UNKNOWN; 
+        t.type = TOKEN_UNKNOWN;
         t.text = NULL;
-        t.int_val = 0; 
+        t.int_val = 0;
         t.double_val = 0.0;
-        
+
         report_info(&l, t, msg);
     } else {
         fprintf(stderr, "[Semantic Info] %s\n", msg);
     }
 }
 
+// TODO: make sure that
+// ErrFileNotFound(char* fn) is possible!
 void sem_register_builtins(SemanticCtx *ctx) {
     if (ctx->compiler_ctx) {
         VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-        
+
         // Always inject ErrNull to the global scope
         SemSymbol *sym_null = sem_symbol_add(ctx, "ErrNull", SYM_VAR, err_type);
         sym_null->is_initialized = 1;
         sym_null->is_mutable = 0;
-        
+
         if (!ctx->compiler_ctx->settings.no_purge) {
             if (!hashmap_get(&ctx->compiler_ctx->error_table, "ErrDivisionByZero")) {
                 int id = ctx->compiler_ctx->next_error_id++;
@@ -186,7 +188,7 @@ void sem_register_builtins(SemanticCtx *ctx) {
 
 int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
     if (!root) return 0;
-    
+
     ASTNode **tail = &root;
     while (*tail && (*tail)->next) {
         tail = &(*tail)->next;
@@ -196,10 +198,10 @@ int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
     } else {
         ctx->ast_tail = tail;
     }
-    
+
     sem_register_builtins(ctx);
     sem_scan_top_level(ctx, root);
-    
+
     // Pass 1.5: Structural validations (Inheritance, Traits)
     ASTNode *curr_val = root;
     while (curr_val) {
@@ -237,7 +239,7 @@ int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
         }
         curr = curr->next;
     }
-    
+
     // Cycle Detection for Class Sizes
     if (ctx->global_scope) {
         SemSymbol *r = ctx->global_scope->symbols;
@@ -252,7 +254,7 @@ int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
             gsym = gsym->next;
         }
     }
-    
+
     // Final structural validations (naked, reactive) globally
     if (ctx->global_scope) {
         SemSymbol *gsym = ctx->global_scope->symbols;
