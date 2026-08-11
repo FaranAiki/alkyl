@@ -61,6 +61,7 @@ typedef struct SemSymbol {
     bool must_total : 1;
     bool is_closed : 1;
     bool is_private : 1;
+    bool is_exported : 1;
     bool is_partial : 1;
     bool must_partial : 1;
     bool is_union : 1;

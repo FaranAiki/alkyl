@@ -53,7 +53,8 @@ typedef enum {
   NODE_COMPOUND,
   NODE_TEMPLATE_INSTANTIATION,
   NODE_NAMED_ARG,
-  NODE_IMPORT
+  NODE_IMPORT,
+  NODE_IMPORT_EXPR
 } NodeType;
 
 typedef enum {
@@ -286,6 +287,7 @@ typedef struct {
   bool is_open : 1;
   bool is_closed : 1;
   bool is_private : 1;
+  bool is_exported : 1;
 } NamespaceNode;
 
 typedef struct {
@@ -551,5 +553,10 @@ typedef struct {
   char *path;
   ASTNode *resolved_body;
 } ImportNode;
+
+typedef struct {
+  ASTNode base;
+  char *path;
+} ImportExprNode;
 
 #endif // PARSER_TYPESTRUCT_H

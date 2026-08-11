@@ -181,6 +181,8 @@ void sem_symbolic_namespace(SemanticCtx *ctx, ASTNode *node) {
     const char *old_ns = arena_strdup(ctx->compiler_ctx->arena, diag_get_namespace(ctx->compiler_ctx));
     diag_set_namespace(ctx->compiler_ctx, ns->name);
     
+    sym->is_exported = ns->is_exported;
+    
     sem_scan_top_level(ctx, ns->body);
     
     diag_set_namespace(ctx->compiler_ctx, old_ns);

@@ -438,6 +438,55 @@ ASTNode* parse_top_level_internal(Parser *p) {
       return (ASTNode*)ns;
   }
 
+  if (p->current_token.type == TOKEN_EXPORT && parser_peek_token(p).type == TOKEN_NAMESPACE) {
+      eat(p, TOKEN_EXPORT);
+      eat(p, TOKEN_NAMESPACE);
+      
+      char *ns_name = NULL;
+      if (p->current_token.type == TOKEN_IDENTIFIER) {
+          ns_name = parser_strdup(p, p->current_token.text);
+          eat(p, TOKEN_IDENTIFIER);
+      } else if (p->current_token.type == TOKEN_LBRACE) {
+          char buf[64];
+          static int anon_ns_counter = 0;
+          snprintf(buf, sizeof(buf), "__anon_ns_%d", ++anon_ns_counter);
+          ns_name = parser_strdup(p, buf);
+      } else {
+          parser_fail(p, "Expected namespace name or '{'");
+          return NULL;
+      }
+
+      char *old_ns = parser_strdup(p, diag_get_namespace(p->ctx));
+      diag_set_namespace(p->ctx, ns_name);
+
+      eat(p, TOKEN_LBRACE);
+
+      ASTNode *body_head = NULL;
+      ASTNode **body_curr = &body_head;
+
+      while(p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
+          ASTNode *n = parse_top_level(p);
+          if (n) {
+              *body_curr = n;
+              while (*body_curr) body_curr = &(*body_curr)->next;
+          }
+      }
+      eat(p, TOKEN_RBRACE);
+
+      diag_set_namespace(p->ctx, old_ns);
+
+      NamespaceNode *ns = parser_alloc(p, sizeof(NamespaceNode));
+      ns->base.type = NODE_NAMESPACE;
+      ns->name = ns_name;
+      ns->body = body_head;
+      
+      ns->is_open = 1;
+      ns->is_closed = 0;
+      ns->is_private = 0;
+      ns->is_exported = 1;
+      return (ASTNode*)ns;
+  }
+
   if (p->current_token.type == TOKEN_DEFINE) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_define(p); }
   if (p->current_token.type == TOKEN_TYPEDEF) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_typedef(p); }
   if (p->current_token.type == TOKEN_ENUM) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_enum(p); }
@@ -673,7 +722,24 @@ ASTNode* parse_top_level_internal(Parser *p) {
   }
 
   if (p->current_token.type == TOKEN_LINK) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_link(p); }
-  if (p->current_token.type == TOKEN_IMPORT) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_import(p); }
+  if (p->current_token.type == TOKEN_IMPORT) {
+      if (parser_peek_token(p).type == TOKEN_LPAREN) {
+          if(modifiers) parser_fail(p, "Modifiers not allowed");
+          eat(p, TOKEN_IMPORT);
+          eat(p, TOKEN_LPAREN);
+          ASTNode *path_expr = parse_expression(p);
+          eat(p, TOKEN_RPAREN);
+          ImportExprNode *ie = parser_alloc(p, sizeof(ImportExprNode));
+          ie->base.type = NODE_IMPORT_EXPR;
+          ie->path = NULL;
+          if (path_expr && path_expr->type == NODE_LITERAL && ((LiteralNode*)path_expr)->var_type.base == TYPE_CHAR && ((LiteralNode*)path_expr)->var_type.ptr_depth == 1) {
+              ie->path = parser_strdup(p, ((LiteralNode*)path_expr)->val.str_val);
+          }
+          return (ASTNode*)ie;
+      }
+      if(modifiers) { parser_fail(p, "Modifiers not allowed"); }
+      return parse_import(p);
+  }
   if (p->current_token.type == TOKEN_EXTERN) return parse_extern(p, modifiers);
 
   if (p->current_token.type == TOKEN_KW_MUT || p->current_token.type == TOKEN_KW_IMUT) {

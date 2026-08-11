@@ -159,6 +159,7 @@ typedef enum {
   TOKEN_CONST,
 
   TOKEN_IMPORT,
+  TOKEN_EXPORT,
   TOKEN_EXTERN,
   TOKEN_LINK,
   TOKEN_REASON,
@@ -294,6 +295,7 @@ static const KeywordDef keywords[] = {
     {"enum", TOKEN_ENUM},
     {"errnum", TOKEN_ERRNUM},
     {"exact", TOKEN_EXACT},
+    {"export", TOKEN_EXPORT},
     {"extended", TOKEN_EXTENDED},
     {"extern", TOKEN_EXTERN},
     {"false", TOKEN_FALSE},

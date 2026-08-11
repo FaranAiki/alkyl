@@ -1004,6 +1004,23 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             ti->is_evaluated = 1;
             break;
         }
+        case NODE_IMPORT_EXPR: {
+            ImportExprNode *ie = (ImportExprNode*)node;
+            if (ie->path) {
+                SemSymbol *ns_sym = sem_symbol_lookup(ctx, ie->path, NULL);
+                if (ns_sym && ns_sym->kind == SYM_NAMESPACE) {
+                    VarType ns_type = {TYPE_NAMESPACE, 0, arena_strdup(ctx->compiler_ctx->arena, ns_sym->name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+                    sem_set_node_type(ctx, node, ns_type);
+                } else {
+                    sem_error(ctx, node, "import('%s'): namespace not found", ie->path);
+                    sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+                }
+            } else {
+                sem_error(ctx, node, "import() requires a string literal path");
+                sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            }
+            break;
+        }
         default: break;
     }
 }

@@ -192,6 +192,10 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
         return resolved;
     }
     
+    if (node->type == NODE_IMPORT_EXPR) {
+        return node;
+    }
+    
     if (node->type == NODE_NAMESPACE) {
         ASTNode **curr = &((NamespaceNode*)node)->body;
         while (*curr) {

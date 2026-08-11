@@ -82,7 +82,7 @@ static int is_unambiguous_expr_start(Parser *p) {
            t == TOKEN_CHAR_LIT || t == TOKEN_LPAREN || t == TOKEN_LBRACKET ||
            t == TOKEN_TYPEOF || t == TOKEN_KW_SIZEOF || t == TOKEN_KW_ALIGNOF ||
            t == TOKEN_KW_DEFINED || t == TOKEN_HASMETHOD || t == TOKEN_HASATTRIBUTE ||
-           t == TOKEN_NOT || t == TOKEN_BIT_NOT;
+           t == TOKEN_NOT || t == TOKEN_BIT_NOT || t == TOKEN_IMPORT;
 }
 
 static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
@@ -460,6 +460,20 @@ ASTNode* parse_factor(Parser *p) {
       u->base.type = NODE_HAS_ATTRIBUTE;
       u->operand = expr;
       node = (ASTNode*)u;
+      set_loc(node, line, col);
+  }
+  else if (p->current_token.type == TOKEN_IMPORT) {
+      eat(p, TOKEN_IMPORT);
+      eat(p, TOKEN_LPAREN);
+      ASTNode *path_expr = parse_expression(p);
+      eat(p, TOKEN_RPAREN);
+      ImportExprNode *ie = parser_alloc(p, sizeof(ImportExprNode));
+      ie->base.type = NODE_IMPORT_EXPR;
+      ie->path = NULL;
+      if (path_expr && path_expr->type == NODE_LITERAL && ((LiteralNode*)path_expr)->var_type.base == TYPE_CHAR && ((LiteralNode*)path_expr)->var_type.ptr_depth == 1) {
+          ie->path = parser_strdup(p, ((LiteralNode*)path_expr)->val.str_val);
+      }
+      node = (ASTNode*)ie;
       set_loc(node, line, col);
   }
   else if (p->current_token.type == TOKEN_LBRACKET) {
