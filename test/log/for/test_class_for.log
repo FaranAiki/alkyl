@@ -14,49 +14,49 @@ debug: semantic: sem_check_block: ns='clib'
 debug: semantic: sem_check_block: ns='clib'
 debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
 debug: diag_set_namespace: after set, current='main'
-debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55ba6a0843c8
+debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55b275fcd3d0
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=6 col=17 node=0x55ba6a084528
-debug: semantic: sem_check_expr: type=14 line=7 col=17 node=0x55ba6a0847a8
-debug: semantic: sem_check_expr: type=13 line=7 col=15 node=0x55ba6a084688
-debug: semantic: sem_check_expr: type=16 line=7 col=19 node=0x55ba6a084708
+debug: semantic: sem_check_expr: type=16 line=6 col=17 node=0x55b275fcd530
+debug: semantic: sem_check_expr: type=14 line=7 col=17 node=0x55b275fcd7b0
+debug: semantic: sem_check_expr: type=13 line=7 col=15 node=0x55b275fcd690
+debug: semantic: sem_check_expr: type=16 line=7 col=19 node=0x55b275fcd710
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=13 line=8 col=18 node=0x55ba6a084850
-debug: semantic: sem_check_expr: type=19 line=9 col=14 node=0x55ba6a0849c0
-debug: semantic: sem_check_expr: type=13 line=9 col=13 node=0x55ba6a084940
-debug: semantic: sem_check_expr: type=16 line=11 col=16 node=0x55ba6a084ad0
+debug: semantic: sem_check_expr: type=13 line=8 col=18 node=0x55b275fcd858
+debug: semantic: sem_check_expr: type=19 line=9 col=14 node=0x55b275fcd9c8
+debug: semantic: sem_check_expr: type=13 line=9 col=13 node=0x55b275fcd948
+debug: semantic: sem_check_expr: type=16 line=11 col=16 node=0x55b275fcdad8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=0 col=0 node=0x55ba6a095dd8
+debug: semantic: sem_check_expr: type=2 line=0 col=0 node=0x55b275fdedd8
 debug: semantic: sem_check_call: name='Range', ns='main'
 debug: parser: clone_var_type fallback: class_name=(null) array_size=0 array_depth=0
-debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55ba6a095eb0
-debug: semantic: sem_check_expr: type=27 line=18 col=17 node=0x55ba6a084fd0
-debug: semantic: sem_check_expr: type=13 line=18 col=5 node=0x55ba6a084e38
-debug: semantic: sem_check_expr: type=16 line=18 col=17 node=0x55ba6a084f30
-debug: semantic: sem_check_expr: type=16 line=18 col=17 node=0x55ba6a084f30
-debug: semantic: sem_check_expr: type=13 line=19 col=16 node=0x55ba6a085068
-debug: semantic: sem_check_expr: type=13 line=19 col=16 node=0x55ba6a085068
-debug: semantic: sem_check_expr: type=27 line=19 col=16 node=0x55ba6a096188
-debug: semantic: sem_check_expr: type=13 line=19 col=16 node=0x55ba6a085068
-debug: semantic: sem_lookup_class_call for 'Range', class_sym=0x55ba6a094e28
+debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55b275fdeeb0
+debug: semantic: sem_check_expr: type=27 line=18 col=17 node=0x55b275fcdfd8
+debug: semantic: sem_check_expr: type=13 line=18 col=5 node=0x55b275fcde40
+debug: semantic: sem_check_expr: type=16 line=18 col=17 node=0x55b275fcdf38
+debug: semantic: sem_check_expr: type=16 line=18 col=17 node=0x55b275fcdf38
+debug: semantic: sem_check_expr: type=13 line=19 col=16 node=0x55b275fce070
+debug: semantic: sem_check_expr: type=13 line=19 col=16 node=0x55b275fce070
+debug: semantic: sem_check_expr: type=27 line=19 col=16 node=0x55b275fdf188
+debug: semantic: sem_check_expr: type=13 line=19 col=16 node=0x55b275fce070
+debug: semantic: sem_lookup_class_call for 'Range', class_sym=0x55b275fdde28
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=27 line=20 col=21 node=0x55ba6a085300
-debug: semantic: sem_check_expr: type=13 line=20 col=9 node=0x55ba6a0850e8
-debug: semantic: sem_check_expr: type=16 line=20 col=21 node=0x55ba6a0851e0
-debug: semantic: sem_check_expr: type=13 line=20 col=30 node=0x55ba6a085280
-debug: semantic: sem_check_expr: type=16 line=20 col=21 node=0x55ba6a0851e0
-debug: semantic: sem_check_expr: type=16 line=23 col=12 node=0x55ba6a085448
+debug: semantic: sem_check_expr: type=27 line=20 col=21 node=0x55b275fce308
+debug: semantic: sem_check_expr: type=13 line=20 col=9 node=0x55b275fce0f0
+debug: semantic: sem_check_expr: type=16 line=20 col=21 node=0x55b275fce1e8
+debug: semantic: sem_check_expr: type=13 line=20 col=30 node=0x55b275fce288
+debug: semantic: sem_check_expr: type=16 line=20 col=21 node=0x55b275fce1e8
+debug: semantic: sem_check_expr: type=16 line=23 col=12 node=0x55b275fce450
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Range
-debug: alir: DEBUG_REGISTER: st=0x55ba6a099e30 name=Range next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55b275fe2e30 name=Range next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - Range fields: 1
 debug: alir: Found namespace clib
 debug: alir: Found func_def printf
 debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
 debug: alir: alir_add_function: printf
-debug: alir: DEBUG_REGISTER: st=0x55ba6a09a188 name=FluxCtx_main_Range_iterate next=0x55ba6a099e30
+debug: alir: DEBUG_REGISTER: st=0x55b275fe3188 name=FluxCtx_main_Range_iterate next=0x55b275fe2e30
 debug: alir: alir_add_function: main_Range_iterate
 debug: alir: alir_add_function: main_Range_iterate_Resume
 debug: alir: alir_add_function: Range
@@ -162,7 +162,7 @@ step: Finished alir optimization. Start code generation using LLVM codegen
 debug: codegen: struct=FluxCtx_main_Range_iterate fields=6
 debug: codegen: struct=Range fields=1
 debug: codegen: Field 0: base=1 ptr_depth=0
-debug: codegen: Field 1: base=1779015744 ptr_depth=21946
+debug: codegen: Field 1: base=1979592768 ptr_depth=21938
 debug: codegen: Field 2: base=1768843622 ptr_depth=1684367475
 debug: codegen: Field 3: base=2 ptr_depth=0
 debug: codegen: Field 4: base=0 ptr_depth=0

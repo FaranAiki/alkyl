@@ -10,7 +10,9 @@
 #include "optlir/unused.h"
 #include "optlir/local.h"
 #include "common/linker.h"
+#include "common/debug.h"
 #include "parser/c_parser.h"
+#include "parser/emitter.h"
 
 #define BASENAME "build/out"
 #define BASENAME_OPT "build/opt_out"
@@ -23,19 +25,20 @@
 
 static void print_c_ast_node(ASTNode *node, int indent) {
     if (!node) return;
-    for (int i = 0; i < indent; i++) fprintf(stdout, "  ");
+    char indent_str[64] = {0};
+    for (int i = 0; i < indent && i < 30; i++) strcat(indent_str, "  ");
     
     switch (node->type) {
         case NODE_FUNC_DEF: {
             FuncDefNode *fn = (FuncDefNode*)node;
-            fprintf(stdout, "FUNC_DEF: %s extern=%d has_body=%d cconv=%s\n",
-                    fn->name, fn->is_extern, fn->has_body, fn->cconv ? fn->cconv : "none");
+            debug_c_header("%sFUNC_DEF: %s extern=%d has_body=%d cconv=%s\n",
+                    indent_str, fn->name, fn->is_extern, fn->has_body, fn->cconv ? fn->cconv : "none");
             break;
         }
         case NODE_STRUCT: {
             StructNode *sn = (StructNode*)node;
-            fprintf(stdout, "STRUCT: %s is_union=%d has_body=%d\n",
-                    sn->name, sn->is_union, sn->has_body);
+            debug_c_header("%sSTRUCT: %s is_union=%d has_body=%d\n",
+                    indent_str, sn->name, sn->is_union, sn->has_body);
             ASTNode *member = sn->members;
             while (member) {
                 print_c_ast_node(member, indent + 1);
@@ -45,31 +48,42 @@ static void print_c_ast_node(ASTNode *node, int indent) {
         }
         case NODE_ENUM: {
             EnumNode *en = (EnumNode*)node;
-            fprintf(stdout, "ENUM: %s\n", en->name);
+            debug_c_header("%sENUM: %s\n", indent_str, en->name);
             EnumEntry *entry = en->entries;
             while (entry) {
-                for (int i = 0; i < indent + 1; i++) fprintf(stdout, "  ");
-                fprintf(stdout, "  %s = %d\n", entry->name, entry->value);
+                debug_c_header("%s  %s = %d\n", indent_str, entry->name, entry->value);
                 entry = entry->next;
             }
             break;
         }
         case NODE_VAR_DECL: {
             VarDeclNode *var = (VarDeclNode*)node;
-            fprintf(stdout, "VAR_DECL: %s\n", var->name);
+            debug_c_header("%sVAR_DECL: %s\n", indent_str, var->name);
             break;
         }
         default:
-            fprintf(stdout, "NODE_TYPE=%d\n", node->type);
+            debug_c_header("%sNODE_TYPE=%d\n", indent_str, node->type);
             break;
     }
 }
 
-int main(int argc, char *argv[]) {
-    Arena arena;
-    CompilerContext comp_ctx;
+int main(int argc, char **argv) {
+    char *filename = NULL;
+    char *c_header_file = NULL;
+    int parse_c_mode = 0;
+    int emit_alir = 0;
+    int emit_balir = 0;
+    int emit_ast = 0;
+    int optimization_level = 0;
+    char link_flags[1024] = {0};
+    char custom_output_basename[256] = {0};
+    LinkerType current_linker = LINKER_GCC;
+    ParserSettings parser_settings = {0};
 
-    // TODO add this;
+    // We do not care about Windows initially
+    // but if needed, use _mkdir
+    mkdir("build", 0777);
+
     if (argc < 2) {
         printf("Usage: %s <file.kyl|file.zyl> [-l<lib>] [--linker gcc|clang|lld|mold] | --lsp | --parse-c <file.h>\n", argv[0]);
       return 1;
@@ -80,26 +94,10 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    int parse_c_mode = 0;
-    char *c_header_file = NULL;
-
-    char *filename = NULL;
-    char link_flags[1024] = {0};
-    char custom_output_basename[1024] = {0};
-    int emit_alir = 0;
-    int emit_balir = 0;
-    int optimization_level = 0; // 0 = O0, 1 = O1, 2 = O2, 3 = O3, 4 = Os, 5 = Oz
-    LinkerType current_linker = LINKER_GCC;
-
-    ParserSettings parser_settings = {0};
     parser_set_default_import_paths(&parser_settings);
     parser_settings.namespace_auto_search = 1;
     parser_settings.namespace_ausearch_warning = 1;
     parser_settings.function_call_require_comma = 1;
-
-    // We do not care about Windows initially
-    // but if needed, use _mkdir
-    mkdir("build", 0777);
 
     for (int i = 1; i < argc; i++) {
         if (strncmp(argv[i], "-l", 2) == 0) {
@@ -114,6 +112,8 @@ int main(int argc, char *argv[]) {
             emit_alir = 1;
         } else if (streq_lit(argv[i], "--emit-balir")) {
             emit_balir = 1;
+        } else if (streq_lit(argv[i], "--emit-ast")) {
+            emit_ast = 1;
         } else if (streq_lit(argv[i], "--allow-vector-init")) {
             parser_settings.allow_vector_initialization = 1;
         } else if (streq_lit(argv[i], "-c")) {
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
                 else if (streq_lit(argv[i], "mold")) current_linker = LINKER_MOLD;
                 else if (streq_lit(argv[i], "alynk")) current_linker = LINKER_MOLD;
             }
-        } else if (streq_lit(argv[i], "--parse-c")) {
+        } else if (streq_lit(argv[i], "--parse-c") || streq_lit(argv[i], "--c-header")) {
             if (i + 1 < argc) {
                 i++;
                 c_header_file = argv[i];
@@ -158,6 +158,9 @@ int main(int argc, char *argv[]) {
             filename = argv[i];
         }
     }
+
+    Arena arena;
+    CompilerContext comp_ctx;
 
     if (parse_c_mode) {
         if (!c_header_file) {
@@ -177,20 +180,29 @@ int main(int argc, char *argv[]) {
         CParser cp;
         c_parser_init(&cp, &comp_ctx, c_header_file, code);
 
-        fprintf(stdout, "Parsing C header: %s\n", c_header_file);
+        debug_c_header("Parsing C header: %s\n", c_header_file);
         ASTNode *root = c_parse_header(&cp);
 
-        int node_count = 0;
-        ASTNode *curr = root;
-        while (curr) {
-            node_count++;
-            print_c_ast_node(curr, 0);
-            curr = curr->next;
-        }
+        if (emit_ast) {
+            Parser p = {0};
+            p.ctx = &comp_ctx;
+            char *ast_str = parser_to_string(&p, root);
+            if (ast_str) {
+                fprintf(stdout, "%s", ast_str);
+            }
+        } else {
+            int node_count = 0;
+            ASTNode *curr = root;
+            while (curr) {
+                node_count++;
+                print_c_ast_node(curr, 0);
+                curr = curr->next;
+            }
 
-        fprintf(stdout, "\nTotal nodes: %d\n", node_count);
-        fprintf(stdout, "Typedefs registered: %d\n", cp.typedefs.count);
-        fprintf(stdout, "Macros defined: %d\n", cp.defines.count);
+            debug_c_header("Total nodes: %d\n", node_count);
+            debug_c_header("Typedefs registered: %d\n", cp.typedef_map.size);
+            debug_c_header("Macros defined: %d\n", cp.defines.count);
+        }
 
         free(code);
         arena_free(&arena);
@@ -201,7 +213,6 @@ int main(int argc, char *argv[]) {
 
     if (!filename) {
         fprintf(stderr, "No input file specified\n");
-        arena_free(&arena);
         return 1;
     }
 
@@ -223,6 +234,16 @@ int main(int argc, char *argv[]) {
 
     // Resolve imports for AOT compiler
     resolve_imports(&p, &root);
+
+    if (emit_ast) {
+        char *ast_str = parser_to_string(&p, root);
+        if (ast_str) {
+            fprintf(stdout, "%s", ast_str);
+        }
+        free(code);
+        arena_free(&arena);
+        return 0;
+    }
 
     if (comp_ctx.error_count > 0) {
         free(code);

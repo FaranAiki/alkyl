@@ -1,0 +1,18 @@
+step: Finished lexing. Start parsing.
+debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x556906d06298
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x556906d064f0
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x556906d063d0
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=4 col=10 node=0x556906d0c2d8
+at namespace main:
+in .../code/c_interop/test_simple_import.kyl:
+4:10: error: Undefined variable 'printf'
+  |     stdio.printf("Hello");
+  |          ^
+4:10: error: Undefined function or class 'printf'
+  |     stdio.printf("Hello");
+  |          ^
+Semantic analysis failed with 2 errors.
+debug: inferring type for stdio, init_type.base=18
+debug: inferred type test/code/c_interop/test_simple.h for stdio

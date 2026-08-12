@@ -286,7 +286,7 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
     // When passing a tainted pointer to a function expecting a plain pointer,
     // extract the inner value field so the callee writes/reads the real data,
     // not the err_code header.
-    fprintf(stderr, "TAINTED PTR: ctx->module=%p target_name=%s count=%d\n", ctx->module, target_name ? target_name : "NULL", count);
+    debug_alir("TAINTED PTR: ctx->module=%p target_name=%s count=%d\n", ctx->module, target_name ? target_name : "NULL", count);
     if (ctx->module && target_name) {
         AlirFunction *f = ctx->module->functions;
         while (f) {
@@ -448,7 +448,7 @@ AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
             debug_alir("macro: before sem_check_block, ns='%s'\n", diag_get_namespace(ctx->sem->compiler_ctx));
             sem_check_block(ctx->sem, cloned_body);
             debug_alir("macro: after sem_check_block, ns='%s'\n", diag_get_namespace(ctx->sem->compiler_ctx));
-            
+
             // Pop the scope
             ctx->sem->current_scope = macro_scope->parent;
 

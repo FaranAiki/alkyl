@@ -1,0 +1,20 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=foo target_type=13 line=0 col=0 node=0x56365d734330 target=0x56365d734210
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=2 line=2 col=24 node=0x56365d734330
+debug: semantic: sem_check_call: name='foo', ns='main'
+debug: semantic: sem_check_expr: type=13 line=2 col=21 node=0x56365d734210
+at namespace main:
+in .../code/c_interop/test_foo.kyl:
+2:21: error: Undefined variable 'foo'
+  | int main() { return foo(1); }
+  |                     ^
+2:24: error: Undefined function or class 'foo'
+  | int main() { return foo(1); }
+  |                        ^
+DEBUG mismatch: expected base=1 ptr=0, got base=20 ptr=0
+2:14: error: Return type mismatch
+  | int main() { return foo(1); }
+  |              ^
+Semantic analysis failed with 3 errors.

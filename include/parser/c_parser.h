@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "typestruct.h"
 #include "../common/context.h"
+#include "../common/hashmap.h"
 #include "c_lexer.h"
 
 typedef struct CParser CParser;
@@ -15,6 +16,7 @@ struct CParser {
     int has_error;
 
     // Typedef resolution table
+    HashMap typedef_map;
     struct {
         char **names;
         VarType *types;

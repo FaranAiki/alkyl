@@ -1,13 +1,13 @@
 step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: Call line=3 col=12 name=printf target_type=13 node=0x56455e0ef4d8
-debug: semantic: sem_check_expr: type=2 line=3 col=12 node=0x56455e0ef4d8
+debug: semantic: sem_check_block: Call line=3 col=12 name=printf target_type=13 node=0x5585dff934d8
+debug: semantic: sem_check_expr: type=2 line=3 col=12 node=0x5585dff934d8
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=3 col=5 node=0x56455e0ef318
-debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x56455e0ef398
-debug: semantic: sem_check_expr: type=16 line=3 col=19 node=0x56455e0ef438
-debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x56455e0ef398
+debug: semantic: sem_check_expr: type=13 line=3 col=5 node=0x5585dff93318
+debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x5585dff93398
+debug: semantic: sem_check_expr: type=16 line=3 col=19 node=0x5585dff93438
+debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x5585dff93398
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -19,10 +19,10 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x56455e0ef228
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x5585dff93228
 CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
-TAINTED PTR: ctx->module=0x56455e0f0428 target_name=printf count=2
+debug: alir: TAINTED PTR: ctx->module=0x5585dff94428 target_name=printf count=2
 TAINTED PTR: checking func printf
 TAINTED PTR CHECK: arg_t.base=8 arg_t.ptr_depth=1 arg_t.is_tainted=0 param_t.base=8 param_t.ptr_depth=1 param_t.is_tainted=0 target=printf param=fmt
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1

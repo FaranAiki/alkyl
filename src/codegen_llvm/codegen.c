@@ -333,6 +333,10 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
         VarType real_ret_ty = func->ret_type;
         if (func->is_extern) real_ret_ty.is_tainted = 0;
         LLVMTypeRef ret_ty = get_llvm_type(ctx, real_ret_ty);
+        if (real_ret_ty.base == TYPE_CLASS && real_ret_ty.ptr_depth == 0 && ret_ty && LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind && LLVMIsOpaqueStruct(ret_ty)) {
+            ret_ty = LLVMPointerType(ret_ty, 0);
+        }
+
         int __pt2_sz = func->param_count > 0 ? func->param_count : 1;
         LLVMTypeRef __pt2_arr[__pt2_sz];
         LLVMTypeRef *param_tys = NULL;
@@ -345,7 +349,13 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                 VarType p_ty = p->type;
                 if (func->is_extern) p_ty.is_tainted = 0;
                 if (p_ty.array_size > 0) { p_ty.array_size = 0; p_ty.ptr_depth++; }
-                param_tys[i] = get_llvm_type(ctx, p_ty);
+                LLVMTypeRef pty = get_llvm_type(ctx, p_ty);
+                if (p_ty.base == TYPE_VOID && p_ty.ptr_depth == 0) {
+                    pty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
+                } else if (p_ty.base == TYPE_CLASS && p_ty.ptr_depth == 0 && pty && LLVMGetTypeKind(pty) == LLVMStructTypeKind && LLVMIsOpaqueStruct(pty)) {
+                    pty = LLVMPointerType(pty, 0);
+                }
+                param_tys[i] = pty;
                 i++;
                 p = p->next;
             }

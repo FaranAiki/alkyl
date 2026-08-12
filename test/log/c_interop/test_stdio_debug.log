@@ -1,0 +1,8 @@
+step: Finished lexing. Start parsing.
+at namespace main:
+in .../code/c_interop/test_stdio_debug.kyl:
+3:42: error: Expected ')' but found '__format'
+  | extern int printf(const char *__restrict __format, ...);
+  |                                          ^
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55bcca0a7428 target=0x55bcca0a7308

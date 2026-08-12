@@ -34,16 +34,11 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         if (ptr_t.ptr_depth > 0) ptr_t.ptr_depth--;
                         else if (ptr_t.array_size > 0) ptr_t.array_size = 0;
                         pointed = get_llvm_type(ctx, ptr_t);
-                        if (inst->op2->type.is_tainted || ptr_t.is_tainted) {
-                            printf("DEBUG STORE: is_tainted! val is:\n");
-                            LLVMDumpValue(val);
-                            printf("\n");
-                        }
                     }
-                    
-                    if (pointed && LLVMGetTypeKind(pointed) == LLVMStructTypeKind && LLVMCountStructElementTypes(pointed) > 1 &&
+                    if (pointed && inst->op2 && inst->op2->type.is_tainted &&
+                        LLVMGetTypeKind(pointed) == LLVMStructTypeKind && LLVMCountStructElementTypes(pointed) > 1 &&
                         LLVMGetTypeKind(LLVMTypeOf(val)) != LLVMStructTypeKind) {
-                        printf("DEBUG: wrapping value in store!\n");
+                        debug_codegen("wrapping value in store for tainted struct\n");
                         LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
                         LLVMValueRef wrapped = LLVMGetUndef(pointed);
                         wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, zero, 0, "wrap_err");

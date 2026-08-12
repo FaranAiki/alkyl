@@ -29,8 +29,12 @@ ASTNode* parse_define(Parser *p) {
           params = parser_alloc_raw(p, sizeof(char*) * cap);
           
           if (p->current_token.type != TOKEN_RPAREN) {
-              while(1) {
-                  if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected parameter name in define definition");
+              while (1) {
+                  if (p->has_error || p->current_token.type == TOKEN_EOF) break;
+                  if (p->current_token.type != TOKEN_IDENTIFIER) {
+                      parser_fail(p, "Expected parameter name in define definition");
+                      break;
+                  }
                   if (param_count >= cap) { 
                       cap *= 2; 
                       char **new_params = parser_alloc_raw(p, sizeof(char*)*cap);
@@ -39,13 +43,19 @@ ASTNode* parse_define(Parser *p) {
                   }
                   params[param_count++] = parser_strdup(p, p->current_token.text);
                   eat(p, TOKEN_IDENTIFIER);
+                  if (p->has_error) break;
                   
-                  if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
-                  else if (p->current_token.type == TOKEN_RPAREN) break;
-                  else parser_fail(p, "Expected ',' or ')' in macro parameters");
+                  if (p->current_token.type == TOKEN_COMMA) {
+                      eat(p, TOKEN_COMMA);
+                  } else if (p->current_token.type == TOKEN_RPAREN) {
+                      break;
+                  } else {
+                      parser_fail(p, "Expected ',' or ')' in macro parameters");
+                      break;
+                  }
               }
           }
-          eat(p, TOKEN_RPAREN);
+          if (!p->has_error) eat(p, TOKEN_RPAREN);
       }
 
       if (sig_count >= sig_cap) {
@@ -65,8 +75,10 @@ ASTNode* parse_define(Parser *p) {
       } else {
           break;
       }
-  } while (1);
+  } while (!p->has_error && p->current_token.type != TOKEN_EOF);
   
+  if (p->has_error) return NULL;
+
   if (p->current_token.type != TOKEN_AS) {
       const char *found = p->current_token.text;
       if (!found) {

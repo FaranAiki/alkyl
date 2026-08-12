@@ -1,18 +1,18 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56284c5f1448 target=0x56284c5f1328
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x556e3efd0448 target=0x556e3efd0328
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56284c5f1cc0 target=0x56284c5f1bc0
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x556e3efd0cc0 target=0x556e3efd0bc0
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56284c5f2040 target=0x56284c5f1f20
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x556e3efd1040 target=0x556e3efd0f20
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56284c5f21f8 target=0x56284c5f20d8
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x556e3efd11f8 target=0x556e3efd10d8
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56284c5f2430 target=0x56284c5f2310
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x556e3efd1430 target=0x556e3efd1310
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56284c5f2768 target=0x56284c5f2648
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x556e3efd1768 target=0x556e3efd1648
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=30 col=12 node=0x56284c5f2ab0
+debug: semantic: sem_check_expr: type=16 line=30 col=12 node=0x556e3efd1ab0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -23,37 +23,37 @@ GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 CALL_STD: name=print mangled=NULL target_type=13
-TAINTED PTR: ctx->module=0x56284c5f3a00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x556e3efd2a00 target_name=print count=1
 TAINTED PTR: checking func main
 GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 CALL_STD: name=print mangled=NULL target_type=13
-TAINTED PTR: ctx->module=0x56284c5f3a00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x556e3efd2a00 target_name=print count=1
 TAINTED PTR: checking func main
 GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 CALL_STD: name=print mangled=NULL target_type=13
-TAINTED PTR: ctx->module=0x56284c5f3a00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x556e3efd2a00 target_name=print count=1
 TAINTED PTR: checking func main
 GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 CALL_STD: name=print mangled=NULL target_type=13
-TAINTED PTR: ctx->module=0x56284c5f3a00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x556e3efd2a00 target_name=print count=1
 TAINTED PTR: checking func main
 GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 CALL_STD: name=print mangled=NULL target_type=13
-TAINTED PTR: ctx->module=0x56284c5f3a00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x556e3efd2a00 target_name=print count=1
 TAINTED PTR: checking func main
 GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 CALL_STD: name=print mangled=NULL target_type=13
-TAINTED PTR: ctx->module=0x56284c5f3a00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x556e3efd2a00 target_name=print count=1
 TAINTED PTR: checking func main
 debug: metalir: VM CALL: print
 debug: metalir: VM CALL: print
@@ -64,7 +64,7 @@ GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 CALL_STD: name=print mangled=NULL target_type=13
-TAINTED PTR: ctx->module=0x56284c5f3a00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x556e3efd2a00 target_name=print count=1
 TAINTED PTR: checking func main
 debug: metalir: VM CALL: print
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1

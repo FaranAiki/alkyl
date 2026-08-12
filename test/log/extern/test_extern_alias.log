@@ -1,23 +1,23 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=cmalloc target_type=13 line=0 col=0 node=0x55ed22caa590 target=0x55ed22caa470
+debug: parser: Created Call name=cmalloc target_type=13 line=0 col=0 node=0x563b4326e590 target=0x563b4326e470
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=cfree target_type=13 line=0 col=0 node=0x55ed22caa7e8 target=0x55ed22caa6e8
+debug: parser: Created Call name=cfree target_type=13 line=0 col=0 node=0x563b4326e7e8 target=0x563b4326e6e8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x55ed22caa590
+debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x563b4326e590
 debug: semantic: sem_check_call: name='cmalloc', ns='main'
-debug: semantic: sem_check_expr: type=13 line=8 col=15 node=0x55ed22caa470
-debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x55ed22caa4f0
-debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x55ed22caa4f0
-debug: semantic: sem_check_block: Call line=10 col=10 name=cfree target_type=13 node=0x55ed22caa7e8
-debug: semantic: sem_check_expr: type=2 line=10 col=10 node=0x55ed22caa7e8
+debug: semantic: sem_check_expr: type=13 line=8 col=15 node=0x563b4326e470
+debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x563b4326e4f0
+debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x563b4326e4f0
+debug: semantic: sem_check_block: Call line=10 col=10 name=cfree target_type=13 node=0x563b4326e7e8
+debug: semantic: sem_check_expr: type=2 line=10 col=10 node=0x563b4326e7e8
 debug: semantic: sem_check_call: name='cfree', ns='main'
-debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x55ed22caa6e8
-debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x55ed22caa768
-debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x55ed22caa768
-debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x55ed22caa880
+debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x563b4326e6e8
+debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x563b4326e768
+debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x563b4326e768
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x563b4326e880
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -32,10 +32,10 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 GEN_CALL: name=cmalloc mangled=malloc
 debug: alir: Looking up 'malloc'
-debug: alir: Found symbol cmalloc, kind=1, is_macro=0, node_ptr=0x55ed22caa240
+debug: alir: Found symbol cmalloc, kind=1, is_macro=0, node_ptr=0x563b4326e240
 CALL_STD: name=cmalloc mangled=malloc target_type=13
 debug: alir: GLOBAL VAR ADDR: cmalloc
-TAINTED PTR: ctx->module=0x55ed22cabc60 target_name=malloc count=1
+debug: alir: TAINTED PTR: ctx->module=0x563b4326fc60 target_name=malloc count=1
 TAINTED PTR: checking func malloc
 TAINTED PTR CHECK: arg_t.base=1 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=1 param_t.ptr_depth=0 param_t.is_tainted=0 target=malloc param=size
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
@@ -43,11 +43,11 @@ debug: alir: func=main op=0 dest_kind=5 dest_type_base=0 op1_kind=0 op1_type_bas
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=0
 GEN_CALL: name=cfree mangled=free
 debug: alir: Looking up 'free'
-debug: alir: Found symbol cfree, kind=1, is_macro=0, node_ptr=0x55ed22caa380
+debug: alir: Found symbol cfree, kind=1, is_macro=0, node_ptr=0x563b4326e380
 CALL_STD: name=cfree mangled=free target_type=13
 debug: alir: GLOBAL VAR ADDR: cfree
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=0 op1_kind=5 op1_type_base=0
-TAINTED PTR: ctx->module=0x55ed22cabc60 target_name=free count=1
+debug: alir: TAINTED PTR: ctx->module=0x563b4326fc60 target_name=free count=1
 TAINTED PTR: checking func malloc
 TAINTED PTR: checking func free
 TAINTED PTR CHECK: arg_t.base=0 arg_t.ptr_depth=1 arg_t.is_tainted=0 param_t.base=0 param_t.ptr_depth=1 param_t.is_tainted=0 target=free param=

@@ -1,4 +1,5 @@
 #include "c_lexer.h"
+#include "../common/common.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -35,7 +36,8 @@ static void c_file_stack_push(CLexer *l, const char *filename, const char *src) 
 
 static int c_file_stack_pop(CLexer *l) {
     if (l->file_stack.count <= 0) return 0;
-    CFileStackEntry *entry = &l->file_stack.entries[--l->file_stack.count];
+    l->file_stack.count--;
+    CFileStackEntry *entry = &l->file_stack.entries[l->file_stack.count];
     l->filename = entry->filename;
     l->src = entry->src;
     l->pos = entry->pos;
@@ -205,10 +207,7 @@ static void init_keyword_map(Arena *arena) {
 static CTokenType c_lex_keyword(const char *str) {
     void *val = hashmap_get(&keyword_map, str);
     if (val) {
-        CTokenType tt = (CTokenType)(intptr_t)val;
-        if (strcmp(str, "void") == 0 || strcmp(str, "short") == 0) {
-        }
-        return tt;
+        return (CTokenType)(intptr_t)val;
     }
     return C_TOKEN_IDENTIFIER;
 }
@@ -412,7 +411,7 @@ CToken c_lexer_next(CLexer *l) {
             memcpy(buf, l->src + l->pos - len, len);
             buf[len] = '\0';
 
-            if (strcmp(buf, "include") == 0) {
+            if (streq_lit(buf, "include")) {
                 if (l->include_depth >= 50) {
                     skip_to_line_end(l);
                     continue;
@@ -468,12 +467,12 @@ CToken c_lexer_next(CLexer *l) {
                 }
             }
 
-            if (strcmp(buf, "define") == 0 || strcmp(buf, "ifdef") == 0 ||
-                strcmp(buf, "ifndef") == 0 || strcmp(buf, "if") == 0 ||
-                strcmp(buf, "else") == 0 || strcmp(buf, "elif") == 0 ||
-                strcmp(buf, "endif") == 0 || strcmp(buf, "undef") == 0 ||
-                strcmp(buf, "pragma") == 0 || strcmp(buf, "error") == 0 ||
-                strcmp(buf, "line") == 0) {
+            if (streq_lit(buf, "define") || streq_lit(buf, "ifdef") ||
+                streq_lit(buf, "ifndef") || streq_lit(buf, "if") ||
+                streq_lit(buf, "else") || streq_lit(buf, "elif") ||
+                streq_lit(buf, "endif") || streq_lit(buf, "undef") ||
+                streq_lit(buf, "pragma") || streq_lit(buf, "error") ||
+                streq_lit(buf, "line")) {
                 skip_to_line_end(l);
                 continue;
             }

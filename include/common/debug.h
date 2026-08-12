@@ -59,6 +59,7 @@
   #define debug_mlir(msg, ...) debug_any("mlir: " msg, ##__VA_ARGS__)
   #define debug_optlir(msg, ...) debug_any("optlir: " msg, ##__VA_ARGS__)
   #define debug_driver(msg, ...) debug_any("driver: " msg, ##__VA_ARGS__)
+  #define debug_c_header(msg, ...) debug_any("c_header: " msg, ##__VA_ARGS__)
 #else
   #define debug_any(msg, ...)
   #define debug_parser(msg, ...)
@@ -71,6 +72,7 @@
   #define debug_mlir(msg, ...)
   #define debug_optlir(msg, ...)
   #define debug_driver(msg, ...)
+  #define debug_c_header(msg, ...)
 #endif // NDEBUG
 
 #endif // COMPILER_DEBUG_H

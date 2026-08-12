@@ -23,6 +23,7 @@ static void c_eat(CParser *p, CTokenType type) {
                  c_token_type_to_string(type),
                  p->current.text ? p->current.text : c_token_type_to_string(p->current.type));
         c_parser_error(p, buf);
+        p->current = c_lexer_next(&p->lexer);
     }
 }
 
@@ -32,62 +33,41 @@ static int c_match(CParser *p, CTokenType type) {
 
 static void c_register_typedef(CParser *p, const char *name, VarType type) {
     if (!name) return;
-    for (int i = 0; i < p->typedefs.count; i++) {
-        if (strcmp(p->typedefs.names[i], name) == 0) {
-            p->typedefs.types[i] = type;
-            return;
-        }
-    }
-    if (p->typedefs.count >= 1024) return;
-    p->typedefs.names[p->typedefs.count] = arena_strdup(p->ctx->arena, name);
-    p->typedefs.types[p->typedefs.count] = type;
-    p->typedefs.count++;
+    VarType *vt = p->ctx ? arena_alloc(p->ctx->arena, sizeof(VarType)) : calloc(1, sizeof(VarType));
+    *vt = type;
+    hashmap_put(&p->typedef_map, name, vt);
 }
 
+static BaseType c_identifier_to_base_type(const char *name);
+
 static VarType c_lookup_typedef(CParser *p, const char *name) {
-    for (int i = 0; i < p->typedefs.count; i++) {
-        if (strcmp(p->typedefs.names[i], name) == 0) {
-            return p->typedefs.types[i];
-        }
-    }
-    if (strcmp(name, "size_t") == 0) return (VarType){TYPE_UNSIGNED_LONG, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "ptrdiff_t") == 0) return (VarType){TYPE_LONG, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "wchar_t") == 0) return (VarType){TYPE_SHORT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "char16_t") == 0 || strcmp(name, "char32_t") == 0) return (VarType){TYPE_UNSIGNED_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "int8_t") == 0) return (VarType){TYPE_CHAR, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "uint8_t") == 0) return (VarType){TYPE_UNSIGNED_CHAR, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "int16_t") == 0) return (VarType){TYPE_SHORT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "uint16_t") == 0) return (VarType){TYPE_UNSIGNED_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "int32_t") == 0) return (VarType){TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "uint32_t") == 0) return (VarType){TYPE_UNSIGNED_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "int64_t") == 0) return (VarType){TYPE_LONG_LONG, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "uint64_t") == 0) return (VarType){TYPE_UNSIGNED_LONG_LONG, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "intmax_t") == 0) return (VarType){TYPE_LONG_LONG, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "uintmax_t") == 0) return (VarType){TYPE_UNSIGNED_LONG_LONG, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "nullptr_t") == 0) return (VarType){TYPE_VOID, 1, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "max_align_t") == 0) return (VarType){TYPE_LONG_DOUBLE, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "bool") == 0 || strcmp(name, "_Bool") == 0) return (VarType){TYPE_BOOL, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "FILE") == 0 || strcmp(name, "__FILE") == 0) return (VarType){TYPE_CLASS, 0, arena_strdup(p->ctx->arena, "FILE"), 0, 0, NULL, NULL, 0, 0, 0, 0};
-    if (strcmp(name, "va_list") == 0) return (VarType){TYPE_CHAR, 1, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+    if (!name) return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+    VarType *vt = (VarType*)hashmap_get(&p->typedef_map, name);
+    if (vt) return *vt;
+    BaseType bt = c_identifier_to_base_type(name);
+    if (bt != TYPE_UNKNOWN) return (VarType){bt, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
 }
 
 static BaseType c_identifier_to_base_type(const char *name) {
-    if (strcmp(name, "size_t") == 0) return TYPE_UNSIGNED_LONG;
-    if (strcmp(name, "ptrdiff_t") == 0) return TYPE_LONG;
-    if (strcmp(name, "wchar_t") == 0) return TYPE_SHORT;
-    if (strcmp(name, "char16_t") == 0) return TYPE_SHORT;
-    if (strcmp(name, "char32_t") == 0) return TYPE_INT;
-    if (strcmp(name, "int8_t") == 0 || strcmp(name, "int_least8_t") == 0 || strcmp(name, "int_fast8_t") == 0) return TYPE_CHAR;
-    if (strcmp(name, "uint8_t") == 0 || strcmp(name, "uint_least8_t") == 0 || strcmp(name, "uint_fast8_t") == 0) return TYPE_UNSIGNED_CHAR;
-    if (strcmp(name, "int16_t") == 0 || strcmp(name, "int_least16_t") == 0 || strcmp(name, "int_fast16_t") == 0) return TYPE_SHORT;
-    if (strcmp(name, "uint16_t") == 0 || strcmp(name, "uint_least16_t") == 0 || strcmp(name, "uint_fast16_t") == 0) return TYPE_UNSIGNED_INT;
-    if (strcmp(name, "int32_t") == 0 || strcmp(name, "int_least32_t") == 0 || strcmp(name, "int_fast32_t") == 0 || strcmp(name, "intmax_t") == 0) return TYPE_INT;
-    if (strcmp(name, "uint32_t") == 0 || strcmp(name, "uint_least32_t") == 0 || strcmp(name, "uint_fast32_t") == 0 || strcmp(name, "uintmax_t") == 0) return TYPE_UNSIGNED_INT;
-    if (strcmp(name, "int64_t") == 0 || strcmp(name, "int_least64_t") == 0 || strcmp(name, "int_fast64_t") == 0) return TYPE_LONG_LONG;
-    if (strcmp(name, "uint64_t") == 0 || strcmp(name, "uint_least64_t") == 0 || strcmp(name, "uint_fast64_t") == 0) return TYPE_UNSIGNED_LONG_LONG;
-    if (strcmp(name, "max_align_t") == 0) return TYPE_LONG_LONG;
-    if (strcmp(name, "nullptr_t") == 0) return TYPE_VOID;
+    if (streq_lit(name, "size_t")) return TYPE_UNSIGNED_LONG;
+    if (streq_lit(name, "ptrdiff_t")) return TYPE_LONG;
+    if (streq_lit(name, "off_t") || streq_lit(name, "__off_t")) return TYPE_LONG;
+    if (streq_lit(name, "off64_t") || streq_lit(name, "__off64_t")) return TYPE_LONG_LONG;
+    if (streq_lit(name, "ssize_t") || streq_lit(name, "__ssize_t")) return TYPE_LONG;
+    if (streq_lit(name, "wchar_t")) return TYPE_SHORT;
+    if (streq_lit(name, "char16_t")) return TYPE_SHORT;
+    if (streq_lit(name, "char32_t")) return TYPE_INT;
+    if (streq_lit(name, "int8_t") || streq_lit(name, "int_least8_t") || streq_lit(name, "int_fast8_t")) return TYPE_CHAR;
+    if (streq_lit(name, "uint8_t") || streq_lit(name, "uint_least8_t") || streq_lit(name, "uint_fast8_t")) return TYPE_UNSIGNED_CHAR;
+    if (streq_lit(name, "int16_t") || streq_lit(name, "int_least16_t") || streq_lit(name, "int_fast16_t")) return TYPE_SHORT;
+    if (streq_lit(name, "uint16_t") || streq_lit(name, "uint_least16_t") || streq_lit(name, "uint_fast16_t")) return TYPE_UNSIGNED_INT;
+    if (streq_lit(name, "int32_t") || streq_lit(name, "int_least32_t") || streq_lit(name, "int_fast32_t") || streq_lit(name, "intmax_t")) return TYPE_INT;
+    if (streq_lit(name, "uint32_t") || streq_lit(name, "uint_least32_t") || streq_lit(name, "uint_fast32_t") || streq_lit(name, "uintmax_t")) return TYPE_UNSIGNED_INT;
+    if (streq_lit(name, "int64_t") || streq_lit(name, "int_least64_t") || streq_lit(name, "int_fast64_t")) return TYPE_LONG_LONG;
+    if (streq_lit(name, "uint64_t") || streq_lit(name, "uint_least64_t") || streq_lit(name, "uint_fast64_t")) return TYPE_UNSIGNED_LONG_LONG;
+    if (streq_lit(name, "max_align_t")) return TYPE_LONG_LONG;
+    if (streq_lit(name, "nullptr_t")) return TYPE_VOID;
     return TYPE_UNKNOWN;
 }
 
@@ -105,7 +85,7 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
     while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT)) {
         c_eat(p, p->current.type);
     }
-    while (c_match(p, C_TOKEN_IDENTIFIER) && strcmp(p->current.text, "__extension__") == 0) {
+    while (c_match(p, C_TOKEN_IDENTIFIER) && streq_lit(p->current.text, "__extension__")) {
         c_eat(p, C_TOKEN_IDENTIFIER);
     }
     while (c_match(p, C_TOKEN_EXTENSION)) {
@@ -286,10 +266,10 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
             c_eat(p, p->current.type);
         }
         while (c_match(p, C_TOKEN_IDENTIFIER)) {
-            if (strcmp(p->current.text, "__restrict") == 0 ||
-                strcmp(p->current.text, "__volatile") == 0 ||
-                strcmp(p->current.text, "__const") == 0 ||
-                strcmp(p->current.text, "__restrict__") == 0) {
+            if (streq_lit(p->current.text, "__restrict") ||
+                streq_lit(p->current.text, "__volatile") ||
+                streq_lit(p->current.text, "__const") ||
+                streq_lit(p->current.text, "__restrict__")) {
                 c_eat(p, C_TOKEN_IDENTIFIER);
             } else {
                 break;
@@ -456,7 +436,7 @@ static ASTNode* c_parse_extern_function(CParser *p) {
     int array_size = 0;
     VarType ret_type = c_parse_c_type(p, &ptr_depth, &array_size);
 
-    if (c_match(p, C_TOKEN_IDENTIFIER) && strcmp(p->current.text, "as") == 0) {
+    if (c_match(p, C_TOKEN_IDENTIFIER) && streq_lit(p->current.text, "as")) {
         c_eat(p, C_TOKEN_IDENTIFIER);
         if (c_match(p, C_TOKEN_IDENTIFIER)) {
             extern_name = arena_strdup(p->ctx->arena, p->current.text);
@@ -473,12 +453,12 @@ static ASTNode* c_parse_extern_function(CParser *p) {
     c_eat(p, C_TOKEN_IDENTIFIER);
 
     Parameter *params = NULL;
-    Parameter **curr_param = &params;
+    int is_varargs = 0;
 
     if (c_match(p, C_TOKEN_LPAREN)) {
         c_eat(p, C_TOKEN_LPAREN);
         if (!c_match(p, C_TOKEN_RPAREN)) {
-            params = c_parse_parameters(p, NULL);
+            params = c_parse_parameters(p, &is_varargs);
         }
         c_eat(p, C_TOKEN_RPAREN);
     }
@@ -537,14 +517,7 @@ static ASTNode* c_parse_extern_function(CParser *p) {
     func->has_body = 0;
     func->cconv = cconv;
     func->extern_name = extern_name;
-
-    if (params) {
-        Parameter *last = params;
-        while (last->next) last = last->next;
-        if (last->type.base == TYPE_UNKNOWN) {
-            func->is_varargs = 1;
-        }
-    }
+    func->is_varargs = is_varargs;
 
     return (ASTNode*)func;
 }
@@ -555,12 +528,24 @@ static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
     if (out_is_varargs) *out_is_varargs = 0;
 
     while (!c_match(p, C_TOKEN_RPAREN) && !p->has_error) {
+        if (c_match(p, C_TOKEN_ELLIPSIS)) {
+            if (out_is_varargs) *out_is_varargs = 1;
+            c_eat(p, C_TOKEN_ELLIPSIS);
+            break;
+        }
+
         int ptr_depth = 0;
         int array_size = 0;
         VarType param_type = c_parse_c_type(p, &ptr_depth, &array_size);
 
         if (c_match(p, C_TOKEN_IDENTIFIER)) {
             c_eat(p, C_TOKEN_IDENTIFIER);
+        }
+
+        if (param_type.base == TYPE_VOID && ptr_depth == 0 && array_size == 0 && head == NULL) {
+            if (c_match(p, C_TOKEN_RPAREN)) {
+                break;
+            }
         }
 
         while (c_match(p, C_TOKEN_LBRACKET)) {
@@ -593,11 +578,7 @@ static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
             c_eat(p, C_TOKEN_COMMA);
             if (c_match(p, C_TOKEN_ELLIPSIS)) {
                 if (out_is_varargs) *out_is_varargs = 1;
-                Parameter *vp = arena_alloc(p->ctx->arena, sizeof(Parameter));
-                memset(vp, 0, sizeof(Parameter));
-                vp->type.base = TYPE_UNKNOWN;
                 c_eat(p, C_TOKEN_ELLIPSIS);
-                *curr = vp;
                 break;
             }
         } else {
@@ -1194,10 +1175,10 @@ static ASTNode* c_parse_typedef(CParser *p) {
                     c_eat(p, p->current.type);
                 }
                 while (c_match(p, C_TOKEN_IDENTIFIER)) {
-                    if (strcmp(p->current.text, "__restrict") == 0 ||
-                        strcmp(p->current.text, "__volatile") == 0 ||
-                        strcmp(p->current.text, "__const") == 0 ||
-                        strcmp(p->current.text, "__restrict__") == 0) {
+                    if (streq_lit(p->current.text, "__restrict") ||
+                        streq_lit(p->current.text, "__volatile") ||
+                        streq_lit(p->current.text, "__const") ||
+                        streq_lit(p->current.text, "__restrict__")) {
                         c_eat(p, C_TOKEN_IDENTIFIER);
                     } else {
                         break;
@@ -1257,11 +1238,11 @@ static ASTNode* c_parse_typedef(CParser *p) {
                 c_eat(p, C_TOKEN_RPAREN);
 
                 Parameter *params = NULL;
-                Parameter **curr_param = &params;
+                int fp_is_varargs = 0;
                 if (c_match(p, C_TOKEN_LPAREN)) {
                     c_eat(p, C_TOKEN_LPAREN);
                     if (!c_match(p, C_TOKEN_RPAREN)) {
-                        params = c_parse_parameters(p, NULL);
+                        params = c_parse_parameters(p, &fp_is_varargs);
                     }
                     c_eat(p, C_TOKEN_RPAREN);
                 }
@@ -1270,10 +1251,22 @@ static ASTNode* c_parse_typedef(CParser *p) {
                 memset(&fp_type, 0, sizeof(VarType));
                 fp_type.base = TYPE_VOID;
                 fp_type.is_func_ptr = 1;
+                fp_type.fp_is_varargs = fp_is_varargs;
                 fp_type.fp_ret_type = arena_alloc(p->ctx->arena, sizeof(VarType));
                 *fp_type.fp_ret_type = base_type;
-                fp_type.fp_param_count = 0;
-                fp_type.fp_param_types = NULL;
+                
+                int p_count = 0;
+                Parameter *p_curr = params;
+                while (p_curr) { p_count++; p_curr = p_curr->next; }
+                fp_type.fp_param_count = p_count;
+                if (p_count > 0) {
+                    fp_type.fp_param_types = arena_alloc(p->ctx->arena, sizeof(VarType) * p_count);
+                    p_curr = params;
+                    for (int i = 0; i < p_count; i++) {
+                        fp_type.fp_param_types[i] = p_curr->type;
+                        p_curr = p_curr->next;
+                    }
+                }
 
                 if (fp_name) {
                     c_register_typedef(p, fp_name, fp_type);
@@ -1304,11 +1297,11 @@ static ASTNode* c_parse_typedef(CParser *p) {
             c_eat(p, C_TOKEN_RPAREN);
 
             Parameter *params = NULL;
-            Parameter **curr_param = &params;
+            int fp_is_varargs = 0;
             if (c_match(p, C_TOKEN_LPAREN)) {
                 c_eat(p, C_TOKEN_LPAREN);
                 if (!c_match(p, C_TOKEN_RPAREN)) {
-                    params = c_parse_parameters(p, NULL);
+                    params = c_parse_parameters(p, &fp_is_varargs);
                 }
                 c_eat(p, C_TOKEN_RPAREN);
             }
@@ -1317,10 +1310,22 @@ static ASTNode* c_parse_typedef(CParser *p) {
             memset(&fp_type, 0, sizeof(VarType));
             fp_type.base = TYPE_VOID;
             fp_type.is_func_ptr = 1;
+            fp_type.fp_is_varargs = fp_is_varargs;
             fp_type.fp_ret_type = arena_alloc(p->ctx->arena, sizeof(VarType));
             *fp_type.fp_ret_type = base_type;
-            fp_type.fp_param_count = 0;
-            fp_type.fp_param_types = NULL;
+
+            int p_count = 0;
+            Parameter *p_curr = params;
+            while (p_curr) { p_count++; p_curr = p_curr->next; }
+            fp_type.fp_param_count = p_count;
+            if (p_count > 0) {
+                fp_type.fp_param_types = arena_alloc(p->ctx->arena, sizeof(VarType) * p_count);
+                p_curr = params;
+                for (int i = 0; i < p_count; i++) {
+                    fp_type.fp_param_types[i] = p_curr->type;
+                    p_curr = p_curr->next;
+                }
+            }
 
             if (fp_name) {
                 c_register_typedef(p, fp_name, fp_type);
@@ -1468,6 +1473,7 @@ void c_parser_init(CParser *p, CompilerContext *ctx, const char *filename, const
     memset(p, 0, sizeof(CParser));
     c_lexer_init(&p->lexer, ctx, filename, source);
     p->ctx = ctx;
+    hashmap_init(&p->typedef_map, ctx ? ctx->arena : NULL, 256);
     p->current = c_lexer_next(&p->lexer);
     p->typedefs.capacity = 64;
     p->typedefs.names = arena_alloc(ctx->arena, sizeof(char*) * p->typedefs.capacity);
