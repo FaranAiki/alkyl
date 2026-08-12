@@ -173,6 +173,24 @@ void report_error(Lexer *l, Token t, const char *msg) {
     if (l && l->ctx) l->ctx->error_count++;
 }
 
+void report_c_error(CLexer *l, CToken t, const char *msg) {
+    if (!l || !l->ctx) return;
+    CompilerContext *ctx = l->ctx;
+
+    diag_set_namespace(ctx, "c_header");
+
+    if (!streq_lit(ctx->current_namespace, ctx->last_reported_namespace)) {
+        fprintf(stderr, "at namespace %s%s%s:\n", DIAG_BOLD, ctx->current_namespace, DIAG_RESET);
+        strncpy(ctx->last_reported_namespace, ctx->current_namespace, 255);
+        ctx->last_reported_namespace[255] = '\0';
+    }
+
+    fprintf(stderr, "in %s:%d:%d: %serror:%s %s\n",
+            l->filename ? l->filename : "c_header", t.line, t.col,
+            DIAG_RED, DIAG_RESET, msg);
+    ctx->error_count++;
+}
+
 void report_warning(Lexer *l, Token t, const char *msg) {
     report_generic(l, t, "warning", DIAG_PURPLE, msg);
 }

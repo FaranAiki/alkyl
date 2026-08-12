@@ -18,6 +18,11 @@ void report_warning(Lexer *l, Token t, const char *msg);
 // Report a hint (Yellow)
 void report_hint(Lexer *l, Token t, const char *msg);
 
+#include "../lexer/c_lexer.h"
+
+// Report a C parser error
+void report_c_error(CLexer *l, CToken t, const char *msg);
+
 // Report info (Blue)
 void report_info(Lexer *l, Token t, const char *msg);
 

@@ -4,45 +4,45 @@ debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=Person target_type=13 line=0 col=0 node=0x562d735eb140 target=0x562d735eaf80
+debug: parser: Created Call name=Person target_type=13 line=0 col=0 node=0x5650bb445140 target=0x5650bb444f80
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=9 col=12 node=0x562d735ea5a8
+debug: semantic: sem_check_expr: type=16 line=9 col=12 node=0x5650bb4445a8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=26 line=15 col=19 node=0x562d735eac68
-debug: semantic: sem_check_expr: type=47 line=15 col=9 node=0x562d735eabe8
-debug: semantic: sem_check_expr: type=18 line=15 col=9 node=0x562d735eabe8
+debug: semantic: sem_check_expr: type=26 line=15 col=19 node=0x5650bb444c68
+debug: semantic: sem_check_expr: type=47 line=15 col=9 node=0x5650bb444be8
+debug: semantic: sem_check_expr: type=18 line=15 col=9 node=0x5650bb444be8
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=15 col=5 node=0x562d735ea868
-debug: semantic: sem_check_expr: type=16 line=15 col=9 node=0x562d735ecef0
-debug: semantic: sem_check_expr: type=16 line=16 col=12 node=0x562d735eace0
+debug: semantic: sem_check_expr: type=13 line=15 col=5 node=0x5650bb444868
+debug: semantic: sem_check_expr: type=16 line=15 col=9 node=0x5650bb446ef0
+debug: semantic: sem_check_expr: type=16 line=16 col=12 node=0x5650bb444ce0
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=21 col=20 node=0x562d735eb140
+debug: semantic: sem_check_expr: type=2 line=21 col=20 node=0x5650bb445140
 debug: semantic: sem_check_call: name='Person', ns='main'
-debug: semantic: sem_check_expr: type=13 line=21 col=14 node=0x562d735eaf80
+debug: semantic: sem_check_expr: type=13 line=21 col=14 node=0x5650bb444f80
 at namespace main:
 in .../code/composition/test2.kyl:
 21:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-debug: semantic: sem_check_expr: type=16 line=21 col=21 node=0x562d735eb000
-debug: semantic: sem_check_expr: type=16 line=21 col=35 node=0x562d735eb0a0
-debug: semantic: sem_check_expr: type=27 line=22 col=4 node=0x562d735eb318
-debug: semantic: sem_check_expr: type=13 line=22 col=3 node=0x562d735eb298
-debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x562d735ec3f0
+debug: semantic: sem_check_expr: type=16 line=21 col=21 node=0x5650bb445000
+debug: semantic: sem_check_expr: type=16 line=21 col=35 node=0x5650bb4450a0
+debug: semantic: sem_check_expr: type=27 line=22 col=4 node=0x5650bb445318
+debug: semantic: sem_check_expr: type=13 line=22 col=3 node=0x5650bb445298
+debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x5650bb4463f0
 22:4: warning: speak is from Identity, consider p[Identity].speak
   |   p.speak();
   |    ^
-debug: semantic: sem_check_expr: type=27 line=23 col=4 node=0x562d735eb430
-debug: semantic: sem_check_expr: type=13 line=23 col=3 node=0x562d735eb3b0
-debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x562d735ec3f0
-debug: semantic: sem_check_expr: type=16 line=24 col=10 node=0x562d735eb4c8
+debug: semantic: sem_check_expr: type=27 line=23 col=4 node=0x5650bb445430
+debug: semantic: sem_check_expr: type=13 line=23 col=3 node=0x5650bb4453b0
+debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x5650bb4463f0
+debug: semantic: sem_check_expr: type=16 line=24 col=10 node=0x5650bb4454c8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Identity
-debug: alir: DEBUG_REGISTER: st=0x562d735f0d78 name=Identity next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x5650bb44ad78 name=Identity next=(nil)
 debug: alir: Visiting class Person
-debug: alir: DEBUG_REGISTER: st=0x562d735f0d98 name=Person next=0x562d735f0d78
+debug: alir: DEBUG_REGISTER: st=0x5650bb44ad98 name=Person next=0x5650bb44ad78
 debug: alir: DEBUG_PASS1_END: struct list:
  - Person fields: 2
  - Identity fields: 2
