@@ -770,25 +770,17 @@ ASTNode* parse_top_level_internal(Parser *p) {
 
   if (p->current_token.type == TOKEN_LINK) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_link(p); }
   if (p->current_token.type == TOKEN_IMPORT) {
-      if (parser_peek_token(p).type == TOKEN_LPAREN ||
-          parser_peek_token(p).type == TOKEN_STRING ||
-          parser_peek_token(p).type == TOKEN_C_STRING) {
+      if (parser_peek_token(p).type == TOKEN_LPAREN) {
           if(modifiers) parser_fail(p, "Modifiers not allowed");
           eat(p, TOKEN_IMPORT);
+          eat(p, TOKEN_LPAREN);
+          ASTNode *path_expr = parse_expression(p);
+          eat(p, TOKEN_RPAREN);
           ImportExprNode *ie = parser_alloc(p, sizeof(ImportExprNode));
           ie->base.type = NODE_IMPORT_EXPR;
           ie->path = NULL;
-          ie->header = HEADER_ALKYL;
-          if (p->current_token.type == TOKEN_LPAREN) {
-              eat(p, TOKEN_LPAREN);
-              ASTNode *path_expr = parse_expression(p);
-              eat(p, TOKEN_RPAREN);
-              if (path_expr && path_expr->type == NODE_LITERAL && ((LiteralNode*)path_expr)->var_type.base == TYPE_CHAR && ((LiteralNode*)path_expr)->var_type.ptr_depth == 1) {
-                  ie->path = parser_strdup(p, ((LiteralNode*)path_expr)->val.str_val);
-              }
-          } else if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
-              ie->path = parser_strdup(p, p->current_token.text);
-              eat(p, p->current_token.type);
+          if (path_expr && path_expr->type == NODE_LITERAL && ((LiteralNode*)path_expr)->var_type.base == TYPE_CHAR && ((LiteralNode*)path_expr)->var_type.ptr_depth == 1) {
+              ie->path = parser_strdup(p, ((LiteralNode*)path_expr)->val.str_val);
           }
           return (ASTNode*)ie;
       }
@@ -824,7 +816,20 @@ ASTNode* parse_top_level_internal(Parser *p) {
   VarType vtype = parse_type(p);
   modifiers |= parse_modifiers(p);
   if (vtype.base == TYPE_UNKNOWN) {
-      if (modifiers) parser_fail(p, "Modifiers not allowed on statement");
+      if (modifiers) {
+          if (p->current_token.type == TOKEN_IDENTIFIER &&
+              parser_peek_token(p).type == TOKEN_ASSIGN) {
+              ASTNode *var = parse_var_decl_internal(p);
+              ASTNode *curr = var;
+              while (curr) {
+                  apply_var_modifiers((VarDeclNode*)curr, modifiers);
+                  curr = curr->next;
+              }
+              return var;
+          }
+          parser_fail(p, "Modifiers not allowed on statement");
+          return parse_single_statement_or_block(p);
+      }
       return parse_single_statement_or_block(p);
   }
 

@@ -10,6 +10,9 @@ ASTNode* parse_var_decl_internal(Parser *p) {
   else if (p->current_token.type == TOKEN_KW_IMUT) { is_mut = 0; eat(p, TOKEN_KW_IMUT); }
   
   VarType vtype = parse_type(p);
+  if (vtype.base == TYPE_UNKNOWN) {
+      vtype.base = TYPE_AUTO;
+  }
 
   if (p->current_token.type == TOKEN_LPAREN) {
       char *name = NULL;
