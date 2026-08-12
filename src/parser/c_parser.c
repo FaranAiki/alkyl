@@ -928,6 +928,11 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
 static ASTNode* c_parse_enum(CParser *p) {
     c_eat(p, C_TOKEN_ENUM);
 
+    if (c_match(p, C_TOKEN_STRUCT) || c_match(p, C_TOKEN_UNION) ||
+        (c_match(p, C_TOKEN_IDENTIFIER) && (streq_lit(p->current.text, "class") || streq_lit(p->current.text, "struct")))) {
+        c_eat(p, p->current.type);
+    }
+
     char *name = NULL;
     if (c_match(p, C_TOKEN_IDENTIFIER)) {
         name = arena_strdup(p->ctx->arena, p->current.text);

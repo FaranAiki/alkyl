@@ -246,7 +246,7 @@ static CToken c_lex_number(CLexer *l, char first) {
     t.int_val = 0;
     t.double_val = 0;
 
-    long long val = 0;
+    long long val = (first >= '0' && first <= '9') ? (first - '0') : 0;
 
     if (first == '0' && (l->src[l->pos] == 'x' || l->src[l->pos] == 'X')) {
         l->pos++;
