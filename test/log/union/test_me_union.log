@@ -1,36 +1,40 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55ec07d7ce68 target=0x55ec07d7cc50
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55c05d39ee68 target=0x55c05d39ec50
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55ec07d7d148 target=0x55ec07d7cf00
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55c05d39f148 target=0x55c05d39ef00
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55ec07d7cb18
-debug: semantic: sem_check_expr: type=47 line=7 col=4 node=0x55ec07d7ca98
-debug: semantic: sem_check_expr: type=18 line=7 col=4 node=0x55ec07d7ca98
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55c05d39eb18
+debug: semantic: sem_check_expr: type=47 line=7 col=4 node=0x55c05d39ea98
+debug: semantic: sem_check_expr: type=18 line=7 col=4 node=0x55c05d39ea98
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=7 col=3 node=0x55ec07d7c718
-debug: semantic: sem_check_expr: type=16 line=7 col=4 node=0x55ec07d7e418
-debug: semantic: sem_check_block: Call line=8 col=9 name=printf target_type=13 node=0x55ec07d7ce68
-debug: semantic: sem_check_expr: type=2 line=8 col=9 node=0x55ec07d7ce68
+debug: semantic: sem_check_expr: type=13 line=7 col=3 node=0x55c05d39e718
+debug: semantic: sem_check_expr: type=16 line=7 col=4 node=0x55c05d3a0418
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=8 col=9 name=printf target_type=13 node=0x55c05d39ee68
+debug: semantic: sem_check_expr: type=2 line=8 col=9 node=0x55c05d39ee68
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=8 col=3 node=0x55ec07d7cc50
-debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x55ec07d7ccd0
-debug: semantic: sem_check_expr: type=26 line=8 col=35 node=0x55ec07d7cdf0
-debug: semantic: sem_check_expr: type=13 line=8 col=34 node=0x55ec07d7cd70
-debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x55ec07d7ccd0
-debug: semantic: sem_check_block: Call line=9 col=9 name=printf target_type=13 node=0x55ec07d7d148
-debug: semantic: sem_check_expr: type=2 line=9 col=9 node=0x55ec07d7d148
+debug: semantic: sem_check_expr: type=13 line=8 col=3 node=0x55c05d39ec50
+debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x55c05d39ecd0
+debug: semantic: sem_check_expr: type=26 line=8 col=35 node=0x55c05d39edf0
+debug: semantic: sem_check_expr: type=13 line=8 col=34 node=0x55c05d39ed70
+debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x55c05d39ecd0
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=9 col=9 name=printf target_type=13 node=0x55c05d39f148
+debug: semantic: sem_check_expr: type=2 line=9 col=9 node=0x55c05d39f148
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x55ec07d7cf00
-debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x55ec07d7cf80
-debug: semantic: sem_check_expr: type=31 line=9 col=31 node=0x55ec07d7d0a0
-debug: semantic: sem_check_expr: type=13 line=9 col=29 node=0x55ec07d7d020
-debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x55ec07d7cf80
+debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x55c05d39ef00
+debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x55c05d39ef80
+debug: semantic: sem_check_expr: type=31 line=9 col=31 node=0x55c05d39f0a0
+debug: semantic: sem_check_expr: type=13 line=9 col=29 node=0x55c05d39f020
+debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x55c05d39ef80
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class __Union_suka__f0
-debug: alir: DEBUG_REGISTER: st=0x55ec07d82030 name=__Union_suka__f0 next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55c05d3a4030 name=__Union_suka__f0 next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - __Union_suka__f0 fields: 2
 debug: alir: Found func_def printf
@@ -44,21 +48,21 @@ debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_bas
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55ec07d7c2d8
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55c05d39e2d8
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: TAINTED PTR: ctx->module=0x55ec07d7e8b8 target_name=printf count=2
+debug: alir: TAINTED PTR: ctx->module=0x55c05d3a08b8 target_name=printf count=2
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55ec07d7c2d8
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55c05d39e2d8
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: TAINTED PTR: ctx->module=0x55ec07d7e8b8 target_name=printf count=2
+debug: alir: TAINTED PTR: ctx->module=0x55c05d3a08b8 target_name=printf count=2
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 debug: alir: alir_add_function: __Union_suka__f0
@@ -73,3 +77,4 @@ debug: optlir: Check Type for Struct Marking __Union_suka__f0
 debug: optlir: Check Type for Struct Marking __Union_suka__f0
 debug: optlir: Check Type for Struct Marking __Union_suka__f0
 step: Finished alir optimization. Start code generation using LLVM codegen
+DEBUG LLVM: creating printf with param_count=1 varargs=1

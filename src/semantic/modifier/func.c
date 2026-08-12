@@ -13,6 +13,8 @@ void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {
         return;
     }
 
+    debug_semantic("sem_check_method_call: method='%s', obj_base=%d, obj_class='%s'\n", node->method_name, obj_type.base, obj_type.class_name ? obj_type.class_name : "(null)");
+
     int ufcs_fallback = 0;
     
     const char *primitive_class_name = NULL;

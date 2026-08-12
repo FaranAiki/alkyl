@@ -1,18 +1,25 @@
 step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='clib'
+debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='clib'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x55bb185bd270
-debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x55bb185bd3d0
-debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x55bb185bd3d0
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x55e564745270
+debug: semantic: sem_check_block: visiting node type=34
+debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x55e5647453d0
+debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x55e5647453d0
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=13 line=4 col=25 node=0x55bb185bd4f0
-debug: semantic: sem_check_expr: type=27 line=5 col=17 node=0x55bb185bd8d0
-debug: semantic: sem_check_expr: type=13 line=5 col=5 node=0x55bb185bd6b8
-debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x55bb185bd7b0
-debug: semantic: sem_check_expr: type=13 line=5 col=26 node=0x55bb185bd850
-debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x55bb185bd7b0
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x55bb185bd968
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=13 line=4 col=25 node=0x55e5647454f0
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=5 col=17 node=0x55e5647458d0
+debug: semantic: sem_check_expr: type=13 line=5 col=5 node=0x55e5647456b8
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
+debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x55e5647457b0
+debug: semantic: sem_check_expr: type=13 line=5 col=26 node=0x55e564745850
+debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x55e5647457b0
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x55e564745968
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -47,3 +54,4 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
+DEBUG LLVM: creating printf with param_count=1 varargs=1

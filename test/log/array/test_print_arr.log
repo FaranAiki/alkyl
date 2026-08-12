@@ -1,18 +1,18 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print_int_array target_type=13 line=0 col=0 node=0x55a683fea128 target=0x55a683fe9dc0
+debug: parser: Created Call name=print_int_array target_type=13 line=0 col=0 node=0x55a9247c5128 target=0x55a9247c4dc0
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print_uint_array target_type=13 line=0 col=0 node=0x55a683fea790 target=0x55a683fea428
+debug: parser: Created Call name=print_uint_array target_type=13 line=0 col=0 node=0x55a9247c5790 target=0x55a9247c5428
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print_long_array target_type=13 line=0 col=0 node=0x55a683feadf8 target=0x55a683feaa90
+debug: parser: Created Call name=print_long_array target_type=13 line=0 col=0 node=0x55a9247c5df8 target=0x55a9247c5a90
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print_ulong_array target_type=13 line=0 col=0 node=0x55a683feb460 target=0x55a683feb0f8
+debug: parser: Created Call name=print_ulong_array target_type=13 line=0 col=0 node=0x55a9247c6460 target=0x55a9247c60f8
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print_single_array target_type=13 line=0 col=0 node=0x55a683febac8 target=0x55a683feb760
+debug: parser: Created Call name=print_single_array target_type=13 line=0 col=0 node=0x55a9247c6ac8 target=0x55a9247c6760
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print_double_array target_type=13 line=0 col=0 node=0x55a683fec130 target=0x55a683febdc8
+debug: parser: Created Call name=print_double_array target_type=13 line=0 col=0 node=0x55a9247c7130 target=0x55a9247c6dc8
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55a683fee3f8 target=0x55a683fee2f8
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55a9247c93f8 target=0x55a9247c92f8
 debug: semantic: table.c lookup: name='printf', found_ns='__c_lib', current_ns='std'
 at namespace std:
 in std/print.kyl:
@@ -21,223 +21,307 @@ in std/print.kyl:
   |      ^
 hint: consider writing __c_lib.printf
 debug: semantic: sem_check_block: ns='__c_lib'
+debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='__c_lib'
+debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='__c_lib'
+debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='__c_lib'
 debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a683fd6768
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a683fd6648
-debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x55a683fd66c8
-debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x55a683fd66c8
-debug: semantic: sem_check_expr: type=16 line=17 col=23 node=0x55a683fd6800
-debug: semantic: sem_check_expr: type=14 line=18 col=14 node=0x55a683fd6a60
-debug: semantic: sem_check_expr: type=13 line=18 col=12 node=0x55a683fd6960
-debug: semantic: sem_check_expr: type=13 line=18 col=16 node=0x55a683fd69e0
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a9247b1768
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a9247b1648
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x55a9247b16c8
+debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x55a9247b16c8
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=17 col=23 node=0x55a9247b1800
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=18 col=14 node=0x55a9247b1a60
+debug: semantic: sem_check_expr: type=13 line=18 col=12 node=0x55a9247b1960
+debug: semantic: sem_check_expr: type=13 line=18 col=16 node=0x55a9247b19e0
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a683fd7290
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a683fd6ff8
-debug: semantic: sem_check_expr: type=16 line=19 col=26 node=0x55a683fd7078
-debug: semantic: sem_check_expr: type=18 line=19 col=35 node=0x55a683fd7218
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247b2290
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247b1ff8
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=19 col=26 node=0x55a9247b2078
+debug: semantic: sem_check_expr: type=18 line=19 col=35 node=0x55a9247b2218
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=19 col=32 node=0x55a683fd7118
-debug: semantic: sem_check_expr: type=13 line=19 col=36 node=0x55a683fd7198
-debug: semantic: sem_check_expr: type=16 line=19 col=26 node=0x55a683fd7078
-debug: semantic: sem_check_expr: type=14 line=20 col=15 node=0x55a683fd7570
-debug: semantic: sem_check_expr: type=13 line=20 col=13 node=0x55a683fd7328
-debug: semantic: sem_check_expr: type=14 line=20 col=22 node=0x55a683fd74c8
-debug: semantic: sem_check_expr: type=13 line=20 col=17 node=0x55a683fd73a8
-debug: semantic: sem_check_expr: type=16 line=20 col=24 node=0x55a683fd7428
+debug: semantic: sem_check_expr: type=13 line=19 col=32 node=0x55a9247b2118
+debug: semantic: sem_check_expr: type=13 line=19 col=36 node=0x55a9247b2198
+debug: semantic: sem_check_expr: type=16 line=19 col=26 node=0x55a9247b2078
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=20 col=15 node=0x55a9247b2570
+debug: semantic: sem_check_expr: type=13 line=20 col=13 node=0x55a9247b2328
+debug: semantic: sem_check_expr: type=14 line=20 col=22 node=0x55a9247b24c8
+debug: semantic: sem_check_expr: type=13 line=20 col=17 node=0x55a9247b23a8
+debug: semantic: sem_check_expr: type=16 line=20 col=24 node=0x55a9247b2428
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a683fd7cc8
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a683fd7b08
-debug: semantic: sem_check_expr: type=16 line=20 col=46 node=0x55a683fd7b88
-debug: semantic: sem_check_expr: type=16 line=20 col=52 node=0x55a683fd7c28
-debug: semantic: sem_check_expr: type=16 line=20 col=46 node=0x55a683fd7b88
-debug: semantic: sem_check_expr: type=16 line=21 col=14 node=0x55a683fd7e60
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a683fd8628
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a683fd8508
-debug: semantic: sem_check_expr: type=16 line=23 col=13 node=0x55a683fd8588
-debug: semantic: sem_check_expr: type=16 line=23 col=13 node=0x55a683fd8588
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247b2cc8
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247b2b08
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=20 col=46 node=0x55a9247b2b88
+debug: semantic: sem_check_expr: type=16 line=20 col=52 node=0x55a9247b2c28
+debug: semantic: sem_check_expr: type=16 line=20 col=46 node=0x55a9247b2b88
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=21 col=14 node=0x55a9247b2e60
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a9247b3628
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a9247b3508
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=23 col=13 node=0x55a9247b3588
+debug: semantic: sem_check_expr: type=16 line=23 col=13 node=0x55a9247b3588
+debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a683fd8e60
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a683fd8d40
-debug: semantic: sem_check_expr: type=16 line=27 col=13 node=0x55a683fd8dc0
-debug: semantic: sem_check_expr: type=16 line=27 col=13 node=0x55a683fd8dc0
-debug: semantic: sem_check_expr: type=16 line=28 col=23 node=0x55a683fd8ef8
-debug: semantic: sem_check_expr: type=14 line=29 col=14 node=0x55a683fd9158
-debug: semantic: sem_check_expr: type=13 line=29 col=12 node=0x55a683fd9058
-debug: semantic: sem_check_expr: type=13 line=29 col=16 node=0x55a683fd90d8
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a9247b3e60
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a9247b3d40
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=27 col=13 node=0x55a9247b3dc0
+debug: semantic: sem_check_expr: type=16 line=27 col=13 node=0x55a9247b3dc0
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=28 col=23 node=0x55a9247b3ef8
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=29 col=14 node=0x55a9247b4158
+debug: semantic: sem_check_expr: type=13 line=29 col=12 node=0x55a9247b4058
+debug: semantic: sem_check_expr: type=13 line=29 col=16 node=0x55a9247b40d8
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a683fd9988
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a683fd96f0
-debug: semantic: sem_check_expr: type=16 line=30 col=26 node=0x55a683fd9770
-debug: semantic: sem_check_expr: type=18 line=30 col=35 node=0x55a683fd9910
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247b4988
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247b46f0
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=30 col=26 node=0x55a9247b4770
+debug: semantic: sem_check_expr: type=18 line=30 col=35 node=0x55a9247b4910
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=30 col=32 node=0x55a683fd9810
-debug: semantic: sem_check_expr: type=13 line=30 col=36 node=0x55a683fd9890
-debug: semantic: sem_check_expr: type=16 line=30 col=26 node=0x55a683fd9770
-debug: semantic: sem_check_expr: type=14 line=31 col=15 node=0x55a683fd9c68
-debug: semantic: sem_check_expr: type=13 line=31 col=13 node=0x55a683fd9a20
-debug: semantic: sem_check_expr: type=14 line=31 col=22 node=0x55a683fd9bc0
-debug: semantic: sem_check_expr: type=13 line=31 col=17 node=0x55a683fd9aa0
-debug: semantic: sem_check_expr: type=16 line=31 col=24 node=0x55a683fd9b20
+debug: semantic: sem_check_expr: type=13 line=30 col=32 node=0x55a9247b4810
+debug: semantic: sem_check_expr: type=13 line=30 col=36 node=0x55a9247b4890
+debug: semantic: sem_check_expr: type=16 line=30 col=26 node=0x55a9247b4770
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=31 col=15 node=0x55a9247b4c68
+debug: semantic: sem_check_expr: type=13 line=31 col=13 node=0x55a9247b4a20
+debug: semantic: sem_check_expr: type=14 line=31 col=22 node=0x55a9247b4bc0
+debug: semantic: sem_check_expr: type=13 line=31 col=17 node=0x55a9247b4aa0
+debug: semantic: sem_check_expr: type=16 line=31 col=24 node=0x55a9247b4b20
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a683fda3c0
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a683fda200
-debug: semantic: sem_check_expr: type=16 line=31 col=46 node=0x55a683fda280
-debug: semantic: sem_check_expr: type=16 line=31 col=52 node=0x55a683fda320
-debug: semantic: sem_check_expr: type=16 line=31 col=46 node=0x55a683fda280
-debug: semantic: sem_check_expr: type=16 line=32 col=14 node=0x55a683fda558
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a683fdad20
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a683fdac00
-debug: semantic: sem_check_expr: type=16 line=34 col=13 node=0x55a683fdac80
-debug: semantic: sem_check_expr: type=16 line=34 col=13 node=0x55a683fdac80
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247b53c0
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247b5200
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=31 col=46 node=0x55a9247b5280
+debug: semantic: sem_check_expr: type=16 line=31 col=52 node=0x55a9247b5320
+debug: semantic: sem_check_expr: type=16 line=31 col=46 node=0x55a9247b5280
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=32 col=14 node=0x55a9247b5558
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a9247b5d20
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a9247b5c00
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=34 col=13 node=0x55a9247b5c80
+debug: semantic: sem_check_expr: type=16 line=34 col=13 node=0x55a9247b5c80
+debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a683fdb558
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a683fdb438
-debug: semantic: sem_check_expr: type=16 line=38 col=13 node=0x55a683fdb4b8
-debug: semantic: sem_check_expr: type=16 line=38 col=13 node=0x55a683fdb4b8
-debug: semantic: sem_check_expr: type=16 line=39 col=23 node=0x55a683fdb5f0
-debug: semantic: sem_check_expr: type=14 line=40 col=14 node=0x55a683fdb850
-debug: semantic: sem_check_expr: type=13 line=40 col=12 node=0x55a683fdb750
-debug: semantic: sem_check_expr: type=13 line=40 col=16 node=0x55a683fdb7d0
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a9247b6558
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a9247b6438
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=38 col=13 node=0x55a9247b64b8
+debug: semantic: sem_check_expr: type=16 line=38 col=13 node=0x55a9247b64b8
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=39 col=23 node=0x55a9247b65f0
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=40 col=14 node=0x55a9247b6850
+debug: semantic: sem_check_expr: type=13 line=40 col=12 node=0x55a9247b6750
+debug: semantic: sem_check_expr: type=13 line=40 col=16 node=0x55a9247b67d0
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a683fdc128
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a683fdbde8
-debug: semantic: sem_check_expr: type=16 line=41 col=26 node=0x55a683fdbe68
-debug: semantic: sem_check_expr: type=18 line=41 col=47 node=0x55a683fdc0b0
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247b7128
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247b6de8
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=41 col=26 node=0x55a9247b6e68
+debug: semantic: sem_check_expr: type=18 line=41 col=47 node=0x55a9247b70b0
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=31 line=41 col=38 node=0x55a683fdbf88
-debug: semantic: sem_check_expr: type=13 line=41 col=34 node=0x55a683fdbf08
-debug: semantic: sem_check_expr: type=13 line=41 col=48 node=0x55a683fdc030
-debug: semantic: sem_check_expr: type=16 line=41 col=26 node=0x55a683fdbe68
-debug: semantic: sem_check_expr: type=14 line=42 col=15 node=0x55a683fdc408
-debug: semantic: sem_check_expr: type=13 line=42 col=13 node=0x55a683fdc1c0
-debug: semantic: sem_check_expr: type=14 line=42 col=22 node=0x55a683fdc360
-debug: semantic: sem_check_expr: type=13 line=42 col=17 node=0x55a683fdc240
-debug: semantic: sem_check_expr: type=16 line=42 col=24 node=0x55a683fdc2c0
+debug: semantic: sem_check_expr: type=31 line=41 col=38 node=0x55a9247b6f88
+debug: semantic: sem_check_expr: type=13 line=41 col=34 node=0x55a9247b6f08
+debug: semantic: sem_check_expr: type=13 line=41 col=48 node=0x55a9247b7030
+debug: semantic: sem_check_expr: type=16 line=41 col=26 node=0x55a9247b6e68
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=42 col=15 node=0x55a9247b7408
+debug: semantic: sem_check_expr: type=13 line=42 col=13 node=0x55a9247b71c0
+debug: semantic: sem_check_expr: type=14 line=42 col=22 node=0x55a9247b7360
+debug: semantic: sem_check_expr: type=13 line=42 col=17 node=0x55a9247b7240
+debug: semantic: sem_check_expr: type=16 line=42 col=24 node=0x55a9247b72c0
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a683fdcb60
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a683fdc9a0
-debug: semantic: sem_check_expr: type=16 line=42 col=46 node=0x55a683fdca20
-debug: semantic: sem_check_expr: type=16 line=42 col=52 node=0x55a683fdcac0
-debug: semantic: sem_check_expr: type=16 line=42 col=46 node=0x55a683fdca20
-debug: semantic: sem_check_expr: type=16 line=43 col=14 node=0x55a683fdccf8
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a683fdd4c0
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a683fdd3a0
-debug: semantic: sem_check_expr: type=16 line=45 col=13 node=0x55a683fdd420
-debug: semantic: sem_check_expr: type=16 line=45 col=13 node=0x55a683fdd420
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247b7b60
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247b79a0
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=42 col=46 node=0x55a9247b7a20
+debug: semantic: sem_check_expr: type=16 line=42 col=52 node=0x55a9247b7ac0
+debug: semantic: sem_check_expr: type=16 line=42 col=46 node=0x55a9247b7a20
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=43 col=14 node=0x55a9247b7cf8
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a9247b84c0
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a9247b83a0
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=45 col=13 node=0x55a9247b8420
+debug: semantic: sem_check_expr: type=16 line=45 col=13 node=0x55a9247b8420
+debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a683fddcf8
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a683fddbd8
-debug: semantic: sem_check_expr: type=16 line=49 col=13 node=0x55a683fddc58
-debug: semantic: sem_check_expr: type=16 line=49 col=13 node=0x55a683fddc58
-debug: semantic: sem_check_expr: type=16 line=50 col=23 node=0x55a683fddd90
-debug: semantic: sem_check_expr: type=14 line=51 col=14 node=0x55a683fddff0
-debug: semantic: sem_check_expr: type=13 line=51 col=12 node=0x55a683fddef0
-debug: semantic: sem_check_expr: type=13 line=51 col=16 node=0x55a683fddf70
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a9247b8cf8
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a9247b8bd8
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=49 col=13 node=0x55a9247b8c58
+debug: semantic: sem_check_expr: type=16 line=49 col=13 node=0x55a9247b8c58
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=50 col=23 node=0x55a9247b8d90
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=51 col=14 node=0x55a9247b8ff0
+debug: semantic: sem_check_expr: type=13 line=51 col=12 node=0x55a9247b8ef0
+debug: semantic: sem_check_expr: type=13 line=51 col=16 node=0x55a9247b8f70
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a683fde8c8
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a683fde588
-debug: semantic: sem_check_expr: type=16 line=52 col=26 node=0x55a683fde608
-debug: semantic: sem_check_expr: type=18 line=52 col=56 node=0x55a683fde850
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247b98c8
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247b9588
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=52 col=26 node=0x55a9247b9608
+debug: semantic: sem_check_expr: type=18 line=52 col=56 node=0x55a9247b9850
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=31 line=52 col=38 node=0x55a683fde728
-debug: semantic: sem_check_expr: type=13 line=52 col=34 node=0x55a683fde6a8
-debug: semantic: sem_check_expr: type=13 line=52 col=57 node=0x55a683fde7d0
-debug: semantic: sem_check_expr: type=16 line=52 col=26 node=0x55a683fde608
-debug: semantic: sem_check_expr: type=14 line=53 col=15 node=0x55a683fdeba8
-debug: semantic: sem_check_expr: type=13 line=53 col=13 node=0x55a683fde960
-debug: semantic: sem_check_expr: type=14 line=53 col=22 node=0x55a683fdeb00
-debug: semantic: sem_check_expr: type=13 line=53 col=17 node=0x55a683fde9e0
-debug: semantic: sem_check_expr: type=16 line=53 col=24 node=0x55a683fdea60
+debug: semantic: sem_check_expr: type=31 line=52 col=38 node=0x55a9247b9728
+debug: semantic: sem_check_expr: type=13 line=52 col=34 node=0x55a9247b96a8
+debug: semantic: sem_check_expr: type=13 line=52 col=57 node=0x55a9247b97d0
+debug: semantic: sem_check_expr: type=16 line=52 col=26 node=0x55a9247b9608
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=53 col=15 node=0x55a9247b9ba8
+debug: semantic: sem_check_expr: type=13 line=53 col=13 node=0x55a9247b9960
+debug: semantic: sem_check_expr: type=14 line=53 col=22 node=0x55a9247b9b00
+debug: semantic: sem_check_expr: type=13 line=53 col=17 node=0x55a9247b99e0
+debug: semantic: sem_check_expr: type=16 line=53 col=24 node=0x55a9247b9a60
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a683fdf300
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a683fdf140
-debug: semantic: sem_check_expr: type=16 line=53 col=46 node=0x55a683fdf1c0
-debug: semantic: sem_check_expr: type=16 line=53 col=52 node=0x55a683fdf260
-debug: semantic: sem_check_expr: type=16 line=53 col=46 node=0x55a683fdf1c0
-debug: semantic: sem_check_expr: type=16 line=54 col=14 node=0x55a683fdf498
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a683fdfc60
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a683fdfb40
-debug: semantic: sem_check_expr: type=16 line=56 col=13 node=0x55a683fdfbc0
-debug: semantic: sem_check_expr: type=16 line=56 col=13 node=0x55a683fdfbc0
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247ba300
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247ba140
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=53 col=46 node=0x55a9247ba1c0
+debug: semantic: sem_check_expr: type=16 line=53 col=52 node=0x55a9247ba260
+debug: semantic: sem_check_expr: type=16 line=53 col=46 node=0x55a9247ba1c0
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=54 col=14 node=0x55a9247ba498
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a9247bac60
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a9247bab40
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=56 col=13 node=0x55a9247babc0
+debug: semantic: sem_check_expr: type=16 line=56 col=13 node=0x55a9247babc0
+debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a683fe0498
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a683fe0378
-debug: semantic: sem_check_expr: type=16 line=60 col=13 node=0x55a683fe03f8
-debug: semantic: sem_check_expr: type=16 line=60 col=13 node=0x55a683fe03f8
-debug: semantic: sem_check_expr: type=16 line=61 col=23 node=0x55a683fe0530
-debug: semantic: sem_check_expr: type=14 line=62 col=14 node=0x55a683fe0790
-debug: semantic: sem_check_expr: type=13 line=62 col=12 node=0x55a683fe0690
-debug: semantic: sem_check_expr: type=13 line=62 col=16 node=0x55a683fe0710
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a9247bb498
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a9247bb378
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=60 col=13 node=0x55a9247bb3f8
+debug: semantic: sem_check_expr: type=16 line=60 col=13 node=0x55a9247bb3f8
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=61 col=23 node=0x55a9247bb530
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=62 col=14 node=0x55a9247bb790
+debug: semantic: sem_check_expr: type=13 line=62 col=12 node=0x55a9247bb690
+debug: semantic: sem_check_expr: type=13 line=62 col=16 node=0x55a9247bb710
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a683fe1068
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a683fe0d28
-debug: semantic: sem_check_expr: type=16 line=63 col=26 node=0x55a683fe0da8
-debug: semantic: sem_check_expr: type=18 line=63 col=48 node=0x55a683fe0ff0
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247bc068
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247bbd28
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=63 col=26 node=0x55a9247bbda8
+debug: semantic: sem_check_expr: type=18 line=63 col=48 node=0x55a9247bbff0
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=31 line=63 col=37 node=0x55a683fe0ec8
-debug: semantic: sem_check_expr: type=13 line=63 col=33 node=0x55a683fe0e48
-debug: semantic: sem_check_expr: type=13 line=63 col=49 node=0x55a683fe0f70
-debug: semantic: sem_check_expr: type=16 line=63 col=26 node=0x55a683fe0da8
-debug: semantic: sem_check_expr: type=14 line=64 col=15 node=0x55a683fe1348
-debug: semantic: sem_check_expr: type=13 line=64 col=13 node=0x55a683fe1100
-debug: semantic: sem_check_expr: type=14 line=64 col=22 node=0x55a683fe12a0
-debug: semantic: sem_check_expr: type=13 line=64 col=17 node=0x55a683fe1180
-debug: semantic: sem_check_expr: type=16 line=64 col=24 node=0x55a683fe1200
+debug: semantic: sem_check_expr: type=31 line=63 col=37 node=0x55a9247bbec8
+debug: semantic: sem_check_expr: type=13 line=63 col=33 node=0x55a9247bbe48
+debug: semantic: sem_check_expr: type=13 line=63 col=49 node=0x55a9247bbf70
+debug: semantic: sem_check_expr: type=16 line=63 col=26 node=0x55a9247bbda8
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=64 col=15 node=0x55a9247bc348
+debug: semantic: sem_check_expr: type=13 line=64 col=13 node=0x55a9247bc100
+debug: semantic: sem_check_expr: type=14 line=64 col=22 node=0x55a9247bc2a0
+debug: semantic: sem_check_expr: type=13 line=64 col=17 node=0x55a9247bc180
+debug: semantic: sem_check_expr: type=16 line=64 col=24 node=0x55a9247bc200
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a683fe1aa0
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a683fe18e0
-debug: semantic: sem_check_expr: type=16 line=64 col=46 node=0x55a683fe1960
-debug: semantic: sem_check_expr: type=16 line=64 col=52 node=0x55a683fe1a00
-debug: semantic: sem_check_expr: type=16 line=64 col=46 node=0x55a683fe1960
-debug: semantic: sem_check_expr: type=16 line=65 col=14 node=0x55a683fe1c38
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a683fe2400
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a683fe22e0
-debug: semantic: sem_check_expr: type=16 line=67 col=13 node=0x55a683fe2360
-debug: semantic: sem_check_expr: type=16 line=67 col=13 node=0x55a683fe2360
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247bcaa0
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247bc8e0
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=64 col=46 node=0x55a9247bc960
+debug: semantic: sem_check_expr: type=16 line=64 col=52 node=0x55a9247bca00
+debug: semantic: sem_check_expr: type=16 line=64 col=46 node=0x55a9247bc960
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=65 col=14 node=0x55a9247bcc38
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a9247bd400
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a9247bd2e0
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=67 col=13 node=0x55a9247bd360
+debug: semantic: sem_check_expr: type=16 line=67 col=13 node=0x55a9247bd360
+debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a683fe2c38
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a683fe2b18
-debug: semantic: sem_check_expr: type=16 line=71 col=13 node=0x55a683fe2b98
-debug: semantic: sem_check_expr: type=16 line=71 col=13 node=0x55a683fe2b98
-debug: semantic: sem_check_expr: type=16 line=72 col=23 node=0x55a683fe2cd0
-debug: semantic: sem_check_expr: type=14 line=73 col=14 node=0x55a683fe2f30
-debug: semantic: sem_check_expr: type=13 line=73 col=12 node=0x55a683fe2e30
-debug: semantic: sem_check_expr: type=13 line=73 col=16 node=0x55a683fe2eb0
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a9247bdc38
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a9247bdb18
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=71 col=13 node=0x55a9247bdb98
+debug: semantic: sem_check_expr: type=16 line=71 col=13 node=0x55a9247bdb98
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=72 col=23 node=0x55a9247bdcd0
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=73 col=14 node=0x55a9247bdf30
+debug: semantic: sem_check_expr: type=13 line=73 col=12 node=0x55a9247bde30
+debug: semantic: sem_check_expr: type=13 line=73 col=16 node=0x55a9247bdeb0
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a683fe3808
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a683fe34c8
-debug: semantic: sem_check_expr: type=16 line=74 col=26 node=0x55a683fe3548
-debug: semantic: sem_check_expr: type=18 line=74 col=49 node=0x55a683fe3790
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247be808
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247be4c8
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=74 col=26 node=0x55a9247be548
+debug: semantic: sem_check_expr: type=18 line=74 col=49 node=0x55a9247be790
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=31 line=74 col=38 node=0x55a683fe3668
-debug: semantic: sem_check_expr: type=13 line=74 col=34 node=0x55a683fe35e8
-debug: semantic: sem_check_expr: type=13 line=74 col=50 node=0x55a683fe3710
-debug: semantic: sem_check_expr: type=16 line=74 col=26 node=0x55a683fe3548
-debug: semantic: sem_check_expr: type=14 line=75 col=15 node=0x55a683fe3ae8
-debug: semantic: sem_check_expr: type=13 line=75 col=13 node=0x55a683fe38a0
-debug: semantic: sem_check_expr: type=14 line=75 col=22 node=0x55a683fe3a40
-debug: semantic: sem_check_expr: type=13 line=75 col=17 node=0x55a683fe3920
-debug: semantic: sem_check_expr: type=16 line=75 col=24 node=0x55a683fe39a0
+debug: semantic: sem_check_expr: type=31 line=74 col=38 node=0x55a9247be668
+debug: semantic: sem_check_expr: type=13 line=74 col=34 node=0x55a9247be5e8
+debug: semantic: sem_check_expr: type=13 line=74 col=50 node=0x55a9247be710
+debug: semantic: sem_check_expr: type=16 line=74 col=26 node=0x55a9247be548
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=75 col=15 node=0x55a9247beae8
+debug: semantic: sem_check_expr: type=13 line=75 col=13 node=0x55a9247be8a0
+debug: semantic: sem_check_expr: type=14 line=75 col=22 node=0x55a9247bea40
+debug: semantic: sem_check_expr: type=13 line=75 col=17 node=0x55a9247be920
+debug: semantic: sem_check_expr: type=16 line=75 col=24 node=0x55a9247be9a0
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a683fe4240
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a683fe4080
-debug: semantic: sem_check_expr: type=16 line=75 col=46 node=0x55a683fe4100
-debug: semantic: sem_check_expr: type=16 line=75 col=52 node=0x55a683fe41a0
-debug: semantic: sem_check_expr: type=16 line=75 col=46 node=0x55a683fe4100
-debug: semantic: sem_check_expr: type=16 line=76 col=14 node=0x55a683fe43d8
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a683fe4ba0
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a683fe4a80
-debug: semantic: sem_check_expr: type=16 line=78 col=13 node=0x55a683fe4b00
-debug: semantic: sem_check_expr: type=16 line=78 col=13 node=0x55a683fe4b00
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247bf240
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247bf080
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=75 col=46 node=0x55a9247bf100
+debug: semantic: sem_check_expr: type=16 line=75 col=52 node=0x55a9247bf1a0
+debug: semantic: sem_check_expr: type=16 line=75 col=46 node=0x55a9247bf100
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=76 col=14 node=0x55a9247bf3d8
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55a9247bfba0
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55a9247bfa80
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=78 col=13 node=0x55a9247bfb00
+debug: semantic: sem_check_expr: type=16 line=78 col=13 node=0x55a9247bfb00
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: Call line=4 col=11 name=print target_type=13 node=0x55a683fc4610
-debug: semantic: sem_check_expr: type=2 line=4 col=11 node=0x55a683fc4610
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=4 col=11 name=print target_type=13 node=0x55a92479f610
+debug: semantic: sem_check_expr: type=2 line=4 col=11 node=0x55a92479f610
 debug: semantic: sem_check_call: name='print', ns='main'
-debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55a683fc41f8
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55a92479f1f8
 debug: semantic: table.c lookup: name='print', found_ns='std', current_ns='main'
 at namespace main:
 in .../code/array/test_print_arr.kyl:
@@ -250,13 +334,14 @@ debug: semantic: table.c lookup: name='print', found_ns='std', current_ns='main'
   |     print [1,2,3], 4, 5;
   |     ^
 hint: consider writing std.print
-debug: semantic: sem_check_expr: type=17 line=4 col=11 node=0x55a683fc4458
-debug: semantic: sem_check_expr: type=16 line=4 col=12 node=0x55a683fc4278
-debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x55a683fc4318
-debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x55a683fc43b8
-debug: semantic: sem_check_expr: type=16 line=4 col=20 node=0x55a683fc44d0
-debug: semantic: sem_check_expr: type=16 line=4 col=23 node=0x55a683fc4570
-debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x55a683fc46a8
+debug: semantic: sem_check_expr: type=17 line=4 col=11 node=0x55a92479f458
+debug: semantic: sem_check_expr: type=16 line=4 col=12 node=0x55a92479f278
+debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x55a92479f318
+debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x55a92479f3b8
+debug: semantic: sem_check_expr: type=16 line=4 col=20 node=0x55a92479f4d0
+debug: semantic: sem_check_expr: type=16 line=4 col=23 node=0x55a92479f570
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x55a92479f6a8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -296,7 +381,7 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 debug: alir: GEN_CALL: name=print mangled=std.print
 debug: alir: Looking up 'std.print'
-debug: alir: Found symbol print, kind=1, is_macro=1, node_ptr=0x55a683fed308
+debug: alir: Found symbol print, kind=1, is_macro=1, node_ptr=0x55a9247c8308
 debug: parser: clone_var_type fallback: class_name=(null) array_size=0 array_depth=0
 debug: parser: clone_var_type fallback: class_name=(null) array_size=0 array_depth=0
 debug: parser: clone_var_type fallback: class_name=(null) array_size=0 array_depth=0
@@ -685,70 +770,77 @@ debug: alir: macro: mangled='std.print', old_ns='main'
 debug: alir: macro: setting ns to 'std'
 debug: alir: macro: before sem_check_block, ns='std'
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=14 line=87 col=25 node=0x55a68400fcd0
-debug: semantic: sem_check_expr: type=28 line=87 col=13 node=0x55a68400fd78
-debug: semantic: sem_check_expr: type=28 line=87 col=28 node=0x55a68400fe98
-debug: semantic: sem_check_expr: type=14 line=89 col=32 node=0x55a6840101f0
-debug: semantic: sem_check_expr: type=28 line=89 col=20 node=0x55a684010298
-debug: semantic: sem_check_expr: type=28 line=89 col=35 node=0x55a6840103b8
-debug: semantic: sem_check_expr: type=14 line=91 col=32 node=0x55a684010710
-debug: semantic: sem_check_expr: type=28 line=91 col=20 node=0x55a6840107b8
-debug: semantic: sem_check_expr: type=28 line=91 col=35 node=0x55a6840108d8
-debug: semantic: sem_check_expr: type=14 line=93 col=32 node=0x55a684010c30
-debug: semantic: sem_check_expr: type=28 line=93 col=20 node=0x55a684010cd8
-debug: semantic: sem_check_expr: type=28 line=93 col=35 node=0x55a684010df8
-debug: semantic: sem_check_expr: type=14 line=95 col=32 node=0x55a684011150
-debug: semantic: sem_check_expr: type=28 line=95 col=20 node=0x55a6840111f8
-debug: semantic: sem_check_expr: type=28 line=95 col=35 node=0x55a684011318
-debug: semantic: sem_check_expr: type=14 line=97 col=32 node=0x55a684011670
-debug: semantic: sem_check_expr: type=28 line=97 col=20 node=0x55a684011718
-debug: semantic: sem_check_expr: type=28 line=97 col=35 node=0x55a684011838
-debug: semantic: sem_check_expr: type=14 line=99 col=32 node=0x55a684011b90
-debug: semantic: sem_check_expr: type=28 line=99 col=20 node=0x55a684011c38
-debug: semantic: sem_check_expr: type=28 line=99 col=35 node=0x55a684011d58
-debug: semantic: sem_check_expr: type=14 line=105 col=32 node=0x55a6840125d0
-debug: semantic: sem_check_expr: type=28 line=105 col=20 node=0x55a684012678
-debug: semantic: sem_check_expr: type=28 line=105 col=35 node=0x55a684012798
-debug: semantic: sem_check_expr: type=14 line=107 col=32 node=0x55a684012ca8
-debug: semantic: sem_check_expr: type=28 line=107 col=20 node=0x55a684012d50
-debug: semantic: sem_check_expr: type=28 line=107 col=35 node=0x55a684012e70
-debug: semantic: sem_check_expr: type=14 line=109 col=32 node=0x55a684013380
-debug: semantic: sem_check_expr: type=28 line=109 col=20 node=0x55a684013428
-debug: semantic: sem_check_expr: type=28 line=109 col=35 node=0x55a684013548
-debug: semantic: sem_check_expr: type=14 line=111 col=32 node=0x55a684013a58
-debug: semantic: sem_check_expr: type=28 line=111 col=20 node=0x55a684013b00
-debug: semantic: sem_check_expr: type=28 line=111 col=35 node=0x55a684013c20
-debug: semantic: sem_check_expr: type=14 line=113 col=32 node=0x55a684014130
-debug: semantic: sem_check_expr: type=28 line=113 col=20 node=0x55a6840141d8
-debug: semantic: sem_check_expr: type=28 line=113 col=35 node=0x55a6840142f8
-debug: semantic: sem_check_expr: type=14 line=115 col=32 node=0x55a684014808
-debug: semantic: sem_check_expr: type=28 line=115 col=20 node=0x55a6840148b0
-debug: semantic: sem_check_expr: type=28 line=115 col=35 node=0x55a6840149d0
-debug: semantic: sem_check_expr: type=14 line=117 col=32 node=0x55a684014ee0
-debug: semantic: sem_check_expr: type=28 line=117 col=20 node=0x55a684014f88
-debug: semantic: sem_check_expr: type=28 line=117 col=35 node=0x55a6840150a8
-debug: semantic: sem_check_expr: type=14 line=87 col=25 node=0x55a68401a8b8
-debug: semantic: sem_check_expr: type=28 line=87 col=13 node=0x55a68401a960
-debug: semantic: sem_check_expr: type=28 line=87 col=28 node=0x55a68401aa80
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=87 col=25 node=0x55a9247eacd0
+debug: semantic: sem_check_expr: type=28 line=87 col=13 node=0x55a9247ead78
+debug: semantic: sem_check_expr: type=28 line=87 col=28 node=0x55a9247eae98
+debug: semantic: sem_check_expr: type=14 line=89 col=32 node=0x55a9247eb1f0
+debug: semantic: sem_check_expr: type=28 line=89 col=20 node=0x55a9247eb298
+debug: semantic: sem_check_expr: type=28 line=89 col=35 node=0x55a9247eb3b8
+debug: semantic: sem_check_expr: type=14 line=91 col=32 node=0x55a9247eb710
+debug: semantic: sem_check_expr: type=28 line=91 col=20 node=0x55a9247eb7b8
+debug: semantic: sem_check_expr: type=28 line=91 col=35 node=0x55a9247eb8d8
+debug: semantic: sem_check_expr: type=14 line=93 col=32 node=0x55a9247ebc30
+debug: semantic: sem_check_expr: type=28 line=93 col=20 node=0x55a9247ebcd8
+debug: semantic: sem_check_expr: type=28 line=93 col=35 node=0x55a9247ebdf8
+debug: semantic: sem_check_expr: type=14 line=95 col=32 node=0x55a9247ec150
+debug: semantic: sem_check_expr: type=28 line=95 col=20 node=0x55a9247ec1f8
+debug: semantic: sem_check_expr: type=28 line=95 col=35 node=0x55a9247ec318
+debug: semantic: sem_check_expr: type=14 line=97 col=32 node=0x55a9247ec670
+debug: semantic: sem_check_expr: type=28 line=97 col=20 node=0x55a9247ec718
+debug: semantic: sem_check_expr: type=28 line=97 col=35 node=0x55a9247ec838
+debug: semantic: sem_check_expr: type=14 line=99 col=32 node=0x55a9247ecb90
+debug: semantic: sem_check_expr: type=28 line=99 col=20 node=0x55a9247ecc38
+debug: semantic: sem_check_expr: type=28 line=99 col=35 node=0x55a9247ecd58
+debug: semantic: sem_check_expr: type=14 line=105 col=32 node=0x55a9247ed5d0
+debug: semantic: sem_check_expr: type=28 line=105 col=20 node=0x55a9247ed678
+debug: semantic: sem_check_expr: type=28 line=105 col=35 node=0x55a9247ed798
+debug: semantic: sem_check_expr: type=14 line=107 col=32 node=0x55a9247edca8
+debug: semantic: sem_check_expr: type=28 line=107 col=20 node=0x55a9247edd50
+debug: semantic: sem_check_expr: type=28 line=107 col=35 node=0x55a9247ede70
+debug: semantic: sem_check_expr: type=14 line=109 col=32 node=0x55a9247ee380
+debug: semantic: sem_check_expr: type=28 line=109 col=20 node=0x55a9247ee428
+debug: semantic: sem_check_expr: type=28 line=109 col=35 node=0x55a9247ee548
+debug: semantic: sem_check_expr: type=14 line=111 col=32 node=0x55a9247eea58
+debug: semantic: sem_check_expr: type=28 line=111 col=20 node=0x55a9247eeb00
+debug: semantic: sem_check_expr: type=28 line=111 col=35 node=0x55a9247eec20
+debug: semantic: sem_check_expr: type=14 line=113 col=32 node=0x55a9247ef130
+debug: semantic: sem_check_expr: type=28 line=113 col=20 node=0x55a9247ef1d8
+debug: semantic: sem_check_expr: type=28 line=113 col=35 node=0x55a9247ef2f8
+debug: semantic: sem_check_expr: type=14 line=115 col=32 node=0x55a9247ef808
+debug: semantic: sem_check_expr: type=28 line=115 col=20 node=0x55a9247ef8b0
+debug: semantic: sem_check_expr: type=28 line=115 col=35 node=0x55a9247ef9d0
+debug: semantic: sem_check_expr: type=14 line=117 col=32 node=0x55a9247efee0
+debug: semantic: sem_check_expr: type=28 line=117 col=20 node=0x55a9247eff88
+debug: semantic: sem_check_expr: type=28 line=117 col=35 node=0x55a9247f00a8
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=87 col=25 node=0x55a9247f58b8
+debug: semantic: sem_check_expr: type=28 line=87 col=13 node=0x55a9247f5960
+debug: semantic: sem_check_expr: type=28 line=87 col=28 node=0x55a9247f5a80
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a68401ab20
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a68401abb8
-debug: semantic: sem_check_expr: type=16 line=88 col=30 node=0x55a68401ac38
-debug: semantic: sem_check_expr: type=16 line=88 col=30 node=0x55a68401ac38
-debug: semantic: sem_check_expr: type=14 line=87 col=25 node=0x55a684021678
-debug: semantic: sem_check_expr: type=28 line=87 col=13 node=0x55a684021720
-debug: semantic: sem_check_expr: type=28 line=87 col=28 node=0x55a684021840
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247f5b20
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247f5bb8
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=88 col=30 node=0x55a9247f5c38
+debug: semantic: sem_check_expr: type=16 line=88 col=30 node=0x55a9247f5c38
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=87 col=25 node=0x55a9247fc678
+debug: semantic: sem_check_expr: type=28 line=87 col=13 node=0x55a9247fc720
+debug: semantic: sem_check_expr: type=28 line=87 col=28 node=0x55a9247fc840
 debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a6840218e0
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a684021978
-debug: semantic: sem_check_expr: type=16 line=88 col=30 node=0x55a6840219f8
-debug: semantic: sem_check_expr: type=16 line=88 col=30 node=0x55a6840219f8
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55a9247fc8e0
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55a9247fc978
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=88 col=30 node=0x55a9247fc9f8
+debug: semantic: sem_check_expr: type=16 line=88 col=30 node=0x55a9247fc9f8
 debug: alir: macro: after sem_check_block, ns='std'
 debug: alir: GEN_CALL: name=print_int_array mangled=NULL
 debug: semantic: table.c lookup: name='print_int_array', found_ns='std', current_ns='std'
 debug: alir: Looking up 'print_int_array'
 debug: semantic: table.c lookup: name='print_int_array', found_ns='std', current_ns='std'
-debug: alir: Found symbol print_int_array, kind=1, is_macro=0, node_ptr=0x55a683fd86c0
+debug: alir: Found symbol print_int_array, kind=1, is_macro=0, node_ptr=0x55a9247b36c0
 debug: alir: CALL_STD: name=print_int_array mangled=NULL target_type=13
 debug: semantic: table.c lookup: name='print_int_array', found_ns='std', current_ns='std'
 debug: semantic: table.c lookup: name='print_int_array', found_ns='std', current_ns='std'
@@ -762,7 +854,7 @@ debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_bas
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 debug: alir: func=main op=36 dest_kind=5 dest_type_base=7 op1_kind=8 op1_type_base=1
 debug: alir: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=7
-debug: alir: TAINTED PTR: ctx->module=0x55a683ff7eb8 target_name=print_int_array count=2
+debug: alir: TAINTED PTR: ctx->module=0x55a9247d2eb8 target_name=print_int_array count=2
 debug: semantic: table.c lookup: name='print_int_array', found_ns='std', current_ns='std'
 debug: semantic: table.c lookup: name='print_int_array', found_ns='std', current_ns='std'
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
@@ -776,3 +868,4 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
+DEBUG LLVM: creating printf with param_count=1 varargs=1

@@ -1,6 +1,7 @@
 step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=24 col=12 node=0x561b2934f380
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=24 col=12 node=0x55d2b728c380
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -8,23 +9,23 @@ debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x561b2934ff30 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x55d2b728cf30 target_name=print count=1
 debug: metalir: VM CALL: print
 debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x561b2934ff30 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x55d2b728cf30 target_name=print count=1
 debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x561b2934ff30 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x55d2b728cf30 target_name=print count=1
 debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x561b2934ff30 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x55d2b728cf30 target_name=print count=1
 debug: metalir: VM CALL: print
 debug: metalir: VM CALL: print
 debug: metalir: VM CALL: print

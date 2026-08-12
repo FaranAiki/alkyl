@@ -535,10 +535,12 @@ static ASTNode* c_parse_extern_function(CParser *p) {
 
     if (c_match(p, C_TOKEN_IDENTIFIER)) {
         const char *w_name = p->current.text;
+        printf("DEBUG C_PARSER: w_name=%s\n", w_name);
         if (streq_lit(w_name, "__NTH") || streq_lit(w_name, "__NTHNL") ||
             strncmp(w_name, "__REDIRECT", 10) == 0 || strncmp(w_name, "__LDBL_REDIR", 12) == 0) {
             CLexer look_l = p->lexer;
             CToken tok1 = c_lexer_next(&look_l);
+            printf("DEBUG C_PARSER: __NTH tok1.type=%d\n", tok1.type);
             if (tok1.type == C_TOKEN_LPAREN) {
                 CToken tok2 = c_lexer_next(&look_l);
                 if (tok2.type == C_TOKEN_IDENTIFIER) {
@@ -577,6 +579,12 @@ static ASTNode* c_parse_extern_function(CParser *p) {
             params = c_parse_parameters(p, &is_varargs);
         }
         c_eat(p, C_TOKEN_RPAREN);
+    }
+    if (func_name) {
+        int param_count = 0;
+        Parameter *curr = params;
+        while (curr) { param_count++; curr = curr->next; }
+        printf("DEBUG C_PARSER: parsed function %s with %d params (varargs=%d) at line %d\n", func_name, param_count, is_varargs, p->current.line);
     }
 
     if (in_macro_wrapper) {

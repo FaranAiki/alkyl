@@ -494,14 +494,47 @@ ASTNode* parse_factor(Parser *p) {
       ie->header = HEADER_ALKYL;
       if (p->current_token.type == TOKEN_LPAREN) {
           eat(p, TOKEN_LPAREN);
-          ASTNode *path_expr = parse_expression(p);
-          eat(p, TOKEN_RPAREN);
-          if (path_expr && path_expr->type == NODE_LITERAL && ((LiteralNode*)path_expr)->var_type.base == TYPE_CHAR && ((LiteralNode*)path_expr)->var_type.ptr_depth == 1) {
-              ie->path = parser_strdup(p, ((LiteralNode*)path_expr)->val.str_val);
+          if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
+              ie->path = parser_strdup(p, p->current_token.text);
+              p->current_token.text = NULL;
+              eat(p, p->current_token.type);
+          } else {
+              ASTNode *path_expr = parse_expression(p);
+              if (path_expr && path_expr->type == NODE_LITERAL && ((LiteralNode*)path_expr)->var_type.base == TYPE_CHAR && ((LiteralNode*)path_expr)->var_type.ptr_depth == 1) {
+                  ie->path = parser_strdup(p, ((LiteralNode*)path_expr)->val.str_val);
+              }
           }
+          eat(p, TOKEN_RPAREN);
       } else if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
           ie->path = parser_strdup(p, p->current_token.text);
+          p->current_token.text = NULL;
           eat(p, p->current_token.type);
+      } else {
+          char path_buf[256] = {0};
+          size_t path_len = 0;
+          while (p->current_token.type == TOKEN_IDENTIFIER ||
+                 p->current_token.type == TOKEN_DOT ||
+                 p->current_token.type == TOKEN_SLASH) {
+              if (p->current_token.type == TOKEN_DOT || p->current_token.type == TOKEN_SLASH) {
+                  if (path_len + 1 < sizeof(path_buf)) {
+                      path_buf[path_len++] = '/';
+                      path_buf[path_len] = '\0';
+                  }
+              } else {
+                  if (p->current_token.text) {
+                      size_t text_len = strlen(p->current_token.text);
+                      if (text_len + path_len < sizeof(path_buf) - 1) {
+                          memcpy(path_buf + path_len, p->current_token.text, text_len);
+                          path_len += text_len;
+                          path_buf[path_len] = '\0';
+                      }
+                  }
+              }
+              eat(p, p->current_token.type);
+          }
+          if (path_len > 0) {
+              ie->path = parser_strdup(p, path_buf);
+          }
       }
       node = (ASTNode*)ie;
       set_loc(node, line, col);

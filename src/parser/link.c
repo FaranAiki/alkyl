@@ -228,6 +228,27 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
     }
     
     if (node->type == NODE_IMPORT_EXPR) {
+        ImportExprNode *ie = (ImportExprNode*)node;
+        const char *path = ie->path;
+        if (path && !import_stack_contains(stack, path)) {
+            import_stack_push(stack, path);
+            ASTNode *resolved = NULL;
+            if (ie->header == HEADER_C) {
+                resolved = resolve_c_import(p, path);
+            } else {
+                resolved = parse_import_internal(p, path);
+            }
+            import_stack_pop(stack);
+            if (resolved) {
+                ASTNode **curr = &resolved;
+                while (*curr) {
+                    ASTNode *res_node = resolve_imports_node(p, *curr, stack);
+                    if (res_node) *curr = res_node;
+                    curr = &(*curr)->next;
+                }
+                ie->resolved_body = resolved;
+            }
+        }
         return node;
     }
     
@@ -258,6 +279,12 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
             ASTNode *resolved = resolve_imports_node(p, *curr, stack);
             if (resolved) *curr = resolved;
             curr = &(*curr)->next;
+        }
+    } else if (node->type == NODE_VAR_DECL) {
+        VarDeclNode *vd = (VarDeclNode*)node;
+        if (vd->initializer) {
+            ASTNode *resolved = resolve_imports_node(p, vd->initializer, stack);
+            if (resolved) vd->initializer = resolved;
         }
     } else {
         // Do NOT recursively process node->next here!

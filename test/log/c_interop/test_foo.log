@@ -1,16 +1,19 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=foo target_type=13 line=0 col=0 node=0x5570b395d330 target=0x5570b395d210
+debug: parser: Created Call name=foo target_type=13 line=0 col=0 node=0x5572c2509330 target=0x5572c2509210
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=2 col=24 node=0x5570b395d330
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=2 line=2 col=24 node=0x5572c2509330
 debug: semantic: sem_check_call: name='foo', ns='main'
-debug: semantic: sem_check_expr: type=13 line=2 col=21 node=0x5570b395d210
-debug: semantic: sem_check_expr: type=16 line=2 col=25 node=0x5570b395d290
-debug: semantic: sem_check_expr: type=16 line=2 col=25 node=0x5570b395d290
+debug: semantic: sem_check_expr: type=13 line=2 col=21 node=0x5572c2509210
+debug: semantic: sem_check_expr: type=16 line=2 col=25 node=0x5572c2509290
+debug: semantic: sem_check_expr: type=16 line=2 col=25 node=0x5572c2509290
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
+DEBUG C_PARSER: w_name=foo
+DEBUG C_PARSER: parsed function foo with 1 params (varargs=0) at line 1
 debug: alir: Found func_def foo
 debug: alir: alir_gen_function_def fn->name=foo class_name=NULL fn->mangled_name=foo -> func_name=foo
 debug: alir: alir_add_function: foo
@@ -19,10 +22,10 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 debug: alir: GEN_CALL: name=foo mangled=foo
 debug: alir: Looking up 'foo'
-debug: alir: Found symbol foo, kind=1, is_macro=0, node_ptr=0x5570b3961a48
+debug: alir: Found symbol foo, kind=1, is_macro=0, node_ptr=0x5572c250da48
 debug: alir: CALL_STD: name=foo mangled=foo target_type=13
 debug: alir: GLOBAL VAR ADDR: foo
-debug: alir: TAINTED PTR: ctx->module=0x5570b39628b8 target_name=foo count=1
+debug: alir: TAINTED PTR: ctx->module=0x5572c250e8b8 target_name=foo count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
 step: Finished alir. Start alir check and analysis.

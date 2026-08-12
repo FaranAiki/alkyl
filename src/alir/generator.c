@@ -208,6 +208,19 @@ void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
             if (in->resolved_body) {
                 pass1_register(ctx, in->resolved_body, current_ns);
             }
+        } else if (n->type == NODE_IMPORT_EXPR) {
+            ImportExprNode *ie = (ImportExprNode*)n;
+            if (ie->resolved_body) {
+                pass1_register(ctx, ie->resolved_body, current_ns);
+            }
+        } else if (n->type == NODE_VAR_DECL) {
+            VarDeclNode *vd = (VarDeclNode*)n;
+            if (vd->initializer && vd->initializer->type == NODE_IMPORT_EXPR) {
+                ImportExprNode *ie = (ImportExprNode*)vd->initializer;
+                if (ie->resolved_body) {
+                    pass1_register(ctx, ie->resolved_body, current_ns);
+                }
+            }
         } else if (n->type == NODE_NAMESPACE) {
             NamespaceNode *ns = (NamespaceNode*)n;
             char *next_ns = ns->name;
@@ -247,6 +260,19 @@ void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current
             ImportNode *in = (ImportNode*)n;
             if (in->resolved_body) {
                 pass2_populate(ctx, root, in->resolved_body, current_ns);
+            }
+        } else if (n->type == NODE_IMPORT_EXPR) {
+            ImportExprNode *ie = (ImportExprNode*)n;
+            if (ie->resolved_body) {
+                pass2_populate(ctx, root, ie->resolved_body, current_ns);
+            }
+        } else if (n->type == NODE_VAR_DECL) {
+            VarDeclNode *vd = (VarDeclNode*)n;
+            if (vd->initializer && vd->initializer->type == NODE_IMPORT_EXPR) {
+                ImportExprNode *ie = (ImportExprNode*)vd->initializer;
+                if (ie->resolved_body) {
+                    pass2_populate(ctx, root, ie->resolved_body, current_ns);
+                }
             }
         }
         n = n->next;
@@ -570,9 +596,20 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
             if (in->resolved_body) {
                 alir_gen_functions_recursive(ctx, in->resolved_body, current_ns);
             }
+        } else if (curr->type == NODE_IMPORT_EXPR) {
+            ImportExprNode *ie = (ImportExprNode*)curr;
+            if (ie->resolved_body) {
+                alir_gen_functions_recursive(ctx, ie->resolved_body, current_ns);
+            }
         } else if (curr->type == NODE_VAR_DECL) {
             VarDeclNode *vd = (VarDeclNode*)curr;
             if (vd->initializer) {
+                if (vd->initializer->type == NODE_IMPORT_EXPR) {
+                    ImportExprNode *ie = (ImportExprNode*)vd->initializer;
+                    if (ie->resolved_body) {
+                        alir_gen_functions_recursive(ctx, ie->resolved_body, current_ns);
+                    }
+                }
                 debug_alir("Found top-level VAR_DECL %s\n", vd->name);
                 AlirGlobal *g = alir_alloc(ctx->module, sizeof(AlirGlobal));
                 g->name = alir_strdup(ctx->module, vd->name);

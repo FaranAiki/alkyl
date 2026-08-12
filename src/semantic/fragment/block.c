@@ -443,6 +443,13 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
         // Skip checking uninstantiated templates
         return;
     }
+    else if (node->type == NODE_IMPORT) {
+        ImportNode *in = (ImportNode*)node;
+        if (in->resolved_body) {
+            ASTNode *curr = in->resolved_body;
+            while (curr) { sem_check_node(ctx, curr); curr = curr->next; }
+        }
+    }
     else {
         sem_check_stmt(ctx, node);
     }
@@ -453,6 +460,7 @@ void sem_check_block(SemanticCtx *ctx, ASTNode *block) {
     debug_semantic("sem_check_block: ns='%s'\n", ctx->compiler_ctx ? diag_get_namespace(ctx->compiler_ctx) : "(null)");
     ASTNode *curr = block;
     while (curr) {
+        debug_semantic("sem_check_block: visiting node type=%d\n", curr->type);
         if (curr->type == NODE_CALL) {
             CallNode* cn = (CallNode*) curr;
             debug_semantic("sem_check_block: Call line=%d col=%d name=%s target_type=%d node=%p\n", curr->line, curr->col, cn->name ? cn->name : "(null)", cn->target ? (int)cn->target->type : -1, (void*)curr);

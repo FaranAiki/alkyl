@@ -1,6 +1,6 @@
 import "std/print";
 import "std/input";
-let random = import("std/random");
+let rnd = import("std/random");
 
 enum choice[
     exit = -42,
@@ -8,21 +8,25 @@ enum choice[
 ];
 
 int main() {
-    random.init();
+    rnd.init();
     let total_point = 0;
     int guess = choice.wrong_guess;
     int correct_answer;
     std.print("A simple guess the number game!");
     while {
-        correct_answer = random.fast_random() % 11;
+        correct_answer = rnd.fast_random() % 11;
         std.printf("Guess the number from 0 to 10 [Current point: {}]\n>>> ", total_point);
         std.input(&guess);
         while (guess ? choice.wrong_guess) != correct_answer {
             if (guess ? choice.wrong_guess) == choice.exit {
-                std.printf("Thank you for playing the game, total point: {}\n", total_point);
+                std.printf("Thank you for playing the game; the total point: {}\n", total_point);
                 return 0;
             }
-            std.print("Wrong answer, try again!\n>>> ");
+            if (guess ? choice.wrong_guess) < correct_answer then
+                std.printf("Should be higher! ");
+            else if (guess ? choice.wrong_guess) > correct_answer then
+                std.printf("Should be lower! ");
+            std.print("Try again!\n>>> ");
             std.input(&guess);
         }
         total_point++;

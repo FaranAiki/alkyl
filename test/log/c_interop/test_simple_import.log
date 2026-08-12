@@ -1,15 +1,23 @@
 step: Finished lexing. Start parsing.
-debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x55e85fd9b298
+debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x56129950d298
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x55e85fd9b4f0
-debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55e85fd9b3d0
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55e85fd9b450
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55e85fd9b450
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x56129950d4f8
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x56129950d3d8
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='test/code/c_interop/test_simple.h'
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x56129950d458
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x56129950d458
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
+DEBUG C_PARSER: w_name=printf
+DEBUG C_PARSER: parsed function printf with 1 params (varargs=1) at line 1
 debug: inferring type for stdio, init_type.base=18
 debug: inferred type test/code/c_interop/test_simple.h for stdio
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
 debug: alir: Found top-level VAR_DECL stdio
 debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
@@ -21,3 +29,4 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
+DEBUG LLVM: creating printf with param_count=1 varargs=1

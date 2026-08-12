@@ -89,7 +89,7 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
         alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
     }
 
-    if (ctx->current_func->param_count == 0) {
+    if (ctx->current_func->param_count <= 1) {
         Parameter *p = fn->params;
         while(p) {
             alir_func_add_param(ctx->module, ctx->current_func, p->name, p->type);
@@ -195,6 +195,11 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
             MemberAccessNode *ma = (MemberAccessNode*)cn->target;
             object_node = ma->object;
             obj_t = sem_get_node_type(ctx->sem, ma->object);
+            if (obj_t.base == TYPE_NAMESPACE && obj_t.class_name) {
+                char buf[512];
+                snprintf(buf, sizeof(buf), "%s.%s", obj_t.class_name, ma->member_name);
+                target_name = arena_strdup(ctx->sem->compiler_ctx->arena, buf);
+            }
         } else if (cn->target->type == NODE_VAR_REF) {
             VarRefNode *vn = (VarRefNode*)cn->target;
             if (vn->is_class_member) {
