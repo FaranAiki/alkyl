@@ -66,6 +66,14 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
             emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, loaded, sym->ptr, NULL));
             return loaded;
         }
+        if (sym->type.is_tainted && sym->type.ptr_depth == 0) {
+            VarType val_type = sym->type;
+            val_type.is_tainted = 0;
+            val_type.ptr_depth++;
+            AlirValue *val_ptr = new_temp(ctx, val_type);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, val_ptr, sym->ptr, alir_const_int(ctx->module, 1)));
+            return val_ptr;
+        }
         return sym->ptr;
     }
 

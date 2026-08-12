@@ -1,10 +1,10 @@
 step: Finished lexing. Start parsing.
-debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x5610ec979298
+debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x55e85fd9b298
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x5610ec9794f0
-debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x5610ec9793d0
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x5610ec979450
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x5610ec979450
+debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x55e85fd9b4f0
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55e85fd9b3d0
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55e85fd9b450
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55e85fd9b450
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -15,6 +15,7 @@ debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 debug: alir: alir_add_function: main
 debug: alir: GLOBAL VAR ADDR: stdio
+debug: alir: func=main op=35 dest_kind=5 dest_type_base=8 op1_kind=9 op1_type_base=8
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.

@@ -1,11 +1,11 @@
 step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=3 col=9 node=0x55ff472695e0
-debug: semantic: sem_check_expr: type=16 line=4 col=12 node=0x55ff47269718
+debug: semantic: sem_check_expr: type=16 line=3 col=9 node=0x55b9c26a55e0
+debug: semantic: sem_check_expr: type=16 line=4 col=12 node=0x55b9c26a5718
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class __Union_hex_value_float
-debug: alir: DEBUG_REGISTER: st=0x55ff4726e8f0 name=__Union_hex_value_float next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55b9c26aa8f0 name=__Union_hex_value_float next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - __Union_hex_value_float fields: 2
 debug: alir: Found func_def main
@@ -19,5 +19,8 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 debug: alir: alir_add_function: __Union_hex_value_float
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking __Union_hex_value_float
+debug: optlir: Check Type for Struct Marking __Union_hex_value_float
+debug: optlir: Check Type for Struct Marking __Union_hex_value_float
+debug: optlir: Check Type for Struct Marking __Union_hex_value_float
 step: Finished alir optimization. Start code generation using LLVM codegen
-debug: codegen: struct=__Union_hex_value_float fields=2

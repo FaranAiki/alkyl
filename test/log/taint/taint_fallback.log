@@ -1,23 +1,23 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=add target_type=13 line=0 col=0 node=0x555d73b618f0 target=0x555d73b61680
+debug: parser: Created Call name=add target_type=13 line=0 col=0 node=0x563df40e88f0 target=0x563df40e8680
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=2 col=14 node=0x555d73b61318
-debug: semantic: sem_check_expr: type=13 line=2 col=12 node=0x555d73b611f8
-debug: semantic: sem_check_expr: type=16 line=2 col=16 node=0x555d73b61278
+debug: semantic: sem_check_expr: type=14 line=2 col=14 node=0x563df40e8318
+debug: semantic: sem_check_expr: type=13 line=2 col=12 node=0x563df40e81f8
+debug: semantic: sem_check_expr: type=16 line=2 col=16 node=0x563df40e8278
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x555d73b61520
-debug: semantic: sem_check_block: Call line=9 col=8 name=add target_type=13 node=0x555d73b618f0
-debug: semantic: sem_check_expr: type=2 line=9 col=8 node=0x555d73b618f0
+debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x563df40e8520
+debug: semantic: sem_check_block: Call line=9 col=8 name=add target_type=13 node=0x563df40e88f0
+debug: semantic: sem_check_expr: type=2 line=9 col=8 node=0x563df40e88f0
 debug: semantic: sem_check_call: name='add', ns='main'
-debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x555d73b61680
-debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x555d73b61820
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x555d73b61700
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x555d73b61780
-debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x555d73b61820
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x555d73b61700
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x555d73b61780
-debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x555d73b61988
+debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x563df40e8680
+debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x563df40e8820
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x563df40e8700
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x563df40e8780
+debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x563df40e8820
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x563df40e8700
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x563df40e8780
+debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x563df40e8988
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -30,18 +30,18 @@ debug: alir: alir_add_function: main
 debug: alir: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-GEN_CALL: name=add mangled=main_add_i32
+debug: alir: GEN_CALL: name=add mangled=main_add_i32
 debug: alir: Looking up 'main_add_i32'
-debug: alir: Found symbol add, kind=1, is_macro=0, node_ptr=0x555d73b61430
-CALL_STD: name=add mangled=main_add_i32 target_type=13
+debug: alir: Found symbol add, kind=1, is_macro=0, node_ptr=0x563df40e8430
+debug: alir: CALL_STD: name=add mangled=main_add_i32 target_type=13
 debug: alir: GLOBAL VAR ADDR: add
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: TAINTED PTR: ctx->module=0x555d73b62bd8 target_name=main_add_i32 count=1
-TAINTED PTR: checking func main_add_i32
-TAINTED PTR CHECK: arg_t.base=1 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=1 param_t.ptr_depth=0 param_t.is_tainted=0 target=main_add_i32 param=x
+debug: alir: TAINTED PTR: ctx->module=0x563df40e9bd8 target_name=main_add_i32 count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: wrapping value in store for tainted struct

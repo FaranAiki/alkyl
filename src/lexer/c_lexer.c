@@ -134,8 +134,19 @@ static void skip_comment(CLexer *l) {
 }
 
 static void skip_to_line_end(CLexer *l) {
-    while (peek(l) != '\0' && peek(l) != '\n') {
+    while (peek(l) != '\0') {
+        if (peek(l) == '\\' && (l->src[l->pos + 1] == '\n' || (l->src[l->pos + 1] == '\r' && l->src[l->pos + 2] == '\n'))) {
+            if (l->src[l->pos + 1] == '\r') l->pos += 3;
+            else l->pos += 2;
+            l->line++;
+            l->col = 1;
+            continue;
+        }
+        if (peek(l) == '\n') {
+            break;
+        }
         l->pos++;
+        l->col++;
     }
 }
 

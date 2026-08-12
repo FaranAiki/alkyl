@@ -557,7 +557,6 @@ AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
             op_type.is_pristine = 0;
             unsigned int hash = 5381;
             char *str = sem_type_to_str(op_type);
-            debug_alir("typeof string='%s'\n", str);
             int c;
             while ((c = *str++)) hash = ((hash << 5) + hash) + c;
             return alir_const_int(ctx->module, hash);

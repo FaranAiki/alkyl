@@ -5,11 +5,4 @@ in .../code/c_interop/test_stdio_debug.kyl:
   | extern int printf(const char *__restrict __format, ...);
   |                                          ^
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55bfd863d428 target=0x55bfd863d308
-debug: diag_set_namespace: ns='c_header', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='c_header'
-at namespace c_header:
-in /usr/include/bits/stdio2.h:27:19: error: Expected function name in extern declaration
-debug: diag_set_namespace: ns='c_header', current='c_header', ptr_match=0
-debug: diag_set_namespace: after set, current='c_header'
-in /usr/include/bits/stdio2.h:383:15: error: Expected variable name in extern declaration
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x559027938428 target=0x559027938308

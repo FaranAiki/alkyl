@@ -71,13 +71,6 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                             param_types[i] = LLVMInt64TypeInContext(ctx->llvm_ctx);
                         }
                     }
-                    if (streq_lit(inst->op1->val.str_val, "ns.Clib")) {
-                        for (int i = 0; i < param_count; i++) {
-                            char *ts = LLVMPrintTypeToString(param_types[i]);
-                            debug_codegen("CALL DECL func=%s param[%d] type=%s\n", inst->op1->val.str_val, i, ts);
-                            LLVMDisposeMessage(ts);
-                        }
-                    }
                     func_ty = LLVMFunctionType(ret_ty, param_types, param_count, 0);
                     func = LLVMAddFunction(ctx->llvm_mod, inst->op1->val.str_val, func_ty);
                 }

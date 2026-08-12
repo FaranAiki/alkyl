@@ -1,0 +1,7 @@
+extern int printf(const char *fmt, ...);
+
+int main() {
+    tainted int p = 42;
+    printf("tainted int passed as int: %d\n", p);
+    return 0;
+}

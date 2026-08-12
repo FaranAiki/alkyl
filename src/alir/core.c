@@ -44,12 +44,12 @@ AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
      debug_alir("alir_add_function: %s\n", name);
      AlirFunction *existing = hashmap_get(&mod->func_map, name);
      if (existing) {
-         existing->ret_type = ret;
-         existing->is_flux = is_flux;
-         existing->blocks = NULL;
-         existing->block_count = 0;
-         existing->params = NULL;
-         existing->param_count = 0;
+         if (existing->param_count == 0 && existing->params == NULL && !existing->is_varargs) {
+             existing->ret_type = ret;
+             existing->is_flux = is_flux;
+             existing->blocks = NULL;
+             existing->block_count = 0;
+         }
          return existing;
      }
 

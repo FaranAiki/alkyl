@@ -1,94 +1,82 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=random_generator target_type=13 line=0 col=0 node=0x55c42a1e8818 target=0x55c42a1e86f8
-debug: diag_set_namespace: ns='clib', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='clib'
-debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
-debug: diag_set_namespace: ns='clib', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='clib'
-debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
-debug: diag_set_namespace: ns='clib', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='clib'
+debug: parser: Created Call name=random_generator target_type=13 line=0 col=0 node=0x55ba31ceb818 target=0x55ba31ceb6f8
 debug: semantic: sem_check_block: ns='clib'
 debug: semantic: sem_check_block: ns='clib'
-debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x55c42a1e6788
-debug: semantic: sem_check_expr: type=14 line=5 col=16 node=0x55c42a1e69e8
-debug: semantic: sem_check_expr: type=13 line=5 col=11 node=0x55c42a1e68e8
-debug: semantic: sem_check_expr: type=13 line=5 col=18 node=0x55c42a1e6968
+debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x55ba31ce9788
+debug: semantic: sem_check_expr: type=14 line=5 col=16 node=0x55ba31ce99e8
+debug: semantic: sem_check_expr: type=13 line=5 col=11 node=0x55ba31ce98e8
+debug: semantic: sem_check_expr: type=13 line=5 col=18 node=0x55ba31ce9968
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=6 col=21 node=0x55c42a1e6c30
-debug: semantic: sem_check_expr: type=13 line=6 col=16 node=0x55c42a1e6b10
-debug: semantic: sem_check_expr: type=16 line=6 col=23 node=0x55c42a1e6b90
-debug: semantic: sem_check_expr: type=13 line=7 col=14 node=0x55c42a1e6d70
-debug: semantic: sem_check_expr: type=16 line=9 col=12 node=0x55c42a1e6ee0
+debug: semantic: sem_check_expr: type=14 line=6 col=21 node=0x55ba31ce9c30
+debug: semantic: sem_check_expr: type=13 line=6 col=16 node=0x55ba31ce9b10
+debug: semantic: sem_check_expr: type=16 line=6 col=23 node=0x55ba31ce9b90
+debug: semantic: sem_check_expr: type=13 line=7 col=14 node=0x55ba31ce9d70
+debug: semantic: sem_check_expr: type=16 line=9 col=12 node=0x55ba31ce9ee0
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=27 line=13 col=9 node=0x55c42a1e7200
-debug: semantic: sem_check_expr: type=13 line=13 col=5 node=0x55c42a1e70e0
-debug: semantic: sem_check_expr: type=16 line=13 col=17 node=0x55c42a1e7160
-debug: semantic: sem_check_expr: type=16 line=13 col=17 node=0x55c42a1e7160
-debug: semantic: sem_check_expr: type=17 line=14 col=13 node=0x55c42a1e7478
-debug: semantic: sem_check_expr: type=16 line=14 col=14 node=0x55c42a1e7298
-debug: semantic: sem_check_expr: type=16 line=14 col=17 node=0x55c42a1e7338
-debug: semantic: sem_check_expr: type=16 line=14 col=20 node=0x55c42a1e73d8
-debug: semantic: sem_check_expr: type=13 line=15 col=20 node=0x55c42a1e75b0
-debug: semantic: sem_check_expr: type=13 line=15 col=20 node=0x55c42a1e75b0
+debug: semantic: sem_check_expr: type=27 line=13 col=9 node=0x55ba31cea200
+debug: semantic: sem_check_expr: type=13 line=13 col=5 node=0x55ba31cea0e0
+debug: semantic: sem_check_expr: type=16 line=13 col=17 node=0x55ba31cea160
+debug: semantic: sem_check_expr: type=16 line=13 col=17 node=0x55ba31cea160
+debug: semantic: sem_check_expr: type=17 line=14 col=13 node=0x55ba31cea478
+debug: semantic: sem_check_expr: type=16 line=14 col=14 node=0x55ba31cea298
+debug: semantic: sem_check_expr: type=16 line=14 col=17 node=0x55ba31cea338
+debug: semantic: sem_check_expr: type=16 line=14 col=20 node=0x55ba31cea3d8
+debug: semantic: sem_check_expr: type=13 line=15 col=20 node=0x55ba31cea5b0
+debug: semantic: sem_check_expr: type=13 line=15 col=20 node=0x55ba31cea5b0
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=27 line=16 col=13 node=0x55c42a1e77d0
-debug: semantic: sem_check_expr: type=13 line=16 col=9 node=0x55c42a1e7630
-debug: semantic: sem_check_expr: type=16 line=16 col=21 node=0x55c42a1e76b0
-debug: semantic: sem_check_expr: type=13 line=16 col=30 node=0x55c42a1e7750
-debug: semantic: sem_check_expr: type=16 line=16 col=21 node=0x55c42a1e76b0
-debug: semantic: sem_check_expr: type=27 line=19 col=9 node=0x55c42a1e7a38
-debug: semantic: sem_check_expr: type=13 line=19 col=5 node=0x55c42a1e7918
-debug: semantic: sem_check_expr: type=16 line=19 col=17 node=0x55c42a1e7998
-debug: semantic: sem_check_expr: type=16 line=19 col=17 node=0x55c42a1e7998
-debug: semantic: sem_check_expr: type=16 line=20 col=14 node=0x55c42a1e7ad0
-debug: semantic: sem_check_expr: type=16 line=20 col=14 node=0x55c42a1e7ad0
+debug: semantic: sem_check_expr: type=27 line=16 col=13 node=0x55ba31cea7d0
+debug: semantic: sem_check_expr: type=13 line=16 col=9 node=0x55ba31cea630
+debug: semantic: sem_check_expr: type=16 line=16 col=21 node=0x55ba31cea6b0
+debug: semantic: sem_check_expr: type=13 line=16 col=30 node=0x55ba31cea750
+debug: semantic: sem_check_expr: type=16 line=16 col=21 node=0x55ba31cea6b0
+debug: semantic: sem_check_expr: type=27 line=19 col=9 node=0x55ba31ceaa38
+debug: semantic: sem_check_expr: type=13 line=19 col=5 node=0x55ba31cea918
+debug: semantic: sem_check_expr: type=16 line=19 col=17 node=0x55ba31cea998
+debug: semantic: sem_check_expr: type=16 line=19 col=17 node=0x55ba31cea998
+debug: semantic: sem_check_expr: type=16 line=20 col=14 node=0x55ba31ceaad0
+debug: semantic: sem_check_expr: type=16 line=20 col=14 node=0x55ba31ceaad0
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=27 line=21 col=13 node=0x55c42a1e7d10
-debug: semantic: sem_check_expr: type=13 line=21 col=9 node=0x55c42a1e7b70
-debug: semantic: sem_check_expr: type=16 line=21 col=21 node=0x55c42a1e7bf0
-debug: semantic: sem_check_expr: type=13 line=21 col=30 node=0x55c42a1e7c90
-debug: semantic: sem_check_expr: type=16 line=21 col=21 node=0x55c42a1e7bf0
-debug: semantic: sem_check_expr: type=27 line=24 col=9 node=0x55c42a1e7f78
-debug: semantic: sem_check_expr: type=13 line=24 col=5 node=0x55c42a1e7e58
-debug: semantic: sem_check_expr: type=16 line=24 col=17 node=0x55c42a1e7ed8
-debug: semantic: sem_check_expr: type=16 line=24 col=17 node=0x55c42a1e7ed8
-debug: semantic: sem_check_expr: type=16 line=25 col=17 node=0x55c42a1e8010
-debug: semantic: sem_check_expr: type=13 line=26 col=15 node=0x55c42a1e8170
-debug: semantic: sem_check_expr: type=13 line=26 col=15 node=0x55c42a1e8170
+debug: semantic: sem_check_expr: type=27 line=21 col=13 node=0x55ba31cead10
+debug: semantic: sem_check_expr: type=13 line=21 col=9 node=0x55ba31ceab70
+debug: semantic: sem_check_expr: type=16 line=21 col=21 node=0x55ba31ceabf0
+debug: semantic: sem_check_expr: type=13 line=21 col=30 node=0x55ba31ceac90
+debug: semantic: sem_check_expr: type=16 line=21 col=21 node=0x55ba31ceabf0
+debug: semantic: sem_check_expr: type=27 line=24 col=9 node=0x55ba31ceaf78
+debug: semantic: sem_check_expr: type=13 line=24 col=5 node=0x55ba31ceae58
+debug: semantic: sem_check_expr: type=16 line=24 col=17 node=0x55ba31ceaed8
+debug: semantic: sem_check_expr: type=16 line=24 col=17 node=0x55ba31ceaed8
+debug: semantic: sem_check_expr: type=16 line=25 col=17 node=0x55ba31ceb010
+debug: semantic: sem_check_expr: type=13 line=26 col=15 node=0x55ba31ceb170
+debug: semantic: sem_check_expr: type=13 line=26 col=15 node=0x55ba31ceb170
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=27 line=27 col=13 node=0x55c42a1e83f8
-debug: semantic: sem_check_expr: type=13 line=27 col=9 node=0x55c42a1e81f0
-debug: semantic: sem_check_expr: type=16 line=27 col=21 node=0x55c42a1e8270
-debug: semantic: sem_check_expr: type=13 line=27 col=30 node=0x55c42a1e8378
-debug: semantic: sem_check_expr: type=16 line=27 col=21 node=0x55c42a1e8270
-debug: semantic: sem_check_expr: type=27 line=30 col=9 node=0x55c42a1e8660
-debug: semantic: sem_check_expr: type=13 line=30 col=5 node=0x55c42a1e8540
-debug: semantic: sem_check_expr: type=16 line=30 col=17 node=0x55c42a1e85c0
-debug: semantic: sem_check_expr: type=16 line=30 col=17 node=0x55c42a1e85c0
-debug: semantic: sem_check_expr: type=2 line=31 col=30 node=0x55c42a1e8818
+debug: semantic: sem_check_expr: type=27 line=27 col=13 node=0x55ba31ceb3f8
+debug: semantic: sem_check_expr: type=13 line=27 col=9 node=0x55ba31ceb1f0
+debug: semantic: sem_check_expr: type=16 line=27 col=21 node=0x55ba31ceb270
+debug: semantic: sem_check_expr: type=13 line=27 col=30 node=0x55ba31ceb378
+debug: semantic: sem_check_expr: type=16 line=27 col=21 node=0x55ba31ceb270
+debug: semantic: sem_check_expr: type=27 line=30 col=9 node=0x55ba31ceb660
+debug: semantic: sem_check_expr: type=13 line=30 col=5 node=0x55ba31ceb540
+debug: semantic: sem_check_expr: type=16 line=30 col=17 node=0x55ba31ceb5c0
+debug: semantic: sem_check_expr: type=16 line=30 col=17 node=0x55ba31ceb5c0
+debug: semantic: sem_check_expr: type=2 line=31 col=30 node=0x55ba31ceb818
 debug: semantic: sem_check_call: name='random_generator', ns='main'
-debug: semantic: sem_check_expr: type=13 line=31 col=14 node=0x55c42a1e86f8
-debug: semantic: sem_check_expr: type=16 line=31 col=31 node=0x55c42a1e8778
-debug: semantic: sem_check_expr: type=16 line=31 col=31 node=0x55c42a1e8778
-debug: semantic: sem_check_expr: type=2 line=31 col=30 node=0x55c42a1e8818
+debug: semantic: sem_check_expr: type=13 line=31 col=14 node=0x55ba31ceb6f8
+debug: semantic: sem_check_expr: type=16 line=31 col=31 node=0x55ba31ceb778
+debug: semantic: sem_check_expr: type=16 line=31 col=31 node=0x55ba31ceb778
+debug: semantic: sem_check_expr: type=2 line=31 col=30 node=0x55ba31ceb818
 debug: semantic: sem_check_call: name='random_generator', ns='main'
-debug: semantic: sem_check_expr: type=13 line=31 col=14 node=0x55c42a1e86f8
-debug: semantic: sem_check_expr: type=16 line=31 col=31 node=0x55c42a1e8778
-debug: semantic: sem_check_expr: type=16 line=31 col=31 node=0x55c42a1e8778
+debug: semantic: sem_check_expr: type=13 line=31 col=14 node=0x55ba31ceb6f8
+debug: semantic: sem_check_expr: type=16 line=31 col=31 node=0x55ba31ceb778
+debug: semantic: sem_check_expr: type=16 line=31 col=31 node=0x55ba31ceb778
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=27 line=32 col=13 node=0x55c42a1e8a50
-debug: semantic: sem_check_expr: type=13 line=32 col=9 node=0x55c42a1e88b0
-debug: semantic: sem_check_expr: type=16 line=32 col=21 node=0x55c42a1e8930
-debug: semantic: sem_check_expr: type=13 line=32 col=30 node=0x55c42a1e89d0
-debug: semantic: sem_check_expr: type=16 line=32 col=21 node=0x55c42a1e8930
-debug: semantic: sem_check_expr: type=16 line=35 col=12 node=0x55c42a1e8b98
+debug: semantic: sem_check_expr: type=27 line=32 col=13 node=0x55ba31ceba50
+debug: semantic: sem_check_expr: type=13 line=32 col=9 node=0x55ba31ceb8b0
+debug: semantic: sem_check_expr: type=16 line=32 col=21 node=0x55ba31ceb930
+debug: semantic: sem_check_expr: type=13 line=32 col=30 node=0x55ba31ceb9d0
+debug: semantic: sem_check_expr: type=16 line=32 col=21 node=0x55ba31ceb930
+debug: semantic: sem_check_expr: type=16 line=35 col=12 node=0x55ba31cebb98
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -99,7 +87,7 @@ debug: alir: Found func_def printf
 debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
 debug: alir: alir_add_function: printf
 debug: alir: Found func_def random_generator
-debug: alir: DEBUG_REGISTER: st=0x55c42a1fde48 name=FluxCtx_main_random_generator_i32 next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55ba31d00e48 name=FluxCtx_main_random_generator_i32 next=(nil)
 debug: alir: alir_add_function: main_random_generator_i32
 debug: alir: alir_add_function: main_random_generator_i32_Resume
 debug: alir: Found func_def main
@@ -179,15 +167,12 @@ debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_ba
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-GEN_CALL: name=random_generator mangled=main_random_generator_i32
+debug: alir: GEN_CALL: name=random_generator mangled=main_random_generator_i32
 debug: alir: Looking up 'main_random_generator_i32'
-debug: alir: Found symbol random_generator, kind=1, is_macro=0, node_ptr=0x55c42a1e6ff0
-CALL_STD: name=random_generator mangled=main_random_generator_i32 target_type=13
+debug: alir: Found symbol random_generator, kind=1, is_macro=0, node_ptr=0x55ba31ce9ff0
+debug: alir: CALL_STD: name=random_generator mangled=main_random_generator_i32 target_type=13
 debug: alir: GLOBAL VAR ADDR: random_generator
-debug: alir: TAINTED PTR: ctx->module=0x55c42a1fa3e0 target_name=main_random_generator_i32 count=1
-TAINTED PTR: checking func printf
-TAINTED PTR: checking func main_random_generator_i32
-TAINTED PTR CHECK: arg_t.base=1 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=1 param_t.ptr_depth=0 param_t.is_tainted=0 target=main_random_generator_i32 param=limit
+debug: alir: TAINTED PTR: ctx->module=0x55ba31cfd3e0 target_name=main_random_generator_i32 count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=16 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
 debug: alir: FluxCtx ptr_depth = 0
@@ -210,11 +195,52 @@ debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_ba
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
+debug: optlir: Check Type for Struct Marking FluxCtx_main_random_generator_i32
 step: Finished alir optimization. Start code generation using LLVM codegen
-debug: codegen: struct=FluxCtx_main_random_generator_i32 fields=6
-debug: codegen: Field 0: base=1 ptr_depth=0
-debug: codegen: Field 1: base=706731264 ptr_depth=21956
-debug: codegen: Field 2: base=1768843622 ptr_depth=1684367475
-debug: codegen: Field 3: base=2 ptr_depth=0
-debug: codegen: Field 4: base=0 ptr_depth=0
-debug: codegen: Field 5: base=0 ptr_depth=0

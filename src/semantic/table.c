@@ -236,12 +236,18 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
         if (ctx->current_scope->symbol_map) {
             SemSymbol *existing = hashmap_get((HashMap*)ctx->current_scope->symbol_map, sym->name);
             if (existing && existing->kind == SYM_FUNC && sym->kind == SYM_FUNC) {
-                // printf("Adding overload %s to existing %s\n", sym->mangled_name, existing->mangled_name);
-                SemSymbol *last = existing;
-                while (last->overload_next) last = last->overload_next;
-                last->overload_next = sym;
+                if (existing->param_count == 0 && !existing->is_variadic && (sym->param_count > 0 || sym->is_variadic)) {
+                    existing->params = sym->params;
+                    existing->param_count = sym->param_count;
+                    existing->is_variadic = sym->is_variadic;
+                    existing->node_ptr = sym->node_ptr;
+                    existing->type = sym->type;
+                } else {
+                    SemSymbol *last = existing;
+                    while (last->overload_next) last = last->overload_next;
+                    last->overload_next = sym;
+                }
             } else {
-                // printf("Adding new symbol %s\n", sym->name);
                 hashmap_put((HashMap*)ctx->current_scope->symbol_map, sym->name, sym);
             }
         }
@@ -252,12 +258,18 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
         if (ctx->global_scope->symbol_map) {
             SemSymbol *existing = hashmap_get((HashMap*)ctx->global_scope->symbol_map, sym->name);
             if (existing && existing->kind == SYM_FUNC && sym->kind == SYM_FUNC) {
-                // printf("Adding overload %s to existing %s\n", sym->mangled_name, existing->mangled_name);
-                SemSymbol *last = existing;
-                while (last->overload_next) last = last->overload_next;
-                last->overload_next = sym;
+                if (existing->param_count == 0 && !existing->is_variadic && (sym->param_count > 0 || sym->is_variadic)) {
+                    existing->params = sym->params;
+                    existing->param_count = sym->param_count;
+                    existing->is_variadic = sym->is_variadic;
+                    existing->node_ptr = sym->node_ptr;
+                    existing->type = sym->type;
+                } else {
+                    SemSymbol *last = existing;
+                    while (last->overload_next) last = last->overload_next;
+                    last->overload_next = sym;
+                }
             } else {
-                // printf("Adding new symbol %s\n", sym->name);
                 hashmap_put((HashMap*)ctx->global_scope->symbol_map, sym->name, sym);
             }
         }

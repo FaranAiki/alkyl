@@ -1,15 +1,15 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=add target_type=13 line=0 col=0 node=0x56527598c3d8 target=0x56527598c218
+debug: parser: Created Call name=add target_type=13 line=0 col=0 node=0x562a8fb043d8 target=0x562a8fb04218
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=2 col=24 node=0x56527598c3d8
+debug: semantic: sem_check_expr: type=2 line=2 col=24 node=0x562a8fb043d8
 debug: semantic: sem_check_call: name='add', ns='main'
-debug: semantic: sem_check_expr: type=13 line=2 col=21 node=0x56527598c218
-debug: semantic: sem_check_expr: type=16 line=2 col=25 node=0x56527598c298
-debug: semantic: sem_check_expr: type=16 line=2 col=28 node=0x56527598c338
-debug: semantic: sem_check_expr: type=16 line=2 col=25 node=0x56527598c298
-debug: semantic: sem_check_expr: type=16 line=2 col=28 node=0x56527598c338
+debug: semantic: sem_check_expr: type=13 line=2 col=21 node=0x562a8fb04218
+debug: semantic: sem_check_expr: type=16 line=2 col=25 node=0x562a8fb04298
+debug: semantic: sem_check_expr: type=16 line=2 col=28 node=0x562a8fb04338
+debug: semantic: sem_check_expr: type=16 line=2 col=25 node=0x562a8fb04298
+debug: semantic: sem_check_expr: type=16 line=2 col=28 node=0x562a8fb04338
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -19,21 +19,18 @@ debug: alir: alir_add_function: add
 debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 debug: alir: alir_add_function: main
-GEN_CALL: name=add mangled=add
+debug: alir: GEN_CALL: name=add mangled=add
 debug: alir: Looking up 'add'
-debug: alir: Found symbol add, kind=1, is_macro=0, node_ptr=0x565275990ab0
-CALL_STD: name=add mangled=add target_type=13
+debug: alir: Found symbol add, kind=1, is_macro=0, node_ptr=0x562a8fb08ab0
+debug: alir: CALL_STD: name=add mangled=add target_type=13
 debug: alir: GLOBAL VAR ADDR: add
-debug: alir: TAINTED PTR: ctx->module=0x565275991a38 target_name=add count=2
-TAINTED PTR: checking func add
-TAINTED PTR CHECK: arg_t.base=1 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=1 param_t.ptr_depth=0 param_t.is_tainted=0 target=add param=a
-TAINTED PTR CHECK: arg_t.base=1 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=1 param_t.ptr_depth=0 param_t.is_tainted=0 target=add param=b
+debug: alir: TAINTED PTR: ctx->module=0x562a8fb09a38 target_name=add count=2
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
-/usr/bin/ld: build/tmp/alkyl_c_interop_test_small_unopt.o: in function `main':
-main_module:(.text+0xc): undefined reference to `add'
+/usr/bin/ld: build/tmp/alkyl_c_interop_test_small_opt.o: in function `main':
+main_module:(.text+0xb): undefined reference to `add'
 collect2: error: ld returned 1 exit status
 Linking failed.

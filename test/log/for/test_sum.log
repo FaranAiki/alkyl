@@ -1,30 +1,18 @@
 step: Finished lexing. Start parsing.
-debug: diag_set_namespace: ns='clib', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='clib'
-debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
-debug: diag_set_namespace: ns='clib', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='clib'
-debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
-debug: diag_set_namespace: ns='clib', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='clib'
 debug: semantic: sem_check_block: ns='clib'
 debug: semantic: sem_check_block: ns='clib'
-debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x55995e011270
-debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x55995e0113d0
-debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x55995e0113d0
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x55bb185bd270
+debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x55bb185bd3d0
+debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x55bb185bd3d0
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=13 line=4 col=25 node=0x55995e0114f0
-debug: semantic: sem_check_expr: type=27 line=5 col=17 node=0x55995e0118d0
-debug: semantic: sem_check_expr: type=13 line=5 col=5 node=0x55995e0116b8
-debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x55995e0117b0
-debug: semantic: sem_check_expr: type=13 line=5 col=26 node=0x55995e011850
-debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x55995e0117b0
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x55995e011968
+debug: semantic: sem_check_expr: type=13 line=4 col=25 node=0x55bb185bd4f0
+debug: semantic: sem_check_expr: type=27 line=5 col=17 node=0x55bb185bd8d0
+debug: semantic: sem_check_expr: type=13 line=5 col=5 node=0x55bb185bd6b8
+debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x55bb185bd7b0
+debug: semantic: sem_check_expr: type=13 line=5 col=26 node=0x55bb185bd850
+debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x55bb185bd7b0
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x55bb185bd968
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:

@@ -1,48 +1,247 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=cos target_type=13 line=0 col=0 node=0x55f1028783b0 target=0x55f1028782b0
+debug: parser: Created Call name=cos target_type=13 line=0 col=0 node=0x55d48e1fb3b0 target=0x55d48e1fb2b0
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=sin target_type=13 line=0 col=0 node=0x55f1028788c8 target=0x55f1028787a8
+debug: parser: Created Call name=sin target_type=13 line=0 col=0 node=0x55d48e1fb8c8 target=0x55d48e1fb7a8
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=cos target_type=13 line=0 col=0 node=0x55f102878d58 target=0x55f102878c38
+debug: parser: Created Call name=cos target_type=13 line=0 col=0 node=0x55d48e1fbd58 target=0x55d48e1fbc38
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=sin target_type=13 line=0 col=0 node=0x55f1028791c8 target=0x55f1028790c8
+debug: parser: Created Call name=sin target_type=13 line=0 col=0 node=0x55d48e1fc1c8 target=0x55d48e1fc0c8
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=sin target_type=13 line=0 col=0 node=0x55f1028794a8 target=0x55f1028793a8
-debug: diag_set_namespace: ns='__raw_math', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='__raw_math'
-debug: diag_set_namespace: ns='main', current='__raw_math', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
-debug: diag_set_namespace: ns='math', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='math'
+debug: parser: Created Call name=sin target_type=13 line=0 col=0 node=0x55d48e1fc4a8 target=0x55d48e1fc3a8
 debug: parser: after parse_type, vt.base=16, token.type=31
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=16, token.type=31
 debug: parser: after parse_type, vt.base=16, token.type=31
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55f102929b70 target=0x55f1029299f0
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55d48e2acb70 target=0x55d48e2ac9f0
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55f10292abe0 target=0x55f10292aa60
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55d48e2adbe0 target=0x55d48e2ada60
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55f10292bc50 target=0x55f10292bad0
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55d48e2aec50 target=0x55d48e2aead0
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55f10292ccc0 target=0x55f10292cb40
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55d48e2afcc0 target=0x55d48e2afb40
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=tgamma target_type=13 line=0 col=0 node=0x55f10292d150 target=0x55f10292cf08
+debug: parser: Created Call name=tgamma target_type=13 line=0 col=0 node=0x55d48e2b0150 target=0x55d48e2aff08
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=tgamma target_type=13 line=0 col=0 node=0x55f10292d5e0 target=0x55f10292d398
-debug: diag_set_namespace: ns='main', current='math', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
-debug: diag_set_namespace: ns='__raw_math', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='__raw_math'
-debug: diag_set_namespace: ns='main', current='__raw_math', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
-debug: diag_set_namespace: ns='math', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='math'
-debug: diag_set_namespace: ns='main', current='math', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
-debug: diag_set_namespace: ns='__raw_math', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='__raw_math'
+debug: parser: Created Call name=tgamma target_type=13 line=0 col=0 node=0x55d48e2b05e0 target=0x55d48e2b0398
+debug: semantic: table.c lookup: name='atan2', found_ns='__raw_math', current_ns='math'
+at namespace math:
+in std/math:
+231:1: warning: Implicitly resolved 'atan2' to '__raw_math.atan2'
+  | double atan2(double y, double x) { return _r_atan2(y, x); }
+  | ^
+hint: consider writing __raw_math.atan2
+debug: semantic: table.c lookup: name='sin', found_ns='__raw_math', current_ns='math'
+234:1: warning: Implicitly resolved 'sin' to '__raw_math.sin'
+  | single sin(single n) { return _r_sinf(n); }
+  | ^
+hint: consider writing __raw_math.sin
+debug: semantic: table.c lookup: name='cos', found_ns='__raw_math', current_ns='math'
+235:1: warning: Implicitly resolved 'cos' to '__raw_math.cos'
+  | single cos(single n) { return _r_cosf(n); }
+  | ^
+hint: consider writing __raw_math.cos
+debug: semantic: table.c lookup: name='tan', found_ns='__raw_math', current_ns='math'
+236:1: warning: Implicitly resolved 'tan' to '__raw_math.tan'
+  | single tan(single n) { return _r_tanf(n); }
+  | ^
+hint: consider writing __raw_math.tan
+debug: semantic: table.c lookup: name='asin', found_ns='__raw_math', current_ns='math'
+242:1: warning: Implicitly resolved 'asin' to '__raw_math.asin'
+  | single asin(single n) { return _r_asinf(n); }
+  | ^
+hint: consider writing __raw_math.asin
+debug: semantic: table.c lookup: name='acos', found_ns='__raw_math', current_ns='math'
+243:1: warning: Implicitly resolved 'acos' to '__raw_math.acos'
+  | single acos(single n) { return _r_acosf(n); }
+  | ^
+hint: consider writing __raw_math.acos
+debug: semantic: table.c lookup: name='atan', found_ns='__raw_math', current_ns='math'
+244:1: warning: Implicitly resolved 'atan' to '__raw_math.atan'
+  | single atan(single n) { return _r_atanf(n); }
+  | ^
+hint: consider writing __raw_math.atan
+debug: semantic: table.c lookup: name='sinh', found_ns='__raw_math', current_ns='math'
+250:1: warning: Implicitly resolved 'sinh' to '__raw_math.sinh'
+  | single sinh(single n) { return _r_sinhf(n); }
+  | ^
+hint: consider writing __raw_math.sinh
+debug: semantic: table.c lookup: name='cosh', found_ns='__raw_math', current_ns='math'
+251:1: warning: Implicitly resolved 'cosh' to '__raw_math.cosh'
+  | single cosh(single n) { return _r_coshf(n); }
+  | ^
+hint: consider writing __raw_math.cosh
+debug: semantic: table.c lookup: name='tanh', found_ns='__raw_math', current_ns='math'
+252:1: warning: Implicitly resolved 'tanh' to '__raw_math.tanh'
+  | single tanh(single n) { return _r_tanhf(n); }
+  | ^
+hint: consider writing __raw_math.tanh
+debug: semantic: table.c lookup: name='exp', found_ns='__raw_math', current_ns='math'
+258:1: warning: Implicitly resolved 'exp' to '__raw_math.exp'
+  | single exp(single n) { return _r_expf(n); }
+  | ^
+hint: consider writing __raw_math.exp
+debug: semantic: table.c lookup: name='exp2', found_ns='__raw_math', current_ns='math'
+259:1: warning: Implicitly resolved 'exp2' to '__raw_math.exp2'
+  | single exp2(single n) { return _r_exp2f(n); }
+  | ^
+hint: consider writing __raw_math.exp2
+debug: semantic: table.c lookup: name='expm1', found_ns='__raw_math', current_ns='math'
+260:1: warning: Implicitly resolved 'expm1' to '__raw_math.expm1'
+  | single expm1(single n) { return _r_expm1f(n); }
+  | ^
+hint: consider writing __raw_math.expm1
+debug: semantic: table.c lookup: name='log', found_ns='__raw_math', current_ns='math'
+266:1: warning: Implicitly resolved 'log' to '__raw_math.log'
+  | single log(single n) { return _r_logf(n); }
+  | ^
+hint: consider writing __raw_math.log
+debug: semantic: table.c lookup: name='log10', found_ns='__raw_math', current_ns='math'
+267:1: warning: Implicitly resolved 'log10' to '__raw_math.log10'
+  | single log10(single n) { return _r_log10f(n); }
+  | ^
+hint: consider writing __raw_math.log10
+debug: semantic: table.c lookup: name='log2', found_ns='__raw_math', current_ns='math'
+268:1: warning: Implicitly resolved 'log2' to '__raw_math.log2'
+  | single log2(single n) { return _r_log2f(n); }
+  | ^
+hint: consider writing __raw_math.log2
+debug: semantic: table.c lookup: name='log1p', found_ns='__raw_math', current_ns='math'
+269:1: warning: Implicitly resolved 'log1p' to '__raw_math.log1p'
+  | single log1p(single n) { return _r_log1pf(n); }
+  | ^
+hint: consider writing __raw_math.log1p
+debug: semantic: table.c lookup: name='pow', found_ns='__raw_math', current_ns='math'
+276:1: warning: Implicitly resolved 'pow' to '__raw_math.pow'
+  | single pow(single a, single b) { return _r_powf(a, b); }
+  | ^
+hint: consider writing __raw_math.pow
+debug: semantic: table.c lookup: name='sqrt', found_ns='__raw_math', current_ns='math'
+277:1: warning: Implicitly resolved 'sqrt' to '__raw_math.sqrt'
+  | single sqrt(single n) { return _r_sqrtf(n); }
+  | ^
+hint: consider writing __raw_math.sqrt
+debug: semantic: table.c lookup: name='cbrt', found_ns='__raw_math', current_ns='math'
+278:1: warning: Implicitly resolved 'cbrt' to '__raw_math.cbrt'
+  | single cbrt(single n) { return _r_cbrtf(n); }
+  | ^
+hint: consider writing __raw_math.cbrt
+debug: semantic: table.c lookup: name='hypot', found_ns='__raw_math', current_ns='math'
+279:1: warning: Implicitly resolved 'hypot' to '__raw_math.hypot'
+  | single hypot(single a, single b) { return _r_hypotf(a, b); }
+  | ^
+hint: consider writing __raw_math.hypot
+debug: semantic: table.c lookup: name='erf', found_ns='__raw_math', current_ns='math'
+286:1: warning: Implicitly resolved 'erf' to '__raw_math.erf'
+  | single erf(single n) { return _r_erff(n); }
+  | ^
+hint: consider writing __raw_math.erf
+debug: semantic: table.c lookup: name='erfc', found_ns='__raw_math', current_ns='math'
+287:1: warning: Implicitly resolved 'erfc' to '__raw_math.erfc'
+  | single erfc(single n) { return _r_erfcf(n); }
+  | ^
+hint: consider writing __raw_math.erfc
+debug: semantic: table.c lookup: name='lgamma', found_ns='__raw_math', current_ns='math'
+288:1: warning: Implicitly resolved 'lgamma' to '__raw_math.lgamma'
+  | single lgamma(single n) { return _r_lgammaf(n); }
+  | ^
+hint: consider writing __raw_math.lgamma
+debug: semantic: table.c lookup: name='tgamma', found_ns='__raw_math', current_ns='math'
+289:1: warning: Implicitly resolved 'tgamma' to '__raw_math.tgamma'
+  | single tgamma(single n) { return _r_tgammaf(n); }
+  | ^
+hint: consider writing __raw_math.tgamma
+debug: semantic: table.c lookup: name='ceil', found_ns='__raw_math', current_ns='math'
+296:1: warning: Implicitly resolved 'ceil' to '__raw_math.ceil'
+  | single ceil(single n) { return _r_ceilf(n); }
+  | ^
+hint: consider writing __raw_math.ceil
+debug: semantic: table.c lookup: name='floor', found_ns='__raw_math', current_ns='math'
+297:1: warning: Implicitly resolved 'floor' to '__raw_math.floor'
+  | single floor(single n) { return _r_floorf(n); }
+  | ^
+hint: consider writing __raw_math.floor
+debug: semantic: table.c lookup: name='round', found_ns='__raw_math', current_ns='math'
+298:1: warning: Implicitly resolved 'round' to '__raw_math.round'
+  | single round(single n) { return _r_roundf(n); }
+  | ^
+hint: consider writing __raw_math.round
+debug: semantic: table.c lookup: name='trunc', found_ns='__raw_math', current_ns='math'
+299:1: warning: Implicitly resolved 'trunc' to '__raw_math.trunc'
+  | single trunc(single n) { return _r_truncf(n); }
+  | ^
+hint: consider writing __raw_math.trunc
+debug: semantic: table.c lookup: name='nearbyint', found_ns='__raw_math', current_ns='math'
+300:1: warning: Implicitly resolved 'nearbyint' to '__raw_math.nearbyint'
+  | single nearbyint(single n) { return _r_nearbyintf(n); }
+  | ^
+hint: consider writing __raw_math.nearbyint
+debug: semantic: table.c lookup: name='rint', found_ns='__raw_math', current_ns='math'
+301:1: warning: Implicitly resolved 'rint' to '__raw_math.rint'
+  | single rint(single n) { return _r_rintf(n); }
+  | ^
+hint: consider writing __raw_math.rint
+debug: semantic: table.c lookup: name='fmod', found_ns='__raw_math', current_ns='math'
+313:1: warning: Implicitly resolved 'fmod' to '__raw_math.fmod'
+  | single fmod(single a, single b) { return _r_fmodf(a, b); }
+  | ^
+hint: consider writing __raw_math.fmod
+debug: semantic: table.c lookup: name='fmax', found_ns='__raw_math', current_ns='math'
+314:1: warning: Implicitly resolved 'fmax' to '__raw_math.fmax'
+  | single fmax(single a, single b) { return _r_fmaxf(a, b); }
+  | ^
+hint: consider writing __raw_math.fmax
+debug: semantic: table.c lookup: name='fmin', found_ns='__raw_math', current_ns='math'
+315:1: warning: Implicitly resolved 'fmin' to '__raw_math.fmin'
+  | single fmin(single a, single b) { return _r_fminf(a, b); }
+  | ^
+hint: consider writing __raw_math.fmin
+debug: semantic: table.c lookup: name='remainder', found_ns='__raw_math', current_ns='math'
+316:1: warning: Implicitly resolved 'remainder' to '__raw_math.remainder'
+  | single remainder(single a, single b) { return _r_remainderf(a, b); }
+  | ^
+hint: consider writing __raw_math.remainder
+debug: semantic: table.c lookup: name='nextafter', found_ns='__raw_math', current_ns='math'
+323:1: warning: Implicitly resolved 'nextafter' to '__raw_math.nextafter'
+  | single nextafter(single from, single to) { return _r_nextafterf(from, to); }
+  | ^
+hint: consider writing __raw_math.nextafter
+debug: semantic: table.c lookup: name='fma', found_ns='__raw_math', current_ns='math'
+324:1: warning: Implicitly resolved 'fma' to '__raw_math.fma'
+  | single fma(single a, single b, single c) { return _r_fmaf(a, b, c); }
+  | ^
+hint: consider writing __raw_math.fma
+debug: semantic: table.c lookup: name='ilogb', found_ns='__raw_math', current_ns='math'
+329:1: warning: Implicitly resolved 'ilogb' to '__raw_math.ilogb'
+  | int ilogb(double n) { return _r_ilogb(n); }
+  | ^
+hint: consider writing __raw_math.ilogb
+debug: semantic: table.c lookup: name='scalbn', found_ns='__raw_math', current_ns='math'
+332:1: warning: Implicitly resolved 'scalbn' to '__raw_math.scalbn'
+  | single scalbn(single n, int result_exp) { return _r_scalbnf(n, result_exp); }
+  | ^
+hint: consider writing __raw_math.scalbn
+debug: semantic: table.c lookup: name='scalbln', found_ns='__raw_math', current_ns='math'
+335:1: warning: Implicitly resolved 'scalbln' to '__raw_math.scalbln'
+  | single scalbln(single n, long result_exp) { return _r_scalblnf(n, result_exp); }
+  | ^
+hint: consider writing __raw_math.scalbln
+debug: semantic: table.c lookup: name='copysign', found_ns='__raw_math', current_ns='math'
+338:1: warning: Implicitly resolved 'copysign' to '__raw_math.copysign'
+  | single copysign(single mag, single sgn) { return _r_copysignf(mag, sgn); }
+  | ^
+hint: consider writing __raw_math.copysign
+debug: semantic: table.c lookup: name='frexp', found_ns='__raw_math', current_ns='math'
+352:6: warning: Implicitly resolved 'frexp' to '__raw_math.frexp'
+  | pure frexp_result[single] frexp(single value) {
+  |      ^
+hint: consider writing __raw_math.frexp
+debug: semantic: table.c lookup: name='modf', found_ns='__raw_math', current_ns='math'
+364:6: warning: Implicitly resolved 'modf' to '__raw_math.modf'
+  | pure modf_result[single] modf(single value) {
+  |      ^
+hint: consider writing __raw_math.modf
 debug: semantic: sem_check_block: ns='__raw_math'
 debug: semantic: sem_check_block: ns='__raw_math'
 debug: semantic: sem_check_block: ns='__raw_math'
@@ -132,583 +331,577 @@ debug: semantic: sem_check_block: ns='__raw_math'
 debug: semantic: sem_check_block: ns='__raw_math'
 debug: semantic: sem_check_block: ns='__raw_math'
 debug: semantic: sem_check_block: ns='__raw_math'
-debug: diag_set_namespace: ns='main', current='__raw_math', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
-debug: diag_set_namespace: ns='math', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='math'
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=16 line=227 col=19 node=0x55f1028fbad0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=123 col=30 node=0x55f1028fc340
-debug: semantic: sem_check_expr: type=13 line=123 col=20 node=0x55f1028fc1c0
-debug: semantic: sem_check_expr: type=13 line=231 col=52 node=0x55f1028fc240
-debug: semantic: sem_check_expr: type=13 line=231 col=55 node=0x55f1028fc2c0
-debug: semantic: sem_check_expr: type=13 line=231 col=52 node=0x55f1028fc240
-debug: semantic: sem_check_expr: type=13 line=231 col=55 node=0x55f1028fc2c0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=177 col=31 node=0x55f1028fcc48
-debug: semantic: sem_check_expr: type=13 line=177 col=21 node=0x55f1028fcac8
-debug: semantic: sem_check_expr: type=13 line=232 col=53 node=0x55f1028fcb48
-debug: semantic: sem_check_expr: type=13 line=232 col=56 node=0x55f1028fcbc8
-debug: semantic: sem_check_expr: type=13 line=232 col=53 node=0x55f1028fcb48
-debug: semantic: sem_check_expr: type=13 line=232 col=56 node=0x55f1028fcbc8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=171 col=29 node=0x55f1028fd480
-debug: semantic: sem_check_expr: type=13 line=171 col=19 node=0x55f1028fd380
-debug: semantic: sem_check_expr: type=13 line=234 col=39 node=0x55f1028fd400
-debug: semantic: sem_check_expr: type=13 line=234 col=39 node=0x55f1028fd400
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=172 col=29 node=0x55f1028fdcb8
-debug: semantic: sem_check_expr: type=13 line=172 col=19 node=0x55f1028fdbb8
-debug: semantic: sem_check_expr: type=13 line=235 col=39 node=0x55f1028fdc38
-debug: semantic: sem_check_expr: type=13 line=235 col=39 node=0x55f1028fdc38
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=173 col=29 node=0x55f1028fe4f0
-debug: semantic: sem_check_expr: type=13 line=173 col=19 node=0x55f1028fe3f0
-debug: semantic: sem_check_expr: type=13 line=236 col=39 node=0x55f1028fe470
-debug: semantic: sem_check_expr: type=13 line=236 col=39 node=0x55f1028fe470
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=117 col=28 node=0x55f1028fed28
-debug: semantic: sem_check_expr: type=13 line=117 col=18 node=0x55f1028fec28
-debug: semantic: sem_check_expr: type=13 line=238 col=38 node=0x55f1028feca8
-debug: semantic: sem_check_expr: type=13 line=238 col=38 node=0x55f1028feca8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=118 col=28 node=0x55f1028ff560
-debug: semantic: sem_check_expr: type=13 line=118 col=18 node=0x55f1028ff460
-debug: semantic: sem_check_expr: type=13 line=239 col=38 node=0x55f1028ff4e0
-debug: semantic: sem_check_expr: type=13 line=239 col=38 node=0x55f1028ff4e0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=119 col=28 node=0x55f1028ffd98
-debug: semantic: sem_check_expr: type=13 line=119 col=18 node=0x55f1028ffc98
-debug: semantic: sem_check_expr: type=13 line=240 col=38 node=0x55f1028ffd18
-debug: semantic: sem_check_expr: type=13 line=240 col=38 node=0x55f1028ffd18
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=174 col=30 node=0x55f1029005d0
-debug: semantic: sem_check_expr: type=13 line=174 col=20 node=0x55f1029004d0
-debug: semantic: sem_check_expr: type=13 line=242 col=41 node=0x55f102900550
-debug: semantic: sem_check_expr: type=13 line=242 col=41 node=0x55f102900550
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=175 col=30 node=0x55f102900e08
-debug: semantic: sem_check_expr: type=13 line=175 col=20 node=0x55f102900d08
-debug: semantic: sem_check_expr: type=13 line=243 col=41 node=0x55f102900d88
-debug: semantic: sem_check_expr: type=13 line=243 col=41 node=0x55f102900d88
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=176 col=30 node=0x55f102901640
-debug: semantic: sem_check_expr: type=13 line=176 col=20 node=0x55f102901540
-debug: semantic: sem_check_expr: type=13 line=244 col=41 node=0x55f1029015c0
-debug: semantic: sem_check_expr: type=13 line=244 col=41 node=0x55f1029015c0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=120 col=29 node=0x55f102901e78
-debug: semantic: sem_check_expr: type=13 line=120 col=19 node=0x55f102901d78
-debug: semantic: sem_check_expr: type=13 line=246 col=40 node=0x55f102901df8
-debug: semantic: sem_check_expr: type=13 line=246 col=40 node=0x55f102901df8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=121 col=29 node=0x55f1029026b0
-debug: semantic: sem_check_expr: type=13 line=121 col=19 node=0x55f1029025b0
-debug: semantic: sem_check_expr: type=13 line=247 col=40 node=0x55f102902630
-debug: semantic: sem_check_expr: type=13 line=247 col=40 node=0x55f102902630
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=122 col=29 node=0x55f102902ee8
-debug: semantic: sem_check_expr: type=13 line=122 col=19 node=0x55f102902de8
-debug: semantic: sem_check_expr: type=13 line=248 col=40 node=0x55f102902e68
-debug: semantic: sem_check_expr: type=13 line=248 col=40 node=0x55f102902e68
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=179 col=30 node=0x55f102903720
-debug: semantic: sem_check_expr: type=13 line=179 col=20 node=0x55f102903620
-debug: semantic: sem_check_expr: type=13 line=250 col=41 node=0x55f1029036a0
-debug: semantic: sem_check_expr: type=13 line=250 col=41 node=0x55f1029036a0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=180 col=30 node=0x55f102903f58
-debug: semantic: sem_check_expr: type=13 line=180 col=20 node=0x55f102903e58
-debug: semantic: sem_check_expr: type=13 line=251 col=41 node=0x55f102903ed8
-debug: semantic: sem_check_expr: type=13 line=251 col=41 node=0x55f102903ed8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=181 col=30 node=0x55f102904790
-debug: semantic: sem_check_expr: type=13 line=181 col=20 node=0x55f102904690
-debug: semantic: sem_check_expr: type=13 line=252 col=41 node=0x55f102904710
-debug: semantic: sem_check_expr: type=13 line=252 col=41 node=0x55f102904710
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=125 col=29 node=0x55f102904fc8
-debug: semantic: sem_check_expr: type=13 line=125 col=19 node=0x55f102904ec8
-debug: semantic: sem_check_expr: type=13 line=254 col=40 node=0x55f102904f48
-debug: semantic: sem_check_expr: type=13 line=254 col=40 node=0x55f102904f48
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=126 col=29 node=0x55f102905800
-debug: semantic: sem_check_expr: type=13 line=126 col=19 node=0x55f102905700
-debug: semantic: sem_check_expr: type=13 line=255 col=40 node=0x55f102905780
-debug: semantic: sem_check_expr: type=13 line=255 col=40 node=0x55f102905780
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=127 col=29 node=0x55f102906038
-debug: semantic: sem_check_expr: type=13 line=127 col=19 node=0x55f102905f38
-debug: semantic: sem_check_expr: type=13 line=256 col=40 node=0x55f102905fb8
-debug: semantic: sem_check_expr: type=13 line=256 col=40 node=0x55f102905fb8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=183 col=29 node=0x55f102906870
-debug: semantic: sem_check_expr: type=13 line=183 col=19 node=0x55f102906770
-debug: semantic: sem_check_expr: type=13 line=258 col=39 node=0x55f1029067f0
-debug: semantic: sem_check_expr: type=13 line=258 col=39 node=0x55f1029067f0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=184 col=30 node=0x55f1029070a8
-debug: semantic: sem_check_expr: type=13 line=184 col=20 node=0x55f102906fa8
-debug: semantic: sem_check_expr: type=13 line=259 col=41 node=0x55f102907028
-debug: semantic: sem_check_expr: type=13 line=259 col=41 node=0x55f102907028
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=185 col=31 node=0x55f102907918
-debug: semantic: sem_check_expr: type=13 line=185 col=21 node=0x55f102907818
-debug: semantic: sem_check_expr: type=13 line=260 col=43 node=0x55f102907898
-debug: semantic: sem_check_expr: type=13 line=260 col=43 node=0x55f102907898
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=129 col=28 node=0x55f102908150
-debug: semantic: sem_check_expr: type=13 line=129 col=18 node=0x55f102908050
-debug: semantic: sem_check_expr: type=13 line=262 col=38 node=0x55f1029080d0
-debug: semantic: sem_check_expr: type=13 line=262 col=38 node=0x55f1029080d0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=130 col=29 node=0x55f102908988
-debug: semantic: sem_check_expr: type=13 line=130 col=19 node=0x55f102908888
-debug: semantic: sem_check_expr: type=13 line=263 col=40 node=0x55f102908908
-debug: semantic: sem_check_expr: type=13 line=263 col=40 node=0x55f102908908
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=131 col=30 node=0x55f1029091c0
-debug: semantic: sem_check_expr: type=13 line=131 col=20 node=0x55f1029090c0
-debug: semantic: sem_check_expr: type=13 line=264 col=42 node=0x55f102909140
-debug: semantic: sem_check_expr: type=13 line=264 col=42 node=0x55f102909140
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=186 col=29 node=0x55f1029099f8
-debug: semantic: sem_check_expr: type=13 line=186 col=19 node=0x55f1029098f8
-debug: semantic: sem_check_expr: type=13 line=266 col=39 node=0x55f102909978
-debug: semantic: sem_check_expr: type=13 line=266 col=39 node=0x55f102909978
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=187 col=31 node=0x55f10290a230
-debug: semantic: sem_check_expr: type=13 line=187 col=21 node=0x55f10290a130
-debug: semantic: sem_check_expr: type=13 line=267 col=43 node=0x55f10290a1b0
-debug: semantic: sem_check_expr: type=13 line=267 col=43 node=0x55f10290a1b0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=188 col=30 node=0x55f10290aa68
-debug: semantic: sem_check_expr: type=13 line=188 col=20 node=0x55f10290a968
-debug: semantic: sem_check_expr: type=13 line=268 col=41 node=0x55f10290a9e8
-debug: semantic: sem_check_expr: type=13 line=268 col=41 node=0x55f10290a9e8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=189 col=31 node=0x55f10290b2a0
-debug: semantic: sem_check_expr: type=13 line=189 col=21 node=0x55f10290b1a0
-debug: semantic: sem_check_expr: type=13 line=269 col=43 node=0x55f10290b220
-debug: semantic: sem_check_expr: type=13 line=269 col=43 node=0x55f10290b220
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=132 col=28 node=0x55f10290bad8
-debug: semantic: sem_check_expr: type=13 line=132 col=18 node=0x55f10290b9d8
-debug: semantic: sem_check_expr: type=13 line=271 col=38 node=0x55f10290ba58
-debug: semantic: sem_check_expr: type=13 line=271 col=38 node=0x55f10290ba58
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=133 col=30 node=0x55f10290c310
-debug: semantic: sem_check_expr: type=13 line=133 col=20 node=0x55f10290c210
-debug: semantic: sem_check_expr: type=13 line=272 col=42 node=0x55f10290c290
-debug: semantic: sem_check_expr: type=13 line=272 col=42 node=0x55f10290c290
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=134 col=29 node=0x55f10290cb48
-debug: semantic: sem_check_expr: type=13 line=134 col=19 node=0x55f10290ca48
-debug: semantic: sem_check_expr: type=13 line=273 col=40 node=0x55f10290cac8
-debug: semantic: sem_check_expr: type=13 line=273 col=40 node=0x55f10290cac8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=135 col=30 node=0x55f10290d380
-debug: semantic: sem_check_expr: type=13 line=135 col=20 node=0x55f10290d280
-debug: semantic: sem_check_expr: type=13 line=274 col=42 node=0x55f10290d300
-debug: semantic: sem_check_expr: type=13 line=274 col=42 node=0x55f10290d300
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=191 col=29 node=0x55f10290dc88
-debug: semantic: sem_check_expr: type=13 line=191 col=19 node=0x55f10290db08
-debug: semantic: sem_check_expr: type=13 line=276 col=49 node=0x55f10290db88
-debug: semantic: sem_check_expr: type=13 line=276 col=52 node=0x55f10290dc08
-debug: semantic: sem_check_expr: type=13 line=276 col=49 node=0x55f10290db88
-debug: semantic: sem_check_expr: type=13 line=276 col=52 node=0x55f10290dc08
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=192 col=30 node=0x55f10290e4c0
-debug: semantic: sem_check_expr: type=13 line=192 col=20 node=0x55f10290e3c0
-debug: semantic: sem_check_expr: type=13 line=277 col=41 node=0x55f10290e440
-debug: semantic: sem_check_expr: type=13 line=277 col=41 node=0x55f10290e440
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=193 col=30 node=0x55f10290ecf8
-debug: semantic: sem_check_expr: type=13 line=193 col=20 node=0x55f10290ebf8
-debug: semantic: sem_check_expr: type=13 line=278 col=41 node=0x55f10290ec78
-debug: semantic: sem_check_expr: type=13 line=278 col=41 node=0x55f10290ec78
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=194 col=31 node=0x55f10290f600
-debug: semantic: sem_check_expr: type=13 line=194 col=21 node=0x55f10290f480
-debug: semantic: sem_check_expr: type=13 line=279 col=53 node=0x55f10290f500
-debug: semantic: sem_check_expr: type=13 line=279 col=56 node=0x55f10290f580
-debug: semantic: sem_check_expr: type=13 line=279 col=53 node=0x55f10290f500
-debug: semantic: sem_check_expr: type=13 line=279 col=56 node=0x55f10290f580
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=137 col=28 node=0x55f10290ff08
-debug: semantic: sem_check_expr: type=13 line=137 col=18 node=0x55f10290fd88
-debug: semantic: sem_check_expr: type=13 line=281 col=48 node=0x55f10290fe08
-debug: semantic: sem_check_expr: type=13 line=281 col=51 node=0x55f10290fe88
-debug: semantic: sem_check_expr: type=13 line=281 col=48 node=0x55f10290fe08
-debug: semantic: sem_check_expr: type=13 line=281 col=51 node=0x55f10290fe88
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=138 col=29 node=0x55f102910740
-debug: semantic: sem_check_expr: type=13 line=138 col=19 node=0x55f102910640
-debug: semantic: sem_check_expr: type=13 line=282 col=40 node=0x55f1029106c0
-debug: semantic: sem_check_expr: type=13 line=282 col=40 node=0x55f1029106c0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=139 col=29 node=0x55f102910f78
-debug: semantic: sem_check_expr: type=13 line=139 col=19 node=0x55f102910e78
-debug: semantic: sem_check_expr: type=13 line=283 col=40 node=0x55f102910ef8
-debug: semantic: sem_check_expr: type=13 line=283 col=40 node=0x55f102910ef8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=140 col=30 node=0x55f102911880
-debug: semantic: sem_check_expr: type=13 line=140 col=20 node=0x55f102911700
-debug: semantic: sem_check_expr: type=13 line=284 col=52 node=0x55f102911780
-debug: semantic: sem_check_expr: type=13 line=284 col=55 node=0x55f102911800
-debug: semantic: sem_check_expr: type=13 line=284 col=52 node=0x55f102911780
-debug: semantic: sem_check_expr: type=13 line=284 col=55 node=0x55f102911800
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=196 col=29 node=0x55f1029120b8
-debug: semantic: sem_check_expr: type=13 line=196 col=19 node=0x55f102911fb8
-debug: semantic: sem_check_expr: type=13 line=286 col=39 node=0x55f102912038
-debug: semantic: sem_check_expr: type=13 line=286 col=39 node=0x55f102912038
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=197 col=30 node=0x55f1029128f0
-debug: semantic: sem_check_expr: type=13 line=197 col=20 node=0x55f1029127f0
-debug: semantic: sem_check_expr: type=13 line=287 col=41 node=0x55f102912870
-debug: semantic: sem_check_expr: type=13 line=287 col=41 node=0x55f102912870
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=198 col=32 node=0x55f102913128
-debug: semantic: sem_check_expr: type=13 line=198 col=22 node=0x55f102913028
-debug: semantic: sem_check_expr: type=13 line=288 col=45 node=0x55f1029130a8
-debug: semantic: sem_check_expr: type=13 line=288 col=45 node=0x55f1029130a8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=199 col=32 node=0x55f102913960
-debug: semantic: sem_check_expr: type=13 line=199 col=22 node=0x55f102913860
-debug: semantic: sem_check_expr: type=13 line=289 col=45 node=0x55f1029138e0
-debug: semantic: sem_check_expr: type=13 line=289 col=45 node=0x55f1029138e0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=142 col=28 node=0x55f102914198
-debug: semantic: sem_check_expr: type=13 line=142 col=18 node=0x55f102914098
-debug: semantic: sem_check_expr: type=13 line=291 col=38 node=0x55f102914118
-debug: semantic: sem_check_expr: type=13 line=291 col=38 node=0x55f102914118
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=143 col=29 node=0x55f1029149d0
-debug: semantic: sem_check_expr: type=13 line=143 col=19 node=0x55f1029148d0
-debug: semantic: sem_check_expr: type=13 line=292 col=40 node=0x55f102914950
-debug: semantic: sem_check_expr: type=13 line=292 col=40 node=0x55f102914950
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=144 col=31 node=0x55f102915208
-debug: semantic: sem_check_expr: type=13 line=144 col=21 node=0x55f102915108
-debug: semantic: sem_check_expr: type=13 line=293 col=44 node=0x55f102915188
-debug: semantic: sem_check_expr: type=13 line=293 col=44 node=0x55f102915188
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=145 col=31 node=0x55f102915a40
-debug: semantic: sem_check_expr: type=13 line=145 col=21 node=0x55f102915940
-debug: semantic: sem_check_expr: type=13 line=294 col=44 node=0x55f1029159c0
-debug: semantic: sem_check_expr: type=13 line=294 col=44 node=0x55f1029159c0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=201 col=30 node=0x55f102916278
-debug: semantic: sem_check_expr: type=13 line=201 col=20 node=0x55f102916178
-debug: semantic: sem_check_expr: type=13 line=296 col=41 node=0x55f1029161f8
-debug: semantic: sem_check_expr: type=13 line=296 col=41 node=0x55f1029161f8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=202 col=31 node=0x55f102916ab0
-debug: semantic: sem_check_expr: type=13 line=202 col=21 node=0x55f1029169b0
-debug: semantic: sem_check_expr: type=13 line=297 col=43 node=0x55f102916a30
-debug: semantic: sem_check_expr: type=13 line=297 col=43 node=0x55f102916a30
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=203 col=31 node=0x55f102917378
-debug: semantic: sem_check_expr: type=13 line=203 col=21 node=0x55f1029171e8
-debug: semantic: sem_check_expr: type=13 line=298 col=43 node=0x55f1029172f8
-debug: semantic: sem_check_expr: type=13 line=298 col=43 node=0x55f1029172f8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=204 col=31 node=0x55f102917bb0
-debug: semantic: sem_check_expr: type=13 line=204 col=21 node=0x55f102917ab0
-debug: semantic: sem_check_expr: type=13 line=299 col=43 node=0x55f102917b30
-debug: semantic: sem_check_expr: type=13 line=299 col=43 node=0x55f102917b30
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=205 col=35 node=0x55f1029183e8
-debug: semantic: sem_check_expr: type=13 line=205 col=25 node=0x55f1029182e8
-debug: semantic: sem_check_expr: type=13 line=300 col=51 node=0x55f102918368
-debug: semantic: sem_check_expr: type=13 line=300 col=51 node=0x55f102918368
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=206 col=30 node=0x55f102918c20
-debug: semantic: sem_check_expr: type=13 line=206 col=20 node=0x55f102918b20
-debug: semantic: sem_check_expr: type=13 line=301 col=41 node=0x55f102918ba0
-debug: semantic: sem_check_expr: type=13 line=301 col=41 node=0x55f102918ba0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=147 col=29 node=0x55f102919458
-debug: semantic: sem_check_expr: type=13 line=147 col=19 node=0x55f102919358
-debug: semantic: sem_check_expr: type=13 line=303 col=40 node=0x55f1029193d8
-debug: semantic: sem_check_expr: type=13 line=303 col=40 node=0x55f1029193d8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=148 col=30 node=0x55f102919c90
-debug: semantic: sem_check_expr: type=13 line=148 col=20 node=0x55f102919b90
-debug: semantic: sem_check_expr: type=13 line=304 col=42 node=0x55f102919c10
-debug: semantic: sem_check_expr: type=13 line=304 col=42 node=0x55f102919c10
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=149 col=30 node=0x55f10291a4c8
-debug: semantic: sem_check_expr: type=13 line=149 col=20 node=0x55f10291a3c8
-debug: semantic: sem_check_expr: type=13 line=305 col=42 node=0x55f10291a448
-debug: semantic: sem_check_expr: type=13 line=305 col=42 node=0x55f10291a448
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=150 col=30 node=0x55f10291ad00
-debug: semantic: sem_check_expr: type=13 line=150 col=20 node=0x55f10291ac00
-debug: semantic: sem_check_expr: type=13 line=306 col=42 node=0x55f10291ac80
-debug: semantic: sem_check_expr: type=13 line=306 col=42 node=0x55f10291ac80
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=151 col=34 node=0x55f10291b538
-debug: semantic: sem_check_expr: type=13 line=151 col=24 node=0x55f10291b438
-debug: semantic: sem_check_expr: type=13 line=307 col=50 node=0x55f10291b4b8
-debug: semantic: sem_check_expr: type=13 line=307 col=50 node=0x55f10291b4b8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=152 col=29 node=0x55f10291bd70
-debug: semantic: sem_check_expr: type=13 line=152 col=19 node=0x55f10291bc70
-debug: semantic: sem_check_expr: type=13 line=308 col=40 node=0x55f10291bcf0
-debug: semantic: sem_check_expr: type=13 line=308 col=40 node=0x55f10291bcf0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=208 col=30 node=0x55f10291c5a8
-debug: semantic: sem_check_expr: type=13 line=208 col=20 node=0x55f10291c4a8
-debug: semantic: sem_check_expr: type=13 line=310 col=40 node=0x55f10291c528
-debug: semantic: sem_check_expr: type=13 line=310 col=40 node=0x55f10291c528
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=154 col=29 node=0x55f10291cde0
-debug: semantic: sem_check_expr: type=13 line=154 col=19 node=0x55f10291cce0
-debug: semantic: sem_check_expr: type=13 line=311 col=39 node=0x55f10291cd60
-debug: semantic: sem_check_expr: type=13 line=311 col=39 node=0x55f10291cd60
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=209 col=30 node=0x55f10291d6e8
-debug: semantic: sem_check_expr: type=13 line=209 col=20 node=0x55f10291d568
-debug: semantic: sem_check_expr: type=13 line=313 col=51 node=0x55f10291d5e8
-debug: semantic: sem_check_expr: type=13 line=313 col=54 node=0x55f10291d668
-debug: semantic: sem_check_expr: type=13 line=313 col=51 node=0x55f10291d5e8
-debug: semantic: sem_check_expr: type=13 line=313 col=54 node=0x55f10291d668
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=210 col=30 node=0x55f10291dff0
-debug: semantic: sem_check_expr: type=13 line=210 col=20 node=0x55f10291de70
-debug: semantic: sem_check_expr: type=13 line=314 col=51 node=0x55f10291def0
-debug: semantic: sem_check_expr: type=13 line=314 col=54 node=0x55f10291df70
-debug: semantic: sem_check_expr: type=13 line=314 col=51 node=0x55f10291def0
-debug: semantic: sem_check_expr: type=13 line=314 col=54 node=0x55f10291df70
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=211 col=30 node=0x55f10291e8f8
-debug: semantic: sem_check_expr: type=13 line=211 col=20 node=0x55f10291e778
-debug: semantic: sem_check_expr: type=13 line=315 col=51 node=0x55f10291e7f8
-debug: semantic: sem_check_expr: type=13 line=315 col=54 node=0x55f10291e878
-debug: semantic: sem_check_expr: type=13 line=315 col=51 node=0x55f10291e7f8
-debug: semantic: sem_check_expr: type=13 line=315 col=54 node=0x55f10291e878
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=212 col=35 node=0x55f10291f200
-debug: semantic: sem_check_expr: type=13 line=212 col=25 node=0x55f10291f080
-debug: semantic: sem_check_expr: type=13 line=316 col=61 node=0x55f10291f100
-debug: semantic: sem_check_expr: type=13 line=316 col=64 node=0x55f10291f180
-debug: semantic: sem_check_expr: type=13 line=316 col=61 node=0x55f10291f100
-debug: semantic: sem_check_expr: type=13 line=316 col=64 node=0x55f10291f180
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=155 col=29 node=0x55f10291fb08
-debug: semantic: sem_check_expr: type=13 line=155 col=19 node=0x55f10291f988
-debug: semantic: sem_check_expr: type=13 line=318 col=50 node=0x55f10291fa08
-debug: semantic: sem_check_expr: type=13 line=318 col=53 node=0x55f10291fa88
-debug: semantic: sem_check_expr: type=13 line=318 col=50 node=0x55f10291fa08
-debug: semantic: sem_check_expr: type=13 line=318 col=53 node=0x55f10291fa88
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=156 col=29 node=0x55f102920410
-debug: semantic: sem_check_expr: type=13 line=156 col=19 node=0x55f102920290
-debug: semantic: sem_check_expr: type=13 line=319 col=50 node=0x55f102920310
-debug: semantic: sem_check_expr: type=13 line=319 col=53 node=0x55f102920390
-debug: semantic: sem_check_expr: type=13 line=319 col=50 node=0x55f102920310
-debug: semantic: sem_check_expr: type=13 line=319 col=53 node=0x55f102920390
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=157 col=29 node=0x55f102920d18
-debug: semantic: sem_check_expr: type=13 line=157 col=19 node=0x55f102920b98
-debug: semantic: sem_check_expr: type=13 line=320 col=50 node=0x55f102920c18
-debug: semantic: sem_check_expr: type=13 line=320 col=53 node=0x55f102920c98
-debug: semantic: sem_check_expr: type=13 line=320 col=50 node=0x55f102920c18
-debug: semantic: sem_check_expr: type=13 line=320 col=53 node=0x55f102920c98
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=158 col=34 node=0x55f102921620
-debug: semantic: sem_check_expr: type=13 line=158 col=24 node=0x55f1029214a0
-debug: semantic: sem_check_expr: type=13 line=321 col=60 node=0x55f102921520
-debug: semantic: sem_check_expr: type=13 line=321 col=63 node=0x55f1029215a0
-debug: semantic: sem_check_expr: type=13 line=321 col=60 node=0x55f102921520
-debug: semantic: sem_check_expr: type=13 line=321 col=63 node=0x55f1029215a0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=218 col=35 node=0x55f102921f28
-debug: semantic: sem_check_expr: type=13 line=218 col=25 node=0x55f102921da8
-debug: semantic: sem_check_expr: type=13 line=323 col=65 node=0x55f102921e28
-debug: semantic: sem_check_expr: type=13 line=323 col=71 node=0x55f102921ea8
-debug: semantic: sem_check_expr: type=13 line=323 col=65 node=0x55f102921e28
-debug: semantic: sem_check_expr: type=13 line=323 col=71 node=0x55f102921ea8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=219 col=29 node=0x55f102922900
-debug: semantic: sem_check_expr: type=13 line=219 col=19 node=0x55f102922700
-debug: semantic: sem_check_expr: type=13 line=324 col=59 node=0x55f102922780
-debug: semantic: sem_check_expr: type=13 line=324 col=62 node=0x55f102922800
-debug: semantic: sem_check_expr: type=13 line=324 col=65 node=0x55f102922880
-debug: semantic: sem_check_expr: type=13 line=324 col=59 node=0x55f102922780
-debug: semantic: sem_check_expr: type=13 line=324 col=62 node=0x55f102922800
-debug: semantic: sem_check_expr: type=13 line=324 col=65 node=0x55f102922880
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=164 col=34 node=0x55f102923208
-debug: semantic: sem_check_expr: type=13 line=164 col=24 node=0x55f102923088
-debug: semantic: sem_check_expr: type=13 line=326 col=64 node=0x55f102923108
-debug: semantic: sem_check_expr: type=13 line=326 col=70 node=0x55f102923188
-debug: semantic: sem_check_expr: type=13 line=326 col=64 node=0x55f102923108
-debug: semantic: sem_check_expr: type=13 line=326 col=70 node=0x55f102923188
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=165 col=28 node=0x55f102923be0
-debug: semantic: sem_check_expr: type=13 line=165 col=18 node=0x55f1029239e0
-debug: semantic: sem_check_expr: type=13 line=327 col=58 node=0x55f102923a60
-debug: semantic: sem_check_expr: type=13 line=327 col=61 node=0x55f102923ae0
-debug: semantic: sem_check_expr: type=13 line=327 col=64 node=0x55f102923b60
-debug: semantic: sem_check_expr: type=13 line=327 col=58 node=0x55f102923a60
-debug: semantic: sem_check_expr: type=13 line=327 col=61 node=0x55f102923ae0
-debug: semantic: sem_check_expr: type=13 line=327 col=64 node=0x55f102923b60
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=167 col=30 node=0x55f102924418
-debug: semantic: sem_check_expr: type=13 line=167 col=20 node=0x55f102924318
-debug: semantic: sem_check_expr: type=13 line=329 col=39 node=0x55f102924398
-debug: semantic: sem_check_expr: type=13 line=329 col=39 node=0x55f102924398
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=221 col=31 node=0x55f102924c50
-debug: semantic: sem_check_expr: type=13 line=221 col=21 node=0x55f102924b50
-debug: semantic: sem_check_expr: type=13 line=330 col=40 node=0x55f102924bd0
-debug: semantic: sem_check_expr: type=13 line=330 col=40 node=0x55f102924bd0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=222 col=32 node=0x55f102925558
-debug: semantic: sem_check_expr: type=13 line=222 col=22 node=0x55f1029253d8
-debug: semantic: sem_check_expr: type=13 line=332 col=61 node=0x55f102925458
-debug: semantic: sem_check_expr: type=13 line=332 col=64 node=0x55f1029254d8
-debug: semantic: sem_check_expr: type=13 line=332 col=61 node=0x55f102925458
-debug: semantic: sem_check_expr: type=13 line=332 col=64 node=0x55f1029254d8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=168 col=31 node=0x55f102925e60
-debug: semantic: sem_check_expr: type=13 line=168 col=21 node=0x55f102925ce0
-debug: semantic: sem_check_expr: type=13 line=333 col=60 node=0x55f102925d60
-debug: semantic: sem_check_expr: type=13 line=333 col=63 node=0x55f102925de0
-debug: semantic: sem_check_expr: type=13 line=333 col=60 node=0x55f102925d60
-debug: semantic: sem_check_expr: type=13 line=333 col=63 node=0x55f102925de0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=223 col=33 node=0x55f102926768
-debug: semantic: sem_check_expr: type=13 line=223 col=23 node=0x55f1029265e8
-debug: semantic: sem_check_expr: type=13 line=335 col=64 node=0x55f102926668
-debug: semantic: sem_check_expr: type=13 line=335 col=67 node=0x55f1029266e8
-debug: semantic: sem_check_expr: type=13 line=335 col=64 node=0x55f102926668
-debug: semantic: sem_check_expr: type=13 line=335 col=67 node=0x55f1029266e8
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=169 col=32 node=0x55f102927070
-debug: semantic: sem_check_expr: type=13 line=169 col=22 node=0x55f102926ef0
-debug: semantic: sem_check_expr: type=13 line=336 col=63 node=0x55f102926f70
-debug: semantic: sem_check_expr: type=13 line=336 col=66 node=0x55f102926ff0
-debug: semantic: sem_check_expr: type=13 line=336 col=63 node=0x55f102926f70
-debug: semantic: sem_check_expr: type=13 line=336 col=66 node=0x55f102926ff0
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=213 col=34 node=0x55f1029279d8
-debug: semantic: sem_check_expr: type=13 line=213 col=24 node=0x55f102927858
-debug: semantic: sem_check_expr: type=13 line=338 col=63 node=0x55f1029278d8
-debug: semantic: sem_check_expr: type=13 line=338 col=68 node=0x55f102927958
-debug: semantic: sem_check_expr: type=13 line=338 col=63 node=0x55f1029278d8
-debug: semantic: sem_check_expr: type=13 line=338 col=68 node=0x55f102927958
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=159 col=33 node=0x55f1029282e0
-debug: semantic: sem_check_expr: type=13 line=159 col=23 node=0x55f102928160
-debug: semantic: sem_check_expr: type=13 line=339 col=62 node=0x55f1029281e0
-debug: semantic: sem_check_expr: type=13 line=339 col=67 node=0x55f102928260
-debug: semantic: sem_check_expr: type=13 line=339 col=62 node=0x55f1029281e0
-debug: semantic: sem_check_expr: type=13 line=339 col=67 node=0x55f102928260
-debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=215 col=31 node=0x55f102929518
-debug: semantic: sem_check_expr: type=13 line=215 col=21 node=0x55f102929310
-debug: semantic: sem_check_expr: type=13 line=354 col=33 node=0x55f102929390
-debug: semantic: sem_check_expr: type=15 line=354 col=40 node=0x55f102929490
-debug: semantic: sem_check_expr: type=13 line=354 col=41 node=0x55f102929410
-debug: semantic: sem_check_expr: type=13 line=354 col=33 node=0x55f102929390
-debug: semantic: sem_check_expr: type=15 line=354 col=40 node=0x55f102929490
-debug: semantic: sem_check_expr: type=13 line=354 col=41 node=0x55f102929410
-debug: semantic: sem_check_expr: type=2 line=355 col=32 node=0x55f102929b70
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=16 line=227 col=19 node=0x55d48e27ead0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=123 col=30 node=0x55d48e27f340
+debug: semantic: sem_check_expr: type=13 line=123 col=20 node=0x55d48e27f1c0
+debug: semantic: sem_check_expr: type=13 line=231 col=52 node=0x55d48e27f240
+debug: semantic: sem_check_expr: type=13 line=231 col=55 node=0x55d48e27f2c0
+debug: semantic: sem_check_expr: type=13 line=231 col=52 node=0x55d48e27f240
+debug: semantic: sem_check_expr: type=13 line=231 col=55 node=0x55d48e27f2c0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=177 col=31 node=0x55d48e27fc48
+debug: semantic: sem_check_expr: type=13 line=177 col=21 node=0x55d48e27fac8
+debug: semantic: sem_check_expr: type=13 line=232 col=53 node=0x55d48e27fb48
+debug: semantic: sem_check_expr: type=13 line=232 col=56 node=0x55d48e27fbc8
+debug: semantic: sem_check_expr: type=13 line=232 col=53 node=0x55d48e27fb48
+debug: semantic: sem_check_expr: type=13 line=232 col=56 node=0x55d48e27fbc8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=171 col=29 node=0x55d48e280480
+debug: semantic: sem_check_expr: type=13 line=171 col=19 node=0x55d48e280380
+debug: semantic: sem_check_expr: type=13 line=234 col=39 node=0x55d48e280400
+debug: semantic: sem_check_expr: type=13 line=234 col=39 node=0x55d48e280400
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=172 col=29 node=0x55d48e280cb8
+debug: semantic: sem_check_expr: type=13 line=172 col=19 node=0x55d48e280bb8
+debug: semantic: sem_check_expr: type=13 line=235 col=39 node=0x55d48e280c38
+debug: semantic: sem_check_expr: type=13 line=235 col=39 node=0x55d48e280c38
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=173 col=29 node=0x55d48e2814f0
+debug: semantic: sem_check_expr: type=13 line=173 col=19 node=0x55d48e2813f0
+debug: semantic: sem_check_expr: type=13 line=236 col=39 node=0x55d48e281470
+debug: semantic: sem_check_expr: type=13 line=236 col=39 node=0x55d48e281470
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=117 col=28 node=0x55d48e281d28
+debug: semantic: sem_check_expr: type=13 line=117 col=18 node=0x55d48e281c28
+debug: semantic: sem_check_expr: type=13 line=238 col=38 node=0x55d48e281ca8
+debug: semantic: sem_check_expr: type=13 line=238 col=38 node=0x55d48e281ca8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=118 col=28 node=0x55d48e282560
+debug: semantic: sem_check_expr: type=13 line=118 col=18 node=0x55d48e282460
+debug: semantic: sem_check_expr: type=13 line=239 col=38 node=0x55d48e2824e0
+debug: semantic: sem_check_expr: type=13 line=239 col=38 node=0x55d48e2824e0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=119 col=28 node=0x55d48e282d98
+debug: semantic: sem_check_expr: type=13 line=119 col=18 node=0x55d48e282c98
+debug: semantic: sem_check_expr: type=13 line=240 col=38 node=0x55d48e282d18
+debug: semantic: sem_check_expr: type=13 line=240 col=38 node=0x55d48e282d18
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=174 col=30 node=0x55d48e2835d0
+debug: semantic: sem_check_expr: type=13 line=174 col=20 node=0x55d48e2834d0
+debug: semantic: sem_check_expr: type=13 line=242 col=41 node=0x55d48e283550
+debug: semantic: sem_check_expr: type=13 line=242 col=41 node=0x55d48e283550
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=175 col=30 node=0x55d48e283e08
+debug: semantic: sem_check_expr: type=13 line=175 col=20 node=0x55d48e283d08
+debug: semantic: sem_check_expr: type=13 line=243 col=41 node=0x55d48e283d88
+debug: semantic: sem_check_expr: type=13 line=243 col=41 node=0x55d48e283d88
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=176 col=30 node=0x55d48e284640
+debug: semantic: sem_check_expr: type=13 line=176 col=20 node=0x55d48e284540
+debug: semantic: sem_check_expr: type=13 line=244 col=41 node=0x55d48e2845c0
+debug: semantic: sem_check_expr: type=13 line=244 col=41 node=0x55d48e2845c0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=120 col=29 node=0x55d48e284e78
+debug: semantic: sem_check_expr: type=13 line=120 col=19 node=0x55d48e284d78
+debug: semantic: sem_check_expr: type=13 line=246 col=40 node=0x55d48e284df8
+debug: semantic: sem_check_expr: type=13 line=246 col=40 node=0x55d48e284df8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=121 col=29 node=0x55d48e2856b0
+debug: semantic: sem_check_expr: type=13 line=121 col=19 node=0x55d48e2855b0
+debug: semantic: sem_check_expr: type=13 line=247 col=40 node=0x55d48e285630
+debug: semantic: sem_check_expr: type=13 line=247 col=40 node=0x55d48e285630
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=122 col=29 node=0x55d48e285ee8
+debug: semantic: sem_check_expr: type=13 line=122 col=19 node=0x55d48e285de8
+debug: semantic: sem_check_expr: type=13 line=248 col=40 node=0x55d48e285e68
+debug: semantic: sem_check_expr: type=13 line=248 col=40 node=0x55d48e285e68
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=179 col=30 node=0x55d48e286720
+debug: semantic: sem_check_expr: type=13 line=179 col=20 node=0x55d48e286620
+debug: semantic: sem_check_expr: type=13 line=250 col=41 node=0x55d48e2866a0
+debug: semantic: sem_check_expr: type=13 line=250 col=41 node=0x55d48e2866a0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=180 col=30 node=0x55d48e286f58
+debug: semantic: sem_check_expr: type=13 line=180 col=20 node=0x55d48e286e58
+debug: semantic: sem_check_expr: type=13 line=251 col=41 node=0x55d48e286ed8
+debug: semantic: sem_check_expr: type=13 line=251 col=41 node=0x55d48e286ed8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=181 col=30 node=0x55d48e287790
+debug: semantic: sem_check_expr: type=13 line=181 col=20 node=0x55d48e287690
+debug: semantic: sem_check_expr: type=13 line=252 col=41 node=0x55d48e287710
+debug: semantic: sem_check_expr: type=13 line=252 col=41 node=0x55d48e287710
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=125 col=29 node=0x55d48e287fc8
+debug: semantic: sem_check_expr: type=13 line=125 col=19 node=0x55d48e287ec8
+debug: semantic: sem_check_expr: type=13 line=254 col=40 node=0x55d48e287f48
+debug: semantic: sem_check_expr: type=13 line=254 col=40 node=0x55d48e287f48
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=126 col=29 node=0x55d48e288800
+debug: semantic: sem_check_expr: type=13 line=126 col=19 node=0x55d48e288700
+debug: semantic: sem_check_expr: type=13 line=255 col=40 node=0x55d48e288780
+debug: semantic: sem_check_expr: type=13 line=255 col=40 node=0x55d48e288780
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=127 col=29 node=0x55d48e289038
+debug: semantic: sem_check_expr: type=13 line=127 col=19 node=0x55d48e288f38
+debug: semantic: sem_check_expr: type=13 line=256 col=40 node=0x55d48e288fb8
+debug: semantic: sem_check_expr: type=13 line=256 col=40 node=0x55d48e288fb8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=183 col=29 node=0x55d48e289870
+debug: semantic: sem_check_expr: type=13 line=183 col=19 node=0x55d48e289770
+debug: semantic: sem_check_expr: type=13 line=258 col=39 node=0x55d48e2897f0
+debug: semantic: sem_check_expr: type=13 line=258 col=39 node=0x55d48e2897f0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=184 col=30 node=0x55d48e28a0a8
+debug: semantic: sem_check_expr: type=13 line=184 col=20 node=0x55d48e289fa8
+debug: semantic: sem_check_expr: type=13 line=259 col=41 node=0x55d48e28a028
+debug: semantic: sem_check_expr: type=13 line=259 col=41 node=0x55d48e28a028
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=185 col=31 node=0x55d48e28a918
+debug: semantic: sem_check_expr: type=13 line=185 col=21 node=0x55d48e28a818
+debug: semantic: sem_check_expr: type=13 line=260 col=43 node=0x55d48e28a898
+debug: semantic: sem_check_expr: type=13 line=260 col=43 node=0x55d48e28a898
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=129 col=28 node=0x55d48e28b150
+debug: semantic: sem_check_expr: type=13 line=129 col=18 node=0x55d48e28b050
+debug: semantic: sem_check_expr: type=13 line=262 col=38 node=0x55d48e28b0d0
+debug: semantic: sem_check_expr: type=13 line=262 col=38 node=0x55d48e28b0d0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=130 col=29 node=0x55d48e28b988
+debug: semantic: sem_check_expr: type=13 line=130 col=19 node=0x55d48e28b888
+debug: semantic: sem_check_expr: type=13 line=263 col=40 node=0x55d48e28b908
+debug: semantic: sem_check_expr: type=13 line=263 col=40 node=0x55d48e28b908
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=131 col=30 node=0x55d48e28c1c0
+debug: semantic: sem_check_expr: type=13 line=131 col=20 node=0x55d48e28c0c0
+debug: semantic: sem_check_expr: type=13 line=264 col=42 node=0x55d48e28c140
+debug: semantic: sem_check_expr: type=13 line=264 col=42 node=0x55d48e28c140
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=186 col=29 node=0x55d48e28c9f8
+debug: semantic: sem_check_expr: type=13 line=186 col=19 node=0x55d48e28c8f8
+debug: semantic: sem_check_expr: type=13 line=266 col=39 node=0x55d48e28c978
+debug: semantic: sem_check_expr: type=13 line=266 col=39 node=0x55d48e28c978
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=187 col=31 node=0x55d48e28d230
+debug: semantic: sem_check_expr: type=13 line=187 col=21 node=0x55d48e28d130
+debug: semantic: sem_check_expr: type=13 line=267 col=43 node=0x55d48e28d1b0
+debug: semantic: sem_check_expr: type=13 line=267 col=43 node=0x55d48e28d1b0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=188 col=30 node=0x55d48e28da68
+debug: semantic: sem_check_expr: type=13 line=188 col=20 node=0x55d48e28d968
+debug: semantic: sem_check_expr: type=13 line=268 col=41 node=0x55d48e28d9e8
+debug: semantic: sem_check_expr: type=13 line=268 col=41 node=0x55d48e28d9e8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=189 col=31 node=0x55d48e28e2a0
+debug: semantic: sem_check_expr: type=13 line=189 col=21 node=0x55d48e28e1a0
+debug: semantic: sem_check_expr: type=13 line=269 col=43 node=0x55d48e28e220
+debug: semantic: sem_check_expr: type=13 line=269 col=43 node=0x55d48e28e220
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=132 col=28 node=0x55d48e28ead8
+debug: semantic: sem_check_expr: type=13 line=132 col=18 node=0x55d48e28e9d8
+debug: semantic: sem_check_expr: type=13 line=271 col=38 node=0x55d48e28ea58
+debug: semantic: sem_check_expr: type=13 line=271 col=38 node=0x55d48e28ea58
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=133 col=30 node=0x55d48e28f310
+debug: semantic: sem_check_expr: type=13 line=133 col=20 node=0x55d48e28f210
+debug: semantic: sem_check_expr: type=13 line=272 col=42 node=0x55d48e28f290
+debug: semantic: sem_check_expr: type=13 line=272 col=42 node=0x55d48e28f290
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=134 col=29 node=0x55d48e28fb48
+debug: semantic: sem_check_expr: type=13 line=134 col=19 node=0x55d48e28fa48
+debug: semantic: sem_check_expr: type=13 line=273 col=40 node=0x55d48e28fac8
+debug: semantic: sem_check_expr: type=13 line=273 col=40 node=0x55d48e28fac8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=135 col=30 node=0x55d48e290380
+debug: semantic: sem_check_expr: type=13 line=135 col=20 node=0x55d48e290280
+debug: semantic: sem_check_expr: type=13 line=274 col=42 node=0x55d48e290300
+debug: semantic: sem_check_expr: type=13 line=274 col=42 node=0x55d48e290300
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=191 col=29 node=0x55d48e290c88
+debug: semantic: sem_check_expr: type=13 line=191 col=19 node=0x55d48e290b08
+debug: semantic: sem_check_expr: type=13 line=276 col=49 node=0x55d48e290b88
+debug: semantic: sem_check_expr: type=13 line=276 col=52 node=0x55d48e290c08
+debug: semantic: sem_check_expr: type=13 line=276 col=49 node=0x55d48e290b88
+debug: semantic: sem_check_expr: type=13 line=276 col=52 node=0x55d48e290c08
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=192 col=30 node=0x55d48e2914c0
+debug: semantic: sem_check_expr: type=13 line=192 col=20 node=0x55d48e2913c0
+debug: semantic: sem_check_expr: type=13 line=277 col=41 node=0x55d48e291440
+debug: semantic: sem_check_expr: type=13 line=277 col=41 node=0x55d48e291440
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=193 col=30 node=0x55d48e291cf8
+debug: semantic: sem_check_expr: type=13 line=193 col=20 node=0x55d48e291bf8
+debug: semantic: sem_check_expr: type=13 line=278 col=41 node=0x55d48e291c78
+debug: semantic: sem_check_expr: type=13 line=278 col=41 node=0x55d48e291c78
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=194 col=31 node=0x55d48e292600
+debug: semantic: sem_check_expr: type=13 line=194 col=21 node=0x55d48e292480
+debug: semantic: sem_check_expr: type=13 line=279 col=53 node=0x55d48e292500
+debug: semantic: sem_check_expr: type=13 line=279 col=56 node=0x55d48e292580
+debug: semantic: sem_check_expr: type=13 line=279 col=53 node=0x55d48e292500
+debug: semantic: sem_check_expr: type=13 line=279 col=56 node=0x55d48e292580
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=137 col=28 node=0x55d48e292f08
+debug: semantic: sem_check_expr: type=13 line=137 col=18 node=0x55d48e292d88
+debug: semantic: sem_check_expr: type=13 line=281 col=48 node=0x55d48e292e08
+debug: semantic: sem_check_expr: type=13 line=281 col=51 node=0x55d48e292e88
+debug: semantic: sem_check_expr: type=13 line=281 col=48 node=0x55d48e292e08
+debug: semantic: sem_check_expr: type=13 line=281 col=51 node=0x55d48e292e88
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=138 col=29 node=0x55d48e293740
+debug: semantic: sem_check_expr: type=13 line=138 col=19 node=0x55d48e293640
+debug: semantic: sem_check_expr: type=13 line=282 col=40 node=0x55d48e2936c0
+debug: semantic: sem_check_expr: type=13 line=282 col=40 node=0x55d48e2936c0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=139 col=29 node=0x55d48e293f78
+debug: semantic: sem_check_expr: type=13 line=139 col=19 node=0x55d48e293e78
+debug: semantic: sem_check_expr: type=13 line=283 col=40 node=0x55d48e293ef8
+debug: semantic: sem_check_expr: type=13 line=283 col=40 node=0x55d48e293ef8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=140 col=30 node=0x55d48e294880
+debug: semantic: sem_check_expr: type=13 line=140 col=20 node=0x55d48e294700
+debug: semantic: sem_check_expr: type=13 line=284 col=52 node=0x55d48e294780
+debug: semantic: sem_check_expr: type=13 line=284 col=55 node=0x55d48e294800
+debug: semantic: sem_check_expr: type=13 line=284 col=52 node=0x55d48e294780
+debug: semantic: sem_check_expr: type=13 line=284 col=55 node=0x55d48e294800
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=196 col=29 node=0x55d48e2950b8
+debug: semantic: sem_check_expr: type=13 line=196 col=19 node=0x55d48e294fb8
+debug: semantic: sem_check_expr: type=13 line=286 col=39 node=0x55d48e295038
+debug: semantic: sem_check_expr: type=13 line=286 col=39 node=0x55d48e295038
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=197 col=30 node=0x55d48e2958f0
+debug: semantic: sem_check_expr: type=13 line=197 col=20 node=0x55d48e2957f0
+debug: semantic: sem_check_expr: type=13 line=287 col=41 node=0x55d48e295870
+debug: semantic: sem_check_expr: type=13 line=287 col=41 node=0x55d48e295870
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=198 col=32 node=0x55d48e296128
+debug: semantic: sem_check_expr: type=13 line=198 col=22 node=0x55d48e296028
+debug: semantic: sem_check_expr: type=13 line=288 col=45 node=0x55d48e2960a8
+debug: semantic: sem_check_expr: type=13 line=288 col=45 node=0x55d48e2960a8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=199 col=32 node=0x55d48e296960
+debug: semantic: sem_check_expr: type=13 line=199 col=22 node=0x55d48e296860
+debug: semantic: sem_check_expr: type=13 line=289 col=45 node=0x55d48e2968e0
+debug: semantic: sem_check_expr: type=13 line=289 col=45 node=0x55d48e2968e0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=142 col=28 node=0x55d48e297198
+debug: semantic: sem_check_expr: type=13 line=142 col=18 node=0x55d48e297098
+debug: semantic: sem_check_expr: type=13 line=291 col=38 node=0x55d48e297118
+debug: semantic: sem_check_expr: type=13 line=291 col=38 node=0x55d48e297118
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=143 col=29 node=0x55d48e2979d0
+debug: semantic: sem_check_expr: type=13 line=143 col=19 node=0x55d48e2978d0
+debug: semantic: sem_check_expr: type=13 line=292 col=40 node=0x55d48e297950
+debug: semantic: sem_check_expr: type=13 line=292 col=40 node=0x55d48e297950
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=144 col=31 node=0x55d48e298208
+debug: semantic: sem_check_expr: type=13 line=144 col=21 node=0x55d48e298108
+debug: semantic: sem_check_expr: type=13 line=293 col=44 node=0x55d48e298188
+debug: semantic: sem_check_expr: type=13 line=293 col=44 node=0x55d48e298188
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=145 col=31 node=0x55d48e298a40
+debug: semantic: sem_check_expr: type=13 line=145 col=21 node=0x55d48e298940
+debug: semantic: sem_check_expr: type=13 line=294 col=44 node=0x55d48e2989c0
+debug: semantic: sem_check_expr: type=13 line=294 col=44 node=0x55d48e2989c0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=201 col=30 node=0x55d48e299278
+debug: semantic: sem_check_expr: type=13 line=201 col=20 node=0x55d48e299178
+debug: semantic: sem_check_expr: type=13 line=296 col=41 node=0x55d48e2991f8
+debug: semantic: sem_check_expr: type=13 line=296 col=41 node=0x55d48e2991f8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=202 col=31 node=0x55d48e299ab0
+debug: semantic: sem_check_expr: type=13 line=202 col=21 node=0x55d48e2999b0
+debug: semantic: sem_check_expr: type=13 line=297 col=43 node=0x55d48e299a30
+debug: semantic: sem_check_expr: type=13 line=297 col=43 node=0x55d48e299a30
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=203 col=31 node=0x55d48e29a378
+debug: semantic: sem_check_expr: type=13 line=203 col=21 node=0x55d48e29a1e8
+debug: semantic: sem_check_expr: type=13 line=298 col=43 node=0x55d48e29a2f8
+debug: semantic: sem_check_expr: type=13 line=298 col=43 node=0x55d48e29a2f8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=204 col=31 node=0x55d48e29abb0
+debug: semantic: sem_check_expr: type=13 line=204 col=21 node=0x55d48e29aab0
+debug: semantic: sem_check_expr: type=13 line=299 col=43 node=0x55d48e29ab30
+debug: semantic: sem_check_expr: type=13 line=299 col=43 node=0x55d48e29ab30
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=205 col=35 node=0x55d48e29b3e8
+debug: semantic: sem_check_expr: type=13 line=205 col=25 node=0x55d48e29b2e8
+debug: semantic: sem_check_expr: type=13 line=300 col=51 node=0x55d48e29b368
+debug: semantic: sem_check_expr: type=13 line=300 col=51 node=0x55d48e29b368
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=206 col=30 node=0x55d48e29bc20
+debug: semantic: sem_check_expr: type=13 line=206 col=20 node=0x55d48e29bb20
+debug: semantic: sem_check_expr: type=13 line=301 col=41 node=0x55d48e29bba0
+debug: semantic: sem_check_expr: type=13 line=301 col=41 node=0x55d48e29bba0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=147 col=29 node=0x55d48e29c458
+debug: semantic: sem_check_expr: type=13 line=147 col=19 node=0x55d48e29c358
+debug: semantic: sem_check_expr: type=13 line=303 col=40 node=0x55d48e29c3d8
+debug: semantic: sem_check_expr: type=13 line=303 col=40 node=0x55d48e29c3d8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=148 col=30 node=0x55d48e29cc90
+debug: semantic: sem_check_expr: type=13 line=148 col=20 node=0x55d48e29cb90
+debug: semantic: sem_check_expr: type=13 line=304 col=42 node=0x55d48e29cc10
+debug: semantic: sem_check_expr: type=13 line=304 col=42 node=0x55d48e29cc10
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=149 col=30 node=0x55d48e29d4c8
+debug: semantic: sem_check_expr: type=13 line=149 col=20 node=0x55d48e29d3c8
+debug: semantic: sem_check_expr: type=13 line=305 col=42 node=0x55d48e29d448
+debug: semantic: sem_check_expr: type=13 line=305 col=42 node=0x55d48e29d448
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=150 col=30 node=0x55d48e29dd00
+debug: semantic: sem_check_expr: type=13 line=150 col=20 node=0x55d48e29dc00
+debug: semantic: sem_check_expr: type=13 line=306 col=42 node=0x55d48e29dc80
+debug: semantic: sem_check_expr: type=13 line=306 col=42 node=0x55d48e29dc80
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=151 col=34 node=0x55d48e29e538
+debug: semantic: sem_check_expr: type=13 line=151 col=24 node=0x55d48e29e438
+debug: semantic: sem_check_expr: type=13 line=307 col=50 node=0x55d48e29e4b8
+debug: semantic: sem_check_expr: type=13 line=307 col=50 node=0x55d48e29e4b8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=152 col=29 node=0x55d48e29ed70
+debug: semantic: sem_check_expr: type=13 line=152 col=19 node=0x55d48e29ec70
+debug: semantic: sem_check_expr: type=13 line=308 col=40 node=0x55d48e29ecf0
+debug: semantic: sem_check_expr: type=13 line=308 col=40 node=0x55d48e29ecf0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=208 col=30 node=0x55d48e29f5a8
+debug: semantic: sem_check_expr: type=13 line=208 col=20 node=0x55d48e29f4a8
+debug: semantic: sem_check_expr: type=13 line=310 col=40 node=0x55d48e29f528
+debug: semantic: sem_check_expr: type=13 line=310 col=40 node=0x55d48e29f528
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=154 col=29 node=0x55d48e29fde0
+debug: semantic: sem_check_expr: type=13 line=154 col=19 node=0x55d48e29fce0
+debug: semantic: sem_check_expr: type=13 line=311 col=39 node=0x55d48e29fd60
+debug: semantic: sem_check_expr: type=13 line=311 col=39 node=0x55d48e29fd60
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=209 col=30 node=0x55d48e2a06e8
+debug: semantic: sem_check_expr: type=13 line=209 col=20 node=0x55d48e2a0568
+debug: semantic: sem_check_expr: type=13 line=313 col=51 node=0x55d48e2a05e8
+debug: semantic: sem_check_expr: type=13 line=313 col=54 node=0x55d48e2a0668
+debug: semantic: sem_check_expr: type=13 line=313 col=51 node=0x55d48e2a05e8
+debug: semantic: sem_check_expr: type=13 line=313 col=54 node=0x55d48e2a0668
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=210 col=30 node=0x55d48e2a0ff0
+debug: semantic: sem_check_expr: type=13 line=210 col=20 node=0x55d48e2a0e70
+debug: semantic: sem_check_expr: type=13 line=314 col=51 node=0x55d48e2a0ef0
+debug: semantic: sem_check_expr: type=13 line=314 col=54 node=0x55d48e2a0f70
+debug: semantic: sem_check_expr: type=13 line=314 col=51 node=0x55d48e2a0ef0
+debug: semantic: sem_check_expr: type=13 line=314 col=54 node=0x55d48e2a0f70
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=211 col=30 node=0x55d48e2a18f8
+debug: semantic: sem_check_expr: type=13 line=211 col=20 node=0x55d48e2a1778
+debug: semantic: sem_check_expr: type=13 line=315 col=51 node=0x55d48e2a17f8
+debug: semantic: sem_check_expr: type=13 line=315 col=54 node=0x55d48e2a1878
+debug: semantic: sem_check_expr: type=13 line=315 col=51 node=0x55d48e2a17f8
+debug: semantic: sem_check_expr: type=13 line=315 col=54 node=0x55d48e2a1878
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=212 col=35 node=0x55d48e2a2200
+debug: semantic: sem_check_expr: type=13 line=212 col=25 node=0x55d48e2a2080
+debug: semantic: sem_check_expr: type=13 line=316 col=61 node=0x55d48e2a2100
+debug: semantic: sem_check_expr: type=13 line=316 col=64 node=0x55d48e2a2180
+debug: semantic: sem_check_expr: type=13 line=316 col=61 node=0x55d48e2a2100
+debug: semantic: sem_check_expr: type=13 line=316 col=64 node=0x55d48e2a2180
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=155 col=29 node=0x55d48e2a2b08
+debug: semantic: sem_check_expr: type=13 line=155 col=19 node=0x55d48e2a2988
+debug: semantic: sem_check_expr: type=13 line=318 col=50 node=0x55d48e2a2a08
+debug: semantic: sem_check_expr: type=13 line=318 col=53 node=0x55d48e2a2a88
+debug: semantic: sem_check_expr: type=13 line=318 col=50 node=0x55d48e2a2a08
+debug: semantic: sem_check_expr: type=13 line=318 col=53 node=0x55d48e2a2a88
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=156 col=29 node=0x55d48e2a3410
+debug: semantic: sem_check_expr: type=13 line=156 col=19 node=0x55d48e2a3290
+debug: semantic: sem_check_expr: type=13 line=319 col=50 node=0x55d48e2a3310
+debug: semantic: sem_check_expr: type=13 line=319 col=53 node=0x55d48e2a3390
+debug: semantic: sem_check_expr: type=13 line=319 col=50 node=0x55d48e2a3310
+debug: semantic: sem_check_expr: type=13 line=319 col=53 node=0x55d48e2a3390
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=157 col=29 node=0x55d48e2a3d18
+debug: semantic: sem_check_expr: type=13 line=157 col=19 node=0x55d48e2a3b98
+debug: semantic: sem_check_expr: type=13 line=320 col=50 node=0x55d48e2a3c18
+debug: semantic: sem_check_expr: type=13 line=320 col=53 node=0x55d48e2a3c98
+debug: semantic: sem_check_expr: type=13 line=320 col=50 node=0x55d48e2a3c18
+debug: semantic: sem_check_expr: type=13 line=320 col=53 node=0x55d48e2a3c98
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=158 col=34 node=0x55d48e2a4620
+debug: semantic: sem_check_expr: type=13 line=158 col=24 node=0x55d48e2a44a0
+debug: semantic: sem_check_expr: type=13 line=321 col=60 node=0x55d48e2a4520
+debug: semantic: sem_check_expr: type=13 line=321 col=63 node=0x55d48e2a45a0
+debug: semantic: sem_check_expr: type=13 line=321 col=60 node=0x55d48e2a4520
+debug: semantic: sem_check_expr: type=13 line=321 col=63 node=0x55d48e2a45a0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=218 col=35 node=0x55d48e2a4f28
+debug: semantic: sem_check_expr: type=13 line=218 col=25 node=0x55d48e2a4da8
+debug: semantic: sem_check_expr: type=13 line=323 col=65 node=0x55d48e2a4e28
+debug: semantic: sem_check_expr: type=13 line=323 col=71 node=0x55d48e2a4ea8
+debug: semantic: sem_check_expr: type=13 line=323 col=65 node=0x55d48e2a4e28
+debug: semantic: sem_check_expr: type=13 line=323 col=71 node=0x55d48e2a4ea8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=219 col=29 node=0x55d48e2a5900
+debug: semantic: sem_check_expr: type=13 line=219 col=19 node=0x55d48e2a5700
+debug: semantic: sem_check_expr: type=13 line=324 col=59 node=0x55d48e2a5780
+debug: semantic: sem_check_expr: type=13 line=324 col=62 node=0x55d48e2a5800
+debug: semantic: sem_check_expr: type=13 line=324 col=65 node=0x55d48e2a5880
+debug: semantic: sem_check_expr: type=13 line=324 col=59 node=0x55d48e2a5780
+debug: semantic: sem_check_expr: type=13 line=324 col=62 node=0x55d48e2a5800
+debug: semantic: sem_check_expr: type=13 line=324 col=65 node=0x55d48e2a5880
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=164 col=34 node=0x55d48e2a6208
+debug: semantic: sem_check_expr: type=13 line=164 col=24 node=0x55d48e2a6088
+debug: semantic: sem_check_expr: type=13 line=326 col=64 node=0x55d48e2a6108
+debug: semantic: sem_check_expr: type=13 line=326 col=70 node=0x55d48e2a6188
+debug: semantic: sem_check_expr: type=13 line=326 col=64 node=0x55d48e2a6108
+debug: semantic: sem_check_expr: type=13 line=326 col=70 node=0x55d48e2a6188
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=165 col=28 node=0x55d48e2a6be0
+debug: semantic: sem_check_expr: type=13 line=165 col=18 node=0x55d48e2a69e0
+debug: semantic: sem_check_expr: type=13 line=327 col=58 node=0x55d48e2a6a60
+debug: semantic: sem_check_expr: type=13 line=327 col=61 node=0x55d48e2a6ae0
+debug: semantic: sem_check_expr: type=13 line=327 col=64 node=0x55d48e2a6b60
+debug: semantic: sem_check_expr: type=13 line=327 col=58 node=0x55d48e2a6a60
+debug: semantic: sem_check_expr: type=13 line=327 col=61 node=0x55d48e2a6ae0
+debug: semantic: sem_check_expr: type=13 line=327 col=64 node=0x55d48e2a6b60
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=167 col=30 node=0x55d48e2a7418
+debug: semantic: sem_check_expr: type=13 line=167 col=20 node=0x55d48e2a7318
+debug: semantic: sem_check_expr: type=13 line=329 col=39 node=0x55d48e2a7398
+debug: semantic: sem_check_expr: type=13 line=329 col=39 node=0x55d48e2a7398
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=221 col=31 node=0x55d48e2a7c50
+debug: semantic: sem_check_expr: type=13 line=221 col=21 node=0x55d48e2a7b50
+debug: semantic: sem_check_expr: type=13 line=330 col=40 node=0x55d48e2a7bd0
+debug: semantic: sem_check_expr: type=13 line=330 col=40 node=0x55d48e2a7bd0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=222 col=32 node=0x55d48e2a8558
+debug: semantic: sem_check_expr: type=13 line=222 col=22 node=0x55d48e2a83d8
+debug: semantic: sem_check_expr: type=13 line=332 col=61 node=0x55d48e2a8458
+debug: semantic: sem_check_expr: type=13 line=332 col=64 node=0x55d48e2a84d8
+debug: semantic: sem_check_expr: type=13 line=332 col=61 node=0x55d48e2a8458
+debug: semantic: sem_check_expr: type=13 line=332 col=64 node=0x55d48e2a84d8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=168 col=31 node=0x55d48e2a8e60
+debug: semantic: sem_check_expr: type=13 line=168 col=21 node=0x55d48e2a8ce0
+debug: semantic: sem_check_expr: type=13 line=333 col=60 node=0x55d48e2a8d60
+debug: semantic: sem_check_expr: type=13 line=333 col=63 node=0x55d48e2a8de0
+debug: semantic: sem_check_expr: type=13 line=333 col=60 node=0x55d48e2a8d60
+debug: semantic: sem_check_expr: type=13 line=333 col=63 node=0x55d48e2a8de0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=223 col=33 node=0x55d48e2a9768
+debug: semantic: sem_check_expr: type=13 line=223 col=23 node=0x55d48e2a95e8
+debug: semantic: sem_check_expr: type=13 line=335 col=64 node=0x55d48e2a9668
+debug: semantic: sem_check_expr: type=13 line=335 col=67 node=0x55d48e2a96e8
+debug: semantic: sem_check_expr: type=13 line=335 col=64 node=0x55d48e2a9668
+debug: semantic: sem_check_expr: type=13 line=335 col=67 node=0x55d48e2a96e8
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=169 col=32 node=0x55d48e2aa070
+debug: semantic: sem_check_expr: type=13 line=169 col=22 node=0x55d48e2a9ef0
+debug: semantic: sem_check_expr: type=13 line=336 col=63 node=0x55d48e2a9f70
+debug: semantic: sem_check_expr: type=13 line=336 col=66 node=0x55d48e2a9ff0
+debug: semantic: sem_check_expr: type=13 line=336 col=63 node=0x55d48e2a9f70
+debug: semantic: sem_check_expr: type=13 line=336 col=66 node=0x55d48e2a9ff0
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=213 col=34 node=0x55d48e2aa9d8
+debug: semantic: sem_check_expr: type=13 line=213 col=24 node=0x55d48e2aa858
+debug: semantic: sem_check_expr: type=13 line=338 col=63 node=0x55d48e2aa8d8
+debug: semantic: sem_check_expr: type=13 line=338 col=68 node=0x55d48e2aa958
+debug: semantic: sem_check_expr: type=13 line=338 col=63 node=0x55d48e2aa8d8
+debug: semantic: sem_check_expr: type=13 line=338 col=68 node=0x55d48e2aa958
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=159 col=33 node=0x55d48e2ab2e0
+debug: semantic: sem_check_expr: type=13 line=159 col=23 node=0x55d48e2ab160
+debug: semantic: sem_check_expr: type=13 line=339 col=62 node=0x55d48e2ab1e0
+debug: semantic: sem_check_expr: type=13 line=339 col=67 node=0x55d48e2ab260
+debug: semantic: sem_check_expr: type=13 line=339 col=62 node=0x55d48e2ab1e0
+debug: semantic: sem_check_expr: type=13 line=339 col=67 node=0x55d48e2ab260
+debug: semantic: sem_check_block: ns='math'
+debug: semantic: sem_check_expr: type=27 line=215 col=31 node=0x55d48e2ac518
+debug: semantic: sem_check_expr: type=13 line=215 col=21 node=0x55d48e2ac310
+debug: semantic: sem_check_expr: type=13 line=354 col=33 node=0x55d48e2ac390
+debug: semantic: sem_check_expr: type=15 line=354 col=40 node=0x55d48e2ac490
+debug: semantic: sem_check_expr: type=13 line=354 col=41 node=0x55d48e2ac410
+debug: semantic: sem_check_expr: type=13 line=354 col=33 node=0x55d48e2ac390
+debug: semantic: sem_check_expr: type=15 line=354 col=40 node=0x55d48e2ac490
+debug: semantic: sem_check_expr: type=13 line=354 col=41 node=0x55d48e2ac410
+debug: semantic: sem_check_expr: type=2 line=355 col=32 node=0x55d48e2acb70
 debug: semantic: sem_check_call: name='(null)', ns='math'
-debug: semantic: sem_check_expr: type=47 line=355 col=24 node=0x55f1029299f0
+debug: semantic: sem_check_expr: type=47 line=355 col=24 node=0x55d48e2ac9f0
 debug: parser: clone_var_type fallback: class_name=(null) array_size=0 array_depth=0
-debug: semantic: &ctx->ast_tail=0x7ffcc0964708, ctx->ast_tail=0x55f102879a60, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_expr: type=13 line=355 col=33 node=0x55f102929a70
-debug: semantic: sem_check_expr: type=13 line=355 col=43 node=0x55f102929af0
+debug: semantic: &ctx->ast_tail=0x7ffe4156b838, ctx->ast_tail=0x55d48e1fca60, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=13 line=355 col=33 node=0x55d48e2aca70
+debug: semantic: sem_check_expr: type=13 line=355 col=43 node=0x55d48e2acaf0
 debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=161 col=30 node=0x55f10292a588
-debug: semantic: sem_check_expr: type=13 line=161 col=20 node=0x55f10292a380
-debug: semantic: sem_check_expr: type=13 line=360 col=32 node=0x55f10292a400
-debug: semantic: sem_check_expr: type=15 line=360 col=39 node=0x55f10292a500
-debug: semantic: sem_check_expr: type=13 line=360 col=40 node=0x55f10292a480
-debug: semantic: sem_check_expr: type=13 line=360 col=32 node=0x55f10292a400
-debug: semantic: sem_check_expr: type=15 line=360 col=39 node=0x55f10292a500
-debug: semantic: sem_check_expr: type=13 line=360 col=40 node=0x55f10292a480
-debug: semantic: sem_check_expr: type=2 line=361 col=32 node=0x55f10292abe0
+debug: semantic: sem_check_expr: type=27 line=161 col=30 node=0x55d48e2ad588
+debug: semantic: sem_check_expr: type=13 line=161 col=20 node=0x55d48e2ad380
+debug: semantic: sem_check_expr: type=13 line=360 col=32 node=0x55d48e2ad400
+debug: semantic: sem_check_expr: type=15 line=360 col=39 node=0x55d48e2ad500
+debug: semantic: sem_check_expr: type=13 line=360 col=40 node=0x55d48e2ad480
+debug: semantic: sem_check_expr: type=13 line=360 col=32 node=0x55d48e2ad400
+debug: semantic: sem_check_expr: type=15 line=360 col=39 node=0x55d48e2ad500
+debug: semantic: sem_check_expr: type=13 line=360 col=40 node=0x55d48e2ad480
+debug: semantic: sem_check_expr: type=2 line=361 col=32 node=0x55d48e2adbe0
 debug: semantic: sem_check_call: name='(null)', ns='math'
-debug: semantic: sem_check_expr: type=47 line=361 col=24 node=0x55f10292aa60
+debug: semantic: sem_check_expr: type=47 line=361 col=24 node=0x55d48e2ada60
 debug: parser: clone_var_type fallback: class_name=(null) array_size=0 array_depth=0
-debug: semantic: &ctx->ast_tail=0x7ffcc0964708, ctx->ast_tail=0x55f1029582c8, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_expr: type=13 line=361 col=33 node=0x55f10292aae0
-debug: semantic: sem_check_expr: type=13 line=361 col=43 node=0x55f10292ab60
+debug: semantic: &ctx->ast_tail=0x7ffe4156b838, ctx->ast_tail=0x55d48e2db2c8, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=13 line=361 col=33 node=0x55d48e2adae0
+debug: semantic: sem_check_expr: type=13 line=361 col=43 node=0x55d48e2adb60
 debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=216 col=30 node=0x55f10292b5f8
-debug: semantic: sem_check_expr: type=13 line=216 col=20 node=0x55f10292b3f0
-debug: semantic: sem_check_expr: type=13 line=366 col=28 node=0x55f10292b470
-debug: semantic: sem_check_expr: type=15 line=366 col=35 node=0x55f10292b570
-debug: semantic: sem_check_expr: type=13 line=366 col=36 node=0x55f10292b4f0
-debug: semantic: sem_check_expr: type=13 line=366 col=28 node=0x55f10292b470
-debug: semantic: sem_check_expr: type=15 line=366 col=35 node=0x55f10292b570
-debug: semantic: sem_check_expr: type=13 line=366 col=36 node=0x55f10292b4f0
-debug: semantic: sem_check_expr: type=2 line=367 col=31 node=0x55f10292bc50
+debug: semantic: sem_check_expr: type=27 line=216 col=30 node=0x55d48e2ae5f8
+debug: semantic: sem_check_expr: type=13 line=216 col=20 node=0x55d48e2ae3f0
+debug: semantic: sem_check_expr: type=13 line=366 col=28 node=0x55d48e2ae470
+debug: semantic: sem_check_expr: type=15 line=366 col=35 node=0x55d48e2ae570
+debug: semantic: sem_check_expr: type=13 line=366 col=36 node=0x55d48e2ae4f0
+debug: semantic: sem_check_expr: type=13 line=366 col=28 node=0x55d48e2ae470
+debug: semantic: sem_check_expr: type=15 line=366 col=35 node=0x55d48e2ae570
+debug: semantic: sem_check_expr: type=13 line=366 col=36 node=0x55d48e2ae4f0
+debug: semantic: sem_check_expr: type=2 line=367 col=31 node=0x55d48e2aec50
 debug: semantic: sem_check_call: name='(null)', ns='math'
-debug: semantic: sem_check_expr: type=47 line=367 col=23 node=0x55f10292bad0
-debug: semantic: &ctx->ast_tail=0x7ffcc0964708, ctx->ast_tail=0x55f102959018, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_expr: type=13 line=367 col=32 node=0x55f10292bb50
-debug: semantic: sem_check_expr: type=13 line=367 col=38 node=0x55f10292bbd0
+debug: semantic: sem_check_expr: type=47 line=367 col=23 node=0x55d48e2aead0
+debug: semantic: &ctx->ast_tail=0x7ffe4156b838, ctx->ast_tail=0x55d48e2dc018, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=13 line=367 col=32 node=0x55d48e2aeb50
+debug: semantic: sem_check_expr: type=13 line=367 col=38 node=0x55d48e2aebd0
 debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=27 line=162 col=29 node=0x55f10292c668
-debug: semantic: sem_check_expr: type=13 line=162 col=19 node=0x55f10292c460
-debug: semantic: sem_check_expr: type=13 line=372 col=27 node=0x55f10292c4e0
-debug: semantic: sem_check_expr: type=15 line=372 col=34 node=0x55f10292c5e0
-debug: semantic: sem_check_expr: type=13 line=372 col=35 node=0x55f10292c560
-debug: semantic: sem_check_expr: type=13 line=372 col=27 node=0x55f10292c4e0
-debug: semantic: sem_check_expr: type=15 line=372 col=34 node=0x55f10292c5e0
-debug: semantic: sem_check_expr: type=13 line=372 col=35 node=0x55f10292c560
-debug: semantic: sem_check_expr: type=2 line=373 col=31 node=0x55f10292ccc0
+debug: semantic: sem_check_expr: type=27 line=162 col=29 node=0x55d48e2af668
+debug: semantic: sem_check_expr: type=13 line=162 col=19 node=0x55d48e2af460
+debug: semantic: sem_check_expr: type=13 line=372 col=27 node=0x55d48e2af4e0
+debug: semantic: sem_check_expr: type=15 line=372 col=34 node=0x55d48e2af5e0
+debug: semantic: sem_check_expr: type=13 line=372 col=35 node=0x55d48e2af560
+debug: semantic: sem_check_expr: type=13 line=372 col=27 node=0x55d48e2af4e0
+debug: semantic: sem_check_expr: type=15 line=372 col=34 node=0x55d48e2af5e0
+debug: semantic: sem_check_expr: type=13 line=372 col=35 node=0x55d48e2af560
+debug: semantic: sem_check_expr: type=2 line=373 col=31 node=0x55d48e2afcc0
 debug: semantic: sem_check_call: name='(null)', ns='math'
-debug: semantic: sem_check_expr: type=47 line=373 col=23 node=0x55f10292cb40
-debug: semantic: &ctx->ast_tail=0x7ffcc0964708, ctx->ast_tail=0x55f102959d68, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_expr: type=13 line=373 col=32 node=0x55f10292cbc0
-debug: semantic: sem_check_expr: type=13 line=373 col=38 node=0x55f10292cc40
+debug: semantic: sem_check_expr: type=47 line=373 col=23 node=0x55d48e2afb40
+debug: semantic: &ctx->ast_tail=0x7ffe4156b838, ctx->ast_tail=0x55d48e2dcd68, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=13 line=373 col=32 node=0x55d48e2afbc0
+debug: semantic: sem_check_expr: type=13 line=373 col=38 node=0x55d48e2afc40
 debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=2 line=378 col=18 node=0x55f10292d150
+debug: semantic: sem_check_expr: type=2 line=378 col=18 node=0x55d48e2b0150
 debug: semantic: sem_check_call: name='tgamma', ns='math'
-debug: semantic: sem_check_expr: type=13 line=378 col=12 node=0x55f10292cf08
-debug: semantic: sem_check_expr: type=14 line=378 col=21 node=0x55f10292d0a8
-debug: semantic: sem_check_expr: type=13 line=378 col=19 node=0x55f10292cf88
-debug: semantic: sem_check_expr: type=16 line=378 col=23 node=0x55f10292d008
-debug: semantic: sem_check_expr: type=14 line=378 col=21 node=0x55f10292d0a8
-debug: semantic: sem_check_expr: type=13 line=378 col=19 node=0x55f10292cf88
-debug: semantic: sem_check_expr: type=31 line=378 col=23 node=0x55f10295b5b8
-debug: semantic: sem_check_expr: type=16 line=378 col=23 node=0x55f10292d008
-debug: semantic: sem_check_expr: type=14 line=378 col=21 node=0x55f10292d0a8
-debug: semantic: sem_check_expr: type=13 line=378 col=19 node=0x55f10292cf88
-debug: semantic: sem_check_expr: type=31 line=378 col=23 node=0x55f10295b5b8
-debug: semantic: sem_check_expr: type=16 line=378 col=23 node=0x55f10292d008
+debug: semantic: sem_check_expr: type=13 line=378 col=12 node=0x55d48e2aff08
+debug: semantic: sem_check_expr: type=14 line=378 col=21 node=0x55d48e2b00a8
+debug: semantic: sem_check_expr: type=13 line=378 col=19 node=0x55d48e2aff88
+debug: semantic: sem_check_expr: type=16 line=378 col=23 node=0x55d48e2b0008
+debug: semantic: sem_check_expr: type=14 line=378 col=21 node=0x55d48e2b00a8
+debug: semantic: sem_check_expr: type=13 line=378 col=19 node=0x55d48e2aff88
+debug: semantic: sem_check_expr: type=31 line=378 col=23 node=0x55d48e2de5b8
+debug: semantic: sem_check_expr: type=16 line=378 col=23 node=0x55d48e2b0008
+debug: semantic: sem_check_expr: type=14 line=378 col=21 node=0x55d48e2b00a8
+debug: semantic: sem_check_expr: type=13 line=378 col=19 node=0x55d48e2aff88
+debug: semantic: sem_check_expr: type=31 line=378 col=23 node=0x55d48e2de5b8
+debug: semantic: sem_check_expr: type=16 line=378 col=23 node=0x55d48e2b0008
 debug: semantic: sem_check_block: ns='math'
-debug: semantic: sem_check_expr: type=2 line=382 col=18 node=0x55f10292d5e0
+debug: semantic: sem_check_expr: type=2 line=382 col=18 node=0x55d48e2b05e0
 debug: semantic: sem_check_call: name='tgamma', ns='math'
-debug: semantic: sem_check_expr: type=13 line=382 col=12 node=0x55f10292d398
-debug: semantic: sem_check_expr: type=14 line=382 col=21 node=0x55f10292d538
-debug: semantic: sem_check_expr: type=13 line=382 col=19 node=0x55f10292d418
-debug: semantic: sem_check_expr: type=16 line=382 col=23 node=0x55f10292d498
-debug: semantic: sem_check_expr: type=14 line=382 col=21 node=0x55f10292d538
-debug: semantic: sem_check_expr: type=13 line=382 col=19 node=0x55f10292d418
-debug: semantic: sem_check_expr: type=31 line=382 col=23 node=0x55f10295ba90
-debug: semantic: sem_check_expr: type=16 line=382 col=23 node=0x55f10292d498
-debug: semantic: sem_check_expr: type=14 line=382 col=21 node=0x55f10292d538
-debug: semantic: sem_check_expr: type=13 line=382 col=19 node=0x55f10292d418
-debug: semantic: sem_check_expr: type=31 line=382 col=23 node=0x55f10295ba90
-debug: semantic: sem_check_expr: type=16 line=382 col=23 node=0x55f10292d498
-debug: diag_set_namespace: ns='main', current='math', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
+debug: semantic: sem_check_expr: type=13 line=382 col=12 node=0x55d48e2b0398
+debug: semantic: sem_check_expr: type=14 line=382 col=21 node=0x55d48e2b0538
+debug: semantic: sem_check_expr: type=13 line=382 col=19 node=0x55d48e2b0418
+debug: semantic: sem_check_expr: type=16 line=382 col=23 node=0x55d48e2b0498
+debug: semantic: sem_check_expr: type=14 line=382 col=21 node=0x55d48e2b0538
+debug: semantic: sem_check_expr: type=13 line=382 col=19 node=0x55d48e2b0418
+debug: semantic: sem_check_expr: type=31 line=382 col=23 node=0x55d48e2dea90
+debug: semantic: sem_check_expr: type=16 line=382 col=23 node=0x55d48e2b0498
+debug: semantic: sem_check_expr: type=14 line=382 col=21 node=0x55d48e2b0538
+debug: semantic: sem_check_expr: type=13 line=382 col=19 node=0x55d48e2b0418
+debug: semantic: sem_check_expr: type=31 line=382 col=23 node=0x55d48e2dea90
+debug: semantic: sem_check_expr: type=16 line=382 col=23 node=0x55d48e2b0498
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=4 col=16 node=0x55f102878570
-debug: semantic: sem_check_expr: type=2 line=4 col=11 node=0x55f1028783b0
+debug: semantic: sem_check_expr: type=14 line=4 col=16 node=0x55d48e1fb570
+debug: semantic: sem_check_expr: type=2 line=4 col=11 node=0x55d48e1fb3b0
 debug: semantic: sem_check_call: name='cos', ns='main'
-debug: semantic: sem_check_expr: type=13 line=4 col=8 node=0x55f1028782b0
+debug: semantic: sem_check_expr: type=13 line=4 col=8 node=0x55d48e1fb2b0
 debug: semantic: table.c lookup: name='cos', found_ns='math', current_ns='main'
 at namespace main:
 in .../code/std/test_math.kyl:
@@ -721,32 +914,32 @@ debug: semantic: table.c lookup: name='cos', found_ns='math', current_ns='main'
   |     if cos(pi) > -0.99 then return 1;
   |        ^
 hint: consider writing math.cos
-debug: semantic: sem_check_expr: type=13 line=4 col=12 node=0x55f102878330
+debug: semantic: sem_check_expr: type=13 line=4 col=12 node=0x55d48e1fb330
 debug: semantic: table.c lookup: name='pi', found_ns='math', current_ns='main'
 4:12: warning: Implicitly resolved 'pi' to 'math.pi'
   |     if cos(pi) > -0.99 then return 1;
   |            ^
 hint: consider writing math.pi
-debug: semantic: sem_check_expr: type=13 line=4 col=12 node=0x55f102878330
+debug: semantic: sem_check_expr: type=13 line=4 col=12 node=0x55d48e1fb330
 debug: semantic: table.c lookup: name='pi', found_ns='math', current_ns='main'
 4:12: warning: Implicitly resolved 'pi' to 'math.pi'
   |     if cos(pi) > -0.99 then return 1;
   |            ^
 hint: consider writing math.pi
-debug: semantic: sem_check_expr: type=13 line=4 col=12 node=0x55f102878330
+debug: semantic: sem_check_expr: type=13 line=4 col=12 node=0x55d48e1fb330
 debug: semantic: table.c lookup: name='pi', found_ns='math', current_ns='main'
 4:12: warning: Implicitly resolved 'pi' to 'math.pi'
   |     if cos(pi) > -0.99 then return 1;
   |            ^
 hint: consider writing math.pi
-debug: semantic: sem_check_expr: type=15 line=4 col=18 node=0x55f1028784e8
-debug: semantic: sem_check_expr: type=16 line=4 col=19 node=0x55f102878448
+debug: semantic: sem_check_expr: type=15 line=4 col=18 node=0x55d48e1fb4e8
+debug: semantic: sem_check_expr: type=16 line=4 col=19 node=0x55d48e1fb448
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=4 col=36 node=0x55f102878618
-debug: semantic: sem_check_expr: type=14 line=5 col=15 node=0x55f102878a00
-debug: semantic: sem_check_expr: type=2 line=5 col=11 node=0x55f1028788c8
+debug: semantic: sem_check_expr: type=16 line=4 col=36 node=0x55d48e1fb618
+debug: semantic: sem_check_expr: type=14 line=5 col=15 node=0x55d48e1fba00
+debug: semantic: sem_check_expr: type=2 line=5 col=11 node=0x55d48e1fb8c8
 debug: semantic: sem_check_call: name='sin', ns='main'
-debug: semantic: sem_check_expr: type=13 line=5 col=8 node=0x55f1028787a8
+debug: semantic: sem_check_expr: type=13 line=5 col=8 node=0x55d48e1fb7a8
 debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
 5:8: warning: Implicitly resolved 'sin' to 'math.sin'
   |     if sin(0) != 0 then return 2;
@@ -757,16 +950,16 @@ debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
   |     if sin(0) != 0 then return 2;
   |        ^
 hint: consider writing math.sin
-debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x55f102878828
-debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x55f102878828
-debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x55f102878828
-debug: semantic: sem_check_expr: type=16 line=5 col=18 node=0x55f102878960
+debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x55d48e1fb828
+debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x55d48e1fb828
+debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x55d48e1fb828
+debug: semantic: sem_check_expr: type=16 line=5 col=18 node=0x55d48e1fb960
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=5 col=32 node=0x55f102878aa8
-debug: semantic: sem_check_expr: type=14 line=7 col=15 node=0x55f102878e90
-debug: semantic: sem_check_expr: type=2 line=7 col=11 node=0x55f102878d58
+debug: semantic: sem_check_expr: type=16 line=5 col=32 node=0x55d48e1fbaa8
+debug: semantic: sem_check_expr: type=14 line=7 col=15 node=0x55d48e1fbe90
+debug: semantic: sem_check_expr: type=2 line=7 col=11 node=0x55d48e1fbd58
 debug: semantic: sem_check_call: name='cos', ns='main'
-debug: semantic: sem_check_expr: type=13 line=7 col=8 node=0x55f102878c38
+debug: semantic: sem_check_expr: type=13 line=7 col=8 node=0x55d48e1fbc38
 debug: semantic: table.c lookup: name='cos', found_ns='math', current_ns='main'
 7:8: warning: Implicitly resolved 'cos' to 'math.cos'
   |     if cos(0) != 1 then return 3;
@@ -777,17 +970,17 @@ debug: semantic: table.c lookup: name='cos', found_ns='math', current_ns='main'
   |     if cos(0) != 1 then return 3;
   |        ^
 hint: consider writing math.cos
-debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55f102878cb8
-debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55f102878cb8
-debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55f102878cb8
-debug: semantic: sem_check_expr: type=16 line=7 col=18 node=0x55f102878df0
+debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55d48e1fbcb8
+debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55d48e1fbcb8
+debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55d48e1fbcb8
+debug: semantic: sem_check_expr: type=16 line=7 col=18 node=0x55d48e1fbdf0
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=7 col=32 node=0x55f102878f38
-debug: semantic: sem_check_expr: type=14 line=8 col=24 node=0x55f102879710
-debug: semantic: sem_check_expr: type=14 line=8 col=16 node=0x55f102879300
-debug: semantic: sem_check_expr: type=2 line=8 col=11 node=0x55f1028791c8
+debug: semantic: sem_check_expr: type=16 line=7 col=32 node=0x55d48e1fbf38
+debug: semantic: sem_check_expr: type=14 line=8 col=24 node=0x55d48e1fc710
+debug: semantic: sem_check_expr: type=14 line=8 col=16 node=0x55d48e1fc300
+debug: semantic: sem_check_expr: type=2 line=8 col=11 node=0x55d48e1fc1c8
 debug: semantic: sem_check_call: name='sin', ns='main'
-debug: semantic: sem_check_expr: type=13 line=8 col=8 node=0x55f1028790c8
+debug: semantic: sem_check_expr: type=13 line=8 col=8 node=0x55d48e1fc0c8
 debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
 8:8: warning: Implicitly resolved 'sin' to 'math.sin'
   |     if sin(pi) > 0.001 || sin(pi) < -0.001 then return 4;
@@ -798,29 +991,29 @@ debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
   |     if sin(pi) > 0.001 || sin(pi) < -0.001 then return 4;
   |        ^
 hint: consider writing math.sin
-debug: semantic: sem_check_expr: type=13 line=8 col=12 node=0x55f102879148
+debug: semantic: sem_check_expr: type=13 line=8 col=12 node=0x55d48e1fc148
 debug: semantic: table.c lookup: name='pi', found_ns='math', current_ns='main'
 8:12: warning: Implicitly resolved 'pi' to 'math.pi'
   |     if sin(pi) > 0.001 || sin(pi) < -0.001 then return 4;
   |            ^
 hint: consider writing math.pi
-debug: semantic: sem_check_expr: type=13 line=8 col=12 node=0x55f102879148
+debug: semantic: sem_check_expr: type=13 line=8 col=12 node=0x55d48e1fc148
 debug: semantic: table.c lookup: name='pi', found_ns='math', current_ns='main'
 8:12: warning: Implicitly resolved 'pi' to 'math.pi'
   |     if sin(pi) > 0.001 || sin(pi) < -0.001 then return 4;
   |            ^
 hint: consider writing math.pi
-debug: semantic: sem_check_expr: type=13 line=8 col=12 node=0x55f102879148
+debug: semantic: sem_check_expr: type=13 line=8 col=12 node=0x55d48e1fc148
 debug: semantic: table.c lookup: name='pi', found_ns='math', current_ns='main'
 8:12: warning: Implicitly resolved 'pi' to 'math.pi'
   |     if sin(pi) > 0.001 || sin(pi) < -0.001 then return 4;
   |            ^
 hint: consider writing math.pi
-debug: semantic: sem_check_expr: type=16 line=8 col=18 node=0x55f102879260
-debug: semantic: sem_check_expr: type=14 line=8 col=35 node=0x55f102879668
-debug: semantic: sem_check_expr: type=2 line=8 col=30 node=0x55f1028794a8
+debug: semantic: sem_check_expr: type=16 line=8 col=18 node=0x55d48e1fc260
+debug: semantic: sem_check_expr: type=14 line=8 col=35 node=0x55d48e1fc668
+debug: semantic: sem_check_expr: type=2 line=8 col=30 node=0x55d48e1fc4a8
 debug: semantic: sem_check_call: name='sin', ns='main'
-debug: semantic: sem_check_expr: type=13 line=8 col=27 node=0x55f1028793a8
+debug: semantic: sem_check_expr: type=13 line=8 col=27 node=0x55d48e1fc3a8
 debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
 8:27: warning: Implicitly resolved 'sin' to 'math.sin'
   |     if sin(pi) > 0.001 || sin(pi) < -0.001 then return 4;
@@ -831,29 +1024,29 @@ debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
   |     if sin(pi) > 0.001 || sin(pi) < -0.001 then return 4;
   |                           ^
 hint: consider writing math.sin
-debug: semantic: sem_check_expr: type=13 line=8 col=31 node=0x55f102879428
+debug: semantic: sem_check_expr: type=13 line=8 col=31 node=0x55d48e1fc428
 debug: semantic: table.c lookup: name='pi', found_ns='math', current_ns='main'
 8:31: warning: Implicitly resolved 'pi' to 'math.pi'
   |     if sin(pi) > 0.001 || sin(pi) < -0.001 then return 4;
   |                               ^
 hint: consider writing math.pi
-debug: semantic: sem_check_expr: type=13 line=8 col=31 node=0x55f102879428
+debug: semantic: sem_check_expr: type=13 line=8 col=31 node=0x55d48e1fc428
 debug: semantic: table.c lookup: name='pi', found_ns='math', current_ns='main'
 8:31: warning: Implicitly resolved 'pi' to 'math.pi'
   |     if sin(pi) > 0.001 || sin(pi) < -0.001 then return 4;
   |                               ^
 hint: consider writing math.pi
-debug: semantic: sem_check_expr: type=13 line=8 col=31 node=0x55f102879428
+debug: semantic: sem_check_expr: type=13 line=8 col=31 node=0x55d48e1fc428
 debug: semantic: table.c lookup: name='pi', found_ns='math', current_ns='main'
 8:31: warning: Implicitly resolved 'pi' to 'math.pi'
   |     if sin(pi) > 0.001 || sin(pi) < -0.001 then return 4;
   |                               ^
 hint: consider writing math.pi
-debug: semantic: sem_check_expr: type=15 line=8 col=37 node=0x55f1028795e0
-debug: semantic: sem_check_expr: type=16 line=8 col=38 node=0x55f102879540
+debug: semantic: sem_check_expr: type=15 line=8 col=37 node=0x55d48e1fc5e0
+debug: semantic: sem_check_expr: type=16 line=8 col=38 node=0x55d48e1fc540
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=8 col=56 node=0x55f1028797b8
-debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x55f102879948
+debug: semantic: sem_check_expr: type=16 line=8 col=56 node=0x55d48e1fc7b8
+debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x55d48e1fc948
 10:12: warning: Implicitly resolved 'frexp_result_single' to 'math.frexp_result_single'
   |     return 0;
   |            ^
@@ -873,13 +1066,13 @@ hint: consider writing math.modf_result_double
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class frexp_result_single
-debug: alir: DEBUG_REGISTER: st=0x55f102960938 name=frexp_result_single next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55d48e2e3938 name=frexp_result_single next=(nil)
 debug: alir: Visiting class frexp_result_double
-debug: alir: DEBUG_REGISTER: st=0x55f102960958 name=frexp_result_double next=0x55f102960938
+debug: alir: DEBUG_REGISTER: st=0x55d48e2e3958 name=frexp_result_double next=0x55d48e2e3938
 debug: alir: Visiting class modf_result_single
-debug: alir: DEBUG_REGISTER: st=0x55f102960978 name=modf_result_single next=0x55f102960958
+debug: alir: DEBUG_REGISTER: st=0x55d48e2e3978 name=modf_result_single next=0x55d48e2e3958
 debug: alir: Visiting class modf_result_double
-debug: alir: DEBUG_REGISTER: st=0x55f102960998 name=modf_result_double next=0x55f102960978
+debug: alir: DEBUG_REGISTER: st=0x55d48e2e3998 name=modf_result_double next=0x55d48e2e3978
 debug: alir: DEBUG_PASS1_END: struct list:
  - modf_result_double fields: 2
  - modf_result_single fields: 2
@@ -1407,7 +1600,7 @@ debug: alir: alir_add_function: math_copysign_f64_f64
 debug: alir: Found func_def frexp
 debug: alir: alir_gen_function_def fn->name=frexp class_name=NULL fn->mangled_name=math_frexp_f32 -> func_name=math_frexp_f32
 debug: alir: alir_add_function: math_frexp_f32
-GEN_CALL: name=frexp_result_single mangled=NULL
+debug: alir: GEN_CALL: name=frexp_result_single mangled=NULL
 debug: semantic: table.c lookup: name='frexp_result_single', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'frexp_result_single' to 'math.frexp_result_single'
   |     return 0;
@@ -1422,7 +1615,7 @@ hint: consider writing math.frexp_result_single
 debug: alir: Found func_def frexp
 debug: alir: alir_gen_function_def fn->name=frexp class_name=NULL fn->mangled_name=math_frexp_f64 -> func_name=math_frexp_f64
 debug: alir: alir_add_function: math_frexp_f64
-GEN_CALL: name=frexp_result_double mangled=NULL
+debug: alir: GEN_CALL: name=frexp_result_double mangled=NULL
 debug: semantic: table.c lookup: name='frexp_result_double', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'frexp_result_double' to 'math.frexp_result_double'
   |     return 0;
@@ -1437,7 +1630,7 @@ hint: consider writing math.frexp_result_double
 debug: alir: Found func_def modf
 debug: alir: alir_gen_function_def fn->name=modf class_name=NULL fn->mangled_name=math_modf_f32 -> func_name=math_modf_f32
 debug: alir: alir_add_function: math_modf_f32
-GEN_CALL: name=modf_result_single mangled=NULL
+debug: alir: GEN_CALL: name=modf_result_single mangled=NULL
 debug: semantic: table.c lookup: name='modf_result_single', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'modf_result_single' to 'math.modf_result_single'
   |     return 0;
@@ -1452,7 +1645,7 @@ hint: consider writing math.modf_result_single
 debug: alir: Found func_def modf
 debug: alir: alir_gen_function_def fn->name=modf class_name=NULL fn->mangled_name=math_modf_f64 -> func_name=math_modf_f64
 debug: alir: alir_add_function: math_modf_f64
-GEN_CALL: name=modf_result_double mangled=NULL
+debug: alir: GEN_CALL: name=modf_result_double mangled=NULL
 debug: semantic: table.c lookup: name='modf_result_double', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'modf_result_double' to 'math.modf_result_double'
   |     return 0;
@@ -1467,15 +1660,15 @@ hint: consider writing math.modf_result_double
 debug: alir: Found func_def factorial
 debug: alir: alir_gen_function_def fn->name=factorial class_name=NULL fn->mangled_name=math_factorial_f32 -> func_name=math_factorial_f32
 debug: alir: alir_add_function: math_factorial_f32
-GEN_CALL: name=tgamma mangled=math_tgamma_f32
+debug: alir: GEN_CALL: name=tgamma mangled=math_tgamma_f32
 debug: alir: Looking up 'math_tgamma_f32'
 debug: semantic: table.c lookup: name='tgamma', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'tgamma' to 'math.tgamma'
   |     return 0;
   |            ^
 hint: consider writing math.tgamma
-debug: alir: Found symbol tgamma, kind=1, is_macro=0, node_ptr=0x55f102913a68
-CALL_STD: name=tgamma mangled=math_tgamma_f32 target_type=13
+debug: alir: Found symbol tgamma, kind=1, is_macro=0, node_ptr=0x55d48e296a68
+debug: alir: CALL_STD: name=tgamma mangled=math_tgamma_f32 target_type=13
 debug: semantic: table.c lookup: name='tgamma', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'tgamma' to 'math.tgamma'
   |     return 0;
@@ -1487,154 +1680,19 @@ debug: semantic: table.c lookup: name='tgamma', found_ns='math', current_ns='mai
   |            ^
 hint: consider writing math.tgamma
 debug: alir: GLOBAL VAR ADDR: tgamma
-debug: alir: TAINTED PTR: ctx->module=0x55f10295d1c0 target_name=math_tgamma_f32 count=1
-TAINTED PTR: checking func sin
-TAINTED PTR: checking func cos
-TAINTED PTR: checking func tan
-TAINTED PTR: checking func asin
-TAINTED PTR: checking func acos
-TAINTED PTR: checking func atan
-TAINTED PTR: checking func atan2
-TAINTED PTR: checking func sinh
-TAINTED PTR: checking func cosh
-TAINTED PTR: checking func tanh
-TAINTED PTR: checking func exp
-TAINTED PTR: checking func exp2
-TAINTED PTR: checking func expm1
-TAINTED PTR: checking func log
-TAINTED PTR: checking func log10
-TAINTED PTR: checking func log2
-TAINTED PTR: checking func log1p
-TAINTED PTR: checking func pow
-TAINTED PTR: checking func sqrt
-TAINTED PTR: checking func cbrt
-TAINTED PTR: checking func hypot
-TAINTED PTR: checking func erf
-TAINTED PTR: checking func erfc
-TAINTED PTR: checking func lgamma
-TAINTED PTR: checking func tgamma
-TAINTED PTR: checking func ceil
-TAINTED PTR: checking func floor
-TAINTED PTR: checking func round
-TAINTED PTR: checking func trunc
-TAINTED PTR: checking func nearbyint
-TAINTED PTR: checking func rint
-TAINTED PTR: checking func fabs
-TAINTED PTR: checking func fmod
-TAINTED PTR: checking func fmax
-TAINTED PTR: checking func fmin
-TAINTED PTR: checking func remainder
-TAINTED PTR: checking func copysign
-TAINTED PTR: checking func frexp
-TAINTED PTR: checking func modf
-TAINTED PTR: checking func nextafter
-TAINTED PTR: checking func fma
-TAINTED PTR: checking func ilogb
-TAINTED PTR: checking func scalbn
-TAINTED PTR: checking func scalbln
-TAINTED PTR: checking func sinf
-TAINTED PTR: checking func cosf
-TAINTED PTR: checking func tanf
-TAINTED PTR: checking func asinf
-TAINTED PTR: checking func acosf
-TAINTED PTR: checking func atanf
-TAINTED PTR: checking func atan2f
-TAINTED PTR: checking func sinhf
-TAINTED PTR: checking func coshf
-TAINTED PTR: checking func tanhf
-TAINTED PTR: checking func expf
-TAINTED PTR: checking func exp2f
-TAINTED PTR: checking func expm1f
-TAINTED PTR: checking func logf
-TAINTED PTR: checking func log10f
-TAINTED PTR: checking func log2f
-TAINTED PTR: checking func log1pf
-TAINTED PTR: checking func powf
-TAINTED PTR: checking func sqrtf
-TAINTED PTR: checking func cbrtf
-TAINTED PTR: checking func hypotf
-TAINTED PTR: checking func erff
-TAINTED PTR: checking func erfcf
-TAINTED PTR: checking func lgammaf
-TAINTED PTR: checking func tgammaf
-TAINTED PTR: checking func ceilf
-TAINTED PTR: checking func floorf
-TAINTED PTR: checking func roundf
-TAINTED PTR: checking func truncf
-TAINTED PTR: checking func nearbyintf
-TAINTED PTR: checking func rintf
-TAINTED PTR: checking func fabsf
-TAINTED PTR: checking func fmodf
-TAINTED PTR: checking func fmaxf
-TAINTED PTR: checking func fminf
-TAINTED PTR: checking func remainderf
-TAINTED PTR: checking func copysignf
-TAINTED PTR: checking func frexpf
-TAINTED PTR: checking func modff
-TAINTED PTR: checking func nextafterf
-TAINTED PTR: checking func fmaf
-TAINTED PTR: checking func ilogbf
-TAINTED PTR: checking func scalbnf
-TAINTED PTR: checking func scalblnf
-TAINTED PTR: checking func math_atan2_f64_f64
-TAINTED PTR: checking func math_atan2_f32_f32
-TAINTED PTR: checking func math_sin_f32
-TAINTED PTR: checking func math_cos_f32
-TAINTED PTR: checking func math_tan_f32
-TAINTED PTR: checking func math_sin_f64
-TAINTED PTR: checking func math_cos_f64
-TAINTED PTR: checking func math_tan_f64
-TAINTED PTR: checking func math_asin_f32
-TAINTED PTR: checking func math_acos_f32
-TAINTED PTR: checking func math_atan_f32
-TAINTED PTR: checking func math_asin_f64
-TAINTED PTR: checking func math_acos_f64
-TAINTED PTR: checking func math_atan_f64
-TAINTED PTR: checking func math_sinh_f32
-TAINTED PTR: checking func math_cosh_f32
-TAINTED PTR: checking func math_tanh_f32
-TAINTED PTR: checking func math_sinh_f64
-TAINTED PTR: checking func math_cosh_f64
-TAINTED PTR: checking func math_tanh_f64
-TAINTED PTR: checking func math_exp_f32
-TAINTED PTR: checking func math_exp2_f32
-TAINTED PTR: checking func math_expm1_f32
-TAINTED PTR: checking func math_exp_f64
-TAINTED PTR: checking func math_exp2_f64
-TAINTED PTR: checking func math_expm1_f64
-TAINTED PTR: checking func math_log_f32
-TAINTED PTR: checking func math_log10_f32
-TAINTED PTR: checking func math_log2_f32
-TAINTED PTR: checking func math_log1p_f32
-TAINTED PTR: checking func math_log_f64
-TAINTED PTR: checking func math_log10_f64
-TAINTED PTR: checking func math_log2_f64
-TAINTED PTR: checking func math_log1p_f64
-TAINTED PTR: checking func math_pow_f32_f32
-TAINTED PTR: checking func math_sqrt_f32
-TAINTED PTR: checking func math_cbrt_f32
-TAINTED PTR: checking func math_hypot_f32_f32
-TAINTED PTR: checking func math_pow_f64_f64
-TAINTED PTR: checking func math_sqrt_f64
-TAINTED PTR: checking func math_cbrt_f64
-TAINTED PTR: checking func math_hypot_f64_f64
-TAINTED PTR: checking func math_erf_f32
-TAINTED PTR: checking func math_erfc_f32
-TAINTED PTR: checking func math_lgamma_f32
-TAINTED PTR: checking func math_tgamma_f32
-TAINTED PTR CHECK: arg_t.base=11 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=11 param_t.ptr_depth=0 param_t.is_tainted=0 target=math_tgamma_f32 param=n
+debug: alir: TAINTED PTR: ctx->module=0x55d48e2e01c0 target_name=math_tgamma_f32 count=1
 debug: alir: Found func_def factorial
 debug: alir: alir_gen_function_def fn->name=factorial class_name=NULL fn->mangled_name=math_factorial_f64 -> func_name=math_factorial_f64
 debug: alir: alir_add_function: math_factorial_f64
-GEN_CALL: name=tgamma mangled=math_tgamma_f64
+debug: alir: GEN_CALL: name=tgamma mangled=math_tgamma_f64
 debug: alir: Looking up 'math_tgamma_f64'
 debug: semantic: table.c lookup: name='tgamma', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'tgamma' to 'math.tgamma'
   |     return 0;
   |            ^
 hint: consider writing math.tgamma
-debug: alir: Found symbol tgamma, kind=1, is_macro=0, node_ptr=0x55f102913a68
-CALL_STD: name=tgamma mangled=math_tgamma_f64 target_type=13
+debug: alir: Found symbol tgamma, kind=1, is_macro=0, node_ptr=0x55d48e296a68
+debug: alir: CALL_STD: name=tgamma mangled=math_tgamma_f64 target_type=13
 debug: semantic: table.c lookup: name='tgamma', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'tgamma' to 'math.tgamma'
   |     return 0;
@@ -1646,158 +1704,19 @@ debug: semantic: table.c lookup: name='tgamma', found_ns='math', current_ns='mai
   |            ^
 hint: consider writing math.tgamma
 debug: alir: GLOBAL VAR ADDR: tgamma
-debug: alir: TAINTED PTR: ctx->module=0x55f10295d1c0 target_name=math_tgamma_f64 count=1
-TAINTED PTR: checking func sin
-TAINTED PTR: checking func cos
-TAINTED PTR: checking func tan
-TAINTED PTR: checking func asin
-TAINTED PTR: checking func acos
-TAINTED PTR: checking func atan
-TAINTED PTR: checking func atan2
-TAINTED PTR: checking func sinh
-TAINTED PTR: checking func cosh
-TAINTED PTR: checking func tanh
-TAINTED PTR: checking func exp
-TAINTED PTR: checking func exp2
-TAINTED PTR: checking func expm1
-TAINTED PTR: checking func log
-TAINTED PTR: checking func log10
-TAINTED PTR: checking func log2
-TAINTED PTR: checking func log1p
-TAINTED PTR: checking func pow
-TAINTED PTR: checking func sqrt
-TAINTED PTR: checking func cbrt
-TAINTED PTR: checking func hypot
-TAINTED PTR: checking func erf
-TAINTED PTR: checking func erfc
-TAINTED PTR: checking func lgamma
-TAINTED PTR: checking func tgamma
-TAINTED PTR: checking func ceil
-TAINTED PTR: checking func floor
-TAINTED PTR: checking func round
-TAINTED PTR: checking func trunc
-TAINTED PTR: checking func nearbyint
-TAINTED PTR: checking func rint
-TAINTED PTR: checking func fabs
-TAINTED PTR: checking func fmod
-TAINTED PTR: checking func fmax
-TAINTED PTR: checking func fmin
-TAINTED PTR: checking func remainder
-TAINTED PTR: checking func copysign
-TAINTED PTR: checking func frexp
-TAINTED PTR: checking func modf
-TAINTED PTR: checking func nextafter
-TAINTED PTR: checking func fma
-TAINTED PTR: checking func ilogb
-TAINTED PTR: checking func scalbn
-TAINTED PTR: checking func scalbln
-TAINTED PTR: checking func sinf
-TAINTED PTR: checking func cosf
-TAINTED PTR: checking func tanf
-TAINTED PTR: checking func asinf
-TAINTED PTR: checking func acosf
-TAINTED PTR: checking func atanf
-TAINTED PTR: checking func atan2f
-TAINTED PTR: checking func sinhf
-TAINTED PTR: checking func coshf
-TAINTED PTR: checking func tanhf
-TAINTED PTR: checking func expf
-TAINTED PTR: checking func exp2f
-TAINTED PTR: checking func expm1f
-TAINTED PTR: checking func logf
-TAINTED PTR: checking func log10f
-TAINTED PTR: checking func log2f
-TAINTED PTR: checking func log1pf
-TAINTED PTR: checking func powf
-TAINTED PTR: checking func sqrtf
-TAINTED PTR: checking func cbrtf
-TAINTED PTR: checking func hypotf
-TAINTED PTR: checking func erff
-TAINTED PTR: checking func erfcf
-TAINTED PTR: checking func lgammaf
-TAINTED PTR: checking func tgammaf
-TAINTED PTR: checking func ceilf
-TAINTED PTR: checking func floorf
-TAINTED PTR: checking func roundf
-TAINTED PTR: checking func truncf
-TAINTED PTR: checking func nearbyintf
-TAINTED PTR: checking func rintf
-TAINTED PTR: checking func fabsf
-TAINTED PTR: checking func fmodf
-TAINTED PTR: checking func fmaxf
-TAINTED PTR: checking func fminf
-TAINTED PTR: checking func remainderf
-TAINTED PTR: checking func copysignf
-TAINTED PTR: checking func frexpf
-TAINTED PTR: checking func modff
-TAINTED PTR: checking func nextafterf
-TAINTED PTR: checking func fmaf
-TAINTED PTR: checking func ilogbf
-TAINTED PTR: checking func scalbnf
-TAINTED PTR: checking func scalblnf
-TAINTED PTR: checking func math_atan2_f64_f64
-TAINTED PTR: checking func math_atan2_f32_f32
-TAINTED PTR: checking func math_sin_f32
-TAINTED PTR: checking func math_cos_f32
-TAINTED PTR: checking func math_tan_f32
-TAINTED PTR: checking func math_sin_f64
-TAINTED PTR: checking func math_cos_f64
-TAINTED PTR: checking func math_tan_f64
-TAINTED PTR: checking func math_asin_f32
-TAINTED PTR: checking func math_acos_f32
-TAINTED PTR: checking func math_atan_f32
-TAINTED PTR: checking func math_asin_f64
-TAINTED PTR: checking func math_acos_f64
-TAINTED PTR: checking func math_atan_f64
-TAINTED PTR: checking func math_sinh_f32
-TAINTED PTR: checking func math_cosh_f32
-TAINTED PTR: checking func math_tanh_f32
-TAINTED PTR: checking func math_sinh_f64
-TAINTED PTR: checking func math_cosh_f64
-TAINTED PTR: checking func math_tanh_f64
-TAINTED PTR: checking func math_exp_f32
-TAINTED PTR: checking func math_exp2_f32
-TAINTED PTR: checking func math_expm1_f32
-TAINTED PTR: checking func math_exp_f64
-TAINTED PTR: checking func math_exp2_f64
-TAINTED PTR: checking func math_expm1_f64
-TAINTED PTR: checking func math_log_f32
-TAINTED PTR: checking func math_log10_f32
-TAINTED PTR: checking func math_log2_f32
-TAINTED PTR: checking func math_log1p_f32
-TAINTED PTR: checking func math_log_f64
-TAINTED PTR: checking func math_log10_f64
-TAINTED PTR: checking func math_log2_f64
-TAINTED PTR: checking func math_log1p_f64
-TAINTED PTR: checking func math_pow_f32_f32
-TAINTED PTR: checking func math_sqrt_f32
-TAINTED PTR: checking func math_cbrt_f32
-TAINTED PTR: checking func math_hypot_f32_f32
-TAINTED PTR: checking func math_pow_f64_f64
-TAINTED PTR: checking func math_sqrt_f64
-TAINTED PTR: checking func math_cbrt_f64
-TAINTED PTR: checking func math_hypot_f64_f64
-TAINTED PTR: checking func math_erf_f32
-TAINTED PTR: checking func math_erfc_f32
-TAINTED PTR: checking func math_lgamma_f32
-TAINTED PTR: checking func math_tgamma_f32
-TAINTED PTR: checking func math_erf_f64
-TAINTED PTR: checking func math_erfc_f64
-TAINTED PTR: checking func math_lgamma_f64
-TAINTED PTR: checking func math_tgamma_f64
-TAINTED PTR CHECK: arg_t.base=12 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=12 param_t.ptr_depth=0 param_t.is_tainted=0 target=math_tgamma_f64 param=n
+debug: alir: TAINTED PTR: ctx->module=0x55d48e2e01c0 target_name=math_tgamma_f64 count=1
 debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 debug: alir: alir_add_function: main
-GEN_CALL: name=cos mangled=math_cos_f64
+debug: alir: GEN_CALL: name=cos mangled=math_cos_f64
 debug: alir: Looking up 'math_cos_f64'
 debug: semantic: table.c lookup: name='cos', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'cos' to 'math.cos'
   |     return 0;
   |            ^
 hint: consider writing math.cos
-debug: alir: Found symbol cos, kind=1, is_macro=0, node_ptr=0x55f1028fddc0
-CALL_STD: name=cos mangled=math_cos_f64 target_type=13
+debug: alir: Found symbol cos, kind=1, is_macro=0, node_ptr=0x55d48e280dc0
+debug: alir: CALL_STD: name=cos mangled=math_cos_f64 target_type=13
 debug: semantic: table.c lookup: name='cos', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'cos' to 'math.cos'
   |     return 0;
@@ -1809,117 +1728,21 @@ debug: semantic: table.c lookup: name='cos', found_ns='math', current_ns='main'
   |            ^
 hint: consider writing math.cos
 debug: alir: GLOBAL VAR ADDR: cos
-debug: alir: TAINTED PTR: ctx->module=0x55f10295d1c0 target_name=math_cos_f64 count=1
-TAINTED PTR: checking func sin
-TAINTED PTR: checking func cos
-TAINTED PTR: checking func tan
-TAINTED PTR: checking func asin
-TAINTED PTR: checking func acos
-TAINTED PTR: checking func atan
-TAINTED PTR: checking func atan2
-TAINTED PTR: checking func sinh
-TAINTED PTR: checking func cosh
-TAINTED PTR: checking func tanh
-TAINTED PTR: checking func exp
-TAINTED PTR: checking func exp2
-TAINTED PTR: checking func expm1
-TAINTED PTR: checking func log
-TAINTED PTR: checking func log10
-TAINTED PTR: checking func log2
-TAINTED PTR: checking func log1p
-TAINTED PTR: checking func pow
-TAINTED PTR: checking func sqrt
-TAINTED PTR: checking func cbrt
-TAINTED PTR: checking func hypot
-TAINTED PTR: checking func erf
-TAINTED PTR: checking func erfc
-TAINTED PTR: checking func lgamma
-TAINTED PTR: checking func tgamma
-TAINTED PTR: checking func ceil
-TAINTED PTR: checking func floor
-TAINTED PTR: checking func round
-TAINTED PTR: checking func trunc
-TAINTED PTR: checking func nearbyint
-TAINTED PTR: checking func rint
-TAINTED PTR: checking func fabs
-TAINTED PTR: checking func fmod
-TAINTED PTR: checking func fmax
-TAINTED PTR: checking func fmin
-TAINTED PTR: checking func remainder
-TAINTED PTR: checking func copysign
-TAINTED PTR: checking func frexp
-TAINTED PTR: checking func modf
-TAINTED PTR: checking func nextafter
-TAINTED PTR: checking func fma
-TAINTED PTR: checking func ilogb
-TAINTED PTR: checking func scalbn
-TAINTED PTR: checking func scalbln
-TAINTED PTR: checking func sinf
-TAINTED PTR: checking func cosf
-TAINTED PTR: checking func tanf
-TAINTED PTR: checking func asinf
-TAINTED PTR: checking func acosf
-TAINTED PTR: checking func atanf
-TAINTED PTR: checking func atan2f
-TAINTED PTR: checking func sinhf
-TAINTED PTR: checking func coshf
-TAINTED PTR: checking func tanhf
-TAINTED PTR: checking func expf
-TAINTED PTR: checking func exp2f
-TAINTED PTR: checking func expm1f
-TAINTED PTR: checking func logf
-TAINTED PTR: checking func log10f
-TAINTED PTR: checking func log2f
-TAINTED PTR: checking func log1pf
-TAINTED PTR: checking func powf
-TAINTED PTR: checking func sqrtf
-TAINTED PTR: checking func cbrtf
-TAINTED PTR: checking func hypotf
-TAINTED PTR: checking func erff
-TAINTED PTR: checking func erfcf
-TAINTED PTR: checking func lgammaf
-TAINTED PTR: checking func tgammaf
-TAINTED PTR: checking func ceilf
-TAINTED PTR: checking func floorf
-TAINTED PTR: checking func roundf
-TAINTED PTR: checking func truncf
-TAINTED PTR: checking func nearbyintf
-TAINTED PTR: checking func rintf
-TAINTED PTR: checking func fabsf
-TAINTED PTR: checking func fmodf
-TAINTED PTR: checking func fmaxf
-TAINTED PTR: checking func fminf
-TAINTED PTR: checking func remainderf
-TAINTED PTR: checking func copysignf
-TAINTED PTR: checking func frexpf
-TAINTED PTR: checking func modff
-TAINTED PTR: checking func nextafterf
-TAINTED PTR: checking func fmaf
-TAINTED PTR: checking func ilogbf
-TAINTED PTR: checking func scalbnf
-TAINTED PTR: checking func scalblnf
-TAINTED PTR: checking func math_atan2_f64_f64
-TAINTED PTR: checking func math_atan2_f32_f32
-TAINTED PTR: checking func math_sin_f32
-TAINTED PTR: checking func math_cos_f32
-TAINTED PTR: checking func math_tan_f32
-TAINTED PTR: checking func math_sin_f64
-TAINTED PTR: checking func math_cos_f64
-TAINTED PTR CHECK: arg_t.base=12 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=12 param_t.ptr_depth=0 param_t.is_tainted=0 target=math_cos_f64 param=n
+debug: alir: TAINTED PTR: ctx->module=0x55d48e2e01c0 target_name=math_cos_f64 count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=12 op1_kind=9 op1_type_base=12
 debug: alir: func=main op=12 dest_kind=5 dest_type_base=12 op1_kind=7 op1_type_base=12
 debug: alir: func=main op=24 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=12
 debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-GEN_CALL: name=sin mangled=math_sin_f64
+debug: alir: GEN_CALL: name=sin mangled=math_sin_f64
 debug: alir: Looking up 'math_sin_f64'
 debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'sin' to 'math.sin'
   |     return 0;
   |            ^
 hint: consider writing math.sin
-debug: alir: Found symbol sin, kind=1, is_macro=0, node_ptr=0x55f1028fd588
-CALL_STD: name=sin mangled=math_sin_f64 target_type=13
+debug: alir: Found symbol sin, kind=1, is_macro=0, node_ptr=0x55d48e280588
+debug: alir: CALL_STD: name=sin mangled=math_sin_f64 target_type=13
 debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'sin' to 'math.sin'
   |     return 0;
@@ -1931,116 +1754,21 @@ debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
   |            ^
 hint: consider writing math.sin
 debug: alir: GLOBAL VAR ADDR: sin
-debug: alir: TAINTED PTR: ctx->module=0x55f10295d1c0 target_name=math_sin_f64 count=1
-TAINTED PTR: checking func sin
-TAINTED PTR: checking func cos
-TAINTED PTR: checking func tan
-TAINTED PTR: checking func asin
-TAINTED PTR: checking func acos
-TAINTED PTR: checking func atan
-TAINTED PTR: checking func atan2
-TAINTED PTR: checking func sinh
-TAINTED PTR: checking func cosh
-TAINTED PTR: checking func tanh
-TAINTED PTR: checking func exp
-TAINTED PTR: checking func exp2
-TAINTED PTR: checking func expm1
-TAINTED PTR: checking func log
-TAINTED PTR: checking func log10
-TAINTED PTR: checking func log2
-TAINTED PTR: checking func log1p
-TAINTED PTR: checking func pow
-TAINTED PTR: checking func sqrt
-TAINTED PTR: checking func cbrt
-TAINTED PTR: checking func hypot
-TAINTED PTR: checking func erf
-TAINTED PTR: checking func erfc
-TAINTED PTR: checking func lgamma
-TAINTED PTR: checking func tgamma
-TAINTED PTR: checking func ceil
-TAINTED PTR: checking func floor
-TAINTED PTR: checking func round
-TAINTED PTR: checking func trunc
-TAINTED PTR: checking func nearbyint
-TAINTED PTR: checking func rint
-TAINTED PTR: checking func fabs
-TAINTED PTR: checking func fmod
-TAINTED PTR: checking func fmax
-TAINTED PTR: checking func fmin
-TAINTED PTR: checking func remainder
-TAINTED PTR: checking func copysign
-TAINTED PTR: checking func frexp
-TAINTED PTR: checking func modf
-TAINTED PTR: checking func nextafter
-TAINTED PTR: checking func fma
-TAINTED PTR: checking func ilogb
-TAINTED PTR: checking func scalbn
-TAINTED PTR: checking func scalbln
-TAINTED PTR: checking func sinf
-TAINTED PTR: checking func cosf
-TAINTED PTR: checking func tanf
-TAINTED PTR: checking func asinf
-TAINTED PTR: checking func acosf
-TAINTED PTR: checking func atanf
-TAINTED PTR: checking func atan2f
-TAINTED PTR: checking func sinhf
-TAINTED PTR: checking func coshf
-TAINTED PTR: checking func tanhf
-TAINTED PTR: checking func expf
-TAINTED PTR: checking func exp2f
-TAINTED PTR: checking func expm1f
-TAINTED PTR: checking func logf
-TAINTED PTR: checking func log10f
-TAINTED PTR: checking func log2f
-TAINTED PTR: checking func log1pf
-TAINTED PTR: checking func powf
-TAINTED PTR: checking func sqrtf
-TAINTED PTR: checking func cbrtf
-TAINTED PTR: checking func hypotf
-TAINTED PTR: checking func erff
-TAINTED PTR: checking func erfcf
-TAINTED PTR: checking func lgammaf
-TAINTED PTR: checking func tgammaf
-TAINTED PTR: checking func ceilf
-TAINTED PTR: checking func floorf
-TAINTED PTR: checking func roundf
-TAINTED PTR: checking func truncf
-TAINTED PTR: checking func nearbyintf
-TAINTED PTR: checking func rintf
-TAINTED PTR: checking func fabsf
-TAINTED PTR: checking func fmodf
-TAINTED PTR: checking func fmaxf
-TAINTED PTR: checking func fminf
-TAINTED PTR: checking func remainderf
-TAINTED PTR: checking func copysignf
-TAINTED PTR: checking func frexpf
-TAINTED PTR: checking func modff
-TAINTED PTR: checking func nextafterf
-TAINTED PTR: checking func fmaf
-TAINTED PTR: checking func ilogbf
-TAINTED PTR: checking func scalbnf
-TAINTED PTR: checking func scalblnf
-TAINTED PTR: checking func math_atan2_f64_f64
-TAINTED PTR: checking func math_atan2_f32_f32
-TAINTED PTR: checking func math_sin_f32
-TAINTED PTR: checking func math_cos_f32
-TAINTED PTR: checking func math_tan_f32
-TAINTED PTR: checking func math_sin_f64
-TAINTED PTR CHECK: arg_t.base=12 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=12 param_t.ptr_depth=0 param_t.is_tainted=0 target=math_sin_f64 param=n
+debug: alir: TAINTED PTR: ctx->module=0x55d48e2e01c0 target_name=math_sin_f64 count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=12 op1_kind=9 op1_type_base=12
 debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=12
 debug: alir: func=main op=18 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
 debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-GEN_CALL: name=cos mangled=math_cos_f64
+debug: alir: GEN_CALL: name=cos mangled=math_cos_f64
 debug: alir: Looking up 'math_cos_f64'
 debug: semantic: table.c lookup: name='cos', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'cos' to 'math.cos'
   |     return 0;
   |            ^
 hint: consider writing math.cos
-debug: alir: Found symbol cos, kind=1, is_macro=0, node_ptr=0x55f1028fddc0
-CALL_STD: name=cos mangled=math_cos_f64 target_type=13
+debug: alir: Found symbol cos, kind=1, is_macro=0, node_ptr=0x55d48e280dc0
+debug: alir: CALL_STD: name=cos mangled=math_cos_f64 target_type=13
 debug: semantic: table.c lookup: name='cos', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'cos' to 'math.cos'
   |     return 0;
@@ -2052,117 +1780,21 @@ debug: semantic: table.c lookup: name='cos', found_ns='math', current_ns='main'
   |            ^
 hint: consider writing math.cos
 debug: alir: GLOBAL VAR ADDR: cos
-debug: alir: TAINTED PTR: ctx->module=0x55f10295d1c0 target_name=math_cos_f64 count=1
-TAINTED PTR: checking func sin
-TAINTED PTR: checking func cos
-TAINTED PTR: checking func tan
-TAINTED PTR: checking func asin
-TAINTED PTR: checking func acos
-TAINTED PTR: checking func atan
-TAINTED PTR: checking func atan2
-TAINTED PTR: checking func sinh
-TAINTED PTR: checking func cosh
-TAINTED PTR: checking func tanh
-TAINTED PTR: checking func exp
-TAINTED PTR: checking func exp2
-TAINTED PTR: checking func expm1
-TAINTED PTR: checking func log
-TAINTED PTR: checking func log10
-TAINTED PTR: checking func log2
-TAINTED PTR: checking func log1p
-TAINTED PTR: checking func pow
-TAINTED PTR: checking func sqrt
-TAINTED PTR: checking func cbrt
-TAINTED PTR: checking func hypot
-TAINTED PTR: checking func erf
-TAINTED PTR: checking func erfc
-TAINTED PTR: checking func lgamma
-TAINTED PTR: checking func tgamma
-TAINTED PTR: checking func ceil
-TAINTED PTR: checking func floor
-TAINTED PTR: checking func round
-TAINTED PTR: checking func trunc
-TAINTED PTR: checking func nearbyint
-TAINTED PTR: checking func rint
-TAINTED PTR: checking func fabs
-TAINTED PTR: checking func fmod
-TAINTED PTR: checking func fmax
-TAINTED PTR: checking func fmin
-TAINTED PTR: checking func remainder
-TAINTED PTR: checking func copysign
-TAINTED PTR: checking func frexp
-TAINTED PTR: checking func modf
-TAINTED PTR: checking func nextafter
-TAINTED PTR: checking func fma
-TAINTED PTR: checking func ilogb
-TAINTED PTR: checking func scalbn
-TAINTED PTR: checking func scalbln
-TAINTED PTR: checking func sinf
-TAINTED PTR: checking func cosf
-TAINTED PTR: checking func tanf
-TAINTED PTR: checking func asinf
-TAINTED PTR: checking func acosf
-TAINTED PTR: checking func atanf
-TAINTED PTR: checking func atan2f
-TAINTED PTR: checking func sinhf
-TAINTED PTR: checking func coshf
-TAINTED PTR: checking func tanhf
-TAINTED PTR: checking func expf
-TAINTED PTR: checking func exp2f
-TAINTED PTR: checking func expm1f
-TAINTED PTR: checking func logf
-TAINTED PTR: checking func log10f
-TAINTED PTR: checking func log2f
-TAINTED PTR: checking func log1pf
-TAINTED PTR: checking func powf
-TAINTED PTR: checking func sqrtf
-TAINTED PTR: checking func cbrtf
-TAINTED PTR: checking func hypotf
-TAINTED PTR: checking func erff
-TAINTED PTR: checking func erfcf
-TAINTED PTR: checking func lgammaf
-TAINTED PTR: checking func tgammaf
-TAINTED PTR: checking func ceilf
-TAINTED PTR: checking func floorf
-TAINTED PTR: checking func roundf
-TAINTED PTR: checking func truncf
-TAINTED PTR: checking func nearbyintf
-TAINTED PTR: checking func rintf
-TAINTED PTR: checking func fabsf
-TAINTED PTR: checking func fmodf
-TAINTED PTR: checking func fmaxf
-TAINTED PTR: checking func fminf
-TAINTED PTR: checking func remainderf
-TAINTED PTR: checking func copysignf
-TAINTED PTR: checking func frexpf
-TAINTED PTR: checking func modff
-TAINTED PTR: checking func nextafterf
-TAINTED PTR: checking func fmaf
-TAINTED PTR: checking func ilogbf
-TAINTED PTR: checking func scalbnf
-TAINTED PTR: checking func scalblnf
-TAINTED PTR: checking func math_atan2_f64_f64
-TAINTED PTR: checking func math_atan2_f32_f32
-TAINTED PTR: checking func math_sin_f32
-TAINTED PTR: checking func math_cos_f32
-TAINTED PTR: checking func math_tan_f32
-TAINTED PTR: checking func math_sin_f64
-TAINTED PTR: checking func math_cos_f64
-TAINTED PTR CHECK: arg_t.base=12 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=12 param_t.ptr_depth=0 param_t.is_tainted=0 target=math_cos_f64 param=n
+debug: alir: TAINTED PTR: ctx->module=0x55d48e2e01c0 target_name=math_cos_f64 count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=12 op1_kind=9 op1_type_base=12
 debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=12
 debug: alir: func=main op=18 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
 debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-GEN_CALL: name=sin mangled=math_sin_f64
+debug: alir: GEN_CALL: name=sin mangled=math_sin_f64
 debug: alir: Looking up 'math_sin_f64'
 debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'sin' to 'math.sin'
   |     return 0;
   |            ^
 hint: consider writing math.sin
-debug: alir: Found symbol sin, kind=1, is_macro=0, node_ptr=0x55f1028fd588
-CALL_STD: name=sin mangled=math_sin_f64 target_type=13
+debug: alir: Found symbol sin, kind=1, is_macro=0, node_ptr=0x55d48e280588
+debug: alir: CALL_STD: name=sin mangled=math_sin_f64 target_type=13
 debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'sin' to 'math.sin'
   |     return 0;
@@ -2174,113 +1806,18 @@ debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
   |            ^
 hint: consider writing math.sin
 debug: alir: GLOBAL VAR ADDR: sin
-debug: alir: TAINTED PTR: ctx->module=0x55f10295d1c0 target_name=math_sin_f64 count=1
-TAINTED PTR: checking func sin
-TAINTED PTR: checking func cos
-TAINTED PTR: checking func tan
-TAINTED PTR: checking func asin
-TAINTED PTR: checking func acos
-TAINTED PTR: checking func atan
-TAINTED PTR: checking func atan2
-TAINTED PTR: checking func sinh
-TAINTED PTR: checking func cosh
-TAINTED PTR: checking func tanh
-TAINTED PTR: checking func exp
-TAINTED PTR: checking func exp2
-TAINTED PTR: checking func expm1
-TAINTED PTR: checking func log
-TAINTED PTR: checking func log10
-TAINTED PTR: checking func log2
-TAINTED PTR: checking func log1p
-TAINTED PTR: checking func pow
-TAINTED PTR: checking func sqrt
-TAINTED PTR: checking func cbrt
-TAINTED PTR: checking func hypot
-TAINTED PTR: checking func erf
-TAINTED PTR: checking func erfc
-TAINTED PTR: checking func lgamma
-TAINTED PTR: checking func tgamma
-TAINTED PTR: checking func ceil
-TAINTED PTR: checking func floor
-TAINTED PTR: checking func round
-TAINTED PTR: checking func trunc
-TAINTED PTR: checking func nearbyint
-TAINTED PTR: checking func rint
-TAINTED PTR: checking func fabs
-TAINTED PTR: checking func fmod
-TAINTED PTR: checking func fmax
-TAINTED PTR: checking func fmin
-TAINTED PTR: checking func remainder
-TAINTED PTR: checking func copysign
-TAINTED PTR: checking func frexp
-TAINTED PTR: checking func modf
-TAINTED PTR: checking func nextafter
-TAINTED PTR: checking func fma
-TAINTED PTR: checking func ilogb
-TAINTED PTR: checking func scalbn
-TAINTED PTR: checking func scalbln
-TAINTED PTR: checking func sinf
-TAINTED PTR: checking func cosf
-TAINTED PTR: checking func tanf
-TAINTED PTR: checking func asinf
-TAINTED PTR: checking func acosf
-TAINTED PTR: checking func atanf
-TAINTED PTR: checking func atan2f
-TAINTED PTR: checking func sinhf
-TAINTED PTR: checking func coshf
-TAINTED PTR: checking func tanhf
-TAINTED PTR: checking func expf
-TAINTED PTR: checking func exp2f
-TAINTED PTR: checking func expm1f
-TAINTED PTR: checking func logf
-TAINTED PTR: checking func log10f
-TAINTED PTR: checking func log2f
-TAINTED PTR: checking func log1pf
-TAINTED PTR: checking func powf
-TAINTED PTR: checking func sqrtf
-TAINTED PTR: checking func cbrtf
-TAINTED PTR: checking func hypotf
-TAINTED PTR: checking func erff
-TAINTED PTR: checking func erfcf
-TAINTED PTR: checking func lgammaf
-TAINTED PTR: checking func tgammaf
-TAINTED PTR: checking func ceilf
-TAINTED PTR: checking func floorf
-TAINTED PTR: checking func roundf
-TAINTED PTR: checking func truncf
-TAINTED PTR: checking func nearbyintf
-TAINTED PTR: checking func rintf
-TAINTED PTR: checking func fabsf
-TAINTED PTR: checking func fmodf
-TAINTED PTR: checking func fmaxf
-TAINTED PTR: checking func fminf
-TAINTED PTR: checking func remainderf
-TAINTED PTR: checking func copysignf
-TAINTED PTR: checking func frexpf
-TAINTED PTR: checking func modff
-TAINTED PTR: checking func nextafterf
-TAINTED PTR: checking func fmaf
-TAINTED PTR: checking func ilogbf
-TAINTED PTR: checking func scalbnf
-TAINTED PTR: checking func scalblnf
-TAINTED PTR: checking func math_atan2_f64_f64
-TAINTED PTR: checking func math_atan2_f32_f32
-TAINTED PTR: checking func math_sin_f32
-TAINTED PTR: checking func math_cos_f32
-TAINTED PTR: checking func math_tan_f32
-TAINTED PTR: checking func math_sin_f64
-TAINTED PTR CHECK: arg_t.base=12 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=12 param_t.ptr_depth=0 param_t.is_tainted=0 target=math_sin_f64 param=n
+debug: alir: TAINTED PTR: ctx->module=0x55d48e2e01c0 target_name=math_sin_f64 count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=12 op1_kind=9 op1_type_base=12
 debug: alir: func=main op=24 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=12
-GEN_CALL: name=sin mangled=math_sin_f64
+debug: alir: GEN_CALL: name=sin mangled=math_sin_f64
 debug: alir: Looking up 'math_sin_f64'
 debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'sin' to 'math.sin'
   |     return 0;
   |            ^
 hint: consider writing math.sin
-debug: alir: Found symbol sin, kind=1, is_macro=0, node_ptr=0x55f1028fd588
-CALL_STD: name=sin mangled=math_sin_f64 target_type=13
+debug: alir: Found symbol sin, kind=1, is_macro=0, node_ptr=0x55d48e280588
+debug: alir: CALL_STD: name=sin mangled=math_sin_f64 target_type=13
 debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
 10:12: warning: Implicitly resolved 'sin' to 'math.sin'
   |     return 0;
@@ -2292,102 +1829,7 @@ debug: semantic: table.c lookup: name='sin', found_ns='math', current_ns='main'
   |            ^
 hint: consider writing math.sin
 debug: alir: GLOBAL VAR ADDR: sin
-debug: alir: TAINTED PTR: ctx->module=0x55f10295d1c0 target_name=math_sin_f64 count=1
-TAINTED PTR: checking func sin
-TAINTED PTR: checking func cos
-TAINTED PTR: checking func tan
-TAINTED PTR: checking func asin
-TAINTED PTR: checking func acos
-TAINTED PTR: checking func atan
-TAINTED PTR: checking func atan2
-TAINTED PTR: checking func sinh
-TAINTED PTR: checking func cosh
-TAINTED PTR: checking func tanh
-TAINTED PTR: checking func exp
-TAINTED PTR: checking func exp2
-TAINTED PTR: checking func expm1
-TAINTED PTR: checking func log
-TAINTED PTR: checking func log10
-TAINTED PTR: checking func log2
-TAINTED PTR: checking func log1p
-TAINTED PTR: checking func pow
-TAINTED PTR: checking func sqrt
-TAINTED PTR: checking func cbrt
-TAINTED PTR: checking func hypot
-TAINTED PTR: checking func erf
-TAINTED PTR: checking func erfc
-TAINTED PTR: checking func lgamma
-TAINTED PTR: checking func tgamma
-TAINTED PTR: checking func ceil
-TAINTED PTR: checking func floor
-TAINTED PTR: checking func round
-TAINTED PTR: checking func trunc
-TAINTED PTR: checking func nearbyint
-TAINTED PTR: checking func rint
-TAINTED PTR: checking func fabs
-TAINTED PTR: checking func fmod
-TAINTED PTR: checking func fmax
-TAINTED PTR: checking func fmin
-TAINTED PTR: checking func remainder
-TAINTED PTR: checking func copysign
-TAINTED PTR: checking func frexp
-TAINTED PTR: checking func modf
-TAINTED PTR: checking func nextafter
-TAINTED PTR: checking func fma
-TAINTED PTR: checking func ilogb
-TAINTED PTR: checking func scalbn
-TAINTED PTR: checking func scalbln
-TAINTED PTR: checking func sinf
-TAINTED PTR: checking func cosf
-TAINTED PTR: checking func tanf
-TAINTED PTR: checking func asinf
-TAINTED PTR: checking func acosf
-TAINTED PTR: checking func atanf
-TAINTED PTR: checking func atan2f
-TAINTED PTR: checking func sinhf
-TAINTED PTR: checking func coshf
-TAINTED PTR: checking func tanhf
-TAINTED PTR: checking func expf
-TAINTED PTR: checking func exp2f
-TAINTED PTR: checking func expm1f
-TAINTED PTR: checking func logf
-TAINTED PTR: checking func log10f
-TAINTED PTR: checking func log2f
-TAINTED PTR: checking func log1pf
-TAINTED PTR: checking func powf
-TAINTED PTR: checking func sqrtf
-TAINTED PTR: checking func cbrtf
-TAINTED PTR: checking func hypotf
-TAINTED PTR: checking func erff
-TAINTED PTR: checking func erfcf
-TAINTED PTR: checking func lgammaf
-TAINTED PTR: checking func tgammaf
-TAINTED PTR: checking func ceilf
-TAINTED PTR: checking func floorf
-TAINTED PTR: checking func roundf
-TAINTED PTR: checking func truncf
-TAINTED PTR: checking func nearbyintf
-TAINTED PTR: checking func rintf
-TAINTED PTR: checking func fabsf
-TAINTED PTR: checking func fmodf
-TAINTED PTR: checking func fmaxf
-TAINTED PTR: checking func fminf
-TAINTED PTR: checking func remainderf
-TAINTED PTR: checking func copysignf
-TAINTED PTR: checking func frexpf
-TAINTED PTR: checking func modff
-TAINTED PTR: checking func nextafterf
-TAINTED PTR: checking func fmaf
-TAINTED PTR: checking func ilogbf
-TAINTED PTR: checking func scalbnf
-TAINTED PTR: checking func scalblnf
-TAINTED PTR: checking func math_atan2_f64_f64
-TAINTED PTR: checking func math_atan2_f32_f32
-TAINTED PTR: checking func math_sin_f32
-TAINTED PTR: checking func math_cos_f32
-TAINTED PTR: checking func math_tan_f32
-TAINTED PTR: checking func math_sin_f64
-TAINTED PTR CHECK: arg_t.base=12 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=12 param_t.ptr_depth=0 param_t.is_tainted=0 target=math_sin_f64 param=n
+debug: alir: TAINTED PTR: ctx->module=0x55d48e2e01c0 target_name=math_sin_f64 count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=12 op1_kind=9 op1_type_base=12
 debug: alir: func=main op=12 dest_kind=5 dest_type_base=12 op1_kind=7 op1_type_base=12
 debug: alir: func=main op=23 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=12
@@ -2402,15 +1844,3 @@ debug: alir: alir_add_function: modf_result_double
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
-debug: codegen: struct=modf_result_double fields=2
-debug: codegen: struct=modf_result_single fields=2
-debug: codegen: struct=frexp_result_double fields=2
-debug: codegen: struct=frexp_result_single fields=2
-debug: codegen: Field 0: base=12 ptr_depth=0
-debug: codegen: Field 1: base=12 ptr_depth=0
-debug: codegen: Field 0: base=11 ptr_depth=0
-debug: codegen: Field 1: base=11 ptr_depth=0
-debug: codegen: Field 0: base=12 ptr_depth=0
-debug: codegen: Field 1: base=1 ptr_depth=0
-debug: codegen: Field 0: base=11 ptr_depth=0
-debug: codegen: Field 1: base=1 ptr_depth=0

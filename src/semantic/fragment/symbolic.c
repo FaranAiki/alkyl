@@ -2,6 +2,21 @@
 
 void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
     FuncDefNode *fd = (FuncDefNode*)node;
+    SemSymbol *existing = sem_symbol_lookup(ctx, fd->name, NULL);
+    if (existing && existing->kind == SYM_FUNC && existing->param_count == 0 && !existing->is_variadic && (fd->params != NULL || fd->is_varargs)) {
+        existing->params = fd->params;
+        existing->is_variadic = fd->is_varargs;
+        existing->node_ptr = node;
+        existing->type = fd->ret_type;
+        Parameter *p = fd->params;
+        existing->param_count = 0;
+        while (p) {
+            if (fd->is_extern && !p->has_explicit_pristine) p->is_pristine = 0;
+            existing->param_count++;
+            p = p->next;
+        }
+        return;
+    }
     SemSymbol *sym = sem_symbol_add(ctx, fd->name, SYM_FUNC, fd->ret_type);
     sym->is_is_a = fd->is_is_a;
     sym->is_has_a = fd->is_has_a;

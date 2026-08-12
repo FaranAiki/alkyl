@@ -49,6 +49,7 @@ static VarType c_lookup_typedef(CParser *p, const char *name) {
 }
 
 static BaseType c_identifier_to_base_type(const char *name) {
+    if (!name) return TYPE_UNKNOWN;
     if (streq_lit(name, "size_t")) return TYPE_UNSIGNED_LONG;
     if (streq_lit(name, "ptrdiff_t")) return TYPE_LONG;
     if (streq_lit(name, "off_t") || streq_lit(name, "__off_t")) return TYPE_LONG;
@@ -57,22 +58,149 @@ static BaseType c_identifier_to_base_type(const char *name) {
     if (streq_lit(name, "wchar_t")) return TYPE_SHORT;
     if (streq_lit(name, "char16_t")) return TYPE_SHORT;
     if (streq_lit(name, "char32_t")) return TYPE_INT;
-    if (streq_lit(name, "int8_t") || streq_lit(name, "int_least8_t") || streq_lit(name, "int_fast8_t")) return TYPE_CHAR;
-    if (streq_lit(name, "uint8_t") || streq_lit(name, "uint_least8_t") || streq_lit(name, "uint_fast8_t")) return TYPE_UNSIGNED_CHAR;
-    if (streq_lit(name, "int16_t") || streq_lit(name, "int_least16_t") || streq_lit(name, "int_fast16_t")) return TYPE_SHORT;
-    if (streq_lit(name, "uint16_t") || streq_lit(name, "uint_least16_t") || streq_lit(name, "uint_fast16_t")) return TYPE_UNSIGNED_INT;
-    if (streq_lit(name, "int32_t") || streq_lit(name, "int_least32_t") || streq_lit(name, "int_fast32_t") || streq_lit(name, "intmax_t")) return TYPE_INT;
-    if (streq_lit(name, "uint32_t") || streq_lit(name, "uint_least32_t") || streq_lit(name, "uint_fast32_t") || streq_lit(name, "uintmax_t")) return TYPE_UNSIGNED_INT;
-    if (streq_lit(name, "int64_t") || streq_lit(name, "int_least64_t") || streq_lit(name, "int_fast64_t")) return TYPE_LONG_LONG;
-    if (streq_lit(name, "uint64_t") || streq_lit(name, "uint_least64_t") || streq_lit(name, "uint_fast64_t")) return TYPE_UNSIGNED_LONG_LONG;
+    if (streq_lit(name, "int8_t") || streq_lit(name, "int_least8_t") || streq_lit(name, "int_fast8_t") || streq_lit(name, "__int8_t")) return TYPE_CHAR;
+    if (streq_lit(name, "uint8_t") || streq_lit(name, "uint_least8_t") || streq_lit(name, "uint_fast8_t") || streq_lit(name, "__uint8_t")) return TYPE_UNSIGNED_CHAR;
+    if (streq_lit(name, "int16_t") || streq_lit(name, "int_least16_t") || streq_lit(name, "int_fast16_t") || streq_lit(name, "__int16_t")) return TYPE_SHORT;
+    if (streq_lit(name, "uint16_t") || streq_lit(name, "uint_least16_t") || streq_lit(name, "uint_fast16_t") || streq_lit(name, "__uint16_t")) return TYPE_UNSIGNED_INT;
+    if (streq_lit(name, "int32_t") || streq_lit(name, "int_least32_t") || streq_lit(name, "int_fast32_t") || streq_lit(name, "intmax_t") || streq_lit(name, "__int32_t")) return TYPE_INT;
+    if (streq_lit(name, "uint32_t") || streq_lit(name, "uint_least32_t") || streq_lit(name, "uint_fast32_t") || streq_lit(name, "uintmax_t") || streq_lit(name, "__uint32_t")) return TYPE_UNSIGNED_INT;
+    if (streq_lit(name, "int64_t") || streq_lit(name, "int_least64_t") || streq_lit(name, "int_fast64_t") || streq_lit(name, "__int64_t")) return TYPE_LONG_LONG;
+    if (streq_lit(name, "uint64_t") || streq_lit(name, "uint_least64_t") || streq_lit(name, "uint_fast64_t") || streq_lit(name, "__uint64_t")) return TYPE_UNSIGNED_LONG_LONG;
     if (streq_lit(name, "max_align_t")) return TYPE_LONG_LONG;
     if (streq_lit(name, "nullptr_t")) return TYPE_VOID;
+    if (streq_lit(name, "__gnuc_va_list") || streq_lit(name, "__builtin_va_list")) return TYPE_VOID;
+    if (streq_lit(name, "FILE") || streq_lit(name, "_IO_FILE") || streq_lit(name, "__FILE")) return TYPE_CLASS;
+    if (streq_lit(name, "__SIZE_TYPE__") || streq_lit(name, "__UINTPTR_TYPE__")) return TYPE_UNSIGNED_LONG;
+    if (streq_lit(name, "__PTRDIFF_TYPE__") || streq_lit(name, "__INTPTR_TYPE__")) return TYPE_LONG;
+    if (streq_lit(name, "__WCHAR_TYPE__")) return TYPE_INT;
+    if (streq_lit(name, "__WINT_TYPE__") || streq_lit(name, "wint_t") || streq_lit(name, "__wint_t")) return TYPE_UNSIGNED_INT;
+    if (streq_lit(name, "mbstate_t") || streq_lit(name, "__mbstate_t")) return TYPE_CLASS;
+    if (streq_lit(name, "__float128") || streq_lit(name, "_Float128") || streq_lit(name, "_Float32") ||
+        streq_lit(name, "_Float64") || streq_lit(name, "_Float32x") || streq_lit(name, "_Float64x") ||
+        streq_lit(name, "_Float128x") || streq_lit(name, "__float80") || streq_lit(name, "__ibm128")) return TYPE_DOUBLE;
+    if (streq_lit(name, "__int128") || streq_lit(name, "__int128_t")) return TYPE_LONG_LONG;
+    if (streq_lit(name, "__uint128_t")) return TYPE_UNSIGNED_LONG_LONG;
     return TYPE_UNKNOWN;
+}
+
+static int c_is_type_token(CParser *p, CToken tok) {
+    if (tok.type == C_TOKEN_VOID || tok.type == C_TOKEN_CHAR_KW || tok.type == C_TOKEN_SHORT ||
+        tok.type == C_TOKEN_INT || tok.type == C_TOKEN_LONG || tok.type == C_TOKEN_FLOAT ||
+        tok.type == C_TOKEN_DOUBLE || tok.type == C_TOKEN_SIGNED || tok.type == C_TOKEN_UNSIGNED ||
+        tok.type == C_TOKEN_BOOL || tok.type == C_TOKEN_BOOL_KA || tok.type == C_TOKEN_STRUCT ||
+        tok.type == C_TOKEN_UNION || tok.type == C_TOKEN_ENUM || tok.type == C_TOKEN_COMPLEX) {
+        return 1;
+    }
+    if (tok.type == C_TOKEN_IDENTIFIER && tok.text) {
+        if (c_lookup_typedef(p, tok.text).base != TYPE_UNKNOWN ||
+            c_identifier_to_base_type(tok.text) != TYPE_UNKNOWN) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void c_skip_modifiers(CParser *p) {
+    while (!p->has_error && p->current.type != C_TOKEN_EOF) {
+        if (c_match(p, C_TOKEN_TYPEDEF) || c_match(p, C_TOKEN_STRUCT) || c_match(p, C_TOKEN_UNION) || c_match(p, C_TOKEN_ENUM)) {
+            break;
+        }
+        if (c_match(p, C_TOKEN_EXTERN) || c_match(p, C_TOKEN_STATIC) || c_match(p, C_TOKEN_CONST) ||
+            c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_EXTENSION) ||
+            c_match(p, C_TOKEN_STDCALL) || c_match(p, C_TOKEN_CDECL) || c_match(p, C_TOKEN_FASTCALL) ||
+            c_match(p, C_TOKEN_THISCALL) || c_match(p, C_TOKEN_VECTORCALL) || c_match(p, C_TOKEN_INLINE)) {
+            c_eat(p, p->current.type);
+        } else if (c_match(p, C_TOKEN_DECLSPEC)) {
+            c_eat(p, C_TOKEN_DECLSPEC);
+            if (c_match(p, C_TOKEN_LPAREN)) {
+                c_eat(p, C_TOKEN_LPAREN);
+                int depth = 1;
+                while (depth > 0 && !p->has_error && p->current.type != C_TOKEN_EOF) {
+                    if (c_match(p, C_TOKEN_LPAREN)) depth++;
+                    else if (c_match(p, C_TOKEN_RPAREN)) depth--;
+                    c_eat(p, p->current.type);
+                }
+            }
+        } else if (c_match(p, C_TOKEN_ATTRIBUTE)) {
+            c_eat(p, C_TOKEN_ATTRIBUTE);
+            if (c_match(p, C_TOKEN_LPAREN)) {
+                c_eat(p, C_TOKEN_LPAREN);
+                int depth = 1;
+                while (depth > 0 && !p->has_error && p->current.type != C_TOKEN_EOF) {
+                    if (c_match(p, C_TOKEN_LPAREN)) depth++;
+                    else if (c_match(p, C_TOKEN_RPAREN)) depth--;
+                    c_eat(p, p->current.type);
+                }
+            }
+        } else if (c_match(p, C_TOKEN_ASM)) {
+            c_eat(p, C_TOKEN_ASM);
+            if (c_match(p, C_TOKEN_LPAREN)) {
+                c_eat(p, C_TOKEN_LPAREN);
+                int depth = 1;
+                while (depth > 0 && !p->has_error && p->current.type != C_TOKEN_EOF) {
+                    if (c_match(p, C_TOKEN_LPAREN)) depth++;
+                    else if (c_match(p, C_TOKEN_RPAREN)) depth--;
+                    c_eat(p, p->current.type);
+                }
+            }
+        } else if (c_match(p, C_TOKEN_IDENTIFIER)) {
+            const char *txt = p->current.text;
+            CLexer look_l = p->lexer;
+            CToken look_tok = c_lexer_next(&look_l);
+
+            int is_attr_prefix = (strncmp(txt, "__attribute", 11) == 0 ||
+                                  strncmp(txt, "__attr_", 7) == 0 ||
+                                  strncmp(txt, "__fortif", 8) == 0 ||
+                                  (strlen(txt) > 5 && (streq(txt + strlen(txt) - 5, "_DECL") || streq(txt + strlen(txt) - 6, "_DECLS")) && strncmp(txt, "__LDBL_REDIR", 12) != 0 && strncmp(txt, "__REDIRECT", 10) != 0) ||
+                                  streq_lit(txt, "__BEGIN_DECLS") ||
+                                  streq_lit(txt, "__END_DECLS") ||
+                                  streq_lit(txt, "__nonnull") ||
+                                  streq_lit(txt, "__warnattr") ||
+                                  streq_lit(txt, "__errordecl") ||
+                                  streq_lit(txt, "__warndecl"));
+
+            if (look_tok.type == C_TOKEN_LPAREN) {
+                if (is_attr_prefix) {
+                    c_eat(p, C_TOKEN_IDENTIFIER);
+                    c_eat(p, C_TOKEN_LPAREN);
+                    int depth = 1;
+                    while (depth > 0 && !p->has_error && p->current.type != C_TOKEN_EOF) {
+                        if (c_match(p, C_TOKEN_LPAREN)) depth++;
+                        else if (c_match(p, C_TOKEN_RPAREN)) depth--;
+                        c_eat(p, p->current.type);
+                    }
+                } else {
+                    break;
+                }
+            } else if (is_attr_prefix ||
+                       streq_lit(txt, "_Complex") || streq_lit(txt, "__complex__") || streq_lit(txt, "__complex") ||
+                       streq_lit(txt, "__COLD") || streq_lit(txt, "__cold__") || streq_lit(txt, "__HOT") || streq_lit(txt, "__hot__") ||
+                       streq_lit(txt, "__extension__") || streq_lit(txt, "inline") || streq_lit(txt, "__inline") ||
+                       streq_lit(txt, "__inline__") || streq_lit(txt, "__always_inline") || streq_lit(txt, "__extern_inline") ||
+                       streq_lit(txt, "__extern_always_inline") || streq_lit(txt, "__fortify_function") ||
+                       streq_lit(txt, "__fortify_function_error_function") || streq_lit(txt, "__wur") ||
+                       streq_lit(txt, "__THROW") || streq_lit(txt, "__THROWNL") || streq_lit(txt, "__leaf") ||
+                       streq_lit(txt, "__restrict") || streq_lit(txt, "__restrict__") || streq_lit(txt, "__const") ||
+                       streq_lit(txt, "__volatile") || streq_lit(txt, "__volatile__") || streq_lit(txt, "_Noreturn") ||
+                       streq_lit(txt, "LLVM_C_ABI") || streq_lit(txt, "LLVM_C_EXTERN_C_BEGIN") ||
+                       streq_lit(txt, "LLVM_C_EXTERN_C_END") || streq_lit(txt, "LLVM_ATTRIBUTE_C_DEPRECATED")) {
+                c_eat(p, C_TOKEN_IDENTIFIER);
+            } else if (!c_is_type_token(p, p->current) && (c_is_type_token(p, look_tok) || look_tok.type == C_TOKEN_CONST ||
+                       look_tok.type == C_TOKEN_VOLATILE || look_tok.type == C_TOKEN_RESTRICT || look_tok.type == C_TOKEN_STAR)) {
+                c_eat(p, C_TOKEN_IDENTIFIER);
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
 }
 
 static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs);
 
 static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_size) {
+    c_skip_modifiers(p);
     VarType type = {TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     int ptr_depth = 0;
     int array_size = 0;
@@ -81,15 +209,7 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
     int is_short = 0;
     int long_count = 0;
 
-    while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT)) {
-        c_eat(p, p->current.type);
-    }
-    while (c_match(p, C_TOKEN_IDENTIFIER) && streq_lit(p->current.text, "__extension__")) {
-        c_eat(p, C_TOKEN_IDENTIFIER);
-    }
-    while (c_match(p, C_TOKEN_EXTENSION)) {
-        c_eat(p, C_TOKEN_EXTENSION);
-    }
+    c_skip_modifiers(p);
 
     if (c_match(p, C_TOKEN_SIGNED)) {
         is_signed = 1;
@@ -176,6 +296,11 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
         }
     }
 
+    if (c_match(p, C_TOKEN_COMPLEX)) {
+        c_eat(p, C_TOKEN_COMPLEX);
+        return c_parse_c_type(p, out_ptr_depth, out_array_size);
+    }
+
     if (c_match(p, C_TOKEN_VOID)) {
         type.base = TYPE_VOID;
         c_eat(p, C_TOKEN_VOID);
@@ -249,6 +374,16 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
             if (builtin != TYPE_UNKNOWN) {
                 type.base = builtin;
             } else {
+                CLexer look_l = p->lexer;
+                CToken look_tok = c_lexer_next(&look_l);
+                if (c_is_type_token(p, look_tok) || look_tok.type == C_TOKEN_CONST ||
+                    look_tok.type == C_TOKEN_VOLATILE || look_tok.type == C_TOKEN_RESTRICT || look_tok.type == C_TOKEN_STAR) {
+                    c_eat(p, C_TOKEN_IDENTIFIER);
+                    return c_parse_c_type(p, out_ptr_depth, out_array_size);
+                }
+                if (strncmp(p->current.text, "__", 2) == 0) {
+                    return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+                }
                 type.base = TYPE_CLASS;
                 type.class_name = arena_strdup(p->ctx->arena, p->current.text);
             }
@@ -374,77 +509,16 @@ static ASTNode* c_parse_extern_function(CParser *p) {
     char *cconv = NULL;
     char *extern_name = NULL;
 
-    while (1) {
-        if (c_match(p, C_TOKEN_STDCALL)) { cconv = arena_strdup(p->ctx->arena, "__stdcall"); c_eat(p, C_TOKEN_STDCALL); }
-        else if (c_match(p, C_TOKEN_CDECL)) { cconv = arena_strdup(p->ctx->arena, "__cdecl"); c_eat(p, C_TOKEN_CDECL); }
-        else if (c_match(p, C_TOKEN_FASTCALL)) { cconv = arena_strdup(p->ctx->arena, "__fastcall"); c_eat(p, C_TOKEN_FASTCALL); }
-        else if (c_match(p, C_TOKEN_THISCALL)) { cconv = arena_strdup(p->ctx->arena, "__thiscall"); c_eat(p, C_TOKEN_THISCALL); }
-        else if (c_match(p, C_TOKEN_VECTORCALL)) { cconv = arena_strdup(p->ctx->arena, "__vectorcall"); c_eat(p, C_TOKEN_VECTORCALL); }
-        else if (c_match(p, C_TOKEN_DECLSPEC)) {
-            c_eat(p, C_TOKEN_DECLSPEC);
-            c_eat(p, C_TOKEN_LPAREN);
-            int depth = 1;
-            while (depth > 0 && !p->has_error) {
-                if (c_match(p, C_TOKEN_LPAREN)) depth++;
-                else if (c_match(p, C_TOKEN_RPAREN)) depth--;
-                c_eat(p, p->current.type);
-            }
-        }
-        else if (c_match(p, C_TOKEN_ATTRIBUTE)) {
-            c_eat(p, C_TOKEN_ATTRIBUTE);
-            c_eat(p, C_TOKEN_LPAREN);
-            c_eat(p, C_TOKEN_LPAREN);
-            int depth = 2;
-            while (depth > 0 && !p->has_error) {
-                if (c_match(p, C_TOKEN_LPAREN)) depth++;
-                else if (c_match(p, C_TOKEN_RPAREN)) depth--;
-                c_eat(p, p->current.type);
-            }
-        }
-        else break;
-    }
+    c_skip_modifiers(p);
 
-    if (c_match(p, C_TOKEN_EXTERN)) {
-        c_eat(p, C_TOKEN_EXTERN);
-    }
-
-    while (c_match(p, C_TOKEN_STRING)) {
-        c_eat(p, C_TOKEN_STRING);
-    }
-
-    while (1) {
-        if (c_match(p, C_TOKEN_STDCALL)) { cconv = arena_strdup(p->ctx->arena, "__stdcall"); c_eat(p, C_TOKEN_STDCALL); }
-        else if (c_match(p, C_TOKEN_CDECL)) { cconv = arena_strdup(p->ctx->arena, "__cdecl"); c_eat(p, C_TOKEN_CDECL); }
-        else if (c_match(p, C_TOKEN_FASTCALL)) { cconv = arena_strdup(p->ctx->arena, "__fastcall"); c_eat(p, C_TOKEN_FASTCALL); }
-        else if (c_match(p, C_TOKEN_THISCALL)) { cconv = arena_strdup(p->ctx->arena, "__thiscall"); c_eat(p, C_TOKEN_THISCALL); }
-        else if (c_match(p, C_TOKEN_VECTORCALL)) { cconv = arena_strdup(p->ctx->arena, "__vectorcall"); c_eat(p, C_TOKEN_VECTORCALL); }
-        else if (c_match(p, C_TOKEN_DECLSPEC)) {
-            c_eat(p, C_TOKEN_DECLSPEC);
-            c_eat(p, C_TOKEN_LPAREN);
-            int depth = 1;
-            while (depth > 0 && !p->has_error) {
-                if (c_match(p, C_TOKEN_LPAREN)) depth++;
-                else if (c_match(p, C_TOKEN_RPAREN)) depth--;
-                c_eat(p, p->current.type);
-            }
-        }
-        else if (c_match(p, C_TOKEN_ATTRIBUTE)) {
-            c_eat(p, C_TOKEN_ATTRIBUTE);
-            c_eat(p, C_TOKEN_LPAREN);
-            c_eat(p, C_TOKEN_LPAREN);
-            int depth = 2;
-            while (depth > 0 && !p->has_error) {
-                if (c_match(p, C_TOKEN_LPAREN)) depth++;
-                else if (c_match(p, C_TOKEN_RPAREN)) depth--;
-                c_eat(p, p->current.type);
-            }
-        }
-        else break;
-    }
-
-    int ptr_depth = 0;
-    int array_size = 0;
+    int ptr_depth = 0, array_size = 0;
     VarType ret_type = c_parse_c_type(p, &ptr_depth, &array_size);
+    if (ret_type.base == TYPE_UNKNOWN) {
+        ret_type = (VarType){TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
+        p->has_error = 0;
+    }
+
+    c_skip_modifiers(p);
 
     if (c_match(p, C_TOKEN_IDENTIFIER) && streq_lit(p->current.text, "as")) {
         c_eat(p, C_TOKEN_IDENTIFIER);
@@ -454,13 +528,45 @@ static ASTNode* c_parse_extern_function(CParser *p) {
         }
     }
 
-    if (!c_match(p, C_TOKEN_IDENTIFIER)) {
+    char *func_name = NULL;
+    int in_macro_wrapper = 0;
+
+    c_skip_modifiers(p);
+
+    if (c_match(p, C_TOKEN_IDENTIFIER)) {
+        const char *w_name = p->current.text;
+        if (streq_lit(w_name, "__NTH") || streq_lit(w_name, "__NTHNL") ||
+            strncmp(w_name, "__REDIRECT", 10) == 0 || strncmp(w_name, "__LDBL_REDIR", 12) == 0) {
+            CLexer look_l = p->lexer;
+            CToken tok1 = c_lexer_next(&look_l);
+            if (tok1.type == C_TOKEN_LPAREN) {
+                CToken tok2 = c_lexer_next(&look_l);
+                if (tok2.type == C_TOKEN_IDENTIFIER) {
+                    CToken tok3 = c_lexer_next(&look_l);
+                    if (tok3.type == C_TOKEN_LPAREN || tok3.type == C_TOKEN_COMMA || tok3.type == C_TOKEN_RPAREN) {
+                        in_macro_wrapper = 1;
+                        c_eat(p, C_TOKEN_IDENTIFIER);
+                        c_eat(p, C_TOKEN_LPAREN);
+                        func_name = arena_strdup(p->ctx->arena, p->current.text);
+                        c_eat(p, C_TOKEN_IDENTIFIER);
+                        if (c_match(p, C_TOKEN_COMMA)) {
+                            c_eat(p, C_TOKEN_COMMA);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (!func_name && c_match(p, C_TOKEN_IDENTIFIER)) {
+        func_name = arena_strdup(p->ctx->arena, p->current.text);
+        c_eat(p, C_TOKEN_IDENTIFIER);
+    }
+
+    if (!func_name) {
         c_parser_error(p, "Expected function name in extern declaration");
         return NULL;
     }
-
-    char *func_name = arena_strdup(p->ctx->arena, p->current.text);
-    c_eat(p, C_TOKEN_IDENTIFIER);
 
     Parameter *params = NULL;
     int is_varargs = 0;
@@ -473,45 +579,26 @@ static ASTNode* c_parse_extern_function(CParser *p) {
         c_eat(p, C_TOKEN_RPAREN);
     }
 
-    // Skip trailing annotations like __THROW, __attribute__((...)), __nonnull, __asm, etc.
-    while (!c_match(p, C_TOKEN_SEMICOLON) && !p->has_error) {
-        if (c_match(p, C_TOKEN_ATTRIBUTE)) {
-            c_eat(p, C_TOKEN_ATTRIBUTE);
-            c_eat(p, C_TOKEN_LPAREN);
-            c_eat(p, C_TOKEN_LPAREN);
-            int depth = 2;
-            while (depth > 0 && !p->has_error) {
-                if (c_match(p, C_TOKEN_LPAREN)) depth++;
-                else if (c_match(p, C_TOKEN_RPAREN)) depth--;
-                c_eat(p, p->current.type);
-            }
-        } else if (c_match(p, C_TOKEN_ASM)) {
-            c_eat(p, C_TOKEN_ASM);
-            if (c_match(p, C_TOKEN_LPAREN)) {
-                c_eat(p, C_TOKEN_LPAREN);
-                int depth = 1;
-                while (depth > 0 && !p->has_error) {
-                    if (c_match(p, C_TOKEN_LPAREN)) depth++;
-                    else if (c_match(p, C_TOKEN_RPAREN)) depth--;
-                    c_eat(p, p->current.type);
-                }
-            }
-        } else if (c_match(p, C_TOKEN_IDENTIFIER)) {
-            c_eat(p, C_TOKEN_IDENTIFIER);
-        } else if (c_match(p, C_TOKEN_LPAREN)) {
-            int depth = 1;
-            while (depth > 0 && !p->has_error) {
-                if (c_match(p, C_TOKEN_LPAREN)) { depth++; c_eat(p, C_TOKEN_LPAREN); }
-                else if (c_match(p, C_TOKEN_RPAREN)) { depth--; c_eat(p, C_TOKEN_RPAREN); }
-                else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
-                else { c_eat(p, p->current.type); }
-            }
-        } else {
-            break;
+    if (in_macro_wrapper) {
+        while (!c_match(p, C_TOKEN_RPAREN) && !c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_LBRACE) && !c_match(p, C_TOKEN_EOF) && !p->has_error) {
+            c_eat(p, p->current.type);
+        }
+        if (c_match(p, C_TOKEN_RPAREN)) {
+            c_eat(p, C_TOKEN_RPAREN);
         }
     }
 
-    if (c_match(p, C_TOKEN_SEMICOLON)) {
+    c_skip_modifiers(p);
+
+    if (c_match(p, C_TOKEN_LBRACE)) {
+        c_eat(p, C_TOKEN_LBRACE);
+        int depth = 1;
+        while (depth > 0 && !c_match(p, C_TOKEN_EOF) && p->current.type != C_TOKEN_EOF) {
+            if (c_match(p, C_TOKEN_LBRACE)) depth++;
+            else if (c_match(p, C_TOKEN_RBRACE)) depth--;
+            c_eat(p, p->current.type);
+        }
+    } else if (c_match(p, C_TOKEN_SEMICOLON)) {
         c_eat(p, C_TOKEN_SEMICOLON);
     }
 
@@ -539,11 +626,70 @@ static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
     Parameter **curr = &head;
     if (out_is_varargs) *out_is_varargs = 0;
 
+    int extra_paren = 0;
+    if (c_match(p, C_TOKEN_LPAREN)) {
+        c_eat(p, C_TOKEN_LPAREN);
+        extra_paren = 1;
+    }
+
     while (!c_match(p, C_TOKEN_RPAREN) && !p->has_error) {
         if (c_match(p, C_TOKEN_ELLIPSIS)) {
             if (out_is_varargs) *out_is_varargs = 1;
             c_eat(p, C_TOKEN_ELLIPSIS);
             break;
+        }
+
+        c_skip_modifiers(p);
+
+        if (c_match(p, C_TOKEN_IDENTIFIER)) {
+            if (strncmp(p->current.text, "__fortify_clang_overload_arg", 28) == 0) {
+                c_eat(p, C_TOKEN_IDENTIFIER);
+                c_eat(p, C_TOKEN_LPAREN);
+                int pd = 0, as = 0;
+                VarType p_type = c_parse_c_type(p, &pd, &as);
+                if (c_match(p, C_TOKEN_COMMA)) c_eat(p, C_TOKEN_COMMA);
+                c_skip_modifiers(p);
+                if (c_match(p, C_TOKEN_COMMA)) c_eat(p, C_TOKEN_COMMA);
+                char *p_name = NULL;
+                if (c_match(p, C_TOKEN_IDENTIFIER)) {
+                    p_name = arena_strdup(p->ctx->arena, p->current.text);
+                    c_eat(p, C_TOKEN_IDENTIFIER);
+                }
+                while (!c_match(p, C_TOKEN_RPAREN) && !c_match(p, C_TOKEN_EOF) && p->current.type != C_TOKEN_EOF) {
+                    c_eat(p, p->current.type);
+                }
+                if (c_match(p, C_TOKEN_RPAREN)) c_eat(p, C_TOKEN_RPAREN);
+                if (c_match(p, C_TOKEN_COMMA)) c_eat(p, C_TOKEN_COMMA);
+
+                Parameter *param = arena_alloc(p->ctx->arena, sizeof(Parameter));
+                memset(param, 0, sizeof(Parameter));
+                p_type.ptr_depth += pd;
+                if (as > 0) p_type.array_size = as;
+                param->type = p_type;
+                param->name = p_name;
+
+                *curr = param;
+                curr = &param->next;
+                continue;
+            }
+
+            CLexer look_l = p->lexer;
+            CToken tok1 = c_lexer_next(&look_l);
+            if (tok1.type == C_TOKEN_LPAREN) {
+                CToken tok2 = c_lexer_next(&look_l);
+                if (tok2.type != C_TOKEN_STAR) {
+                    c_eat(p, C_TOKEN_IDENTIFIER);
+                    c_eat(p, C_TOKEN_LPAREN);
+                    int depth = 1;
+                    while (depth > 0 && !p->has_error && p->current.type != C_TOKEN_EOF) {
+                        if (c_match(p, C_TOKEN_LPAREN)) depth++;
+                        else if (c_match(p, C_TOKEN_RPAREN)) depth--;
+                        c_eat(p, p->current.type);
+                    }
+                    if (c_match(p, C_TOKEN_COMMA)) c_eat(p, C_TOKEN_COMMA);
+                    continue;
+                }
+            }
         }
 
         int ptr_depth = 0;
@@ -582,6 +728,8 @@ static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
 
         Parameter *param = arena_alloc(p->ctx->arena, sizeof(Parameter));
         memset(param, 0, sizeof(Parameter));
+        param_type.ptr_depth += ptr_depth;
+        if (array_size > 0) param_type.array_size = array_size;
         param->type = param_type;
         param->name = param_name;
 
@@ -598,6 +746,10 @@ static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
         } else {
             break;
         }
+    }
+
+    if (extra_paren && c_match(p, C_TOKEN_RPAREN)) {
+        c_eat(p, C_TOKEN_RPAREN);
     }
 
     return head;
@@ -687,10 +839,6 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                 c_eat(p, C_TOKEN_COLON);
                 continue;
             }
-        }
-
-        while (c_match(p, C_TOKEN_STRUCT) || c_match(p, C_TOKEN_UNION) || c_match(p, C_TOKEN_ENUM)) {
-            c_eat(p, p->current.type);
         }
 
         while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_EXTENSION) || c_match(p, C_TOKEN_STATIC) || c_match(p, C_TOKEN_INLINE) ||
@@ -1527,27 +1675,38 @@ static ASTNode* c_parse_typedef(CParser *p) {
         }
     }
 
-    c_eat(p, C_TOKEN_SEMICOLON);
+    c_skip_modifiers(p);
+    if (c_match(p, C_TOKEN_SEMICOLON)) {
+        c_eat(p, C_TOKEN_SEMICOLON);
+    }
     return NULL;
 }
 
 static ASTNode* c_parse_extern_variable(CParser *p) {
-    if (c_match(p, C_TOKEN_EXTERN)) {
-        c_eat(p, C_TOKEN_EXTERN);
-    }
+    c_skip_modifiers(p);
 
     int ptr_depth = 0;
     int array_size = 0;
     VarType var_type = c_parse_c_type(p, &ptr_depth, &array_size);
 
+    c_skip_modifiers(p);
+
     if (!c_match(p, C_TOKEN_IDENTIFIER)) {
-        c_parser_error(p, "Expected variable name in extern declaration");
+        while (!c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_EOF) && p->current.type != C_TOKEN_EOF) {
+            c_eat(p, p->current.type);
+        }
+        if (c_match(p, C_TOKEN_SEMICOLON)) c_eat(p, C_TOKEN_SEMICOLON);
         return NULL;
     }
 
     char *var_name = arena_strdup(p->ctx->arena, p->current.text);
     c_eat(p, C_TOKEN_IDENTIFIER);
 
+    c_skip_modifiers(p);
+
+    while (!c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_EOF) && p->current.type != C_TOKEN_EOF) {
+        c_eat(p, p->current.type);
+    }
     if (c_match(p, C_TOKEN_SEMICOLON)) {
         c_eat(p, C_TOKEN_SEMICOLON);
     }
@@ -1569,33 +1728,29 @@ static ASTNode* c_parse_extern_variable(CParser *p) {
 }
 
 static ASTNode* c_parse_declaration(CParser *p) {
-    while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_INLINE) ||
-           (c_match(p, C_TOKEN_IDENTIFIER) && (streq_lit(p->current.text, "LLVM_C_ABI") || streq_lit(p->current.text, "LLVM_C_EXTERN_C_BEGIN") || streq_lit(p->current.text, "LLVM_C_EXTERN_C_END")))) {
-        if (c_match(p, C_TOKEN_IDENTIFIER) && (streq_lit(p->current.text, "LLVM_C_EXTERN_C_BEGIN") || streq_lit(p->current.text, "LLVM_C_EXTERN_C_END"))) {
-            c_eat(p, C_TOKEN_IDENTIFIER);
-            return NULL;
-        }
+    p->has_error = 0;
+    c_skip_modifiers(p);
+
+    if (c_match(p, C_TOKEN_EOF) || p->current.type == C_TOKEN_EOF) return NULL;
+    if (c_match(p, C_TOKEN_RBRACE) || c_match(p, C_TOKEN_SEMICOLON)) {
         c_eat(p, p->current.type);
+        return NULL;
     }
 
-    if (c_match(p, C_TOKEN_IDENTIFIER) && streq_lit(p->current.text, "LLVM_ATTRIBUTE_C_DEPRECATED")) {
-        c_eat(p, C_TOKEN_IDENTIFIER);
-        c_eat(p, C_TOKEN_LPAREN);
-        ASTNode *decl = c_parse_declaration(p);
-        if (c_match(p, C_TOKEN_COMMA)) {
-            c_eat(p, C_TOKEN_COMMA);
-            int depth = 0;
-            while (!c_match(p, C_TOKEN_RPAREN) && !c_match(p, C_TOKEN_EOF) && p->current.type != C_TOKEN_EOF) {
-                if (c_match(p, C_TOKEN_LPAREN)) depth++;
-                else if (c_match(p, C_TOKEN_RPAREN)) {
-                    if (depth > 0) depth--; else break;
-                }
-                c_eat(p, p->current.type);
-            }
+    if (c_match(p, C_TOKEN_LBRACE)) {
+        c_eat(p, C_TOKEN_LBRACE);
+        int depth = 1;
+        while (depth > 0 && !c_match(p, C_TOKEN_EOF) && p->current.type != C_TOKEN_EOF) {
+            if (c_match(p, C_TOKEN_LBRACE)) depth++;
+            else if (c_match(p, C_TOKEN_RBRACE)) depth--;
+            c_eat(p, p->current.type);
         }
-        if (c_match(p, C_TOKEN_RPAREN)) c_eat(p, C_TOKEN_RPAREN);
-        if (c_match(p, C_TOKEN_SEMICOLON)) c_eat(p, C_TOKEN_SEMICOLON);
-        return decl;
+        return NULL;
+    }
+
+    if (c_match(p, C_TOKEN_SEMICOLON)) {
+        c_eat(p, C_TOKEN_SEMICOLON);
+        return NULL;
     }
 
     if (c_match(p, C_TOKEN_TYPEDEF)) {
@@ -1664,121 +1819,42 @@ static ASTNode* c_parse_declaration(CParser *p) {
         return c_parse_declaration(p);
     }
 
-    if (c_match(p, C_TOKEN_IDENTIFIER)) {
-        if (c_lookup_typedef(p, p->current.text).base == TYPE_UNKNOWN &&
-            c_identifier_to_base_type(p->current.text) == TYPE_UNKNOWN) {
-            CLexer save_l = p->lexer; CToken save_c = p->current; int save_e = p->has_error;
-            c_eat(p, C_TOKEN_IDENTIFIER);
-            if (c_match(p, C_TOKEN_LPAREN)) {
-                c_eat(p, C_TOKEN_LPAREN);
-                int depth = 1;
-                while (depth > 0 && !c_match(p, C_TOKEN_EOF) && p->current.type != C_TOKEN_EOF) {
-                    if (c_match(p, C_TOKEN_LPAREN)) depth++;
-                    else if (c_match(p, C_TOKEN_RPAREN)) depth--;
-                    c_eat(p, p->current.type);
-                }
-                if (c_match(p, C_TOKEN_SEMICOLON)) c_eat(p, C_TOKEN_SEMICOLON);
-                return NULL;
-            }
-            p->lexer = save_l; p->current = save_c; p->has_error = save_e;
+    if (p->current.type == C_TOKEN_EOF || c_match(p, C_TOKEN_EOF)) {
+        return NULL;
+    }
+
+    CLexer save_lexer = p->lexer;
+    CToken save_current = p->current;
+    int save_error = p->has_error;
+    (void)save_error;
+
+    p->has_error = 0;
+    c_skip_modifiers(p);
+
+    int is_function = 0;
+    int pd = 0, as = 0;
+    VarType vt = c_parse_c_type(p, &pd, &as);
+    (void)vt; (void)pd; (void)as;
+
+    c_skip_modifiers(p);
+
+    if (p->current.type == C_TOKEN_IDENTIFIER) {
+        CLexer look_l = p->lexer;
+        CToken tok1 = c_lexer_next(&look_l);
+        if (tok1.type == C_TOKEN_LPAREN) {
+            is_function = 1;
         }
     }
 
-    int has_extern = c_match(p, C_TOKEN_EXTERN);
+    p->lexer = save_lexer;
+    p->current = save_current;
+    p->has_error = 0;
 
-    if (has_extern ||
-        c_match(p, C_TOKEN_VOID) || c_match(p, C_TOKEN_CHAR_KW) || c_match(p, C_TOKEN_SHORT) ||
-        c_match(p, C_TOKEN_INT) || c_match(p, C_TOKEN_LONG) || c_match(p, C_TOKEN_FLOAT) ||
-        c_match(p, C_TOKEN_DOUBLE) || c_match(p, C_TOKEN_SIGNED) || c_match(p, C_TOKEN_UNSIGNED) ||
-        c_match(p, C_TOKEN_BOOL) || c_match(p, C_TOKEN_IDENTIFIER) || c_match(p, C_TOKEN_STDCALL) ||
-        c_match(p, C_TOKEN_CDECL) || c_match(p, C_TOKEN_ATTRIBUTE)) {
-
-        CLexer save_lexer = p->lexer;
-        CToken save_current = p->current;
-        int save_error = p->has_error;
-
-        if (has_extern) {
-            c_eat(p, C_TOKEN_EXTERN);
-        }
-
-        while (1) {
-            if (c_match(p, C_TOKEN_STDCALL) || c_match(p, C_TOKEN_CDECL) || c_match(p, C_TOKEN_FASTCALL) ||
-                c_match(p, C_TOKEN_THISCALL) || c_match(p, C_TOKEN_VECTORCALL)) {
-                c_eat(p, p->current.type);
-            } else if (c_match(p, C_TOKEN_DECLSPEC)) {
-                c_eat(p, C_TOKEN_DECLSPEC);
-                c_eat(p, C_TOKEN_LPAREN);
-                int depth = 1;
-                while (depth > 0 && !p->has_error) {
-                    if (c_match(p, C_TOKEN_LPAREN)) depth++;
-                    else if (c_match(p, C_TOKEN_RPAREN)) depth--;
-                    c_eat(p, p->current.type);
-                }
-            } else if (c_match(p, C_TOKEN_ATTRIBUTE)) {
-                c_eat(p, C_TOKEN_ATTRIBUTE);
-                c_eat(p, C_TOKEN_LPAREN);
-                c_eat(p, C_TOKEN_LPAREN);
-                int depth = 2;
-                while (depth > 0 && !p->has_error) {
-                    if (c_match(p, C_TOKEN_LPAREN)) depth++;
-                    else if (c_match(p, C_TOKEN_RPAREN)) depth--;
-                    c_eat(p, p->current.type);
-                }
-            } else {
-                break;
-            }
-        }
-
-        while (c_match(p, C_TOKEN_STRING)) {
-            c_eat(p, C_TOKEN_STRING);
-        }
-
-        int is_function = 0;
-        if (c_match(p, C_TOKEN_VOID) || c_match(p, C_TOKEN_CHAR_KW) || c_match(p, C_TOKEN_SHORT) ||
-            c_match(p, C_TOKEN_INT) || c_match(p, C_TOKEN_LONG) || c_match(p, C_TOKEN_FLOAT) ||
-            c_match(p, C_TOKEN_DOUBLE) || c_match(p, C_TOKEN_SIGNED) || c_match(p, C_TOKEN_UNSIGNED) ||
-            c_match(p, C_TOKEN_BOOL) || c_match(p, C_TOKEN_STRUCT) || c_match(p, C_TOKEN_UNION) ||
-            c_match(p, C_TOKEN_ENUM) || c_match(p, C_TOKEN_IDENTIFIER)) {
-            c_eat(p, p->current.type);
-            while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT)) c_eat(p, p->current.type);
-            while (c_match(p, C_TOKEN_STAR)) c_eat(p, C_TOKEN_STAR);
-            // Consume multi-word type specifiers like "long int", "unsigned long", "short int", "signed char", "long double"
-            while (c_match(p, C_TOKEN_SHORT) || c_match(p, C_TOKEN_INT) || c_match(p, C_TOKEN_LONG) ||
-                   c_match(p, C_TOKEN_CHAR_KW) || c_match(p, C_TOKEN_SIGNED) || c_match(p, C_TOKEN_UNSIGNED) ||
-                   c_match(p, C_TOKEN_DOUBLE) || c_match(p, C_TOKEN_FLOAT)) {
-                c_eat(p, p->current.type);
-                while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT)) c_eat(p, p->current.type);
-                while (c_match(p, C_TOKEN_STAR)) c_eat(p, C_TOKEN_STAR);
-            }
-            while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT)) c_eat(p, p->current.type);
-            while (c_match(p, C_TOKEN_STAR)) c_eat(p, C_TOKEN_STAR);
-            if (c_match(p, C_TOKEN_IDENTIFIER)) {
-                c_eat(p, C_TOKEN_IDENTIFIER);
-                if (c_match(p, C_TOKEN_LPAREN)) {
-                    is_function = 1;
-                }
-            }
-        }
-
-        p->lexer = save_lexer;
-        p->current = save_current;
-        p->has_error = save_error;
-
-        if (is_function) {
-            return c_parse_extern_function(p);
-        } else {
-            return c_parse_extern_variable(p);
-        }
+    if (is_function) {
+        return c_parse_extern_function(p);
+    } else {
+        return c_parse_extern_variable(p);
     }
-
-    while (!c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_EOF) && p->current.type != C_TOKEN_EOF) {
-        c_eat(p, p->current.type);
-    }
-    if (c_match(p, C_TOKEN_SEMICOLON)) {
-        c_eat(p, C_TOKEN_SEMICOLON);
-    }
-
-    return NULL;
 }
 
 void c_parser_init(CParser *p, CompilerContext *ctx, const char *filename, const char *source) {

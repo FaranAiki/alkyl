@@ -1,13 +1,13 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=check_type target_type=13 line=0 col=0 node=0x55f8d478c5f8 target=0x55f8d478c4d8
+debug: parser: Created Call name=check_type target_type=13 line=0 col=0 node=0x55caff7745f8 target=0x55caff7744d8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: Call line=7 col=15 name=check_type target_type=13 node=0x55f8d478c5f8
-debug: semantic: sem_check_expr: type=2 line=7 col=15 node=0x55f8d478c5f8
+debug: semantic: sem_check_block: Call line=7 col=15 name=check_type target_type=13 node=0x55caff7745f8
+debug: semantic: sem_check_expr: type=2 line=7 col=15 node=0x55caff7745f8
 debug: semantic: sem_check_call: name='check_type', ns='main'
-debug: semantic: sem_check_expr: type=13 line=7 col=5 node=0x55f8d478c4d8
-debug: semantic: sem_check_expr: type=16 line=7 col=16 node=0x55f8d478c558
-debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x55f8d478c690
+debug: semantic: sem_check_expr: type=13 line=7 col=5 node=0x55caff7744d8
+debug: semantic: sem_check_expr: type=16 line=7 col=16 node=0x55caff774558
+debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x55caff774690
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -15,9 +15,9 @@ debug: alir: Found func_def check_type
 debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 debug: alir: alir_add_function: main
-GEN_CALL: name=check_type mangled=main.check_type
+debug: alir: GEN_CALL: name=check_type mangled=main.check_type
 debug: alir: Looking up 'main.check_type'
-debug: alir: Found symbol check_type, kind=1, is_macro=1, node_ptr=0x55f8d478c3e8
+debug: alir: Found symbol check_type, kind=1, is_macro=1, node_ptr=0x55caff7743e8
 debug: parser: clone_var_type fallback: class_name=(null) array_size=0 array_depth=0
 debug: parser: clone_var_type fallback: class_name=(null) array_size=0 array_depth=0
 debug: parser: clone_var_type fallback: class_name=(null) array_size=0 array_depth=0
@@ -25,18 +25,13 @@ debug: parser: clone_var_type fallback: class_name=(null) array_size=0 array_dep
 debug: parser: clone_var_type fallback: class_name=(null) array_size=0 array_depth=0
 debug: alir: macro: mangled='main.check_type', old_ns='main'
 debug: alir: macro: setting ns to 'main'
-debug: diag_set_namespace: ns='main', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
 debug: alir: macro: before sem_check_block, ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=28 line=3 col=17 node=0x55f8d4792368
+debug: semantic: sem_check_expr: type=28 line=3 col=17 node=0x55caff77a368
 debug: alir: macro: after sem_check_block, ns='main'
-debug: alir: typeof string='int'
 debug: alir: func=main op=35 dest_kind=5 dest_type_base=6 op1_kind=7 op1_type_base=1
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=6 op1_kind=0 op1_type_base=0
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=6
-debug: diag_set_namespace: ns='main', current='main', ptr_match=0
-debug: diag_set_namespace: after set, current='main'
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
