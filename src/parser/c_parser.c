@@ -396,7 +396,9 @@ static ASTNode* c_parse_extern_function(CParser *p) {
         else break;
     }
 
-    c_eat(p, C_TOKEN_EXTERN);
+    if (c_match(p, C_TOKEN_EXTERN)) {
+        c_eat(p, C_TOKEN_EXTERN);
+    }
 
     while (c_match(p, C_TOKEN_STRING)) {
         c_eat(p, C_TOKEN_STRING);
@@ -538,7 +540,9 @@ static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
         int array_size = 0;
         VarType param_type = c_parse_c_type(p, &ptr_depth, &array_size);
 
+        char *param_name = NULL;
         if (c_match(p, C_TOKEN_IDENTIFIER)) {
+            param_name = arena_strdup(p->ctx->arena, p->current.text);
             c_eat(p, C_TOKEN_IDENTIFIER);
         }
 
@@ -569,7 +573,7 @@ static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
         Parameter *param = arena_alloc(p->ctx->arena, sizeof(Parameter));
         memset(param, 0, sizeof(Parameter));
         param->type = param_type;
-        param->name = NULL;
+        param->name = param_name;
 
         *curr = param;
         curr = &param->next;
@@ -1338,7 +1342,9 @@ static ASTNode* c_parse_typedef(CParser *p) {
 }
 
 static ASTNode* c_parse_extern_variable(CParser *p) {
-    c_eat(p, C_TOKEN_EXTERN);
+    if (c_match(p, C_TOKEN_EXTERN)) {
+        c_eat(p, C_TOKEN_EXTERN);
+    }
 
     int ptr_depth = 0;
     int array_size = 0;
@@ -1365,6 +1371,7 @@ static ASTNode* c_parse_extern_variable(CParser *p) {
     var->var_type.array_size = array_size > 0 ? array_size : var_type.array_size;
     var->is_array = array_size > 0;
     var->is_mutable = 1;
+    var->is_extern = 1;
 
     return (ASTNode*)var;
 }
@@ -1382,12 +1389,22 @@ static ASTNode* c_parse_declaration(CParser *p) {
         return c_parse_enum(p);
     }
 
-    if (c_match(p, C_TOKEN_EXTERN)) {
+    int has_extern = c_match(p, C_TOKEN_EXTERN);
+
+    if (has_extern ||
+        c_match(p, C_TOKEN_VOID) || c_match(p, C_TOKEN_CHAR_KW) || c_match(p, C_TOKEN_SHORT) ||
+        c_match(p, C_TOKEN_INT) || c_match(p, C_TOKEN_LONG) || c_match(p, C_TOKEN_FLOAT) ||
+        c_match(p, C_TOKEN_DOUBLE) || c_match(p, C_TOKEN_SIGNED) || c_match(p, C_TOKEN_UNSIGNED) ||
+        c_match(p, C_TOKEN_BOOL) || c_match(p, C_TOKEN_IDENTIFIER) || c_match(p, C_TOKEN_STDCALL) ||
+        c_match(p, C_TOKEN_CDECL) || c_match(p, C_TOKEN_ATTRIBUTE)) {
+
         CLexer save_lexer = p->lexer;
         CToken save_current = p->current;
         int save_error = p->has_error;
 
-        c_eat(p, C_TOKEN_EXTERN);
+        if (has_extern) {
+            c_eat(p, C_TOKEN_EXTERN);
+        }
 
         while (1) {
             if (c_match(p, C_TOKEN_STDCALL) || c_match(p, C_TOKEN_CDECL) || c_match(p, C_TOKEN_FASTCALL) ||

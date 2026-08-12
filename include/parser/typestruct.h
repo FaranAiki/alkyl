@@ -397,6 +397,7 @@ typedef struct {
   bool has_explicit_pure : 1;
   bool is_pristine : 1;
   bool has_explicit_pristine : 1;
+  bool is_extern : 1;
 } VarDeclNode;
 
 typedef struct {

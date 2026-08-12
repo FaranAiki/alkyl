@@ -150,6 +150,7 @@ int main(int argc, char **argv) {
                 i++;
                 c_header_file = argv[i];
                 parse_c_mode = 1;
+                emit_ast = 1;
             } else {
                 fprintf(stderr, "--parse-c requires a file argument\n");
                 return 1;

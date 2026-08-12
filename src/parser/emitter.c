@@ -89,6 +89,7 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
 
         case NODE_FUNC_DEF: {
             FuncDefNode *fn = (FuncDefNode*)node;
+            if (fn->is_extern) sb_append(sb, "extern ");
             if (fn->is_public) sb_append(sb, "public ");
             if (fn->is_static) sb_append(sb, "static ");
             if (fn->is_open) sb_append(sb, "open ");
@@ -97,8 +98,13 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
             if (fn->is_has_a == HAS_A_INERT) sb_append(sb, "inert ");
             if (fn->is_has_a == HAS_A_REACTIVE) sb_append(sb, "reactive ");
             if (fn->is_flux) sb_append(sb, "flux ");
-            if (!fn->is_pure) sb_append(sb, "impure ");
-            if (!fn->is_pristine) sb_append(sb, "tainted ");
+            if (fn->is_extern) {
+                if (fn->has_explicit_pure && !fn->is_pure) sb_append(sb, "impure ");
+                if (fn->has_explicit_pristine && !fn->is_pristine) sb_append(sb, "tainted ");
+            } else {
+                if (!fn->is_pure) sb_append(sb, "impure ");
+                if (!fn->is_pristine) sb_append(sb, "tainted ");
+            }
             
             parser_emit_type(sb, fn->ret_type);
             sb_append_fmt(sb, " %s(", fn->name ? fn->name : "anon");
@@ -106,7 +112,9 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
             Parameter *p = fn->params;
             while (p) {
                 parser_emit_type(sb, p->type);
-                sb_append_fmt(sb, " %s", p->name);
+                if (p->name && strlen(p->name) > 0) {
+                    sb_append_fmt(sb, " %s", p->name);
+                }
                 if (p->next) sb_append(sb, ", ");
                 p = p->next;
             }
@@ -122,6 +130,7 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
 
         case NODE_VAR_DECL: {
             VarDeclNode *vn = (VarDeclNode*)node;
+            if (vn->is_extern) sb_append(sb, "extern ");
             if (vn->is_public) sb_append(sb, "public ");
             if (vn->is_static) sb_append(sb, "static ");
             if (vn->is_open) sb_append(sb, "open ");
@@ -131,11 +140,13 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
             if (vn->is_has_a == HAS_A_INERT) sb_append(sb, "inert ");
             if (vn->is_has_a == HAS_A_REACTIVE) sb_append(sb, "reactive ");
             
-            if (!vn->is_pure) sb_append(sb, "impure ");
-            if (!vn->is_pristine) sb_append(sb, "tainted ");
+            if (vn->has_explicit_pure && !vn->is_pure) sb_append(sb, "impure ");
+            if (vn->has_explicit_pristine && !vn->is_pristine) sb_append(sb, "tainted ");
             
-            if (vn->is_mutable) sb_append(sb, "mut ");
-            else if (!vn->is_const) sb_append(sb, "imut ");
+            if (!vn->is_extern && indent == 0) {
+                if (vn->is_mutable) sb_append(sb, "mut ");
+                else if (!vn->is_const) sb_append(sb, "imut ");
+            }
 
             parser_emit_type(sb, vn->var_type);
             sb_append_fmt(sb, " %s", vn->name);
@@ -185,6 +196,38 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
             }
             parser_emit_indent(sb, indent);
             sb_append(sb, "};\n");
+            break;
+        }
+
+        case NODE_STRUCT: {
+            StructNode *sn = (StructNode*)node;
+            if (sn->is_public) sb_append(sb, "public ");
+            if (sn->is_static) sb_append(sb, "static ");
+            if (sn->is_open) sb_append(sb, "open ");
+            if (sn->is_is_a == IS_A_FINAL) sb_append(sb, "final ");
+            if (sn->is_is_a == IS_A_NAKED) sb_append(sb, "naked ");
+            if (sn->is_has_a == HAS_A_INERT) sb_append(sb, "inert ");
+            if (sn->is_has_a == HAS_A_REACTIVE) sb_append(sb, "reactive ");
+            if (sn->is_extern) sb_append(sb, "extern ");
+            
+            sb_append_fmt(sb, "%s %s", sn->is_union ? "union" : "struct", sn->name ? sn->name : "anon");
+            if (sn->parent_name) sb_append_fmt(sb, " is %s", sn->parent_name);
+            
+            if (sn->has_body || sn->members) {
+                sb_append(sb, " {\n");
+                ASTNode *mem = sn->members;
+                while (mem) {
+                    parser_emit_indent(sb, indent + 1);
+                    parser_emit_ast_node(sb, mem, indent + 1);
+                    if (needs_semicolon(mem)) sb_append(sb, ";");
+                    sb_append(sb, "\n");
+                    mem = mem->next;
+                }
+                parser_emit_indent(sb, indent);
+                sb_append(sb, "};");
+            } else {
+                sb_append(sb, ";");
+            }
             break;
         }
 
