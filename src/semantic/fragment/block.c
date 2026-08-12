@@ -170,7 +170,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
                         SizeOfNode *sr = (SizeOfNode*)r;
                         VarType tl = sl->target_type.base != TYPE_UNKNOWN ? sl->target_type : sem_get_node_type(ctx, sl->operand);
                         VarType tr = sr->target_type.base != TYPE_UNKNOWN ? sr->target_type : sem_get_node_type(ctx, sr->operand);
-                        cond_val = sem_types_are_equal(tl, tr) ? 1 : 0;
+                        cond_val = (sem_types_are_equal(tl, tr) || sem_types_are_compatible(ctx, tl, tr)) ? 1 : 0;
                         if (bin->op == TOKEN_NEQ) cond_val = 1 - cond_val;
                     }
                 }

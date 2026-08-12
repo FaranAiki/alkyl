@@ -594,8 +594,8 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
     int dest_is_num = (dest.base >= TYPE_INT && dest.base <= TYPE_LONG_DOUBLE);
     int src_is_num = (src.base >= TYPE_INT && src.base <= TYPE_LONG_DOUBLE);
 
-    if (src.base == TYPE_ENUM && dest_is_num) return 1;
-    if (dest.base == TYPE_ENUM && src_is_num) return 1;
+    if (src.base == TYPE_ENUM && dest_is_num && src.ptr_depth == dest.ptr_depth) return 1;
+    if (dest.base == TYPE_ENUM && src_is_num && src.ptr_depth == dest.ptr_depth) return 1;
 
     if (dest_is_num && src_is_num && dest.ptr_depth == 0 && src.ptr_depth == 0 && dest.array_size == 0 && src.array_size == 0) {
         return true;

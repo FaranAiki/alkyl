@@ -6,7 +6,7 @@ private namespace __c_lib {
     }
 }
 
-namespace random {
+export public namespace random {
     void init() {
         __c_lib.srand(__c_lib.time(0 as void*) as unsigned int);
     }
