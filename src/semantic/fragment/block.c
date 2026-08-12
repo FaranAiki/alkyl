@@ -308,6 +308,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_TYPEOF:
         case NODE_SIZEOF:
         case NODE_ALIGNOF:
+        case NODE_IMPORT_EXPR:
             sem_check_expr(ctx, node);
             break;
         case NODE_EMIT: {

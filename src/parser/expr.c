@@ -488,15 +488,20 @@ ASTNode* parse_factor(Parser *p) {
   }
   else if (p->current_token.type == TOKEN_IMPORT) {
       eat(p, TOKEN_IMPORT);
-      eat(p, TOKEN_LPAREN);
-      ASTNode *path_expr = parse_expression(p);
-      eat(p, TOKEN_RPAREN);
       ImportExprNode *ie = parser_alloc(p, sizeof(ImportExprNode));
       ie->base.type = NODE_IMPORT_EXPR;
       ie->path = NULL;
       ie->header = HEADER_ALKYL;
-      if (path_expr && path_expr->type == NODE_LITERAL && ((LiteralNode*)path_expr)->var_type.base == TYPE_CHAR && ((LiteralNode*)path_expr)->var_type.ptr_depth == 1) {
-          ie->path = parser_strdup(p, ((LiteralNode*)path_expr)->val.str_val);
+      if (p->current_token.type == TOKEN_LPAREN) {
+          eat(p, TOKEN_LPAREN);
+          ASTNode *path_expr = parse_expression(p);
+          eat(p, TOKEN_RPAREN);
+          if (path_expr && path_expr->type == NODE_LITERAL && ((LiteralNode*)path_expr)->var_type.base == TYPE_CHAR && ((LiteralNode*)path_expr)->var_type.ptr_depth == 1) {
+              ie->path = parser_strdup(p, ((LiteralNode*)path_expr)->val.str_val);
+          }
+      } else if (p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
+          ie->path = parser_strdup(p, p->current_token.text);
+          eat(p, p->current_token.type);
       }
       node = (ASTNode*)ie;
       set_loc(node, line, col);

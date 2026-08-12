@@ -10,6 +10,7 @@ int parse_modifiers(Parser* p) {
             case TOKEN_PRIVATE: modifiers |= MODIFIER_PRIVATE; eat(p, TOKEN_PRIVATE); break;
             case TOKEN_OPEN: modifiers |= MODIFIER_OPEN; eat(p, TOKEN_OPEN); break;
             case TOKEN_CLOSED: modifiers |= MODIFIER_CLOSED; eat(p, TOKEN_CLOSED); break;
+            case TOKEN_EXPORT: modifiers |= MODIFIER_PUBLIC; eat(p, TOKEN_EXPORT); break;
             case TOKEN_CONST: modifiers |= MODIFIER_CONST; eat(p, TOKEN_CONST); break;
             case TOKEN_INERT: modifiers |= MODIFIER_INERT; eat(p, TOKEN_INERT); break;
             case TOKEN_REACTIVE: modifiers |= MODIFIER_REACTIVE; eat(p, TOKEN_REACTIVE); break;
