@@ -35,14 +35,25 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         else if (ptr_t.array_size > 0) ptr_t.array_size = 0;
                         pointed = get_llvm_type(ctx, ptr_t);
                     }
-                    if (pointed && inst->op2 && inst->op2->type.is_tainted &&
-                        LLVMGetTypeKind(pointed) == LLVMStructTypeKind && LLVMCountStructElementTypes(pointed) > 1 &&
-                        LLVMGetTypeKind(LLVMTypeOf(val)) != LLVMStructTypeKind) {
+                    if (pointed && LLVMGetTypeKind(pointed) == LLVMStructTypeKind && LLVMCountStructElementTypes(pointed) > 1 &&
+                        LLVMGetTypeKind(LLVMTypeOf(val)) != LLVMStructTypeKind &&
+                        LLVMGetTypeKind(LLVMTypeOf(val)) != LLVMPointerTypeKind) {
                         debug_codegen("wrapping value in store for tainted struct\n");
                         LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
                         LLVMValueRef wrapped = LLVMGetUndef(pointed);
                         wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, zero, 0, "wrap_err");
                         wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, val, 1, "wrap_val");
+                        LLVMBuildStore(ctx->builder, wrapped, ptr);
+                        break;
+                    }
+                    if (pointed && LLVMGetTypeKind(pointed) == LLVMStructTypeKind && LLVMCountStructElementTypes(pointed) > 1 &&
+                        LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMStructTypeKind &&
+                        LLVMTypeOf(val) != pointed) {
+                        LLVMValueRef payload = LLVMBuildExtractValue(ctx->builder, val, 1, "ext_payload");
+                        LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
+                        LLVMValueRef wrapped = LLVMGetUndef(pointed);
+                        wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, zero, 0, "wrap_err");
+                        wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, payload, 1, "wrap_val");
                         LLVMBuildStore(ctx->builder, wrapped, ptr);
                         break;
                     }

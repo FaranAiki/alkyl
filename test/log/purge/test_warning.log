@@ -1,8 +1,8 @@
 step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=4 col=10 node=0x556c9fbc24a0
+debug: semantic: sem_check_expr: type=16 line=4 col=10 node=0x55eaffacf4a0
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x556c9fbc26a8
+debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x55eaffacf6a8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -15,5 +15,5 @@ debug: alir: alir_add_function: main
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-debug: optlir: Check Type for Struct Marking string
 step: Finished alir optimization. Start code generation using LLVM codegen
+Setting body for string: class_type=0x55eaffaed990 types[0]=0x55eaffaeb510 types[1]=0x55eaffaed970 i32=0x55eaffaeb510

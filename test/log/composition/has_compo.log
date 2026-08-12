@@ -4,44 +4,44 @@ debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=Person target_type=13 line=0 col=0 node=0x562b8826cfc0 target=0x562b8826ce00
+debug: parser: Created Call name=Person target_type=13 line=0 col=0 node=0x55f7dc091fc0 target=0x55f7dc091e00
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x562b8826c428
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x55f7dc091428
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=26 line=12 col=19 node=0x562b8826cae8
-debug: semantic: sem_check_expr: type=47 line=12 col=9 node=0x562b8826ca68
-debug: semantic: sem_check_expr: type=18 line=12 col=9 node=0x562b8826ca68
+debug: semantic: sem_check_expr: type=26 line=12 col=19 node=0x55f7dc091ae8
+debug: semantic: sem_check_expr: type=47 line=12 col=9 node=0x55f7dc091a68
+debug: semantic: sem_check_expr: type=18 line=12 col=9 node=0x55f7dc091a68
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=12 col=5 node=0x562b8826c6e8
-debug: semantic: sem_check_expr: type=16 line=12 col=9 node=0x562b8826eb60
-debug: semantic: sem_check_expr: type=16 line=13 col=12 node=0x562b8826cb60
+debug: semantic: sem_check_expr: type=13 line=12 col=5 node=0x55f7dc0916e8
+debug: semantic: sem_check_expr: type=16 line=12 col=9 node=0x55f7dc093b60
+debug: semantic: sem_check_expr: type=16 line=13 col=12 node=0x55f7dc091b60
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=18 col=20 node=0x562b8826cfc0
+debug: semantic: sem_check_expr: type=2 line=18 col=20 node=0x55f7dc091fc0
 debug: semantic: sem_check_call: name='Person', ns='main'
-debug: semantic: sem_check_expr: type=13 line=18 col=14 node=0x562b8826ce00
+debug: semantic: sem_check_expr: type=13 line=18 col=14 node=0x55f7dc091e00
 at namespace main:
 in .../code/composition/has_compo.kyl:
 18:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-debug: semantic: sem_check_expr: type=16 line=18 col=21 node=0x562b8826ce80
-debug: semantic: sem_check_expr: type=16 line=18 col=35 node=0x562b8826cf20
-debug: semantic: sem_check_expr: type=27 line=19 col=4 node=0x562b8826d198
-debug: semantic: sem_check_expr: type=13 line=19 col=3 node=0x562b8826d118
-debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x562b8826e208
+debug: semantic: sem_check_expr: type=16 line=18 col=21 node=0x55f7dc091e80
+debug: semantic: sem_check_expr: type=16 line=18 col=35 node=0x55f7dc091f20
+debug: semantic: sem_check_expr: type=27 line=19 col=4 node=0x55f7dc092198
+debug: semantic: sem_check_expr: type=13 line=19 col=3 node=0x55f7dc092118
+debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x55f7dc093208
 19:4: warning: speak is from Identity, consider p[Identity].speak
   |   p.speak();
   |    ^
-debug: semantic: sem_check_expr: type=27 line=20 col=4 node=0x562b8826d2b0
-debug: semantic: sem_check_expr: type=13 line=20 col=3 node=0x562b8826d230
-debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x562b8826e208
-debug: semantic: sem_check_expr: type=16 line=21 col=10 node=0x562b8826d348
+debug: semantic: sem_check_expr: type=27 line=20 col=4 node=0x55f7dc0922b0
+debug: semantic: sem_check_expr: type=13 line=20 col=3 node=0x55f7dc092230
+debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x55f7dc093208
+debug: semantic: sem_check_expr: type=16 line=21 col=10 node=0x55f7dc092348
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Identity
-debug: alir: DEBUG_REGISTER: st=0x562b882729e8 name=Identity next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55f7dc0979e8 name=Identity next=(nil)
 debug: alir: Visiting class Person
-debug: alir: DEBUG_REGISTER: st=0x562b88272a08 name=Person next=0x562b882729e8
+debug: alir: DEBUG_REGISTER: st=0x55f7dc097a08 name=Person next=0x55f7dc0979e8
 debug: alir: DEBUG_PASS1_END: struct list:
  - Person fields: 2
  - Identity fields: 2
@@ -63,38 +63,6 @@ debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_ba
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-debug: optlir: Check Type for Struct Marking Identity
-debug: optlir: Check Type for Struct Marking Identity
-debug: optlir: Check Type for Struct Marking Identity
-debug: optlir: Check Type for Struct Marking Identity
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Identity
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Identity
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Identity
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Identity
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Identity
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
-debug: optlir: Check Type for Struct Marking Person
 step: Finished alir optimization. Start code generation using LLVM codegen
 debug: codegen: struct=Person fields=2
 debug: codegen: struct=Identity fields=2

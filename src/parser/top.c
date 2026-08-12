@@ -85,8 +85,8 @@ static ASTNode* parse_single_extern(Parser *p, int modifiers) {
       }
 
       Parameter *param = parser_alloc_raw(p, sizeof(Parameter));
-      apply_param_modifiers(param, pmods);
       param->type = ptype; param->name = pname;
+      apply_param_modifiers(param, pmods);
 
       if (p->current_token.type == TOKEN_ASSIGN) {
           eat(p, TOKEN_ASSIGN);
@@ -931,8 +931,8 @@ ASTNode* parse_func_def_after_type(Parser *p, int modifiers, VarType vtype, int 
         }
 
         Parameter *pm = parser_alloc_raw(p, sizeof(Parameter));
-        apply_param_modifiers(pm, pmods);
         pm->type = ptype; pm->name = pname;
+        apply_param_modifiers(pm, pmods);
 
         if (p->current_token.type == TOKEN_ASSIGN) {
             eat(p, TOKEN_ASSIGN);

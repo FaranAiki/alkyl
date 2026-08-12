@@ -1,11 +1,11 @@
 step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=5 col=15 node=0x560ecaee3578
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x560ecaee36b0
+debug: semantic: sem_check_expr: type=16 line=5 col=15 node=0x56377b170578
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x56377b1706b0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class __Union__f0__f1
-debug: alir: DEBUG_REGISTER: st=0x560ecaee87f0 name=__Union__f0__f1 next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x56377b1757f0 name=__Union__f0__f1 next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - __Union__f0__f1 fields: 2
 debug: alir: Found func_def main
@@ -18,9 +18,5 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 debug: alir: alir_add_function: __Union__f0__f1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-debug: optlir: Check Type for Struct Marking __Union__f0__f1
-debug: optlir: Check Type for Struct Marking __Union__f0__f1
-debug: optlir: Check Type for Struct Marking __Union__f0__f1
-debug: optlir: Check Type for Struct Marking __Union__f0__f1
 step: Finished alir optimization. Start code generation using LLVM codegen
 debug: codegen: struct=__Union__f0__f1 fields=2

@@ -14,17 +14,17 @@ debug: semantic: sem_check_block: ns='clib'
 debug: diag_set_namespace: ns='main', current='clib', ptr_match=0
 debug: diag_set_namespace: after set, current='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x564b86ac1300
-debug: semantic: sem_check_expr: type=13 line=7 col=22 node=0x564b86ac1558
-debug: semantic: sem_check_expr: type=14 line=8 col=10 node=0x564b86ac16f8
-debug: semantic: sem_check_expr: type=13 line=8 col=8 node=0x564b86ac15d8
-debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x564b86ac1658
+debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x56445fa65300
+debug: semantic: sem_check_expr: type=13 line=7 col=22 node=0x56445fa65558
+debug: semantic: sem_check_expr: type=14 line=8 col=10 node=0x56445fa656f8
+debug: semantic: sem_check_expr: type=13 line=8 col=8 node=0x56445fa655d8
+debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x56445fa65658
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=27 line=9 col=13 node=0x564b86ac18e8
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x564b86ac17c8
-debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x564b86ac1848
-debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x564b86ac1848
-debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x564b86ac1a00
+debug: semantic: sem_check_expr: type=27 line=9 col=13 node=0x56445fa658e8
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x56445fa657c8
+debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x56445fa65848
+debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x56445fa65848
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x56445fa65a00
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -51,4 +51,3 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
-debug: codegen: wrapping value in store for tainted struct

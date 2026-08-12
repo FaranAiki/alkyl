@@ -185,7 +185,17 @@ case ALIR_OP_BITCAST: {
                 
                 LLVMTypeKind src_kind = LLVMGetTypeKind(LLVMTypeOf(op1));
                 LLVMTypeKind dst_kind = LLVMGetTypeKind(ty);
-                
+                if (inst->dest && inst->dest->type.is_tainted &&
+                    dst_kind == LLVMStructTypeKind && LLVMCountStructElementTypes(ty) > 1 &&
+                    src_kind != LLVMStructTypeKind) {
+                    LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
+                    LLVMValueRef wrapped = LLVMGetUndef(ty);
+                    wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, zero, 0, "wrap_err");
+                    wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, op1, 1, "wrap_val");
+                    res = wrapped;
+                    break;
+                }
+
                 if (src_kind == LLVMStructTypeKind || src_kind == LLVMArrayTypeKind ||
                     dst_kind == LLVMStructTypeKind || dst_kind == LLVMArrayTypeKind ||
                     src_sz != dst_sz || inst->custom_flag != 0) {

@@ -5,16 +5,16 @@ debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=16, token.type=31
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=26 line=5 col=17 node=0x55828b93a3c8
-debug: semantic: sem_check_expr: type=13 line=5 col=16 node=0x55828b93a348
+debug: semantic: sem_check_expr: type=26 line=5 col=17 node=0x5644b1dd13c8
+debug: semantic: sem_check_expr: type=13 line=5 col=16 node=0x5644b1dd1348
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=15 col=12 node=0x55828b93a860
+debug: semantic: sem_check_expr: type=16 line=15 col=12 node=0x5644b1dd1860
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class A
-debug: alir: DEBUG_REGISTER: st=0x55828b93f830 name=A next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x5644b1dd6830 name=A next=(nil)
 debug: alir: Visiting class B
-debug: alir: DEBUG_REGISTER: st=0x55828b93f850 name=B next=0x55828b93f830
+debug: alir: DEBUG_REGISTER: st=0x5644b1dd6850 name=B next=0x5644b1dd6830
 debug: alir: DEBUG_PASS1_END: struct list:
  - B fields: 2
  - A fields: 2
@@ -29,3 +29,9 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: struct=B fields=2
+debug: codegen: struct=A fields=2
+debug: codegen: Field 0: base=16 ptr_depth=1
+debug: codegen: Field 1: base=1 ptr_depth=0
+debug: codegen: Field 0: base=16 ptr_depth=1
+debug: codegen: Field 1: base=1 ptr_depth=0

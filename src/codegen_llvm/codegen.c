@@ -97,27 +97,28 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
         default: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
     }
 
-    if (t.ptr_depth > 0 || t.is_func_ptr || (t.array_depth > 0 && t.array_size == 0)) {
-        if (t.base == TYPE_CLASS && t.class_name && !t.is_func_ptr && t.array_depth == 0) {
-            base = LLVMPointerType(base, 0);
-        } else {
-            base = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
-        }
-    }
-
-    if (t.array_size > 0) {
-        base = LLVMArrayType(base, t.array_size);
-    }
-
     if (t.is_tainted) {
         LLVMTypeRef elements[] = {
             LLVMInt32TypeInContext(ctx->llvm_ctx),
             base
         };
         if (t.base == TYPE_VOID && t.ptr_depth == 0) {
-            return LLVMStructTypeInContext(ctx->llvm_ctx, elements, 1, 0);
+            base = LLVMStructTypeInContext(ctx->llvm_ctx, elements, 1, 0);
+        } else {
+            base = LLVMStructTypeInContext(ctx->llvm_ctx, elements, 2, 0);
         }
-        return LLVMStructTypeInContext(ctx->llvm_ctx, elements, 2, 0);
+    }
+
+    if (t.ptr_depth > 0 || t.is_func_ptr || (t.array_depth > 0 && t.array_size == 0)) {
+        if (t.base == TYPE_CLASS && t.class_name && !t.is_func_ptr && t.array_depth == 0 && !t.is_tainted) {
+            base = LLVMPointerType(base, 0);
+        } else {
+            base = LLVMPointerType(base, 0);
+        }
+    }
+
+    if (t.array_size > 0) {
+        base = LLVMArrayType(base, t.array_size);
     }
 
     return base;

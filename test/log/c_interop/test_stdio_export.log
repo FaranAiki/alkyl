@@ -1,44 +1,17 @@
 step: Finished lexing. Start parsing.
-debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x558b870bc2a0
+debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x558e782742a0
+debug: diag_set_namespace: ns='c_header', current='main', ptr_match=0
+debug: diag_set_namespace: after set, current='c_header'
 at namespace c_header:
 in /usr/include/bits/stdio2.h:27:19: error: Expected function name in extern declaration
-at namespace c_header:
-in /usr/include/bits/stdio2.h:42:9: error: Expected ';' but found UNKNOWN
-at namespace c_header:
-in /usr/include/bits/stdio2.h:80:9: error: Expected ';' but found UNKNOWN
-at namespace c_header:
-in /usr/include/bits/stdio2.h:128:9: error: Expected ';' but found UNKNOWN
-at namespace c_header:
-in /usr/include/bits/stdio2.h:139:9: error: Expected ';' but found UNKNOWN
-at namespace c_header:
-in /usr/include/bits/stdio2.h:184:9: error: Expected ';' but found UNKNOWN
-at namespace c_header:
-in /usr/include/bits/stdio2.h:232:9: error: Expected ';' but found UNKNOWN
-at namespace c_header:
-in /usr/include/bits/stdio2.h:244:9: error: Expected ';' but found UNKNOWN
-at namespace c_header:
-in /usr/include/bits/stdio2.h:257:9: error: Expected ';' but found UNKNOWN
-at namespace c_header:
-in /usr/include/bits/stdio2.h:379:15: error: Expected ';' but found UNKNOWN
-at namespace c_header:
+debug: diag_set_namespace: ns='c_header', current='c_header', ptr_match=0
+debug: diag_set_namespace: after set, current='c_header'
 in /usr/include/bits/stdio2.h:383:15: error: Expected variable name in extern declaration
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x558b870bc4f8
-debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x558b870bc3d8
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x558b870bc458
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x558b870bc458
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-debug: alir: DEBUG_PASS1_END: struct list:
+debug: semantic: sem_check_block: ns='c_header'
+debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x558e782744f8
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x558e782743d8
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x558e78274458
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x558e78274458
+Semantic analysis failed with 2 errors.
 debug: inferring type for stdio, init_type.base=18
 debug: inferred type /usr/include/stdio.h for stdio
-debug: alir: Found top-level VAR_DECL stdio
-debug: alir: Found func_def main
-debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-debug: alir: alir_add_function: main
-debug: alir: GLOBAL VAR ADDR: stdio
-debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen

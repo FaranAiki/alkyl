@@ -1,26 +1,26 @@
 step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=16, token.type=31
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x56434dee8df8 target=0x56434dee8c38
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55d77f56adf8 target=0x55d77f56ac38
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x56434dee93d0 target=0x56434dee92d0
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55d77f56b3d0 target=0x55d77f56b2d0
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x56434dee8df8
+debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x55d77f56adf8
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=8 col=17 node=0x56434dee8c38
-debug: semantic: &ctx->ast_tail=0x7ffc77f41c18, ctx->ast_tail=0x56434dee9640, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x56434dee8cb8
-debug: semantic: sem_check_expr: type=16 line=8 col=26 node=0x56434dee8d58
-debug: semantic: sem_check_expr: type=2 line=9 col=22 node=0x56434dee93d0
+debug: semantic: sem_check_expr: type=47 line=8 col=17 node=0x55d77f56ac38
+debug: semantic: &ctx->ast_tail=0x7ffeaa736d98, ctx->ast_tail=0x55d77f56b640, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x55d77f56acb8
+debug: semantic: sem_check_expr: type=16 line=8 col=26 node=0x55d77f56ad58
+debug: semantic: sem_check_expr: type=2 line=9 col=22 node=0x55d77f56b3d0
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=9 col=17 node=0x56434dee92d0
-debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x56434dee9350
+debug: semantic: sem_check_expr: type=47 line=9 col=17 node=0x55d77f56b2d0
+debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x55d77f56b350
 debug: semantic: copy check: base=16 expected=16 class_name=Vector_int sym_name=Vector_int
-debug: semantic: sem_check_expr: type=16 line=10 col=10 node=0x56434dee9528
+debug: semantic: sem_check_expr: type=16 line=10 col=10 node=0x55d77f56b528
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Vector_int
-debug: alir: DEBUG_REGISTER: st=0x56434deee3f0 name=Vector_int next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55d77f5703f0 name=Vector_int next=(nil)
 debug: inferring type for a, init_type.base=16
 debug: inferred type Vector_int for a
 debug: inferring type for b, init_type.base=16
@@ -39,23 +39,6 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 debug: alir: alir_add_function: Vector_int
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
-debug: optlir: Check Type for Struct Marking Vector_int
 step: Finished alir optimization. Start code generation using LLVM codegen
 debug: codegen: struct=Vector_int fields=2
 debug: codegen: Field 0: base=1 ptr_depth=0

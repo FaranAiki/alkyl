@@ -2,11 +2,11 @@ step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=8, token.type=31
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=5 col=21 node=0x556b92621378
+debug: semantic: sem_check_expr: type=16 line=5 col=21 node=0x560911f05378
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class string
-debug: alir: DEBUG_REGISTER: st=0x556b926267e0 name=string next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x560911f0a7e0 name=string next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - string fields: 2
 debug: alir: alir_add_function: string
@@ -17,3 +17,6 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: struct=string fields=2
+debug: codegen: Field 0: base=1 ptr_depth=0
+debug: codegen: Field 1: base=8 ptr_depth=1

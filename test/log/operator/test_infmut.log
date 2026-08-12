@@ -2,30 +2,30 @@ step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=0, token.type=164
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=5 col=29 node=0x5566a64eb578
-debug: semantic: sem_check_expr: type=26 line=5 col=24 node=0x5566a64eb480
-debug: semantic: sem_check_expr: type=13 line=5 col=20 node=0x5566a64eb400
-debug: semantic: sem_check_expr: type=13 line=5 col=31 node=0x5566a64eb4f8
-debug: semantic: sem_check_expr: type=26 line=5 col=13 node=0x5566a64eb388
-debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x5566a64eb308
+debug: semantic: sem_check_expr: type=14 line=5 col=29 node=0x560adc369578
+debug: semantic: sem_check_expr: type=26 line=5 col=24 node=0x560adc369480
+debug: semantic: sem_check_expr: type=13 line=5 col=20 node=0x560adc369400
+debug: semantic: sem_check_expr: type=13 line=5 col=31 node=0x560adc3694f8
+debug: semantic: sem_check_expr: type=26 line=5 col=13 node=0x560adc369388
+debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x560adc369308
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=11 col=13 node=0x5566a64eba00
-debug: semantic: sem_check_expr: type=26 line=11 col=6 node=0x5566a64eb988
-debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x5566a64eb908
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x5566a64ebbb8
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x5566a64ebbb8
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x5566a64ebbb8
-debug: semantic: sem_check_expr: type=14 line=13 col=15 node=0x5566a64ebe88
-debug: semantic: sem_check_expr: type=26 line=13 col=10 node=0x5566a64ebd70
-debug: semantic: sem_check_expr: type=13 line=13 col=9 node=0x5566a64ebcf0
-debug: semantic: sem_check_expr: type=16 line=13 col=18 node=0x5566a64ebde8
+debug: semantic: sem_check_expr: type=16 line=11 col=13 node=0x560adc369a00
+debug: semantic: sem_check_expr: type=26 line=11 col=6 node=0x560adc369988
+debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x560adc369908
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x560adc369bb8
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x560adc369bb8
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x560adc369bb8
+debug: semantic: sem_check_expr: type=14 line=13 col=15 node=0x560adc369e88
+debug: semantic: sem_check_expr: type=26 line=13 col=10 node=0x560adc369d70
+debug: semantic: sem_check_expr: type=13 line=13 col=9 node=0x560adc369cf0
+debug: semantic: sem_check_expr: type=16 line=13 col=18 node=0x560adc369de8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=13 col=29 node=0x5566a64ebf30
-debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x5566a64ec0c0
+debug: semantic: sem_check_expr: type=16 line=13 col=29 node=0x560adc369f30
+debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x560adc36a0c0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Counter
-debug: alir: DEBUG_REGISTER: st=0x5566a64f1338 name=Counter next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x560adc36f338 name=Counter next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - Counter fields: 1
 debug: alir: alir_gen_function_def fn->name=__op_164_33 class_name=Counter fn->mangled_name=main_Counter___op_164_33_i32 -> func_name=main_Counter___op_164_33_i32
@@ -47,27 +47,6 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
-debug: optlir: Check Type for Struct Marking Counter
 step: Finished alir optimization. Start code generation using LLVM codegen
 debug: codegen: struct=Counter fields=1
 debug: codegen: Field 0: base=1 ptr_depth=0

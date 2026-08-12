@@ -1,30 +1,30 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=divbytwo target_type=13 line=0 col=0 node=0x55b9e8fc2d58 target=0x55b9e8fc2b98
+debug: parser: Created Call name=divbytwo target_type=13 line=0 col=0 node=0x55e99ea8dd58 target=0x55e99ea8db98
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=5 col=8 node=0x55b9e8fc2668
-debug: semantic: sem_check_expr: type=13 line=5 col=6 node=0x55b9e8fc2548
-debug: semantic: sem_check_expr: type=16 line=5 col=11 node=0x55b9e8fc25c8
+debug: semantic: sem_check_expr: type=14 line=5 col=8 node=0x55e99ea8d668
+debug: semantic: sem_check_expr: type=13 line=5 col=6 node=0x55e99ea8d548
+debug: semantic: sem_check_expr: type=16 line=5 col=11 node=0x55e99ea8d5c8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=14 line=6 col=12 node=0x55b9e8fc2988
-debug: semantic: sem_check_expr: type=13 line=6 col=10 node=0x55b9e8fc2888
-debug: semantic: sem_check_expr: type=13 line=6 col=14 node=0x55b9e8fc2908
+debug: semantic: sem_check_expr: type=14 line=6 col=12 node=0x55e99ea8d988
+debug: semantic: sem_check_expr: type=13 line=6 col=10 node=0x55e99ea8d888
+debug: semantic: sem_check_expr: type=13 line=6 col=14 node=0x55e99ea8d908
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=10 col=27 node=0x55b9e8fc2d58
+debug: semantic: sem_check_expr: type=2 line=10 col=27 node=0x55e99ea8dd58
 debug: semantic: sem_check_call: name='divbytwo', ns='main'
-debug: semantic: sem_check_expr: type=13 line=10 col=19 node=0x55b9e8fc2b98
-debug: semantic: sem_check_expr: type=16 line=10 col=28 node=0x55b9e8fc2c18
-debug: semantic: sem_check_expr: type=16 line=10 col=33 node=0x55b9e8fc2cb8
-debug: semantic: sem_check_expr: type=16 line=10 col=28 node=0x55b9e8fc2c18
-debug: semantic: sem_check_expr: type=16 line=10 col=33 node=0x55b9e8fc2cb8
+debug: semantic: sem_check_expr: type=13 line=10 col=19 node=0x55e99ea8db98
+debug: semantic: sem_check_expr: type=16 line=10 col=28 node=0x55e99ea8dc18
+debug: semantic: sem_check_expr: type=16 line=10 col=33 node=0x55e99ea8dcb8
+debug: semantic: sem_check_expr: type=16 line=10 col=28 node=0x55e99ea8dc18
+debug: semantic: sem_check_expr: type=16 line=10 col=33 node=0x55e99ea8dcb8
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: Call line=12 col=11 name=print target_type=13 node=0x55b9e8fc2ff8
-debug: semantic: sem_check_expr: type=2 line=12 col=11 node=0x55b9e8fc2ff8
+debug: semantic: sem_check_block: Call line=12 col=11 name=print target_type=13 node=0x55e99ea8dff8
+debug: semantic: sem_check_expr: type=2 line=12 col=11 node=0x55e99ea8dff8
 debug: semantic: sem_check_call: name='print', ns='main'
-debug: semantic: sem_check_expr: type=13 line=12 col=5 node=0x55b9e8fc2ed8
-debug: semantic: sem_check_expr: type=16 line=12 col=11 node=0x55b9e8fc2f58
-debug: semantic: sem_check_expr: type=16 line=12 col=11 node=0x55b9e8fc2f58
+debug: semantic: sem_check_expr: type=13 line=12 col=5 node=0x55e99ea8ded8
+debug: semantic: sem_check_expr: type=16 line=12 col=11 node=0x55e99ea8df58
+debug: semantic: sem_check_expr: type=16 line=12 col=11 node=0x55e99ea8df58
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -39,10 +39,10 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 GEN_CALL: name=divbytwo mangled=main_divbytwo_i32_i32
 debug: alir: Looking up 'main_divbytwo_i32_i32'
-debug: alir: Found symbol divbytwo, kind=1, is_macro=0, node_ptr=0x55b9e8fc2aa0
+debug: alir: Found symbol divbytwo, kind=1, is_macro=0, node_ptr=0x55e99ea8daa0
 CALL_STD: name=divbytwo mangled=main_divbytwo_i32_i32 target_type=13
 debug: alir: GLOBAL VAR ADDR: divbytwo
-debug: alir: TAINTED PTR: ctx->module=0x55b9e8fc4b88 target_name=main_divbytwo_i32_i32 count=2
+debug: alir: TAINTED PTR: ctx->module=0x55e99ea8fb88 target_name=main_divbytwo_i32_i32 count=2
 TAINTED PTR: checking func printf
 TAINTED PTR: checking func main_divbytwo_i32_i32
 TAINTED PTR CHECK: arg_t.base=1 arg_t.ptr_depth=0 arg_t.is_tainted=0 param_t.base=1 param_t.ptr_depth=0 param_t.is_tainted=0 target=main_divbytwo_i32_i32 param=a
@@ -61,9 +61,5 @@ debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_ba
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-debug: optlir: Check Type for Struct Marking string
-debug: optlir: Check Type for Struct Marking string
-debug: optlir: Check Type for Struct Marking string
-debug: optlir: Check Type for Struct Marking string
 step: Finished alir optimization. Start code generation using LLVM codegen
-Setting body for string: class_type=0x55b9e8ff0840 types[0]=0x55b9e8fee3c0 types[1]=0x55b9e8ff0820 i32=0x55b9e8fee3c0
+Setting body for string: class_type=0x55e99eaab820 types[0]=0x55e99eaa93a0 types[1]=0x55e99eaab800 i32=0x55e99eaa93a0

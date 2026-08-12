@@ -480,8 +480,8 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                           }
 
                           Parameter *pm = parser_alloc_raw(p, sizeof(Parameter));
-                          apply_param_modifiers(pm, pmods);
                           pm->type = pt; pm->name = pname;
+                          apply_param_modifiers(pm, pmods);
                           *curr_p = pm; curr_p = &pm->next;
                           if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
                       }

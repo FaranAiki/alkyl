@@ -2,28 +2,28 @@ step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=A target_type=13 line=0 col=0 node=0x564b84f77618 target=0x564b84f77458
+debug: parser: Created Call name=A target_type=13 line=0 col=0 node=0x55beebac6618 target=0x55beebac6458
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=2 line=10 col=18 node=0x564b84f77618
+debug: semantic: sem_check_expr: type=2 line=10 col=18 node=0x55beebac6618
 debug: semantic: sem_check_call: name='A', ns='main'
-debug: semantic: sem_check_expr: type=13 line=10 col=17 node=0x564b84f77458
+debug: semantic: sem_check_expr: type=13 line=10 col=17 node=0x55beebac6458
 at namespace main:
 in .../code/cast/test_has.kyl:
 10:18: warning: no initialization from A, using B as a constructor
   |     let mut a = A(0, 0); 
   |                  ^
-debug: semantic: sem_check_expr: type=16 line=10 col=19 node=0x564b84f774d8
-debug: semantic: sem_check_expr: type=16 line=10 col=22 node=0x564b84f77578
-debug: semantic: sem_check_expr: type=26 line=11 col=13 node=0x564b84f777f0
-debug: semantic: sem_check_expr: type=13 line=11 col=12 node=0x564b84f77770
+debug: semantic: sem_check_expr: type=16 line=10 col=19 node=0x55beebac64d8
+debug: semantic: sem_check_expr: type=16 line=10 col=22 node=0x55beebac6578
+debug: semantic: sem_check_expr: type=26 line=11 col=13 node=0x55beebac67f0
+debug: semantic: sem_check_expr: type=13 line=11 col=12 node=0x55beebac6770
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class A
-debug: alir: DEBUG_REGISTER: st=0x564b84f7c7f0 name=A next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55beebacb7f0 name=A next=(nil)
 debug: inferring type for a, init_type.base=16
 debug: inferred type A for a
 debug: alir: Visiting class B
-debug: alir: DEBUG_REGISTER: st=0x564b84f7c810 name=B next=0x564b84f7c7f0
+debug: alir: DEBUG_REGISTER: st=0x55beebacb810 name=B next=0x55beebacb7f0
 debug: alir: DEBUG_PASS1_END: struct list:
  - B fields: 1
  - A fields: 2
@@ -39,19 +39,9 @@ debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_bas
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-debug: optlir: Check Type for Struct Marking A
-debug: optlir: Check Type for Struct Marking A
-debug: optlir: Check Type for Struct Marking A
-debug: optlir: Check Type for Struct Marking A
-debug: optlir: Check Type for Struct Marking A
-debug: optlir: Check Type for Struct Marking A
-debug: optlir: Check Type for Struct Marking A
-debug: optlir: Check Type for Struct Marking A
-debug: optlir: Check Type for Struct Marking A
-debug: optlir: Check Type for Struct Marking A
-debug: optlir: Check Type for Struct Marking A
-debug: optlir: Check Type for Struct Marking A
 step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: struct=B fields=1
 debug: codegen: struct=A fields=2
+debug: codegen: Field 0: base=1 ptr_depth=0
 debug: codegen: Field 0: base=1 ptr_depth=0
 debug: codegen: Field 1: base=1 ptr_depth=0
