@@ -83,6 +83,13 @@ static void skip_whitespace(CLexer *l) {
         char c = peek(l);
         if (c == '\0') break;
 
+        if (c == '\\' && l->src[l->pos + 1] == '\n') {
+            l->pos += 2;
+            l->line++;
+            l->col = 1;
+            continue;
+        }
+
         if (c == ' ' || c == '\n' || c == '\t' || c == '\r' || c == '\f' || c == '\v') {
             if (c == '\n') { l->line++; l->col = 1; }
             else { l->col++; }

@@ -477,6 +477,7 @@ ASTNode* parse_factor(Parser *p) {
               ImportExprNode *ie = parser_alloc(p, sizeof(ImportExprNode));
               ie->base.type = NODE_IMPORT_EXPR;
               ie->path = NULL;
+              ie->header = HEADER_C;
               if (path_expr && path_expr->type == NODE_LITERAL && ((LiteralNode*)path_expr)->var_type.base == TYPE_CHAR && ((LiteralNode*)path_expr)->var_type.ptr_depth == 1) {
                   ie->path = parser_strdup(p, ((LiteralNode*)path_expr)->val.str_val);
               }
@@ -493,6 +494,7 @@ ASTNode* parse_factor(Parser *p) {
       ImportExprNode *ie = parser_alloc(p, sizeof(ImportExprNode));
       ie->base.type = NODE_IMPORT_EXPR;
       ie->path = NULL;
+      ie->header = HEADER_ALKYL;
       if (path_expr && path_expr->type == NODE_LITERAL && ((LiteralNode*)path_expr)->var_type.base == TYPE_CHAR && ((LiteralNode*)path_expr)->var_type.ptr_depth == 1) {
           ie->path = parser_strdup(p, ((LiteralNode*)path_expr)->val.str_val);
       }

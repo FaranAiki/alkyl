@@ -245,6 +245,9 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
             if (match) {
                 Parameter *p = sym->params;
                 for (int i=0; i<sym->param_count; i++, p=p->next) {
+                    if (sym->is_variadic && i == sym->param_count - 1 && p->type.base == TYPE_UNKNOWN) {
+                        continue;
+                    }
                     if (matched_args[i] == NULL) {
                         if (p->default_value) {
                             matched_args[i] = p->default_value;
@@ -337,8 +340,10 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
         ASTNode *new_args_head = NULL;
         ASTNode **curr_new = &new_args_head;
         for (int i=0; i<best_match->param_count; i++) {
-            *curr_new = best_matched_args[i];
-            curr_new = &(*curr_new)->next;
+            if (best_matched_args[i]) {
+                *curr_new = best_matched_args[i];
+                curr_new = &(*curr_new)->next;
+            }
         }
         if (best_varargs_head) {
             *curr_new = best_varargs_head;

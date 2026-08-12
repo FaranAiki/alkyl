@@ -1,3 +1,4 @@
+/* This is some AI slop, but we'll see.... */
 #include "c_parser.h"
 #include "parser.h"
 #include "typestruct.h"
@@ -90,7 +91,7 @@ static BaseType c_identifier_to_base_type(const char *name) {
     return TYPE_UNKNOWN;
 }
 
-static Parameter* c_parse_parameters(CParser *p);
+static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs);
 
 static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_size) {
     VarType type = {TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
@@ -477,7 +478,7 @@ static ASTNode* c_parse_extern_function(CParser *p) {
     if (c_match(p, C_TOKEN_LPAREN)) {
         c_eat(p, C_TOKEN_LPAREN);
         if (!c_match(p, C_TOKEN_RPAREN)) {
-            params = c_parse_parameters(p);
+            params = c_parse_parameters(p, NULL);
         }
         c_eat(p, C_TOKEN_RPAREN);
     }
@@ -537,12 +538,21 @@ static ASTNode* c_parse_extern_function(CParser *p) {
     func->cconv = cconv;
     func->extern_name = extern_name;
 
+    if (params) {
+        Parameter *last = params;
+        while (last->next) last = last->next;
+        if (last->type.base == TYPE_UNKNOWN) {
+            func->is_varargs = 1;
+        }
+    }
+
     return (ASTNode*)func;
 }
 
-static Parameter* c_parse_parameters(CParser *p) {
+static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
     Parameter *head = NULL;
     Parameter **curr = &head;
+    if (out_is_varargs) *out_is_varargs = 0;
 
     while (!c_match(p, C_TOKEN_RPAREN) && !p->has_error) {
         int ptr_depth = 0;
@@ -579,10 +589,10 @@ static Parameter* c_parse_parameters(CParser *p) {
         *curr = param;
         curr = &param->next;
 
-
         if (c_match(p, C_TOKEN_COMMA)) {
             c_eat(p, C_TOKEN_COMMA);
             if (c_match(p, C_TOKEN_ELLIPSIS)) {
+                if (out_is_varargs) *out_is_varargs = 1;
                 Parameter *vp = arena_alloc(p->ctx->arena, sizeof(Parameter));
                 memset(vp, 0, sizeof(Parameter));
                 vp->type.base = TYPE_UNKNOWN;
@@ -1251,7 +1261,7 @@ static ASTNode* c_parse_typedef(CParser *p) {
                 if (c_match(p, C_TOKEN_LPAREN)) {
                     c_eat(p, C_TOKEN_LPAREN);
                     if (!c_match(p, C_TOKEN_RPAREN)) {
-                        params = c_parse_parameters(p);
+                        params = c_parse_parameters(p, NULL);
                     }
                     c_eat(p, C_TOKEN_RPAREN);
                 }
@@ -1298,7 +1308,7 @@ static ASTNode* c_parse_typedef(CParser *p) {
             if (c_match(p, C_TOKEN_LPAREN)) {
                 c_eat(p, C_TOKEN_LPAREN);
                 if (!c_match(p, C_TOKEN_RPAREN)) {
-                    params = c_parse_parameters(p);
+                    params = c_parse_parameters(p, NULL);
                 }
                 c_eat(p, C_TOKEN_RPAREN);
             }

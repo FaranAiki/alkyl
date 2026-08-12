@@ -340,7 +340,7 @@ SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
 SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_scope) {
     if (!name) return NULL;
     const char *dot = strchr(name, '.');
-    if (dot) {
+    if (dot && strchr(name, '/') == NULL && strchr(name, '\\') == NULL) {
         char base_name[256];
         int len = dot - name;
         if (len >= (int)sizeof(base_name)) len = (int)sizeof(base_name) - 1;

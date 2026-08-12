@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include "../parser/c_parser.h"
 
 SemSymbol* lookup_local_symbol(SemanticCtx *ctx, const char *name) {
     if (!ctx->current_scope) return NULL;
@@ -1004,23 +1005,61 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
             ti->is_evaluated = 1;
             break;
         }
-        case NODE_IMPORT_EXPR: {
-            ImportExprNode *ie = (ImportExprNode*)node;
-            if (ie->path) {
-                SemSymbol *ns_sym = sem_symbol_lookup(ctx, ie->path, NULL);
-                if (ns_sym && ns_sym->kind == SYM_NAMESPACE) {
-                    VarType ns_type = {TYPE_NAMESPACE, 0, arena_strdup(ctx->compiler_ctx->arena, ns_sym->name), 0, 0, NULL, NULL, 0, 0, 0, 0};
-                    sem_set_node_type(ctx, node, ns_type);
-                } else {
-                    sem_error(ctx, node, "import('%s'): namespace not found", ie->path);
-                    sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
-                }
-            } else {
-                sem_error(ctx, node, "import() requires a string literal path");
-                sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
-            }
-            break;
-        }
+         case NODE_IMPORT_EXPR: {
+             ImportExprNode *ie = (ImportExprNode*)node;
+             if (ie->path) {
+                 if (ie->header == HEADER_C) {
+                     SemSymbol *ns_sym = sem_symbol_lookup(ctx, ie->path, NULL);
+                     if (ns_sym && ns_sym->kind == SYM_NAMESPACE) {
+                         VarType ns_type = {TYPE_NAMESPACE, 0, arena_strdup(ctx->compiler_ctx->arena, ns_sym->name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+                         sem_set_node_type(ctx, node, ns_type);
+                     } else {
+                         char *src = read_file(ie->path);
+                         if (!src) {
+                             sem_error(ctx, node, "Could not open C header file: '%s'", ie->path);
+                             sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+                         } else {
+                             CParser cp;
+                             c_parser_init(&cp, ctx->compiler_ctx, ie->path, src);
+                             ASTNode *c_nodes = c_parse_header(&cp);
+                             
+                             VarType ns_type = {TYPE_NAMESPACE, 0, arena_strdup(ctx->compiler_ctx->arena, ie->path), 0, 0, NULL, NULL, 0, 0, 0, 0};
+                             ns_sym = sem_symbol_add(ctx, ie->path, SYM_NAMESPACE, ns_type);
+                             
+                             SemScope *ns_scope = arena_alloc_type(ctx->compiler_ctx->arena, SemScope);
+                             memset(ns_scope, 0, sizeof(SemScope));
+                             ns_scope->symbols = NULL;
+                             ns_scope->symbol_map = arena_alloc_type(ctx->compiler_ctx->arena, HashMap);
+                             hashmap_init((HashMap*)ns_scope->symbol_map, ctx->compiler_ctx->arena, 16);
+                             ns_scope->parent = ctx->current_scope;
+                             ns_scope->is_function_scope = 0;
+                             ns_scope->is_class_scope = 0;
+                             ns_sym->inner_scope = ns_scope;
+                             
+                             SemScope *old_scope = ctx->current_scope;
+                             ctx->current_scope = ns_scope;
+                             sem_scan_top_level(ctx, c_nodes);
+                             ctx->current_scope = old_scope;
+                             
+                             sem_set_node_type(ctx, node, ns_type);
+                         }
+                     }
+                 } else {
+                     SemSymbol *ns_sym = sem_symbol_lookup(ctx, ie->path, NULL);
+                     if (ns_sym && ns_sym->kind == SYM_NAMESPACE) {
+                         VarType ns_type = {TYPE_NAMESPACE, 0, arena_strdup(ctx->compiler_ctx->arena, ns_sym->name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+                         sem_set_node_type(ctx, node, ns_type);
+                     } else {
+                         sem_error(ctx, node, "import('%s'): namespace not found", ie->path);
+                         sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+                     }
+                 }
+             } else {
+                 sem_error(ctx, node, "import() requires a string literal path");
+                 sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+             }
+             break;
+         }
         default: break;
     }
 }

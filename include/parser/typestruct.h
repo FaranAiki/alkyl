@@ -564,6 +564,7 @@ typedef struct {
 typedef struct {
   ASTNode base;
   char *path;
+  HeaderType header;
 } ImportExprNode;
 
 #endif // PARSER_TYPESTRUCT_H
