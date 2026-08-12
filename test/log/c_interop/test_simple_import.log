@@ -1,13 +1,13 @@
 step: Finished lexing. Start parsing.
-debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x56129950d298
+debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x56164f8b5298
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x56129950d4f8
-debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x56129950d3d8
+debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x56164f8b54f8
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x56164f8b53d8
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='test/code/c_interop/test_simple.h'
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x56129950d458
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x56129950d458
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x56164f8b5458
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x56164f8b5458
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -29,4 +29,5 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
+DEBUG ALIR: printf adding param 'format' type.base=8
 DEBUG LLVM: creating printf with param_count=1 varargs=1

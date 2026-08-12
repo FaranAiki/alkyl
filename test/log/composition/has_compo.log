@@ -4,53 +4,53 @@ debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: after parse_type, vt.base=1, token.type=31
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=Person target_type=13 line=0 col=0 node=0x55691b61ffc0 target=0x55691b61fe00
+debug: parser: Created Call name=Person target_type=13 line=0 col=0 node=0x556b8d5edfc0 target=0x556b8d5ede00
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x55691b61f428
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x556b8d5ed428
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=26
-debug: semantic: sem_check_expr: type=26 line=12 col=19 node=0x55691b61fae8
-debug: semantic: sem_check_expr: type=47 line=12 col=9 node=0x55691b61fa68
-debug: semantic: sem_check_expr: type=18 line=12 col=9 node=0x55691b61fa68
+debug: semantic: sem_check_expr: type=26 line=12 col=19 node=0x556b8d5edae8
+debug: semantic: sem_check_expr: type=47 line=12 col=9 node=0x556b8d5eda68
+debug: semantic: sem_check_expr: type=18 line=12 col=9 node=0x556b8d5eda68
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=12 col=5 node=0x55691b61f6e8
-debug: semantic: sem_check_expr: type=16 line=12 col=9 node=0x55691b621b60
+debug: semantic: sem_check_expr: type=13 line=12 col=5 node=0x556b8d5ed6e8
+debug: semantic: sem_check_expr: type=16 line=12 col=9 node=0x556b8d5efb60
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=13 col=12 node=0x55691b61fb60
+debug: semantic: sem_check_expr: type=16 line=13 col=12 node=0x556b8d5edb60
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=18 col=20 node=0x55691b61ffc0
+debug: semantic: sem_check_expr: type=2 line=18 col=20 node=0x556b8d5edfc0
 debug: semantic: sem_check_call: name='Person', ns='main'
-debug: semantic: sem_check_expr: type=13 line=18 col=14 node=0x55691b61fe00
+debug: semantic: sem_check_expr: type=13 line=18 col=14 node=0x556b8d5ede00
 at namespace main:
 in .../code/composition/has_compo.kyl:
 18:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-debug: semantic: sem_check_expr: type=16 line=18 col=21 node=0x55691b61fe80
-debug: semantic: sem_check_expr: type=16 line=18 col=35 node=0x55691b61ff20
+debug: semantic: sem_check_expr: type=16 line=18 col=21 node=0x556b8d5ede80
+debug: semantic: sem_check_expr: type=16 line=18 col=35 node=0x556b8d5edf20
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=19 col=4 node=0x55691b620198
-debug: semantic: sem_check_expr: type=13 line=19 col=3 node=0x55691b620118
+debug: semantic: sem_check_expr: type=27 line=19 col=4 node=0x556b8d5ee198
+debug: semantic: sem_check_expr: type=13 line=19 col=3 node=0x556b8d5ee118
 debug: semantic: sem_check_method_call: method='speak', obj_base=16, obj_class='Person'
-debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x55691b621208
+debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x556b8d5ef208
 19:4: warning: speak is from Identity, consider p[Identity].speak
   |   p.speak();
   |    ^
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=20 col=4 node=0x55691b6202b0
-debug: semantic: sem_check_expr: type=13 line=20 col=3 node=0x55691b620230
+debug: semantic: sem_check_expr: type=27 line=20 col=4 node=0x556b8d5ee2b0
+debug: semantic: sem_check_expr: type=13 line=20 col=3 node=0x556b8d5ee230
 debug: semantic: sem_check_method_call: method='intro', obj_base=16, obj_class='Person'
-debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x55691b621208
+debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x556b8d5ef208
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=21 col=10 node=0x55691b620348
+debug: semantic: sem_check_expr: type=16 line=21 col=10 node=0x556b8d5ee348
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Identity
-debug: alir: DEBUG_REGISTER: st=0x55691b6259e8 name=Identity next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x556b8d5f39e8 name=Identity next=(nil)
 debug: alir: Visiting class Person
-debug: alir: DEBUG_REGISTER: st=0x55691b625a08 name=Person next=0x55691b6259e8
+debug: alir: DEBUG_REGISTER: st=0x556b8d5f3a08 name=Person next=0x556b8d5f39e8
 debug: alir: DEBUG_PASS1_END: struct list:
  - Person fields: 2
  - Identity fields: 2

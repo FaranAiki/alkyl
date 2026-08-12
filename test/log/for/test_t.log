@@ -4,22 +4,22 @@ debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='clib'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x559912a17270
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x556720dca270
 debug: semantic: sem_check_block: visiting node type=34
-debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x559912a173d0
-debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x559912a173d0
+debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x556720dca3d0
+debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x556720dca3d0
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=13 line=4 col=25 node=0x559912a174f0
+debug: semantic: sem_check_expr: type=13 line=4 col=25 node=0x556720dca4f0
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=5 col=17 node=0x559912a178d0
-debug: semantic: sem_check_expr: type=13 line=5 col=5 node=0x559912a176b8
+debug: semantic: sem_check_expr: type=27 line=5 col=17 node=0x556720dca8d0
+debug: semantic: sem_check_expr: type=13 line=5 col=5 node=0x556720dca6b8
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
-debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x559912a177b0
-debug: semantic: sem_check_expr: type=13 line=5 col=26 node=0x559912a17850
-debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x559912a177b0
+debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x556720dca7b0
+debug: semantic: sem_check_expr: type=13 line=5 col=26 node=0x556720dca850
+debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x556720dca7b0
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x559912a17968
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x556720dca968
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -54,4 +54,5 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
+DEBUG ALIR: printf adding param '(null)' type.base=8
 DEBUG LLVM: creating printf with param_count=1 varargs=1

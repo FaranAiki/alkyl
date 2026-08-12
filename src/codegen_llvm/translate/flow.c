@@ -116,6 +116,27 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 
                 LLVMTypeRef arg_ty = LLVMTypeOf(args[i]);
 
+                if (inst->args[i]->type.is_tainted) {
+                    if (inst->args[i]->type.ptr_depth > 0) {
+                        VarType base_t = inst->args[i]->type;
+                        base_t.ptr_depth--;
+                        LLVMTypeRef struct_ty = get_llvm_type(ctx, base_t);
+                        
+                        LLVMTypeRef expected_ty = (unsigned)i < num_params ? param_tys[i] : NULL;
+                        // If we are passing a tainted pointer to a function that doesn't expect it (either extern, or pristine parameter), unwrap it
+                        if ((func && LLVMIsDeclaration(func)) || (expected_ty && LLVMGetTypeKind(expected_ty) == LLVMPointerTypeKind && LLVMGetTypeKind(struct_ty) == LLVMStructTypeKind)) {
+                             args[i] = LLVMBuildStructGEP2(ctx->builder, struct_ty, args[i], 1, "ext_tainted_ptr");
+                             arg_ty = LLVMTypeOf(args[i]);
+                        }
+                    } else {
+                        LLVMTypeRef expected_ty = (unsigned)i < num_params ? param_tys[i] : NULL;
+                        if ((func && LLVMIsDeclaration(func)) || (expected_ty && LLVMGetTypeKind(expected_ty) != LLVMStructTypeKind)) {
+                            args[i] = LLVMBuildExtractValue(ctx->builder, args[i], 1, "ext_tainted_val");
+                            arg_ty = LLVMTypeOf(args[i]);
+                        }
+                    }
+                }
+
                 // Match fixed parameters to the declared signature (e.g. char -> i8).
                 // Only apply C default promotions (char/short -> i32) for variadic tail args.
                 if ((unsigned)i < num_params) {

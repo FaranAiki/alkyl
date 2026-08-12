@@ -529,7 +529,7 @@ DEBUG C_PARSER: __NTH tok1.type=5
 DEBUG C_PARSER: parsed function obstack_printf_chk with 0 params (varargs=0) at line 128
 DEBUG C_PARSER: w_name=__LDBL_REDIR2_DECL
 DEBUG C_PARSER: __NTH tok1.type=5
-debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x558f63fb32a0
+debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x562eba3a52a0
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
@@ -782,12 +782,12 @@ debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x558f63fb3500
-debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x558f63fb33e0
+debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x562eba3a5500
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x562eba3a53e0
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='/usr/include/stdio.h'
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x558f63fb3460
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x558f63fb3460
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x558f63fb3460
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x562eba3a5460
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x562eba3a5460
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x562eba3a5460
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -1625,6 +1625,5 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
-Called function requires more parameters than were provided!
-  %call = call i32 (ptr, ptr, ...) @printf(ptr @str.0)
-DEBUG LLVM: creating printf with param_count=2 varargs=1
+DEBUG ALIR: printf adding param '__format' type.base=8
+DEBUG LLVM: creating printf with param_count=1 varargs=1

@@ -78,18 +78,23 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
     ctx->current_func->reason = fn->base.reason ? alir_strdup(ctx->module, fn->base.reason) : NULL;
     if (fn->cconv) ctx->current_func->cconv = alir_strdup(ctx->module, fn->cconv);
 
+    int initial_params = 0;
     if (class_name) {
-        VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
-        if (streq_lit(class_name, "int")) { this_t.base = TYPE_INT; this_t.class_name = NULL; }
-        else if (streq_lit(class_name, "char")) { this_t.base = TYPE_CHAR; this_t.class_name = NULL; }
-        else if (streq_lit(class_name, "bool")) { this_t.base = TYPE_BOOL; this_t.class_name = NULL; }
-        else if (streq_lit(class_name, "single")) { this_t.base = TYPE_SINGLE; this_t.class_name = NULL; }
-        else if (streq_lit(class_name, "double")) { this_t.base = TYPE_DOUBLE; this_t.class_name = NULL; }
-
-        alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
+        // Only add 'this' if it hasn't been added yet (i.e., param_count == 0)
+        if (ctx->current_func->param_count == 0) {
+            VarType this_t = {TYPE_CLASS, 1, alir_strdup(ctx->module, class_name), 0, 0, NULL, NULL, 0, 0, 0, 0};
+            if (streq_lit(class_name, "int")) { this_t.base = TYPE_INT; this_t.class_name = NULL; }
+            else if (streq_lit(class_name, "char")) { this_t.base = TYPE_CHAR; this_t.class_name = NULL; }
+            else if (streq_lit(class_name, "bool")) { this_t.base = TYPE_BOOL; this_t.class_name = NULL; }
+            else if (streq_lit(class_name, "single")) { this_t.base = TYPE_SINGLE; this_t.class_name = NULL; }
+            else if (streq_lit(class_name, "double")) { this_t.base = TYPE_DOUBLE; this_t.class_name = NULL; }
+            alir_func_add_param(ctx->module, ctx->current_func, "this", this_t);
+        }
+        initial_params = 1;
     }
 
-    if (ctx->current_func->param_count <= 1) {
+    // Only add parameters if we haven't already (or if the previous declaration had 0 params)
+    if (ctx->current_func->param_count == initial_params) {
         Parameter *p = fn->params;
         while(p) {
             alir_func_add_param(ctx->module, ctx->current_func, p->name, p->type);

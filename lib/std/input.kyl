@@ -26,12 +26,19 @@ namespace std {
 private namespace __alkyl_io {
     // Abstracted internal reads, allowing us to change the backend implementation
     // away from scanf later without breaking the user-facing `input` macro.
-    impure int _read_int(int* val) { return __c_lib_io.scanf("%d", val); }
-    impure int _read_uint(unsigned int* val) { return __c_lib_io.scanf("%u", val); }
-    impure int _read_long(long* val) { return __c_lib_io.scanf("%ld", val); }
-    impure int _read_ulong(unsigned long* val) { return __c_lib_io.scanf("%lu", val); }
-    impure int _read_single(single* val) { return __c_lib_io.scanf("%f", val); }
-    impure int _read_double(double* val) { return __c_lib_io.scanf("%lf", val); }
+    impure void _consume_bad_input() {
+        int c = __c_lib_io.getchar();
+        while c != 10 && c != -1 {
+            c = __c_lib_io.getchar();
+        }
+    }
+
+    impure int _read_int(int* val) { int res = __c_lib_io.scanf("%d", val); if res <= 0 then _consume_bad_input(); return res; }
+    impure int _read_uint(unsigned int* val) { int res = __c_lib_io.scanf("%u", val); if res <= 0 then _consume_bad_input(); return res; }
+    impure int _read_long(long* val) { int res = __c_lib_io.scanf("%ld", val); if res <= 0 then _consume_bad_input(); return res; }
+    impure int _read_ulong(unsigned long* val) { int res = __c_lib_io.scanf("%lu", val); if res <= 0 then _consume_bad_input(); return res; }
+    impure int _read_single(single* val) { int res = __c_lib_io.scanf("%f", val); if res <= 0 then _consume_bad_input(); return res; }
+    impure int _read_double(double* val) { int res = __c_lib_io.scanf("%lf", val); if res <= 0 then _consume_bad_input(); return res; }
     impure int _read_char(char* val) { return __c_lib_io.scanf("%c", val); }
     impure int _read_string(char* val) { return __c_lib_io.scanf("%s", val); }
 }
@@ -56,20 +63,20 @@ namespace std {
             } else if typeof(arg) == typeof(char**) {
                 __alkyl_io._read_string(arg);
             } else if typeof(arg) == typeof(char*) {
-                __alkyl_io._read_char(arg); // If they did input(&char_var)
+                __alkyl_io._read_char(arg);
             }
             else if typeof(arg) == typeof(int) {
                 __alkyl_io._read_int(&arg);
             } else if typeof(arg) == typeof(unsigned int) {
-                __alkyl_io._read_uint(arg);
+                __alkyl_io._read_uint(&arg);
             } else if typeof(arg) == typeof(long) {
-                __alkyl_io._read_long(arg);
+                __alkyl_io._read_long(&arg);
             } else if typeof(arg) == typeof(unsigned long) {
-                __alkyl_io._read_ulong(arg);
+                __alkyl_io._read_ulong(&arg);
             } else if typeof(arg) == typeof(single) {
-                __alkyl_io._read_single(arg);
+                __alkyl_io._read_single(&arg);
             } else if typeof(arg) == typeof(double) {
-                __alkyl_io._read_double(arg);
+                __alkyl_io._read_double(&arg);
             }
 
         }

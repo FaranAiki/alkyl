@@ -1,20 +1,20 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=cprintf target_type=13 line=0 col=0 node=0x564716c34628 target=0x564716c34328
+debug: parser: Created Call name=cprintf target_type=13 line=0 col=0 node=0x55dc3adff628 target=0x55dc3adff328
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=3 col=12 name=cprintf target_type=13 node=0x564716c34628
-debug: semantic: sem_check_expr: type=2 line=3 col=12 node=0x564716c34628
+debug: semantic: sem_check_block: Call line=3 col=12 name=cprintf target_type=13 node=0x55dc3adff628
+debug: semantic: sem_check_expr: type=2 line=3 col=12 node=0x55dc3adff628
 debug: semantic: sem_check_call: name='cprintf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=3 col=5 node=0x564716c34328
-debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x564716c343a8
-debug: semantic: sem_check_expr: type=16 line=3 col=27 node=0x564716c34448
-debug: semantic: sem_check_expr: type=16 line=3 col=36 node=0x564716c344e8
-debug: semantic: sem_check_expr: type=16 line=3 col=40 node=0x564716c34588
-debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x564716c343a8
+debug: semantic: sem_check_expr: type=13 line=3 col=5 node=0x55dc3adff328
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x55dc3adff3a8
+debug: semantic: sem_check_expr: type=16 line=3 col=27 node=0x55dc3adff448
+debug: semantic: sem_check_expr: type=16 line=3 col=36 node=0x55dc3adff4e8
+debug: semantic: sem_check_expr: type=16 line=3 col=40 node=0x55dc3adff588
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x55dc3adff3a8
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=4 col=12 node=0x564716c346c0
+debug: semantic: sem_check_expr: type=16 line=4 col=12 node=0x55dc3adff6c0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -26,13 +26,14 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 debug: alir: GEN_CALL: name=cprintf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x564716c34238
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x55dc3adff238
 debug: alir: CALL_STD: name=cprintf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: cprintf
-debug: alir: TAINTED PTR: ctx->module=0x564716c35698 target_name=printf count=4
+debug: alir: TAINTED PTR: ctx->module=0x55dc3ae00698 target_name=printf count=4
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 step: Finished alir optimization. Start code generation using LLVM codegen
+DEBUG ALIR: printf adding param '(null)' type.base=8
 DEBUG LLVM: creating printf with param_count=1 varargs=1
