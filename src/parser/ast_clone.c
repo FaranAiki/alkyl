@@ -268,6 +268,15 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
             clone = (ASTNode*)n;
             break;
         }
+        case NODE_PURGE: {
+            PurgeNode *orig = (PurgeNode*)node;
+            PurgeNode *n = arena_alloc(ctx->arena, sizeof(PurgeNode));
+            *n = *orig;
+            n->msg = ast_clone(ctx, orig->msg, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            n->target = ast_clone(ctx, orig->target, type_params, replace_with, num_params, rename_from, rename_to, num_renames);
+            clone = (ASTNode*)n;
+            break;
+        }
         case NODE_CAST: {
             CastNode *orig = (CastNode*)node;
             CastNode *n = arena_alloc(ctx->arena, sizeof(CastNode));
@@ -577,6 +586,12 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
         case NODE_RETURN: {
             ReturnNode *rn = (ReturnNode*)node;
             rn->value = ast_rewrite_macro(ctx, rn->value, varargs_head, param_names, param_args, num_params);
+            break;
+        }
+        case NODE_PURGE: {
+            PurgeNode *pn = (PurgeNode*)node;
+            pn->msg = ast_rewrite_macro(ctx, pn->msg, varargs_head, param_names, param_args, num_params);
+            pn->target = ast_rewrite_macro(ctx, pn->target, varargs_head, param_names, param_args, num_params);
             break;
         }
         case NODE_CAST: {
