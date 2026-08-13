@@ -839,7 +839,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
 
     ASTNode **curr_member = &sn->members;
 
-    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
+    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { fprintf(stderr, "DEBUG C_PARSER: LOOP START token=%d line=%d text='%s'\n", p->current.type, p->current.line, p->current.text ? p->current.text : "N/A");
         if (c_match(p, C_TOKEN_IDENTIFIER) &&
             (streq_lit(p->current.text, "public") || streq_lit(p->current.text, "protected") || streq_lit(p->current.text, "private"))) {
             c_eat(p, C_TOKEN_IDENTIFIER);
@@ -912,7 +912,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
         VarType member_type = c_parse_c_type(p, &ptr_depth, &array_size);
 
         if (member_type.base == TYPE_UNKNOWN) {
-            c_parser_error(p, "Unknown type in struct/union member");
+            fprintf(stderr, "DEBUG C_PARSER[%d]: Unknown type token type=%d text='%s' at line:%d\n", __LINE__, p->current.type, p->current.text ? p->current.text : "N/A", p->current.line); c_parser_error(p, "Unknown type in struct/union member");
             while (!c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
                 c_eat(p, p->current.type);
             }
@@ -933,7 +933,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
             sn->is_extern = 1;
 
             ASTNode **curr_member = &sn->members;
-            while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
+            while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { fprintf(stderr, "DEBUG C_PARSER: LOOP START token=%d line=%d text='%s'\n", p->current.type, p->current.line, p->current.text ? p->current.text : "N/A");
                 while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_EXTENSION)) {
                     c_eat(p, p->current.type);
                 }
@@ -943,7 +943,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                 VarType inner_type = c_parse_c_type(p, &inner_ptr, &inner_array);
 
                 if (inner_type.base == TYPE_UNKNOWN) {
-                    c_parser_error(p, "Unknown type in struct/union member");
+                    fprintf(stderr, "DEBUG C_PARSER[%d]: Unknown type token type=%d text='%s' at line:%d\n", __LINE__, p->current.type, p->current.text ? p->current.text : "N/A", p->current.line); c_parser_error(p, "Unknown type in struct/union member");
                     while (!c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
                         c_eat(p, p->current.type);
                     }
@@ -963,14 +963,14 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                     anon->has_body = 1;
                     anon->is_extern = 1;
                     ASTNode **inner_curr = &anon->members;
-                    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
+                    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { fprintf(stderr, "DEBUG C_PARSER: LOOP START token=%d\n", p->current.type);
                         while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_EXTENSION)) {
                             c_eat(p, p->current.type);
                         }
                         int ip = 0, ia = 0;
                         VarType it = c_parse_c_type(p, &ip, &ia);
                         if (it.base == TYPE_UNKNOWN) {
-                            c_parser_error(p, "Unknown type in struct/union member");
+                            fprintf(stderr, "DEBUG C_PARSER[%d]: Unknown type token type=%d text='%s' at line:%d\n", __LINE__, p->current.type, p->current.text ? p->current.text : "N/A", p->current.line); c_parser_error(p, "Unknown type in struct/union member");
                             while (!c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
                                 c_eat(p, p->current.type);
                             }
@@ -1012,6 +1012,15 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                     c_eat(p, C_TOKEN_RBRACE);
                     *curr_member = (ASTNode*)anon;
                     curr_member = &anon->base.next;
+                    if (c_match(p, C_TOKEN_SEMICOLON)) {
+                        c_eat(p, C_TOKEN_SEMICOLON);
+                    } else if (c_match(p, C_TOKEN_COMMA)) {
+                        while (c_match(p, C_TOKEN_COMMA)) {
+                            c_eat(p, C_TOKEN_COMMA);
+                            if (c_match(p, C_TOKEN_IDENTIFIER)) c_eat(p, C_TOKEN_IDENTIFIER);
+                        }
+                        if (c_match(p, C_TOKEN_SEMICOLON)) c_eat(p, C_TOKEN_SEMICOLON);
+                    }
                     continue;
                 }
 
@@ -1099,6 +1108,30 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
             }
             *curr_member = (ASTNode*)sn;
             curr_member = &sn->base.next;
+            if (c_match(p, C_TOKEN_SEMICOLON)) {
+                c_eat(p, C_TOKEN_SEMICOLON);
+            } else if (c_match(p, C_TOKEN_COMMA)) {
+                while (c_match(p, C_TOKEN_COMMA)) {
+                    c_eat(p, C_TOKEN_COMMA);
+                    if (c_match(p, C_TOKEN_IDENTIFIER)) {
+                        char *anon_name2 = arena_strdup(p->ctx->arena, p->current.text);
+                        c_eat(p, C_TOKEN_IDENTIFIER);
+                        VarDeclNode *var2 = arena_alloc(p->ctx->arena, sizeof(VarDeclNode));
+                        memset(var2, 0, sizeof(VarDeclNode));
+                        var2->base.type = NODE_VAR_DECL;
+                        var2->base.line = sn->base.line;
+                        var2->base.col = sn->base.col;
+                        var2->name = anon_name2;
+                        var2->var_type.base = TYPE_CLASS;
+                        var2->var_type.class_name = arena_strdup(p->ctx->arena, sn->name);
+                        var2->var_type.ptr_depth = 0;
+                        var2->is_mutable = 1;
+                        *curr_member = (ASTNode*)var2;
+                        curr_member = &var2->base.next;
+                    }
+                }
+                if (c_match(p, C_TOKEN_SEMICOLON)) c_eat(p, C_TOKEN_SEMICOLON);
+            }
             continue;
         }
 
@@ -1170,6 +1203,50 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
 
         if (c_match(p, C_TOKEN_SEMICOLON)) {
             c_eat(p, C_TOKEN_SEMICOLON);
+        } else if (c_match(p, C_TOKEN_COMMA)) {
+            while (c_match(p, C_TOKEN_COMMA)) {
+                c_eat(p, C_TOKEN_COMMA);
+                int extra_ptr = 0;
+                while (c_match(p, C_TOKEN_STAR)) {
+                    extra_ptr++;
+                    c_eat(p, C_TOKEN_STAR);
+                }
+                if (c_match(p, C_TOKEN_IDENTIFIER)) {
+                    char *mname = arena_strdup(p->ctx->arena, p->current.text);
+                    c_eat(p, C_TOKEN_IDENTIFIER);
+                    
+                    while (c_match(p, C_TOKEN_LBRACKET)) {
+                        c_eat(p, C_TOKEN_LBRACKET);
+                        int depth = 1;
+                        while (depth > 0 && !p->has_error) {
+                            if (c_match(p, C_TOKEN_LBRACKET)) { depth++; c_eat(p, C_TOKEN_LBRACKET); }
+                            else if (c_match(p, C_TOKEN_RBRACKET)) { depth--; c_eat(p, C_TOKEN_RBRACKET); }
+                            else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
+                            else { c_eat(p, p->current.type); }
+                        }
+                    }
+                    
+                    while (c_match(p, C_TOKEN_IDENTIFIER)) {
+                        c_eat(p, C_TOKEN_IDENTIFIER);
+                    }
+                    
+                    VarDeclNode *v = arena_alloc(p->ctx->arena, sizeof(VarDeclNode));
+                    memset(v, 0, sizeof(VarDeclNode));
+                    v->base.type = NODE_VAR_DECL;
+                    v->base.line = p->current.line;
+                    v->base.col = p->current.col;
+                    v->name = mname;
+                    v->var_type = member_type;
+                    v->var_type.ptr_depth += ptr_depth + extra_ptr;
+                    v->var_type.array_size = array_size > 0 ? array_size : member_type.array_size;
+                    v->is_array = array_size > 0;
+                    v->is_mutable = 1;
+                    
+                    *curr_member = (ASTNode*)v;
+                    curr_member = &v->base.next;
+                }
+            }
+            if (c_match(p, C_TOKEN_SEMICOLON)) c_eat(p, C_TOKEN_SEMICOLON);
         }
     }
 
@@ -1264,7 +1341,7 @@ static ASTNode* c_parse_enum(CParser *p) {
     EnumEntry **curr_entry = &en->entries;
     int value = 0;
 
-    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
+    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { fprintf(stderr, "DEBUG C_PARSER: LOOP START token=%d\n", p->current.type);
         if (!c_match(p, C_TOKEN_IDENTIFIER)) {
             c_parser_error(p, "Expected enumerator name");
             break;
@@ -1396,7 +1473,7 @@ static ASTNode* c_parse_typedef(CParser *p) {
 
             ASTNode **curr_member = &sn->members;
 
-            while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
+            while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { fprintf(stderr, "DEBUG C_PARSER: LOOP START token=%d\n", p->current.type);
                 while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE)) {
                     c_eat(p, p->current.type);
                 }
@@ -1448,14 +1525,14 @@ static ASTNode* c_parse_typedef(CParser *p) {
                     anon->has_body = 1;
                     anon->is_extern = 1;
                     ASTNode **inner_curr = &anon->members;
-                    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
+                    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { fprintf(stderr, "DEBUG C_PARSER: LOOP START token=%d\n", p->current.type);
                         while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_EXTENSION)) {
                             c_eat(p, p->current.type);
                         }
                         int ip = 0, ia = 0;
                         VarType it = c_parse_c_type(p, &ip, &ia);
                         if (it.base == TYPE_UNKNOWN) {
-                            c_parser_error(p, "Unknown type in struct/union member");
+                            fprintf(stderr, "DEBUG C_PARSER[%d]: Unknown type token type=%d text='%s' at line:%d\n", __LINE__, p->current.type, p->current.text ? p->current.text : "N/A", p->current.line); c_parser_error(p, "Unknown type in struct/union member");
                             while (!c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
                                 c_eat(p, p->current.type);
                             }

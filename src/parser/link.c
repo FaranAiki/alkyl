@@ -140,11 +140,12 @@ ASTNode* parse_import(Parser *p) {
 ASTNode* parse_link(Parser *p) {
   eat(p, TOKEN_LINK);
   char *lib_name = NULL;
-  if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_STRING) {
+  if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
     lib_name = parser_strdup(p, p->current_token.text);
     p->current_token.text = NULL;
     if (p->current_token.type == TOKEN_IDENTIFIER) eat(p, TOKEN_IDENTIFIER);
-    else eat(p, TOKEN_STRING);
+    else if (p->current_token.type == TOKEN_STRING) eat(p, TOKEN_STRING);
+    else eat(p, TOKEN_C_STRING);
   } else {
     parser_fail(p, "Expected library name (string or identifier) after 'link'");
     return NULL;

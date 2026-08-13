@@ -1,1 +1,0 @@
-gdb -q -batch -ex "b c_parser.c:583" -ex "r --parse-c /usr/include/wlroots-0.18/wlr/backend/drm.h" -ex "p p->current.type" -ex "p p->current.text" -ex "c" -ex "p p->current.type" -ex "p p->current.text" build/alkyl
