@@ -1348,10 +1348,30 @@ static ASTNode* c_parse_enum(CParser *p) {
 static ASTNode* c_parse_typedef(CParser *p) {
     c_eat(p, C_TOKEN_TYPEDEF);
 
-    if (c_match(p, C_TOKEN_ENUM)) {
-        return c_parse_enum(p);
+    CLexer look_l = p->lexer;
+    CToken t2 = c_lexer_next(&look_l);
+    int is_standalone = 0;
+    
+    if (c_match(p, C_TOKEN_ENUM) || c_match(p, C_TOKEN_STRUCT) || c_match(p, C_TOKEN_UNION)) {
+        if (t2.type == C_TOKEN_LBRACE || t2.type == C_TOKEN_COLON || t2.type == C_TOKEN_ATTRIBUTE) {
+            is_standalone = 1;
+        } else if (t2.type == C_TOKEN_IDENTIFIER) {
+            CToken t3 = c_lexer_next(&look_l);
+            if (t3.type == C_TOKEN_LBRACE || t3.type == C_TOKEN_SEMICOLON || t3.type == C_TOKEN_COLON || t3.type == C_TOKEN_ATTRIBUTE) {
+                is_standalone = 1;
+            }
+        }
     }
-    if (c_match(p, C_TOKEN_STRUCT) || c_match(p, C_TOKEN_UNION)) {
+    
+    if (is_standalone) {
+        if (c_match(p, C_TOKEN_ENUM)) {
+            return c_parse_enum(p);
+        }
+    }
+    
+    if (!is_standalone && c_match(p, C_TOKEN_ENUM)) {
+        // Not standalone enum, let it fall through to c_parse_c_type
+    } else if (is_standalone && (c_match(p, C_TOKEN_STRUCT) || c_match(p, C_TOKEN_UNION))) {
         int is_union = c_match(p, C_TOKEN_UNION);
         c_eat(p, p->current.type);
 
@@ -1391,9 +1411,13 @@ static ASTNode* c_parse_typedef(CParser *p) {
 
                     while (c_match(p, C_TOKEN_LBRACKET)) {
                         c_eat(p, C_TOKEN_LBRACKET);
-                        if (c_match(p, C_TOKEN_NUMBER)) c_eat(p, C_TOKEN_NUMBER);
-                        else if (c_match(p, C_TOKEN_IDENTIFIER)) c_eat(p, C_TOKEN_IDENTIFIER);
-                        c_eat(p, C_TOKEN_RBRACKET);
+                        int depth = 1;
+                        while (depth > 0 && !p->has_error) {
+                            if (c_match(p, C_TOKEN_LBRACKET)) { depth++; c_eat(p, C_TOKEN_LBRACKET); }
+                            else if (c_match(p, C_TOKEN_RBRACKET)) { depth--; c_eat(p, C_TOKEN_RBRACKET); }
+                            else if (c_match(p, C_TOKEN_SEMICOLON) || c_match(p, C_TOKEN_EOF)) { break; }
+                            else { c_eat(p, p->current.type); }
+                        }
                     }
                     while (c_match(p, C_TOKEN_IDENTIFIER)) {
                         c_eat(p, C_TOKEN_IDENTIFIER);
@@ -1765,13 +1789,29 @@ static ASTNode* c_parse_declaration(CParser *p) {
         return c_parse_typedef(p);
     }
 
-    if (c_match(p, C_TOKEN_STRUCT) || c_match(p, C_TOKEN_UNION) ||
+    if (c_match(p, C_TOKEN_STRUCT) || c_match(p, C_TOKEN_UNION) || c_match(p, C_TOKEN_ENUM) ||
         (c_match(p, C_TOKEN_IDENTIFIER) && (streq_lit(p->current.text, "class") || streq_lit(p->current.text, "struct") || streq_lit(p->current.text, "union")))) {
-        return c_parse_struct_or_union(p, c_match(p, C_TOKEN_UNION));
-    }
-
-    if (c_match(p, C_TOKEN_ENUM)) {
-        return c_parse_enum(p);
+        
+        CLexer look_l = p->lexer;
+        CToken t2 = c_lexer_next(&look_l);
+        int is_standalone = 0;
+        
+        if (t2.type == C_TOKEN_LBRACE || t2.type == C_TOKEN_COLON || t2.type == C_TOKEN_ATTRIBUTE) {
+            is_standalone = 1;
+        } else if (t2.type == C_TOKEN_IDENTIFIER) {
+            CToken t3 = c_lexer_next(&look_l);
+            if (t3.type == C_TOKEN_LBRACE || t3.type == C_TOKEN_SEMICOLON || t3.type == C_TOKEN_COLON || t3.type == C_TOKEN_ATTRIBUTE) {
+                is_standalone = 1;
+            }
+        }
+        
+        if (is_standalone) {
+            if (c_match(p, C_TOKEN_ENUM)) {
+                return c_parse_enum(p);
+            } else {
+                return c_parse_struct_or_union(p, c_match(p, C_TOKEN_UNION));
+            }
+        }
     }
 
     if (c_match(p, C_TOKEN_IDENTIFIER) && streq_lit(p->current.text, "namespace")) {
@@ -1902,4 +1942,44 @@ ASTNode* c_parse_header(CParser *p) {
     }
 
     return head;
+}
+
+char* c_preprocess_header(CompilerContext *ctx, const char *fname) {
+    char cmd[1024];
+    if (fname[0] == '/') {
+        snprintf(cmd, sizeof(cmd), "echo '#include \"%s\"' | gcc -E -DWLR_USE_UNSTABLE -xc - 2>/dev/null", fname);
+    } else {
+        snprintf(cmd, sizeof(cmd), "echo '#include <%s>' | gcc -E -DWLR_USE_UNSTABLE -I. -xc - 2>/dev/null", fname);
+    }
+
+    FILE *f = popen(cmd, "r");
+    if (!f) return NULL;
+
+    size_t cap = 16384;
+    size_t len = 0;
+    char *buf = malloc(cap);
+
+    while (1) {
+        size_t bytes = fread(buf + len, 1, cap - len - 1, f);
+        if (bytes == 0) break;
+        len += bytes;
+        if (len >= cap - 1) {
+            cap *= 2;
+            char *new_buf = realloc(buf, cap);
+            buf = new_buf;
+        }
+    }
+    buf[len] = '\0';
+    pclose(f);
+
+    if (len == 0) {
+        free(buf);
+        return NULL;
+    }
+
+    char *arena_buf = arena_alloc(ctx->arena, len + 1);
+    if (arena_buf) memcpy(arena_buf, buf, len + 1);
+    free(buf);
+
+    return arena_buf;
 }

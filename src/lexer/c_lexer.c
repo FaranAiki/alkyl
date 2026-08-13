@@ -203,6 +203,7 @@ static void init_keyword_map(Arena *arena) {
     hashmap_put(&keyword_map, "__attribute__", (void*)(intptr_t)C_TOKEN_ATTRIBUTE);
     hashmap_put(&keyword_map, "__extension__", (void*)(intptr_t)C_TOKEN_EXTENSION);
     hashmap_put(&keyword_map, "__asm", (void*)(intptr_t)C_TOKEN_ASM);
+    hashmap_put(&keyword_map, "__asm__", (void*)(intptr_t)C_TOKEN_ASM);
     hashmap_put(&keyword_map, "asm", (void*)(intptr_t)C_TOKEN_ASM);
     hashmap_put(&keyword_map, "_Complex", (void*)(intptr_t)C_TOKEN_COMPLEX);
     hashmap_put(&keyword_map, "complex", (void*)(intptr_t)C_TOKEN_COMPLEX);

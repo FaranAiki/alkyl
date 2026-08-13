@@ -7,10 +7,10 @@ static ASTNode* resolve_c_import(Parser *p, const char *fname) {
         if (cached) return NULL;
     }
 
-    char *src = read_import_file(p, fname);
+    char *src = c_preprocess_header(p->ctx, fname);
     if (!src) {
         char msg[512];
-        snprintf(msg, 512, "Could not open C header file: '%s'", fname);
+        snprintf(msg, 512, "Could not preprocess C header file: '%s'", fname);
         parser_fail(p, msg);
         return NULL;
     }

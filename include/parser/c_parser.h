@@ -41,6 +41,7 @@ struct CParser {
 };
 
 void c_parser_init(CParser *p, CompilerContext *ctx, const char *filename, const char *source);
+char* c_preprocess_header(CompilerContext *ctx, const char *fname);
 ASTNode* c_parse_header(CParser *p);
 
 #endif

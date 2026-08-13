@@ -169,14 +169,14 @@ int main(int argc, char **argv) {
             return 1;
         }
 
-        char *code = read_file(c_header_file);
-        if (!code) {
-            fprintf(stderr, "Could not read C header file: %s\n", c_header_file);
-            return 1;
-        }
-
         arena_init(&arena);
         context_init(&comp_ctx, &arena);
+
+        char *code = c_preprocess_header(&comp_ctx, c_header_file);
+        if (!code) {
+            fprintf(stderr, "Could not read or preprocess C header file: %s\n", c_header_file);
+            return 1;
+        }
 
         CParser cp;
         c_parser_init(&cp, &comp_ctx, c_header_file, code);
@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
             debug_c_header("Macros defined: %d\n", cp.defines.count);
         }
 
-        free(code);
+        // free(code); // Allocated on arena, freed with arena_free
         arena_free(&arena);
         return 0;
     }
