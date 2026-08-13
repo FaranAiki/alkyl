@@ -362,7 +362,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
 
         LLVMTypeRef func_ty = LLVMFunctionType(ret_ty, param_tys, func->param_count, func->is_varargs);
         if (streq_lit(func->name, "printf")) {
-            printf("DEBUG LLVM: creating printf with param_count=%d varargs=%d\n", func->param_count, func->is_varargs);
+            // debug_llvm("creating printf with param_count=%d varargs=%d\n", func->param_count, func->is_varargs);
         }
         LLVMValueRef llvm_func = LLVMAddFunction(ctx->llvm_mod, func->name, func_ty);
 

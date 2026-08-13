@@ -1,34 +1,39 @@
-import "std/print";
-import "std/input";
+import "std/print"; import "std/input";
 let rnd = import("std/random");
-
 enum choice[
     exit = -42,
     wrong_guess = -67,
 ];
-
+define elif, elsif as else if;
+namespace constant { const int min_num = 0, max_num = 10; }
 int main() {
     rnd.init();
     let total_point = 0;
     int guess = choice.wrong_guess;
     int correct_answer;
-    std.print("A simple guess the number game!");
+    print("Welcome to a simple \"guess the number game\"!\n");
+    printf("Type {} to exit\n", choice.exit as int);
     while {
         correct_answer = rnd.fast_random() % 11;
-        std.printf("Guess the number from 0 to 10 [Current point: {}]\n>>> ", total_point);
+        std.printf("Guess the number from {} to {} [Current point: {}]\n>>> ",
+            constant.min_num, constant.max_num, total_point);
         std.input(&guess);
-        while (guess ? choice.wrong_guess) != correct_answer {
-            if (guess ? choice.wrong_guess) == choice.exit {
-                std.printf("Thank you for playing the game; the total point: {}\n", total_point);
+        while (guess? choice.wrong_guess) != correct_answer {
+            if (guess? choice.wrong_guess) == choice.exit {
+                std.printf("The total point is {}\n", total_point);
                 return 0;
             }
-            if (guess ? choice.wrong_guess) < correct_answer then
-                std.printf("Should be higher! ");
-            else if (guess ? choice.wrong_guess) > correct_answer then
-                std.printf("Should be lower! ");
+            std.printf ("You answered {}", guess ? choice.wrong_guess);
+            if (guess ? choice.wrong_guess) > constant.max_num then
+                std.printf("... w h a t\n");
+            elif (guess ? choice.wrong_guess) < correct_answer then
+                std.print(", but it should be higher! ");
+            elsif (guess ? choice.wrong_guess) > correct_answer then
+                std.print(", but it should be lower! ");
             std.print("Try again!\n>>> ");
             std.input(&guess);
         }
+        std.print "Correct!\n";
         total_point++;
     }
 }

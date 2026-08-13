@@ -535,12 +535,12 @@ static ASTNode* c_parse_extern_function(CParser *p) {
 
     if (c_match(p, C_TOKEN_IDENTIFIER)) {
         const char *w_name = p->current.text;
-        printf("DEBUG C_PARSER: w_name=%s\n", w_name);
+        debug_c_header("w_name=%s\n", w_name);
         if (streq_lit(w_name, "__NTH") || streq_lit(w_name, "__NTHNL") ||
             strncmp(w_name, "__REDIRECT", 10) == 0 || strncmp(w_name, "__LDBL_REDIR", 12) == 0) {
             CLexer look_l = p->lexer;
             CToken tok1 = c_lexer_next(&look_l);
-            printf("DEBUG C_PARSER: __NTH tok1.type=%d\n", tok1.type);
+            debug_c_header("__NTH tok1.type=%d\n", tok1.type);
             if (tok1.type == C_TOKEN_LPAREN) {
                 CToken tok2 = c_lexer_next(&look_l);
                 if (tok2.type == C_TOKEN_IDENTIFIER) {
@@ -1604,7 +1604,7 @@ static ASTNode* c_parse_typedef(CParser *p) {
                 fp_type.fp_is_varargs = fp_is_varargs;
                 fp_type.fp_ret_type = arena_alloc(p->ctx->arena, sizeof(VarType));
                 *fp_type.fp_ret_type = base_type;
-                
+
                 int p_count = 0;
                 Parameter *p_curr = params;
                 while (p_curr) { p_count++; p_curr = p_curr->next; }

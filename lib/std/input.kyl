@@ -9,7 +9,7 @@ private namespace __c_lib_io {
 // define scanf as __c_lib_io.scanf;
 // define fscanf as __c_lib_io.fscanf;
 
-namespace std {
+export namespace std {
     char* fgets(char* str, int n, void* stream) {
         return __c_lib_io.fgets(str, n, stream);
     }
@@ -24,28 +24,68 @@ namespace std {
 }
 
 private namespace __alkyl_io {
-    // Abstracted internal reads, allowing us to change the backend implementation
-    // away from scanf later without breaking the user-facing `input` macro.
-    impure void _consume_bad_input() {
-        int c = __c_lib_io.getchar();
-        while c != 10 && c != -1 {
-            c = __c_lib_io.getchar();
-        }
+
+// Abstracted internal reads, allowing us to change the backend implementation
+// away from scanf later without breaking the user-facing `input` macro.
+impure void _consume_bad_input() {
+    int c = __c_lib_io.getchar();
+    while c != 10 && c != -1 {
+        c = __c_lib_io.getchar();
+    }
+}
+
+// TODO make sure that this can consume properly and throw purge in the thing;
+impure {
+    errnum[ErrInvalidType]
+    int _read_int(int* val) {
+        int res = __c_lib_io.scanf("%d", val);
+        if res <= 0 then _consume_bad_input();
+        // MAKE sure this is valid!
+        // purge ErrInvalidType in *val;
+        return res;
     }
 
-    impure int _read_int(int* val) { int res = __c_lib_io.scanf("%d", val); if res <= 0 then _consume_bad_input(); return res; }
-    impure int _read_uint(unsigned int* val) { int res = __c_lib_io.scanf("%u", val); if res <= 0 then _consume_bad_input(); return res; }
-    impure int _read_long(long* val) { int res = __c_lib_io.scanf("%ld", val); if res <= 0 then _consume_bad_input(); return res; }
-    impure int _read_ulong(unsigned long* val) { int res = __c_lib_io.scanf("%lu", val); if res <= 0 then _consume_bad_input(); return res; }
-    impure int _read_single(single* val) { int res = __c_lib_io.scanf("%f", val); if res <= 0 then _consume_bad_input(); return res; }
-    impure int _read_double(double* val) { int res = __c_lib_io.scanf("%lf", val); if res <= 0 then _consume_bad_input(); return res; }
-    impure int _read_char(char* val) { return __c_lib_io.scanf("%c", val); }
-    impure int _read_string(char* val) { return __c_lib_io.scanf("%s", val); }
+    int _read_uint(unsigned int* val) {
+        int res = __c_lib_io.scanf("%u", val);
+        if res <= 0 then _consume_bad_input();
+        return res;
+    }
+
+    int _read_long(long* val) {
+        int res = __c_lib_io.scanf("%ld", val);
+        if res <= 0 then _consume_bad_input();
+        return res;
+    }
+
+    int _read_ulong(unsigned long* val) {
+        int res = __c_lib_io.scanf("%lu", val);
+        if res <= 0 then _consume_bad_input();
+        return res;
+    }
+
+    int _read_single(single* val) {
+        int res = __c_lib_io.scanf("%f", val);
+        if res <= 0 then _consume_bad_input();
+        return res;
+    }
+
+    int _read_double(double* val) {
+        int res = __c_lib_io.scanf("%lf", val);
+        if res <= 0 then _consume_bad_input();
+        return res;
+    }
+
+    int _read_char(char* val) { return __c_lib_io.scanf("%c", val); }
+
+    int _read_string(char* val) { return __c_lib_io.scanf("%s", val); }
+}
+
 }
 
 namespace std {
     // TODO: make this more robust
     // TODO: make sure that there is like purge Error for mismatch values!
+    errnum[ErrUnknownType]
     meta void input(...) {
         for arg in ... {
             if typeof(arg) == typeof(int*) {
@@ -77,6 +117,8 @@ namespace std {
                 __alkyl_io._read_single(&arg);
             } else if typeof(arg) == typeof(double) {
                 __alkyl_io._read_double(&arg);
+            } else {
+                purge ErrUnknownType;
             }
 
         }

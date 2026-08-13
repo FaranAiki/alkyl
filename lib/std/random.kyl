@@ -1,8 +1,8 @@
 private namespace __c_lib {
-    @c extern {
-        impure int rand();
-        impure void srand(unsigned int seed);
-        impure long time(void* tloc);
+    @c extern impure {
+        int rand();
+        void srand(unsigned int seed);
+        long time(void* tloc);
     }
 }
 

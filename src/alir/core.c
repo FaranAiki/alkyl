@@ -75,7 +75,7 @@ AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
 
 void alir_func_add_param(AlirModule *mod, AlirFunction *func, const char *name, VarType type) {
     if (streq_lit(func->name, "printf")) {
-        printf("DEBUG ALIR: printf adding param '%s' type.base=%d\n", name, type.base);
+        debug_alir("printf adding param '%s' type.base=%d\n", name, type.base);
     }
     AlirParam *p = alir_alloc(mod, sizeof(AlirParam));
     p->name = alir_strdup(mod, name ? name : "");

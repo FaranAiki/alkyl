@@ -56,7 +56,7 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
 
                 if (ctx->current_scope->is_function_scope) {
                     if (!sem_types_are_compatible(ctx,ctx->current_scope->expected_ret_type, val)) {
-                        fprintf(stderr, "DEBUG mismatch: expected base=%d ptr=%d, got base=%d ptr=%d\n", ctx->current_scope->expected_ret_type.base, ctx->current_scope->expected_ret_type.ptr_depth, val.base, val.ptr_depth); sem_error(ctx, node, "Return type mismatch");
+                        debug_semantic("mismatch: expected base=%d ptr=%d, got base=%d ptr=%d\n", ctx->current_scope->expected_ret_type.base, ctx->current_scope->expected_ret_type.ptr_depth, val.base, val.ptr_depth); sem_error(ctx, node, "Return type mismatch");
                     } else {
                          sem_insert_implicit_cast(ctx, &rn->value, ctx->current_scope->expected_ret_type);
                     }

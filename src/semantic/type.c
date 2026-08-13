@@ -93,14 +93,14 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         }
 
         if (node->var_type.base == TYPE_AUTO) {
-            printf("debug: inferring type for %s, init_type.base=%d\n", node->name, init_type.base);
+            debug_parser("inferring type for %s, init_type.base=%d\n", node->name, init_type.base);
             if (init_type.base == TYPE_UNKNOWN) {
                 sem_error(ctx, (ASTNode*)node, "Cannot infer type for variable '%s' (unknown initializer type)", node->name);
             } else if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0 && !init_type.is_func_ptr) {
                 sem_error(ctx, (ASTNode*)node, "Cannot infer type 'void' for variable '%s'", node->name);
             } else {
                 node->var_type = init_type;
-                printf("debug: inferred type %s for %s\n", sem_type_to_str(init_type), node->name);
+                debug_parser("debug: inferred type %s for %s\n", sem_type_to_str(init_type), node->name);
             }
         }
         else {
