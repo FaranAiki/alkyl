@@ -535,8 +535,8 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
             if (mcn->object && mcn->object->type == NODE_VAR_REF && ((VarRefNode*)mcn->object)->name && streq_lit(((VarRefNode*)mcn->object)->name, "metas")) {
                 debug_parser("found metas.method_name = %s\n", mcn->method_name);
                 if (mcn->method_name && streq_lit(mcn->method_name, "split")) {
-                    debug_parser("metas.split! args: %p, type=%d\n", (void*)mcn->args, mcn->args ? mcn->args->type : -1);
-                    if (mcn->args && mcn->args->next) debug_parser("args->next type=%d\n", mcn->args->next->type);
+                    debug_parser("metas.split! args: %p, type=%d\n", (void*)mcn->args, mcn->args ? (int)mcn->args->type : -1);
+                    if (mcn->args && mcn->args->next) { debug_parser("args->next type=%d\n", mcn->args->next->type); }
                     if (mcn->args && mcn->args->type == NODE_LITERAL && mcn->args->next && mcn->args->next->type == NODE_LITERAL) {
                         LiteralNode *str_node = (LiteralNode*)mcn->args;
                         LiteralNode *delim_node = (LiteralNode*)mcn->args->next;
@@ -557,7 +557,7 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
                             int delim_len = strlen(delim);
                             while (1) {
                                 const char *match = strstr(pt, delim);
-                                int part_len = match ? (match - pt) : strlen(pt);
+                                int part_len = match ? (int)(match - pt) : (int)strlen(pt);
 
                                 LiteralNode *part = arena_alloc(ctx->arena, sizeof(LiteralNode));
                                 memset(part, 0, sizeof(LiteralNode));

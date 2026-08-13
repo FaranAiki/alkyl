@@ -165,7 +165,10 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
                 parent = parent->parent;
             }
             if (shadow) {
-                if (shadow->inner_scope == ctx->global_scope) {
+                if (streq_lit(node->name, "res") && shadow_scope == ctx->global_scope) {
+                    // Ignore shadowing warnings for the REPL's implicit "res" variable
+                }
+                else if (shadow_scope == ctx->global_scope) {
                     sem_info(ctx, (ASTNode*)node, "Shadowing global variable '%s'", node->name);
                 }
                 else if (shadow_scope && shadow_scope->is_class_scope) {
