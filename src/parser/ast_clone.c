@@ -76,7 +76,6 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
     }
     VarType res = t;
     if (t.class_name) res.class_name = arena_strdup(ctx->arena, t.class_name);
-    debug_parser("clone_var_type fallback: class_name=%s array_size=%d array_depth=%d\n", t.class_name, t.array_size, t.array_depth);
     return res;
 }
 
@@ -536,7 +535,6 @@ ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs
                 debug_parser("found metas.method_name = %s\n", mcn->method_name);
                 if (mcn->method_name && streq_lit(mcn->method_name, "split")) {
                     debug_parser("metas.split! args: %p, type=%d\n", (void*)mcn->args, mcn->args ? (int)mcn->args->type : -1);
-                    if (mcn->args && mcn->args->next) { debug_parser("args->next type=%d\n", mcn->args->next->type); }
                     if (mcn->args && mcn->args->type == NODE_LITERAL && mcn->args->next && mcn->args->next->type == NODE_LITERAL) {
                         LiteralNode *str_node = (LiteralNode*)mcn->args;
                         LiteralNode *delim_node = (LiteralNode*)mcn->args->next;
