@@ -257,7 +257,14 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
                     }
                     sem_check_expr(ctx, matched_args[i]);
                     VarType arg_t = sem_get_node_type(ctx, matched_args[i]);
-                    if (!sem_types_are_compatible(ctx, p->type, arg_t)) { match = 0; break; }
+                    bool is_compat = sem_types_are_compatible(ctx, p->type, arg_t);
+                    if (!is_compat && sym->node_ptr && sym->node_ptr->type == NODE_FUNC_DEF && ((FuncDefNode*)sym->node_ptr)->is_extern) {
+                        if (p->type.ptr_depth > 0 && arg_t.ptr_depth > 0) {
+                            is_compat = true;
+                        }
+                    }
+                    if (!is_compat) { match = 0; break; }
+
                     if (p->type.base == arg_t.base && p->type.ptr_depth == arg_t.ptr_depth) {
                         exact_matches += 100;
                     } else if (is_numeric(p->type) && is_numeric(arg_t)) {

@@ -21,6 +21,8 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     cond = LLVMBuildTrunc(ctx->builder, op1, LLVMInt1TypeInContext(ctx->llvm_ctx), "trunc_cond");
                 }
                 LLVMBuildCondBr(ctx->builder, cond, then_bb, else_bb);
+            } else {
+                printf("ALIR_OP_CONDI failed: then_bb=%p else_bb=%p op1=%p\n", then_bb, else_bb, op1);
             }
             break;
         }
@@ -182,6 +184,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             if (inst->dest) {
                 LLVMTypeRef expected_res_ty = get_llvm_type(ctx, inst->dest->type);
                 if (LLVMGetTypeKind(expected_res_ty) == LLVMStructTypeKind && LLVMGetTypeKind(LLVMTypeOf(res)) != LLVMStructTypeKind) {
+                    printf("ALIR_OP_CALL wrap: dest->type.ptr_depth=%d, dest->type.is_tainted=%d, res_kind=%d\n", inst->dest->type.ptr_depth, inst->dest->type.is_tainted, LLVMGetTypeKind(LLVMTypeOf(res)));
                     LLVMValueRef wrapped = LLVMGetUndef(expected_res_ty);
                     wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), 0, "wrap_err");
                     wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, res, 1, "wrap_val");
@@ -198,7 +201,15 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             LLVMTypeRef ret_ty = LLVMGetReturnType(LLVMGlobalGetValueType(current_func));
             
             if (op1) {
-                if ((LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind || LLVMGetTypeKind(ret_ty) == LLVMArrayTypeKind) && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) {
+                LLVMTypeRef expected_ty = ret_ty;
+                if (LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind && LLVMCountStructElementTypes(ret_ty) == 2) {
+                    LLVMTypeRef t0 = LLVMStructGetTypeAtIndex(ret_ty, 0);
+                    if (LLVMGetTypeKind(t0) == LLVMIntegerTypeKind && LLVMGetIntTypeWidth(t0) == 32) {
+                        expected_ty = LLVMStructGetTypeAtIndex(ret_ty, 1);
+                    }
+                }
+                
+                if ((LLVMGetTypeKind(expected_ty) == LLVMStructTypeKind || LLVMGetTypeKind(expected_ty) == LLVMArrayTypeKind) && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) {
                     if (inst->op1 && (inst->op1->type.base == TYPE_CLASS || inst->op1->type.array_size > 0)) {
                         VarType base_t = inst->op1->type;
                         base_t.ptr_depth = 0;
@@ -287,10 +298,12 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             
             LLVMValueRef err_id_val = op2 ? op2 : LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 1, 0);
             
+            printf("ALIR_OP_PANIC in func. ret_ty kind: %d\n", LLVMGetTypeKind(ret_ty));
             if (LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind) {
                 LLVMValueRef ret_struct = LLVMGetUndef(ret_ty);
                 ret_struct = LLVMBuildInsertValue(ctx->builder, ret_struct, err_id_val, 0, "");
                 LLVMBuildRet(ctx->builder, ret_struct);
+                printf("Terminator after LLVMBuildRet: %p\n", LLVMGetBasicBlockTerminator(current_bb));
                 break;
             }
 

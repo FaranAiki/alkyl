@@ -1,0 +1,103 @@
+namespace wlroots {
+    @c import "project/wmyl/bridge.h"
+
+    class wl_display {}
+    class wlr_backend {}
+    class wlr_renderer {}
+    class wlr_allocator {}
+    class wlr_compositor {}
+    class wlr_data_device_manager {}
+    class wlr_output_layout {}
+
+    // Display
+    errnum [ErrDisplayCreation] wlroots.wl_display*? create_display() {
+        let display = wl_display_create();
+        if (display == 0 as void*) {
+            purge ErrDisplayCreation;
+        }
+        return display as wlroots.wl_display*;
+    }
+
+    // Backend
+    errnum [ErrBackendCreation] wlroots.wlr_backend*? create_backend(pristine wlroots.wl_display* display) {
+        let event_loop = wl_display_get_event_loop(display);
+        let backend = wlr_backend_autocreate(event_loop, 0 as void**);
+        if (backend == 0 as void*) {
+            purge ErrBackendCreation;
+        }
+        return backend as wlroots.wlr_backend*;
+    }
+
+    errnum [ErrBackendStart] bool? start_backend(pristine wlroots.wlr_backend* backend) {
+        if (wlr_backend_start(backend) == false) {
+            purge ErrBackendStart;
+        }
+        return true;
+    }
+
+    // Renderer
+    errnum [ErrRendererCreation] wlroots.wlr_renderer*? create_renderer(pristine wlroots.wlr_backend* backend) {
+        let renderer = wlr_renderer_autocreate(backend);
+        if (renderer == 0 as void*) {
+            purge ErrRendererCreation;
+        }
+        return renderer as wlroots.wlr_renderer*;
+    }
+
+    void init_renderer(pristine wlroots.wlr_renderer* renderer, pristine wlroots.wl_display* display) {
+        wlr_renderer_init_wl_display(renderer, display);
+    }
+
+    // Allocator
+    errnum [ErrAllocatorCreation] wlroots.wlr_allocator*? create_allocator(pristine wlroots.wlr_backend* backend, pristine wlroots.wlr_renderer* renderer) {
+        let allocator = wlr_allocator_autocreate(backend, renderer);
+        if (allocator == 0 as void*) {
+            purge ErrAllocatorCreation;
+        }
+        return allocator as wlroots.wlr_allocator*;
+    }
+
+    // Compositor
+    errnum [ErrCompositorCreation] wlroots.wlr_compositor*? create_compositor(pristine wlroots.wl_display* display, pristine wlroots.wlr_renderer* renderer) {
+        let compositor = wlr_compositor_create(display, 5, renderer);
+        if (compositor == 0 as void*) {
+            purge ErrCompositorCreation;
+        }
+        return compositor as wlroots.wlr_compositor*;
+    }
+
+    // Data Device Manager
+    errnum [ErrDataDeviceManagerCreation] wlroots.wlr_data_device_manager*? create_data_device_manager(pristine wlroots.wl_display* display) {
+        let manager = wlr_data_device_manager_create(display);
+        if (manager == 0 as void*) {
+            purge ErrDataDeviceManagerCreation;
+        }
+        return manager as wlroots.wlr_data_device_manager*;
+    }
+
+    // Output Layout
+    errnum [ErrOutputLayoutCreation] wlroots.wlr_output_layout*? create_output_layout(pristine wlroots.wl_display* display) {
+        let layout = wlr_output_layout_create(display);
+        if (layout == 0 as void*) {
+            purge ErrOutputLayoutCreation;
+        }
+        return layout as wlroots.wlr_output_layout*;
+    }
+
+    // Run & Destroy
+    void run_display(pristine wlroots.wl_display* display) {
+        wl_display_run(display);
+    }
+
+    void destroy_clients(pristine wlroots.wl_display* display) {
+        wl_display_destroy_clients(display);
+    }
+
+    void destroy_display(pristine wlroots.wl_display* display) {
+        wl_display_destroy(display);
+    }
+
+    void destroy_backend(pristine wlroots.wlr_backend* backend) {
+        wlr_backend_destroy(backend);
+    }
+}

@@ -97,18 +97,6 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
         default: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
     }
 
-    if (t.is_tainted) {
-        LLVMTypeRef elements[] = {
-            LLVMInt32TypeInContext(ctx->llvm_ctx),
-            base
-        };
-        if (t.base == TYPE_VOID && t.ptr_depth == 0) {
-            base = LLVMStructTypeInContext(ctx->llvm_ctx, elements, 1, 0);
-        } else {
-            base = LLVMStructTypeInContext(ctx->llvm_ctx, elements, 2, 0);
-        }
-    }
-
     if (t.ptr_depth > 0 || t.is_func_ptr || (t.array_depth > 0 && t.array_size == 0)) {
         if (t.base == TYPE_CLASS && t.class_name && !t.is_func_ptr && t.array_depth == 0 && !t.is_tainted) {
             base = LLVMPointerType(base, 0);
@@ -119,6 +107,21 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
 
     if (t.array_size > 0) {
         base = LLVMArrayType(base, t.array_size);
+    }
+
+    if (t.is_tainted) {
+        LLVMTypeRef elements[] = {
+            LLVMInt32TypeInContext(ctx->llvm_ctx),
+            base
+        };
+        if (t.base == TYPE_VOID && t.ptr_depth == 0) {
+            base = LLVMStructTypeInContext(ctx->llvm_ctx, elements, 1, 0);
+        } else {
+            base = LLVMStructTypeInContext(ctx->llvm_ctx, elements, 2, 0);
+        }
+        if (t.class_name && strstr(t.class_name, "wl_display")) {
+            printf("get_llvm_type: wl_display tainted. ptr_depth=%d, array_depth=%d. Struct element 1 kind: %d\n", t.ptr_depth, t.array_depth, LLVMGetTypeKind(elements[1]));
+        }
     }
 
     return base;
@@ -443,7 +446,12 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                 if (func->ret_type.base == TYPE_VOID) {
                     LLVMBuildRetVoid(ctx->builder);
                 } else {
-                    printf("Unreachable!\n");
+                    printf("Unreachable! block=%s\n", b->label);
+                    AlirInst *dbg_inst = b->head;
+                    while(dbg_inst) {
+                        printf("  -> op: %d\n", dbg_inst->op);
+                        dbg_inst = dbg_inst->next;
+                    }
                     LLVMBuildUnreachable(ctx->builder);
                 }
             }

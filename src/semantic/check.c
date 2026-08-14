@@ -99,20 +99,34 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             if (in->resolved_body) {
                 sem_scan_top_level(ctx, in->resolved_body);
             } else if (in->path) {
-                Lexer l;
-                Parser p;
-                memset(&l, 0, sizeof(l));
-                memset(&p, 0, sizeof(p));
-                l.ctx = ctx->compiler_ctx;
-                if (ctx->current_filename && ctx->current_filename[0]) {
-                    l.filename = (char*)ctx->current_filename;
-                }
-                parser_init(&p, &l, NULL);
-                p.ctx = ctx->compiler_ctx;
-                
-                ASTNode *imported = parse_import_internal(&p, in->path);
-                if (imported) {
-                    sem_scan_top_level(ctx, imported);
+                if (in->header == HEADER_C) {
+                    char *c_src = c_preprocess_header(ctx->compiler_ctx, in->path);
+                    if (c_src) {
+                        CParser cp;
+                        c_parser_init(&cp, ctx->compiler_ctx, in->path, c_src);
+                        ASTNode *imported = c_parse_header(&cp);
+                        if (imported) {
+                            in->resolved_body = imported;
+                            sem_scan_top_level(ctx, imported);
+                        }
+                    }
+                } else {
+                    Lexer l;
+                    Parser p;
+                    memset(&l, 0, sizeof(l));
+                    memset(&p, 0, sizeof(p));
+                    l.ctx = ctx->compiler_ctx;
+                    if (ctx->current_filename && ctx->current_filename[0]) {
+                        l.filename = (char*)ctx->current_filename;
+                    }
+                    parser_init(&p, &l, NULL);
+                    p.ctx = ctx->compiler_ctx;
+                    
+                    ASTNode *imported = parse_import_internal(&p, in->path);
+                    if (imported) {
+                        in->resolved_body = imported;
+                        sem_scan_top_level(ctx, imported);
+                    }
                 }
             }
         }
@@ -122,6 +136,14 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
                 if (ie->header == HEADER_C) {
                     SemSymbol *ns_sym = sem_symbol_lookup(ctx, ie->path, NULL);
                     if (!ns_sym || ns_sym->kind != SYM_NAMESPACE) {
+                        if (!ie->resolved_body) {
+                            char *c_src = c_preprocess_header(ctx->compiler_ctx, ie->path);
+                            if (c_src) {
+                                CParser cp;
+                                c_parser_init(&cp, ctx->compiler_ctx, ie->path, c_src);
+                                ie->resolved_body = c_parse_header(&cp);
+                            }
+                        }
                         if (ie->resolved_body) {
                             VarType ns_type = {TYPE_NAMESPACE, 0, arena_strdup(ctx->compiler_ctx->arena, ie->path), 0, 0, NULL, NULL, 0, 0, 0, 0};
                             ns_sym = sem_symbol_add(ctx, ie->path, SYM_NAMESPACE, ns_type);

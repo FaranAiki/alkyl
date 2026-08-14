@@ -1,0 +1,9 @@
+import "std/print";
+@c import "project/wmyl/bridge.h"
+
+int main() {
+    let display = wl_display_create();
+    meta typeof(display)
+    meta typeof(wl_display_destroy)
+    return 0;
+}

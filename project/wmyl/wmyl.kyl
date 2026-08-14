@@ -1,84 +1,78 @@
 import "std/print";
-
-namespace wl {
-    @c import "/usr/include/wayland-server-core.h"
-    @c import "/usr/include/wlroots-0.18/wlr/backend.h"
-    @c import "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h"
-    @c import "/usr/include/wlroots-0.18/wlr/render/allocator.h"
-    @c import "/usr/include/wlroots-0.18/wlr/types/wlr_compositor.h"
-    @c import "/usr/include/wlroots-0.18/wlr/types/wlr_data_device.h"
-    @c import "/usr/include/wlroots-0.18/wlr/types/wlr_output_layout.h"
-}
+import "wlroots/core";
 
 // Alkyl doesn't support hyphens in link identifier
 // do this
-link "wayland_server";
-link "wlroots_0_18";
+link "wayland-server";
+link "wlroots-0.18";
 
 int main() {
     std.printf("Starting wmyl (wlroots minimal WM)...\n");
 
     // 1. Initialize Wayland display
-    let display = wl.wl_display_create();
-    if (display == 0 as void*) {
+    let display = wlroots.create_display();
+    untaint display residue err {
         std.printf("Failed to create Wayland display\n");
         return 1;
     }
 
-    // 2. Autocreate backend
-    let backend = wl.wlr_backend_autocreate(display, 0 as void**);
-    if (backend == 0 as void*) {
-        std.printf("Failed to create wlroots backend\n");
-        wl.wl_display_destroy(display);
-        return 1;
-    }
-
-    // 3. Autocreate renderer
-    let renderer = wl.wlr_renderer_autocreate(backend);
-    if (renderer == 0 as void*) {
-        std.printf("Failed to create wlroots renderer\n");
-        wl.wlr_backend_destroy(backend);
-        wl.wl_display_destroy(display);
-        return 1;
-    }
-
-    // Initialize renderer with display
-    wl.wlr_renderer_init_wl_display(renderer, display);
-
-    // 4. Autocreate allocator
-    let allocator = wl.wlr_allocator_autocreate(backend, renderer);
-    if (allocator == 0 as void*) {
-        std.printf("Failed to create wlroots allocator\n");
-        wl.wlr_backend_destroy(backend);
-        wl.wl_display_destroy(display);
-        return 1;
-    }
-
-    // 5. Create basic Wayland/wlroots types
-    wl.wlr_compositor_create(display, 5, renderer);
-    wl.wlr_data_device_manager_create(display);
-
-    // Create an output layout
-    let output_layout = wl.wlr_output_layout_create(display);
-
     std.printf("Starting backend...\n");
 
-    // 6. Start the backend
-    if (wl.wlr_backend_start(backend) == false) {
-        std.printf("Failed to start backend\n");
-        wl.wlr_backend_destroy(backend);
-        wl.wl_display_destroy(display);
+    // 2. Create the backend
+    let backend = wlroots.create_backend(display);
+    untaint backend residue err {
+        std.printf("Failed to create wlroots backend\n");
+        wlroots.destroy_display(display);
+        return 1;
+    }
+
+    // 3. Create renderer
+    let renderer = wlroots.create_renderer(backend);
+    untaint renderer residue err {
+        std.printf("Failed to create wlroots renderer\n");
+        wlroots.destroy_backend(backend);
+        wlroots.destroy_display(display);
+        return 1;
+    }
+    
+    wlroots.init_renderer(renderer, display);
+
+    // 4. Create allocator
+    let allocator = wlroots.create_allocator(backend, renderer);
+    untaint allocator residue err {
+        std.printf("Failed to create wlroots allocator\n");
+        wlroots.destroy_backend(backend);
+        wlroots.destroy_display(display);
+        return 1;
+    }
+
+    // 5. Create compositor and output layout
+    let compositor = wlroots.create_compositor(display, renderer);
+    untaint compositor residue err { return 1; }
+    
+    let manager = wlroots.create_data_device_manager(display);
+    untaint manager residue err { return 1; }
+
+    let output_layout = wlroots.create_output_layout(display);
+    untaint output_layout residue err { return 1; }
+
+    // 6. Start backend
+    let started = wlroots.start_backend(backend);
+    untaint started residue err {
+        std.printf("Failed to start wlroots backend\n");
+        wlroots.destroy_backend(backend);
+        wlroots.destroy_display(display);
         return 1;
     }
 
     std.printf("Backend started successfully! Running Wayland display...\n");
 
-    // 7. Run the display (blocks until stopped)
-    wl.wl_display_run(display);
+    // 7. Run event loop
+    wlroots.run_display(display);
 
     // 8. Cleanup
-    wl.wl_display_destroy_clients(display);
-    wl.wl_display_destroy(display);
+    wlroots.destroy_clients(display);
+    wlroots.destroy_display(display);
 
     std.printf("wmyl exited gracefully.\n");
     return 0;

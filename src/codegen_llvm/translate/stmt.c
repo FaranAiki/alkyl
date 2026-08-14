@@ -33,11 +33,8 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         ptr = LLVMBuildIntToPtr(ctx->builder, ptr, LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0), "store_cast");
                     }
                     LLVMTypeRef pointed = NULL;
-                    if (inst->op2) {
-                        VarType ptr_t = inst->op2->type;
-                        if (ptr_t.ptr_depth > 0) ptr_t.ptr_depth--;
-                        else if (ptr_t.array_size > 0) ptr_t.array_size = 0;
-                        pointed = get_llvm_type(ctx, ptr_t);
+                    if (inst->op1) {
+                        pointed = get_llvm_type(ctx, inst->op1->type);
                     }
                     if (pointed && LLVMGetTypeKind(pointed) == LLVMStructTypeKind && LLVMCountStructElementTypes(pointed) > 1 &&
                         LLVMGetTypeKind(LLVMTypeOf(val)) != LLVMStructTypeKind &&

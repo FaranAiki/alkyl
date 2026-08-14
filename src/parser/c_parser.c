@@ -2109,14 +2109,23 @@ char* c_preprocess_header(CompilerContext *ctx, const char *fname) {
             }
         }
 
-        if (strlen(include_flags) > 0) {
-            char *insert_pos = strstr(cmd, " -xc ");
-            if (insert_pos) {
-                char new_cmd[4096];
-                snprintf(new_cmd, sizeof(new_cmd), "%.*s%s -xc %s", (int)(insert_pos - cmd), cmd, include_flags, insert_pos + 5);
-                strncpy(cmd, new_cmd, sizeof(cmd) - 1);
-                cmd[sizeof(cmd) - 1] = '\0';
-            }
+    }
+
+    const char *extra_cflags = getenv("ALKYL_CFLAGS");
+    if (extra_cflags) {
+        if (strlen(include_flags) + strlen(extra_cflags) + 2 < sizeof(include_flags)) {
+            strcat(include_flags, " ");
+            strcat(include_flags, extra_cflags);
+        }
+    }
+
+    if (strlen(include_flags) > 0) {
+        char *insert_pos = strstr(cmd, " -xc ");
+        if (insert_pos) {
+            char new_cmd[4096];
+            snprintf(new_cmd, sizeof(new_cmd), "%.*s%s -xc %s", (int)(insert_pos - cmd), cmd, include_flags, insert_pos + 5);
+            strncpy(cmd, new_cmd, sizeof(cmd) - 1);
+            cmd[sizeof(cmd) - 1] = '\0';
         }
     }
 

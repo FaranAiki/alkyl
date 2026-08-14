@@ -1,9 +1,10 @@
-# 0 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h"
+# 0 "<stdin>"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3
 # 0 "<command-line>" 2
-# 1 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h"
+# 1 "<stdin>"
+# 1 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h" 1
 # 12 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h"
 # 1 "/usr/lib/gcc/x86_64-pc-linux-gnu/16/include/stdint.h" 1 3
 # 9 "/usr/lib/gcc/x86_64-pc-linux-gnu/16/include/stdint.h" 3
@@ -2896,3 +2897,3168 @@ wl_display_add_protocol_logger(struct wl_display *display,
 void
 wl_protocol_logger_destroy(struct wl_protocol_logger *logger);
 # 14 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h" 2
+# 1 "/usr/include/wlroots-0.18/wlr/render/pass.h" 1
+# 12 "/usr/include/wlroots-0.18/wlr/render/pass.h"
+# 1 "/usr/include/wlroots-0.18/wlr/render/pixman.h" 1
+# 12 "/usr/include/wlroots-0.18/wlr/render/pixman.h"
+# 1 "/usr/include/wlroots-0.18/wlr/render/pixman.h" 1
+# 13 "/usr/include/wlroots-0.18/wlr/render/pixman.h" 2
+# 1 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h" 1
+# 14 "/usr/include/wlroots-0.18/wlr/render/pixman.h" 2
+
+
+# 15 "/usr/include/wlroots-0.18/wlr/render/pixman.h"
+struct wlr_renderer *wlr_pixman_renderer_create(void);
+
+bool wlr_renderer_is_pixman(struct wlr_renderer *wlr_renderer);
+bool wlr_texture_is_pixman(struct wlr_texture *texture);
+
+pixman_image_t *wlr_pixman_renderer_get_buffer_image(
+    struct wlr_renderer *wlr_renderer, struct wlr_buffer *wlr_buffer);
+pixman_image_t *wlr_pixman_texture_get_image(struct wlr_texture *wlr_texture);
+# 13 "/usr/include/wlroots-0.18/wlr/render/pass.h" 2
+
+
+# 1 "/usr/include/wlroots-0.18/wlr/util/box.h" 1
+# 19 "/usr/include/wlroots-0.18/wlr/util/box.h"
+# 1 "/usr/include/wayland-server-protocol.h" 1 3
+
+
+
+
+
+
+# 1 "/usr/lib/gcc/x86_64-pc-linux-gnu/16/include/stddef.h" 1 3
+# 8 "/usr/include/wayland-server-protocol.h" 2 3
+# 1 "/usr/include/wayland-server.h" 1 3
+# 40 "/usr/include/wayland-server.h" 3
+# 1 "/usr/include/wayland-server-core.h" 1 3
+# 41 "/usr/include/wayland-server.h" 2 3
+# 58 "/usr/include/wayland-server.h" 3
+
+# 58 "/usr/include/wayland-server.h" 3
+struct wl_object {
+ const struct wl_interface *interface;
+ const void *implementation;
+ uint32_t id;
+};
+
+struct wl_resource {
+ struct wl_object object;
+ wl_resource_destroy_func_t destroy;
+ struct wl_list link;
+ struct wl_signal destroy_signal;
+ struct wl_client *client;
+ void *data;
+};
+
+[[deprecated]]
+uint32_t
+wl_client_add_resource(struct wl_client *client,
+         struct wl_resource *resource);
+
+[[deprecated]]
+struct wl_resource *
+wl_client_add_object(struct wl_client *client,
+       const struct wl_interface *interface,
+       const void *implementation,
+       uint32_t id, void *data);
+
+[[deprecated]]
+struct wl_resource *
+wl_client_new_object(struct wl_client *client,
+       const struct wl_interface *interface,
+       const void *implementation, void *data);
+
+[[deprecated]]
+struct wl_global *
+wl_display_add_global(struct wl_display *display,
+        const struct wl_interface *interface,
+        void *data,
+        wl_global_bind_func_t bind);
+
+[[deprecated]]
+void
+wl_display_remove_global(struct wl_display *display,
+    struct wl_global *global);
+
+
+
+
+
+
+
+# 1 "/usr/include/wayland-server-protocol.h" 1 3
+# 110 "/usr/include/wayland-server.h" 2 3
+# 9 "/usr/include/wayland-server-protocol.h" 2 3
+
+
+
+
+
+struct wl_client;
+struct wl_resource;
+# 72 "/usr/include/wayland-server-protocol.h" 3
+struct wl_buffer;
+struct wl_callback;
+struct wl_compositor;
+struct wl_data_device;
+struct wl_data_device_manager;
+struct wl_data_offer;
+struct wl_data_source;
+struct wl_display;
+struct wl_fixes;
+struct wl_keyboard;
+struct wl_output;
+struct wl_pointer;
+struct wl_region;
+struct wl_registry;
+struct wl_seat;
+struct wl_shell;
+struct wl_shell_surface;
+struct wl_shm;
+struct wl_shm_pool;
+struct wl_subcompositor;
+struct wl_subsurface;
+struct wl_surface;
+struct wl_touch;
+# 113 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_display_interface;
+# 168 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_registry_interface;
+# 193 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_callback_interface;
+# 214 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_compositor_interface;
+# 243 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_shm_pool_interface;
+# 276 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_shm_interface;
+# 321 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_buffer_interface;
+# 348 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_data_offer_interface;
+# 371 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_data_source_interface;
+# 396 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_data_device_interface;
+# 431 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_data_device_manager_interface;
+# 464 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_shell_interface;
+# 501 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_shell_surface_interface;
+# 600 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_surface_interface;
+# 623 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_seat_interface;
+# 654 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_pointer_interface;
+# 693 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_keyboard_interface;
+# 724 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_touch_interface;
+# 751 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_output_interface;
+# 774 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_region_interface;
+# 827 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_subcompositor_interface;
+# 936 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_subsurface_interface;
+# 955 "/usr/include/wayland-server-protocol.h" 3
+extern const struct wl_interface wl_fixes_interface;
+# 967 "/usr/include/wayland-server-protocol.h" 3
+enum wl_display_error {
+
+
+
+ WL_DISPLAY_ERROR_INVALID_OBJECT = 0,
+
+
+
+ WL_DISPLAY_ERROR_INVALID_METHOD = 1,
+
+
+
+ WL_DISPLAY_ERROR_NO_MEMORY = 2,
+
+
+
+ WL_DISPLAY_ERROR_IMPLEMENTATION = 3,
+};
+# 996 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_display_error_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_DISPLAY_ERROR_INVALID_OBJECT:
+  return version >= 1;
+ case WL_DISPLAY_ERROR_INVALID_METHOD:
+  return version >= 1;
+ case WL_DISPLAY_ERROR_NO_MEMORY:
+  return version >= 1;
+ case WL_DISPLAY_ERROR_IMPLEMENTATION:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_display_interface {
+# 1035 "/usr/include/wayland-server-protocol.h" 3
+ void (*sync)(struct wl_client *client,
+       struct wl_resource *resource,
+       uint32_t callback);
+# 1052 "/usr/include/wayland-server-protocol.h" 3
+ void (*get_registry)(struct wl_client *client,
+        struct wl_resource *resource,
+        uint32_t registry);
+};
+# 1082 "/usr/include/wayland-server-protocol.h" 3
+struct wl_registry_interface {
+# 1093 "/usr/include/wayland-server-protocol.h" 3
+ void (*bind)(struct wl_client *client,
+       struct wl_resource *resource,
+       uint32_t name,
+       const char *interface, uint32_t version, uint32_t id);
+};
+# 1124 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_registry_send_global(struct wl_resource *resource_, uint32_t name, const char *interface, uint32_t version)
+{
+ wl_resource_post_event(resource_, 0, name, interface, version);
+}
+
+
+
+
+
+
+
+static inline void
+wl_registry_send_global_remove(struct wl_resource *resource_, uint32_t name)
+{
+ wl_resource_post_event(resource_, 1, name);
+}
+# 1156 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_callback_send_done(struct wl_resource *resource_, uint32_t callback_data)
+{
+ wl_resource_post_event(resource_, 0, callback_data);
+}
+
+
+
+
+
+struct wl_compositor_interface {
+
+
+
+
+
+
+ void (*create_surface)(struct wl_client *client,
+          struct wl_resource *resource,
+          uint32_t id);
+
+
+
+
+
+
+ void (*create_region)(struct wl_client *client,
+         struct wl_resource *resource,
+         uint32_t id);
+
+
+
+
+
+
+
+ void (*release)(struct wl_client *client,
+   struct wl_resource *resource);
+};
+# 1214 "/usr/include/wayland-server-protocol.h" 3
+struct wl_shm_pool_interface {
+# 1236 "/usr/include/wayland-server-protocol.h" 3
+ void (*create_buffer)(struct wl_client *client,
+         struct wl_resource *resource,
+         uint32_t id,
+         int32_t offset,
+         int32_t width,
+         int32_t height,
+         int32_t stride,
+         uint32_t format);
+# 1252 "/usr/include/wayland-server-protocol.h" 3
+ void (*destroy)(struct wl_client *client,
+   struct wl_resource *resource);
+# 1269 "/usr/include/wayland-server-protocol.h" 3
+ void (*resize)(struct wl_client *client,
+         struct wl_resource *resource,
+         int32_t size);
+};
+# 1296 "/usr/include/wayland-server-protocol.h" 3
+enum wl_shm_error {
+
+
+
+ WL_SHM_ERROR_INVALID_FORMAT = 0,
+
+
+
+ WL_SHM_ERROR_INVALID_STRIDE = 1,
+
+
+
+ WL_SHM_ERROR_INVALID_FD = 2,
+};
+# 1321 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_shm_error_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_SHM_ERROR_INVALID_FORMAT:
+  return version >= 1;
+ case WL_SHM_ERROR_INVALID_STRIDE:
+  return version >= 1;
+ case WL_SHM_ERROR_INVALID_FD:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+# 1356 "/usr/include/wayland-server-protocol.h" 3
+enum wl_shm_format {
+
+
+
+ WL_SHM_FORMAT_ARGB8888 = 0,
+
+
+
+ WL_SHM_FORMAT_XRGB8888 = 1,
+
+
+
+ WL_SHM_FORMAT_C8 = 0x20203843,
+
+
+
+ WL_SHM_FORMAT_RGB332 = 0x38424752,
+
+
+
+ WL_SHM_FORMAT_BGR233 = 0x38524742,
+
+
+
+ WL_SHM_FORMAT_XRGB4444 = 0x32315258,
+
+
+
+ WL_SHM_FORMAT_XBGR4444 = 0x32314258,
+
+
+
+ WL_SHM_FORMAT_RGBX4444 = 0x32315852,
+
+
+
+ WL_SHM_FORMAT_BGRX4444 = 0x32315842,
+
+
+
+ WL_SHM_FORMAT_ARGB4444 = 0x32315241,
+
+
+
+ WL_SHM_FORMAT_ABGR4444 = 0x32314241,
+
+
+
+ WL_SHM_FORMAT_RGBA4444 = 0x32314152,
+
+
+
+ WL_SHM_FORMAT_BGRA4444 = 0x32314142,
+
+
+
+ WL_SHM_FORMAT_XRGB1555 = 0x35315258,
+
+
+
+ WL_SHM_FORMAT_XBGR1555 = 0x35314258,
+
+
+
+ WL_SHM_FORMAT_RGBX5551 = 0x35315852,
+
+
+
+ WL_SHM_FORMAT_BGRX5551 = 0x35315842,
+
+
+
+ WL_SHM_FORMAT_ARGB1555 = 0x35315241,
+
+
+
+ WL_SHM_FORMAT_ABGR1555 = 0x35314241,
+
+
+
+ WL_SHM_FORMAT_RGBA5551 = 0x35314152,
+
+
+
+ WL_SHM_FORMAT_BGRA5551 = 0x35314142,
+
+
+
+ WL_SHM_FORMAT_RGB565 = 0x36314752,
+
+
+
+ WL_SHM_FORMAT_BGR565 = 0x36314742,
+
+
+
+ WL_SHM_FORMAT_RGB888 = 0x34324752,
+
+
+
+ WL_SHM_FORMAT_BGR888 = 0x34324742,
+
+
+
+ WL_SHM_FORMAT_XBGR8888 = 0x34324258,
+
+
+
+ WL_SHM_FORMAT_RGBX8888 = 0x34325852,
+
+
+
+ WL_SHM_FORMAT_BGRX8888 = 0x34325842,
+
+
+
+ WL_SHM_FORMAT_ABGR8888 = 0x34324241,
+
+
+
+ WL_SHM_FORMAT_RGBA8888 = 0x34324152,
+
+
+
+ WL_SHM_FORMAT_BGRA8888 = 0x34324142,
+
+
+
+ WL_SHM_FORMAT_XRGB2101010 = 0x30335258,
+
+
+
+ WL_SHM_FORMAT_XBGR2101010 = 0x30334258,
+
+
+
+ WL_SHM_FORMAT_RGBX1010102 = 0x30335852,
+
+
+
+ WL_SHM_FORMAT_BGRX1010102 = 0x30335842,
+
+
+
+ WL_SHM_FORMAT_ARGB2101010 = 0x30335241,
+
+
+
+ WL_SHM_FORMAT_ABGR2101010 = 0x30334241,
+
+
+
+ WL_SHM_FORMAT_RGBA1010102 = 0x30334152,
+
+
+
+ WL_SHM_FORMAT_BGRA1010102 = 0x30334142,
+
+
+
+ WL_SHM_FORMAT_YUYV = 0x56595559,
+
+
+
+ WL_SHM_FORMAT_YVYU = 0x55595659,
+
+
+
+ WL_SHM_FORMAT_UYVY = 0x59565955,
+
+
+
+ WL_SHM_FORMAT_VYUY = 0x59555956,
+
+
+
+ WL_SHM_FORMAT_AYUV = 0x56555941,
+
+
+
+ WL_SHM_FORMAT_NV12 = 0x3231564e,
+
+
+
+ WL_SHM_FORMAT_NV21 = 0x3132564e,
+
+
+
+ WL_SHM_FORMAT_NV16 = 0x3631564e,
+
+
+
+ WL_SHM_FORMAT_NV61 = 0x3136564e,
+
+
+
+ WL_SHM_FORMAT_YUV410 = 0x39565559,
+
+
+
+ WL_SHM_FORMAT_YVU410 = 0x39555659,
+
+
+
+ WL_SHM_FORMAT_YUV411 = 0x31315559,
+
+
+
+ WL_SHM_FORMAT_YVU411 = 0x31315659,
+
+
+
+ WL_SHM_FORMAT_YUV420 = 0x32315559,
+
+
+
+ WL_SHM_FORMAT_YVU420 = 0x32315659,
+
+
+
+ WL_SHM_FORMAT_YUV422 = 0x36315559,
+
+
+
+ WL_SHM_FORMAT_YVU422 = 0x36315659,
+
+
+
+ WL_SHM_FORMAT_YUV444 = 0x34325559,
+
+
+
+ WL_SHM_FORMAT_YVU444 = 0x34325659,
+
+
+
+ WL_SHM_FORMAT_R8 = 0x20203852,
+
+
+
+ WL_SHM_FORMAT_R16 = 0x20363152,
+
+
+
+ WL_SHM_FORMAT_RG88 = 0x38384752,
+
+
+
+ WL_SHM_FORMAT_GR88 = 0x38385247,
+
+
+
+ WL_SHM_FORMAT_RG1616 = 0x32334752,
+
+
+
+ WL_SHM_FORMAT_GR1616 = 0x32335247,
+
+
+
+ WL_SHM_FORMAT_XRGB16161616F = 0x48345258,
+
+
+
+ WL_SHM_FORMAT_XBGR16161616F = 0x48344258,
+
+
+
+ WL_SHM_FORMAT_ARGB16161616F = 0x48345241,
+
+
+
+ WL_SHM_FORMAT_ABGR16161616F = 0x48344241,
+
+
+
+ WL_SHM_FORMAT_XYUV8888 = 0x56555958,
+
+
+
+ WL_SHM_FORMAT_VUY888 = 0x34325556,
+
+
+
+ WL_SHM_FORMAT_VUY101010 = 0x30335556,
+
+
+
+ WL_SHM_FORMAT_Y210 = 0x30313259,
+
+
+
+ WL_SHM_FORMAT_Y212 = 0x32313259,
+
+
+
+ WL_SHM_FORMAT_Y216 = 0x36313259,
+
+
+
+ WL_SHM_FORMAT_Y410 = 0x30313459,
+
+
+
+ WL_SHM_FORMAT_Y412 = 0x32313459,
+
+
+
+ WL_SHM_FORMAT_Y416 = 0x36313459,
+
+
+
+ WL_SHM_FORMAT_XVYU2101010 = 0x30335658,
+
+
+
+ WL_SHM_FORMAT_XVYU12_16161616 = 0x36335658,
+
+
+
+ WL_SHM_FORMAT_XVYU16161616 = 0x38345658,
+
+
+
+ WL_SHM_FORMAT_Y0L0 = 0x304c3059,
+
+
+
+ WL_SHM_FORMAT_X0L0 = 0x304c3058,
+
+
+
+ WL_SHM_FORMAT_Y0L2 = 0x324c3059,
+
+
+
+ WL_SHM_FORMAT_X0L2 = 0x324c3058,
+ WL_SHM_FORMAT_YUV420_8BIT = 0x38305559,
+ WL_SHM_FORMAT_YUV420_10BIT = 0x30315559,
+ WL_SHM_FORMAT_XRGB8888_A8 = 0x38415258,
+ WL_SHM_FORMAT_XBGR8888_A8 = 0x38414258,
+ WL_SHM_FORMAT_RGBX8888_A8 = 0x38415852,
+ WL_SHM_FORMAT_BGRX8888_A8 = 0x38415842,
+ WL_SHM_FORMAT_RGB888_A8 = 0x38413852,
+ WL_SHM_FORMAT_BGR888_A8 = 0x38413842,
+ WL_SHM_FORMAT_RGB565_A8 = 0x38413552,
+ WL_SHM_FORMAT_BGR565_A8 = 0x38413542,
+
+
+
+ WL_SHM_FORMAT_NV24 = 0x3432564e,
+
+
+
+ WL_SHM_FORMAT_NV42 = 0x3234564e,
+
+
+
+ WL_SHM_FORMAT_P210 = 0x30313250,
+
+
+
+ WL_SHM_FORMAT_P010 = 0x30313050,
+
+
+
+ WL_SHM_FORMAT_P012 = 0x32313050,
+
+
+
+ WL_SHM_FORMAT_P016 = 0x36313050,
+
+
+
+ WL_SHM_FORMAT_AXBXGXRX106106106106 = 0x30314241,
+
+
+
+ WL_SHM_FORMAT_NV15 = 0x3531564e,
+ WL_SHM_FORMAT_Q410 = 0x30313451,
+ WL_SHM_FORMAT_Q401 = 0x31303451,
+
+
+
+ WL_SHM_FORMAT_XRGB16161616 = 0x38345258,
+
+
+
+ WL_SHM_FORMAT_XBGR16161616 = 0x38344258,
+
+
+
+ WL_SHM_FORMAT_ARGB16161616 = 0x38345241,
+
+
+
+ WL_SHM_FORMAT_ABGR16161616 = 0x38344241,
+
+
+
+ WL_SHM_FORMAT_C1 = 0x20203143,
+
+
+
+ WL_SHM_FORMAT_C2 = 0x20203243,
+
+
+
+ WL_SHM_FORMAT_C4 = 0x20203443,
+
+
+
+ WL_SHM_FORMAT_D1 = 0x20203144,
+
+
+
+ WL_SHM_FORMAT_D2 = 0x20203244,
+
+
+
+ WL_SHM_FORMAT_D4 = 0x20203444,
+
+
+
+ WL_SHM_FORMAT_D8 = 0x20203844,
+
+
+
+ WL_SHM_FORMAT_R1 = 0x20203152,
+
+
+
+ WL_SHM_FORMAT_R2 = 0x20203252,
+
+
+
+ WL_SHM_FORMAT_R4 = 0x20203452,
+
+
+
+ WL_SHM_FORMAT_R10 = 0x20303152,
+
+
+
+ WL_SHM_FORMAT_R12 = 0x20323152,
+
+
+
+ WL_SHM_FORMAT_AVUY8888 = 0x59555641,
+
+
+
+ WL_SHM_FORMAT_XVUY8888 = 0x59555658,
+
+
+
+ WL_SHM_FORMAT_P030 = 0x30333050,
+
+
+
+ WL_SHM_FORMAT_RGB161616 = 0x38344752,
+
+
+
+ WL_SHM_FORMAT_BGR161616 = 0x38344742,
+
+
+
+ WL_SHM_FORMAT_R16F = 0x48202052,
+
+
+
+ WL_SHM_FORMAT_GR1616F = 0x48205247,
+
+
+
+ WL_SHM_FORMAT_BGR161616F = 0x48524742,
+
+
+
+ WL_SHM_FORMAT_R32F = 0x46202052,
+
+
+
+ WL_SHM_FORMAT_GR3232F = 0x46205247,
+
+
+
+ WL_SHM_FORMAT_BGR323232F = 0x46524742,
+
+
+
+ WL_SHM_FORMAT_ABGR32323232F = 0x46384241,
+
+
+
+ WL_SHM_FORMAT_NV20 = 0x3032564e,
+
+
+
+ WL_SHM_FORMAT_NV30 = 0x3033564e,
+
+
+
+ WL_SHM_FORMAT_S010 = 0x30313053,
+
+
+
+ WL_SHM_FORMAT_S210 = 0x30313253,
+
+
+
+ WL_SHM_FORMAT_S410 = 0x30313453,
+
+
+
+ WL_SHM_FORMAT_S012 = 0x32313053,
+
+
+
+ WL_SHM_FORMAT_S212 = 0x32313253,
+
+
+
+ WL_SHM_FORMAT_S412 = 0x32313453,
+
+
+
+ WL_SHM_FORMAT_S016 = 0x36313053,
+
+
+
+ WL_SHM_FORMAT_S216 = 0x36313253,
+
+
+
+ WL_SHM_FORMAT_S416 = 0x36313453,
+};
+# 1905 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_shm_format_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_SHM_FORMAT_ARGB8888:
+  return version >= 1;
+ case WL_SHM_FORMAT_XRGB8888:
+  return version >= 1;
+ case WL_SHM_FORMAT_C8:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGB332:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGR233:
+  return version >= 1;
+ case WL_SHM_FORMAT_XRGB4444:
+  return version >= 1;
+ case WL_SHM_FORMAT_XBGR4444:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGBX4444:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGRX4444:
+  return version >= 1;
+ case WL_SHM_FORMAT_ARGB4444:
+  return version >= 1;
+ case WL_SHM_FORMAT_ABGR4444:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGBA4444:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGRA4444:
+  return version >= 1;
+ case WL_SHM_FORMAT_XRGB1555:
+  return version >= 1;
+ case WL_SHM_FORMAT_XBGR1555:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGBX5551:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGRX5551:
+  return version >= 1;
+ case WL_SHM_FORMAT_ARGB1555:
+  return version >= 1;
+ case WL_SHM_FORMAT_ABGR1555:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGBA5551:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGRA5551:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGB565:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGR565:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGB888:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGR888:
+  return version >= 1;
+ case WL_SHM_FORMAT_XBGR8888:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGBX8888:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGRX8888:
+  return version >= 1;
+ case WL_SHM_FORMAT_ABGR8888:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGBA8888:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGRA8888:
+  return version >= 1;
+ case WL_SHM_FORMAT_XRGB2101010:
+  return version >= 1;
+ case WL_SHM_FORMAT_XBGR2101010:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGBX1010102:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGRX1010102:
+  return version >= 1;
+ case WL_SHM_FORMAT_ARGB2101010:
+  return version >= 1;
+ case WL_SHM_FORMAT_ABGR2101010:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGBA1010102:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGRA1010102:
+  return version >= 1;
+ case WL_SHM_FORMAT_YUYV:
+  return version >= 1;
+ case WL_SHM_FORMAT_YVYU:
+  return version >= 1;
+ case WL_SHM_FORMAT_UYVY:
+  return version >= 1;
+ case WL_SHM_FORMAT_VYUY:
+  return version >= 1;
+ case WL_SHM_FORMAT_AYUV:
+  return version >= 1;
+ case WL_SHM_FORMAT_NV12:
+  return version >= 1;
+ case WL_SHM_FORMAT_NV21:
+  return version >= 1;
+ case WL_SHM_FORMAT_NV16:
+  return version >= 1;
+ case WL_SHM_FORMAT_NV61:
+  return version >= 1;
+ case WL_SHM_FORMAT_YUV410:
+  return version >= 1;
+ case WL_SHM_FORMAT_YVU410:
+  return version >= 1;
+ case WL_SHM_FORMAT_YUV411:
+  return version >= 1;
+ case WL_SHM_FORMAT_YVU411:
+  return version >= 1;
+ case WL_SHM_FORMAT_YUV420:
+  return version >= 1;
+ case WL_SHM_FORMAT_YVU420:
+  return version >= 1;
+ case WL_SHM_FORMAT_YUV422:
+  return version >= 1;
+ case WL_SHM_FORMAT_YVU422:
+  return version >= 1;
+ case WL_SHM_FORMAT_YUV444:
+  return version >= 1;
+ case WL_SHM_FORMAT_YVU444:
+  return version >= 1;
+ case WL_SHM_FORMAT_R8:
+  return version >= 1;
+ case WL_SHM_FORMAT_R16:
+  return version >= 1;
+ case WL_SHM_FORMAT_RG88:
+  return version >= 1;
+ case WL_SHM_FORMAT_GR88:
+  return version >= 1;
+ case WL_SHM_FORMAT_RG1616:
+  return version >= 1;
+ case WL_SHM_FORMAT_GR1616:
+  return version >= 1;
+ case WL_SHM_FORMAT_XRGB16161616F:
+  return version >= 1;
+ case WL_SHM_FORMAT_XBGR16161616F:
+  return version >= 1;
+ case WL_SHM_FORMAT_ARGB16161616F:
+  return version >= 1;
+ case WL_SHM_FORMAT_ABGR16161616F:
+  return version >= 1;
+ case WL_SHM_FORMAT_XYUV8888:
+  return version >= 1;
+ case WL_SHM_FORMAT_VUY888:
+  return version >= 1;
+ case WL_SHM_FORMAT_VUY101010:
+  return version >= 1;
+ case WL_SHM_FORMAT_Y210:
+  return version >= 1;
+ case WL_SHM_FORMAT_Y212:
+  return version >= 1;
+ case WL_SHM_FORMAT_Y216:
+  return version >= 1;
+ case WL_SHM_FORMAT_Y410:
+  return version >= 1;
+ case WL_SHM_FORMAT_Y412:
+  return version >= 1;
+ case WL_SHM_FORMAT_Y416:
+  return version >= 1;
+ case WL_SHM_FORMAT_XVYU2101010:
+  return version >= 1;
+ case WL_SHM_FORMAT_XVYU12_16161616:
+  return version >= 1;
+ case WL_SHM_FORMAT_XVYU16161616:
+  return version >= 1;
+ case WL_SHM_FORMAT_Y0L0:
+  return version >= 1;
+ case WL_SHM_FORMAT_X0L0:
+  return version >= 1;
+ case WL_SHM_FORMAT_Y0L2:
+  return version >= 1;
+ case WL_SHM_FORMAT_X0L2:
+  return version >= 1;
+ case WL_SHM_FORMAT_YUV420_8BIT:
+  return version >= 1;
+ case WL_SHM_FORMAT_YUV420_10BIT:
+  return version >= 1;
+ case WL_SHM_FORMAT_XRGB8888_A8:
+  return version >= 1;
+ case WL_SHM_FORMAT_XBGR8888_A8:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGBX8888_A8:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGRX8888_A8:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGB888_A8:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGR888_A8:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGB565_A8:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGR565_A8:
+  return version >= 1;
+ case WL_SHM_FORMAT_NV24:
+  return version >= 1;
+ case WL_SHM_FORMAT_NV42:
+  return version >= 1;
+ case WL_SHM_FORMAT_P210:
+  return version >= 1;
+ case WL_SHM_FORMAT_P010:
+  return version >= 1;
+ case WL_SHM_FORMAT_P012:
+  return version >= 1;
+ case WL_SHM_FORMAT_P016:
+  return version >= 1;
+ case WL_SHM_FORMAT_AXBXGXRX106106106106:
+  return version >= 1;
+ case WL_SHM_FORMAT_NV15:
+  return version >= 1;
+ case WL_SHM_FORMAT_Q410:
+  return version >= 1;
+ case WL_SHM_FORMAT_Q401:
+  return version >= 1;
+ case WL_SHM_FORMAT_XRGB16161616:
+  return version >= 1;
+ case WL_SHM_FORMAT_XBGR16161616:
+  return version >= 1;
+ case WL_SHM_FORMAT_ARGB16161616:
+  return version >= 1;
+ case WL_SHM_FORMAT_ABGR16161616:
+  return version >= 1;
+ case WL_SHM_FORMAT_C1:
+  return version >= 1;
+ case WL_SHM_FORMAT_C2:
+  return version >= 1;
+ case WL_SHM_FORMAT_C4:
+  return version >= 1;
+ case WL_SHM_FORMAT_D1:
+  return version >= 1;
+ case WL_SHM_FORMAT_D2:
+  return version >= 1;
+ case WL_SHM_FORMAT_D4:
+  return version >= 1;
+ case WL_SHM_FORMAT_D8:
+  return version >= 1;
+ case WL_SHM_FORMAT_R1:
+  return version >= 1;
+ case WL_SHM_FORMAT_R2:
+  return version >= 1;
+ case WL_SHM_FORMAT_R4:
+  return version >= 1;
+ case WL_SHM_FORMAT_R10:
+  return version >= 1;
+ case WL_SHM_FORMAT_R12:
+  return version >= 1;
+ case WL_SHM_FORMAT_AVUY8888:
+  return version >= 1;
+ case WL_SHM_FORMAT_XVUY8888:
+  return version >= 1;
+ case WL_SHM_FORMAT_P030:
+  return version >= 1;
+ case WL_SHM_FORMAT_RGB161616:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGR161616:
+  return version >= 1;
+ case WL_SHM_FORMAT_R16F:
+  return version >= 1;
+ case WL_SHM_FORMAT_GR1616F:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGR161616F:
+  return version >= 1;
+ case WL_SHM_FORMAT_R32F:
+  return version >= 1;
+ case WL_SHM_FORMAT_GR3232F:
+  return version >= 1;
+ case WL_SHM_FORMAT_BGR323232F:
+  return version >= 1;
+ case WL_SHM_FORMAT_ABGR32323232F:
+  return version >= 1;
+ case WL_SHM_FORMAT_NV20:
+  return version >= 1;
+ case WL_SHM_FORMAT_NV30:
+  return version >= 1;
+ case WL_SHM_FORMAT_S010:
+  return version >= 1;
+ case WL_SHM_FORMAT_S210:
+  return version >= 1;
+ case WL_SHM_FORMAT_S410:
+  return version >= 1;
+ case WL_SHM_FORMAT_S012:
+  return version >= 1;
+ case WL_SHM_FORMAT_S212:
+  return version >= 1;
+ case WL_SHM_FORMAT_S412:
+  return version >= 1;
+ case WL_SHM_FORMAT_S016:
+  return version >= 1;
+ case WL_SHM_FORMAT_S216:
+  return version >= 1;
+ case WL_SHM_FORMAT_S416:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_shm_interface {
+# 2217 "/usr/include/wayland-server-protocol.h" 3
+ void (*create_pool)(struct wl_client *client,
+       struct wl_resource *resource,
+       uint32_t id,
+       int32_t fd,
+       int32_t size);
+# 2231 "/usr/include/wayland-server-protocol.h" 3
+ void (*release)(struct wl_client *client,
+   struct wl_resource *resource);
+};
+# 2257 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_shm_send_format(struct wl_resource *resource_, uint32_t format)
+{
+ wl_resource_post_event(resource_, 0, format);
+}
+
+
+
+
+
+struct wl_buffer_interface {
+# 2276 "/usr/include/wayland-server-protocol.h" 3
+ void (*destroy)(struct wl_client *client,
+   struct wl_resource *resource);
+};
+# 2297 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_buffer_send_release(struct wl_resource *resource_)
+{
+ wl_resource_post_event(resource_, 0);
+}
+
+
+
+enum wl_data_offer_error {
+
+
+
+ WL_DATA_OFFER_ERROR_INVALID_FINISH = 0,
+
+
+
+ WL_DATA_OFFER_ERROR_INVALID_ACTION_MASK = 1,
+
+
+
+ WL_DATA_OFFER_ERROR_INVALID_ACTION = 2,
+
+
+
+ WL_DATA_OFFER_ERROR_INVALID_OFFER = 3,
+};
+# 2334 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_data_offer_error_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_DATA_OFFER_ERROR_INVALID_FINISH:
+  return version >= 1;
+ case WL_DATA_OFFER_ERROR_INVALID_ACTION_MASK:
+  return version >= 1;
+ case WL_DATA_OFFER_ERROR_INVALID_ACTION:
+  return version >= 1;
+ case WL_DATA_OFFER_ERROR_INVALID_OFFER:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_data_offer_interface {
+# 2376 "/usr/include/wayland-server-protocol.h" 3
+ void (*accept)(struct wl_client *client,
+         struct wl_resource *resource,
+         uint32_t serial,
+         const char *mime_type);
+# 2401 "/usr/include/wayland-server-protocol.h" 3
+ void (*receive)(struct wl_client *client,
+   struct wl_resource *resource,
+   const char *mime_type,
+   int32_t fd);
+
+
+
+
+
+ void (*destroy)(struct wl_client *client,
+   struct wl_resource *resource);
+# 2431 "/usr/include/wayland-server-protocol.h" 3
+ void (*finish)(struct wl_client *client,
+         struct wl_resource *resource);
+# 2472 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_actions)(struct wl_client *client,
+       struct wl_resource *resource,
+       uint32_t dnd_actions,
+       uint32_t preferred_action);
+};
+# 2522 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_data_offer_send_offer(struct wl_resource *resource_, const char *mime_type)
+{
+ wl_resource_post_event(resource_, 0, mime_type);
+}
+
+
+
+
+
+
+
+static inline void
+wl_data_offer_send_source_actions(struct wl_resource *resource_, uint32_t source_actions)
+{
+ wl_resource_post_event(resource_, 1, source_actions);
+}
+
+
+
+
+
+
+
+static inline void
+wl_data_offer_send_action(struct wl_resource *resource_, uint32_t dnd_action)
+{
+ wl_resource_post_event(resource_, 2, dnd_action);
+}
+
+
+
+enum wl_data_source_error {
+
+
+
+ WL_DATA_SOURCE_ERROR_INVALID_ACTION_MASK = 0,
+
+
+
+ WL_DATA_SOURCE_ERROR_INVALID_SOURCE = 1,
+};
+# 2575 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_data_source_error_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_DATA_SOURCE_ERROR_INVALID_ACTION_MASK:
+  return version >= 1;
+ case WL_DATA_SOURCE_ERROR_INVALID_SOURCE:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_data_source_interface {
+# 2601 "/usr/include/wayland-server-protocol.h" 3
+ void (*offer)(struct wl_client *client,
+        struct wl_resource *resource,
+        const char *mime_type);
+
+
+
+
+
+ void (*destroy)(struct wl_client *client,
+   struct wl_resource *resource);
+# 2630 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_actions)(struct wl_client *client,
+       struct wl_resource *resource,
+       uint32_t dnd_actions);
+};
+# 2686 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_data_source_send_target(struct wl_resource *resource_, const char *mime_type)
+{
+ wl_resource_post_event(resource_, 0, mime_type);
+}
+# 2699 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_data_source_send_send(struct wl_resource *resource_, const char *mime_type, int32_t fd)
+{
+ wl_resource_post_event(resource_, 1, mime_type, fd);
+}
+
+
+
+
+
+
+static inline void
+wl_data_source_send_cancelled(struct wl_resource *resource_)
+{
+ wl_resource_post_event(resource_, 2);
+}
+
+
+
+
+
+
+static inline void
+wl_data_source_send_dnd_drop_performed(struct wl_resource *resource_)
+{
+ wl_resource_post_event(resource_, 3);
+}
+
+
+
+
+
+
+static inline void
+wl_data_source_send_dnd_finished(struct wl_resource *resource_)
+{
+ wl_resource_post_event(resource_, 4);
+}
+
+
+
+
+
+
+
+static inline void
+wl_data_source_send_action(struct wl_resource *resource_, uint32_t dnd_action)
+{
+ wl_resource_post_event(resource_, 5, dnd_action);
+}
+
+
+
+enum wl_data_device_error {
+
+
+
+ WL_DATA_DEVICE_ERROR_ROLE = 0,
+
+
+
+ WL_DATA_DEVICE_ERROR_USED_SOURCE = 1,
+};
+# 2773 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_data_device_error_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_DATA_DEVICE_ERROR_ROLE:
+  return version >= 1;
+ case WL_DATA_DEVICE_ERROR_USED_SOURCE:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_data_device_interface {
+# 2828 "/usr/include/wayland-server-protocol.h" 3
+ void (*start_drag)(struct wl_client *client,
+      struct wl_resource *resource,
+      struct wl_resource *source,
+      struct wl_resource *origin,
+      struct wl_resource *icon,
+      uint32_t serial);
+# 2848 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_selection)(struct wl_client *client,
+         struct wl_resource *resource,
+         struct wl_resource *source,
+         uint32_t serial);
+
+
+
+
+
+
+ void (*release)(struct wl_client *client,
+   struct wl_resource *resource);
+};
+# 2913 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_data_device_send_data_offer(struct wl_resource *resource_, struct wl_resource *id)
+{
+ wl_resource_post_event(resource_, 0, id);
+}
+# 2929 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_data_device_send_enter(struct wl_resource *resource_, uint32_t serial, struct wl_resource *surface, wl_fixed_t x, wl_fixed_t y, struct wl_resource *id)
+{
+ wl_resource_post_event(resource_, 1, serial, surface, x, y, id);
+}
+
+
+
+
+
+
+static inline void
+wl_data_device_send_leave(struct wl_resource *resource_)
+{
+ wl_resource_post_event(resource_, 2);
+}
+# 2954 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_data_device_send_motion(struct wl_resource *resource_, uint32_t time, wl_fixed_t x, wl_fixed_t y)
+{
+ wl_resource_post_event(resource_, 3, time, x, y);
+}
+
+
+
+
+
+
+static inline void
+wl_data_device_send_drop(struct wl_resource *resource_)
+{
+ wl_resource_post_event(resource_, 4);
+}
+
+
+
+
+
+
+
+static inline void
+wl_data_device_send_selection(struct wl_resource *resource_, struct wl_resource *id)
+{
+ wl_resource_post_event(resource_, 5, id);
+}
+# 3013 "/usr/include/wayland-server-protocol.h" 3
+enum wl_data_device_manager_dnd_action {
+
+
+
+ WL_DATA_DEVICE_MANAGER_DND_ACTION_NONE = 0,
+
+
+
+ WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY = 1,
+
+
+
+ WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE = 2,
+
+
+
+ WL_DATA_DEVICE_MANAGER_DND_ACTION_ASK = 4,
+};
+# 3042 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_data_device_manager_dnd_action_is_valid(uint32_t value, uint32_t version) {
+ uint32_t valid = 0;
+ if (version >= 1)
+  valid |= WL_DATA_DEVICE_MANAGER_DND_ACTION_NONE;
+ if (version >= 1)
+  valid |= WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY;
+ if (version >= 1)
+  valid |= WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE;
+ if (version >= 1)
+  valid |= WL_DATA_DEVICE_MANAGER_DND_ACTION_ASK;
+ return (value & ~valid) == 0;
+}
+
+
+
+
+
+
+struct wl_data_device_manager_interface {
+
+
+
+
+
+
+ void (*create_data_source)(struct wl_client *client,
+       struct wl_resource *resource,
+       uint32_t id);
+
+
+
+
+
+
+
+ void (*get_data_device)(struct wl_client *client,
+    struct wl_resource *resource,
+    uint32_t id,
+    struct wl_resource *seat);
+
+
+
+
+
+
+
+ void (*release)(struct wl_client *client,
+   struct wl_resource *resource);
+};
+# 3109 "/usr/include/wayland-server-protocol.h" 3
+enum wl_shell_error {
+
+
+
+ WL_SHELL_ERROR_ROLE = 0,
+};
+# 3126 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_shell_error_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_SHELL_ERROR_ROLE:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_shell_interface {
+# 3153 "/usr/include/wayland-server-protocol.h" 3
+ void (*get_shell_surface)(struct wl_client *client,
+      struct wl_resource *resource,
+      uint32_t id,
+      struct wl_resource *surface);
+};
+# 3176 "/usr/include/wayland-server-protocol.h" 3
+enum wl_shell_surface_resize {
+
+
+
+ WL_SHELL_SURFACE_RESIZE_NONE = 0,
+
+
+
+ WL_SHELL_SURFACE_RESIZE_TOP = 1,
+
+
+
+ WL_SHELL_SURFACE_RESIZE_BOTTOM = 2,
+
+
+
+ WL_SHELL_SURFACE_RESIZE_LEFT = 4,
+
+
+
+ WL_SHELL_SURFACE_RESIZE_TOP_LEFT = 5,
+
+
+
+ WL_SHELL_SURFACE_RESIZE_BOTTOM_LEFT = 6,
+
+
+
+ WL_SHELL_SURFACE_RESIZE_RIGHT = 8,
+
+
+
+ WL_SHELL_SURFACE_RESIZE_TOP_RIGHT = 9,
+
+
+
+ WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT = 10,
+};
+# 3225 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_shell_surface_resize_is_valid(uint32_t value, uint32_t version) {
+ uint32_t valid = 0;
+ if (version >= 1)
+  valid |= WL_SHELL_SURFACE_RESIZE_NONE;
+ if (version >= 1)
+  valid |= WL_SHELL_SURFACE_RESIZE_TOP;
+ if (version >= 1)
+  valid |= WL_SHELL_SURFACE_RESIZE_BOTTOM;
+ if (version >= 1)
+  valid |= WL_SHELL_SURFACE_RESIZE_LEFT;
+ if (version >= 1)
+  valid |= WL_SHELL_SURFACE_RESIZE_TOP_LEFT;
+ if (version >= 1)
+  valid |= WL_SHELL_SURFACE_RESIZE_BOTTOM_LEFT;
+ if (version >= 1)
+  valid |= WL_SHELL_SURFACE_RESIZE_RIGHT;
+ if (version >= 1)
+  valid |= WL_SHELL_SURFACE_RESIZE_TOP_RIGHT;
+ if (version >= 1)
+  valid |= WL_SHELL_SURFACE_RESIZE_BOTTOM_RIGHT;
+ return (value & ~valid) == 0;
+}
+# 3259 "/usr/include/wayland-server-protocol.h" 3
+enum wl_shell_surface_transient {
+
+
+
+ WL_SHELL_SURFACE_TRANSIENT_INACTIVE = 0x1,
+};
+# 3276 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_shell_surface_transient_is_valid(uint32_t value, uint32_t version) {
+ uint32_t valid = 0;
+ if (version >= 1)
+  valid |= WL_SHELL_SURFACE_TRANSIENT_INACTIVE;
+ return (value & ~valid) == 0;
+}
+# 3295 "/usr/include/wayland-server-protocol.h" 3
+enum wl_shell_surface_fullscreen_method {
+
+
+
+ WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT = 0,
+
+
+
+ WL_SHELL_SURFACE_FULLSCREEN_METHOD_SCALE = 1,
+
+
+
+ WL_SHELL_SURFACE_FULLSCREEN_METHOD_DRIVER = 2,
+
+
+
+ WL_SHELL_SURFACE_FULLSCREEN_METHOD_FILL = 3,
+};
+# 3324 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_shell_surface_fullscreen_method_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT:
+  return version >= 1;
+ case WL_SHELL_SURFACE_FULLSCREEN_METHOD_SCALE:
+  return version >= 1;
+ case WL_SHELL_SURFACE_FULLSCREEN_METHOD_DRIVER:
+  return version >= 1;
+ case WL_SHELL_SURFACE_FULLSCREEN_METHOD_FILL:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_shell_surface_interface {
+
+
+
+
+
+
+
+ void (*pong)(struct wl_client *client,
+       struct wl_resource *resource,
+       uint32_t serial);
+# 3367 "/usr/include/wayland-server-protocol.h" 3
+ void (*move)(struct wl_client *client,
+       struct wl_resource *resource,
+       struct wl_resource *seat,
+       uint32_t serial);
+# 3383 "/usr/include/wayland-server-protocol.h" 3
+ void (*resize)(struct wl_client *client,
+         struct wl_resource *resource,
+         struct wl_resource *seat,
+         uint32_t serial,
+         uint32_t edges);
+
+
+
+
+
+
+
+ void (*set_toplevel)(struct wl_client *client,
+        struct wl_resource *resource);
+# 3412 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_transient)(struct wl_client *client,
+         struct wl_resource *resource,
+         struct wl_resource *parent,
+         int32_t x,
+         int32_t y,
+         uint32_t flags);
+# 3459 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_fullscreen)(struct wl_client *client,
+          struct wl_resource *resource,
+          uint32_t method,
+          uint32_t framerate,
+          struct wl_resource *output);
+# 3493 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_popup)(struct wl_client *client,
+     struct wl_resource *resource,
+     struct wl_resource *seat,
+     uint32_t serial,
+     struct wl_resource *parent,
+     int32_t x,
+     int32_t y,
+     uint32_t flags);
+# 3524 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_maximized)(struct wl_client *client,
+         struct wl_resource *resource,
+         struct wl_resource *output);
+# 3539 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_title)(struct wl_client *client,
+     struct wl_resource *resource,
+     const char *title);
+# 3553 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_class)(struct wl_client *client,
+     struct wl_resource *resource,
+     const char *class_);
+};
+# 3622 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_shell_surface_send_ping(struct wl_resource *resource_, uint32_t serial)
+{
+ wl_resource_post_event(resource_, 0, serial);
+}
+# 3636 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_shell_surface_send_configure(struct wl_resource *resource_, uint32_t edges, int32_t width, int32_t height)
+{
+ wl_resource_post_event(resource_, 1, edges, width, height);
+}
+
+
+
+
+
+
+static inline void
+wl_shell_surface_send_popup_done(struct wl_resource *resource_)
+{
+ wl_resource_post_event(resource_, 2);
+}
+# 3661 "/usr/include/wayland-server-protocol.h" 3
+enum wl_surface_error {
+
+
+
+ WL_SURFACE_ERROR_INVALID_SCALE = 0,
+
+
+
+ WL_SURFACE_ERROR_INVALID_TRANSFORM = 1,
+
+
+
+ WL_SURFACE_ERROR_INVALID_SIZE = 2,
+
+
+
+ WL_SURFACE_ERROR_INVALID_OFFSET = 3,
+
+
+
+ WL_SURFACE_ERROR_DEFUNCT_ROLE_OBJECT = 4,
+
+
+
+ WL_SURFACE_ERROR_NO_BUFFER = 5,
+};
+# 3698 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_surface_error_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_SURFACE_ERROR_INVALID_SCALE:
+  return version >= 1;
+ case WL_SURFACE_ERROR_INVALID_TRANSFORM:
+  return version >= 1;
+ case WL_SURFACE_ERROR_INVALID_SIZE:
+  return version >= 1;
+ case WL_SURFACE_ERROR_INVALID_OFFSET:
+  return version >= 1;
+ case WL_SURFACE_ERROR_DEFUNCT_ROLE_OBJECT:
+  return version >= 1;
+ case WL_SURFACE_ERROR_NO_BUFFER:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_surface_interface {
+
+
+
+
+
+ void (*destroy)(struct wl_client *client,
+   struct wl_resource *resource);
+# 3809 "/usr/include/wayland-server-protocol.h" 3
+ void (*attach)(struct wl_client *client,
+         struct wl_resource *resource,
+         struct wl_resource *buffer,
+         int32_t x,
+         int32_t y);
+# 3845 "/usr/include/wayland-server-protocol.h" 3
+ void (*damage)(struct wl_client *client,
+         struct wl_resource *resource,
+         int32_t x,
+         int32_t y,
+         int32_t width,
+         int32_t height);
+# 3890 "/usr/include/wayland-server-protocol.h" 3
+ void (*frame)(struct wl_client *client,
+        struct wl_resource *resource,
+        uint32_t callback);
+# 3923 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_opaque_region)(struct wl_client *client,
+      struct wl_resource *resource,
+      struct wl_resource *region);
+# 3953 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_input_region)(struct wl_client *client,
+     struct wl_resource *resource,
+     struct wl_resource *region);
+# 4009 "/usr/include/wayland-server-protocol.h" 3
+ void (*commit)(struct wl_client *client,
+         struct wl_resource *resource);
+# 4052 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_buffer_transform)(struct wl_client *client,
+         struct wl_resource *resource,
+         int32_t transform);
+# 4087 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_buffer_scale)(struct wl_client *client,
+     struct wl_resource *resource,
+     int32_t scale);
+# 4133 "/usr/include/wayland-server-protocol.h" 3
+ void (*damage_buffer)(struct wl_client *client,
+         struct wl_resource *resource,
+         int32_t x,
+         int32_t y,
+         int32_t width,
+         int32_t height);
+# 4162 "/usr/include/wayland-server-protocol.h" 3
+ void (*offset)(struct wl_client *client,
+         struct wl_resource *resource,
+         int32_t x,
+         int32_t y);
+# 4190 "/usr/include/wayland-server-protocol.h" 3
+ void (*get_release)(struct wl_client *client,
+       struct wl_resource *resource,
+       uint32_t callback);
+};
+# 4272 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_surface_send_enter(struct wl_resource *resource_, struct wl_resource *output)
+{
+ wl_resource_post_event(resource_, 0, output);
+}
+
+
+
+
+
+
+
+static inline void
+wl_surface_send_leave(struct wl_resource *resource_, struct wl_resource *output)
+{
+ wl_resource_post_event(resource_, 1, output);
+}
+
+
+
+
+
+
+
+static inline void
+wl_surface_send_preferred_buffer_scale(struct wl_resource *resource_, int32_t factor)
+{
+ wl_resource_post_event(resource_, 2, factor);
+}
+
+
+
+
+
+
+
+static inline void
+wl_surface_send_preferred_buffer_transform(struct wl_resource *resource_, uint32_t transform)
+{
+ wl_resource_post_event(resource_, 3, transform);
+}
+# 4323 "/usr/include/wayland-server-protocol.h" 3
+enum wl_seat_capability {
+
+
+
+ WL_SEAT_CAPABILITY_POINTER = 1,
+
+
+
+ WL_SEAT_CAPABILITY_KEYBOARD = 2,
+
+
+
+ WL_SEAT_CAPABILITY_TOUCH = 4,
+};
+# 4348 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_seat_capability_is_valid(uint32_t value, uint32_t version) {
+ uint32_t valid = 0;
+ if (version >= 1)
+  valid |= WL_SEAT_CAPABILITY_POINTER;
+ if (version >= 1)
+  valid |= WL_SEAT_CAPABILITY_KEYBOARD;
+ if (version >= 1)
+  valid |= WL_SEAT_CAPABILITY_TOUCH;
+ return (value & ~valid) == 0;
+}
+# 4369 "/usr/include/wayland-server-protocol.h" 3
+enum wl_seat_error {
+
+
+
+ WL_SEAT_ERROR_MISSING_CAPABILITY = 0,
+};
+# 4386 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_seat_error_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_SEAT_ERROR_MISSING_CAPABILITY:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_seat_interface {
+# 4415 "/usr/include/wayland-server-protocol.h" 3
+ void (*get_pointer)(struct wl_client *client,
+       struct wl_resource *resource,
+       uint32_t id);
+# 4431 "/usr/include/wayland-server-protocol.h" 3
+ void (*get_keyboard)(struct wl_client *client,
+        struct wl_resource *resource,
+        uint32_t id);
+# 4447 "/usr/include/wayland-server-protocol.h" 3
+ void (*get_touch)(struct wl_client *client,
+     struct wl_resource *resource,
+     uint32_t id);
+
+
+
+
+
+
+
+ void (*release)(struct wl_client *client,
+   struct wl_resource *resource);
+};
+# 4496 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_seat_send_capabilities(struct wl_resource *resource_, uint32_t capabilities)
+{
+ wl_resource_post_event(resource_, 0, capabilities);
+}
+
+
+
+
+
+
+
+static inline void
+wl_seat_send_name(struct wl_resource *resource_, const char *name)
+{
+ wl_resource_post_event(resource_, 1, name);
+}
+
+
+
+enum wl_pointer_error {
+
+
+
+ WL_POINTER_ERROR_ROLE = 0,
+};
+# 4533 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_pointer_error_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_POINTER_ERROR_ROLE:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+# 4553 "/usr/include/wayland-server-protocol.h" 3
+enum wl_pointer_button_state {
+
+
+
+ WL_POINTER_BUTTON_STATE_RELEASED = 0,
+
+
+
+ WL_POINTER_BUTTON_STATE_PRESSED = 1,
+};
+# 4574 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_pointer_button_state_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_POINTER_BUTTON_STATE_RELEASED:
+  return version >= 1;
+ case WL_POINTER_BUTTON_STATE_PRESSED:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+# 4595 "/usr/include/wayland-server-protocol.h" 3
+enum wl_pointer_axis {
+
+
+
+ WL_POINTER_AXIS_VERTICAL_SCROLL = 0,
+
+
+
+ WL_POINTER_AXIS_HORIZONTAL_SCROLL = 1,
+};
+# 4616 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_pointer_axis_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_POINTER_AXIS_VERTICAL_SCROLL:
+  return version >= 1;
+ case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+# 4652 "/usr/include/wayland-server-protocol.h" 3
+enum wl_pointer_axis_source {
+
+
+
+ WL_POINTER_AXIS_SOURCE_WHEEL = 0,
+
+
+
+ WL_POINTER_AXIS_SOURCE_FINGER = 1,
+
+
+
+ WL_POINTER_AXIS_SOURCE_CONTINUOUS = 2,
+
+
+
+
+ WL_POINTER_AXIS_SOURCE_WHEEL_TILT = 3,
+};
+# 4686 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_pointer_axis_source_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_POINTER_AXIS_SOURCE_WHEEL:
+  return version >= 1;
+ case WL_POINTER_AXIS_SOURCE_FINGER:
+  return version >= 1;
+ case WL_POINTER_AXIS_SOURCE_CONTINUOUS:
+  return version >= 1;
+ case WL_POINTER_AXIS_SOURCE_WHEEL_TILT:
+  return version >= 6;
+ default:
+  return false;
+ }
+}
+# 4712 "/usr/include/wayland-server-protocol.h" 3
+enum wl_pointer_axis_relative_direction {
+
+
+
+ WL_POINTER_AXIS_RELATIVE_DIRECTION_IDENTICAL = 0,
+
+
+
+ WL_POINTER_AXIS_RELATIVE_DIRECTION_INVERTED = 1,
+};
+# 4733 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_pointer_axis_relative_direction_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_POINTER_AXIS_RELATIVE_DIRECTION_IDENTICAL:
+  return version >= 1;
+ case WL_POINTER_AXIS_RELATIVE_DIRECTION_INVERTED:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_pointer_interface {
+# 4792 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_cursor)(struct wl_client *client,
+      struct wl_resource *resource,
+      uint32_t serial,
+      struct wl_resource *surface,
+      int32_t hotspot_x,
+      int32_t hotspot_y);
+# 4808 "/usr/include/wayland-server-protocol.h" 3
+ void (*release)(struct wl_client *client,
+   struct wl_resource *resource);
+};
+# 4887 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_pointer_send_enter(struct wl_resource *resource_, uint32_t serial, struct wl_resource *surface, wl_fixed_t surface_x, wl_fixed_t surface_y)
+{
+ wl_resource_post_event(resource_, 0, serial, surface, surface_x, surface_y);
+}
+# 4900 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_pointer_send_leave(struct wl_resource *resource_, uint32_t serial, struct wl_resource *surface)
+{
+ wl_resource_post_event(resource_, 1, serial, surface);
+}
+# 4914 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_pointer_send_motion(struct wl_resource *resource_, uint32_t time, wl_fixed_t surface_x, wl_fixed_t surface_y)
+{
+ wl_resource_post_event(resource_, 2, time, surface_x, surface_y);
+}
+# 4929 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_pointer_send_button(struct wl_resource *resource_, uint32_t serial, uint32_t time, uint32_t button, uint32_t state)
+{
+ wl_resource_post_event(resource_, 3, serial, time, button, state);
+}
+# 4943 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_pointer_send_axis(struct wl_resource *resource_, uint32_t time, uint32_t axis, wl_fixed_t value)
+{
+ wl_resource_post_event(resource_, 4, time, axis, value);
+}
+
+
+
+
+
+
+static inline void
+wl_pointer_send_frame(struct wl_resource *resource_)
+{
+ wl_resource_post_event(resource_, 5);
+}
+
+
+
+
+
+
+
+static inline void
+wl_pointer_send_axis_source(struct wl_resource *resource_, uint32_t axis_source)
+{
+ wl_resource_post_event(resource_, 6, axis_source);
+}
+# 4979 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_pointer_send_axis_stop(struct wl_resource *resource_, uint32_t time, uint32_t axis)
+{
+ wl_resource_post_event(resource_, 7, time, axis);
+}
+# 4992 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_pointer_send_axis_discrete(struct wl_resource *resource_, uint32_t axis, int32_t discrete)
+{
+ wl_resource_post_event(resource_, 8, axis, discrete);
+}
+# 5005 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_pointer_send_axis_value120(struct wl_resource *resource_, uint32_t axis, int32_t value120)
+{
+ wl_resource_post_event(resource_, 9, axis, value120);
+}
+# 5018 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_pointer_send_axis_relative_direction(struct wl_resource *resource_, uint32_t axis, uint32_t direction)
+{
+ wl_resource_post_event(resource_, 10, axis, direction);
+}
+# 5033 "/usr/include/wayland-server-protocol.h" 3
+enum wl_keyboard_keymap_format {
+
+
+
+ WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP = 0,
+
+
+
+ WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1 = 1,
+};
+# 5054 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_keyboard_keymap_format_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP:
+  return version >= 1;
+ case WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+# 5083 "/usr/include/wayland-server-protocol.h" 3
+enum wl_keyboard_key_state {
+
+
+
+ WL_KEYBOARD_KEY_STATE_RELEASED = 0,
+
+
+
+ WL_KEYBOARD_KEY_STATE_PRESSED = 1,
+
+
+
+
+ WL_KEYBOARD_KEY_STATE_REPEATED = 2,
+};
+# 5113 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_keyboard_key_state_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_KEYBOARD_KEY_STATE_RELEASED:
+  return version >= 1;
+ case WL_KEYBOARD_KEY_STATE_PRESSED:
+  return version >= 1;
+ case WL_KEYBOARD_KEY_STATE_REPEATED:
+  return version >= 10;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_keyboard_interface {
+
+
+
+
+
+
+ void (*release)(struct wl_client *client,
+   struct wl_resource *resource);
+};
+# 5188 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_keyboard_send_keymap(struct wl_resource *resource_, uint32_t format, int32_t fd, uint32_t size)
+{
+ wl_resource_post_event(resource_, 0, format, fd, size);
+}
+# 5202 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_keyboard_send_enter(struct wl_resource *resource_, uint32_t serial, struct wl_resource *surface, struct wl_array *keys)
+{
+ wl_resource_post_event(resource_, 1, serial, surface, keys);
+}
+# 5215 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_keyboard_send_leave(struct wl_resource *resource_, uint32_t serial, struct wl_resource *surface)
+{
+ wl_resource_post_event(resource_, 2, serial, surface);
+}
+# 5230 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_keyboard_send_key(struct wl_resource *resource_, uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
+{
+ wl_resource_post_event(resource_, 3, serial, time, key, state);
+}
+# 5246 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_keyboard_send_modifiers(struct wl_resource *resource_, uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched, uint32_t mods_locked, uint32_t group)
+{
+ wl_resource_post_event(resource_, 4, serial, mods_depressed, mods_latched, mods_locked, group);
+}
+# 5259 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_keyboard_send_repeat_info(struct wl_resource *resource_, int32_t rate, int32_t delay)
+{
+ wl_resource_post_event(resource_, 5, rate, delay);
+}
+
+
+
+
+
+struct wl_touch_interface {
+
+
+
+
+
+
+ void (*release)(struct wl_client *client,
+   struct wl_resource *resource);
+};
+# 5333 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_touch_send_down(struct wl_resource *resource_, uint32_t serial, uint32_t time, struct wl_resource *surface, int32_t id, wl_fixed_t x, wl_fixed_t y)
+{
+ wl_resource_post_event(resource_, 0, serial, time, surface, id, x, y);
+}
+# 5347 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_touch_send_up(struct wl_resource *resource_, uint32_t serial, uint32_t time, int32_t id)
+{
+ wl_resource_post_event(resource_, 1, serial, time, id);
+}
+# 5362 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_touch_send_motion(struct wl_resource *resource_, uint32_t time, int32_t id, wl_fixed_t x, wl_fixed_t y)
+{
+ wl_resource_post_event(resource_, 2, time, id, x, y);
+}
+
+
+
+
+
+
+static inline void
+wl_touch_send_frame(struct wl_resource *resource_)
+{
+ wl_resource_post_event(resource_, 3);
+}
+
+
+
+
+
+
+static inline void
+wl_touch_send_cancel(struct wl_resource *resource_)
+{
+ wl_resource_post_event(resource_, 4);
+}
+# 5398 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_touch_send_shape(struct wl_resource *resource_, int32_t id, wl_fixed_t major, wl_fixed_t minor)
+{
+ wl_resource_post_event(resource_, 5, id, major, minor);
+}
+# 5411 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_touch_send_orientation(struct wl_resource *resource_, int32_t id, wl_fixed_t orientation)
+{
+ wl_resource_post_event(resource_, 6, id, orientation);
+}
+# 5426 "/usr/include/wayland-server-protocol.h" 3
+enum wl_output_subpixel {
+
+
+
+ WL_OUTPUT_SUBPIXEL_UNKNOWN = 0,
+
+
+
+ WL_OUTPUT_SUBPIXEL_NONE = 1,
+
+
+
+ WL_OUTPUT_SUBPIXEL_HORIZONTAL_RGB = 2,
+
+
+
+ WL_OUTPUT_SUBPIXEL_HORIZONTAL_BGR = 3,
+
+
+
+ WL_OUTPUT_SUBPIXEL_VERTICAL_RGB = 4,
+
+
+
+ WL_OUTPUT_SUBPIXEL_VERTICAL_BGR = 5,
+};
+# 5463 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_output_subpixel_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_OUTPUT_SUBPIXEL_UNKNOWN:
+  return version >= 1;
+ case WL_OUTPUT_SUBPIXEL_NONE:
+  return version >= 1;
+ case WL_OUTPUT_SUBPIXEL_HORIZONTAL_RGB:
+  return version >= 1;
+ case WL_OUTPUT_SUBPIXEL_HORIZONTAL_BGR:
+  return version >= 1;
+ case WL_OUTPUT_SUBPIXEL_VERTICAL_RGB:
+  return version >= 1;
+ case WL_OUTPUT_SUBPIXEL_VERTICAL_BGR:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+# 5501 "/usr/include/wayland-server-protocol.h" 3
+enum wl_output_transform {
+
+
+
+ WL_OUTPUT_TRANSFORM_NORMAL = 0,
+
+
+
+ WL_OUTPUT_TRANSFORM_90 = 1,
+
+
+
+ WL_OUTPUT_TRANSFORM_180 = 2,
+
+
+
+ WL_OUTPUT_TRANSFORM_270 = 3,
+
+
+
+ WL_OUTPUT_TRANSFORM_FLIPPED = 4,
+
+
+
+ WL_OUTPUT_TRANSFORM_FLIPPED_90 = 5,
+
+
+
+ WL_OUTPUT_TRANSFORM_FLIPPED_180 = 6,
+
+
+
+ WL_OUTPUT_TRANSFORM_FLIPPED_270 = 7,
+};
+# 5546 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_output_transform_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_OUTPUT_TRANSFORM_NORMAL:
+  return version >= 1;
+ case WL_OUTPUT_TRANSFORM_90:
+  return version >= 1;
+ case WL_OUTPUT_TRANSFORM_180:
+  return version >= 1;
+ case WL_OUTPUT_TRANSFORM_270:
+  return version >= 1;
+ case WL_OUTPUT_TRANSFORM_FLIPPED:
+  return version >= 1;
+ case WL_OUTPUT_TRANSFORM_FLIPPED_90:
+  return version >= 1;
+ case WL_OUTPUT_TRANSFORM_FLIPPED_180:
+  return version >= 1;
+ case WL_OUTPUT_TRANSFORM_FLIPPED_270:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+# 5580 "/usr/include/wayland-server-protocol.h" 3
+enum wl_output_mode {
+
+
+
+ WL_OUTPUT_MODE_CURRENT = 0x1,
+
+
+
+ WL_OUTPUT_MODE_PREFERRED = 0x2,
+};
+# 5601 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_output_mode_is_valid(uint32_t value, uint32_t version) {
+ uint32_t valid = 0;
+ if (version >= 1)
+  valid |= WL_OUTPUT_MODE_CURRENT;
+ if (version >= 1)
+  valid |= WL_OUTPUT_MODE_PREFERRED;
+ return (value & ~valid) == 0;
+}
+
+
+
+
+
+
+struct wl_output_interface {
+
+
+
+
+
+
+
+ void (*release)(struct wl_client *client,
+   struct wl_resource *resource);
+};
+# 5678 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_output_send_geometry(struct wl_resource *resource_, int32_t x, int32_t y, int32_t physical_width, int32_t physical_height, int32_t subpixel, const char *make, const char *model, int32_t transform)
+{
+ wl_resource_post_event(resource_, 0, x, y, physical_width, physical_height, subpixel, make, model, transform);
+}
+# 5693 "/usr/include/wayland-server-protocol.h" 3
+static inline void
+wl_output_send_mode(struct wl_resource *resource_, uint32_t flags, int32_t width, int32_t height, int32_t refresh)
+{
+ wl_resource_post_event(resource_, 1, flags, width, height, refresh);
+}
+
+
+
+
+
+
+static inline void
+wl_output_send_done(struct wl_resource *resource_)
+{
+ wl_resource_post_event(resource_, 2);
+}
+
+
+
+
+
+
+
+static inline void
+wl_output_send_scale(struct wl_resource *resource_, int32_t factor)
+{
+ wl_resource_post_event(resource_, 3, factor);
+}
+
+
+
+
+
+
+
+static inline void
+wl_output_send_name(struct wl_resource *resource_, const char *name)
+{
+ wl_resource_post_event(resource_, 4, name);
+}
+
+
+
+
+
+
+
+static inline void
+wl_output_send_description(struct wl_resource *resource_, const char *description)
+{
+ wl_resource_post_event(resource_, 5, description);
+}
+
+
+
+
+
+struct wl_region_interface {
+
+
+
+
+
+ void (*destroy)(struct wl_client *client,
+   struct wl_resource *resource);
+# 5767 "/usr/include/wayland-server-protocol.h" 3
+ void (*add)(struct wl_client *client,
+      struct wl_resource *resource,
+      int32_t x,
+      int32_t y,
+      int32_t width,
+      int32_t height);
+# 5782 "/usr/include/wayland-server-protocol.h" 3
+ void (*subtract)(struct wl_client *client,
+    struct wl_resource *resource,
+    int32_t x,
+    int32_t y,
+    int32_t width,
+    int32_t height);
+};
+# 5806 "/usr/include/wayland-server-protocol.h" 3
+enum wl_subcompositor_error {
+
+
+
+ WL_SUBCOMPOSITOR_ERROR_BAD_SURFACE = 0,
+
+
+
+ WL_SUBCOMPOSITOR_ERROR_BAD_PARENT = 1,
+};
+# 5827 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_subcompositor_error_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_SUBCOMPOSITOR_ERROR_BAD_SURFACE:
+  return version >= 1;
+ case WL_SUBCOMPOSITOR_ERROR_BAD_PARENT:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_subcompositor_interface {
+
+
+
+
+
+
+
+ void (*destroy)(struct wl_client *client,
+   struct wl_resource *resource);
+# 5881 "/usr/include/wayland-server-protocol.h" 3
+ void (*get_subsurface)(struct wl_client *client,
+          struct wl_resource *resource,
+          uint32_t id,
+          struct wl_resource *surface,
+          struct wl_resource *parent);
+};
+# 5900 "/usr/include/wayland-server-protocol.h" 3
+enum wl_subsurface_error {
+
+
+
+ WL_SUBSURFACE_ERROR_BAD_SURFACE = 0,
+};
+# 5917 "/usr/include/wayland-server-protocol.h" 3
+static inline bool
+wl_subsurface_error_is_valid(uint32_t value, uint32_t version) {
+ switch (value) {
+ case WL_SUBSURFACE_ERROR_BAD_SURFACE:
+  return version >= 1;
+ default:
+  return false;
+ }
+}
+
+
+
+
+
+
+struct wl_subsurface_interface {
+# 5942 "/usr/include/wayland-server-protocol.h" 3
+ void (*destroy)(struct wl_client *client,
+   struct wl_resource *resource);
+# 5962 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_position)(struct wl_client *client,
+        struct wl_resource *resource,
+        int32_t x,
+        int32_t y);
+# 5982 "/usr/include/wayland-server-protocol.h" 3
+ void (*place_above)(struct wl_client *client,
+       struct wl_resource *resource,
+       struct wl_resource *sibling);
+# 5993 "/usr/include/wayland-server-protocol.h" 3
+ void (*place_below)(struct wl_client *client,
+       struct wl_resource *resource,
+       struct wl_resource *sibling);
+# 6004 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_sync)(struct wl_client *client,
+    struct wl_resource *resource);
+# 6014 "/usr/include/wayland-server-protocol.h" 3
+ void (*set_desync)(struct wl_client *client,
+      struct wl_resource *resource);
+};
+# 6048 "/usr/include/wayland-server-protocol.h" 3
+struct wl_fixes_interface {
+
+
+
+
+
+ void (*destroy)(struct wl_client *client,
+   struct wl_resource *resource);
+# 6070 "/usr/include/wayland-server-protocol.h" 3
+ void (*destroy_registry)(struct wl_client *client,
+     struct wl_resource *resource,
+     struct wl_resource *registry);
+};
+# 20 "/usr/include/wlroots-0.18/wlr/util/box.h" 2
+# 28 "/usr/include/wlroots-0.18/wlr/util/box.h"
+
+# 28 "/usr/include/wlroots-0.18/wlr/util/box.h"
+struct wlr_box {
+ int x, y;
+ int width, height;
+};
+
+
+
+
+
+
+struct wlr_fbox {
+ double x, y;
+ double width, height;
+};
+# 53 "/usr/include/wlroots-0.18/wlr/util/box.h"
+void wlr_box_closest_point(const struct wlr_box *box, double x, double y,
+ double *dest_x, double *dest_y);
+
+
+
+
+
+
+bool wlr_box_intersection(struct wlr_box *dest, const struct wlr_box *box_a,
+ const struct wlr_box *box_b);
+# 72 "/usr/include/wlroots-0.18/wlr/util/box.h"
+bool wlr_box_contains_point(const struct wlr_box *box, double x, double y);
+
+
+
+
+
+
+bool wlr_box_empty(const struct wlr_box *box);
+
+
+
+
+void wlr_box_transform(struct wlr_box *dest, const struct wlr_box *box,
+ enum wl_output_transform transform, int width, int height);
+
+
+
+
+
+
+bool wlr_fbox_empty(const struct wlr_fbox *box);
+
+
+
+
+void wlr_fbox_transform(struct wlr_fbox *dest, const struct wlr_fbox *box,
+ enum wl_output_transform transform, double width, double height);
+
+
+
+
+
+
+bool wlr_box_equal(const struct wlr_box *a, const struct wlr_box *b);
+
+
+
+
+bool wlr_fbox_equal(const struct wlr_fbox *a, const struct wlr_fbox *b);
+# 16 "/usr/include/wlroots-0.18/wlr/render/pass.h" 2
+
+struct wlr_renderer;
+struct wlr_buffer;
+
+
+
+
+struct wlr_render_pass;
+
+
+
+
+struct wlr_render_timer;
+
+struct wlr_buffer_pass_options {
+
+ struct wlr_render_timer *timer;
+
+
+ struct wlr_color_transform *color_transform;
+};
+
+
+
+
+
+
+
+struct wlr_render_pass *wlr_renderer_begin_buffer_pass(struct wlr_renderer *renderer,
+ struct wlr_buffer *buffer, const struct wlr_buffer_pass_options *options);
+
+
+
+
+
+
+bool wlr_render_pass_submit(struct wlr_render_pass *render_pass);
+
+
+
+
+enum wlr_render_blend_mode {
+
+ WLR_RENDER_BLEND_MODE_PREMULTIPLIED,
+
+ WLR_RENDER_BLEND_MODE_NONE,
+};
+
+
+
+
+enum wlr_scale_filter_mode {
+
+ WLR_SCALE_FILTER_BILINEAR,
+
+ WLR_SCALE_FILTER_NEAREST,
+};
+
+struct wlr_render_texture_options {
+
+ struct wlr_texture *texture;
+
+ struct wlr_fbox src_box;
+
+ struct wlr_box dst_box;
+
+ const float *alpha;
+
+ const pixman_region32_t *clip;
+
+ enum wl_output_transform transform;
+
+ enum wlr_scale_filter_mode filter_mode;
+
+ enum wlr_render_blend_mode blend_mode;
+};
+
+
+
+
+void wlr_render_pass_add_texture(struct wlr_render_pass *render_pass,
+ const struct wlr_render_texture_options *options);
+
+
+
+
+
+
+
+struct wlr_render_color {
+ float r, g, b, a;
+};
+
+struct wlr_render_rect_options {
+
+ struct wlr_box box;
+
+ struct wlr_render_color color;
+
+ const pixman_region32_t *clip;
+
+ enum wlr_render_blend_mode blend_mode;
+};
+
+
+
+
+void wlr_render_pass_add_rect(struct wlr_render_pass *render_pass,
+ const struct wlr_render_rect_options *options);
+# 15 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h" 2
+# 1 "/usr/include/wlroots-0.18/wlr/render/wlr_texture.h" 1
+# 12 "/usr/include/wlroots-0.18/wlr/render/wlr_texture.h"
+# 1 "/usr/include/wlroots-0.18/wlr/render/pixman.h" 1
+# 13 "/usr/include/wlroots-0.18/wlr/render/wlr_texture.h" 2
+
+
+# 1 "/usr/include/wlroots-0.18/wlr/render/dmabuf.h" 1
+# 34 "/usr/include/wlroots-0.18/wlr/render/dmabuf.h"
+struct wlr_dmabuf_attributes {
+ int32_t width, height;
+ uint32_t format;
+ uint64_t modifier;
+
+ int n_planes;
+ uint32_t offset[4];
+ uint32_t stride[4];
+ int fd[4];
+};
+
+
+
+
+void wlr_dmabuf_attributes_finish(struct wlr_dmabuf_attributes *attribs);
+
+
+
+bool wlr_dmabuf_attributes_copy(struct wlr_dmabuf_attributes *dst,
+ const struct wlr_dmabuf_attributes *src);
+# 16 "/usr/include/wlroots-0.18/wlr/render/wlr_texture.h" 2
+
+
+struct wlr_buffer;
+struct wlr_renderer;
+struct wlr_texture_impl;
+
+struct wlr_texture {
+ const struct wlr_texture_impl *impl;
+ uint32_t width, height;
+
+ struct wlr_renderer *renderer;
+};
+
+struct wlr_texture_read_pixels_options {
+
+ void *data;
+
+ uint32_t format;
+
+ uint32_t stride;
+
+ uint32_t dst_x, dst_y;
+
+ const struct wlr_box src_box;
+};
+
+bool wlr_texture_read_pixels(struct wlr_texture *texture,
+ const struct wlr_texture_read_pixels_options *options);
+
+uint32_t wlr_texture_preferred_read_format(struct wlr_texture *texture);
+
+
+
+
+
+struct wlr_texture *wlr_texture_from_pixels(struct wlr_renderer *renderer,
+ uint32_t fmt, uint32_t stride, uint32_t width, uint32_t height,
+ const void *data);
+
+
+
+
+struct wlr_texture *wlr_texture_from_dmabuf(struct wlr_renderer *renderer,
+ struct wlr_dmabuf_attributes *attribs);
+# 71 "/usr/include/wlroots-0.18/wlr/render/wlr_texture.h"
+bool wlr_texture_update_from_buffer(struct wlr_texture *texture,
+ struct wlr_buffer *buffer, const pixman_region32_t *damage);
+
+
+
+
+void wlr_texture_destroy(struct wlr_texture *texture);
+
+
+
+
+struct wlr_texture *wlr_texture_from_buffer(struct wlr_renderer *renderer,
+ struct wlr_buffer *buffer);
+# 16 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h" 2
+
+
+struct wlr_backend;
+struct wlr_renderer_impl;
+struct wlr_drm_format_set;
+struct wlr_buffer;
+struct wlr_box;
+struct wlr_fbox;
+
+
+
+
+struct wlr_renderer {
+
+
+ uint32_t render_buffer_caps;
+
+ struct {
+  struct wl_signal destroy;
+
+
+
+
+
+  struct wl_signal lost;
+ } events;
+
+ struct {
+
+
+
+  bool output_color_transform;
+ } features;
+
+
+
+ const struct wlr_renderer_impl *impl;
+};
+
+
+
+
+
+
+
+struct wlr_renderer *wlr_renderer_autocreate(struct wlr_backend *backend);
+# 71 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h"
+const struct wlr_drm_format_set *wlr_renderer_get_texture_formats(
+ struct wlr_renderer *r, uint32_t buffer_caps);
+
+
+
+
+
+
+bool wlr_renderer_init_wl_display(struct wlr_renderer *r,
+ struct wl_display *wl_display);
+
+
+
+
+bool wlr_renderer_init_wl_shm(struct wlr_renderer *r,
+ struct wl_display *wl_display);
+
+
+
+
+
+
+int wlr_renderer_get_drm_fd(struct wlr_renderer *r);
+
+
+
+
+
+
+void wlr_renderer_destroy(struct wlr_renderer *renderer);
+
+
+
+
+struct wlr_render_timer *wlr_render_timer_create(struct wlr_renderer *renderer);
+
+
+
+
+
+
+int wlr_render_timer_get_duration_ns(struct wlr_render_timer *timer);
+
+
+
+
+void wlr_render_timer_destroy(struct wlr_render_timer *timer);
+# 2 "<stdin>" 2
