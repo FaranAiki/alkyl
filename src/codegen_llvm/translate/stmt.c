@@ -107,33 +107,40 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 }
     
                 VarType ptr_t = inst->op1->type;
-                if (ptr_t.ptr_depth > 0) ptr_t.ptr_depth--;
-                else if (ptr_t.array_size > 0) ptr_t.array_size = 0; // Natural Array decay
+                LLVMTypeRef base_ty;
                 
-                LLVMTypeRef base_ty = get_llvm_type(ctx, ptr_t);
-                
-                // Differentiate Struct GEP (Constant Index) vs Array GEP
-                if (ptr_t.base == TYPE_CLASS && ptr_t.ptr_depth == 0 && inst->op2 && inst->op2->kind == ALIR_VAL_CONST) {
-                    AlirStruct *st = alir_find_struct(ctx->alir_mod, ptr_t.class_name);
-                    if (st && st->is_union) {
-                        res = op1;
-                    } else {
-                        res = LLVMBuildStructGEP2(ctx->builder, base_ty, op1, (unsigned)inst->op2->val.int_val, "struct_gep");
-                    }
+                if (ptr_t.is_tainted && inst->op2 && inst->op2->kind == ALIR_VAL_CONST) {
+                    base_ty = get_llvm_type(ctx, ptr_t);
+                    res = LLVMBuildStructGEP2(ctx->builder, base_ty, op1, (unsigned)inst->op2->val.int_val, "taint_gep");
                 } else {
-                    if (inst->op1->type.array_size > 0) {
-                        // Proper LLVM GEP indexing for explicit Array types ([N x i32]*)
-                        LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
-                        LLVMValueRef indices[] = { zero, op2 };
-                        
-                        VarType raw_t = inst->op1->type;
-                        LLVMTypeRef arr_ty = get_llvm_type(ctx, raw_t);
-                        
-                        res = LLVMBuildGEP2(ctx->builder, arr_ty, op1, indices, 2, "array_gep");
+                    if (ptr_t.ptr_depth > 0) ptr_t.ptr_depth--;
+                    else if (ptr_t.array_size > 0) ptr_t.array_size = 0; // Natural Array decay
+                    
+                    base_ty = get_llvm_type(ctx, ptr_t);
+                    
+                    // Differentiate Struct GEP (Constant Index) vs Array GEP
+                    if (ptr_t.base == TYPE_CLASS && ptr_t.ptr_depth == 0 && inst->op2 && inst->op2->kind == ALIR_VAL_CONST) {
+                        AlirStruct *st = alir_find_struct(ctx->alir_mod, ptr_t.class_name);
+                        if (st && st->is_union) {
+                            res = op1;
+                        } else {
+                            res = LLVMBuildStructGEP2(ctx->builder, base_ty, op1, (unsigned)inst->op2->val.int_val, "struct_gep");
+                        }
                     } else {
-                        // Standard Pointer iteration (i32*)
-                        LLVMValueRef indices[] = { op2 };
-                        res = LLVMBuildGEP2(ctx->builder, base_ty, op1, indices, 1, "ptr_gep");
+                        if (inst->op1->type.array_size > 0) {
+                            // Proper LLVM GEP indexing for explicit Array types ([N x i32]*)
+                            LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
+                            LLVMValueRef indices[] = { zero, op2 };
+                            
+                            VarType raw_t = inst->op1->type;
+                            LLVMTypeRef arr_ty = get_llvm_type(ctx, raw_t);
+                            
+                            res = LLVMBuildGEP2(ctx->builder, arr_ty, op1, indices, 2, "array_gep");
+                        } else {
+                            // Standard Pointer iteration (i32*)
+                            LLVMValueRef indices[] = { op2 };
+                            res = LLVMBuildGEP2(ctx->builder, base_ty, op1, indices, 1, "ptr_gep");
+                        }
                     }
                 }
                 break;

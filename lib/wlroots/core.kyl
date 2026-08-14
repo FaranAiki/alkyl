@@ -1,3 +1,7 @@
+private namespace {
+    import "std/c_alias";
+}
+
 namespace wlroots {
     @c import "project/wmyl/bridge.h"
 
@@ -16,6 +20,14 @@ namespace wlroots {
             purge ErrDisplayCreation;
         }
         return display as wlroots.wl_display*;
+    }
+
+    errnum [ErrSocketCreation] char*? add_socket_auto(pristine wlroots.wl_display* display) {
+        let socket = wl_display_add_socket_auto(display);
+        if (socket == 0 as void*) {
+            purge ErrSocketCreation;
+        }
+        return socket;
     }
 
     // Backend

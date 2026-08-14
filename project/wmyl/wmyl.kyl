@@ -1,10 +1,21 @@
+/*
+    wlroots wayland window manager
+*/
+
 import "std/print";
 import "wlroots/core";
 
-// Alkyl doesn't support hyphens in link identifier
-// do this
+/*
+    linking for C
+*/
 link "wayland-server";
 link "wlroots-0.18";
+
+@c extern {
+    int setenv(char* name, char* value, int overwrite);
+    int fork();
+    int execl(char* path, char* arg0, char* arg1, char* arg2, void* arg3);
+}
 
 int main() {
     std.printf("Starting wmyl (wlroots minimal WM)...\n");
@@ -15,6 +26,15 @@ int main() {
         std.printf("Failed to create Wayland display\n");
         return 1;
     }
+
+    let socket = wlroots.add_socket_auto(display);
+    untaint socket residue err {
+        std.printf("Failed to add Wayland socket\n");
+        return 1;
+    }
+
+    setenv("WAYLAND_DISPLAY", socket, 1);
+    std.printf("Running Wayland display on {}...\n", socket);
 
     std.printf("Starting backend...\n");
 
@@ -34,7 +54,7 @@ int main() {
         wlroots.destroy_display(display);
         return 1;
     }
-    
+
     wlroots.init_renderer(renderer, display);
 
     // 4. Create allocator
@@ -49,7 +69,7 @@ int main() {
     // 5. Create compositor and output layout
     let compositor = wlroots.create_compositor(display, renderer);
     untaint compositor residue err { return 1; }
-    
+
     let manager = wlroots.create_data_device_manager(display);
     untaint manager residue err { return 1; }
 
@@ -65,7 +85,13 @@ int main() {
         return 1;
     }
 
-    std.printf("Backend started successfully! Running Wayland display...\n");
+    std.printf("Backend started successfully! Spawning kitty...\n");
+
+    let pid = fork();
+    if (pid == 0) {
+        execl("/bin/sh", "/bin/sh", "-c", "kitty", 0 as void*);
+        return 1;
+    }
 
     // 7. Run event loop
     wlroots.run_display(display);
