@@ -1,15 +1,18 @@
-# 0 "<stdin>"
+# 0 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3
 # 0 "<command-line>" 2
-# 1 "<stdin>"
-# 1 "/usr/include/wlroots-0.18/wlr/render/allocator.h" 1
-# 12 "/usr/include/wlroots-0.18/wlr/render/allocator.h"
-# 1 "/usr/include/wayland-server-core.h" 1 3
-# 29 "/usr/include/wayland-server-core.h" 3
-# 1 "/usr/include/sys/types.h" 1 3
-# 25 "/usr/include/sys/types.h" 3
+# 1 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h"
+# 12 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h"
+# 1 "/usr/lib/gcc/x86_64-pc-linux-gnu/16/include/stdint.h" 1 3
+# 9 "/usr/lib/gcc/x86_64-pc-linux-gnu/16/include/stdint.h" 3
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+# 1 "/usr/include/stdint.h" 1 3
+# 26 "/usr/include/stdint.h" 3
+# 1 "/usr/include/bits/libc-header-start.h" 1 3
+# 33 "/usr/include/bits/libc-header-start.h" 3
 # 1 "/usr/include/features.h" 1 3
 # 431 "/usr/include/features.h" 3
 # 1 "/usr/include/features-time64.h" 1 3
@@ -36,10 +39,8 @@
 # 1 "/usr/include/gnu/stubs-64.h" 1 3
 # 11 "/usr/include/gnu/stubs.h" 2 3
 # 565 "/usr/include/features.h" 2 3
-# 26 "/usr/include/sys/types.h" 2 3
-
-
-
+# 34 "/usr/include/bits/libc-header-start.h" 2 3
+# 27 "/usr/include/stdint.h" 2 3
 # 1 "/usr/include/bits/types.h" 1 3
 # 27 "/usr/include/bits/types.h" 3
 # 1 "/usr/include/bits/wordsize.h" 1 3
@@ -51,8 +52,6 @@
 # 29 "/usr/include/bits/types.h" 2 3
 
 
-
-# 31 "/usr/include/bits/types.h" 3
 typedef unsigned char __u_char;
 typedef unsigned short int __u_short;
 typedef unsigned int __u_int;
@@ -174,7 +173,78 @@ typedef unsigned int __socklen_t;
 
 
 typedef int __sig_atomic_t;
-# 30 "/usr/include/sys/types.h" 2 3
+# 28 "/usr/include/stdint.h" 2 3
+# 1 "/usr/include/bits/wchar.h" 1 3
+# 29 "/usr/include/stdint.h" 2 3
+# 1 "/usr/include/bits/wordsize.h" 1 3
+# 30 "/usr/include/stdint.h" 2 3
+# 38 "/usr/include/stdint.h" 3
+# 1 "/usr/include/bits/stdint-intn.h" 1 3
+# 24 "/usr/include/bits/stdint-intn.h" 3
+typedef __int8_t int8_t;
+typedef __int16_t int16_t;
+typedef __int32_t int32_t;
+typedef __int64_t int64_t;
+# 39 "/usr/include/stdint.h" 2 3
+
+
+# 1 "/usr/include/bits/stdint-uintn.h" 1 3
+# 24 "/usr/include/bits/stdint-uintn.h" 3
+typedef __uint8_t uint8_t;
+typedef __uint16_t uint16_t;
+typedef __uint32_t uint32_t;
+typedef __uint64_t uint64_t;
+# 42 "/usr/include/stdint.h" 2 3
+
+
+
+# 1 "/usr/include/bits/stdint-least.h" 1 3
+# 25 "/usr/include/bits/stdint-least.h" 3
+typedef __int_least8_t int_least8_t;
+typedef __int_least16_t int_least16_t;
+typedef __int_least32_t int_least32_t;
+typedef __int_least64_t int_least64_t;
+
+
+typedef __uint_least8_t uint_least8_t;
+typedef __uint_least16_t uint_least16_t;
+typedef __uint_least32_t uint_least32_t;
+typedef __uint_least64_t uint_least64_t;
+# 46 "/usr/include/stdint.h" 2 3
+
+
+
+
+
+typedef signed char int_fast8_t;
+
+typedef long int int_fast16_t;
+typedef long int int_fast32_t;
+typedef long int int_fast64_t;
+# 64 "/usr/include/stdint.h" 3
+typedef unsigned char uint_fast8_t;
+
+typedef unsigned long int uint_fast16_t;
+typedef unsigned long int uint_fast32_t;
+typedef unsigned long int uint_fast64_t;
+# 80 "/usr/include/stdint.h" 3
+typedef long int intptr_t;
+
+
+typedef unsigned long int uintptr_t;
+# 94 "/usr/include/stdint.h" 3
+typedef __intmax_t intmax_t;
+typedef __uintmax_t uintmax_t;
+# 12 "/usr/lib/gcc/x86_64-pc-linux-gnu/16/include/stdint.h" 2 3
+#pragma GCC diagnostic pop
+# 13 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h" 2
+# 1 "/usr/include/wayland-server-core.h" 1 3
+# 29 "/usr/include/wayland-server-core.h" 3
+# 1 "/usr/include/sys/types.h" 1 3
+# 27 "/usr/include/sys/types.h" 3
+
+
+
 
 
 
@@ -298,13 +368,7 @@ typedef unsigned int uint;
 
 
 
-# 1 "/usr/include/bits/stdint-intn.h" 1 3
-# 24 "/usr/include/bits/stdint-intn.h" 3
-typedef __int8_t int8_t;
-typedef __int16_t int16_t;
-typedef __int32_t int32_t;
-typedef __int64_t int64_t;
-# 156 "/usr/include/sys/types.h" 2 3
+
 
 
 typedef __uint8_t u_int8_t;
@@ -717,72 +781,7 @@ typedef union
 
 
 # 30 "/usr/include/wayland-server-core.h" 2 3
-# 1 "/usr/lib/gcc/x86_64-pc-linux-gnu/16/include/stdint.h" 1 3
-# 9 "/usr/lib/gcc/x86_64-pc-linux-gnu/16/include/stdint.h" 3
- 
-# 9 "/usr/lib/gcc/x86_64-pc-linux-gnu/16/include/stdint.h" 3
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
-# 1 "/usr/include/stdint.h" 1 3
-# 26 "/usr/include/stdint.h" 3
-# 1 "/usr/include/bits/libc-header-start.h" 1 3
-# 27 "/usr/include/stdint.h" 2 3
 
-# 1 "/usr/include/bits/wchar.h" 1 3
-# 29 "/usr/include/stdint.h" 2 3
-# 1 "/usr/include/bits/wordsize.h" 1 3
-# 30 "/usr/include/stdint.h" 2 3
-# 41 "/usr/include/stdint.h" 3
-# 1 "/usr/include/bits/stdint-uintn.h" 1 3
-# 24 "/usr/include/bits/stdint-uintn.h" 3
-typedef __uint8_t uint8_t;
-typedef __uint16_t uint16_t;
-typedef __uint32_t uint32_t;
-typedef __uint64_t uint64_t;
-# 42 "/usr/include/stdint.h" 2 3
-
-
-
-# 1 "/usr/include/bits/stdint-least.h" 1 3
-# 25 "/usr/include/bits/stdint-least.h" 3
-typedef __int_least8_t int_least8_t;
-typedef __int_least16_t int_least16_t;
-typedef __int_least32_t int_least32_t;
-typedef __int_least64_t int_least64_t;
-
-
-typedef __uint_least8_t uint_least8_t;
-typedef __uint_least16_t uint_least16_t;
-typedef __uint_least32_t uint_least32_t;
-typedef __uint_least64_t uint_least64_t;
-# 46 "/usr/include/stdint.h" 2 3
-
-
-
-
-
-typedef signed char int_fast8_t;
-
-typedef long int int_fast16_t;
-typedef long int int_fast32_t;
-typedef long int int_fast64_t;
-# 64 "/usr/include/stdint.h" 3
-typedef unsigned char uint_fast8_t;
-
-typedef unsigned long int uint_fast16_t;
-typedef unsigned long int uint_fast32_t;
-typedef unsigned long int uint_fast64_t;
-# 80 "/usr/include/stdint.h" 3
-typedef long int intptr_t;
-
-
-typedef unsigned long int uintptr_t;
-# 94 "/usr/include/stdint.h" 3
-typedef __intmax_t intmax_t;
-typedef __uintmax_t uintmax_t;
-# 12 "/usr/lib/gcc/x86_64-pc-linux-gnu/16/include/stdint.h" 2 3
-#pragma GCC diagnostic pop
-# 31 "/usr/include/wayland-server-core.h" 2 3
 # 1 "/usr/lib/gcc/x86_64-pc-linux-gnu/16/include/stdbool.h" 1 3
 # 32 "/usr/include/wayland-server-core.h" 2 3
 # 1 "/usr/include/wayland-util.h" 1 3
@@ -2896,45 +2895,4 @@ wl_display_add_protocol_logger(struct wl_display *display,
 
 void
 wl_protocol_logger_destroy(struct wl_protocol_logger *logger);
-# 13 "/usr/include/wlroots-0.18/wlr/render/allocator.h" 2
-
-
-# 14 "/usr/include/wlroots-0.18/wlr/render/allocator.h"
-struct wlr_allocator;
-struct wlr_backend;
-struct wlr_drm_format;
-struct wlr_renderer;
-
-struct wlr_allocator_interface {
- struct wlr_buffer *(*create_buffer)(struct wlr_allocator *alloc,
-  int width, int height, const struct wlr_drm_format *format);
- void (*destroy)(struct wlr_allocator *alloc);
-};
-
-void wlr_allocator_init(struct wlr_allocator *alloc,
- const struct wlr_allocator_interface *impl, uint32_t buffer_caps);
-# 38 "/usr/include/wlroots-0.18/wlr/render/allocator.h"
-struct wlr_allocator {
- const struct wlr_allocator_interface *impl;
-
-
- uint32_t buffer_caps;
-
- struct {
-  struct wl_signal destroy;
- } events;
-};
-
-
-
-
-struct wlr_allocator *wlr_allocator_autocreate(struct wlr_backend *backend,
- struct wlr_renderer *renderer);
-
-
-
-void wlr_allocator_destroy(struct wlr_allocator *alloc);
-# 77 "/usr/include/wlroots-0.18/wlr/render/allocator.h"
-struct wlr_buffer *wlr_allocator_create_buffer(struct wlr_allocator *alloc,
- int width, int height, const struct wlr_drm_format *format);
-# 2 "<stdin>" 2
+# 14 "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h" 2

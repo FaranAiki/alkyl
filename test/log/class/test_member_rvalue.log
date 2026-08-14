@@ -1,9 +1,3 @@
-at namespace std:
-in std/print:
-126:6: warning: Implicitly resolved 'printf' to '__c_lib.printf'
-  | meta void printf(char* fmt, ...) {
-  |      ^
-hint: consider writing __c_lib.printf
 at namespace main:
 in .../code/class/test_member_rvalue.kyl:
 9:3: warning: Implicitly resolved 'print' to 'std.print'

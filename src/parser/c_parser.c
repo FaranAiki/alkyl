@@ -1,3 +1,4 @@
+/* DEBUG TEST */
 /* This is some AI slop, but we'll see.... */
 #include "c_parser.h"
 #include "parser.h"
@@ -584,7 +585,7 @@ static ASTNode* c_parse_extern_function(CParser *p) {
         int param_count = 0;
         Parameter *curr = params;
         while (curr) { param_count++; curr = curr->next; }
-        printf("DEBUG C_PARSER: parsed function %s with %d params (varargs=%d) at line %d\n", func_name, param_count, is_varargs, p->current.line);
+        debug_c_header("parsed function %s with %d params (varargs=%d) at line %d\n", func_name, param_count, is_varargs, p->current.line);
     }
 
     if (in_macro_wrapper) {
@@ -839,7 +840,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
 
     ASTNode **curr_member = &sn->members;
 
-    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { fprintf(stderr, "DEBUG C_PARSER: LOOP START token=%d line=%d text='%s'\n", p->current.type, p->current.line, p->current.text ? p->current.text : "N/A");
+            while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { debug_c_header("LOOP START token=%d line=%d text='%s'\n", p->current.type, p->current.line, p->current.text ? p->current.text : "N/A");
         if (c_match(p, C_TOKEN_IDENTIFIER) &&
             (streq_lit(p->current.text, "public") || streq_lit(p->current.text, "protected") || streq_lit(p->current.text, "private"))) {
             c_eat(p, C_TOKEN_IDENTIFIER);
@@ -912,7 +913,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
         VarType member_type = c_parse_c_type(p, &ptr_depth, &array_size);
 
         if (member_type.base == TYPE_UNKNOWN) {
-            fprintf(stderr, "DEBUG C_PARSER[%d]: Unknown type token type=%d text='%s' at line:%d\n", __LINE__, p->current.type, p->current.text ? p->current.text : "N/A", p->current.line); c_parser_error(p, "Unknown type in struct/union member");
+            debug_c_header("Unknown type token type=%d text='%s' at line:%d\n", p->current.type, p->current.text ? p->current.text : "N/A", p->current.line); c_parser_error(p, "Unknown type in struct/union member");
             while (!c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
                 c_eat(p, p->current.type);
             }
@@ -933,7 +934,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
             sn->is_extern = 1;
 
             ASTNode **curr_member = &sn->members;
-            while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { fprintf(stderr, "DEBUG C_PARSER: LOOP START token=%d line=%d text='%s'\n", p->current.type, p->current.line, p->current.text ? p->current.text : "N/A");
+    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { debug_c_header("LOOP START token=%d line=%d text='%s'\n", p->current.type, p->current.line, p->current.text ? p->current.text : "N/A");
                 while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_EXTENSION)) {
                     c_eat(p, p->current.type);
                 }
@@ -943,7 +944,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                 VarType inner_type = c_parse_c_type(p, &inner_ptr, &inner_array);
 
                 if (inner_type.base == TYPE_UNKNOWN) {
-                    fprintf(stderr, "DEBUG C_PARSER[%d]: Unknown type token type=%d text='%s' at line:%d\n", __LINE__, p->current.type, p->current.text ? p->current.text : "N/A", p->current.line); c_parser_error(p, "Unknown type in struct/union member");
+                    debug_c_header("Unknown type token type=%d text='%s' at line:%d\n", p->current.type, p->current.text ? p->current.text : "N/A", p->current.line); c_parser_error(p, "Unknown type in struct/union member");
                     while (!c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
                         c_eat(p, p->current.type);
                     }
@@ -963,14 +964,14 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                     anon->has_body = 1;
                     anon->is_extern = 1;
                     ASTNode **inner_curr = &anon->members;
-                    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { fprintf(stderr, "DEBUG C_PARSER: LOOP START token=%d\n", p->current.type);
+                    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { debug_c_header("LOOP START token=%d\n", p->current.type);
                         while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_EXTENSION)) {
                             c_eat(p, p->current.type);
                         }
                         int ip = 0, ia = 0;
                         VarType it = c_parse_c_type(p, &ip, &ia);
                         if (it.base == TYPE_UNKNOWN) {
-                            fprintf(stderr, "DEBUG C_PARSER[%d]: Unknown type token type=%d text='%s' at line:%d\n", __LINE__, p->current.type, p->current.text ? p->current.text : "N/A", p->current.line); c_parser_error(p, "Unknown type in struct/union member");
+                            debug_c_header("Unknown type token type=%d text='%s' at line:%d\n", p->current.type, p->current.text ? p->current.text : "N/A", p->current.line); c_parser_error(p, "Unknown type in struct/union member");
                             while (!c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
                                 c_eat(p, p->current.type);
                             }
@@ -1341,7 +1342,7 @@ static ASTNode* c_parse_enum(CParser *p) {
     EnumEntry **curr_entry = &en->entries;
     int value = 0;
 
-    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { fprintf(stderr, "DEBUG C_PARSER: LOOP START token=%d\n", p->current.type);
+    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { debug_c_header("LOOP START token=%d\n", p->current.type);
         if (!c_match(p, C_TOKEN_IDENTIFIER)) {
             c_parser_error(p, "Expected enumerator name");
             break;
@@ -1473,7 +1474,7 @@ static ASTNode* c_parse_typedef(CParser *p) {
 
             ASTNode **curr_member = &sn->members;
 
-            while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { fprintf(stderr, "DEBUG C_PARSER: LOOP START token=%d\n", p->current.type);
+            while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { debug_c_header("LOOP START token=%d\n", p->current.type);
                 while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE)) {
                     c_eat(p, p->current.type);
                 }
@@ -1525,14 +1526,14 @@ static ASTNode* c_parse_typedef(CParser *p) {
                     anon->has_body = 1;
                     anon->is_extern = 1;
                     ASTNode **inner_curr = &anon->members;
-                    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { fprintf(stderr, "DEBUG C_PARSER: LOOP START token=%d\n", p->current.type);
+                    while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { debug_c_header("LOOP START token=%d\n", p->current.type);
                         while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_EXTENSION)) {
                             c_eat(p, p->current.type);
                         }
                         int ip = 0, ia = 0;
                         VarType it = c_parse_c_type(p, &ip, &ia);
                         if (it.base == TYPE_UNKNOWN) {
-                            fprintf(stderr, "DEBUG C_PARSER[%d]: Unknown type token type=%d text='%s' at line:%d\n", __LINE__, p->current.type, p->current.text ? p->current.text : "N/A", p->current.line); c_parser_error(p, "Unknown type in struct/union member");
+                            debug_c_header("Unknown type token type=%d text='%s' at line:%d\n", p->current.type, p->current.text ? p->current.text : "N/A", p->current.line); c_parser_error(p, "Unknown type in struct/union member");
                             while (!c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_RBRACE) && !p->has_error) {
                                 c_eat(p, p->current.type);
                             }
@@ -2022,11 +2023,101 @@ ASTNode* c_parse_header(CParser *p) {
 }
 
 char* c_preprocess_header(CompilerContext *ctx, const char *fname) {
-    char cmd[1024];
+    char cmd[4096] = {0};
+    char include_flags[1024] = {0};
+
     if (fname[0] == '/') {
         snprintf(cmd, sizeof(cmd), "echo '#include \"%s\"' | gcc -E -DWLR_USE_UNSTABLE -xc - 2>/dev/null", fname);
     } else {
         snprintf(cmd, sizeof(cmd), "echo '#include <%s>' | gcc -E -DWLR_USE_UNSTABLE -I. -xc - 2>/dev/null", fname);
+    }
+
+    if (fname[0] == '/') {
+        char path_copy[512];
+        strncpy(path_copy, fname, sizeof(path_copy) - 1);
+        path_copy[sizeof(path_copy) - 1] = '\0';
+
+        char *dir = path_copy;
+        char *last_slash = strrchr(dir, '/');
+        if (last_slash) {
+            *last_slash = '\0';
+
+            for (int i = 0; i < 4 && dir[0] == '/' && strlen(dir) > 1; i++) {
+                char flag[256];
+                snprintf(flag, sizeof(flag), " -I%s", dir);
+                if (strlen(include_flags) + strlen(flag) + 1 < sizeof(include_flags)) {
+                    strcat(include_flags, flag);
+                }
+
+                last_slash = strrchr(dir, '/');
+                if (last_slash && last_slash != dir) {
+                    *last_slash = '\0';
+                } else {
+                    break;
+                }
+            }
+
+            char *component = strrchr(fname, '/');
+            if (component) {
+                component++;
+                while (*component) {
+                    if ((*component >= 'a' && *component <= 'z') ||
+                        (*component >= 'A' && *component <= 'Z') ||
+                        (*component >= '0' && *component <= '9') ||
+                        *component == '-' || *component == '_' || *component == '.') {
+                        component++;
+                    } else {
+                        break;
+                    }
+                }
+                size_t comp_len = component - (strrchr(fname, '/') + 1);
+                if (comp_len > 0 && comp_len < 64) {
+                    char pkg_name[64];
+                    snprintf(pkg_name, sizeof(pkg_name), "%.*s", (int)comp_len, strrchr(fname, '/') + 1);
+                    char pkg_cmd[256];
+                    snprintf(pkg_cmd, sizeof(pkg_cmd), "pkg-config --cflags %s 2>/dev/null", pkg_name);
+                    FILE *pf = popen(pkg_cmd, "r");
+                    if (pf) {
+                        char pkg_out[512] = {0};
+                        size_t pkg_len = fread(pkg_out, 1, sizeof(pkg_out) - 1, pf);
+                        pkg_out[pkg_len] = '\0';
+                        pclose(pf);
+                        if (pkg_len > 0) {
+                            char *p = pkg_out;
+                            while (*p) {
+                                while (*p == ' ' || *p == '\t' || *p == '\n') p++;
+                                if (*p == '-' && *(p+1) == 'I') {
+                                    p += 2;
+                                    char *end = p;
+                                    while (*end && *end != ' ' && *end != '\t' && *end != '\n') end++;
+                                    size_t path_len = end - p;
+                                    if (path_len > 0 && path_len < 256) {
+                                        char flag[256];
+                                        snprintf(flag, sizeof(flag), " -I%.*s", (int)path_len, p);
+                                        if (strlen(include_flags) + strlen(flag) + 1 < sizeof(include_flags)) {
+                                            strcat(include_flags, flag);
+                                        }
+                                    }
+                                    p = end;
+                                } else {
+                                    while (*p && *p != ' ' && *p != '\t' && *p != '\n') p++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (strlen(include_flags) > 0) {
+            char *insert_pos = strstr(cmd, " -xc ");
+            if (insert_pos) {
+                char new_cmd[4096];
+                snprintf(new_cmd, sizeof(new_cmd), "%.*s%s -xc %s", (int)(insert_pos - cmd), cmd, include_flags, insert_pos + 5);
+                strncpy(cmd, new_cmd, sizeof(cmd) - 1);
+                cmd[sizeof(cmd) - 1] = '\0';
+            }
+        }
     }
 
     FILE *f = popen(cmd, "r");

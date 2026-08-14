@@ -2,10 +2,6 @@
 #include "../parser/c_parser.h"
 
 static ASTNode* resolve_c_import(Parser *p, const char *fname) {
-    if (p->ctx) {
-        ASTNode *cached = (ASTNode*)hashmap_get(&p->ctx->import_cache, fname);
-        if (cached) return NULL;
-    }
 
     char *src = c_preprocess_header(p->ctx, fname);
     if (!src) {
@@ -24,7 +20,6 @@ static ASTNode* resolve_c_import(Parser *p, const char *fname) {
             c_nodes = parser_alloc(p, sizeof(ASTNode));
             c_nodes->type = NODE_ROOT;
         }
-        hashmap_put(&p->ctx->import_cache, fname, c_nodes);
     }
 
     return c_nodes;
@@ -34,7 +29,7 @@ ASTNode* parse_import_internal(Parser *p, const char *fname) {
    if (p->ctx) {
        ASTNode *cached = (ASTNode*)hashmap_get(&p->ctx->import_cache, fname);
        if (cached) {
-           return NULL;
+           return cached;
        }
    }
 

@@ -1,84 +1,85 @@
-import "lib/c"
+import "std/print";
 
-// FLAGS: -DWLR_USE_UNSTABLE -I/usr/include/wlroots-0.18 -I/usr/include/pixman-1 -I/usr/include/libdrm
-
-@c import "/usr/include/wayland-server-core.h"
-@c import "/usr/include/wlroots-0.18/wlr/backend.h"
-@c import "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h"
-@c import "/usr/include/wlroots-0.18/wlr/render/allocator.h"
-@c import "/usr/include/wlroots-0.18/wlr/types/wlr_compositor.h"
-@c import "/usr/include/wlroots-0.18/wlr/types/wlr_data_device.h"
-@c import "/usr/include/wlroots-0.18/wlr/types/wlr_output_layout.h"
+namespace wl {
+    @c import "/usr/include/wayland-server-core.h"
+    @c import "/usr/include/wlroots-0.18/wlr/backend.h"
+    @c import "/usr/include/wlroots-0.18/wlr/render/wlr_renderer.h"
+    @c import "/usr/include/wlroots-0.18/wlr/render/allocator.h"
+    @c import "/usr/include/wlroots-0.18/wlr/types/wlr_compositor.h"
+    @c import "/usr/include/wlroots-0.18/wlr/types/wlr_data_device.h"
+    @c import "/usr/include/wlroots-0.18/wlr/types/wlr_output_layout.h"
+}
 
 // Alkyl doesn't support hyphens in link identifier
+// do this
 link "wayland_server";
 link "wlroots_0_18";
 
 int main() {
-    clib.printf("Starting wmyl (wlroots minimal WM)...\n");
+    std.printf("Starting wmyl (wlroots minimal WM)...\n");
 
     // 1. Initialize Wayland display
-    let display = wl_display_create();
+    let display = wl.wl_display_create();
     if (display == 0 as void*) {
-        clib.printf("Failed to create Wayland display\n");
+        std.printf("Failed to create Wayland display\n");
         return 1;
     }
 
     // 2. Autocreate backend
-    let backend = wlr_backend_autocreate(display, 0 as void**);
+    let backend = wl.wlr_backend_autocreate(display, 0 as void**);
     if (backend == 0 as void*) {
-        clib.printf("Failed to create wlroots backend\n");
-        wl_display_destroy(display);
+        std.printf("Failed to create wlroots backend\n");
+        wl.wl_display_destroy(display);
         return 1;
     }
 
     // 3. Autocreate renderer
-    let renderer = wlr_renderer_autocreate(backend);
+    let renderer = wl.wlr_renderer_autocreate(backend);
     if (renderer == 0 as void*) {
-        clib.printf("Failed to create wlroots renderer\n");
-        wlr_backend_destroy(backend);
-        wl_display_destroy(display);
+        std.printf("Failed to create wlroots renderer\n");
+        wl.wlr_backend_destroy(backend);
+        wl.wl_display_destroy(display);
         return 1;
     }
-    
+
     // Initialize renderer with display
-    wlr_renderer_init_wl_display(renderer, display);
+    wl.wlr_renderer_init_wl_display(renderer, display);
 
     // 4. Autocreate allocator
-    let allocator = wlr_allocator_autocreate(backend, renderer);
+    let allocator = wl.wlr_allocator_autocreate(backend, renderer);
     if (allocator == 0 as void*) {
-        clib.printf("Failed to create wlroots allocator\n");
-        wlr_backend_destroy(backend);
-        wl_display_destroy(display);
+        std.printf("Failed to create wlroots allocator\n");
+        wl.wlr_backend_destroy(backend);
+        wl.wl_display_destroy(display);
         return 1;
     }
 
     // 5. Create basic Wayland/wlroots types
-    wlr_compositor_create(display, 5, renderer);
-    wlr_data_device_manager_create(display);
+    wl.wlr_compositor_create(display, 5, renderer);
+    wl.wlr_data_device_manager_create(display);
 
     // Create an output layout
-    let output_layout = wlr_output_layout_create(display);
+    let output_layout = wl.wlr_output_layout_create(display);
 
-    clib.printf("Starting backend...\n");
+    std.printf("Starting backend...\n");
 
     // 6. Start the backend
-    if (wlr_backend_start(backend) == false) {
-        clib.printf("Failed to start backend\n");
-        wlr_backend_destroy(backend);
-        wl_display_destroy(display);
+    if (wl.wlr_backend_start(backend) == false) {
+        std.printf("Failed to start backend\n");
+        wl.wlr_backend_destroy(backend);
+        wl.wl_display_destroy(display);
         return 1;
     }
 
-    clib.printf("Backend started successfully! Running Wayland display...\n");
+    std.printf("Backend started successfully! Running Wayland display...\n");
 
     // 7. Run the display (blocks until stopped)
-    wl_display_run(display);
+    wl.wl_display_run(display);
 
     // 8. Cleanup
-    wl_display_destroy_clients(display);
-    wl_display_destroy(display);
-    
-    clib.printf("wmyl exited gracefully.\n");
+    wl.wl_display_destroy_clients(display);
+    wl.wl_display_destroy(display);
+
+    std.printf("wmyl exited gracefully.\n");
     return 0;
 }

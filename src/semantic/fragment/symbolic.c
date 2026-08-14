@@ -2,7 +2,10 @@
 
 void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
     FuncDefNode *fd = (FuncDefNode*)node;
+    int old_ausearch_warning = ctx->settings.namespace_ausearch_warning;
+    ctx->settings.namespace_ausearch_warning = 0;
     SemSymbol *existing = sem_symbol_lookup(ctx, fd->name, NULL);
+    ctx->settings.namespace_ausearch_warning = old_ausearch_warning;
     if (existing && existing->kind == SYM_FUNC && existing->param_count == 0 && !existing->is_variadic && (fd->params != NULL || fd->is_varargs)) {
         existing->params = fd->params;
         existing->is_variadic = fd->is_varargs;

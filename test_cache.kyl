@@ -1,0 +1,13 @@
+namespace ns1 {
+    @c import "test_user_header.h"
+    int func1() { return 1; }
+}
+namespace ns2 {
+    @c import "test_user_header.h"
+    int func2() { return 2; }
+}
+int main() {
+    ns1.func1();
+    ns2.func2();
+    return 0;
+}
