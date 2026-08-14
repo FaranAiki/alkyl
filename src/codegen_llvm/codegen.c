@@ -466,6 +466,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
 
     // Verify Module Integrity Check (Optional safety)
     char *err_msg = NULL;
+    LLVMDumpModule(ctx->llvm_mod);
     LLVMVerifyModule(ctx->llvm_mod, LLVMPrintMessageAction, &err_msg);
     if (err_msg) {
         LLVMDisposeMessage(err_msg);

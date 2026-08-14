@@ -1,1 +1,62 @@
+step: Finished lexing. Start parsing.
+debug: parser: after parse_type, vt.base=16, token.type=31
+debug: parser: parse_postfix: before parse_call, node->type=47
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55fbf33bedf8 target=0x55fbf33bec38
+debug: parser: parse_postfix: before parse_call, node->type=47
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55fbf33bf3d0 target=0x55fbf33bf2d0
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x55fbf33bedf8
+debug: semantic: sem_check_call: name='(null)', ns='main'
+debug: semantic: sem_check_expr: type=47 line=8 col=17 node=0x55fbf33bec38
+debug: semantic: &ctx->ast_tail=0x7ffe0fae75a8, ctx->ast_tail=0x55fbf33bf640, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x55fbf33becb8
+debug: semantic: sem_check_expr: type=16 line=8 col=26 node=0x55fbf33bed58
+debug: parser: inferring type for a, init_type.base=16
+debug: parser: debug: inferred type Vector_int for a
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=2 line=9 col=22 node=0x55fbf33bf3d0
+debug: semantic: sem_check_call: name='(null)', ns='main'
+debug: semantic: sem_check_expr: type=47 line=9 col=17 node=0x55fbf33bf2d0
+debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x55fbf33bf350
+debug: semantic: copy check: base=16 expected=16 class_name=Vector_int sym_name=Vector_int
+debug: parser: inferring type for b, init_type.base=16
+debug: parser: debug: inferred type Vector_int for b
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=10 col=10 node=0x55fbf33bf528
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: Visiting class Vector_int
+debug: alir: DEBUG_REGISTER: st=0x55fbf33c43f0 name=Vector_int next=(nil)
+debug: alir: DEBUG_PASS1_END: struct list:
  - Vector_int fields: 2
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=16 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: alir_add_function: Vector_int
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+step: Finished alir optimization. Start code generation using LLVM codegen

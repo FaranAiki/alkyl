@@ -29,7 +29,9 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     LLVMValueRef val = op1;
                     LLVMValueRef ptr = op2;
                     
-                    if (LLVMGetTypeKind(LLVMTypeOf(ptr)) != LLVMPointerTypeKind) {
+                    if (LLVMGetTypeKind(LLVMTypeOf(ptr)) == LLVMStructTypeKind) {
+                        ptr = LLVMBuildExtractValue(ctx->builder, ptr, 1, "ext_ptr_for_store");
+                    } else if (LLVMGetTypeKind(LLVMTypeOf(ptr)) != LLVMPointerTypeKind) {
                         ptr = LLVMBuildIntToPtr(ctx->builder, ptr, LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0), "store_cast");
                     }
                     LLVMTypeRef pointed = NULL;
@@ -70,7 +72,9 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     } else {
                         ty = get_llvm_type(ctx, inst->dest->type);
                     }
-                    if (LLVMGetTypeKind(LLVMTypeOf(op1)) != LLVMPointerTypeKind) {
+                    if (LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMStructTypeKind) {
+                        op1 = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext_ptr_for_load");
+                    } else if (LLVMGetTypeKind(LLVMTypeOf(op1)) != LLVMPointerTypeKind) {
                         op1 = LLVMBuildIntToPtr(ctx->builder, op1, LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0), "load_cast");
                     }
                     res = LLVMBuildLoad2(ctx->builder, ty, op1, "load");

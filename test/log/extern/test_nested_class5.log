@@ -1,1 +1,55 @@
+step: Finished lexing. Start parsing.
+debug: parser: after parse_type, vt.base=1, token.type=31
+debug: semantic: sem_check_block: ns='ns'
+debug: semantic: sem_check_block: visiting node type=21
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x564342e83198
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=27 line=8 col=17 node=0x564342e83498
+debug: semantic: sem_check_expr: type=13 line=8 col=15 node=0x564342e83418
+debug: semantic: sem_check_method_call: method='Clib', obj_base=18, obj_class='ns'
+debug: semantic: sem_check_call: name='ns.Clib', ns='main'
+debug: semantic: sem_check_expr: type=13 line=8 col=17 node=0x564342e84b60
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x564342e84c78
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=9 col=10 node=0x564342e83788
+debug: semantic: sem_check_expr: type=26 line=9 col=7 node=0x564342e83670
+debug: semantic: sem_check_expr: type=13 line=9 col=6 node=0x564342e835f0
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x564342e836e8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=9 col=22 node=0x564342e83830
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=9 col=32 node=0x564342e839c0
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: Visiting class Clib
+debug: alir: DEBUG_REGISTER: st=0x564342e88938 name=ns.Clib next=(nil)
+debug: alir: DEBUG_PASS1_END: struct list:
  - ns.Clib fields: 1
+debug: alir: Found namespace ns
+debug: alir: alir_add_function: ns.Clib
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+debug: optlir: Check Type for Struct Marking ns.Clib
+step: Finished alir optimization. Start code generation using LLVM codegen

@@ -1,3 +1,6 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=47
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x556d4451bb00 target=0x556d4451b938
 at namespace main:
 in .../code/examples/test_alloc.kyl:
 15:20: error: Expected ';' but found ','
@@ -6,3 +9,37 @@ in .../code/examples/test_alloc.kyl:
 18:1: error: Unexpected token in expression: '}'
   | }
   | ^
+debug: parser: after parse_type, vt.base=0, token.type=31
+debug: parser: after parse_type, vt.base=0, token.type=31
+debug: parser: after parse_type, vt.base=16, token.type=31
+debug: parser: after parse_type, vt.base=16, token.type=8
+debug: parser: constructor check: vt.class_name='CAllocator', class_name='CAllocator'
+debug: parser: after parse_type, vt.base=0, token.type=31
+debug: parser: after parse_type, vt.base=16, token.type=31
+debug: parser: after parse_type, vt.base=0, token.type=31
+debug: parser: after parse_type, vt.base=0, token.type=31
+debug: parser: after parse_type, vt.base=4, token.type=31
+debug: parser: after parse_type, vt.base=4, token.type=31
+debug: parser: after parse_type, vt.base=16, token.type=31
+debug: parser: after parse_type, vt.base=16, token.type=31
+debug: parser: after parse_type, vt.base=4, token.type=31
+debug: parser: after parse_type, vt.base=0, token.type=31
+debug: parser: after parse_type, vt.base=0, token.type=31
+debug: parser: after parse_type, vt.base=0, token.type=31
+debug: parser: after parse_type, vt.base=16, token.type=31
+debug: parser: after parse_type, vt.base=0, token.type=31
+debug: parser: after parse_type, vt.base=0, token.type=31
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print_int_array target_type=13 line=0 col=0 node=0x556d445622b8 target=0x556d44561f50
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print_uint_array target_type=13 line=0 col=0 node=0x556d44562920 target=0x556d445625b8
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print_long_array target_type=13 line=0 col=0 node=0x556d44562f88 target=0x556d44562c20
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print_ulong_array target_type=13 line=0 col=0 node=0x556d445635f0 target=0x556d44563288
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print_single_array target_type=13 line=0 col=0 node=0x556d44563c58 target=0x556d445638f0
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print_double_array target_type=13 line=0 col=0 node=0x556d445642c0 target=0x556d44563f58
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x556d44566588 target=0x556d44566488

@@ -1,3 +1,10 @@
+step: Finished lexing. Start parsing.
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen
 /usr/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crt1.o: in function `_start':
 (.text+0x1b): undefined reference to `main'
 collect2: error: ld returned 1 exit status

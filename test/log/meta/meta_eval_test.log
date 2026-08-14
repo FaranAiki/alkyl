@@ -1,3 +1,72 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56409ffe6448 target=0x56409ffe6328
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56409ffe6cc0 target=0x56409ffe6bc0
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56409ffe7040 target=0x56409ffe6f20
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56409ffe71f8 target=0x56409ffe70d8
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56409ffe7430 target=0x56409ffe7310
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56409ffe7768 target=0x56409ffe7648
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=43
+debug: semantic: sem_check_block: visiting node type=44
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=30 col=12 node=0x56409ffe7ab0
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: GEN_CALL: name=print mangled=NULL
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: alir: CALL_STD: name=print mangled=NULL target_type=13
+debug: alir: TAINTED PTR: ctx->module=0x56409ffe8a00 target_name=print count=1
+debug: alir: GEN_CALL: name=print mangled=NULL
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: alir: CALL_STD: name=print mangled=NULL target_type=13
+debug: alir: TAINTED PTR: ctx->module=0x56409ffe8a00 target_name=print count=1
+debug: alir: GEN_CALL: name=print mangled=NULL
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: alir: CALL_STD: name=print mangled=NULL target_type=13
+debug: alir: TAINTED PTR: ctx->module=0x56409ffe8a00 target_name=print count=1
+debug: alir: GEN_CALL: name=print mangled=NULL
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: alir: CALL_STD: name=print mangled=NULL target_type=13
+debug: alir: TAINTED PTR: ctx->module=0x56409ffe8a00 target_name=print count=1
+debug: alir: GEN_CALL: name=print mangled=NULL
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: alir: CALL_STD: name=print mangled=NULL target_type=13
+debug: alir: TAINTED PTR: ctx->module=0x56409ffe8a00 target_name=print count=1
+debug: alir: GEN_CALL: name=print mangled=NULL
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: alir: CALL_STD: name=print mangled=NULL target_type=13
+debug: alir: TAINTED PTR: ctx->module=0x56409ffe8a00 target_name=print count=1
+debug: metalir: VM CALL: print
+debug: metalir: VM CALL: print
+debug: metalir: VM CALL: print
+debug: metalir: VM CALL: print
+debug: metalir: VM CALL: print
+debug: alir: GEN_CALL: name=print mangled=NULL
+debug: alir: Looking up 'print'
+debug: alir: Symbol 'print' not found!
+debug: alir: CALL_STD: name=print mangled=NULL target_type=13
+debug: alir: TAINTED PTR: ctx->module=0x56409ffe8a00 target_name=print count=1
+debug: metalir: VM CALL: print
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen
 --- Start Meta Execution ---
 Result of 10 + 25 = 
 35

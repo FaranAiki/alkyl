@@ -143,6 +143,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 // Only apply C default promotions (char/short -> i32) for variadic tail args.
                 if ((unsigned)i < num_params) {
                     LLVMTypeRef expected_ty = param_tys[i];
+                    printf("DEBUG CALL param %d: num_params=%d, expected_ty=%d, arg_ty=%d\n", i, num_params, LLVMGetTypeKind(expected_ty), LLVMGetTypeKind(arg_ty));
                     if (LLVMGetTypeKind(expected_ty) == LLVMIntegerTypeKind &&
                         LLVMGetTypeKind(arg_ty) == LLVMIntegerTypeKind) {
                         unsigned ew = LLVMGetIntTypeWidth(expected_ty);
@@ -162,6 +163,13 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         LLVMValueRef alloca = LLVMBuildAlloca(ctx->builder, arg_ty, "array_arg_alloc");
                         LLVMBuildStore(ctx->builder, args[i], alloca);
                         args[i] = alloca;
+                    } else if (LLVMGetTypeKind(expected_ty) == LLVMStructTypeKind && LLVMGetTypeKind(arg_ty) == LLVMPointerTypeKind) {
+                        LLVMValueRef wrapped = LLVMGetUndef(expected_ty);
+                        wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), 0, "wrap_err_arg");
+                        wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, args[i], 1, "wrap_val_arg");
+                        args[i] = wrapped;
+                    } else {
+                        printf("DEBUG CALL: expected_ty=%d, arg_ty=%d\n", LLVMGetTypeKind(expected_ty), LLVMGetTypeKind(arg_ty));
                     }
                 } else if (LLVMGetTypeKind(arg_ty) == LLVMIntegerTypeKind) {
                     if (inst->args[i]->type.base == TYPE_UNKNOWN || inst->args[i]->type.base == TYPE_AUTO) {

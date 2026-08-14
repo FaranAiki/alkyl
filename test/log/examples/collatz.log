@@ -1,0 +1,504 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=collatz_w_print target_type=13 line=0 col=0 node=0x55bfb303dc90 target=0x55bfb303db90
+debug: semantic: sem_check_block: ns='c'
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='c'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=9 col=14 node=0x55bfb3038860
+debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x55bfb3038648
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='c'
+debug: semantic: sem_check_expr: type=16 line=9 col=14 node=0x55bfb3038740
+debug: semantic: sem_check_expr: type=13 line=9 col=20 node=0x55bfb30387e0
+debug: semantic: sem_check_expr: type=16 line=9 col=14 node=0x55bfb3038740
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=10 col=13 node=0x55bfb3038a18
+debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x55bfb30388f8
+debug: semantic: sem_check_expr: type=16 line=10 col=16 node=0x55bfb3038978
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=18 node=0x55bfb3038cd8
+debug: semantic: sem_check_expr: type=13 line=11 col=9 node=0x55bfb3038ac0
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='c'
+debug: semantic: sem_check_expr: type=16 line=11 col=18 node=0x55bfb3038bb8
+debug: semantic: sem_check_expr: type=13 line=11 col=28 node=0x55bfb3038c58
+debug: semantic: sem_check_expr: type=16 line=11 col=18 node=0x55bfb3038bb8
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=12 col=18 node=0x55bfb3038fd8
+debug: semantic: sem_check_expr: type=14 line=12 col=14 node=0x55bfb3038e90
+debug: semantic: sem_check_expr: type=13 line=12 col=12 node=0x55bfb3038d70
+debug: semantic: sem_check_expr: type=16 line=12 col=16 node=0x55bfb3038df0
+debug: semantic: sem_check_expr: type=16 line=12 col=21 node=0x55bfb3038f38
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=14 line=12 col=34 node=0x55bfb3039220
+debug: semantic: sem_check_expr: type=13 line=12 col=32 node=0x55bfb3039100
+debug: semantic: sem_check_expr: type=16 line=12 col=37 node=0x55bfb3039180
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=14 line=13 col=21 node=0x55bfb3039648
+debug: semantic: sem_check_expr: type=14 line=13 col=18 node=0x55bfb3039500
+debug: semantic: sem_check_expr: type=16 line=13 col=18 node=0x55bfb30393e0
+debug: semantic: sem_check_expr: type=13 line=0 col=0 node=0x55bfb3039480
+debug: semantic: sem_check_expr: type=16 line=13 col=23 node=0x55bfb30395a8
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=15 col=14 node=0x55bfb3039a20
+debug: semantic: sem_check_expr: type=13 line=15 col=5 node=0x55bfb3039888
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='c'
+debug: semantic: sem_check_expr: type=16 line=15 col=14 node=0x55bfb3039980
+debug: semantic: sem_check_expr: type=16 line=15 col=14 node=0x55bfb3039980
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=34
+debug: semantic: sem_check_expr: type=17 line=19 col=15 node=0x55bfb303db18
+debug: semantic: sem_check_expr: type=16 line=19 col=16 node=0x55bfb3039ba8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb3039ce8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb3039d88
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb3039e28
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb3039ec8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb3039f68
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a008
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a0a8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a148
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a1e8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a2d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a378
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a418
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a4b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a558
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a5f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a698
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a738
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a7d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a878
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a918
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a9b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303aa58
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303aaf8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ab98
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ac38
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303acd8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ad78
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ae18
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303aeb8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303af58
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303aff8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b098
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b138
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b1d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b278
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b318
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b3b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b458
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b4f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b598
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b638
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b6d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b778
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b818
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b8b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b958
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b9f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ba98
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bb38
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bbd8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bc78
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bd18
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bdb8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303be58
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bef8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bf98
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c038
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c0d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c178
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c218
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c2b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c358
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c3f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c498
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c538
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c5d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c678
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c718
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c7b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c858
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c8f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c998
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ca38
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cad8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cb78
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cc18
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ccb8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cd58
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cdf8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ce98
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cf38
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cfd8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d078
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d118
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d1b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d258
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d2f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d398
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d438
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d4d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d578
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d618
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d6b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d758
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d7f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d898
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d938
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d9d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303da78
+debug: semantic: sem_check_expr: type=17 line=19 col=15 node=0x55bfb303db18
+debug: semantic: sem_check_expr: type=16 line=19 col=16 node=0x55bfb3039ba8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb3039ce8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb3039d88
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb3039e28
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb3039ec8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb3039f68
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a008
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a0a8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a148
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a1e8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a2d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a378
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a418
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a4b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a558
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a5f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a698
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a738
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a7d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a878
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a918
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303a9b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303aa58
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303aaf8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ab98
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ac38
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303acd8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ad78
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ae18
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303aeb8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303af58
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303aff8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b098
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b138
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b1d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b278
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b318
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b3b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b458
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b4f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b598
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b638
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b6d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b778
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b818
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b8b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b958
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303b9f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ba98
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bb38
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bbd8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bc78
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bd18
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bdb8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303be58
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bef8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303bf98
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c038
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c0d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c178
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c218
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c2b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c358
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c3f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c498
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c538
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c5d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c678
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c718
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c7b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c858
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c8f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303c998
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ca38
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cad8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cb78
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cc18
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ccb8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cd58
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cdf8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303ce98
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cf38
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303cfd8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d078
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d118
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d1b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d258
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d2f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d398
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d438
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d4d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d578
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d618
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d6b8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d758
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d7f8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d898
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d938
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303d9d8
+debug: semantic: sem_check_expr: type=16 line=0 col=0 node=0x55bfb303da78
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=20 col=24 name=collatz_w_print target_type=13 node=0x55bfb303dc90
+debug: semantic: sem_check_expr: type=2 line=20 col=24 node=0x55bfb303dc90
+debug: semantic: sem_check_call: name='collatz_w_print', ns='main'
+debug: semantic: sem_check_expr: type=13 line=20 col=9 node=0x55bfb303db90
+debug: semantic: sem_check_expr: type=13 line=20 col=25 node=0x55bfb303dc10
+debug: semantic: sem_check_expr: type=13 line=20 col=25 node=0x55bfb303dc10
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=22 col=12 node=0x55bfb303ddd8
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found namespace c
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: printf adding param '(null)' type.base=8
+debug: alir: Found func_def collatz_w_print
+debug: alir: alir_gen_function_def fn->name=collatz_w_print class_name=NULL fn->mangled_name=main_collatz_w_print_i32 -> func_name=main_collatz_w_print_i32
+debug: alir: alir_add_function: main_collatz_w_print_i32
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=23 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: GEN_CALL: name=collatz_w_print mangled=main_collatz_w_print_i32
+debug: alir: Looking up 'main_collatz_w_print_i32'
+debug: alir: Found symbol collatz_w_print, kind=1, is_macro=0, node_ptr=0x55bfb3039ab8
+debug: alir: CALL_STD: name=collatz_w_print mangled=main_collatz_w_print_i32 target_type=13
+debug: alir: GLOBAL VAR ADDR: collatz_w_print
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: TAINTED PTR: ctx->module=0x55bfb3041eb0 target_name=main_collatz_w_print_i32 count=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: func=main op=6 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen

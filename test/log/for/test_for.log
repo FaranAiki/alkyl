@@ -1,0 +1,153 @@
+step: Finished lexing. Start parsing.
+debug: semantic: sem_check_block: ns='clib'
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='clib'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=4 col=17 node=0x55d052a016f8
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55d052a01560
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
+debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55d052a01658
+debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55d052a01658
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=17 line=5 col=13 node=0x55d052a01970
+debug: semantic: sem_check_expr: type=16 line=5 col=14 node=0x55d052a01790
+debug: semantic: sem_check_expr: type=16 line=5 col=17 node=0x55d052a01830
+debug: semantic: sem_check_expr: type=16 line=5 col=20 node=0x55d052a018d0
+debug: parser: inferring type for p, init_type.base=1
+debug: parser: debug: inferred type int[] for p
+debug: semantic: sem_check_block: visiting node type=34
+debug: semantic: sem_check_expr: type=13 line=6 col=20 node=0x55d052a01aa8
+debug: semantic: sem_check_expr: type=13 line=6 col=20 node=0x55d052a01aa8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=7 col=21 node=0x55d052a01d40
+debug: semantic: sem_check_expr: type=13 line=7 col=9 node=0x55d052a01b28
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
+debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x55d052a01c20
+debug: semantic: sem_check_expr: type=13 line=7 col=30 node=0x55d052a01cc0
+debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x55d052a01c20
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=17 node=0x55d052a02020
+debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x55d052a01e88
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
+debug: semantic: sem_check_expr: type=16 line=10 col=17 node=0x55d052a01f80
+debug: semantic: sem_check_expr: type=16 line=10 col=17 node=0x55d052a01f80
+debug: semantic: sem_check_block: visiting node type=34
+debug: semantic: sem_check_expr: type=16 line=11 col=14 node=0x55d052a020b8
+debug: semantic: sem_check_expr: type=16 line=11 col=14 node=0x55d052a020b8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=12 col=21 node=0x55d052a02370
+debug: semantic: sem_check_expr: type=13 line=12 col=9 node=0x55d052a02158
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
+debug: semantic: sem_check_expr: type=16 line=12 col=21 node=0x55d052a02250
+debug: semantic: sem_check_expr: type=13 line=12 col=30 node=0x55d052a022f0
+debug: semantic: sem_check_expr: type=16 line=12 col=21 node=0x55d052a02250
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=15 col=17 node=0x55d052a02650
+debug: semantic: sem_check_expr: type=13 line=15 col=5 node=0x55d052a024b8
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
+debug: semantic: sem_check_expr: type=16 line=15 col=17 node=0x55d052a025b0
+debug: semantic: sem_check_expr: type=16 line=15 col=17 node=0x55d052a025b0
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=16 col=17 node=0x55d052a026e8
+debug: semantic: sem_check_block: visiting node type=34
+debug: semantic: sem_check_expr: type=13 line=17 col=15 node=0x55d052a02848
+debug: semantic: sem_check_expr: type=13 line=17 col=15 node=0x55d052a02848
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=18 col=21 node=0x55d052a02ae0
+debug: semantic: sem_check_expr: type=13 line=18 col=9 node=0x55d052a028c8
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
+debug: semantic: sem_check_expr: type=16 line=18 col=21 node=0x55d052a029c0
+debug: semantic: sem_check_expr: type=13 line=18 col=30 node=0x55d052a02a60
+debug: semantic: sem_check_expr: type=16 line=18 col=21 node=0x55d052a029c0
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=21 col=12 node=0x55d052a02c28
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found namespace clib
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: printf adding param '(null)' type.base=8
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=5 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=23 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=6 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=23 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=6 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=8
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=23 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=6 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen
