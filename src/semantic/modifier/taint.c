@@ -1,3 +1,7 @@
+/**
+ * @file taint.c
+ * @brief Taint and residue checking implementation.
+ */
 #include "semantic.h"
 
 // If `node` is a call to a function that has an attached `errnum [...]` set,

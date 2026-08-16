@@ -1,3 +1,7 @@
+/**
+ * @file keyboard.c
+ * @brief Keyboard input handling for the REPL.
+ */
 #include "keyboard.h"
 #include <stdbool.h>
 #include "common/context.h"

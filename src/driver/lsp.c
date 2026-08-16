@@ -1,3 +1,7 @@
+/**
+ * @file lsp.c
+ * @brief Language Server Protocol implementation.
+ */
 #include "driver/lsp.h"
 #include <stdio.h>
 #include <stdlib.h>

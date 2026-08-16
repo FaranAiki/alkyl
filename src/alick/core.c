@@ -1,3 +1,7 @@
+/**
+ * @file core.c
+ * @brief Core ALIR checker implementation.
+ */
 #include "../../include/alick/alick_internal.h"
 #include "../../include/common/diagnostic.h"
 #include <stdarg.h>

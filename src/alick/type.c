@@ -1,3 +1,7 @@
+/**
+ * @file type.c
+ * @brief Type validation for the ALIR checker.
+ */
 #include "../../include/alick/alick_internal.h"
 
 void alick_check_types(AlickCtx *ctx, AlirFunction *func) {

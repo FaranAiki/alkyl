@@ -1,3 +1,7 @@
+/**
+ * @file metalir.c
+ * @brief Metalir runner implementation.
+ */
 #include "metalir.h"
 #include "../metarse/metarse.h"
 #include "../common/common.h"

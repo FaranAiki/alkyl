@@ -1,3 +1,7 @@
+/**
+ * @file value.c
+ * @brief QBE value printing implementation.
+ */
 #include "codegen/codegen.h"
 #include "codegen_qbe/codegen.h"
 #include <stdio.h>

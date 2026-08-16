@@ -1,3 +1,7 @@
+/**
+ * @file cli.c
+ * @brief Command-line interface implementation.
+ */
 #include "cli.h"
 #include "../metalir/metalir.h"
 #include "../alick/alick.h"

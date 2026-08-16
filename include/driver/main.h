@@ -1,3 +1,7 @@
+/**
+ * @file main.h
+ * @brief Main driver declarations.
+ */
 #ifndef MAIN_H
 #define MAIN_H
 
@@ -11,6 +15,11 @@
 #include "../../include/alir/alir.h"
 #include "../include/alick/alick.h"
 
+/**
+ * @brief Reads a file into a malloc'd buffer.
+ * @param filename The path to the file.
+ * @return A null-terminated buffer, or NULL on failure.
+ */
 char* read_file(const char* filename);
 
 #endif

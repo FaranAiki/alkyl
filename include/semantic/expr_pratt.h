@@ -1,8 +1,15 @@
+/**
+ * @file expr_pratt.h
+ * @brief Pratt expression parsing declarations.
+ */
 #ifndef PARSER_EXPR_PRATT_H
 #define PARSER_EXPR_PRATT_H
 #include "parser_internal.h"
 
 // TODO make it so that we can actually add other precedence
+/**
+ * @brief Operator precedence levels for Pratt parsing.
+ */
 typedef enum {
     PREC_NONE,
     PREC_ASSIGN,      // =, +=, -=, etc.
@@ -25,6 +32,9 @@ typedef enum {
 typedef ASTNode* (*ParsePrefixFn)(Parser *p);
 typedef ASTNode* (*ParseInfixFn)(Parser *p, ASTNode *left);
 
+/**
+ * @brief A Pratt parser rule for an expression.
+ */
 typedef struct {
     ParsePrefixFn prefix;
     ParseInfixFn infix;

@@ -1,3 +1,7 @@
+/**
+ * @file eval_math.c
+ * @brief Math instruction evaluation for the Metalir VM.
+ */
 #include "vm_internal.h"
 #include "semantic/semantic.h"
 #include <string.h>

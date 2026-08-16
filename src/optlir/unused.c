@@ -1,3 +1,7 @@
+/**
+ * @file unused.c
+ * @brief Unused-code elimination implementation for ALIR.
+ */
 #include "optlir.h"
 #include "common/arena.h"
 #include <string.h>

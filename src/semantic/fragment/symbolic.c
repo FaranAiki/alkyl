@@ -1,3 +1,7 @@
+/**
+ * @file symbolic.c
+ * @brief Symbolic execution implementation for semantic analysis.
+ */
 #include "symbolic.h"
 
 void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {

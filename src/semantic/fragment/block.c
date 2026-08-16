@@ -1,3 +1,7 @@
+/**
+ * @file block.c
+ * @brief Block and statement checking implementation.
+ */
 #include "semantic.h"
 
 void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {

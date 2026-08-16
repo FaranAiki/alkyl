@@ -1,3 +1,7 @@
+/**
+ * @file metarse.c
+ * @brief Metarse executor implementation.
+ */
 #include "../metarse/metarse.h"
 #include "../semantic/typestruct.h"
 #include "../parser/link.h"

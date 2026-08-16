@@ -1,3 +1,7 @@
+/**
+ * @file vm.c
+ * @brief Metalir virtual machine implementation.
+ */
 #include "vm.h"
 #include "vm_internal.h"
 #include "alir/alir.h"

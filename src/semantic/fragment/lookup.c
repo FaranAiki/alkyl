@@ -1,3 +1,7 @@
+/**
+ * @file lookup.c
+ * @brief Symbol lookup implementation for semantic analysis.
+ */
 #include "semantic.h"
 
 int sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {

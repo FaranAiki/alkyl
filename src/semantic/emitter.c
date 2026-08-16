@@ -1,3 +1,7 @@
+/**
+ * @file emitter.c
+ * @brief Semantic symbol table emitter implementation.
+ */
 #include "../../include/semantic/emitter.h"
 #include <stdio.h>
 #include <stdlib.h>

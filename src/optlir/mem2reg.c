@@ -1,3 +1,7 @@
+/**
+ * @file mem2reg.c
+ * @brief Memory-to-register promotion pass for ALIR.
+ */
 #include "optlir.h"
 #include "common/arena.h"
 #include <stdlib.h>

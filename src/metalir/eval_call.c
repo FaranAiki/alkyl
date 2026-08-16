@@ -1,3 +1,7 @@
+/**
+ * @file eval_call.c
+ * @brief Call instruction evaluation for the Metalir VM.
+ */
 #include "vm_internal.h"
 #include "common/arena.h"
 #include <string.h>

@@ -1,3 +1,7 @@
+/**
+ * @file func.c
+ * @brief Function-related semantic checking implementation.
+ */
 #include "func.h"
 
 void sem_check_method_call(SemanticCtx *ctx, MethodCallNode *node) {

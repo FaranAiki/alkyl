@@ -1,3 +1,7 @@
+/**
+ * @file switch.c
+ * @brief Switch and for-in checking implementation.
+ */
 #include "semantic.h"
 
 // TODO check for in

@@ -1,3 +1,7 @@
+/**
+ * @file codegen.c
+ * @brief LLVM code generation implementation.
+ */
 #include "../../include/codegen_llvm/codegen.h"
 #include "../../include/common/hashmap.h"
 #include <stdlib.h>

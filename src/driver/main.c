@@ -1,3 +1,7 @@
+/**
+ * @file main.c
+ * @brief Main driver entry point.
+ */
 #include "main.h"
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,3 +1,7 @@
+/**
+ * @file codegen.c
+ * @brief QBE code generation implementation.
+ */
 #include "codegen/codegen.h"
 #include "codegen_qbe/codegen.h"
 #include <stdio.h>

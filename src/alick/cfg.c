@@ -1,3 +1,7 @@
+/**
+ * @file cfg.c
+ * @brief Control flow graph validation for the ALIR checker.
+ */
 #include "../../include/alick/alick_internal.h"
 #include <string.h>
 

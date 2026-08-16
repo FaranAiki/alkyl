@@ -1,3 +1,7 @@
+/**
+ * @file stmt.c
+ * @brief MLIR statement generation implementation.
+ */
 #include "mlir/generate.h"
 #include "common/hashmap.h"
 #include <stdio.h>

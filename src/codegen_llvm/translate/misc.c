@@ -1,3 +1,7 @@
+/**
+ * @file misc.c
+ * @brief LLVM miscellaneous translation implementation.
+ */
 #include "../../../include/codegen_llvm/translate.h"
 #include "../../semantic/semantic.h"
 

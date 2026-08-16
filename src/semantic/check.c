@@ -1,3 +1,7 @@
+/**
+ * @file check.c
+ * @brief Semantic checking implementation.
+ */
 #include "semantic.h"
 #include <stdio.h>
 #include <stdlib.h>

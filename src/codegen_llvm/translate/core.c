@@ -1,3 +1,7 @@
+/**
+ * @file core.c
+ * @brief LLVM translation core implementation.
+ */
 #include "../../../include/codegen_llvm/translate.h"
 #include "../../semantic/semantic.h"
 

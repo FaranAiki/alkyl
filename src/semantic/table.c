@@ -1,3 +1,7 @@
+/**
+ * @file table.c
+ * @brief Semantic hash table implementation.
+ */
 #include "semantic.h"
 #include "common/hashmap.h"
 #include <stdlib.h>

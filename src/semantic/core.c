@@ -1,3 +1,7 @@
+/**
+ * @file core.c
+ * @brief Core semantic analysis implementation.
+ */
 #include "semantic.h"
 #include <stdarg.h>
 #include <stdio.h>

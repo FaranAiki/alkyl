@@ -1,3 +1,7 @@
+/**
+ * @file driver.c
+ * @brief QBE code generation driver implementation.
+ */
 #include "codegen/codegen.h"
 #include "codegen_qbe/codegen.h"
 #include "common/linker.h"

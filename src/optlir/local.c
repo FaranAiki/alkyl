@@ -1,3 +1,7 @@
+/**
+ * @file local.c
+ * @brief Local ALIR optimization implementation.
+ */
 #include "optlir.h"
 #include "optlir/local.h"
 #include "common/arena.h"

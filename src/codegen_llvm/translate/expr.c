@@ -1,3 +1,7 @@
+/**
+ * @file expr.c
+ * @brief LLVM expression translation implementation.
+ */
 #include "../../../include/codegen_llvm/translate.h"
 #include "../../semantic/semantic.h"
 

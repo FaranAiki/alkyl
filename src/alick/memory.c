@@ -1,3 +1,7 @@
+/**
+ * @file memory.c
+ * @brief Memory validation for the ALIR checker.
+ */
 #include "../../include/alick/alick_internal.h"
 #include "../../include/common/hashmap.h"
 

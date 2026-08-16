@@ -1,3 +1,7 @@
+/**
+ * @file typestruct.h
+ * @brief Semantic type and symbol definitions.
+ */
 #ifndef SEMANTIC_TYPESTRUCT_H
 #define SEMANTIC_TYPESTRUCT_H
 

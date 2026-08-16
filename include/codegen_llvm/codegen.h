@@ -1,3 +1,7 @@
+/**
+ * @file codegen.h
+ * @brief LLVM code generation interface for ALIR.
+ */
 #ifndef LLVM_CODEGEN_H
 #define LLVM_CODEGEN_H
 
@@ -9,6 +13,9 @@
 #include <llvm-c/Analysis.h>
 #include "../../include/alir/alir.h"
 
+/**
+ * @brief The LLVM code generation context.
+ */
 typedef struct CodegenCtx {
     AlirModule *alir_mod;
     LLVMContextRef llvm_ctx;
@@ -27,26 +34,61 @@ typedef struct CodegenCtx {
     Arena *arena;           // Borrowed from compiler context
 } CodegenCtx;
 
-// Initialize the code generator for a given ALIR Module
+/**
+ * @brief Initializes the code generator for an ALIR module.
+ * @param mod The ALIR module.
+ * @return The code generation context.
+ */
 CodegenCtx* codegen_init(AlirModule *mod);
 
-// Run the multi-pass translation (Structs -> Globals -> Prototypes -> Bodies)
-// Returns the built LLVMModuleRef ready for JIT/AOT compilation.
+/**
+ * @brief Generates the LLVM module.
+ * @param ctx The code generation context.
+ * @return The generated LLVM module.
+ */
 LLVMModuleRef codegen_generate(CodegenCtx *ctx);
 
-// Emit the LLVM IR to a file
+/**
+ * @brief Emits the LLVM IR to a file.
+ * @param ctx The code generation context.
+ * @param filename The output filename.
+ */
 void codegen_emit_to_file(CodegenCtx *ctx, const char *filename);
 
-// Print the LLVM IR to stdout
+/**
+ * @brief Prints the LLVM IR to stdout.
+ * @param ctx The code generation context.
+ */
 void codegen_print(CodegenCtx *ctx);
 
-// Clean up the code generator resources (Note: does not free the LLVMModuleRef)
+/**
+ * @brief Disposes the code generation context.
+ * @param ctx The code generation context.
+ */
 void codegen_dispose(CodegenCtx *ctx);
 
+/**
+ * @brief Sets the LLVM value for an ALIR value.
+ * @param ctx The code generation context.
+ * @param v The ALIR value.
+ * @param llvm_val The LLVM value.
+ */
 void set_llvm_value(CodegenCtx *ctx, AlirValue *v, LLVMValueRef llvm_val);
 
+/**
+ * @brief Gets the LLVM type for an Alkyl type.
+ * @param ctx The code generation context.
+ * @param t The Alkyl type.
+ * @return The LLVM type.
+ */
 LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t);
 
+/**
+ * @brief Gets the LLVM value for an ALIR value.
+ * @param ctx The code generation context.
+ * @param v The ALIR value.
+ * @return The LLVM value.
+ */
 LLVMValueRef get_llvm_value(CodegenCtx *ctx, AlirValue *v);
 
 #include "translate.h"

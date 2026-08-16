@@ -1,3 +1,7 @@
+/**
+ * @file field.c
+ * @brief Class field counting and collection implementation.
+ */
 #include "semantic.h"
 
 int sem_count_class_fields(SemanticCtx *ctx, SemSymbol *sym) {

@@ -1,3 +1,7 @@
+/**
+ * @file flow.c
+ * @brief LLVM flow control translation implementation.
+ */
 #include "../../../include/codegen_llvm/translate.h"
 #include "../../semantic/semantic.h"
 

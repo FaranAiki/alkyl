@@ -1,3 +1,7 @@
+/**
+ * @file expr.c
+ * @brief MLIR expression generation implementation.
+ */
 #include "mlir/generate.h"
 #include "common/hashmap.h"
 #include <stdio.h>

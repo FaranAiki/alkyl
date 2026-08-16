@@ -1,3 +1,7 @@
+/**
+ * @file emitter.h
+ * @brief Semantic symbol table emitter.
+ */
 #ifndef SEMANTIC_EMITTER_H
 #define SEMANTIC_EMITTER_H
 

@@ -1,3 +1,7 @@
+/**
+ * @file stmt.c
+ * @brief LLVM statement translation implementation.
+ */
 #include "../../../include/codegen_llvm/translate.h"
 #include "../../semantic/semantic.h"
 

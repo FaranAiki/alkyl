@@ -1,3 +1,7 @@
+/**
+ * @file eval_mem.c
+ * @brief Memory instruction evaluation for the Metalir VM.
+ */
 #include "vm_internal.h"
 #include <string.h>
 #include "common/arena.h"

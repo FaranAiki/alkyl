@@ -1,3 +1,7 @@
+/**
+ * @file flux.c
+ * @brief LLVM flux-specific codegen implementation.
+ */
 #include "../../include/codegen_llvm/codegen.h"
 
 void codegen_llvm_flux_iter_init(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, LLVMValueRef *res) {

@@ -1,3 +1,7 @@
+/**
+ * @file pure.c
+ * @brief Pure-function evaluation and constant folding for ALIR.
+ */
 #include "optlir.h"
 #include <string.h>
 #include <stdlib.h>

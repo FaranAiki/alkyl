@@ -1,3 +1,7 @@
+/**
+ * @file type.c
+ * @brief Type checking implementation for semantic analysis.
+ */
 #include "semantic.h"
 
 int sem_count_required_class_fields(SemanticCtx *ctx, SemSymbol *sym);

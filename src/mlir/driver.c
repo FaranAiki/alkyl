@@ -1,3 +1,7 @@
+/**
+ * @file driver.c
+ * @brief MLIR driver implementation.
+ */
 #include "mlir/generate.h"
 #include "codegen/codegen.h"
 #include <stdio.h>

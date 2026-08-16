@@ -1,3 +1,7 @@
+/**
+ * @file eval_flow.c
+ * @brief Flow control instruction evaluation for the Metalir VM.
+ */
 #include "vm_internal.h"
 
 void vm_eval_flow(VMContext *ctx, AlirInst *inst) {

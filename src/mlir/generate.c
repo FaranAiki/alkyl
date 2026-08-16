@@ -1,3 +1,7 @@
+/**
+ * @file generate.c
+ * @brief MLIR generation implementation.
+ */
 #include "mlir/generate.h"
 #include "common/common.h"
 #include "common/hashmap.h"

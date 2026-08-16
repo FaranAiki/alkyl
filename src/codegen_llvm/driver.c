@@ -1,3 +1,7 @@
+/**
+ * @file driver.c
+ * @brief LLVM code generation driver implementation.
+ */
 #include "codegen/codegen.h"
 #include "codegen_llvm/codegen.h"
 #include "common/linker.h"

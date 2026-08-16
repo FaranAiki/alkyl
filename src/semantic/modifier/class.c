@@ -1,3 +1,7 @@
+/**
+ * @file class.c
+ * @brief Class-related semantic checking implementation.
+ */
 #include "class.h"
 
 void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
