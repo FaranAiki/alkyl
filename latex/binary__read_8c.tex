@@ -1,0 +1,46 @@
+\doxysection{src/\+alir/\+binary\+\_\+read.c File Reference}
+\hypertarget{binary__read_8c}{}\label{binary__read_8c}\index{src/alir/binary\_read.c@{src/alir/binary\_read.c}}
+
+
+ALIR binary module reader implementation.  
+
+
+{\ttfamily \+\#include "{}alir.\+h"{}}\newline
+{\ttfamily \+\#include $<$stdio.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdint.\+h$>$}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{binary__read_8c_a4fb6655e35b1b7742c96b36e1195cc67}{alir\+\_\+read\+\_\+binary}} (Compiler\+Context \texorpdfstring{$\ast$}{*}ctx, const char \texorpdfstring{$\ast$}{*}filename)
+\begin{DoxyCompactList}\small\item\em Reads an ALIR module from a binary file. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+ALIR binary module reader implementation. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{binary__read_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{binary__read_8c_a4fb6655e35b1b7742c96b36e1195cc67}\index{binary\_read.c@{binary\_read.c}!alir\_read\_binary@{alir\_read\_binary}}
+\index{alir\_read\_binary@{alir\_read\_binary}!binary\_read.c@{binary\_read.c}}
+\doxysubsubsection{\texorpdfstring{alir\_read\_binary()}{alir\_read\_binary()}}
+{\footnotesize\ttfamily \label{binary__read_8c_a4fb6655e35b1b7742c96b36e1195cc67} 
+\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*} alir\+\_\+read\+\_\+binary (\begin{DoxyParamCaption}\item[{Compiler\+Context \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{filename}{}\end{DoxyParamCaption})}
+
+
+
+Reads an ALIR module from a binary file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The compiler context. \\
+\hline
+{\em filename} & The input file path. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The loaded ALIR module, or NULL on failure. 
+\end{DoxyReturn}

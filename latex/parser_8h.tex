@@ -1,0 +1,331 @@
+\doxysection{include/\+parser/\+parser.h File Reference}
+\hypertarget{parser_8h}{}\label{parser_8h}\index{include/parser/parser.h@{include/parser/parser.h}}
+
+
+Main parser interface for the Alkyl compiler.  
+
+
+{\ttfamily \+\#include "{}../\+lexer/\+lexer.\+h"{}}\newline
+{\ttfamily \+\#include "{}../\+common/\+debug.\+h"{}}\newline
+{\ttfamily \+\#include "{}../\+common/\+context.\+h"{}}\newline
+{\ttfamily \+\#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \+\#include "{}../\+common/\+hashmap.\+h"{}}\newline
+{\ttfamily \+\#include "{}parser/\+typestruct.\+h"{}}\newline
+{\ttfamily \+\#include "{}semantic/\+typestruct.\+h"{}}\newline
+{\ttfamily \+\#include "{}emitter.\+h"{}}\newline
+{\ttfamily \+\#include "{}link.\+h"{}}\newline
+{\ttfamily \+\#include "{}modifier.\+h"{}}\newline
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \doxymbox{\hyperlink{structParserSettings}{Parser\+Settings}}
+\begin{DoxyCompactList}\small\item\em \doxylink{structParser}{Parser} configuration settings. \end{DoxyCompactList}\item 
+struct \doxymbox{\hyperlink{structParser}{Parser}}
+\begin{DoxyCompactList}\small\item\em The main parser state structure. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{parser_8h_aa50203a25f10049c3dcbb2e28d1ed152}\label{parser_8h_aa50203a25f10049c3dcbb2e28d1ed152} 
+typedef struct Macro {\bfseries Macro}
+\item 
+\Hypertarget{parser_8h_ae0de28647131b58ce1939f828b854fd2}\label{parser_8h_ae0de28647131b58ce1939f828b854fd2} 
+typedef struct Type\+Name {\bfseries Type\+Name}
+\item 
+\Hypertarget{parser_8h_ad3dcabd0124fced7d7df34f7b8cfee5e}\label{parser_8h_ad3dcabd0124fced7d7df34f7b8cfee5e} 
+typedef struct Type\+Alias {\bfseries Type\+Alias}
+\item 
+\Hypertarget{parser_8h_a05eec4ca6a3be20c53405dda422d10d9}\label{parser_8h_a05eec4ca6a3be20c53405dda422d10d9} 
+typedef struct Expansion {\bfseries Expansion}
+\item 
+\Hypertarget{parser_8h_a32c6aca8cceda7984a398188caca4d3a}\label{parser_8h_a32c6aca8cceda7984a398188caca4d3a} 
+typedef struct Parser {\bfseries Parser}
+\begin{DoxyCompactList}\small\item\em The main parser state structure. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{parser_8h_af0b7f0ac034e5cca1bff6e4a2b3dac07}{parser\+\_\+init}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p, Lexer \texorpdfstring{$\ast$}{*}l, \doxymbox{\hyperlink{structParserSettings}{Parser\+Settings}} \texorpdfstring{$\ast$}{*}settings)
+\begin{DoxyCompactList}\small\item\em Initializes the parser with a lexer and settings. \end{DoxyCompactList}\item 
+Token \doxymbox{\hyperlink{parser_8h_a283f5c4e80b42c5f8e79690f9f373990}{get\+\_\+next\+\_\+token\+\_\+expanded}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Returns the next token, expanding macros as needed. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{parser_8h_aabe44824503f7bb8b2537c1b633ca5c0}{report\+\_\+error}} (Lexer \texorpdfstring{$\ast$}{*}l, Token t, const char \texorpdfstring{$\ast$}{*}msg)
+\begin{DoxyCompactList}\small\item\em Reports an error through the lexer\textquotesingle{}s diagnostic system. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{parser_8h_a02061dff9d9ad34e3cd122850e875549}{ast\+\_\+clone}} (Compiler\+Context \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}type\+\_\+params, \doxymbox{\hyperlink{structVarType}{Var\+Type}} \texorpdfstring{$\ast$}{*}replace\+\_\+with, int num\+\_\+params, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}rename\+\_\+from, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}rename\+\_\+to, int num\+\_\+renames)
+\begin{DoxyCompactList}\small\item\em Deep-\/clones an AST node, optionally substituting types and renaming identifiers. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{parser_8h_ab12c778d4b78cdf9f9bb7eb6971af6c7}{ast\+\_\+rewrite\+\_\+macro}} (Compiler\+Context \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}varargs\+\_\+head, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}param\+\_\+names, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}param\+\_\+args, int num\+\_\+params)
+\begin{DoxyCompactList}\small\item\em Rewrites a macro invocation AST by substituting macro arguments. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structVarType}{Var\+Type}} \doxymbox{\hyperlink{parser_8h_ad92bad825ba13645ec11f8f2f1d6c92f}{clone\+\_\+var\+\_\+type}} (Compiler\+Context \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structVarType}{Var\+Type}} t, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}type\+\_\+params, \doxymbox{\hyperlink{structVarType}{Var\+Type}} \texorpdfstring{$\ast$}{*}replace\+\_\+with, int num\+\_\+params, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}rename\+\_\+from, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}rename\+\_\+to, int num\+\_\+renames)
+\begin{DoxyCompactList}\small\item\em Clones a \doxylink{structVarType}{Var\+Type}, optionally substituting type parameters and renaming. \end{DoxyCompactList}\item 
+Token \doxymbox{\hyperlink{parser_8h_a1256db8b3d3e801abc3a4bd228f9126e}{parser\+\_\+peek\+\_\+token}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Peeks at the next token without consuming it. \end{DoxyCompactList}\item 
+Token \doxymbox{\hyperlink{parser_8h_af31ed8ad6991f4a846ee311fd43b8284}{parser\+\_\+peek\+\_\+token\+\_\+n}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p, int offset)
+\begin{DoxyCompactList}\small\item\em Peeks at a token n positions ahead. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{parser_8h_a4691b9857dce38ccce1a85f8c78dca37}{parser\+\_\+prescan}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Pre-\/scans tokens to build lookahead buffers. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{parser_8h_a02e33045abf91e0965550c9c69fb6ba9}{parser\+\_\+set\+\_\+default\+\_\+import\+\_\+paths}} (\doxymbox{\hyperlink{structParserSettings}{Parser\+Settings}} \texorpdfstring{$\ast$}{*}ps)
+\begin{DoxyCompactList}\small\item\em Sets default import paths in the parser settings. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{parser_8h_a24ffd22920a7ff85f1022382e7173285}{parse\+\_\+program}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses the entire source program. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{parser_8h_af1a7be7d09fa25973f8da9edbf5a83a6}{parse\+\_\+expression}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a single expression. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Main parser interface for the Alkyl compiler. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{parser_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{parser_8h_a02061dff9d9ad34e3cd122850e875549}\index{parser.h@{parser.h}!ast\_clone@{ast\_clone}}
+\index{ast\_clone@{ast\_clone}!parser.h@{parser.h}}
+\doxysubsubsection{\texorpdfstring{ast\_clone()}{ast\_clone()}}
+{\footnotesize\ttfamily \label{parser_8h_a02061dff9d9ad34e3cd122850e875549} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} ast\+\_\+clone (\begin{DoxyParamCaption}\item[{Compiler\+Context \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{type\+\_\+params}{, }\item[{\doxymbox{\hyperlink{structVarType}{Var\+Type}} \texorpdfstring{$\ast$}{*}}]{replace\+\_\+with}{, }\item[{int}]{num\+\_\+params}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{rename\+\_\+from}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{rename\+\_\+to}{, }\item[{int}]{num\+\_\+renames}{}\end{DoxyParamCaption})}
+
+
+
+Deep-\/clones an AST node, optionally substituting types and renaming identifiers. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The compiler context. \\
+\hline
+{\em node} & The AST node to clone. \\
+\hline
+{\em type\+\_\+params} & Type parameter names to replace. \\
+\hline
+{\em replace\+\_\+with} & Replacement types for type parameters. \\
+\hline
+{\em num\+\_\+params} & Number of type parameters. \\
+\hline
+{\em rename\+\_\+from} & Original identifiers to rename. \\
+\hline
+{\em rename\+\_\+to} & New identifier names. \\
+\hline
+{\em num\+\_\+renames} & Number of renames. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A cloned AST node, or NULL on failure. 
+\end{DoxyReturn}
+\Hypertarget{parser_8h_ab12c778d4b78cdf9f9bb7eb6971af6c7}\index{parser.h@{parser.h}!ast\_rewrite\_macro@{ast\_rewrite\_macro}}
+\index{ast\_rewrite\_macro@{ast\_rewrite\_macro}!parser.h@{parser.h}}
+\doxysubsubsection{\texorpdfstring{ast\_rewrite\_macro()}{ast\_rewrite\_macro()}}
+{\footnotesize\ttfamily \label{parser_8h_ab12c778d4b78cdf9f9bb7eb6971af6c7} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} ast\+\_\+rewrite\+\_\+macro (\begin{DoxyParamCaption}\item[{Compiler\+Context \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{varargs\+\_\+head}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{param\+\_\+names}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{param\+\_\+args}{, }\item[{int}]{num\+\_\+params}{}\end{DoxyParamCaption})}
+
+
+
+Rewrites a macro invocation AST by substituting macro arguments. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The compiler context. \\
+\hline
+{\em node} & The AST node to rewrite. \\
+\hline
+{\em varargs\+\_\+head} & Head of the varargs list, or NULL. \\
+\hline
+{\em param\+\_\+names} & \doxylink{structMacro}{Macro} parameter names. \\
+\hline
+{\em param\+\_\+args} & \doxylink{structMacro}{Macro} argument AST nodes. \\
+\hline
+{\em num\+\_\+params} & Number of parameters. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The rewritten AST node. 
+\end{DoxyReturn}
+\Hypertarget{parser_8h_ad92bad825ba13645ec11f8f2f1d6c92f}\index{parser.h@{parser.h}!clone\_var\_type@{clone\_var\_type}}
+\index{clone\_var\_type@{clone\_var\_type}!parser.h@{parser.h}}
+\doxysubsubsection{\texorpdfstring{clone\_var\_type()}{clone\_var\_type()}}
+{\footnotesize\ttfamily \label{parser_8h_ad92bad825ba13645ec11f8f2f1d6c92f} 
+\doxymbox{\hyperlink{structVarType}{Var\+Type}} clone\+\_\+var\+\_\+type (\begin{DoxyParamCaption}\item[{Compiler\+Context \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structVarType}{Var\+Type}}}]{t}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{type\+\_\+params}{, }\item[{\doxymbox{\hyperlink{structVarType}{Var\+Type}} \texorpdfstring{$\ast$}{*}}]{replace\+\_\+with}{, }\item[{int}]{num\+\_\+params}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{rename\+\_\+from}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{rename\+\_\+to}{, }\item[{int}]{num\+\_\+renames}{}\end{DoxyParamCaption})}
+
+
+
+Clones a \doxylink{structVarType}{Var\+Type}, optionally substituting type parameters and renaming. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The compiler context. \\
+\hline
+{\em t} & The type to clone. \\
+\hline
+{\em type\+\_\+params} & Type parameter names to replace. \\
+\hline
+{\em replace\+\_\+with} & Replacement types. \\
+\hline
+{\em num\+\_\+params} & Number of type parameters. \\
+\hline
+{\em rename\+\_\+from} & Original identifiers to rename. \\
+\hline
+{\em rename\+\_\+to} & New identifier names. \\
+\hline
+{\em num\+\_\+renames} & Number of renames. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cloned \doxylink{structVarType}{Var\+Type}. 
+\end{DoxyReturn}
+\Hypertarget{parser_8h_a283f5c4e80b42c5f8e79690f9f373990}\index{parser.h@{parser.h}!get\_next\_token\_expanded@{get\_next\_token\_expanded}}
+\index{get\_next\_token\_expanded@{get\_next\_token\_expanded}!parser.h@{parser.h}}
+\doxysubsubsection{\texorpdfstring{get\_next\_token\_expanded()}{get\_next\_token\_expanded()}}
+{\footnotesize\ttfamily \label{parser_8h_a283f5c4e80b42c5f8e79690f9f373990} 
+Token get\+\_\+next\+\_\+token\+\_\+expanded (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Returns the next token, expanding macros as needed. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The next expanded token. 
+\end{DoxyReturn}
+\Hypertarget{parser_8h_af1a7be7d09fa25973f8da9edbf5a83a6}\index{parser.h@{parser.h}!parse\_expression@{parse\_expression}}
+\index{parse\_expression@{parse\_expression}!parser.h@{parser.h}}
+\doxysubsubsection{\texorpdfstring{parse\_expression()}{parse\_expression()}}
+{\footnotesize\ttfamily \label{parser_8h_af1a7be7d09fa25973f8da9edbf5a83a6} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+expression (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a single expression. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed expression AST node. 
+\end{DoxyReturn}
+\Hypertarget{parser_8h_a24ffd22920a7ff85f1022382e7173285}\index{parser.h@{parser.h}!parse\_program@{parse\_program}}
+\index{parse\_program@{parse\_program}!parser.h@{parser.h}}
+\doxysubsubsection{\texorpdfstring{parse\_program()}{parse\_program()}}
+{\footnotesize\ttfamily \label{parser_8h_a24ffd22920a7ff85f1022382e7173285} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+program (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses the entire source program. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The root AST node. 
+\end{DoxyReturn}
+\Hypertarget{parser_8h_af0b7f0ac034e5cca1bff6e4a2b3dac07}\index{parser.h@{parser.h}!parser\_init@{parser\_init}}
+\index{parser\_init@{parser\_init}!parser.h@{parser.h}}
+\doxysubsubsection{\texorpdfstring{parser\_init()}{parser\_init()}}
+{\footnotesize\ttfamily \label{parser_8h_af0b7f0ac034e5cca1bff6e4a2b3dac07} 
+void parser\+\_\+init (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{, }\item[{Lexer \texorpdfstring{$\ast$}{*}}]{l}{, }\item[{\doxymbox{\hyperlink{structParserSettings}{Parser\+Settings}} \texorpdfstring{$\ast$}{*}}]{settings}{}\end{DoxyParamCaption})}
+
+
+
+Initializes the parser with a lexer and settings. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser to initialize. \\
+\hline
+{\em l} & The lexer to read tokens from. \\
+\hline
+{\em settings} & \doxylink{structParser}{Parser} configuration settings, or NULL for defaults. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{parser_8h_a1256db8b3d3e801abc3a4bd228f9126e}\index{parser.h@{parser.h}!parser\_peek\_token@{parser\_peek\_token}}
+\index{parser\_peek\_token@{parser\_peek\_token}!parser.h@{parser.h}}
+\doxysubsubsection{\texorpdfstring{parser\_peek\_token()}{parser\_peek\_token()}}
+{\footnotesize\ttfamily \label{parser_8h_a1256db8b3d3e801abc3a4bd228f9126e} 
+Token parser\+\_\+peek\+\_\+token (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Peeks at the next token without consuming it. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The next token. 
+\end{DoxyReturn}
+\Hypertarget{parser_8h_af31ed8ad6991f4a846ee311fd43b8284}\index{parser.h@{parser.h}!parser\_peek\_token\_n@{parser\_peek\_token\_n}}
+\index{parser\_peek\_token\_n@{parser\_peek\_token\_n}!parser.h@{parser.h}}
+\doxysubsubsection{\texorpdfstring{parser\_peek\_token\_n()}{parser\_peek\_token\_n()}}
+{\footnotesize\ttfamily \label{parser_8h_af31ed8ad6991f4a846ee311fd43b8284} 
+Token parser\+\_\+peek\+\_\+token\+\_\+n (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{, }\item[{int}]{offset}{}\end{DoxyParamCaption})}
+
+
+
+Peeks at a token n positions ahead. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+{\em offset} & Number of tokens to peek ahead. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The token at the given offset. 
+\end{DoxyReturn}
+\Hypertarget{parser_8h_a4691b9857dce38ccce1a85f8c78dca37}\index{parser.h@{parser.h}!parser\_prescan@{parser\_prescan}}
+\index{parser\_prescan@{parser\_prescan}!parser.h@{parser.h}}
+\doxysubsubsection{\texorpdfstring{parser\_prescan()}{parser\_prescan()}}
+{\footnotesize\ttfamily \label{parser_8h_a4691b9857dce38ccce1a85f8c78dca37} 
+void parser\+\_\+prescan (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Pre-\/scans tokens to build lookahead buffers. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{parser_8h_a02e33045abf91e0965550c9c69fb6ba9}\index{parser.h@{parser.h}!parser\_set\_default\_import\_paths@{parser\_set\_default\_import\_paths}}
+\index{parser\_set\_default\_import\_paths@{parser\_set\_default\_import\_paths}!parser.h@{parser.h}}
+\doxysubsubsection{\texorpdfstring{parser\_set\_default\_import\_paths()}{parser\_set\_default\_import\_paths()}}
+{\footnotesize\ttfamily \label{parser_8h_a02e33045abf91e0965550c9c69fb6ba9} 
+void parser\+\_\+set\+\_\+default\+\_\+import\+\_\+paths (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParserSettings}{Parser\+Settings}} \texorpdfstring{$\ast$}{*}}]{ps}{}\end{DoxyParamCaption})}
+
+
+
+Sets default import paths in the parser settings. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ps} & The parser settings to populate. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{parser_8h_aabe44824503f7bb8b2537c1b633ca5c0}\index{parser.h@{parser.h}!report\_error@{report\_error}}
+\index{report\_error@{report\_error}!parser.h@{parser.h}}
+\doxysubsubsection{\texorpdfstring{report\_error()}{report\_error()}}
+{\footnotesize\ttfamily \label{parser_8h_aabe44824503f7bb8b2537c1b633ca5c0} 
+void report\+\_\+error (\begin{DoxyParamCaption}\item[{Lexer \texorpdfstring{$\ast$}{*}}]{l}{, }\item[{Token}]{t}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{msg}{}\end{DoxyParamCaption})}
+
+
+
+Reports an error through the lexer\textquotesingle{}s diagnostic system. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em l} & The lexer instance. \\
+\hline
+{\em t} & The token associated with the error. \\
+\hline
+{\em msg} & The error message. \\
+\hline
+\end{DoxyParams}

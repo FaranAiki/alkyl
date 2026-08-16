@@ -1,0 +1,122 @@
+\doxysection{src/\+parser/\+ast\+\_\+clone.c File Reference}
+\hypertarget{ast__clone_8c}{}\label{ast__clone_8c}\index{src/parser/ast\_clone.c@{src/parser/ast\_clone.c}}
+
+
+AST cloning and macro rewriting utilities for the Alkyl parser.  
+
+
+{\ttfamily \+\#include "{}parser\+\_\+internal.\+h"{}}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdio.\+h$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{structVarType}{Var\+Type}} \doxymbox{\hyperlink{ast__clone_8c_ad92bad825ba13645ec11f8f2f1d6c92f}{clone\+\_\+var\+\_\+type}} (Compiler\+Context \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structVarType}{Var\+Type}} t, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}type\+\_\+params, \doxymbox{\hyperlink{structVarType}{Var\+Type}} \texorpdfstring{$\ast$}{*}replace\+\_\+with, int num\+\_\+params, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}rename\+\_\+from, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}rename\+\_\+to, int num\+\_\+renames)
+\begin{DoxyCompactList}\small\item\em Clones a \doxylink{structVarType}{Var\+Type}, optionally substituting type parameters and renaming. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{ast__clone_8c_a02061dff9d9ad34e3cd122850e875549}{ast\+\_\+clone}} (Compiler\+Context \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}type\+\_\+params, \doxymbox{\hyperlink{structVarType}{Var\+Type}} \texorpdfstring{$\ast$}{*}replace\+\_\+with, int num\+\_\+params, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}rename\+\_\+from, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}rename\+\_\+to, int num\+\_\+renames)
+\begin{DoxyCompactList}\small\item\em Deep-\/clones an AST node, optionally substituting types and renaming identifiers. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{ast__clone_8c_ab12c778d4b78cdf9f9bb7eb6971af6c7}{ast\+\_\+rewrite\+\_\+macro}} (Compiler\+Context \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}varargs\+\_\+head, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}param\+\_\+names, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}param\+\_\+args, int num\+\_\+params)
+\begin{DoxyCompactList}\small\item\em Rewrites a macro invocation AST by substituting macro arguments. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+AST cloning and macro rewriting utilities for the Alkyl parser. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{ast__clone_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{ast__clone_8c_a02061dff9d9ad34e3cd122850e875549}\index{ast\_clone.c@{ast\_clone.c}!ast\_clone@{ast\_clone}}
+\index{ast\_clone@{ast\_clone}!ast\_clone.c@{ast\_clone.c}}
+\doxysubsubsection{\texorpdfstring{ast\_clone()}{ast\_clone()}}
+{\footnotesize\ttfamily \label{ast__clone_8c_a02061dff9d9ad34e3cd122850e875549} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} ast\+\_\+clone (\begin{DoxyParamCaption}\item[{Compiler\+Context \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{type\+\_\+params}{, }\item[{\doxymbox{\hyperlink{structVarType}{Var\+Type}} \texorpdfstring{$\ast$}{*}}]{replace\+\_\+with}{, }\item[{int}]{num\+\_\+params}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{rename\+\_\+from}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{rename\+\_\+to}{, }\item[{int}]{num\+\_\+renames}{}\end{DoxyParamCaption})}
+
+
+
+Deep-\/clones an AST node, optionally substituting types and renaming identifiers. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The compiler context. \\
+\hline
+{\em node} & The AST node to clone. \\
+\hline
+{\em type\+\_\+params} & Type parameter names to replace. \\
+\hline
+{\em replace\+\_\+with} & Replacement types for type parameters. \\
+\hline
+{\em num\+\_\+params} & Number of type parameters. \\
+\hline
+{\em rename\+\_\+from} & Original identifiers to rename. \\
+\hline
+{\em rename\+\_\+to} & New identifier names. \\
+\hline
+{\em num\+\_\+renames} & Number of renames. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A cloned AST node, or NULL on failure. 
+\end{DoxyReturn}
+\Hypertarget{ast__clone_8c_ab12c778d4b78cdf9f9bb7eb6971af6c7}\index{ast\_clone.c@{ast\_clone.c}!ast\_rewrite\_macro@{ast\_rewrite\_macro}}
+\index{ast\_rewrite\_macro@{ast\_rewrite\_macro}!ast\_clone.c@{ast\_clone.c}}
+\doxysubsubsection{\texorpdfstring{ast\_rewrite\_macro()}{ast\_rewrite\_macro()}}
+{\footnotesize\ttfamily \label{ast__clone_8c_ab12c778d4b78cdf9f9bb7eb6971af6c7} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} ast\+\_\+rewrite\+\_\+macro (\begin{DoxyParamCaption}\item[{Compiler\+Context \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{varargs\+\_\+head}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{param\+\_\+names}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{param\+\_\+args}{, }\item[{int}]{num\+\_\+params}{}\end{DoxyParamCaption})}
+
+
+
+Rewrites a macro invocation AST by substituting macro arguments. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The compiler context. \\
+\hline
+{\em node} & The AST node to rewrite. \\
+\hline
+{\em varargs\+\_\+head} & Head of the varargs list, or NULL. \\
+\hline
+{\em param\+\_\+names} & \doxylink{structMacro}{Macro} parameter names. \\
+\hline
+{\em param\+\_\+args} & \doxylink{structMacro}{Macro} argument AST nodes. \\
+\hline
+{\em num\+\_\+params} & Number of parameters. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The rewritten AST node. 
+\end{DoxyReturn}
+\Hypertarget{ast__clone_8c_ad92bad825ba13645ec11f8f2f1d6c92f}\index{ast\_clone.c@{ast\_clone.c}!clone\_var\_type@{clone\_var\_type}}
+\index{clone\_var\_type@{clone\_var\_type}!ast\_clone.c@{ast\_clone.c}}
+\doxysubsubsection{\texorpdfstring{clone\_var\_type()}{clone\_var\_type()}}
+{\footnotesize\ttfamily \label{ast__clone_8c_ad92bad825ba13645ec11f8f2f1d6c92f} 
+\doxymbox{\hyperlink{structVarType}{Var\+Type}} clone\+\_\+var\+\_\+type (\begin{DoxyParamCaption}\item[{Compiler\+Context \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structVarType}{Var\+Type}}}]{t}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{type\+\_\+params}{, }\item[{\doxymbox{\hyperlink{structVarType}{Var\+Type}} \texorpdfstring{$\ast$}{*}}]{replace\+\_\+with}{, }\item[{int}]{num\+\_\+params}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{rename\+\_\+from}{, }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{rename\+\_\+to}{, }\item[{int}]{num\+\_\+renames}{}\end{DoxyParamCaption})}
+
+
+
+Clones a \doxylink{structVarType}{Var\+Type}, optionally substituting type parameters and renaming. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The compiler context. \\
+\hline
+{\em t} & The type to clone. \\
+\hline
+{\em type\+\_\+params} & Type parameter names to replace. \\
+\hline
+{\em replace\+\_\+with} & Replacement types. \\
+\hline
+{\em num\+\_\+params} & Number of type parameters. \\
+\hline
+{\em rename\+\_\+from} & Original identifiers to rename. \\
+\hline
+{\em rename\+\_\+to} & New identifier names. \\
+\hline
+{\em num\+\_\+renames} & Number of renames. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The cloned \doxylink{structVarType}{Var\+Type}. 
+\end{DoxyReturn}

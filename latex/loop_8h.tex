@@ -1,0 +1,62 @@
+\doxysection{include/\+parser/\+fragment/\+loop.h File Reference}
+\hypertarget{loop_8h}{}\label{loop_8h}\index{include/parser/fragment/loop.h@{include/parser/fragment/loop.h}}
+
+
+Loop parsing declarations for the Alkyl parser.  
+
+
+{\ttfamily \+\#include "{}parser/\+typestruct.\+h"{}}\newline
+{\ttfamily \+\#include "{}parser/\+parser.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{loop_8h_ac3ec8644ddc3787c36fc39111691c337}{parse\+\_\+while}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a while statement. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{loop_8h_a73c10733c7400b54edb0de763e5b7112}{parse\+\_\+loop}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a loop statement. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Loop parsing declarations for the Alkyl parser. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{loop_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{loop_8h_a73c10733c7400b54edb0de763e5b7112}\index{loop.h@{loop.h}!parse\_loop@{parse\_loop}}
+\index{parse\_loop@{parse\_loop}!loop.h@{loop.h}}
+\doxysubsubsection{\texorpdfstring{parse\_loop()}{parse\_loop()}}
+{\footnotesize\ttfamily \label{loop_8h_a73c10733c7400b54edb0de763e5b7112} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+loop (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a loop statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed loop AST node. 
+\end{DoxyReturn}
+\Hypertarget{loop_8h_ac3ec8644ddc3787c36fc39111691c337}\index{loop.h@{loop.h}!parse\_while@{parse\_while}}
+\index{parse\_while@{parse\_while}!loop.h@{loop.h}}
+\doxysubsubsection{\texorpdfstring{parse\_while()}{parse\_while()}}
+{\footnotesize\ttfamily \label{loop_8h_ac3ec8644ddc3787c36fc39111691c337} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+while (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a while statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed while AST node. 
+\end{DoxyReturn}

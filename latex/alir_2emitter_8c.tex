@@ -1,0 +1,117 @@
+\doxysection{src/\+alir/\+emitter.c File Reference}
+\hypertarget{alir_2emitter_8c}{}\label{alir_2emitter_8c}\index{src/alir/emitter.c@{src/alir/emitter.c}}
+
+
+ALIR emission and printing implementation.  
+
+
+{\ttfamily \+\#include "{}alir.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{alir_2emitter_8c_a54a136dc1b859ac21c87a5a7779038d9}{alir\+\_\+fprint\+\_\+type}} (FILE \texorpdfstring{$\ast$}{*}f, \doxymbox{\hyperlink{structVarType}{Var\+Type}} t)
+\begin{DoxyCompactList}\small\item\em Prints a type to a file stream. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{alir_2emitter_8c_a30564f4679b8d27f4b686a73a691700f}{alir\+\_\+fprint\+\_\+val}} (FILE \texorpdfstring{$\ast$}{*}f, \doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*}v)
+\begin{DoxyCompactList}\small\item\em Prints an ALIR value to a file stream. \end{DoxyCompactList}\item 
+\Hypertarget{alir_2emitter_8c_a397daa4016136b2fc0bedfe8f021acaa}\label{alir_2emitter_8c_a397daa4016136b2fc0bedfe8f021acaa} 
+void {\bfseries alir\+\_\+emit\+\_\+function} (\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}mod, FILE \texorpdfstring{$\ast$}{*}f)
+\item 
+void \doxymbox{\hyperlink{alir_2emitter_8c_a1bec87992668b5b5c2fc8c7cf8f84dce}{alir\+\_\+emit\+\_\+stream}} (\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}mod, FILE \texorpdfstring{$\ast$}{*}f)
+\begin{DoxyCompactList}\small\item\em Emits the ALIR module to a file stream. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{alir_2emitter_8c_a3322539485917392679555697a2633d6}{alir\+\_\+print}} (\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}mod)
+\begin{DoxyCompactList}\small\item\em Prints the ALIR module to stderr. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{alir_2emitter_8c_a8389402de28fa9793ea6f45078e2039a}{alir\+\_\+emit\+\_\+to\+\_\+file}} (\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}mod, const char \texorpdfstring{$\ast$}{*}filename)
+\begin{DoxyCompactList}\small\item\em Emits the ALIR module to a file. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+ALIR emission and printing implementation. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{alir_2emitter_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{alir_2emitter_8c_a1bec87992668b5b5c2fc8c7cf8f84dce}\index{emitter.c@{emitter.c}!alir\_emit\_stream@{alir\_emit\_stream}}
+\index{alir\_emit\_stream@{alir\_emit\_stream}!emitter.c@{emitter.c}}
+\doxysubsubsection{\texorpdfstring{alir\_emit\_stream()}{alir\_emit\_stream()}}
+{\footnotesize\ttfamily \label{alir_2emitter_8c_a1bec87992668b5b5c2fc8c7cf8f84dce} 
+void alir\+\_\+emit\+\_\+stream (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}}]{mod}{, }\item[{FILE \texorpdfstring{$\ast$}{*}}]{f}{}\end{DoxyParamCaption})}
+
+
+
+Emits the ALIR module to a file stream. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mod} & The ALIR module. \\
+\hline
+{\em f} & The output file stream. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{alir_2emitter_8c_a8389402de28fa9793ea6f45078e2039a}\index{emitter.c@{emitter.c}!alir\_emit\_to\_file@{alir\_emit\_to\_file}}
+\index{alir\_emit\_to\_file@{alir\_emit\_to\_file}!emitter.c@{emitter.c}}
+\doxysubsubsection{\texorpdfstring{alir\_emit\_to\_file()}{alir\_emit\_to\_file()}}
+{\footnotesize\ttfamily \label{alir_2emitter_8c_a8389402de28fa9793ea6f45078e2039a} 
+void alir\+\_\+emit\+\_\+to\+\_\+file (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}}]{mod}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{filename}{}\end{DoxyParamCaption})}
+
+
+
+Emits the ALIR module to a file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mod} & The ALIR module. \\
+\hline
+{\em filename} & The output file path. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{alir_2emitter_8c_a54a136dc1b859ac21c87a5a7779038d9}\index{emitter.c@{emitter.c}!alir\_fprint\_type@{alir\_fprint\_type}}
+\index{alir\_fprint\_type@{alir\_fprint\_type}!emitter.c@{emitter.c}}
+\doxysubsubsection{\texorpdfstring{alir\_fprint\_type()}{alir\_fprint\_type()}}
+{\footnotesize\ttfamily \label{alir_2emitter_8c_a54a136dc1b859ac21c87a5a7779038d9} 
+void alir\+\_\+fprint\+\_\+type (\begin{DoxyParamCaption}\item[{FILE \texorpdfstring{$\ast$}{*}}]{f}{, }\item[{\doxymbox{\hyperlink{structVarType}{Var\+Type}}}]{t}{}\end{DoxyParamCaption})}
+
+
+
+Prints a type to a file stream. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em f} & The output file stream. \\
+\hline
+{\em t} & The type to print. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{alir_2emitter_8c_a30564f4679b8d27f4b686a73a691700f}\index{emitter.c@{emitter.c}!alir\_fprint\_val@{alir\_fprint\_val}}
+\index{alir\_fprint\_val@{alir\_fprint\_val}!emitter.c@{emitter.c}}
+\doxysubsubsection{\texorpdfstring{alir\_fprint\_val()}{alir\_fprint\_val()}}
+{\footnotesize\ttfamily \label{alir_2emitter_8c_a30564f4679b8d27f4b686a73a691700f} 
+void alir\+\_\+fprint\+\_\+val (\begin{DoxyParamCaption}\item[{FILE \texorpdfstring{$\ast$}{*}}]{f}{, }\item[{\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*}}]{v}{}\end{DoxyParamCaption})}
+
+
+
+Prints an ALIR value to a file stream. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em f} & The output file stream. \\
+\hline
+{\em v} & The value to print. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{alir_2emitter_8c_a3322539485917392679555697a2633d6}\index{emitter.c@{emitter.c}!alir\_print@{alir\_print}}
+\index{alir\_print@{alir\_print}!emitter.c@{emitter.c}}
+\doxysubsubsection{\texorpdfstring{alir\_print()}{alir\_print()}}
+{\footnotesize\ttfamily \label{alir_2emitter_8c_a3322539485917392679555697a2633d6} 
+void alir\+\_\+print (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}}]{mod}{}\end{DoxyParamCaption})}
+
+
+
+Prints the ALIR module to stderr. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mod} & The ALIR module. \\
+\hline
+\end{DoxyParams}

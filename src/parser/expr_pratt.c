@@ -1,3 +1,7 @@
+/**
+ * @file expr_pratt.c
+ * @brief Pratt expression parsing implementation for the Alkyl parser.
+ */
 #include "parser_internal.h"
 #include "expr_pratt.h"
 #include <stdlib.h>

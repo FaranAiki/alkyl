@@ -1,3 +1,7 @@
+/**
+ * @file emitter.c
+ * @brief ALIR emission and printing implementation.
+ */
 #include "alir.h"
 
 // TODO: make sure that we have

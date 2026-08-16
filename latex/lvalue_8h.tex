@@ -1,0 +1,417 @@
+\doxysection{include/\+alir/\+lvalue.h File Reference}
+\hypertarget{lvalue_8h}{}\label{lvalue_8h}\index{include/alir/lvalue.h@{include/alir/lvalue.h}}
+
+
+ALIR lvalue and expression generation.  
+
+
+{\ttfamily \+\#include "{}alir.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_a62fea144d8a3bf3c67edca409572dc59}{alir\+\_\+gen\+\_\+addr}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\begin{DoxyCompactList}\small\item\em Generates the address of an AST node. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_aa48eb3f47463b9bf43715dac86104b30}{alir\+\_\+gen\+\_\+array\+\_\+lit}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for an array literal. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_a18953b1c7e2aec45d9c1bab374527273}{alir\+\_\+gen\+\_\+literal}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structLiteralNode}{Literal\+Node}} \texorpdfstring{$\ast$}{*}ln)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a literal node. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_ac11c9bf14e7e4adc5ef6e83e9df3e7ef}{alir\+\_\+gen\+\_\+var\+\_\+ref}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structVarRefNode}{Var\+Ref\+Node}} \texorpdfstring{$\ast$}{*}vn)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a variable reference. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_aec4f22c371ab220bb9c9745809ee0f22}{alir\+\_\+gen\+\_\+access}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a member access. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_a9fa996da7ccd2920e30c8e493837148c}{alir\+\_\+gen\+\_\+binary\+\_\+op}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structBinaryOpNode}{Binary\+Op\+Node}} \texorpdfstring{$\ast$}{*}bn)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a binary operation. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_a5c99cad7a4b19d84d51d9ee936e65beb}{alir\+\_\+gen\+\_\+unary\+\_\+op}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structUnaryOpNode}{Unary\+Op\+Node}} \texorpdfstring{$\ast$}{*}un)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a unary operation. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_aee7e0d5fb875b742ce6bc5895cc9eb71}{alir\+\_\+gen\+\_\+inc\+\_\+dec}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structIncDecNode}{Inc\+Dec\+Node}} \texorpdfstring{$\ast$}{*}id)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for an increment/\+decrement operation. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_a6cf497e6b847c53959a0d144916c9447}{alir\+\_\+gen\+\_\+cast}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structCastNode}{Cast\+Node}} \texorpdfstring{$\ast$}{*}cn)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a cast. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_a95712bec75fa87ce07ac7cd34abba4d9}{alir\+\_\+gen\+\_\+call\+\_\+std}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structCallNode}{Call\+Node}} \texorpdfstring{$\ast$}{*}cn)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a standard function call. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_a4b66273ae618006fee90a399608a7641}{alir\+\_\+gen\+\_\+call}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structCallNode}{Call\+Node}} \texorpdfstring{$\ast$}{*}cn)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a function call. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_a982c836398e737232522772c677ee500}{alir\+\_\+gen\+\_\+method\+\_\+call}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structMethodCallNode}{Method\+Call\+Node}} \texorpdfstring{$\ast$}{*}mc)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a method call. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_a5f7d1aa6674a7114500a5abd43cafea3}{alir\+\_\+gen\+\_\+expr}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a generic expression. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_a23f118e1c5abf099b567df13419f7ad0}{alir\+\_\+gen\+\_\+expr\+\_\+index\+\_\+access}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structIndexAccessNode}{Index\+Access\+Node}} \texorpdfstring{$\ast$}{*}aa)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for an index access expression. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{lvalue_8h_a956984c8b7eeae0afa318b63f883d54d}{alir\+\_\+gen\+\_\+addr\+\_\+index\+\_\+access}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structIndexAccessNode}{Index\+Access\+Node}} \texorpdfstring{$\ast$}{*}aa)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for the address of an index access. \end{DoxyCompactList}\item 
+int \doxymbox{\hyperlink{lvalue_8h_a47fc47016d87335ceeb029502019ebf4}{alir\+\_\+get\+\_\+type\+\_\+size}} (\doxymbox{\hyperlink{structVarType}{Var\+Type}} t)
+\begin{DoxyCompactList}\small\item\em Returns the size in bytes of a type. \end{DoxyCompactList}\item 
+int \doxymbox{\hyperlink{lvalue_8h_a9be010c563c210b0225b6c2368448e59}{alir\+\_\+get\+\_\+struct\+\_\+size}} (\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}mod, const char \texorpdfstring{$\ast$}{*}struct\+\_\+name)
+\begin{DoxyCompactList}\small\item\em Returns the size in bytes of a struct type. \end{DoxyCompactList}\item 
+int \doxymbox{\hyperlink{lvalue_8h_a16c8469828f94dd9c702fdffaa4ebec2}{alir\+\_\+robust\+\_\+get\+\_\+field\+\_\+index}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, const char \texorpdfstring{$\ast$}{*}hint\+\_\+class, const char \texorpdfstring{$\ast$}{*}field\+\_\+name)
+\begin{DoxyCompactList}\small\item\em Robustly finds a field index, falling back to heuristics. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+ALIR lvalue and expression generation. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{lvalue_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{lvalue_8h_aec4f22c371ab220bb9c9745809ee0f22}\index{lvalue.h@{lvalue.h}!alir\_gen\_access@{alir\_gen\_access}}
+\index{alir\_gen\_access@{alir\_gen\_access}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_access()}{alir\_gen\_access()}}
+{\footnotesize\ttfamily \label{lvalue_8h_aec4f22c371ab220bb9c9745809ee0f22} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+access (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a member access. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The access AST node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a62fea144d8a3bf3c67edca409572dc59}\index{lvalue.h@{lvalue.h}!alir\_gen\_addr@{alir\_gen\_addr}}
+\index{alir\_gen\_addr@{alir\_gen\_addr}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_addr()}{alir\_gen\_addr()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a62fea144d8a3bf3c67edca409572dc59} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+addr (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{}\end{DoxyParamCaption})}
+
+
+
+Generates the address of an AST node. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The AST node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The address as an ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a956984c8b7eeae0afa318b63f883d54d}\index{lvalue.h@{lvalue.h}!alir\_gen\_addr\_index\_access@{alir\_gen\_addr\_index\_access}}
+\index{alir\_gen\_addr\_index\_access@{alir\_gen\_addr\_index\_access}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_addr\_index\_access()}{alir\_gen\_addr\_index\_access()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a956984c8b7eeae0afa318b63f883d54d} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+addr\+\_\+index\+\_\+access (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structIndexAccessNode}{Index\+Access\+Node}} \texorpdfstring{$\ast$}{*}}]{aa}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for the address of an index access. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em aa} & The index access node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting address ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_aa48eb3f47463b9bf43715dac86104b30}\index{lvalue.h@{lvalue.h}!alir\_gen\_array\_lit@{alir\_gen\_array\_lit}}
+\index{alir\_gen\_array\_lit@{alir\_gen\_array\_lit}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_array\_lit()}{alir\_gen\_array\_lit()}}
+{\footnotesize\ttfamily \label{lvalue_8h_aa48eb3f47463b9bf43715dac86104b30} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+array\+\_\+lit (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for an array literal. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The array literal AST node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a9fa996da7ccd2920e30c8e493837148c}\index{lvalue.h@{lvalue.h}!alir\_gen\_binary\_op@{alir\_gen\_binary\_op}}
+\index{alir\_gen\_binary\_op@{alir\_gen\_binary\_op}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_binary\_op()}{alir\_gen\_binary\_op()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a9fa996da7ccd2920e30c8e493837148c} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+binary\+\_\+op (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structBinaryOpNode}{Binary\+Op\+Node}} \texorpdfstring{$\ast$}{*}}]{bn}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a binary operation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em bn} & The binary operation node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a4b66273ae618006fee90a399608a7641}\index{lvalue.h@{lvalue.h}!alir\_gen\_call@{alir\_gen\_call}}
+\index{alir\_gen\_call@{alir\_gen\_call}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_call()}{alir\_gen\_call()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a4b66273ae618006fee90a399608a7641} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+call (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structCallNode}{Call\+Node}} \texorpdfstring{$\ast$}{*}}]{cn}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a function call. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em cn} & The call node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a95712bec75fa87ce07ac7cd34abba4d9}\index{lvalue.h@{lvalue.h}!alir\_gen\_call\_std@{alir\_gen\_call\_std}}
+\index{alir\_gen\_call\_std@{alir\_gen\_call\_std}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_call\_std()}{alir\_gen\_call\_std()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a95712bec75fa87ce07ac7cd34abba4d9} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+call\+\_\+std (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structCallNode}{Call\+Node}} \texorpdfstring{$\ast$}{*}}]{cn}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a standard function call. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em cn} & The call node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a6cf497e6b847c53959a0d144916c9447}\index{lvalue.h@{lvalue.h}!alir\_gen\_cast@{alir\_gen\_cast}}
+\index{alir\_gen\_cast@{alir\_gen\_cast}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_cast()}{alir\_gen\_cast()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a6cf497e6b847c53959a0d144916c9447} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+cast (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structCastNode}{Cast\+Node}} \texorpdfstring{$\ast$}{*}}]{cn}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a cast. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em cn} & The cast node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a5f7d1aa6674a7114500a5abd43cafea3}\index{lvalue.h@{lvalue.h}!alir\_gen\_expr@{alir\_gen\_expr}}
+\index{alir\_gen\_expr@{alir\_gen\_expr}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_expr()}{alir\_gen\_expr()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a5f7d1aa6674a7114500a5abd43cafea3} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+expr (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a generic expression. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The expression AST node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a23f118e1c5abf099b567df13419f7ad0}\index{lvalue.h@{lvalue.h}!alir\_gen\_expr\_index\_access@{alir\_gen\_expr\_index\_access}}
+\index{alir\_gen\_expr\_index\_access@{alir\_gen\_expr\_index\_access}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_expr\_index\_access()}{alir\_gen\_expr\_index\_access()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a23f118e1c5abf099b567df13419f7ad0} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+expr\+\_\+index\+\_\+access (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structIndexAccessNode}{Index\+Access\+Node}} \texorpdfstring{$\ast$}{*}}]{aa}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for an index access expression. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em aa} & The index access node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_aee7e0d5fb875b742ce6bc5895cc9eb71}\index{lvalue.h@{lvalue.h}!alir\_gen\_inc\_dec@{alir\_gen\_inc\_dec}}
+\index{alir\_gen\_inc\_dec@{alir\_gen\_inc\_dec}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_inc\_dec()}{alir\_gen\_inc\_dec()}}
+{\footnotesize\ttfamily \label{lvalue_8h_aee7e0d5fb875b742ce6bc5895cc9eb71} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+inc\+\_\+dec (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structIncDecNode}{Inc\+Dec\+Node}} \texorpdfstring{$\ast$}{*}}]{id}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for an increment/\+decrement operation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em id} & The increment/\+decrement node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a18953b1c7e2aec45d9c1bab374527273}\index{lvalue.h@{lvalue.h}!alir\_gen\_literal@{alir\_gen\_literal}}
+\index{alir\_gen\_literal@{alir\_gen\_literal}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_literal()}{alir\_gen\_literal()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a18953b1c7e2aec45d9c1bab374527273} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+literal (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structLiteralNode}{Literal\+Node}} \texorpdfstring{$\ast$}{*}}]{ln}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a literal node. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em ln} & The literal node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a982c836398e737232522772c677ee500}\index{lvalue.h@{lvalue.h}!alir\_gen\_method\_call@{alir\_gen\_method\_call}}
+\index{alir\_gen\_method\_call@{alir\_gen\_method\_call}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_method\_call()}{alir\_gen\_method\_call()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a982c836398e737232522772c677ee500} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+method\+\_\+call (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structMethodCallNode}{Method\+Call\+Node}} \texorpdfstring{$\ast$}{*}}]{mc}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a method call. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em mc} & The method call node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a5c99cad7a4b19d84d51d9ee936e65beb}\index{lvalue.h@{lvalue.h}!alir\_gen\_unary\_op@{alir\_gen\_unary\_op}}
+\index{alir\_gen\_unary\_op@{alir\_gen\_unary\_op}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_unary\_op()}{alir\_gen\_unary\_op()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a5c99cad7a4b19d84d51d9ee936e65beb} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+unary\+\_\+op (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structUnaryOpNode}{Unary\+Op\+Node}} \texorpdfstring{$\ast$}{*}}]{un}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a unary operation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em un} & The unary operation node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_ac11c9bf14e7e4adc5ef6e83e9df3e7ef}\index{lvalue.h@{lvalue.h}!alir\_gen\_var\_ref@{alir\_gen\_var\_ref}}
+\index{alir\_gen\_var\_ref@{alir\_gen\_var\_ref}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_var\_ref()}{alir\_gen\_var\_ref()}}
+{\footnotesize\ttfamily \label{lvalue_8h_ac11c9bf14e7e4adc5ef6e83e9df3e7ef} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+var\+\_\+ref (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structVarRefNode}{Var\+Ref\+Node}} \texorpdfstring{$\ast$}{*}}]{vn}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a variable reference. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em vn} & The variable reference node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a9be010c563c210b0225b6c2368448e59}\index{lvalue.h@{lvalue.h}!alir\_get\_struct\_size@{alir\_get\_struct\_size}}
+\index{alir\_get\_struct\_size@{alir\_get\_struct\_size}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_get\_struct\_size()}{alir\_get\_struct\_size()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a9be010c563c210b0225b6c2368448e59} 
+int alir\+\_\+get\+\_\+struct\+\_\+size (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}}]{mod}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{struct\+\_\+name}{}\end{DoxyParamCaption})}
+
+
+
+Returns the size in bytes of a struct type. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mod} & The ALIR module. \\
+\hline
+{\em struct\+\_\+name} & The struct name. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The size in bytes, or -\/1 on failure. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a47fc47016d87335ceeb029502019ebf4}\index{lvalue.h@{lvalue.h}!alir\_get\_type\_size@{alir\_get\_type\_size}}
+\index{alir\_get\_type\_size@{alir\_get\_type\_size}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_get\_type\_size()}{alir\_get\_type\_size()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a47fc47016d87335ceeb029502019ebf4} 
+int alir\+\_\+get\+\_\+type\+\_\+size (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structVarType}{Var\+Type}}}]{t}{}\end{DoxyParamCaption})}
+
+
+
+Returns the size in bytes of a type. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em t} & The type. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The size in bytes. 
+\end{DoxyReturn}
+\Hypertarget{lvalue_8h_a16c8469828f94dd9c702fdffaa4ebec2}\index{lvalue.h@{lvalue.h}!alir\_robust\_get\_field\_index@{alir\_robust\_get\_field\_index}}
+\index{alir\_robust\_get\_field\_index@{alir\_robust\_get\_field\_index}!lvalue.h@{lvalue.h}}
+\doxysubsubsection{\texorpdfstring{alir\_robust\_get\_field\_index()}{alir\_robust\_get\_field\_index()}}
+{\footnotesize\ttfamily \label{lvalue_8h_a16c8469828f94dd9c702fdffaa4ebec2} 
+int alir\+\_\+robust\+\_\+get\+\_\+field\+\_\+index (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{hint\+\_\+class}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{field\+\_\+name}{}\end{DoxyParamCaption})}
+
+
+
+Robustly finds a field index, falling back to heuristics. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em hint\+\_\+class} & A hint for the class name. \\
+\hline
+{\em field\+\_\+name} & The field name. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The field index, or -\/1 on failure. 
+\end{DoxyReturn}

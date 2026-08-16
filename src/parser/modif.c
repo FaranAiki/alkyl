@@ -1,3 +1,7 @@
+/**
+ * @file modif.c
+ * @brief Macro and typedef parsing implementation for the Alkyl parser.
+ */
 #include "modif.h"
 
 ASTNode* parse_define(Parser *p) {

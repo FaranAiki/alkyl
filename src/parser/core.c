@@ -1,3 +1,7 @@
+/**
+ * @file core.c
+ * @brief Core parser implementation for the Alkyl compiler.
+ */
 #include "parser_internal.h"
 #include <string.h>
 #include <stdio.h>

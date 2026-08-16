@@ -1,3 +1,7 @@
+/**
+ * @file utils.c
+ * @brief ALIR utility function implementations.
+ */
 #include "alir.h"
 #include "common.h"
 

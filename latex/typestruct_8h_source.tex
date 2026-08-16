@@ -1,0 +1,579 @@
+\doxysection{typestruct.\+h}
+\hypertarget{typestruct_8h_source}{}\label{typestruct_8h_source}\index{include/parser/typestruct.h@{include/parser/typestruct.h}}
+\doxymbox{\hyperlink{typestruct_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#ifndef\ PARSER\_TYPESTRUCT\_H}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#define\ PARSER\_TYPESTRUCT\_H}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}common/aliases.h"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00011\ \ \ NODE\_ROOT,}
+\DoxyCodeLine{00012\ \ \ NODE\_FUNC\_DEF,}
+\DoxyCodeLine{00013\ \ \ NODE\_CALL,}
+\DoxyCodeLine{00014\ \ \ NODE\_RETURN,}
+\DoxyCodeLine{00015\ \ \ NODE\_BREAK,}
+\DoxyCodeLine{00016\ \ \ NODE\_CONTINUE,}
+\DoxyCodeLine{00017\ \ \ NODE\_LOOP,}
+\DoxyCodeLine{00018\ \ \ NODE\_WHILE,}
+\DoxyCodeLine{00019\ \ \ NODE\_IF,}
+\DoxyCodeLine{00020\ \ \ NODE\_SWITCH,}
+\DoxyCodeLine{00021\ \ \ NODE\_CASE,}
+\DoxyCodeLine{00022\ \ \ NODE\_VAR\_DECL,}
+\DoxyCodeLine{00023\ \ \ NODE\_ASSIGN,}
+\DoxyCodeLine{00024\ \ \ NODE\_VAR\_REF,}
+\DoxyCodeLine{00025\ \ \ NODE\_BINARY\_OP,}
+\DoxyCodeLine{00026\ \ \ NODE\_UNARY\_OP,}
+\DoxyCodeLine{00027\ \ \ NODE\_LITERAL,}
+\DoxyCodeLine{00028\ \ \ NODE\_ARRAY\_LIT,}
+\DoxyCodeLine{00029\ \ \ NODE\_INDEX\_ACCESS,}
+\DoxyCodeLine{00030\ \ \ NODE\_INC\_DEC,}
+\DoxyCodeLine{00031\ \ \ NODE\_LINK,}
+\DoxyCodeLine{00032\ \ \ NODE\_CLASS,}
+\DoxyCodeLine{00033\ \ \ NODE\_STRUCT,}
+\DoxyCodeLine{00034\ \ \ NODE\_NAMESPACE,}
+\DoxyCodeLine{00035\ \ \ NODE\_ENUM,}
+\DoxyCodeLine{00036\ \ \ NODE\_ERRNUM,}
+\DoxyCodeLine{00037\ \ \ NODE\_MEMBER\_ACCESS,}
+\DoxyCodeLine{00038\ \ \ NODE\_METHOD\_CALL,}
+\DoxyCodeLine{00039\ \ \ NODE\_TYPEOF,}
+\DoxyCodeLine{00040\ \ \ NODE\_HAS\_METHOD,}
+\DoxyCodeLine{00041\ \ \ NODE\_HAS\_ATTRIBUTE,}
+\DoxyCodeLine{00042\ \ \ NODE\_CAST,}
+\DoxyCodeLine{00043\ \ \ NODE\_BEING,}
+\DoxyCodeLine{00044\ \ \ NODE\_EMIT,}
+\DoxyCodeLine{00045\ \ \ NODE\_FOR\_IN,}
+\DoxyCodeLine{00046\ \ \ NODE\_WASH,}
+\DoxyCodeLine{00047\ \ \ NODE\_CLEAN,}
+\DoxyCodeLine{00048\ \ \ NODE\_UNTAINT,}
+\DoxyCodeLine{00049\ \ \ NODE\_SIZEOF,}
+\DoxyCodeLine{00050\ \ \ NODE\_ALIGNOF,}
+\DoxyCodeLine{00051\ \ \ NODE\_DEFER,}
+\DoxyCodeLine{00052\ \ \ NODE\_DEFINED,}
+\DoxyCodeLine{00053\ \ \ NODE\_ISCOMPATIBLE,}
+\DoxyCodeLine{00054\ \ \ NODE\_META,}
+\DoxyCodeLine{00055\ \ \ NODE\_POSTMETA,}
+\DoxyCodeLine{00056\ \ \ NODE\_PURGE,}
+\DoxyCodeLine{00057\ \ \ NODE\_COMPOUND,}
+\DoxyCodeLine{00058\ \ \ NODE\_TEMPLATE\_INSTANTIATION,}
+\DoxyCodeLine{00059\ \ \ NODE\_NAMED\_ARG,}
+\DoxyCodeLine{00060\ \ \ NODE\_IMPORT,}
+\DoxyCodeLine{00061\ \ \ NODE\_IMPORT\_EXPR}
+\DoxyCodeLine{00062\ \}\ NodeType;}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00065\ \ \ TYPE\_VOID,}
+\DoxyCodeLine{00066\ \ \ TYPE\_INT,}
+\DoxyCodeLine{00067\ \ \ TYPE\_UNSIGNED\_INT,}
+\DoxyCodeLine{00068\ \ \ TYPE\_SHORT,}
+\DoxyCodeLine{00069\ \ \ TYPE\_LONG,}
+\DoxyCodeLine{00070\ \ \ TYPE\_LONG\_LONG,}
+\DoxyCodeLine{00071\ \ \ TYPE\_UNSIGNED\_LONG,}
+\DoxyCodeLine{00072\ \ \ TYPE\_UNSIGNED\_LONG\_LONG,}
+\DoxyCodeLine{00073\ \ \ TYPE\_CHAR,}
+\DoxyCodeLine{00074\ \ \ TYPE\_UNSIGNED\_CHAR,}
+\DoxyCodeLine{00075\ \ \ TYPE\_BOOL,}
+\DoxyCodeLine{00076\ \ \ TYPE\_SINGLE,}
+\DoxyCodeLine{00077\ \ \ TYPE\_DOUBLE,}
+\DoxyCodeLine{00078\ \ \ TYPE\_LONG\_DOUBLE,}
+\DoxyCodeLine{00079\ \ \ TYPE\_ARRAY,}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ TYPE\_AUTO,}
+\DoxyCodeLine{00082\ \ \ TYPE\_CLASS,}
+\DoxyCodeLine{00083\ \ \ TYPE\_ENUM,}
+\DoxyCodeLine{00084\ \ \ TYPE\_NAMESPACE,}
+\DoxyCodeLine{00085\ \ \ TYPE\_ERROR,}
+\DoxyCodeLine{00086\ \ \ TYPE\_UNKNOWN,}
+\DoxyCodeLine{00087\ \}\ BaseType;}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00090\ \ \ IS\_A\_NONE,}
+\DoxyCodeLine{00091\ \ \ IS\_A\_NAKED,}
+\DoxyCodeLine{00092\ \ \ IS\_A\_FINAL,}
+\DoxyCodeLine{00093\ \}\ IsASemantic;}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00096\ \ \ HAS\_A\_NONE,}
+\DoxyCodeLine{00097\ \ \ HAS\_A\_REACTIVE,}
+\DoxyCodeLine{00098\ \ \ HAS\_A\_INERT,}
+\DoxyCodeLine{00099\ \}\ HasASemantic;}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structVarType}{VarType}}\ \{}
+\DoxyCodeLine{00102\ \ \ BaseType\ base;}
+\DoxyCodeLine{00103\ \ \ \textcolor{keywordtype}{int}\ ptr\_depth;}
+\DoxyCodeLine{00104\ \ \ \textcolor{keywordtype}{char}\ *class\_name;}
+\DoxyCodeLine{00105\ \ \ \textcolor{keywordtype}{int}\ array\_size;}
+\DoxyCodeLine{00106\ \ \ \textcolor{keywordtype}{int}\ array\_depth;}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \ \ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structVarType}{VarType}}\ *fp\_ret\_type;}
+\DoxyCodeLine{00109\ \ \ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structVarType}{VarType}}\ *fp\_param\_types;}
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordtype}{int}\ fp\_param\_count;}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \textcolor{keywordtype}{bool}\ is\_unsigned\ :\ 1;}
+\DoxyCodeLine{00113\ \ \ \textcolor{keywordtype}{bool}\ is\_func\_ptr\ :\ 1;}
+\DoxyCodeLine{00114\ \ \ \textcolor{keywordtype}{bool}\ fp\_is\_varargs\ :\ 1;}
+\DoxyCodeLine{00115\ \ \ \textcolor{keywordtype}{bool}\ is\_tainted\ :\ 1;}
+\DoxyCodeLine{00116\ \ \ \textcolor{keywordtype}{bool}\ is\_pristine\ :\ 1;}
+\DoxyCodeLine{00117\ \}\ \doxymbox{\hyperlink{structVarType}{VarType}};}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structASTNode}{ASTNode}}\ \{}
+\DoxyCodeLine{00120\ \ \ NodeType\ type;}
+\DoxyCodeLine{00121\ \ \ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *next;}
+\DoxyCodeLine{00122\ \ \ \textcolor{keywordtype}{int}\ line;}
+\DoxyCodeLine{00123\ \ \ \textcolor{keywordtype}{int}\ col;}
+\DoxyCodeLine{00124\ \ \ \textcolor{keywordtype}{char}\ *reason;}
+\DoxyCodeLine{00125\ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ sem\_type;}
+\DoxyCodeLine{00126\ \ \ \textcolor{keywordtype}{bool}\ is\_macro\_arg\ :\ 1;}
+\DoxyCodeLine{00127\ \ \ \textcolor{keywordtype}{char}\ *filename;}
+\DoxyCodeLine{00128\ \ \ \textcolor{keywordtype}{char}\ *source;}
+\DoxyCodeLine{00129\ \}\ \doxymbox{\hyperlink{structASTNode}{ASTNode}};}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structParameter}{Parameter}}\ \{}
+\DoxyCodeLine{00132\ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ type;}
+\DoxyCodeLine{00133\ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ \textcolor{keywordtype}{bool}\ is\_pure\ :\ 1;}
+\DoxyCodeLine{00136\ \ \ \textcolor{keywordtype}{bool}\ has\_explicit\_pure\ :\ 1;}
+\DoxyCodeLine{00137\ \ \ \textcolor{keywordtype}{bool}\ is\_pristine\ :\ 1;}
+\DoxyCodeLine{00138\ \ \ \textcolor{keywordtype}{bool}\ has\_explicit\_pristine\ :\ 1;}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \ \ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structParameter}{Parameter}}\ *next;}
+\DoxyCodeLine{00141\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *default\_value;}
+\DoxyCodeLine{00142\ \}\ \doxymbox{\hyperlink{structParameter}{Parameter}};}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00145\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00146\ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00147\ \ \ \textcolor{keywordtype}{char}\ *mangled\_name;}
+\DoxyCodeLine{00148\ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ ret\_type;}
+\DoxyCodeLine{00149\ \ \ \doxymbox{\hyperlink{structParameter}{Parameter}}\ *params;}
+\DoxyCodeLine{00150\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *body;}
+\DoxyCodeLine{00151\ \ \ \textcolor{keywordtype}{char}\ *class\_name;}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \ \ IsASemantic\ is\_is\_a;}
+\DoxyCodeLine{00154\ \ \ HasASemantic\ is\_has\_a;}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \ \ \textcolor{keywordtype}{bool}\ is\_varargs\ :\ 1;}
+\DoxyCodeLine{00157\ \ \ \textcolor{keywordtype}{bool}\ is\_macro\ :\ 1;}
+\DoxyCodeLine{00158\ \ \ \textcolor{keywordtype}{bool}\ is\_public\ :\ 1;}
+\DoxyCodeLine{00159\ \ \ \textcolor{keywordtype}{bool}\ is\_open\ :\ 1;}
+\DoxyCodeLine{00160\ \ \ \textcolor{keywordtype}{bool}\ is\_static\ :\ 1;}
+\DoxyCodeLine{00161\ \ \ \textcolor{keywordtype}{bool}\ is\_virtual\ :\ 1;}
+\DoxyCodeLine{00162\ \ \ \textcolor{keywordtype}{bool}\ is\_abstract\ :\ 1;}
+\DoxyCodeLine{00163\ \ \ \textcolor{keywordtype}{bool}\ is\_flux\ :\ 1;}
+\DoxyCodeLine{00164\ \ \ \textcolor{keywordtype}{bool}\ is\_pure\ :\ 1;}
+\DoxyCodeLine{00165\ \ \ \textcolor{keywordtype}{bool}\ has\_explicit\_pure\ :\ 1;}
+\DoxyCodeLine{00166\ \ \ \textcolor{keywordtype}{bool}\ is\_pristine\ :\ 1;}
+\DoxyCodeLine{00167\ \ \ \textcolor{keywordtype}{bool}\ has\_explicit\_pristine\ :\ 1;}
+\DoxyCodeLine{00168\ \ \ \textcolor{keywordtype}{bool}\ is\_total\ :\ 1;}
+\DoxyCodeLine{00169\ \ \ \textcolor{keywordtype}{bool}\ has\_explicit\_total\ :\ 1;}
+\DoxyCodeLine{00170\ \ \ \textcolor{keywordtype}{bool}\ is\_partial\ :\ 1;}
+\DoxyCodeLine{00171\ \ \ \textcolor{keywordtype}{bool}\ has\_explicit\_partial\ :\ 1;}
+\DoxyCodeLine{00172\ \ \ \textcolor{keywordtype}{bool}\ is\_extern\ :\ 1;}
+\DoxyCodeLine{00173\ \ \ \textcolor{keywordtype}{bool}\ has\_body\ :\ 1;}
+\DoxyCodeLine{00174\ \ \ \textcolor{keywordtype}{bool}\ is\_covalent\ :\ 1;}
+\DoxyCodeLine{00175\ \ \ \textcolor{keywordtype}{bool}\ is\_override\ :\ 1;}
+\DoxyCodeLine{00176\ \ \ \textcolor{keywordtype}{bool}\ is\_mutable\ :\ 1;}
+\DoxyCodeLine{00177\ \ \ \textcolor{keywordtype}{char}\ *cconv;}
+\DoxyCodeLine{00178\ \ \ \textcolor{keywordtype}{char}\ *extern\_name;}
+\DoxyCodeLine{00179\ \ \ \textcolor{keywordtype}{char}\ **err\_names;\ \ \ \ \ \ \ \textcolor{comment}{//\ error\ set\ attached\ via\ \`{}errnum\ [...]`}}
+\DoxyCodeLine{00180\ \ \ \textcolor{keywordtype}{int}\ num\_err;}
+\DoxyCodeLine{00181\ \ \ \textcolor{keywordtype}{bool}\ has\_errnum\ :\ 1;}
+\DoxyCodeLine{00182\ \}\ \doxymbox{\hyperlink{structFuncDefNode}{FuncDefNode}};}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00185\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00186\ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00187\ \ \ \textcolor{keywordtype}{char}\ *parent\_name;}
+\DoxyCodeLine{00188\ \ \ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ **names;}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ count;}
+\DoxyCodeLine{00191\ \ \ \}\ traits;}
+\DoxyCodeLine{00192\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *members;}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ IsASemantic\ is\_is\_a;}
+\DoxyCodeLine{00195\ \ \ HasASemantic\ is\_has\_a;}
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \ \ \textcolor{keywordtype}{bool}\ is\_open\ :\ 1;}
+\DoxyCodeLine{00198\ \ \ \textcolor{keywordtype}{bool}\ is\_public\ :\ 1;}
+\DoxyCodeLine{00199\ \ \ \textcolor{keywordtype}{bool}\ is\_extern\ :\ 1;}
+\DoxyCodeLine{00200\ \ \ \textcolor{keywordtype}{bool}\ has\_body\ :\ 1;}
+\DoxyCodeLine{00201\ \ \ \textcolor{keywordtype}{bool}\ is\_union\ :\ 1;}
+\DoxyCodeLine{00202\ \ \ \textcolor{keywordtype}{bool}\ is\_static\ :\ 1;}
+\DoxyCodeLine{00203\ \ \ \textcolor{keywordtype}{bool}\ is\_abstract\ :\ 1;}
+\DoxyCodeLine{00204\ \ \ \textcolor{keywordtype}{bool}\ is\_exact\ :\ 1;}
+\DoxyCodeLine{00205\ \ \ \textcolor{keywordtype}{bool}\ is\_pragma\ :\ 1;}
+\DoxyCodeLine{00206\ \ \ \textcolor{keywordtype}{bool}\ is\_method\_class\ :\ 1;}
+\DoxyCodeLine{00207\ \ \ \textcolor{keywordtype}{bool}\ is\_container\ :\ 1;}
+\DoxyCodeLine{00208\ \ \ \textcolor{keywordtype}{bool}\ is\_frame\ :\ 1;}
+\DoxyCodeLine{00209\ \ \ \textcolor{keywordtype}{bool}\ is\_pure\ :\ 1;}
+\DoxyCodeLine{00210\ \ \ \textcolor{keywordtype}{bool}\ has\_explicit\_pure\ :\ 1;}
+\DoxyCodeLine{00211\ \ \ \textcolor{keywordtype}{bool}\ is\_tainted\ :\ 1;}
+\DoxyCodeLine{00212\ \ \ \textcolor{keywordtype}{bool}\ is\_extended\ :\ 1;}
+\DoxyCodeLine{00213\ \ \ \textcolor{keywordtype}{bool}\ is\_closed\ :\ 1;}
+\DoxyCodeLine{00214\ \ \ \textcolor{keywordtype}{bool}\ is\_private\ :\ 1;}
+\DoxyCodeLine{00215\ \}\ \doxymbox{\hyperlink{structClassNode}{ClassNode}};}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00218\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00219\ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00220\ \ \ \textcolor{keywordtype}{char}\ *parent\_name;}
+\DoxyCodeLine{00221\ \ \ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ **names;}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ count;}
+\DoxyCodeLine{00224\ \ \ \}\ traits;}
+\DoxyCodeLine{00225\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *members;}
+\DoxyCodeLine{00226\ }
+\DoxyCodeLine{00227\ \ \ IsASemantic\ is\_is\_a;}
+\DoxyCodeLine{00228\ \ \ HasASemantic\ is\_has\_a;}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00230\ \ \ \textcolor{keywordtype}{bool}\ is\_open\ :\ 1;}
+\DoxyCodeLine{00231\ \ \ \textcolor{keywordtype}{bool}\ is\_public\ :\ 1;}
+\DoxyCodeLine{00232\ \ \ \textcolor{keywordtype}{bool}\ is\_extern\ :\ 1;}
+\DoxyCodeLine{00233\ \ \ \textcolor{keywordtype}{bool}\ has\_body\ :\ 1;}
+\DoxyCodeLine{00234\ \ \ \textcolor{keywordtype}{bool}\ is\_union\ :\ 1;}
+\DoxyCodeLine{00235\ \ \ \textcolor{keywordtype}{bool}\ is\_static\ :\ 1;}
+\DoxyCodeLine{00236\ \ \ \textcolor{keywordtype}{bool}\ is\_abstract\ :\ 1;}
+\DoxyCodeLine{00237\ \ \ \textcolor{keywordtype}{bool}\ is\_pure\ :\ 1;}
+\DoxyCodeLine{00238\ \}\ \doxymbox{\hyperlink{structStructNode}{StructNode}};}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00240\ }
+\DoxyCodeLine{00241\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structEnumEntry}{EnumEntry}}\ \{}
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00243\ \ \ \ \ \textcolor{keywordtype}{int}\ value;}
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structEnumEntry}{EnumEntry}}\ *next;}
+\DoxyCodeLine{00245\ \}\ \doxymbox{\hyperlink{structEnumEntry}{EnumEntry}};}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00247\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00248\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00249\ \ \ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00250\ \ \ \ \ \doxymbox{\hyperlink{structEnumEntry}{EnumEntry}}\ *entries;}
+\DoxyCodeLine{00251\ \}\ \doxymbox{\hyperlink{structEnumNode}{EnumNode}};}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00253\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00254\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00255\ \ \ \ \ \doxymbox{\hyperlink{structEnumEntry}{EnumEntry}}\ *entries;}
+\DoxyCodeLine{00256\ \}\ \doxymbox{\hyperlink{structErrNumNode}{ErrNumNode}};}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \textcolor{comment}{//\ A\ single\ residue\ case\ inside\ an\ untaint/clean\ statement:}}
+\DoxyCodeLine{00259\ \textcolor{comment}{//\ \ \ [ErrA,\ ErrB]\ \{\ ...\ \}\ \ \ (err\_names\ ==\ NULL\ means\ the\ default\ catch-\/all\ case)}}
+\DoxyCodeLine{00260\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structResidueCase}{ResidueCase}}\ \{}
+\DoxyCodeLine{00261\ \ \ \ \ \textcolor{keywordtype}{char}\ **err\_names;\ \ \ \ \ \textcolor{comment}{//\ NULL\ for\ the\ default\ catch-\/all\ case}}
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{keywordtype}{int}\ num\_err;}
+\DoxyCodeLine{00263\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *body;}
+\DoxyCodeLine{00264\ \ \ \ \ \textcolor{keywordtype}{bool}\ is\_default\ :\ 1;\ \ \textcolor{comment}{//\ catch-\/all\ case\ (no\ bracket)}}
+\DoxyCodeLine{00265\ \ \ \ \ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structResidueCase}{ResidueCase}}\ *next;}
+\DoxyCodeLine{00266\ \}\ \doxymbox{\hyperlink{structResidueCase}{ResidueCase}};}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00268\ }
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00270\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00271\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00272\ \ \ \textcolor{keywordtype}{char}\ **type\_params;}
+\DoxyCodeLine{00273\ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ **allowed\_types;}
+\DoxyCodeLine{00274\ \ \ \textcolor{keywordtype}{int}\ *num\_allowed;}
+\DoxyCodeLine{00275\ \ \ \textcolor{keywordtype}{int}\ num\_type\_params;}
+\DoxyCodeLine{00276\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *body;}
+\DoxyCodeLine{00277\ \}\ \doxymbox{\hyperlink{structCompoundNode}{CompoundNode}};}
+\DoxyCodeLine{00278\ }
+\DoxyCodeLine{00279\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00280\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00281\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *target;}
+\DoxyCodeLine{00282\ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ *template\_types;}
+\DoxyCodeLine{00283\ \ \ \textcolor{keywordtype}{int}\ num\_template\_types;}
+\DoxyCodeLine{00284\ \ \ \textcolor{keywordtype}{bool}\ is\_evaluated\ :\ 1;}
+\DoxyCodeLine{00285\ \}\ \doxymbox{\hyperlink{structTemplateInstNode}{TemplateInstNode}};}
+\DoxyCodeLine{00286\ }
+\DoxyCodeLine{00287\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00288\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00289\ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00290\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *body;}
+\DoxyCodeLine{00291\ \ \ \textcolor{keywordtype}{bool}\ is\_open\ :\ 1;}
+\DoxyCodeLine{00292\ \ \ \textcolor{keywordtype}{bool}\ is\_closed\ :\ 1;}
+\DoxyCodeLine{00293\ \ \ \textcolor{keywordtype}{bool}\ is\_private\ :\ 1;}
+\DoxyCodeLine{00294\ \ \ \textcolor{keywordtype}{bool}\ is\_exported\ :\ 1;}
+\DoxyCodeLine{00295\ \}\ \doxymbox{\hyperlink{structNamespaceNode}{NamespaceNode}};}
+\DoxyCodeLine{00296\ }
+\DoxyCodeLine{00297\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00298\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00299\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *object;}
+\DoxyCodeLine{00300\ \ \ \textcolor{keywordtype}{char}\ *member\_name;}
+\DoxyCodeLine{00301\ \}\ \doxymbox{\hyperlink{structMemberAccessNode}{MemberAccessNode}};}
+\DoxyCodeLine{00302\ }
+\DoxyCodeLine{00303\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00304\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00305\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *object;}
+\DoxyCodeLine{00306\ \ \ \textcolor{keywordtype}{char}\ *method\_name;}
+\DoxyCodeLine{00307\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *args;}
+\DoxyCodeLine{00308\ \ \ \textcolor{keywordtype}{char}\ *mangled\_name;}
+\DoxyCodeLine{00309\ \ \ \textcolor{keywordtype}{char}\ *owner\_class;}
+\DoxyCodeLine{00310\ \ \ \textcolor{keywordtype}{bool}\ is\_static\ :\ 1;}
+\DoxyCodeLine{00311\ \}\ \doxymbox{\hyperlink{structMethodCallNode}{MethodCallNode}};}
+\DoxyCodeLine{00312\ }
+\DoxyCodeLine{00313\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00314\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00315\ \ \ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ var\_type;}
+\DoxyCodeLine{00316\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *operand;}
+\DoxyCodeLine{00317\ \ \ \ \ \textcolor{keywordtype}{char}\ *custom\_cast\_method;}
+\DoxyCodeLine{00318\ \}\ \doxymbox{\hyperlink{structCastNode}{CastNode}};}
+\DoxyCodeLine{00319\ }
+\DoxyCodeLine{00320\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00321\ \ \ \ \ ENDIAN\_NATIVE,}
+\DoxyCodeLine{00322\ \ \ \ \ ENDIAN\_LITTLE,}
+\DoxyCodeLine{00323\ \ \ \ \ ENDIAN\_BIG}
+\DoxyCodeLine{00324\ \}\ Endianness;}
+\DoxyCodeLine{00325\ }
+\DoxyCodeLine{00326\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00327\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00328\ \ \ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ var\_type;}
+\DoxyCodeLine{00329\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *operand;}
+\DoxyCodeLine{00330\ \ \ \ \ Endianness\ endian;}
+\DoxyCodeLine{00331\ \}\ \doxymbox{\hyperlink{structBeingNode}{BeingNode}};}
+\DoxyCodeLine{00332\ }
+\DoxyCodeLine{00333\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00334\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00335\ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00336\ \ \ \textcolor{keywordtype}{char}\ *mangled\_name;}
+\DoxyCodeLine{00337\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *args;}
+\DoxyCodeLine{00338\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *target;\ \textcolor{comment}{//\ For\ complex\ calls\ like\ template\ instantiations\ or\ function\ pointers}}
+\DoxyCodeLine{00339\ \}\ \doxymbox{\hyperlink{structCallNode}{CallNode}};}
+\DoxyCodeLine{00340\ }
+\DoxyCodeLine{00341\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00342\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00343\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *msg;}
+\DoxyCodeLine{00344\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *target;}
+\DoxyCodeLine{00345\ \}\ \doxymbox{\hyperlink{structPurgeNode}{PurgeNode}};}
+\DoxyCodeLine{00346\ }
+\DoxyCodeLine{00347\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00348\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00349\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *value;}
+\DoxyCodeLine{00350\ \}\ \doxymbox{\hyperlink{structReturnNode}{ReturnNode}};}
+\DoxyCodeLine{00351\ }
+\DoxyCodeLine{00352\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00353\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00354\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *value;}
+\DoxyCodeLine{00355\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *body;}
+\DoxyCodeLine{00356\ \ \ \ \ \textcolor{keywordtype}{bool}\ is\_leak\ :\ 1;}
+\DoxyCodeLine{00357\ \}\ \doxymbox{\hyperlink{structCaseNode}{CaseNode}};}
+\DoxyCodeLine{00358\ }
+\DoxyCodeLine{00359\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00360\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00361\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *condition;}
+\DoxyCodeLine{00362\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *cases;}
+\DoxyCodeLine{00363\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *default\_case;}
+\DoxyCodeLine{00364\ \}\ \doxymbox{\hyperlink{structSwitchNode}{SwitchNode}};}
+\DoxyCodeLine{00365\ }
+\DoxyCodeLine{00366\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00367\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00368\ \ \ \ \ \textcolor{keywordtype}{char}\ *var\_name;}
+\DoxyCodeLine{00369\ \ \ \ \ \textcolor{keywordtype}{char}\ *pristine\_var\_name;}
+\DoxyCodeLine{00370\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *body;}
+\DoxyCodeLine{00371\ \ \ \ \ \textcolor{keywordtype}{char}\ *err\_var\_name;}
+\DoxyCodeLine{00372\ \ \ \ \ \doxymbox{\hyperlink{structResidueCase}{ResidueCase}}\ *residue\_cases;\ \ \textcolor{comment}{//\ list\ of\ [Err...]\ \{\ ...\ \}\ cases\ (replaces\ residue\_body)}}
+\DoxyCodeLine{00373\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *residue\_body;\ \ \ \ \ \ \ \textcolor{comment}{//\ kept\ for\ backward\ compat\ (single\ residue)}}
+\DoxyCodeLine{00374\ \}\ \doxymbox{\hyperlink{structCleanNode}{CleanNode}};}
+\DoxyCodeLine{00375\ }
+\DoxyCodeLine{00376\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00377\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00378\ \ \ \ \ \textcolor{keywordtype}{char}\ *var\_name;}
+\DoxyCodeLine{00379\ \ \ \ \ \textcolor{keywordtype}{char}\ *err\_var\_name;}
+\DoxyCodeLine{00380\ \ \ \ \ \doxymbox{\hyperlink{structResidueCase}{ResidueCase}}\ *residue\_cases;\ \ \textcolor{comment}{//\ list\ of\ [Err...]\ \{\ ...\ \}\ cases}}
+\DoxyCodeLine{00381\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *residue\_body;\ \ \ \ \ \ \ \textcolor{comment}{//\ kept\ for\ backward\ compat}}
+\DoxyCodeLine{00382\ \}\ \doxymbox{\hyperlink{structUntaintNode}{UntaintNode}};}
+\DoxyCodeLine{00383\ }
+\DoxyCodeLine{00384\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00385\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00386\ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ var\_type;}
+\DoxyCodeLine{00387\ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00388\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *initializer;}
+\DoxyCodeLine{00389\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *array\_size;}
+\DoxyCodeLine{00390\ }
+\DoxyCodeLine{00391\ \ \ IsASemantic\ is\_is\_a;}
+\DoxyCodeLine{00392\ \ \ HasASemantic\ is\_has\_a;}
+\DoxyCodeLine{00393\ }
+\DoxyCodeLine{00394\ \ \ \textcolor{keywordtype}{bool}\ is\_array\ :\ 1;}
+\DoxyCodeLine{00395\ \ \ \textcolor{keywordtype}{bool}\ is\_open\ :\ 1;}
+\DoxyCodeLine{00396\ \ \ \textcolor{keywordtype}{bool}\ is\_public\ :\ 1;}
+\DoxyCodeLine{00397\ \ \ \textcolor{keywordtype}{bool}\ is\_static\ :\ 1;}
+\DoxyCodeLine{00398\ \ \ \textcolor{keywordtype}{bool}\ is\_const\ :\ 1;}
+\DoxyCodeLine{00399\ \ \ \textcolor{keywordtype}{bool}\ is\_mutable\ :\ 1;}
+\DoxyCodeLine{00400\ \ \ \textcolor{keywordtype}{bool}\ is\_pure\ :\ 1;}
+\DoxyCodeLine{00401\ \ \ \textcolor{keywordtype}{bool}\ has\_explicit\_pure\ :\ 1;}
+\DoxyCodeLine{00402\ \ \ \textcolor{keywordtype}{bool}\ is\_pristine\ :\ 1;}
+\DoxyCodeLine{00403\ \ \ \textcolor{keywordtype}{bool}\ has\_explicit\_pristine\ :\ 1;}
+\DoxyCodeLine{00404\ \ \ \textcolor{keywordtype}{bool}\ is\_extern\ :\ 1;}
+\DoxyCodeLine{00405\ \}\ \doxymbox{\hyperlink{structVarDeclNode}{VarDeclNode}};}
+\DoxyCodeLine{00406\ }
+\DoxyCodeLine{00407\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00408\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00409\ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00410\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *value;}
+\DoxyCodeLine{00411\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *index;}
+\DoxyCodeLine{00412\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *target;}
+\DoxyCodeLine{00413\ \ \ \textcolor{keywordtype}{int}\ op;}
+\DoxyCodeLine{00414\ \ \ \textcolor{keywordtype}{bool}\ is\_implicit\_let\ :\ 1;}
+\DoxyCodeLine{00415\ \ \ \textcolor{keywordtype}{char}\ *overloaded\_func\_name;}
+\DoxyCodeLine{00416\ \}\ \doxymbox{\hyperlink{structAssignNode}{AssignNode}};}
+\DoxyCodeLine{00417\ }
+\DoxyCodeLine{00418\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00419\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00420\ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00421\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *index;}
+\DoxyCodeLine{00422\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *target;}
+\DoxyCodeLine{00423\ \ \ \textcolor{keywordtype}{int}\ op;}
+\DoxyCodeLine{00424\ \ \ \textcolor{keywordtype}{bool}\ is\_prefix\ :\ 1;}
+\DoxyCodeLine{00425\ \ \ \textcolor{keywordtype}{char}\ *overloaded\_func\_name;}
+\DoxyCodeLine{00426\ \}\ \doxymbox{\hyperlink{structIncDecNode}{IncDecNode}};}
+\DoxyCodeLine{00427\ }
+\DoxyCodeLine{00428\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00429\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00430\ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00431\ \ \ \textcolor{keywordtype}{char}\ *mangled\_name;}
+\DoxyCodeLine{00432\ \ \ \textcolor{keywordtype}{int}\ error\_id;}
+\DoxyCodeLine{00433\ \ \ \textcolor{keywordtype}{bool}\ is\_class\_member\ :\ 1;}
+\DoxyCodeLine{00434\ \ \ \textcolor{keywordtype}{bool}\ is\_error\_id\ :\ 1;}
+\DoxyCodeLine{00435\ \ \ \textcolor{keywordtype}{bool}\ is\_implicit\_deref\ :\ 1;}
+\DoxyCodeLine{00436\ \}\ \doxymbox{\hyperlink{structVarRefNode}{VarRefNode}};}
+\DoxyCodeLine{00437\ }
+\DoxyCodeLine{00438\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00439\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00440\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *target;}
+\DoxyCodeLine{00441\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *index;}
+\DoxyCodeLine{00442\ \}\ \doxymbox{\hyperlink{structIndexAccessNode}{IndexAccessNode}};}
+\DoxyCodeLine{00443\ }
+\DoxyCodeLine{00444\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00445\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00446\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *elements;}
+\DoxyCodeLine{00447\ \ \ \textcolor{keywordtype}{bool}\ is\_vector;}
+\DoxyCodeLine{00448\ \}\ \doxymbox{\hyperlink{structArrayLitNode}{ArrayLitNode}};}
+\DoxyCodeLine{00449\ }
+\DoxyCodeLine{00450\ }
+\DoxyCodeLine{00451\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00452\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00453\ \ \ \textcolor{keywordtype}{char}\ *lib\_name;}
+\DoxyCodeLine{00454\ \}\ \doxymbox{\hyperlink{structLinkNode}{LinkNode}};}
+\DoxyCodeLine{00455\ }
+\DoxyCodeLine{00456\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00457\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00458\ \ \ \textcolor{keywordtype}{int}\ op;}
+\DoxyCodeLine{00459\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *left;}
+\DoxyCodeLine{00460\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *right;}
+\DoxyCodeLine{00461\ \ \ \textcolor{keywordtype}{char}\ *overloaded\_func\_name;}
+\DoxyCodeLine{00462\ \ \ \textcolor{keywordtype}{char}\ *fallback\_err\_name;\ \textcolor{comment}{//\ For\ ?[...]\ operator\ (first/legacy\ case)}}
+\DoxyCodeLine{00463\ \ \ \textcolor{keywordtype}{char}\ *err\_var\_name;\ \ \ \ \ \textcolor{comment}{//\ bound\ error\ variable\ for\ \`{}?\ [Err]\ v`}}
+\DoxyCodeLine{00464\ \ \ \textcolor{comment}{//\ List\ of\ cases\ for\ the\ \`{}?`/untaint/clean\ residue\ matching.}}
+\DoxyCodeLine{00465\ \ \ \textcolor{comment}{//\ Each\ case\ has\ a\ set\ of\ error\ names\ (err\_names\ ==\ NULL\ means\ default).}}
+\DoxyCodeLine{00466\ \ \ \doxymbox{\hyperlink{structResidueCase}{ResidueCase}}\ *cases;}
+\DoxyCodeLine{00467\ \ \ \textcolor{keywordtype}{int}\ exhaustiveness\_checked\ :\ 1;}
+\DoxyCodeLine{00468\ \}\ \doxymbox{\hyperlink{structBinaryOpNode}{BinaryOpNode}};}
+\DoxyCodeLine{00469\ }
+\DoxyCodeLine{00470\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00471\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00472\ \ \ \textcolor{keywordtype}{int}\ op;}
+\DoxyCodeLine{00473\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *operand;}
+\DoxyCodeLine{00474\ \ \ \textcolor{keywordtype}{int}\ is\_suffix;}
+\DoxyCodeLine{00475\ \ \ \textcolor{keywordtype}{char}\ *overloaded\_func\_name;}
+\DoxyCodeLine{00476\ \}\ \doxymbox{\hyperlink{structUnaryOpNode}{UnaryOpNode}};}
+\DoxyCodeLine{00477\ }
+\DoxyCodeLine{00478\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00479\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00480\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *value;}
+\DoxyCodeLine{00481\ \}\ \doxymbox{\hyperlink{structEmitNode}{EmitNode}};}
+\DoxyCodeLine{00482\ }
+\DoxyCodeLine{00483\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00484\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00485\ \}\ \doxymbox{\hyperlink{structBreakNode}{BreakNode}};}
+\DoxyCodeLine{00486\ }
+\DoxyCodeLine{00487\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00488\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00489\ \}\ \doxymbox{\hyperlink{structContinueNode}{ContinueNode}};}
+\DoxyCodeLine{00490\ }
+\DoxyCodeLine{00491\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00492\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00493\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *iterations;}
+\DoxyCodeLine{00494\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *body;}
+\DoxyCodeLine{00495\ \}\ \doxymbox{\hyperlink{structLoopNode}{LoopNode}};}
+\DoxyCodeLine{00496\ }
+\DoxyCodeLine{00497\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00498\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00499\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *condition;}
+\DoxyCodeLine{00500\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *body;}
+\DoxyCodeLine{00501\ \ \ \textcolor{keywordtype}{bool}\ is\_do\_while\ :\ 1;}
+\DoxyCodeLine{00502\ \}\ \doxymbox{\hyperlink{structWhileNode}{WhileNode}};}
+\DoxyCodeLine{00503\ }
+\DoxyCodeLine{00504\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00505\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00506\ \ \ \ \ \textcolor{keywordtype}{char}\ *var\_name;}
+\DoxyCodeLine{00507\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *collection;}
+\DoxyCodeLine{00508\ \ \ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *body;}
+\DoxyCodeLine{00509\ \ \ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ iter\_type;}
+\DoxyCodeLine{00510\ \}\ \doxymbox{\hyperlink{structForInNode}{ForInNode}};}
+\DoxyCodeLine{00511\ }
+\DoxyCodeLine{00512\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00513\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00514\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *condition;}
+\DoxyCodeLine{00515\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *then\_body;}
+\DoxyCodeLine{00516\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *else\_body;}
+\DoxyCodeLine{00517\ \}\ \doxymbox{\hyperlink{structIfNode}{IfNode}};}
+\DoxyCodeLine{00518\ }
+\DoxyCodeLine{00519\ \textcolor{comment}{/*\ TODO\ use\ this\ correctly\ */}}
+\DoxyCodeLine{00520\ \textcolor{comment}{//\ see\ var\_type}}
+\DoxyCodeLine{00521\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00522\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00523\ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ var\_type;}
+\DoxyCodeLine{00524\ \ \ Value\ val;}
+\DoxyCodeLine{00525\ \}\ \doxymbox{\hyperlink{structLiteralNode}{LiteralNode}};}
+\DoxyCodeLine{00526\ }
+\DoxyCodeLine{00527\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00528\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00529\ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ target\_type;}
+\DoxyCodeLine{00530\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *operand;}
+\DoxyCodeLine{00531\ \}\ \doxymbox{\hyperlink{structSizeOfNode}{SizeOfNode}};}
+\DoxyCodeLine{00532\ }
+\DoxyCodeLine{00533\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00534\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00535\ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ target\_type;}
+\DoxyCodeLine{00536\ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ target\_type2;}
+\DoxyCodeLine{00537\ \}\ \doxymbox{\hyperlink{structIsCompatibleNode}{IsCompatibleNode}};}
+\DoxyCodeLine{00538\ }
+\DoxyCodeLine{00539\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00540\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00541\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *body;}
+\DoxyCodeLine{00542\ \}\ \doxymbox{\hyperlink{structDeferNode}{DeferNode}};}
+\DoxyCodeLine{00543\ }
+\DoxyCodeLine{00544\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00545\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00546\ \ \ \textcolor{keywordtype}{bool}\ is\_post;}
+\DoxyCodeLine{00547\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *body;}
+\DoxyCodeLine{00548\ \}\ \doxymbox{\hyperlink{structMetaNode}{MetaNode}};}
+\DoxyCodeLine{00549\ }
+\DoxyCodeLine{00550\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00551\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00552\ \ \ \textcolor{keywordtype}{char}\ *name;}
+\DoxyCodeLine{00553\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *value;}
+\DoxyCodeLine{00554\ \}\ \doxymbox{\hyperlink{structNamedArgNode}{NamedArgNode}};}
+\DoxyCodeLine{00555\ }
+\DoxyCodeLine{00556\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00557\ \ \ HEADER\_ALKYL,}
+\DoxyCodeLine{00558\ \ \ HEADER\_C,}
+\DoxyCodeLine{00559\ \ \ HEADER\_CPP}
+\DoxyCodeLine{00560\ \}\ HeaderType;}
+\DoxyCodeLine{00561\ }
+\DoxyCodeLine{00562\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00563\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00564\ \ \ \textcolor{keywordtype}{char}\ *path;}
+\DoxyCodeLine{00565\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *resolved\_body;}
+\DoxyCodeLine{00566\ \ \ HeaderType\ header;}
+\DoxyCodeLine{00567\ \}\ \doxymbox{\hyperlink{structImportNode}{ImportNode}};}
+\DoxyCodeLine{00568\ }
+\DoxyCodeLine{00569\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00570\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ base;}
+\DoxyCodeLine{00571\ \ \ \textcolor{keywordtype}{char}\ *path;}
+\DoxyCodeLine{00572\ \ \ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *resolved\_body;}
+\DoxyCodeLine{00573\ \ \ HeaderType\ header;}
+\DoxyCodeLine{00574\ \}\ \doxymbox{\hyperlink{structImportExprNode}{ImportExprNode}};}
+\DoxyCodeLine{00575\ }
+\DoxyCodeLine{00576\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ PARSER\_TYPESTRUCT\_H}}
+
+\end{DoxyCode}

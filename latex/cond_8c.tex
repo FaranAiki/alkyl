@@ -1,0 +1,64 @@
+\doxysection{src/\+parser/\+fragment/\+cond.c File Reference}
+\hypertarget{cond_8c}{}\label{cond_8c}\index{src/parser/fragment/cond.c@{src/parser/fragment/cond.c}}
+
+
+Conditional parsing implementation for the Alkyl parser.  
+
+
+{\ttfamily \+\#include "{}parser\+\_\+internal.\+h"{}}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdio.\+h$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{cond_8c_a75c372200c720288691057b92fb53812}{parse\+\_\+if}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses an if statement. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{cond_8c_a9507a3a80e419920e012e2fa4304892e}{parse\+\_\+switch}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a switch statement. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Conditional parsing implementation for the Alkyl parser. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{cond_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{cond_8c_a75c372200c720288691057b92fb53812}\index{cond.c@{cond.c}!parse\_if@{parse\_if}}
+\index{parse\_if@{parse\_if}!cond.c@{cond.c}}
+\doxysubsubsection{\texorpdfstring{parse\_if()}{parse\_if()}}
+{\footnotesize\ttfamily \label{cond_8c_a75c372200c720288691057b92fb53812} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+if (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses an if statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed if AST node. 
+\end{DoxyReturn}
+\Hypertarget{cond_8c_a9507a3a80e419920e012e2fa4304892e}\index{cond.c@{cond.c}!parse\_switch@{parse\_switch}}
+\index{parse\_switch@{parse\_switch}!cond.c@{cond.c}}
+\doxysubsubsection{\texorpdfstring{parse\_switch()}{parse\_switch()}}
+{\footnotesize\ttfamily \label{cond_8c_a9507a3a80e419920e012e2fa4304892e} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+switch (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a switch statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed switch AST node. 
+\end{DoxyReturn}

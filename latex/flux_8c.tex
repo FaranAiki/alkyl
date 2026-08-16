@@ -1,0 +1,82 @@
+\doxysection{src/\+alir/\+flux.c File Reference}
+\hypertarget{flux_8c}{}\label{flux_8c}\index{src/alir/flux.c@{src/alir/flux.c}}
+
+
+ALIR flux (generator) support implementation.  
+
+
+{\ttfamily \+\#include "{}alir.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{flux_8c_ab00cdd7fa2566fb21e47c8c212939622}{collect\+\_\+flux\+\_\+vars\+\_\+recursive}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node, int \texorpdfstring{$\ast$}{*}idx\+\_\+ptr)
+\begin{DoxyCompactList}\small\item\em Recursively collects flux variables from an AST. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{flux_8c_a7023db53c711f4e2b8d71edab46a5d44}{alir\+\_\+gen\+\_\+flux\+\_\+def}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structFuncDefNode}{Func\+Def\+Node}} \texorpdfstring{$\ast$}{*}fn, const char \texorpdfstring{$\ast$}{*}class\+\_\+name)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a flux function definition. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{flux_8c_a9b4028865a20eae5138fedb7dfe45415}{alir\+\_\+gen\+\_\+flux\+\_\+yield}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structEmitNode}{Emit\+Node}} \texorpdfstring{$\ast$}{*}en)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a flux yield expression. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+ALIR flux (generator) support implementation. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{flux_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{flux_8c_a7023db53c711f4e2b8d71edab46a5d44}\index{flux.c@{flux.c}!alir\_gen\_flux\_def@{alir\_gen\_flux\_def}}
+\index{alir\_gen\_flux\_def@{alir\_gen\_flux\_def}!flux.c@{flux.c}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_flux\_def()}{alir\_gen\_flux\_def()}}
+{\footnotesize\ttfamily \label{flux_8c_a7023db53c711f4e2b8d71edab46a5d44} 
+void alir\+\_\+gen\+\_\+flux\+\_\+def (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structFuncDefNode}{Func\+Def\+Node}} \texorpdfstring{$\ast$}{*}}]{fn}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{class\+\_\+name}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a flux function definition. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em fn} & The function definition node. \\
+\hline
+{\em class\+\_\+name} & The class name, or NULL. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{flux_8c_a9b4028865a20eae5138fedb7dfe45415}\index{flux.c@{flux.c}!alir\_gen\_flux\_yield@{alir\_gen\_flux\_yield}}
+\index{alir\_gen\_flux\_yield@{alir\_gen\_flux\_yield}!flux.c@{flux.c}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_flux\_yield()}{alir\_gen\_flux\_yield()}}
+{\footnotesize\ttfamily \label{flux_8c_a9b4028865a20eae5138fedb7dfe45415} 
+void alir\+\_\+gen\+\_\+flux\+\_\+yield (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structEmitNode}{Emit\+Node}} \texorpdfstring{$\ast$}{*}}]{en}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a flux yield expression. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em en} & The emit node. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{flux_8c_ab00cdd7fa2566fb21e47c8c212939622}\index{flux.c@{flux.c}!collect\_flux\_vars\_recursive@{collect\_flux\_vars\_recursive}}
+\index{collect\_flux\_vars\_recursive@{collect\_flux\_vars\_recursive}!flux.c@{flux.c}}
+\doxysubsubsection{\texorpdfstring{collect\_flux\_vars\_recursive()}{collect\_flux\_vars\_recursive()}}
+{\footnotesize\ttfamily \label{flux_8c_ab00cdd7fa2566fb21e47c8c212939622} 
+void collect\+\_\+flux\+\_\+vars\+\_\+recursive (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{, }\item[{int \texorpdfstring{$\ast$}{*}}]{idx\+\_\+ptr}{}\end{DoxyParamCaption})}
+
+
+
+Recursively collects flux variables from an AST. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The AST node. \\
+\hline
+{\em idx\+\_\+ptr} & Pointer to the current index counter. \\
+\hline
+\end{DoxyParams}

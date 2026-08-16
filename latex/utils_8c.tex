@@ -1,0 +1,184 @@
+\doxysection{src/\+alir/\+utils.c File Reference}
+\hypertarget{utils_8c}{}\label{utils_8c}\index{src/alir/utils.c@{src/alir/utils.c}}
+
+
+ALIR utility function implementations.  
+
+
+{\ttfamily \+\#include "{}alir.\+h"{}}\newline
+{\ttfamily \+\#include "{}common.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{structAlirInst}{Alir\+Inst}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{utils_8c_a51f134b5bd8ed8ed66dbbac75a006468}{mk\+\_\+inst}} (\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}mod, \doxymbox{\hyperlink{alir_8h_afea2789102fe5df35ffa4332e0870db1}{Alir\+Opcode}} op, \doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*}dest, \doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*}op1, \doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*}op2)
+\begin{DoxyCompactList}\small\item\em Creates a new ALIR instruction. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{utils_8c_a1d19c1b3ad37c3e7d5bc95ad45a318df}{emit}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structAlirInst}{Alir\+Inst}} \texorpdfstring{$\ast$}{*}i)
+\begin{DoxyCompactList}\small\item\em Emits an instruction to the current block. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{utils_8c_a256323e8e49e9a5c64a4b7ced423927d}{new\+\_\+temp}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structVarType}{Var\+Type}} t)
+\begin{DoxyCompactList}\small\item\em Allocates a new temporary ALIR value. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{utils_8c_a2b6110078a69e2eeeb6193eaa17be3c2}{promote}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*}v, \doxymbox{\hyperlink{structVarType}{Var\+Type}} target)
+\begin{DoxyCompactList}\small\item\em Promotes a value to a target type. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{utils_8c_ad9fecf6e6305bc8f7172052652487d25}{alir\+\_\+add\+\_\+symbol}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, const char \texorpdfstring{$\ast$}{*}name, \doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*}ptr, \doxymbox{\hyperlink{structVarType}{Var\+Type}} t)
+\begin{DoxyCompactList}\small\item\em Adds a symbol to the local symbol table. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirSymbol}{Alir\+Symbol}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{utils_8c_ae918175531b89a8852b222a7fce7c4d5}{alir\+\_\+find\+\_\+symbol}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, const char \texorpdfstring{$\ast$}{*}name)
+\begin{DoxyCompactList}\small\item\em Finds a symbol in the local symbol table. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{utils_8c_a78a8b82ed8dcd99c43eb706b54fc767b}{alir\+\_\+lower\+\_\+new\+\_\+object}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, const char \texorpdfstring{$\ast$}{*}class\+\_\+name, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Lowers a new object creation into ALIR. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+ALIR utility function implementations. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{utils_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{utils_8c_ad9fecf6e6305bc8f7172052652487d25}\index{utils.c@{utils.c}!alir\_add\_symbol@{alir\_add\_symbol}}
+\index{alir\_add\_symbol@{alir\_add\_symbol}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{alir\_add\_symbol()}{alir\_add\_symbol()}}
+{\footnotesize\ttfamily \label{utils_8c_ad9fecf6e6305bc8f7172052652487d25} 
+void alir\+\_\+add\+\_\+symbol (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{name}{, }\item[{\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*}}]{ptr}{, }\item[{\doxymbox{\hyperlink{structVarType}{Var\+Type}}}]{t}{}\end{DoxyParamCaption})}
+
+
+
+Adds a symbol to the local symbol table. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em name} & The symbol name. \\
+\hline
+{\em ptr} & The ALIR value pointer. \\
+\hline
+{\em t} & The symbol type. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{utils_8c_ae918175531b89a8852b222a7fce7c4d5}\index{utils.c@{utils.c}!alir\_find\_symbol@{alir\_find\_symbol}}
+\index{alir\_find\_symbol@{alir\_find\_symbol}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{alir\_find\_symbol()}{alir\_find\_symbol()}}
+{\footnotesize\ttfamily \label{utils_8c_ae918175531b89a8852b222a7fce7c4d5} 
+\doxymbox{\hyperlink{structAlirSymbol}{Alir\+Symbol}} \texorpdfstring{$\ast$}{*} alir\+\_\+find\+\_\+symbol (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{name}{}\end{DoxyParamCaption})}
+
+
+
+Finds a symbol in the local symbol table. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em name} & The symbol name. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The symbol, or NULL if not found. 
+\end{DoxyReturn}
+\Hypertarget{utils_8c_a78a8b82ed8dcd99c43eb706b54fc767b}\index{utils.c@{utils.c}!alir\_lower\_new\_object@{alir\_lower\_new\_object}}
+\index{alir\_lower\_new\_object@{alir\_lower\_new\_object}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{alir\_lower\_new\_object()}{alir\_lower\_new\_object()}}
+{\footnotesize\ttfamily \label{utils_8c_a78a8b82ed8dcd99c43eb706b54fc767b} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+lower\+\_\+new\+\_\+object (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{class\+\_\+name}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Lowers a new object creation into ALIR. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em class\+\_\+name} & The class name. \\
+\hline
+{\em args} & The constructor arguments. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{utils_8c_a1d19c1b3ad37c3e7d5bc95ad45a318df}\index{utils.c@{utils.c}!emit@{emit}}
+\index{emit@{emit}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{emit()}{emit()}}
+{\footnotesize\ttfamily \label{utils_8c_a1d19c1b3ad37c3e7d5bc95ad45a318df} 
+void emit (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structAlirInst}{Alir\+Inst}} \texorpdfstring{$\ast$}{*}}]{i}{}\end{DoxyParamCaption})}
+
+
+
+Emits an instruction to the current block. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em i} & The instruction to emit. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{utils_8c_a51f134b5bd8ed8ed66dbbac75a006468}\index{utils.c@{utils.c}!mk\_inst@{mk\_inst}}
+\index{mk\_inst@{mk\_inst}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{mk\_inst()}{mk\_inst()}}
+{\footnotesize\ttfamily \label{utils_8c_a51f134b5bd8ed8ed66dbbac75a006468} 
+\doxymbox{\hyperlink{structAlirInst}{Alir\+Inst}} \texorpdfstring{$\ast$}{*} mk\+\_\+inst (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}}]{mod}{, }\item[{\doxymbox{\hyperlink{alir_8h_afea2789102fe5df35ffa4332e0870db1}{Alir\+Opcode}}}]{op}{, }\item[{\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*}}]{dest}{, }\item[{\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*}}]{op1}{, }\item[{\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*}}]{op2}{}\end{DoxyParamCaption})}
+
+
+
+Creates a new ALIR instruction. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mod} & The ALIR module. \\
+\hline
+{\em op} & The opcode. \\
+\hline
+{\em dest} & The destination value, or NULL. \\
+\hline
+{\em op1} & The first operand. \\
+\hline
+{\em op2} & The second operand, or NULL. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The new instruction. 
+\end{DoxyReturn}
+\Hypertarget{utils_8c_a256323e8e49e9a5c64a4b7ced423927d}\index{utils.c@{utils.c}!new\_temp@{new\_temp}}
+\index{new\_temp@{new\_temp}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{new\_temp()}{new\_temp()}}
+{\footnotesize\ttfamily \label{utils_8c_a256323e8e49e9a5c64a4b7ced423927d} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} new\+\_\+temp (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structVarType}{Var\+Type}}}]{t}{}\end{DoxyParamCaption})}
+
+
+
+Allocates a new temporary ALIR value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em t} & The type of the temporary. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The new temporary value. 
+\end{DoxyReturn}
+\Hypertarget{utils_8c_a2b6110078a69e2eeeb6193eaa17be3c2}\index{utils.c@{utils.c}!promote@{promote}}
+\index{promote@{promote}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{promote()}{promote()}}
+{\footnotesize\ttfamily \label{utils_8c_a2b6110078a69e2eeeb6193eaa17be3c2} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} promote (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*}}]{v}{, }\item[{\doxymbox{\hyperlink{structVarType}{Var\+Type}}}]{target}{}\end{DoxyParamCaption})}
+
+
+
+Promotes a value to a target type. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em v} & The value to promote. \\
+\hline
+{\em target} & The target type. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The promoted value. 
+\end{DoxyReturn}

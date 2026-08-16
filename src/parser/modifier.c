@@ -1,3 +1,7 @@
+/**
+ * @file modifier.c
+ * @brief Modifier parsing and application for the Alkyl parser.
+ */
 #include "parser.h"
 #include <string.h>
 

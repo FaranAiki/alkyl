@@ -1,3 +1,7 @@
+/**
+ * @file stmt.c
+ * @brief ALIR statement generation implementation.
+ */
 #include "alir.h"
 #include "semantic/semantic.h"
 #include "metalir/vm.h"

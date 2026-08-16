@@ -1,3 +1,7 @@
+/**
+ * @file top.c
+ * @brief Top-level parsing routines for the Alkyl compiler.
+ */
 #include "parser_internal.h"
 #include <string.h>
 #include <stdlib.h>

@@ -1,3 +1,7 @@
+/**
+ * @file binary_read.c
+ * @brief ALIR binary module reader implementation.
+ */
 #include "alir.h"
 #include <stdio.h>
 #include <stdint.h>

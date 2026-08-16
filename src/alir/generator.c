@@ -1,3 +1,7 @@
+/**
+ * @file generator.c
+ * @brief ALIR generation implementation.
+ */
 #include "alir.h"
 #include <stdlib.h>
 #include <string.h>

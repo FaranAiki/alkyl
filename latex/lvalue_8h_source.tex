@@ -1,0 +1,49 @@
+\doxysection{lvalue.\+h}
+\hypertarget{lvalue_8h_source}{}\label{lvalue_8h_source}\index{include/alir/lvalue.h@{include/alir/lvalue.h}}
+\doxymbox{\hyperlink{lvalue_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#ifndef\ ALIR\_LVALUE\_H}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#define\ ALIR\_LVALUE\_H}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\doxymbox{\hyperlink{alir_8h}{alir.h}}"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00016\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_a62fea144d8a3bf3c67edca409572dc59}{alir\_gen\_addr}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *node);}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00024\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_aa48eb3f47463b9bf43715dac86104b30}{alir\_gen\_array\_lit}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *node);}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00032\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_a18953b1c7e2aec45d9c1bab374527273}{alir\_gen\_literal}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structLiteralNode}{LiteralNode}}\ *ln);}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00040\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_ac11c9bf14e7e4adc5ef6e83e9df3e7ef}{alir\_gen\_var\_ref}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structVarRefNode}{VarRefNode}}\ *vn);}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00048\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_aec4f22c371ab220bb9c9745809ee0f22}{alir\_gen\_access}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *node);}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00056\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_a9fa996da7ccd2920e30c8e493837148c}{alir\_gen\_binary\_op}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structBinaryOpNode}{BinaryOpNode}}\ *bn);}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00064\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_a5c99cad7a4b19d84d51d9ee936e65beb}{alir\_gen\_unary\_op}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structUnaryOpNode}{UnaryOpNode}}\ *un);}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00072\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_aee7e0d5fb875b742ce6bc5895cc9eb71}{alir\_gen\_inc\_dec}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structIncDecNode}{IncDecNode}}\ *\textcolor{keywordtype}{id});}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00080\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_a6cf497e6b847c53959a0d144916c9447}{alir\_gen\_cast}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structCastNode}{CastNode}}\ *cn);}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00088\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_a95712bec75fa87ce07ac7cd34abba4d9}{alir\_gen\_call\_std}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structCallNode}{CallNode}}\ *cn);}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00096\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_a4b66273ae618006fee90a399608a7641}{alir\_gen\_call}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structCallNode}{CallNode}}\ *cn);}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00104\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_a982c836398e737232522772c677ee500}{alir\_gen\_method\_call}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structMethodCallNode}{MethodCallNode}}\ *mc);}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00112\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_a5f7d1aa6674a7114500a5abd43cafea3}{alir\_gen\_expr}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structASTNode}{ASTNode}}\ *node);}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00120\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_a23f118e1c5abf099b567df13419f7ad0}{alir\_gen\_expr\_index\_access}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structIndexAccessNode}{IndexAccessNode}}\ *aa);}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00128\ \doxymbox{\hyperlink{structAlirValue}{AlirValue}}*\ \doxymbox{\hyperlink{lvalue_8h_a956984c8b7eeae0afa318b63f883d54d}{alir\_gen\_addr\_index\_access}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \doxymbox{\hyperlink{structIndexAccessNode}{IndexAccessNode}}\ *aa);}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00135\ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{lvalue_8h_a47fc47016d87335ceeb029502019ebf4}{alir\_get\_type\_size}}(\doxymbox{\hyperlink{structVarType}{VarType}}\ t);}
+\DoxyCodeLine{00136\ }
+\DoxyCodeLine{00143\ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{lvalue_8h_a9be010c563c210b0225b6c2368448e59}{alir\_get\_struct\_size}}(\doxymbox{\hyperlink{structAlirModule}{AlirModule}}\ *mod,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *struct\_name);}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00152\ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{lvalue_8h_a16c8469828f94dd9c702fdffaa4ebec2}{alir\_robust\_get\_field\_index}}(\doxymbox{\hyperlink{structAlirCtx}{AlirCtx}}\ *ctx,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *hint\_class,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *field\_name);}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ ALIR\_LVALUE\_H}}
+
+\end{DoxyCode}

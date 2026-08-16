@@ -1,3 +1,7 @@
+/**
+ * @file core.c
+ * @brief Core ALIR module and function creation implementation.
+ */
 #include "alir.h"
 #include "../common/hashmap.h"
 #include <stdlib.h>

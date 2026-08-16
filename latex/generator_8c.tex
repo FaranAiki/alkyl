@@ -1,0 +1,298 @@
+\doxysection{src/\+alir/\+generator.c File Reference}
+\hypertarget{generator_8c}{}\label{generator_8c}\index{src/alir/generator.c@{src/alir/generator.c}}
+
+
+ALIR generation implementation.  
+
+
+{\ttfamily \+\#include "{}alir.\+h"{}}\newline
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdio.\+h$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{generator_8c_a74f6af7807cd402321fa838cbd440aa1}{push\+\_\+loop}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structAlirBlock}{Alir\+Block}} \texorpdfstring{$\ast$}{*}cont, \doxymbox{\hyperlink{structAlirBlock}{Alir\+Block}} \texorpdfstring{$\ast$}{*}brk)
+\begin{DoxyCompactList}\small\item\em Pushes a new loop context onto the loop stack. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{generator_8c_a090fd5aa4ba4490893f7ce8dcaf63e43}{pop\+\_\+loop}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx)
+\begin{DoxyCompactList}\small\item\em Pops the current loop context from the loop stack. \end{DoxyCompactList}\item 
+int \doxymbox{\hyperlink{generator_8c_aa0a62b3db5c68d80ada8ea9dbb518e24}{is\+\_\+terminator}} (\doxymbox{\hyperlink{alir_8h_afea2789102fe5df35ffa4332e0870db1}{Alir\+Opcode}} op)
+\begin{DoxyCompactList}\small\item\em Checks if an opcode is a terminator instruction. \end{DoxyCompactList}\item 
+long \doxymbox{\hyperlink{generator_8c_a021c3ebe8f26bc83ea72c374e2abd2eb}{alir\+\_\+eval\+\_\+constant\+\_\+int}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\begin{DoxyCompactList}\small\item\em Evaluates an AST node as a constant integer. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{generator_8c_aab99b802887ca8a79c3cb00dfd782dc3}{build\+\_\+struct\+\_\+fields}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structClassNode}{Class\+Node}} \texorpdfstring{$\ast$}{*}cn, \doxymbox{\hyperlink{structAlirStruct}{Alir\+Struct}} \texorpdfstring{$\ast$}{*}st)
+\begin{DoxyCompactList}\small\item\em Builds struct field descriptors from a class node. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{generator_8c_a8c559d2fb80a0823128e18379798f872}{pass1\+\_\+register}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}n, const char \texorpdfstring{$\ast$}{*}current\+\_\+ns)
+\begin{DoxyCompactList}\small\item\em First pass:\+ registers all symbols in the current namespace. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{generator_8c_ab56a27512791d6daa9973ec6f710df05}{pass2\+\_\+populate}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}root, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}n, const char \texorpdfstring{$\ast$}{*}current\+\_\+ns)
+\begin{DoxyCompactList}\small\item\em Second pass:\+ populates function bodies and resolves references. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{generator_8c_a7a053fffbc86da92aed4215b2e0b6b6e}{alir\+\_\+scan\+\_\+and\+\_\+register\+\_\+classes}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}root)
+\begin{DoxyCompactList}\small\item\em Scans and registers all classes in the AST. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{generator_8c_af39798dea899592497b8fd59bf6e175f}{alir\+\_\+gen\+\_\+switch}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structSwitchNode}{Switch\+Node}} \texorpdfstring{$\ast$}{*}sn)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a switch statement. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{generator_8c_ae7b04041ecad40a51c212d1e287a00ac}{alir\+\_\+gen\+\_\+implicit\+\_\+constructor}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structClassNode}{Class\+Node}} \texorpdfstring{$\ast$}{*}cn, const char \texorpdfstring{$\ast$}{*}fqn)
+\begin{DoxyCompactList}\small\item\em Generates an implicit constructor for a class. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{generator_8c_a43459197e32f5b8313e415abbb208d6a}{alir\+\_\+gen\+\_\+inherited\+\_\+methods}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structClassNode}{Class\+Node}} \texorpdfstring{$\ast$}{*}cn, const char \texorpdfstring{$\ast$}{*}target\+\_\+class\+\_\+fqn, \doxymbox{\hyperlink{structClassNode}{Class\+Node}} \texorpdfstring{$\ast$}{*}target\+\_\+node)
+\begin{DoxyCompactList}\small\item\em Generates inherited methods for a class. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{generator_8c_aba1505710dd24eb80d24fab410492762}{alir\+\_\+gen\+\_\+functions\+\_\+recursive}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}root, const char \texorpdfstring{$\ast$}{*}current\+\_\+ns)
+\begin{DoxyCompactList}\small\item\em Recursively generates ALIR for all functions in the AST. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{generator_8c_a1d3e7e0f5ca9f391d985241d64aa3f86}{alir\+\_\+generate}} (Semantic\+Ctx \texorpdfstring{$\ast$}{*}sem, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}root)
+\begin{DoxyCompactList}\small\item\em Generates the complete ALIR module from a semantic context. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+ALIR generation implementation. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{generator_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{generator_8c_a021c3ebe8f26bc83ea72c374e2abd2eb}\index{generator.c@{generator.c}!alir\_eval\_constant\_int@{alir\_eval\_constant\_int}}
+\index{alir\_eval\_constant\_int@{alir\_eval\_constant\_int}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{alir\_eval\_constant\_int()}{alir\_eval\_constant\_int()}}
+{\footnotesize\ttfamily \label{generator_8c_a021c3ebe8f26bc83ea72c374e2abd2eb} 
+long alir\+\_\+eval\+\_\+constant\+\_\+int (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{}\end{DoxyParamCaption})}
+
+
+
+Evaluates an AST node as a constant integer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The AST node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The evaluated integer value. 
+\end{DoxyReturn}
+\Hypertarget{generator_8c_aba1505710dd24eb80d24fab410492762}\index{generator.c@{generator.c}!alir\_gen\_functions\_recursive@{alir\_gen\_functions\_recursive}}
+\index{alir\_gen\_functions\_recursive@{alir\_gen\_functions\_recursive}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_functions\_recursive()}{alir\_gen\_functions\_recursive()}}
+{\footnotesize\ttfamily \label{generator_8c_aba1505710dd24eb80d24fab410492762} 
+void alir\+\_\+gen\+\_\+functions\+\_\+recursive (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{root}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{current\+\_\+ns}{}\end{DoxyParamCaption})}
+
+
+
+Recursively generates ALIR for all functions in the AST. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em root} & The root AST node. \\
+\hline
+{\em current\+\_\+ns} & The current namespace name. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{generator_8c_ae7b04041ecad40a51c212d1e287a00ac}\index{generator.c@{generator.c}!alir\_gen\_implicit\_constructor@{alir\_gen\_implicit\_constructor}}
+\index{alir\_gen\_implicit\_constructor@{alir\_gen\_implicit\_constructor}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_implicit\_constructor()}{alir\_gen\_implicit\_constructor()}}
+{\footnotesize\ttfamily \label{generator_8c_ae7b04041ecad40a51c212d1e287a00ac} 
+void alir\+\_\+gen\+\_\+implicit\+\_\+constructor (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structClassNode}{Class\+Node}} \texorpdfstring{$\ast$}{*}}]{cn}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{fqn}{}\end{DoxyParamCaption})}
+
+
+
+Generates an implicit constructor for a class. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em cn} & The class node. \\
+\hline
+{\em fqn} & The fully qualified class name. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{generator_8c_a43459197e32f5b8313e415abbb208d6a}\index{generator.c@{generator.c}!alir\_gen\_inherited\_methods@{alir\_gen\_inherited\_methods}}
+\index{alir\_gen\_inherited\_methods@{alir\_gen\_inherited\_methods}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_inherited\_methods()}{alir\_gen\_inherited\_methods()}}
+{\footnotesize\ttfamily \label{generator_8c_a43459197e32f5b8313e415abbb208d6a} 
+void alir\+\_\+gen\+\_\+inherited\+\_\+methods (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structClassNode}{Class\+Node}} \texorpdfstring{$\ast$}{*}}]{cn}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{class\+\_\+name}{, }\item[{\doxymbox{\hyperlink{structClassNode}{Class\+Node}} \texorpdfstring{$\ast$}{*}}]{target\+\_\+node}{}\end{DoxyParamCaption})}
+
+
+
+Generates inherited methods for a class. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em cn} & The class node. \\
+\hline
+{\em class\+\_\+name} & The class name. \\
+\hline
+{\em target\+\_\+node} & The target class node for inheritance. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{generator_8c_af39798dea899592497b8fd59bf6e175f}\index{generator.c@{generator.c}!alir\_gen\_switch@{alir\_gen\_switch}}
+\index{alir\_gen\_switch@{alir\_gen\_switch}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_switch()}{alir\_gen\_switch()}}
+{\footnotesize\ttfamily \label{generator_8c_af39798dea899592497b8fd59bf6e175f} 
+void alir\+\_\+gen\+\_\+switch (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structSwitchNode}{Switch\+Node}} \texorpdfstring{$\ast$}{*}}]{sn}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a switch statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em sn} & The switch AST node. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{generator_8c_a1d3e7e0f5ca9f391d985241d64aa3f86}\index{generator.c@{generator.c}!alir\_generate@{alir\_generate}}
+\index{alir\_generate@{alir\_generate}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{alir\_generate()}{alir\_generate()}}
+{\footnotesize\ttfamily \label{generator_8c_a1d3e7e0f5ca9f391d985241d64aa3f86} 
+\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*} alir\+\_\+generate (\begin{DoxyParamCaption}\item[{Semantic\+Ctx \texorpdfstring{$\ast$}{*}}]{sem}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{root}{}\end{DoxyParamCaption})}
+
+
+
+Generates the complete ALIR module from a semantic context. 
+
+Generates ALIR from a semantic context and AST.
+
+
+\begin{DoxyParams}{Parameters}
+{\em sem} & The semantic context. \\
+\hline
+{\em root} & The root AST node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The generated ALIR module. 
+\end{DoxyReturn}
+\Hypertarget{generator_8c_a7a053fffbc86da92aed4215b2e0b6b6e}\index{generator.c@{generator.c}!alir\_scan\_and\_register\_classes@{alir\_scan\_and\_register\_classes}}
+\index{alir\_scan\_and\_register\_classes@{alir\_scan\_and\_register\_classes}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{alir\_scan\_and\_register\_classes()}{alir\_scan\_and\_register\_classes()}}
+{\footnotesize\ttfamily \label{generator_8c_a7a053fffbc86da92aed4215b2e0b6b6e} 
+void alir\+\_\+scan\+\_\+and\+\_\+register\+\_\+classes (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{root}{}\end{DoxyParamCaption})}
+
+
+
+Scans and registers all classes in the AST. 
+
+Scans the AST and registers all classes.
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em root} & The root AST node. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{generator_8c_aab99b802887ca8a79c3cb00dfd782dc3}\index{generator.c@{generator.c}!build\_struct\_fields@{build\_struct\_fields}}
+\index{build\_struct\_fields@{build\_struct\_fields}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{build\_struct\_fields()}{build\_struct\_fields()}}
+{\footnotesize\ttfamily \label{generator_8c_aab99b802887ca8a79c3cb00dfd782dc3} 
+void build\+\_\+struct\+\_\+fields (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structClassNode}{Class\+Node}} \texorpdfstring{$\ast$}{*}}]{cn}{, }\item[{\doxymbox{\hyperlink{structAlirStruct}{Alir\+Struct}} \texorpdfstring{$\ast$}{*}}]{st}{}\end{DoxyParamCaption})}
+
+
+
+Builds struct field descriptors from a class node. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em cn} & The class node. \\
+\hline
+{\em st} & The ALIR struct to populate. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{generator_8c_aa0a62b3db5c68d80ada8ea9dbb518e24}\index{generator.c@{generator.c}!is\_terminator@{is\_terminator}}
+\index{is\_terminator@{is\_terminator}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{is\_terminator()}{is\_terminator()}}
+{\footnotesize\ttfamily \label{generator_8c_aa0a62b3db5c68d80ada8ea9dbb518e24} 
+int is\+\_\+terminator (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{alir_8h_afea2789102fe5df35ffa4332e0870db1}{Alir\+Opcode}}}]{op}{}\end{DoxyParamCaption})}
+
+
+
+Checks if an opcode is a terminator instruction. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em op} & The opcode to check. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Non-\/zero if the opcode terminates a block. 
+\end{DoxyReturn}
+\Hypertarget{generator_8c_a8c559d2fb80a0823128e18379798f872}\index{generator.c@{generator.c}!pass1\_register@{pass1\_register}}
+\index{pass1\_register@{pass1\_register}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{pass1\_register()}{pass1\_register()}}
+{\footnotesize\ttfamily \label{generator_8c_a8c559d2fb80a0823128e18379798f872} 
+void pass1\+\_\+register (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{n}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{current\+\_\+ns}{}\end{DoxyParamCaption})}
+
+
+
+First pass:\+ registers all symbols in the current namespace. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em n} & The AST node to process. \\
+\hline
+{\em current\+\_\+ns} & The current namespace name. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{generator_8c_ab56a27512791d6daa9973ec6f710df05}\index{generator.c@{generator.c}!pass2\_populate@{pass2\_populate}}
+\index{pass2\_populate@{pass2\_populate}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{pass2\_populate()}{pass2\_populate()}}
+{\footnotesize\ttfamily \label{generator_8c_ab56a27512791d6daa9973ec6f710df05} 
+void pass2\+\_\+populate (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{root}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{n}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{current\+\_\+ns}{}\end{DoxyParamCaption})}
+
+
+
+Second pass:\+ populates function bodies and resolves references. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em root} & The root AST node. \\
+\hline
+{\em n} & The AST node to process. \\
+\hline
+{\em current\+\_\+ns} & The current namespace name. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{generator_8c_a090fd5aa4ba4490893f7ce8dcaf63e43}\index{generator.c@{generator.c}!pop\_loop@{pop\_loop}}
+\index{pop\_loop@{pop\_loop}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{pop\_loop()}{pop\_loop()}}
+{\footnotesize\ttfamily \label{generator_8c_a090fd5aa4ba4490893f7ce8dcaf63e43} 
+void pop\+\_\+loop (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{}\end{DoxyParamCaption})}
+
+
+
+Pops the current loop context from the loop stack. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{generator_8c_a74f6af7807cd402321fa838cbd440aa1}\index{generator.c@{generator.c}!push\_loop@{push\_loop}}
+\index{push\_loop@{push\_loop}!generator.c@{generator.c}}
+\doxysubsubsection{\texorpdfstring{push\_loop()}{push\_loop()}}
+{\footnotesize\ttfamily \label{generator_8c_a74f6af7807cd402321fa838cbd440aa1} 
+void push\+\_\+loop (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structAlirBlock}{Alir\+Block}} \texorpdfstring{$\ast$}{*}}]{cont}{, }\item[{\doxymbox{\hyperlink{structAlirBlock}{Alir\+Block}} \texorpdfstring{$\ast$}{*}}]{brk}{}\end{DoxyParamCaption})}
+
+
+
+Pushes a new loop context onto the loop stack. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em cont} & The continue target block. \\
+\hline
+{\em brk} & The break target block. \\
+\hline
+\end{DoxyParams}

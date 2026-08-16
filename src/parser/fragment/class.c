@@ -1,3 +1,7 @@
+/**
+ * @file class.c
+ * @brief Class, struct, and enum parsing implementation for the Alkyl parser.
+ */
 #include "parser_internal.h"
 #include <string.h>
 #include <stdlib.h>

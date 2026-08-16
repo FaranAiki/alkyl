@@ -1,0 +1,133 @@
+\doxysection{src/\+parser/\+stmt.c File Reference}
+\hypertarget{parser_2stmt_8c}{}\label{parser_2stmt_8c}\index{src/parser/stmt.c@{src/parser/stmt.c}}
+
+
+Statement parsing implementation for the Alkyl parser.  
+
+
+{\ttfamily \+\#include "{}parser\+\_\+internal.\+h"{}}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdio.\+h$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{parser_2stmt_8c_ae5e256e532afaf14fe1b86d05af8707e}\label{parser_2stmt_8c_ae5e256e532afaf14fe1b86d05af8707e} 
+void {\bfseries eat\+\_\+semi} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\item 
+\Hypertarget{parser_2stmt_8c_ac62b050c848596b2d82be508d14a0c0c}\label{parser_2stmt_8c_ac62b050c848596b2d82be508d14a0c0c} 
+void {\bfseries set\+\_\+loc} (\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}n, int line, int col)
+\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{parser_2stmt_8c_af3c73a9ee0856d3360d397ed69a0ccc5}{parse\+\_\+return}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a return statement. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{parser_2stmt_8c_a98459902e1615b18baac5216d8705aea}{parse\+\_\+emit}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses an emit statement. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{parser_2stmt_8c_addda414439005ee94dd4ea2b5c7bbd6d}{parse\+\_\+assignment\+\_\+or\+\_\+call}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses an assignment or function call. \end{DoxyCompactList}\item 
+\Hypertarget{parser_2stmt_8c_a308e5471895f40efaa3a28612ae77d48}\label{parser_2stmt_8c_a308e5471895f40efaa3a28612ae77d48} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} {\bfseries parse\+\_\+single\+\_\+statement\+\_\+or\+\_\+block\+\_\+internal} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{parser_2stmt_8c_a0f81137d87ca74fc7835456bea180364}{parse\+\_\+single\+\_\+statement\+\_\+or\+\_\+block}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a single statement or block. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{parser_2stmt_8c_ab0ae982d3fc82fbf3ce7f105dd2aa07e}{parse\+\_\+statements}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a sequence of statements. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Statement parsing implementation for the Alkyl parser. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{parser_2stmt_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{parser_2stmt_8c_addda414439005ee94dd4ea2b5c7bbd6d}\index{stmt.c@{stmt.c}!parse\_assignment\_or\_call@{parse\_assignment\_or\_call}}
+\index{parse\_assignment\_or\_call@{parse\_assignment\_or\_call}!stmt.c@{stmt.c}}
+\doxysubsubsection{\texorpdfstring{parse\_assignment\_or\_call()}{parse\_assignment\_or\_call()}}
+{\footnotesize\ttfamily \label{parser_2stmt_8c_addda414439005ee94dd4ea2b5c7bbd6d} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+assignment\+\_\+or\+\_\+call (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses an assignment or function call. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed assignment or call AST node. 
+\end{DoxyReturn}
+\Hypertarget{parser_2stmt_8c_a98459902e1615b18baac5216d8705aea}\index{stmt.c@{stmt.c}!parse\_emit@{parse\_emit}}
+\index{parse\_emit@{parse\_emit}!stmt.c@{stmt.c}}
+\doxysubsubsection{\texorpdfstring{parse\_emit()}{parse\_emit()}}
+{\footnotesize\ttfamily \label{parser_2stmt_8c_a98459902e1615b18baac5216d8705aea} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+emit (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses an emit statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed emit AST node. 
+\end{DoxyReturn}
+\Hypertarget{parser_2stmt_8c_af3c73a9ee0856d3360d397ed69a0ccc5}\index{stmt.c@{stmt.c}!parse\_return@{parse\_return}}
+\index{parse\_return@{parse\_return}!stmt.c@{stmt.c}}
+\doxysubsubsection{\texorpdfstring{parse\_return()}{parse\_return()}}
+{\footnotesize\ttfamily \label{parser_2stmt_8c_af3c73a9ee0856d3360d397ed69a0ccc5} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+return (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a return statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed return AST node. 
+\end{DoxyReturn}
+\Hypertarget{parser_2stmt_8c_a0f81137d87ca74fc7835456bea180364}\index{stmt.c@{stmt.c}!parse\_single\_statement\_or\_block@{parse\_single\_statement\_or\_block}}
+\index{parse\_single\_statement\_or\_block@{parse\_single\_statement\_or\_block}!stmt.c@{stmt.c}}
+\doxysubsubsection{\texorpdfstring{parse\_single\_statement\_or\_block()}{parse\_single\_statement\_or\_block()}}
+{\footnotesize\ttfamily \label{parser_2stmt_8c_a0f81137d87ca74fc7835456bea180364} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+single\+\_\+statement\+\_\+or\+\_\+block (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a single statement or block. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed statement AST node. 
+\end{DoxyReturn}
+\Hypertarget{parser_2stmt_8c_ab0ae982d3fc82fbf3ce7f105dd2aa07e}\index{stmt.c@{stmt.c}!parse\_statements@{parse\_statements}}
+\index{parse\_statements@{parse\_statements}!stmt.c@{stmt.c}}
+\doxysubsubsection{\texorpdfstring{parse\_statements()}{parse\_statements()}}
+{\footnotesize\ttfamily \label{parser_2stmt_8c_ab0ae982d3fc82fbf3ce7f105dd2aa07e} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+statements (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a sequence of statements. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The head of the parsed statement list. 
+\end{DoxyReturn}

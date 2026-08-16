@@ -1,3 +1,7 @@
+/**
+ * @file link.c
+ * @brief Import resolution and linker flag handling for the Alkyl parser.
+ */
 #include "link.h"
 #include "../parser/c_parser.h"
 #include <stdio.h>

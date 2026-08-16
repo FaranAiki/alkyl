@@ -1,0 +1,54 @@
+\doxysection{c\+\_\+parser.\+h}
+\hypertarget{c__parser_8h_source}{}\label{c__parser_8h_source}\index{include/parser/c\_parser.h@{include/parser/c\_parser.h}}
+\doxymbox{\hyperlink{c__parser_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#ifndef\ C\_PARSER\_H}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#define\ C\_PARSER\_H}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\doxymbox{\hyperlink{typestruct_8h}{typestruct.h}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}../common/context.h"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}../common/hashmap.h"{}}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ "{}c\_lexer.h"{}}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structCParser}{CParser}}\ \doxymbox{\hyperlink{structCParser}{CParser}};}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structCParser}{CParser}}\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ CLexer\ lexer;}
+\DoxyCodeLine{00018\ \ \ \ \ CToken\ current;}
+\DoxyCodeLine{00019\ \ \ \ \ CompilerContext\ *ctx;}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordtype}{int}\ has\_error;}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//\ Typedef\ resolution\ table}}
+\DoxyCodeLine{00023\ \ \ \ \ HashMap\ typedef\_map;}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ **names;}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \doxymbox{\hyperlink{structVarType}{VarType}}\ *types;}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ count;}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ capacity;}
+\DoxyCodeLine{00029\ \ \ \ \ \}\ typedefs;}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{comment}{//\ Macro\ definitions\ from\ \#define}}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ **names;}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ **values;}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ count;}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ capacity;}
+\DoxyCodeLine{00037\ \ \ \ \ \}\ defines;}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{comment}{//\ Conditional\ compilation\ stack}}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ *active;}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ count;}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ capacity;}
+\DoxyCodeLine{00044\ \ \ \ \ \}\ cond\_stack;}
+\DoxyCodeLine{00045\ \};}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{keywordtype}{void}\ c\_parser\_init(\doxymbox{\hyperlink{structCParser}{CParser}}\ *p,\ CompilerContext\ *ctx,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *filename,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *source);}
+\DoxyCodeLine{00048\ \textcolor{keywordtype}{char}*\ c\_preprocess\_header(CompilerContext\ *ctx,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *fname);}
+\DoxyCodeLine{00049\ \doxymbox{\hyperlink{structASTNode}{ASTNode}}*\ c\_parse\_header(\doxymbox{\hyperlink{structCParser}{CParser}}\ *p);}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

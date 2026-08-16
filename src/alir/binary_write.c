@@ -1,3 +1,7 @@
+/**
+ * @file binary_write.c
+ * @brief ALIR binary module writer implementation.
+ */
 #include "alir.h"
 #include <stdio.h>
 #include <stdint.h>

@@ -1,0 +1,46 @@
+\doxysection{src/\+alir/\+binary\+\_\+write.c File Reference}
+\hypertarget{binary__write_8c}{}\label{binary__write_8c}\index{src/alir/binary\_write.c@{src/alir/binary\_write.c}}
+
+
+ALIR binary module writer implementation.  
+
+
+{\ttfamily \+\#include "{}alir.\+h"{}}\newline
+{\ttfamily \+\#include $<$stdio.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdint.\+h$>$}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \doxymbox{\hyperlink{binary__write_8c_a8e14635cc9f20877d68b910b103e633c}{alir\+\_\+write\+\_\+binary}} (\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}mod, const char \texorpdfstring{$\ast$}{*}filename)
+\begin{DoxyCompactList}\small\item\em Writes the ALIR module to a binary file. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+ALIR binary module writer implementation. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{binary__write_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{binary__write_8c_a8e14635cc9f20877d68b910b103e633c}\index{binary\_write.c@{binary\_write.c}!alir\_write\_binary@{alir\_write\_binary}}
+\index{alir\_write\_binary@{alir\_write\_binary}!binary\_write.c@{binary\_write.c}}
+\doxysubsubsection{\texorpdfstring{alir\_write\_binary()}{alir\_write\_binary()}}
+{\footnotesize\ttfamily \label{binary__write_8c_a8e14635cc9f20877d68b910b103e633c} 
+int alir\+\_\+write\+\_\+binary (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirModule}{Alir\+Module}} \texorpdfstring{$\ast$}{*}}]{mod}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{filename}{}\end{DoxyParamCaption})}
+
+
+
+Writes the ALIR module to a binary file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mod} & The ALIR module. \\
+\hline
+{\em filename} & The output file path. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, non-\/zero on failure. 
+\end{DoxyReturn}

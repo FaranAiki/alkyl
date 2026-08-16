@@ -1,0 +1,143 @@
+\doxysection{src/\+parser/\+emitter.c File Reference}
+\hypertarget{parser_2emitter_8c}{}\label{parser_2emitter_8c}\index{src/parser/emitter.c@{src/parser/emitter.c}}
+
+
+AST-\/to-\/source emitter implementation for the Alkyl parser.  
+
+
+{\ttfamily \+\#include "{}emitter.\+h"{}}\newline
+{\ttfamily \+\#include "{}../\+lexer/\+lexer.\+h"{}}\newline
+{\ttfamily \+\#include "{}../\+common/\+arena.\+h"{}}\newline
+{\ttfamily \+\#include "{}../\+common/\+context.\+h"{}}\newline
+{\ttfamily \+\#include $<$stdio.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdarg.\+h$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{parser_2emitter_8c_aa95823add98438565a7892ab48aa4ecb}\label{parser_2emitter_8c_aa95823add98438565a7892ab48aa4ecb} 
+void {\bfseries parser\+\_\+emit\+\_\+indent} (String\+Builder \texorpdfstring{$\ast$}{*}sb, int indent)
+\item 
+\Hypertarget{parser_2emitter_8c_ac50dd75c26ca0cd9a7cd0ed10a4d8373}\label{parser_2emitter_8c_ac50dd75c26ca0cd9a7cd0ed10a4d8373} 
+void {\bfseries parser\+\_\+emit\+\_\+type} (String\+Builder \texorpdfstring{$\ast$}{*}sb, \doxymbox{\hyperlink{structVarType}{Var\+Type}} t)
+\item 
+\Hypertarget{parser_2emitter_8c_a59b7d3bd4860ffd56f088ad36aa8ff1e}\label{parser_2emitter_8c_a59b7d3bd4860ffd56f088ad36aa8ff1e} 
+int {\bfseries needs\+\_\+semicolon} (\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\item 
+\Hypertarget{parser_2emitter_8c_a172ff238955563d31cd3d6a0bedd5aea}\label{parser_2emitter_8c_a172ff238955563d31cd3d6a0bedd5aea} 
+void {\bfseries parser\+\_\+emit\+\_\+block} (String\+Builder \texorpdfstring{$\ast$}{*}sb, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}body, int indent)
+\item 
+void \doxymbox{\hyperlink{parser_2emitter_8c_a1313d6833327fa3c6247b7d8a9160446}{parser\+\_\+emit\+\_\+ast\+\_\+node}} (String\+Builder \texorpdfstring{$\ast$}{*}sb, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node, int indent)
+\begin{DoxyCompactList}\small\item\em Emits a single AST node into a string builder. \end{DoxyCompactList}\item 
+char \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{parser_2emitter_8c_a106ebe4a56aa62f3769bc66631b3a6af}{parser\+\_\+to\+\_\+string}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}parser, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}root)
+\begin{DoxyCompactList}\small\item\em Traverses the AST and reconstructs source code into a string. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{parser_2emitter_8c_a034135b64a0269c1b0bbf2df31b71ed0}{parser\+\_\+to\+\_\+file}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}parser, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}root, const char \texorpdfstring{$\ast$}{*}filename)
+\begin{DoxyCompactList}\small\item\em Traverses the AST and writes reconstructed source code to a file. \end{DoxyCompactList}\item 
+char \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{parser_2emitter_8c_a5d7890e8ba4544fa411e14588ad17b7e}{parser\+\_\+string\+\_\+to\+\_\+string}} (const char \texorpdfstring{$\ast$}{*}src)
+\begin{DoxyCompactList}\small\item\em Helper:\+ parses source string into AST, converts to string, frees AST. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{parser_2emitter_8c_a1b971812b836d5ebeea52479a537506a}{parser\+\_\+string\+\_\+to\+\_\+file}} (const char \texorpdfstring{$\ast$}{*}src, const char \texorpdfstring{$\ast$}{*}filename)
+\begin{DoxyCompactList}\small\item\em Helper:\+ parses source string into AST, writes to file, frees AST. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+AST-\/to-\/source emitter implementation for the Alkyl parser. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{parser_2emitter_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{parser_2emitter_8c_a1313d6833327fa3c6247b7d8a9160446}\index{emitter.c@{emitter.c}!parser\_emit\_ast\_node@{parser\_emit\_ast\_node}}
+\index{parser\_emit\_ast\_node@{parser\_emit\_ast\_node}!emitter.c@{emitter.c}}
+\doxysubsubsection{\texorpdfstring{parser\_emit\_ast\_node()}{parser\_emit\_ast\_node()}}
+{\footnotesize\ttfamily \label{parser_2emitter_8c_a1313d6833327fa3c6247b7d8a9160446} 
+void parser\+\_\+emit\+\_\+ast\+\_\+node (\begin{DoxyParamCaption}\item[{String\+Builder \texorpdfstring{$\ast$}{*}}]{sb}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{, }\item[{int}]{indent}{}\end{DoxyParamCaption})}
+
+
+
+Emits a single AST node into a string builder. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sb} & The string builder. \\
+\hline
+{\em node} & The AST node to emit. \\
+\hline
+{\em indent} & The current indentation level. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{parser_2emitter_8c_a1b971812b836d5ebeea52479a537506a}\index{emitter.c@{emitter.c}!parser\_string\_to\_file@{parser\_string\_to\_file}}
+\index{parser\_string\_to\_file@{parser\_string\_to\_file}!emitter.c@{emitter.c}}
+\doxysubsubsection{\texorpdfstring{parser\_string\_to\_file()}{parser\_string\_to\_file()}}
+{\footnotesize\ttfamily \label{parser_2emitter_8c_a1b971812b836d5ebeea52479a537506a} 
+void parser\+\_\+string\+\_\+to\+\_\+file (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{src}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{filename}{}\end{DoxyParamCaption})}
+
+
+
+Helper:\+ parses source string into AST, writes to file, frees AST. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em src} & The source string to parse. \\
+\hline
+{\em filename} & The output file path. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{parser_2emitter_8c_a5d7890e8ba4544fa411e14588ad17b7e}\index{emitter.c@{emitter.c}!parser\_string\_to\_string@{parser\_string\_to\_string}}
+\index{parser\_string\_to\_string@{parser\_string\_to\_string}!emitter.c@{emitter.c}}
+\doxysubsubsection{\texorpdfstring{parser\_string\_to\_string()}{parser\_string\_to\_string()}}
+{\footnotesize\ttfamily \label{parser_2emitter_8c_a5d7890e8ba4544fa411e14588ad17b7e} 
+char \texorpdfstring{$\ast$}{*} parser\+\_\+string\+\_\+to\+\_\+string (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{src}{}\end{DoxyParamCaption})}
+
+
+
+Helper:\+ parses source string into AST, converts to string, frees AST. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em src} & The source string to parse. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A newly allocated string containing the reconstructed source. 
+\end{DoxyReturn}
+\Hypertarget{parser_2emitter_8c_a034135b64a0269c1b0bbf2df31b71ed0}\index{emitter.c@{emitter.c}!parser\_to\_file@{parser\_to\_file}}
+\index{parser\_to\_file@{parser\_to\_file}!emitter.c@{emitter.c}}
+\doxysubsubsection{\texorpdfstring{parser\_to\_file()}{parser\_to\_file()}}
+{\footnotesize\ttfamily \label{parser_2emitter_8c_a034135b64a0269c1b0bbf2df31b71ed0} 
+void parser\+\_\+to\+\_\+file (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{parser}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{root}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{filename}{}\end{DoxyParamCaption})}
+
+
+
+Traverses the AST and writes reconstructed source code to a file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em parser} & The parser instance. \\
+\hline
+{\em root} & The root AST node. \\
+\hline
+{\em filename} & The output file path. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{parser_2emitter_8c_a106ebe4a56aa62f3769bc66631b3a6af}\index{emitter.c@{emitter.c}!parser\_to\_string@{parser\_to\_string}}
+\index{parser\_to\_string@{parser\_to\_string}!emitter.c@{emitter.c}}
+\doxysubsubsection{\texorpdfstring{parser\_to\_string()}{parser\_to\_string()}}
+{\footnotesize\ttfamily \label{parser_2emitter_8c_a106ebe4a56aa62f3769bc66631b3a6af} 
+char \texorpdfstring{$\ast$}{*} parser\+\_\+to\+\_\+string (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{parser}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{root}{}\end{DoxyParamCaption})}
+
+
+
+Traverses the AST and reconstructs source code into a string. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em parser} & The parser instance. \\
+\hline
+{\em root} & The root AST node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A newly allocated string containing the reconstructed source. 
+\end{DoxyReturn}

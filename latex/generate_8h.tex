@@ -1,0 +1,96 @@
+\doxysection{include/\+alir/\+fragment/\+generate.h File Reference}
+\hypertarget{generate_8h}{}\label{generate_8h}\index{include/alir/fragment/generate.h@{include/alir/fragment/generate.h}}
+
+
+ALIR statement generation helpers.  
+
+
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{generate_8h_a5122fe0f126b3db0fd2ae1b8bf3de64f}{alir\+\_\+stmt\+\_\+vardecl}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a variable declaration statement. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{generate_8h_a116d45579eb07ba77a93465f97ed7fb9}{alir\+\_\+stmt\+\_\+assign}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for an assignment statement. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{generate_8h_a7f19e87f62ae6a1242c1e7bbccfee502}{alir\+\_\+stmt\+\_\+while}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a while statement. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{generate_8h_a836d4c9d7cdd8fc90249861edf574449}{alir\+\_\+stmt\+\_\+for\+\_\+in}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a for-\/in statement. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+ALIR statement generation helpers. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{generate_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{generate_8h_a116d45579eb07ba77a93465f97ed7fb9}\index{generate.h@{generate.h}!alir\_stmt\_assign@{alir\_stmt\_assign}}
+\index{alir\_stmt\_assign@{alir\_stmt\_assign}!generate.h@{generate.h}}
+\doxysubsubsection{\texorpdfstring{alir\_stmt\_assign()}{alir\_stmt\_assign()}}
+{\footnotesize\ttfamily \label{generate_8h_a116d45579eb07ba77a93465f97ed7fb9} 
+void alir\+\_\+stmt\+\_\+assign (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for an assignment statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The assignment AST node. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{generate_8h_a836d4c9d7cdd8fc90249861edf574449}\index{generate.h@{generate.h}!alir\_stmt\_for\_in@{alir\_stmt\_for\_in}}
+\index{alir\_stmt\_for\_in@{alir\_stmt\_for\_in}!generate.h@{generate.h}}
+\doxysubsubsection{\texorpdfstring{alir\_stmt\_for\_in()}{alir\_stmt\_for\_in()}}
+{\footnotesize\ttfamily \label{generate_8h_a836d4c9d7cdd8fc90249861edf574449} 
+void alir\+\_\+stmt\+\_\+for\+\_\+in (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a for-\/in statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The for-\/in AST node. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{generate_8h_a5122fe0f126b3db0fd2ae1b8bf3de64f}\index{generate.h@{generate.h}!alir\_stmt\_vardecl@{alir\_stmt\_vardecl}}
+\index{alir\_stmt\_vardecl@{alir\_stmt\_vardecl}!generate.h@{generate.h}}
+\doxysubsubsection{\texorpdfstring{alir\_stmt\_vardecl()}{alir\_stmt\_vardecl()}}
+{\footnotesize\ttfamily \label{generate_8h_a5122fe0f126b3db0fd2ae1b8bf3de64f} 
+void alir\+\_\+stmt\+\_\+vardecl (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a variable declaration statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The variable declaration AST node. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{generate_8h_a7f19e87f62ae6a1242c1e7bbccfee502}\index{generate.h@{generate.h}!alir\_stmt\_while@{alir\_stmt\_while}}
+\index{alir\_stmt\_while@{alir\_stmt\_while}!generate.h@{generate.h}}
+\doxysubsubsection{\texorpdfstring{alir\_stmt\_while()}{alir\_stmt\_while()}}
+{\footnotesize\ttfamily \label{generate_8h_a7f19e87f62ae6a1242c1e7bbccfee502} 
+void alir\+\_\+stmt\+\_\+while (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a while statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The while AST node. \\
+\hline
+\end{DoxyParams}

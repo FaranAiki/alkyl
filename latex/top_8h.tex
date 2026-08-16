@@ -1,0 +1,192 @@
+\doxysection{include/\+parser/\+top.h File Reference}
+\hypertarget{top_8h}{}\label{top_8h}\index{include/parser/top.h@{include/parser/top.h}}
+
+
+Top-\/level parsing routines for the Alkyl parser.  
+
+
+{\ttfamily \+\#include "{}parser\+\_\+internal.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{top_8h_a23c5be61f34c46cc19071dc8cfddfd3b}{parse\+\_\+top\+\_\+level}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a single top-\/level declaration. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{top_8h_aba24e53d6f6630e9d75e78be523408cf}{apply\+\_\+implicit\+\_\+return}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}body\+\_\+head\+\_\+ptr)
+\begin{DoxyCompactList}\small\item\em Applies implicit return to the last expression in a function body. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{top_8h_a1092ab6b7d5bbe71aeb6db245e721fdd}{parse\+\_\+enum}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses an enum declaration. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{top_8h_a7edfcea68bd53e3c6abd92d95d1d2352}{parse\+\_\+class}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a class declaration. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{top_8h_a75018eb8c804d724c461a4c6216bca21}{parse\+\_\+define}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a define (macro) declaration. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{top_8h_acd819e80d42d9915425d086e9c764235}{parse\+\_\+typedef}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a typedef declaration. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{top_8h_a36cd63dcce6273bbcab44bfe0f4a22b5}{parse\+\_\+link}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a link declaration. \end{DoxyCompactList}\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{top_8h_ace38bf3c0a5802c3379dfc4534c8b657}{parse\+\_\+extern}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p, int modifier)
+\begin{DoxyCompactList}\small\item\em Parses an extern declaration. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Top-\/level parsing routines for the Alkyl parser. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{top_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{top_8h_aba24e53d6f6630e9d75e78be523408cf}\index{top.h@{top.h}!apply\_implicit\_return@{apply\_implicit\_return}}
+\index{apply\_implicit\_return@{apply\_implicit\_return}!top.h@{top.h}}
+\doxysubsubsection{\texorpdfstring{apply\_implicit\_return()}{apply\_implicit\_return()}}
+{\footnotesize\ttfamily \label{top_8h_aba24e53d6f6630e9d75e78be523408cf} 
+void apply\+\_\+implicit\+\_\+return (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{body\+\_\+head\+\_\+ptr}{}\end{DoxyParamCaption})}
+
+
+
+Applies implicit return to the last expression in a function body. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+{\em body\+\_\+head\+\_\+ptr} & Pointer to the head of the body statement list. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{top_8h_a7edfcea68bd53e3c6abd92d95d1d2352}\index{top.h@{top.h}!parse\_class@{parse\_class}}
+\index{parse\_class@{parse\_class}!top.h@{top.h}}
+\doxysubsubsection{\texorpdfstring{parse\_class()}{parse\_class()}}
+{\footnotesize\ttfamily \label{top_8h_a7edfcea68bd53e3c6abd92d95d1d2352} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+class (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a class declaration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed class AST node. 
+\end{DoxyReturn}
+\Hypertarget{top_8h_a75018eb8c804d724c461a4c6216bca21}\index{top.h@{top.h}!parse\_define@{parse\_define}}
+\index{parse\_define@{parse\_define}!top.h@{top.h}}
+\doxysubsubsection{\texorpdfstring{parse\_define()}{parse\_define()}}
+{\footnotesize\ttfamily \label{top_8h_a75018eb8c804d724c461a4c6216bca21} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+define (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a define (macro) declaration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed define AST node. 
+\end{DoxyReturn}
+\Hypertarget{top_8h_a1092ab6b7d5bbe71aeb6db245e721fdd}\index{top.h@{top.h}!parse\_enum@{parse\_enum}}
+\index{parse\_enum@{parse\_enum}!top.h@{top.h}}
+\doxysubsubsection{\texorpdfstring{parse\_enum()}{parse\_enum()}}
+{\footnotesize\ttfamily \label{top_8h_a1092ab6b7d5bbe71aeb6db245e721fdd} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+enum (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses an enum declaration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed enum AST node. 
+\end{DoxyReturn}
+\Hypertarget{top_8h_ace38bf3c0a5802c3379dfc4534c8b657}\index{top.h@{top.h}!parse\_extern@{parse\_extern}}
+\index{parse\_extern@{parse\_extern}!top.h@{top.h}}
+\doxysubsubsection{\texorpdfstring{parse\_extern()}{parse\_extern()}}
+{\footnotesize\ttfamily \label{top_8h_ace38bf3c0a5802c3379dfc4534c8b657} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+extern (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{, }\item[{int}]{modifier}{}\end{DoxyParamCaption})}
+
+
+
+Parses an extern declaration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+{\em modifier} & Modifier flags. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed extern AST node. 
+\end{DoxyReturn}
+\Hypertarget{top_8h_a36cd63dcce6273bbcab44bfe0f4a22b5}\index{top.h@{top.h}!parse\_link@{parse\_link}}
+\index{parse\_link@{parse\_link}!top.h@{top.h}}
+\doxysubsubsection{\texorpdfstring{parse\_link()}{parse\_link()}}
+{\footnotesize\ttfamily \label{top_8h_a36cd63dcce6273bbcab44bfe0f4a22b5} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+link (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a link declaration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed link AST node.
+\end{DoxyReturn}
+Parses a link declaration.
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed link AST node. 
+\end{DoxyReturn}
+\Hypertarget{top_8h_a23c5be61f34c46cc19071dc8cfddfd3b}\index{top.h@{top.h}!parse\_top\_level@{parse\_top\_level}}
+\index{parse\_top\_level@{parse\_top\_level}!top.h@{top.h}}
+\doxysubsubsection{\texorpdfstring{parse\_top\_level()}{parse\_top\_level()}}
+{\footnotesize\ttfamily \label{top_8h_a23c5be61f34c46cc19071dc8cfddfd3b} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+top\+\_\+level (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a single top-\/level declaration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed top-\/level AST node. 
+\end{DoxyReturn}
+\Hypertarget{top_8h_acd819e80d42d9915425d086e9c764235}\index{top.h@{top.h}!parse\_typedef@{parse\_typedef}}
+\index{parse\_typedef@{parse\_typedef}!top.h@{top.h}}
+\doxysubsubsection{\texorpdfstring{parse\_typedef()}{parse\_typedef()}}
+{\footnotesize\ttfamily \label{top_8h_acd819e80d42d9915425d086e9c764235} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+typedef (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a typedef declaration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed typedef AST node. 
+\end{DoxyReturn}

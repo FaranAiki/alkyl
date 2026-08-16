@@ -1,3 +1,7 @@
+/**
+ * @file parser_internal.h
+ * @brief Internal parser declarations, macros, and data structures.
+ */
 #ifndef PARSER_INTERNAL_H
 #define PARSER_INTERNAL_H
 

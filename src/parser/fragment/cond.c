@@ -1,3 +1,7 @@
+/**
+ * @file cond.c
+ * @brief Conditional parsing implementation for the Alkyl parser.
+ */
 #include "parser_internal.h"
 #include <string.h>
 #include <stdlib.h>

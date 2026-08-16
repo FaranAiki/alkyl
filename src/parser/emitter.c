@@ -1,3 +1,7 @@
+/**
+ * @file emitter.c
+ * @brief AST-to-source emitter implementation for the Alkyl parser.
+ */
 #include "emitter.h"
 #include "../lexer/lexer.h"
 #include "../common/arena.h"

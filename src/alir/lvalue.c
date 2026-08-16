@@ -1,3 +1,7 @@
+/**
+ * @file lvalue.c
+ * @brief ALIR lvalue and expression generation implementation.
+ */
 #include "alir.h"
 
 AlirValue* alir_gen_inc_dec(AlirCtx *ctx, IncDecNode *id) {

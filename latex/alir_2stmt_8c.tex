@@ -1,0 +1,42 @@
+\doxysection{src/\+alir/\+stmt.c File Reference}
+\hypertarget{alir_2stmt_8c}{}\label{alir_2stmt_8c}\index{src/alir/stmt.c@{src/alir/stmt.c}}
+
+
+ALIR statement generation implementation.  
+
+
+{\ttfamily \+\#include "{}alir.\+h"{}}\newline
+{\ttfamily \+\#include "{}semantic/\+semantic.\+h"{}}\newline
+{\ttfamily \+\#include "{}metalir/\+vm.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{alir_2stmt_8c_a506140a7b265ed556dc993e7fb163ee8}{alir\+\_\+gen\+\_\+stmt}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a generic statement. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+ALIR statement generation implementation. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{alir_2stmt_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{alir_2stmt_8c_a506140a7b265ed556dc993e7fb163ee8}\index{stmt.c@{stmt.c}!alir\_gen\_stmt@{alir\_gen\_stmt}}
+\index{alir\_gen\_stmt@{alir\_gen\_stmt}!stmt.c@{stmt.c}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_stmt()}{alir\_gen\_stmt()}}
+{\footnotesize\ttfamily \label{alir_2stmt_8c_a506140a7b265ed556dc993e7fb163ee8} 
+void alir\+\_\+gen\+\_\+stmt (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a generic statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The statement AST node. \\
+\hline
+\end{DoxyParams}

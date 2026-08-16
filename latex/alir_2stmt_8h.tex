@@ -1,0 +1,62 @@
+\doxysection{include/\+alir/\+stmt.h File Reference}
+\hypertarget{alir_2stmt_8h}{}\label{alir_2stmt_8h}\index{include/alir/stmt.h@{include/alir/stmt.h}}
+
+
+ALIR statement generation declarations.  
+
+
+{\ttfamily \+\#include "{}alir.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{alir_2stmt_8h_a5f7d1aa6674a7114500a5abd43cafea3}{alir\+\_\+gen\+\_\+expr}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a generic expression. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{alir_2stmt_8h_a506140a7b265ed556dc993e7fb163ee8}{alir\+\_\+gen\+\_\+stmt}} (\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}ctx, \doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}node)
+\begin{DoxyCompactList}\small\item\em Generates ALIR for a generic statement. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+ALIR statement generation declarations. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{alir_2stmt_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{alir_2stmt_8h_a5f7d1aa6674a7114500a5abd43cafea3}\index{stmt.h@{stmt.h}!alir\_gen\_expr@{alir\_gen\_expr}}
+\index{alir\_gen\_expr@{alir\_gen\_expr}!stmt.h@{stmt.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_expr()}{alir\_gen\_expr()}}
+{\footnotesize\ttfamily \label{alir_2stmt_8h_a5f7d1aa6674a7114500a5abd43cafea3} 
+\doxymbox{\hyperlink{structAlirValue}{Alir\+Value}} \texorpdfstring{$\ast$}{*} alir\+\_\+gen\+\_\+expr (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a generic expression. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The expression AST node. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The resulting ALIR value. 
+\end{DoxyReturn}
+\Hypertarget{alir_2stmt_8h_a506140a7b265ed556dc993e7fb163ee8}\index{stmt.h@{stmt.h}!alir\_gen\_stmt@{alir\_gen\_stmt}}
+\index{alir\_gen\_stmt@{alir\_gen\_stmt}!stmt.h@{stmt.h}}
+\doxysubsubsection{\texorpdfstring{alir\_gen\_stmt()}{alir\_gen\_stmt()}}
+{\footnotesize\ttfamily \label{alir_2stmt_8h_a506140a7b265ed556dc993e7fb163ee8} 
+void alir\+\_\+gen\+\_\+stmt (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structAlirCtx}{Alir\+Ctx}} \texorpdfstring{$\ast$}{*}}]{ctx}{, }\item[{\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*}}]{node}{}\end{DoxyParamCaption})}
+
+
+
+Generates ALIR for a generic statement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & The ALIR context. \\
+\hline
+{\em node} & The statement AST node. \\
+\hline
+\end{DoxyParams}

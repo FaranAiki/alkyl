@@ -1,3 +1,7 @@
+/**
+ * @file ast_clone.c
+ * @brief AST cloning and macro rewriting utilities for the Alkyl parser.
+ */
 #include "parser_internal.h"
 #include <string.h>
 #include <stdlib.h>

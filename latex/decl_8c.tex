@@ -1,0 +1,44 @@
+\doxysection{src/\+parser/\+fragment/\+decl.c File Reference}
+\hypertarget{decl_8c}{}\label{decl_8c}\index{src/parser/fragment/decl.c@{src/parser/fragment/decl.c}}
+
+
+Variable declaration parsing implementation for the Alkyl parser.  
+
+
+{\ttfamily \+\#include "{}parser\+\_\+internal.\+h"{}}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdio.\+h$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{decl_8c_ac8fe981464323f96f3c1ee7efc9481c7}{parse\+\_\+var\+\_\+decl\+\_\+internal}} (\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Parses a variable declaration. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Variable declaration parsing implementation for the Alkyl parser. 
+
+
+
+\label{doc-func-members}
+\Hypertarget{decl_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{decl_8c_ac8fe981464323f96f3c1ee7efc9481c7}\index{decl.c@{decl.c}!parse\_var\_decl\_internal@{parse\_var\_decl\_internal}}
+\index{parse\_var\_decl\_internal@{parse\_var\_decl\_internal}!decl.c@{decl.c}}
+\doxysubsubsection{\texorpdfstring{parse\_var\_decl\_internal()}{parse\_var\_decl\_internal()}}
+{\footnotesize\ttfamily \label{decl_8c_ac8fe981464323f96f3c1ee7efc9481c7} 
+\doxymbox{\hyperlink{structASTNode}{ASTNode}} \texorpdfstring{$\ast$}{*} parse\+\_\+var\+\_\+decl\+\_\+internal (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{structParser}{Parser}} \texorpdfstring{$\ast$}{*}}]{p}{}\end{DoxyParamCaption})}
+
+
+
+Parses a variable declaration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The parser. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The parsed variable declaration AST node. 
+\end{DoxyReturn}

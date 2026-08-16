@@ -1,3 +1,7 @@
+/**
+ * @file c_parser.h
+ * @brief C header file parser for the Alkyl compiler.
+ */
 #ifndef C_PARSER_H
 #define C_PARSER_H
 

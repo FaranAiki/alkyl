@@ -1,3 +1,7 @@
+/**
+ * @file loop.c
+ * @brief Loop parsing implementation for the Alkyl parser.
+ */
 #include "parser_internal.h"
 #include <string.h>
 #include <stdlib.h>

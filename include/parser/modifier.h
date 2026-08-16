@@ -1,3 +1,7 @@
+/**
+ * @file modifier.h
+ * @brief Parser modifier declarations.
+ */
 #ifndef PARSER_MODIFIER_H
 #define PARSER_MODIFIER_H
 

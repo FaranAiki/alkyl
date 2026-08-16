@@ -1,3 +1,7 @@
+/**
+ * @file const.c
+ * @brief ALIR constant value constructor implementations.
+ */
 #include "alir.h"
 #include "../common/hashmap.h"
 

@@ -1,3 +1,7 @@
+/**
+ * @file flux.c
+ * @brief ALIR flux (generator) support implementation.
+ */
 #include "alir.h"
 
 static int is_terminator_op(AlirOpcode op) {

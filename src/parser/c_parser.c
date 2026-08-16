@@ -1,5 +1,7 @@
-/* DEBUG TEST */
-/* This is some AI slop, but we'll see.... */
+/**
+ * @file c_parser.c
+ * @brief C header file parser implementation for the Alkyl compiler.
+ */
 #include "c_parser.h"
 #include "parser.h"
 #include "typestruct.h"

@@ -1,3 +1,7 @@
+/**
+ * @file typestruct.h
+ * @brief AST node type definitions and enumerations for the parser.
+ */
 #ifndef PARSER_TYPESTRUCT_H
 #define PARSER_TYPESTRUCT_H
 
