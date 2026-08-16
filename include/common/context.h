@@ -37,6 +37,8 @@ typedef struct {
   void *macro_head;
   CompilerSettings settings;
   HashMap import_cache;
+  char cflags[4096];
+  char link_flags[4096];
 } CompilerContext;
 
 // Initialize the context with a provided arena

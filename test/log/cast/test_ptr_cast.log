@@ -1,36 +1,10 @@
-step: Finished lexing. Start parsing.
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=2 col=13 node=0x563138f8b128
-debug: parser: inferring type for a, init_type.base=1
-debug: parser: debug: inferred type int for a
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=15 line=3 col=13 node=0x563138f8b308
-debug: semantic: sem_check_expr: type=13 line=3 col=14 node=0x563138f8b288
-debug: parser: inferring type for b, init_type.base=1
-debug: parser: debug: inferred type int* for b
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=31 line=4 col=15 node=0x563138f8b4d0
-debug: semantic: sem_check_expr: type=13 line=4 col=13 node=0x563138f8b450
-debug: parser: inferring type for c, init_type.base=4
-debug: parser: debug: inferred type long for c
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-debug: alir: DEBUG_PASS1_END: struct list:
-debug: alir: Found func_def main
-debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-debug: alir: alir_add_function: main
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=35 dest_kind=5 dest_type_base=4 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=4 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=4
-debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+define i32 @main() {
+entry:
+  %alloc = alloca i32, align 4
+  store i32 10, ptr %alloc, align 4
+  %ptr2int = ptrtoint ptr %alloc to i64
+  ret i32 0
+}

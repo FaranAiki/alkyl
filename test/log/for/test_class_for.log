@@ -1,163 +1,117 @@
-step: Finished lexing. Start parsing.
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: semantic: sem_check_block: ns='clib'
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='clib'
-debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55dd6442c3d0
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=6 col=17 node=0x55dd6442c530
-debug: semantic: sem_check_block: visiting node type=7
-debug: semantic: sem_check_expr: type=14 line=7 col=17 node=0x55dd6442c7b0
-debug: semantic: sem_check_expr: type=13 line=7 col=15 node=0x55dd6442c690
-debug: semantic: sem_check_expr: type=16 line=7 col=19 node=0x55dd6442c710
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=33
-debug: semantic: sem_check_expr: type=13 line=8 col=18 node=0x55dd6442c858
-debug: semantic: sem_check_block: visiting node type=19
-debug: semantic: sem_check_expr: type=19 line=9 col=14 node=0x55dd6442c9c8
-debug: semantic: sem_check_expr: type=13 line=9 col=13 node=0x55dd6442c948
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=11 col=16 node=0x55dd6442cad8
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=0 col=0 node=0x55dd6443ddd8
-debug: semantic: sem_check_call: name='Range', ns='main'
-debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55dd6443deb0
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=18 col=17 node=0x55dd6442cfd8
-debug: semantic: sem_check_expr: type=13 line=18 col=5 node=0x55dd6442ce40
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
-debug: semantic: sem_check_expr: type=16 line=18 col=17 node=0x55dd6442cf38
-debug: semantic: sem_check_expr: type=16 line=18 col=17 node=0x55dd6442cf38
-debug: semantic: sem_check_block: visiting node type=34
-debug: semantic: sem_check_expr: type=13 line=19 col=16 node=0x55dd6442d070
-debug: semantic: sem_check_expr: type=13 line=19 col=16 node=0x55dd6442d070
-debug: semantic: sem_check_expr: type=27 line=19 col=16 node=0x55dd6443e188
-debug: semantic: sem_check_expr: type=13 line=19 col=16 node=0x55dd6442d070
-debug: semantic: sem_check_method_call: method='iterate', obj_base=16, obj_class='Range'
-debug: semantic: sem_lookup_class_call for 'Range', class_sym=0x55dd6443ce28
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=20 col=21 node=0x55dd6442d308
-debug: semantic: sem_check_expr: type=13 line=20 col=9 node=0x55dd6442d0f0
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
-debug: semantic: sem_check_expr: type=16 line=20 col=21 node=0x55dd6442d1e8
-debug: semantic: sem_check_expr: type=13 line=20 col=30 node=0x55dd6442d288
-debug: semantic: sem_check_expr: type=16 line=20 col=21 node=0x55dd6442d1e8
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=23 col=12 node=0x55dd6442d450
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-debug: alir: Visiting class Range
-debug: alir: DEBUG_REGISTER: st=0x55dd64441e30 name=Range next=(nil)
-debug: alir: DEBUG_PASS1_END: struct list:
  - Range fields: 1
-debug: alir: Found namespace clib
-debug: alir: Found func_def printf
-debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
-debug: alir: alir_add_function: printf
-debug: alir: printf adding param '(null)' type.base=8
-debug: alir: DEBUG_REGISTER: st=0x55dd64442188 name=FluxCtx_main_Range_iterate next=0x55dd64441e30
-debug: alir: alir_add_function: main_Range_iterate
-debug: alir: alir_add_function: main_Range_iterate_Resume
-debug: alir: alir_add_function: Range
-debug: alir: Found func_def main
-debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-debug: alir: alir_add_function: main
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-debug: alir: func=main op=31 dest_kind=5 dest_type_base=16 op1_kind=4 op1_type_base=0
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
-debug: alir: FluxCtx ptr_depth = 0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=16
-debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
-debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=16
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
-debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
-debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
-debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start alir optimization.
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking Range
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-step: Finished alir optimization. Start code generation using LLVM codegen
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+%FluxCtx_main_Range_iterate = type { i32, i1, i32, ptr, ptr, i32 }
+%Range = type { i32 }
+
+@str.1 = private constant [4 x i8] c"%d\0A\00"
+@str.0 = private constant [20 x i8] c"Testing class flux\0A\00"
+
+declare i32 @printf(ptr %0, ...)
+
+define %FluxCtx_main_Range_iterate @main_Range_iterate(ptr %0) {
+entry:
+  %alloc = alloca ptr, align 8
+  %struct_gep = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %alloc, i32 0, i32 0
+  store i32 0, ptr %struct_gep, align 4
+  %struct_gep1 = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %alloc, i32 0, i32 1
+  store i32 0, ptr %struct_gep1, align 4
+  %struct_gep2 = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %alloc, i32 0, i32 3
+  %struct_gep3 = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %alloc, i32 0, i32 4
+  store ptr %0, ptr %struct_gep3, align 8
+  %load = load %FluxCtx_main_Range_iterate, ptr %alloc, align 8
+  ret %FluxCtx_main_Range_iterate %load
+}
+
+define void @main_Range_iterate_Resume(ptr %0) {
+entry:
+  %struct_gep = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %0, i32 0, i32 0
+  %load = load i32, ptr %struct_gep, align 4
+  %struct_gep1 = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %0, i32 0, i32 4
+  %struct_gep2 = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %0, i32 0, i32 5
+  %eq = icmp eq i32 %load, 1
+  br i1 %eq, label %resume_1, label %switch_check_1
+
+flux_start:                                       ; preds = %switch_check_1
+  store i32 0, ptr %struct_gep2, align 4
+  br label %while_cond
+
+flux_end:                                         ; preds = %switch_check_1
+  ret void
+
+while_cond:                                       ; preds = %resume_1, %flux_start
+  %load3 = load i32, ptr %struct_gep2, align 4
+  %lt = icmp slt i32 %load3, 3
+  br i1 %lt, label %while_body, label %while_end
+
+while_body:                                       ; preds = %while_cond
+  %load4 = load i32, ptr %struct_gep2, align 4
+  %struct_gep5 = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %0, i32 0, i32 2
+  store i32 %load4, ptr %struct_gep5, align 4
+  %struct_gep6 = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %0, i32 0, i32 0
+  store i32 1, ptr %struct_gep6, align 4
+  ret void
+
+while_end:                                        ; preds = %while_cond
+  %struct_gep7 = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %0, i32 0, i32 2
+  store i32 999, ptr %struct_gep7, align 4
+  %struct_gep8 = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %0, i32 0, i32 1
+  store i32 1, ptr %struct_gep8, align 4
+  ret void
+
+resume_1:                                         ; preds = %entry
+  %load9 = load i32, ptr %struct_gep2, align 4
+  %add = add i32 %load9, 1
+  store i32 %add, ptr %struct_gep2, align 4
+  br label %while_cond
+
+switch_check_1:                                   ; preds = %entry
+  %eq10 = icmp eq i32 %load, 0
+  br i1 %eq10, label %flux_start, label %flux_end
+}
+
+define void @Range(ptr %0, i32 %1) {
+entry:
+  %struct_gep = getelementptr inbounds nuw %Range, ptr %0, i32 0, i32 0
+  store i32 %1, ptr %struct_gep, align 4
+  ret void
+}
+
+define i32 @main() {
+entry:
+  %alloc = alloca %Range, align 8
+  call void @Range(ptr %alloc, i32 0)
+  %call = call i32 (ptr, ...) @printf(ptr @str.0)
+  %call1 = call %FluxCtx_main_Range_iterate @main_Range_iterate(ptr %alloc)
+  %alloc2 = alloca %FluxCtx_main_Range_iterate, align 8
+  store %FluxCtx_main_Range_iterate %call1, ptr %alloc2, align 8
+  br label %for_cond
+
+for_cond:                                         ; preds = %for_body, %entry
+  call void @main_Range_iterate_Resume(ptr %alloc2)
+  %struct_gep = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %alloc2, i32 0, i32 1
+  %load = load i1, ptr %struct_gep, align 1
+  %eq = icmp eq i1 %load, false
+  br i1 %eq, label %for_body, label %for_end
+
+for_body:                                         ; preds = %for_cond
+  %struct_gep3 = getelementptr inbounds nuw %FluxCtx_main_Range_iterate, ptr %alloc2, i32 0, i32 2
+  %load4 = load i32, ptr %struct_gep3, align 4
+  %call5 = call i32 (ptr, ...) @printf(ptr @str.1, i32 %load4)
+  br label %for_cond
+
+for_end:                                          ; preds = %for_cond
+  ret i32 0
+}
+DEBUG CALL param 0: num_params=2, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 1: num_params=2, expected_ty=8, arg_ty=8
+DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12

@@ -1,22 +1,7 @@
-step: Finished lexing. Start parsing.
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=28 line=2 col=13 node=0x56167c91f108
-debug: semantic: sem_check_expr: type=16 line=2 col=20 node=0x56167c91f1a8
-debug: parser: inferring type for x, init_type.base=6
-debug: parser: debug: inferred type unsigned long for x
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x56167c91f308
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-debug: alir: DEBUG_PASS1_END: struct list:
-debug: alir: Found func_def main
-debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-debug: alir: alir_add_function: main
-debug: alir: func=main op=35 dest_kind=5 dest_type_base=6 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=6 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=6
-debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+define i32 @main() {
+entry:
+  ret i32 0
+}

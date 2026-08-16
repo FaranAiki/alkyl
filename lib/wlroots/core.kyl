@@ -2,6 +2,12 @@ private namespace {
     import "std/c_alias";
 }
 
+/*
+    linking for C
+*/
+link "wayland-server";
+link "wlroots-0.18";
+
 namespace wlroots {
     @c import "project/wmyl/bridge.h"
 

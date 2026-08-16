@@ -1,5 +1,60 @@
 #include "link.h"
 #include "../parser/c_parser.h"
+#include <stdio.h>
+#include <string.h>
+
+void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) {
+    char cmd[1024];
+    char output[2048];
+    FILE *pf;
+    int got_libs = 0;
+
+    if (!ctx || !lib_name) return;
+
+    snprintf(cmd, sizeof(cmd), "pkg-config --cflags %s 2>/dev/null", lib_name);
+    pf = popen(cmd, "r");
+    if (pf) {
+        if (fgets(output, sizeof(output), pf)) {
+            size_t len = strlen(output);
+            while (len > 0 && (output[len - 1] == '\n' || output[len - 1] == '\r')) {
+                output[--len] = '\0';
+            }
+            if (len > 0) {
+                if (strlen(ctx->cflags) + len + 2 < sizeof(ctx->cflags)) {
+                    strcat(ctx->cflags, " ");
+                    strcat(ctx->cflags, output);
+                }
+            }
+        }
+        pclose(pf);
+    }
+
+    snprintf(cmd, sizeof(cmd), "pkg-config --libs %s 2>/dev/null", lib_name);
+    pf = popen(cmd, "r");
+    if (pf) {
+        if (fgets(output, sizeof(output), pf)) {
+            size_t len = strlen(output);
+            while (len > 0 && (output[len - 1] == '\n' || output[len - 1] == '\r')) {
+                output[--len] = '\0';
+            }
+            if (len > 0) {
+                got_libs = 1;
+                if (strlen(ctx->link_flags) + len + 2 < sizeof(ctx->link_flags)) {
+                    strcat(ctx->link_flags, " ");
+                    strcat(ctx->link_flags, output);
+                }
+            }
+        }
+        pclose(pf);
+    }
+
+    if (!got_libs) {
+        if (strlen(ctx->link_flags) + strlen(lib_name) + 4 < sizeof(ctx->link_flags)) {
+            strcat(ctx->link_flags, " -l");
+            strcat(ctx->link_flags, lib_name);
+        }
+    }
+}
 
 static ASTNode* resolve_c_import(Parser *p, const char *fname) {
 
@@ -202,6 +257,17 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
         import_stack_pop(stack);
         
         if (resolved) {
+            ASTNode *lnk = resolved;
+            while (lnk) {
+                if (lnk->type == NODE_LINK) {
+                    LinkNode *link_node = (LinkNode*)lnk;
+                    if (p && p->l && p->l->ctx) {
+                        add_pkg_config_flags(p->l->ctx, link_node->lib_name);
+                    }
+                }
+                lnk = lnk->next;
+            }
+
             ASTNode **curr = &resolved;
             while (*curr) {
                 ASTNode *res_node = resolve_imports_node(p, *curr, stack);
@@ -281,6 +347,11 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
         if (vd->initializer) {
             ASTNode *resolved = resolve_imports_node(p, vd->initializer, stack);
             if (resolved) vd->initializer = resolved;
+        }
+    } else if (node->type == NODE_LINK) {
+        LinkNode *lnk = (LinkNode*)node;
+        if (p && p->l && p->l->ctx) {
+            add_pkg_config_flags(p->l->ctx, lnk->lib_name);
         }
     } else {
         // Do NOT recursively process node->next here!

@@ -1,171 +1,75 @@
-step: Finished lexing. Start parsing.
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: after parse_type, vt.base=1, token.type=31
-debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=ContainerClass target_type=13 line=0 col=0 node=0x555dff68d0d0 target=0x555dff68cf10
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=7 col=13 node=0x555dff68b6f0
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=13 line=8 col=24 node=0x555dff68b850
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x555dff68bc60
-debug: semantic: sem_check_expr: type=16 line=21 col=13 node=0x555dff68bf20
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=24 col=14 node=0x555dff68c140
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=27 col=14 node=0x555dff68c340
-debug: semantic: sem_check_expr: type=16 line=32 col=13 node=0x555dff68c5e0
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=0 col=0 node=0x555dff691488
-debug: semantic: sem_check_call: name='ExactClass', ns='main'
-debug: semantic: sem_check_expr: type=16 line=7 col=13 node=0x555dff691560
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=40 col=13 node=0x555dff68ccd8
-debug: semantic: sem_check_expr: type=26 line=40 col=10 node=0x555dff68cbc0
-debug: semantic: sem_check_expr: type=13 line=40 col=8 node=0x555dff68cb40
-debug: semantic: sem_check_expr: type=16 line=40 col=16 node=0x555dff68cc38
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=40 col=30 node=0x555dff68cd80
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=42 col=39 node=0x555dff68d0d0
-debug: semantic: sem_check_call: name='ContainerClass', ns='main'
-debug: semantic: sem_check_expr: type=13 line=42 col=25 node=0x555dff68cf10
-debug: semantic: sem_check_expr: type=16 line=42 col=40 node=0x555dff68cf90
-debug: semantic: sem_check_expr: type=16 line=42 col=44 node=0x555dff68d030
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=43 col=13 node=0x555dff68d4a0
-debug: semantic: sem_check_expr: type=26 line=43 col=10 node=0x555dff68d2a8
-debug: semantic: sem_check_expr: type=13 line=43 col=8 node=0x555dff68d228
-debug: semantic: sem_check_expr: type=26 line=43 col=18 node=0x555dff68d428
-debug: semantic: sem_check_expr: type=13 line=43 col=16 node=0x555dff68d3a8
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=43 col=33 node=0x555dff68d548
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=44 col=13 node=0x555dff68d870
-debug: semantic: sem_check_expr: type=26 line=44 col=10 node=0x555dff68d758
-debug: semantic: sem_check_expr: type=13 line=44 col=8 node=0x555dff68d6d8
-debug: semantic: sem_check_expr: type=16 line=44 col=16 node=0x555dff68d7d0
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=44 col=31 node=0x555dff68d918
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=46 col=12 node=0x555dff68daa8
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-debug: alir: Visiting class AbstractClass
-debug: alir: DEBUG_REGISTER: st=0x555dff695a30 name=AbstractClass next=(nil)
-debug: alir: Visiting class ExactClass
-debug: alir: DEBUG_REGISTER: st=0x555dff695a50 name=ExactClass next=0x555dff695a30
-debug: alir: Visiting class MethodClass
-debug: alir: DEBUG_REGISTER: st=0x555dff695a70 name=MethodClass next=0x555dff695a50
-debug: alir: Visiting class ContainerClass
-debug: alir: DEBUG_REGISTER: st=0x555dff695a90 name=ContainerClass next=0x555dff695a70
-debug: alir: Visiting class PragmaClass
-debug: alir: DEBUG_REGISTER: st=0x555dff695ab0 name=PragmaClass next=0x555dff695a90
-debug: alir: Visiting class FrameClass
-debug: alir: DEBUG_REGISTER: st=0x555dff695ad0 name=FrameClass next=0x555dff695ab0
-debug: alir: DEBUG_PASS1_END: struct list:
  - FrameClass fields: 2
  - PragmaClass fields: 2
  - ContainerClass fields: 2
  - MethodClass fields: 0
  - ExactClass fields: 1
  - AbstractClass fields: 1
-debug: alir: alir_gen_function_def fn->name=fun class_name=AbstractClass fn->mangled_name=main_AbstractClass_fun -> func_name=main_AbstractClass_fun
-debug: alir: alir_add_function: main_AbstractClass_fun
-debug: alir: alir_add_function: AbstractClass
-debug: alir: alir_gen_function_def fn->name=fun class_name=ExactClass fn->mangled_name=main_ExactClass_fun -> func_name=main_ExactClass_fun
-debug: alir: alir_add_function: main_ExactClass_fun
-debug: alir: alir_add_function: ExactClass
-debug: alir: alir_gen_function_def fn->name=fun class_name=MethodClass fn->mangled_name=main_MethodClass_fun -> func_name=main_MethodClass_fun
-debug: alir: alir_add_function: main_MethodClass_fun
-debug: alir: alir_add_function: MethodClass
-debug: alir: alir_add_function: ContainerClass
-debug: alir: alir_gen_function_def fn->name=fun class_name=PragmaClass fn->mangled_name=main_PragmaClass_fun -> func_name=main_PragmaClass_fun
-debug: alir: alir_add_function: main_PragmaClass_fun
-debug: alir: alir_gen_function_def fn->name=fun2 class_name=PragmaClass fn->mangled_name=main_PragmaClass_fun2 -> func_name=main_PragmaClass_fun2
-debug: alir: alir_add_function: main_PragmaClass_fun2
-debug: alir: alir_add_function: PragmaClass
-debug: alir: alir_gen_function_def fn->name=fun class_name=FrameClass fn->mangled_name=main_FrameClass_fun -> func_name=main_FrameClass_fun
-debug: alir: alir_add_function: main_FrameClass_fun
-debug: alir: alir_gen_function_def fn->name=fun2 class_name=FrameClass fn->mangled_name=main_FrameClass_fun2 -> func_name=main_FrameClass_fun2
-debug: alir: alir_add_function: main_FrameClass_fun2
-debug: alir: alir_add_function: FrameClass
-debug: alir: Found func_def main
-debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-debug: alir: alir_add_function: main
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=18 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
-debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
-debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=18 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
-debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
-debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=18 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
-debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
-debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start alir optimization.
-debug: optlir: Check Type for Struct Marking ExactClass
-debug: optlir: Check Type for Struct Marking ExactClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ExactClass
-debug: optlir: Check Type for Struct Marking ExactClass
-debug: optlir: Check Type for Struct Marking ExactClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ExactClass
-debug: optlir: Check Type for Struct Marking ExactClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ExactClass
-debug: optlir: Check Type for Struct Marking ExactClass
-debug: optlir: Check Type for Struct Marking ExactClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-debug: optlir: Check Type for Struct Marking ContainerClass
-step: Finished alir optimization. Start code generation using LLVM codegen
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+%ExactClass = type { i32 }
+%ContainerClass = type { i32, i32 }
+
+define void @ExactClass(ptr %0, i32 %1) {
+entry:
+  %struct_gep = getelementptr inbounds nuw %ExactClass, ptr %0, i32 0, i32 0
+  store i32 %1, ptr %struct_gep, align 4
+  ret void
+}
+
+define void @ContainerClass(ptr %0, i32 %1, i32 %2) {
+entry:
+  %struct_gep = getelementptr inbounds nuw %ContainerClass, ptr %0, i32 0, i32 0
+  store i32 %1, ptr %struct_gep, align 4
+  %struct_gep1 = getelementptr inbounds nuw %ContainerClass, ptr %0, i32 0, i32 1
+  store i32 %2, ptr %struct_gep1, align 4
+  ret void
+}
+
+define i32 @main() {
+entry:
+  %alloc = alloca %ExactClass, align 8
+  call void @ExactClass(ptr %alloc, i32 5)
+  %struct_gep = getelementptr inbounds nuw %ExactClass, ptr %alloc, i32 0, i32 0
+  %load = load i32, ptr %struct_gep, align 4
+  %eq = icmp eq i32 %load, 5
+  %not = xor i1 %eq, true
+  br i1 %not, label %then, label %merge
+
+then:                                             ; preds = %entry
+  ret i32 5
+
+merge:                                            ; preds = %entry
+  %alloc1 = alloca %ContainerClass, align 8
+  call void @ContainerClass(ptr %alloc1, i32 10, i32 10)
+  %struct_gep2 = getelementptr inbounds nuw %ContainerClass, ptr %alloc1, i32 0, i32 0
+  %load3 = load i32, ptr %struct_gep2, align 4
+  %struct_gep4 = getelementptr inbounds nuw %ContainerClass, ptr %alloc1, i32 0, i32 1
+  %load5 = load i32, ptr %struct_gep4, align 4
+  %eq6 = icmp eq i32 %load3, %load5
+  %not7 = xor i1 %eq6, true
+  br i1 %not7, label %then_2, label %merge_2
+
+then_2:                                           ; preds = %merge
+  ret i32 10
+
+merge_2:                                          ; preds = %merge
+  %struct_gep8 = getelementptr inbounds nuw %ContainerClass, ptr %alloc1, i32 0, i32 0
+  %load9 = load i32, ptr %struct_gep8, align 4
+  %eq10 = icmp eq i32 %load9, 10
+  %not11 = xor i1 %eq10, true
+  br i1 %not11, label %then_3, label %merge_3
+
+then_3:                                           ; preds = %merge_2
+  ret i32 15
+
+merge_3:                                          ; preds = %merge_2
+  ret i32 0
+}
+DEBUG CALL param 0: num_params=2, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 1: num_params=2, expected_ty=8, arg_ty=8
+DEBUG CALL param 0: num_params=3, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 1: num_params=3, expected_ty=8, arg_ty=8
+DEBUG CALL param 2: num_params=3, expected_ty=8, arg_ty=8

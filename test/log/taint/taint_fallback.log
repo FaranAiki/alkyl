@@ -1,52 +1,19 @@
-step: Finished lexing. Start parsing.
-debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=add target_type=13 line=0 col=0 node=0x557cce4938f0 target=0x557cce493680
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=14 line=2 col=14 node=0x557cce493318
-debug: semantic: sem_check_expr: type=13 line=2 col=12 node=0x557cce4931f8
-debug: semantic: sem_check_expr: type=16 line=2 col=16 node=0x557cce493278
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x557cce493520
-debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=9 col=8 name=add target_type=13 node=0x557cce4938f0
-debug: semantic: sem_check_expr: type=2 line=9 col=8 node=0x557cce4938f0
-debug: semantic: sem_check_call: name='add', ns='main'
-debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x557cce493680
-debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x557cce493820
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x557cce493700
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x557cce493780
-debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x557cce493820
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x557cce493700
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x557cce493780
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x557cce493988
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-debug: alir: DEBUG_PASS1_END: struct list:
-debug: alir: Found func_def add
-debug: alir: alir_gen_function_def fn->name=add class_name=NULL fn->mangled_name=main_add_i32 -> func_name=main_add_i32
-debug: alir: alir_add_function: main_add_i32
-debug: alir: Found func_def main
-debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-debug: alir: alir_add_function: main
-debug: alir: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-debug: alir: GEN_CALL: name=add mangled=main_add_i32
-debug: alir: Looking up 'main_add_i32'
-debug: alir: Found symbol add, kind=1, is_macro=0, node_ptr=0x557cce493430
-debug: alir: CALL_STD: name=add mangled=main_add_i32 target_type=13
-debug: alir: GLOBAL VAR ADDR: add
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: TAINTED PTR: ctx->module=0x557cce494bd8 target_name=main_add_i32 count=1
-debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
-debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-debug: codegen: wrapping value in store for tainted struct
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+define i32 @main_add_i32(i32 %0) {
+entry:
+  %add = add i32 %0, 1
+  ret i32 %add
+}
+
+define i32 @main() {
+entry:
+  %alloc = alloca { i32, i32 }, align 8
+  store { i32, i32 } zeroinitializer, ptr %alloc, align 4
+  %taint_gep = getelementptr inbounds nuw { i32, i32 }, ptr %alloc, i32 0, i32 1
+  %load = load i32, ptr %taint_gep, align 4
+  %call = call i32 @main_add_i32(i32 0)
+  ret i32 0
+}
+DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8

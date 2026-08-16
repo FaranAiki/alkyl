@@ -1,0 +1,21 @@
+/* ini jelek woilah */
+import "std/input";
+import "std/print";
+
+// lanjutin
+int main() {
+    tainted int num;
+    std.input(&num);
+    untaint num {
+        std.print("Not a valid number");
+    }
+    if num < 1 || num > 3999 {
+        std.print("Not a valid number");
+    }
+
+    while num != 0 {
+        num /= 10;
+    }
+
+    return 0;
+}

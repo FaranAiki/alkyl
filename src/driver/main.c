@@ -12,6 +12,7 @@
 #include "common/linker.h"
 #include "common/debug.h"
 #include "parser/c_parser.h"
+#include "parser/link.h"
 #include "parser/emitter.h"
 
 #define BASENAME "build/out"
@@ -233,6 +234,15 @@ int main(int argc, char **argv) {
 
     ASTNode *root = parse_program(&p);
 
+    ASTNode *lnk_curr = root;
+    while (lnk_curr) {
+        if (lnk_curr->type == NODE_LINK) {
+            LinkNode *lnk = (LinkNode*)lnk_curr;
+            add_pkg_config_flags(&comp_ctx, lnk->lib_name);
+        }
+        lnk_curr = lnk_curr->next;
+    }
+
     // Resolve imports for AOT compiler
     resolve_imports(&p, &root);
 
@@ -270,16 +280,10 @@ int main(int argc, char **argv) {
 
     debug_step("Finished Semantic Analysis. Start macro-linking.");
 
-    ASTNode *curr = root;
-    while(curr) {
-      if (curr->type == NODE_LINK) {
-        LinkNode *lnk = (LinkNode*)curr;
-        if (strlen(link_flags) + strlen(lnk->lib_name) + 4 < sizeof(link_flags)) {
-          strcat(link_flags, " -l");
-          strcat(link_flags, lnk->lib_name);
+    if (comp_ctx.link_flags[0]) {
+        if (strlen(link_flags) + strlen(comp_ctx.link_flags) + 1 < sizeof(link_flags)) {
+            strcat(link_flags, comp_ctx.link_flags);
         }
-      }
-      curr = curr->next;
     }
 
 #ifndef ALKYL_ENABLE_MLIR

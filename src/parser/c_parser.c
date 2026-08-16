@@ -2119,6 +2119,13 @@ char* c_preprocess_header(CompilerContext *ctx, const char *fname) {
         }
     }
 
+    if (ctx && ctx->cflags[0]) {
+        if (strlen(include_flags) + strlen(ctx->cflags) + 2 < sizeof(include_flags)) {
+            strcat(include_flags, " ");
+            strcat(include_flags, ctx->cflags);
+        }
+    }
+
     if (strlen(include_flags) > 0) {
         char *insert_pos = strstr(cmd, " -xc ");
         if (insert_pos) {
