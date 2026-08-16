@@ -6,6 +6,11 @@
 #include "../common/arena.h"
 #include "../common/context.h"
 
+/**
+ * @brief Consumes the lexer and returns a string representation of all tokens.
+ * @param l The lexer instance.
+ * @return A newly allocated string containing the token dump.
+ */
 char* lexer_to_string(Lexer *l) {
     StringBuilder sb;
     sb_init(&sb, l->ctx->arena);
@@ -35,6 +40,11 @@ char* lexer_to_string(Lexer *l) {
     return sb.data;
 }
 
+/**
+ * @brief Consumes the lexer and writes the string representation to a file.
+ * @param l The lexer instance.
+ * @param filename The path to the output file.
+ */
 void lexer_to_file(Lexer *l, const char *filename) {
     char *str = lexer_to_string(l);
     if (str) {
@@ -46,6 +56,11 @@ void lexer_to_file(Lexer *l, const char *filename) {
     }
 }
 
+/**
+ * @brief Helper that initializes a temporary lexer, converts to string, and cleans up.
+ * @param src The source string to lex.
+ * @return A newly allocated string containing the token dump.
+ */
 char* lexer_string_to_string(const char *src) {
     Arena arena;
     arena_init(&arena);
@@ -63,6 +78,11 @@ char* lexer_string_to_string(const char *src) {
     return result;
 }
 
+/**
+ * @brief Helper that initializes a temporary lexer, writes to file, and cleans up.
+ * @param src The source string to lex.
+ * @param filename The path to the output file.
+ */
 void lexer_string_to_file(const char *src, const char *filename) {
     Arena arena;
     arena_init(&arena);

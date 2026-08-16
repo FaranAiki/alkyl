@@ -1,0 +1,37 @@
+\doxysection{diagnostic.\+h}
+\hypertarget{diagnostic_8h_source}{}\label{diagnostic_8h_source}\index{include/common/diagnostic.h@{include/common/diagnostic.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ DIAGNOSTIC\_H}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ DIAGNOSTIC\_H}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}../lexer/lexer.h"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}context.h"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00012\ \textcolor{keywordtype}{void}\ diag\_set\_namespace(\doxymbox{\hyperlink{structCompilerContext}{CompilerContext}}\ *ctx,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *ns);}
+\DoxyCodeLine{00018\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ diag\_get\_namespace(\doxymbox{\hyperlink{structCompilerContext}{CompilerContext}}\ *ctx);}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00026\ \textcolor{keywordtype}{void}\ report\_error(\doxymbox{\hyperlink{structLexer}{Lexer}}\ *l,\ \doxymbox{\hyperlink{structToken}{Token}}\ t,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *msg);}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00034\ \textcolor{keywordtype}{void}\ report\_warning(\doxymbox{\hyperlink{structLexer}{Lexer}}\ *l,\ \doxymbox{\hyperlink{structToken}{Token}}\ t,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *msg);}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00042\ \textcolor{keywordtype}{void}\ report\_hint(\doxymbox{\hyperlink{structLexer}{Lexer}}\ *l,\ \doxymbox{\hyperlink{structToken}{Token}}\ t,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *msg);}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#include\ "{}../lexer/c\_lexer.h"{}}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00052\ \textcolor{keywordtype}{void}\ report\_c\_error(\doxymbox{\hyperlink{structCLexer}{CLexer}}\ *l,\ \doxymbox{\hyperlink{structCToken}{CToken}}\ t,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *msg);}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00060\ \textcolor{keywordtype}{void}\ report\_info(\doxymbox{\hyperlink{structLexer}{Lexer}}\ *l,\ \doxymbox{\hyperlink{structToken}{Token}}\ t,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *msg);}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00068\ \textcolor{keywordtype}{void}\ report\_reason(\doxymbox{\hyperlink{structLexer}{Lexer}}\ *l,\ \doxymbox{\hyperlink{structToken}{Token}}\ t,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *msg);}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \textcolor{preprocessor}{\#include\ "{}../parser/parser.h"{}}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00077\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ token\_type\_to\_string(TokenType\ type);}
+\DoxyCodeLine{00083\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ get\_token\_description(TokenType\ type);}
+\DoxyCodeLine{00089\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ find\_closest\_keyword(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *ident);}
+\DoxyCodeLine{00096\ \textcolor{keywordtype}{int}\ levenshtein\_dist(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *s1,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *s2);}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ DIAGNOSTIC\_H}}
+
+\end{DoxyCode}

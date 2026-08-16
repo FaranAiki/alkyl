@@ -1,6 +1,10 @@
 #include "context.h"
 #include <string.h>
 
+/**
+ * @brief Initializes the error table with built-in error identifiers.
+ * @param ctx The compiler context.
+ */
 void context_init_errtable(CompilerContext *ctx) {
     // Inject ErrNull, ErrDivisionByZero, and others
     int null_id = ctx->next_error_id++;
@@ -8,6 +12,11 @@ void context_init_errtable(CompilerContext *ctx) {
     hashmap_put(&ctx->error_table, "ErrDivisionByZero", (void*)(intptr_t)(++null_id));
 }
 
+/**
+ * @brief Initializes a compiler context with a given arena.
+ * @param ctx The compiler context to initialize.
+ * @param arena The arena allocator for this context.
+ */
 void context_init(CompilerContext *ctx, Arena *arena) {
     if (!ctx) return;
 
@@ -45,6 +54,12 @@ void context_init(CompilerContext *ctx, Arena *arena) {
     ctx->link_flags[0] = '\0';
 }
 
+/**
+ * @brief Interns a string into the compiler context's arena.
+ * @param ctx The compiler context.
+ * @param str The null-terminated string to intern.
+ * @return A pointer to the interned string, or NULL on failure.
+ */
 const char* context_intern(CompilerContext *ctx, const char *str) {
     if (!ctx || !str) return NULL;
     return arena_strdup(ctx->arena, str);

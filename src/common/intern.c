@@ -8,6 +8,9 @@ static HashMap g_intern_map;
 static Arena g_intern_arena;
 static bool g_intern_inited = false;
 
+/**
+ * @brief Ensures the global interning arena and hash map are initialized.
+ */
 static void ensure_intern_inited(void) {
     if (!g_intern_inited) {
         arena_init(&g_intern_arena, 64 * 1024);
@@ -16,6 +19,11 @@ static void ensure_intern_inited(void) {
     }
 }
 
+/**
+ * @brief Interns a null-terminated string globally.
+ * @param str The string to intern.
+ * @return A canonical pointer to the interned string, or NULL on failure.
+ */
 const char* intern_string(const char* str) {
     if (!str) return NULL;
     ensure_intern_inited();
@@ -30,6 +38,12 @@ const char* intern_string(const char* str) {
     return new_str;
 }
 
+/**
+ * @brief Interns a string of given length globally.
+ * @param str The string buffer to intern.
+ * @param len The length of the string.
+ * @return A canonical pointer to the interned string, or NULL on failure.
+ */
 const char* intern_string_len(const char* str, size_t len) {
     if (!str) return NULL;
     ensure_intern_inited();

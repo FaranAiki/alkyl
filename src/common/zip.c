@@ -6,6 +6,11 @@
 #ifdef HAVE_LIBZIP
 #include <zip.h>
 
+/**
+ * @brief Checks whether a filename has an Alkyl source extension.
+ * @param name The filename to check.
+ * @return 1 if the file is an Alkyl source file.
+ */
 static int is_alkyl_source(const char *name) {
     const char *ext = strrchr(name, '.');
     if (!ext) return 1;
@@ -18,6 +23,11 @@ static int is_alkyl_source(const char *name) {
     return 0;
 }
 
+/**
+ * @brief Reads the first Alkyl source file from a ZIP archive.
+ * @param path The path to the ZIP file.
+ * @return A newly allocated buffer with the file contents, or NULL on failure.
+ */
 char* read_zip_file(const char *path) {
     int err = 0;
     zip_t *za = zip_open(path, ZIP_RDONLY, &err);

@@ -167,8 +167,10 @@ typedef enum {
     C_TOKEN_UNKNOWN
 } CTokenType;
 
+/**
+ * @brief A single C token produced by the lexer.
+ */
 typedef struct {
-    CTokenType type;
     char *text;
     long long int_val;
     double double_val;
@@ -176,6 +178,9 @@ typedef struct {
     int col;
 } CToken;
 
+/**
+ * @brief An entry in the C lexer's include file stack.
+ */
 typedef struct CFileStackEntry {
     const char *filename;
     const char *src;
@@ -184,6 +189,9 @@ typedef struct CFileStackEntry {
     int col;
 } CFileStackEntry;
 
+/**
+ * @brief A dynamic stack for tracking nested include files.
+ */
 typedef struct {
     CFileStackEntry *entries;
     int count;
@@ -191,6 +199,9 @@ typedef struct {
     Arena *arena;
 } CFileStack;
 
+/**
+ * @brief The main C lexer structure.
+ */
 typedef struct CLexer {
     CompilerContext *ctx;
     const char *src;
@@ -204,8 +215,25 @@ typedef struct CLexer {
     int include_depth;
 } CLexer;
 
+/**
+ * @brief Initializes a C lexer instance.
+ * @param l The C lexer to initialize.
+ * @param ctx The compiler context.
+ * @param filename The name of the source file.
+ * @param src The null-terminated source string.
+ */
 void c_lexer_init(CLexer *l, CompilerContext *ctx, const char *filename, const char *src);
+/**
+ * @brief Advances the C lexer to the next token.
+ * @param l The C lexer instance.
+ * @return The next C token in the source stream.
+ */
 CToken c_lexer_next(CLexer *l);
+/**
+ * @brief Converts a C token type to its string representation.
+ * @param type The token type to convert.
+ * @return A string describing the token type.
+ */
 const char* c_token_type_to_string(CTokenType type);
 
 #endif

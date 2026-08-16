@@ -11,10 +11,22 @@ static inline char advance(CLexer *l) {
     return l->src[l->pos++];
 }
 
+/**
+ * @brief Interns a string into the compiler's arena allocator.
+ * @param l The C lexer instance.
+ * @param str The null-terminated string to intern.
+ * @return A pointer to the interned string.
+ */
 static char* intern_string(CLexer *l, const char *str) {
     return arena_strdup(l->ctx->arena, str);
 }
 
+/**
+ * @brief Pushes a new file onto the lexer's include stack.
+ * @param l The C lexer instance.
+ * @param filename The name of the file being pushed.
+ * @param src The source contents of the file being pushed.
+ */
 static void c_file_stack_push(CLexer *l, const char *filename, const char *src) {
     if (l->file_stack.count >= l->file_stack.capacity) {
         int new_cap = l->file_stack.capacity == 0 ? 8 : l->file_stack.capacity * 2;
@@ -34,6 +46,11 @@ static void c_file_stack_push(CLexer *l, const char *filename, const char *src) 
     l->col = 1;
 }
 
+/**
+ * @brief Pops the most recent file from the lexer's include stack.
+ * @param l The C lexer instance.
+ * @return 1 if a file was popped, 0 if the stack is empty.
+ */
 static int c_file_stack_pop(CLexer *l) {
     if (l->file_stack.count <= 0) return 0;
     l->file_stack.count--;
@@ -47,6 +64,12 @@ static int c_file_stack_pop(CLexer *l) {
     return 1;
 }
 
+/**
+ * @brief Reads an entire include file into memory.
+ * @param l The C lexer instance.
+ * @param filename The path to the file to read.
+ * @return A null-terminated buffer containing the file contents, or NULL on failure.
+ */
 static char* c_read_include_file(CLexer *l, const char *filename) {
     FILE *f = fopen(filename, "rb");
     if (!f) return NULL;
@@ -64,6 +87,13 @@ static char* c_read_include_file(CLexer *l, const char *filename) {
     return buf;
 }
 
+/**
+ * @brief Initializes a C lexer instance.
+ * @param l The C lexer to initialize.
+ * @param ctx The compiler context.
+ * @param filename The name of the file being lexed.
+ * @param src The null-terminated source string.
+ */
 void c_lexer_init(CLexer *l, CompilerContext *ctx, const char *filename, const char *src) {
     l->ctx = ctx;
     l->filename = filename;
@@ -80,6 +110,10 @@ void c_lexer_init(CLexer *l, CompilerContext *ctx, const char *filename, const c
     l->include_depth = 0;
 }
 
+/**
+ * @brief Skips whitespace characters in the source stream.
+ * @param l The C lexer instance.
+ */
 static void skip_whitespace(CLexer *l) {
     while (1) {
         char c = peek(l);
@@ -108,6 +142,10 @@ static void skip_whitespace(CLexer *l) {
     }
 }
 
+/**
+ * @brief Skips a single-line or block comment in the source stream.
+ * @param l The C lexer instance.
+ */
 static void skip_comment(CLexer *l) {
     if (peek(l) == '/' && l->src[l->pos + 1] == '/') {
         l->pos += 2;
@@ -133,6 +171,10 @@ static void skip_comment(CLexer *l) {
     }
 }
 
+/**
+ * @brief Skips to the end of the current line, handling line continuations.
+ * @param l The C lexer instance.
+ */
 static void skip_to_line_end(CLexer *l) {
     while (peek(l) != '\0') {
         if (peek(l) == '\\' && (l->src[l->pos + 1] == '\n' || (l->src[l->pos + 1] == '\r' && l->src[l->pos + 2] == '\n'))) {
@@ -155,6 +197,10 @@ static CToken c_lex_identifier(CLexer *l, char first);
 static HashMap keyword_map;
 static int keyword_map_initialized = 0;
 
+/**
+ * @brief Initializes the keyword hash map on first use.
+ * @param arena The arena allocator to use for storage.
+ */
 static void init_keyword_map(Arena *arena) {
     if (keyword_map_initialized) return;
     hashmap_init(&keyword_map, arena, 256);
@@ -216,6 +262,11 @@ static void init_keyword_map(Arena *arena) {
     keyword_map_initialized = 1;
 }
 
+/**
+ * @brief Looks up a string in the keyword map.
+ * @param str The string to look up.
+ * @return The corresponding token type, or C_TOKEN_IDENTIFIER if not a keyword.
+ */
 static CTokenType c_lex_keyword(const char *str) {
     void *val = hashmap_get(&keyword_map, str);
     if (val) {
@@ -224,6 +275,12 @@ static CTokenType c_lex_keyword(const char *str) {
     return C_TOKEN_IDENTIFIER;
 }
 
+/**
+ * @brief Lexes an identifier or keyword token.
+ * @param l The C lexer instance.
+ * @param first The first character of the token.
+ * @return The lexed token.
+ */
 static CToken c_lex_identifier(CLexer *l, char first) {
     CToken t;
     t.line = l->line;
@@ -249,6 +306,12 @@ static CToken c_lex_identifier(CLexer *l, char first) {
     return t;
 }
 
+/**
+ * @brief Lexes a numeric literal token.
+ * @param l The C lexer instance.
+ * @param first The first digit of the number.
+ * @return The lexed token.
+ */
 static CToken c_lex_number(CLexer *l, char first) {
     CToken t;
     t.line = l->line;
@@ -297,6 +360,11 @@ static CToken c_lex_number(CLexer *l, char first) {
     return t;
 }
 
+/**
+ * @brief Lexes a string literal token.
+ * @param l The C lexer instance.
+ * @return The lexed string token.
+ */
 static CToken c_lex_string(CLexer *l) {
     CToken t;
     t.line = l->line;
@@ -347,6 +415,11 @@ static CToken c_lex_string(CLexer *l) {
     return t;
 }
 
+/**
+ * @brief Lexes a character literal token.
+ * @param l The C lexer instance.
+ * @return The lexed character token.
+ */
 static CToken c_lex_char(CLexer *l) {
     CToken t;
     t.line = l->line;
@@ -382,6 +455,11 @@ static CToken c_lex_char(CLexer *l) {
     return t;
 }
 
+/**
+ * @brief Advances the C lexer to the next token.
+ * @param l The C lexer instance.
+ * @return The next token in the source stream.
+ */
 CToken c_lexer_next(CLexer *l) {
     if (l->has_error) {
         CToken eof = {C_TOKEN_EOF, NULL, 0, 0.0, l->line, l->col};
@@ -685,6 +763,11 @@ CToken c_lexer_next(CLexer *l) {
     return t;
 }
 
+/**
+ * @brief Converts a C token type to its string representation.
+ * @param type The token type to convert.
+ * @return A string describing the token type.
+ */
 const char* c_token_type_to_string(CTokenType type) {
     switch (type) {
         case C_TOKEN_EOF: return "EOF";

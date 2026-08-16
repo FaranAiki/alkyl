@@ -1,0 +1,53 @@
+\doxysection{context.\+h}
+\hypertarget{context_8h_source}{}\label{context_8h_source}\index{include/common/context.h@{include/common/context.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ CONTEXT\_H}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ CONTEXT\_H}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}hashmap.h"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}arena.h"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <stddef.h>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00013\ \ \ \textcolor{keywordtype}{bool}\ no\_purge;}
+\DoxyCodeLine{00014\ \ \ \textcolor{keywordtype}{bool}\ allocator\_arc;}
+\DoxyCodeLine{00015\ \ \ \textcolor{keywordtype}{char}\ *default\_cconv;}
+\DoxyCodeLine{00016\ \ \ \textcolor{keywordtype}{bool}\ inject\_enum\_as\_cstring;}
+\DoxyCodeLine{00017\ \ \ \textcolor{keywordtype}{bool}\ double\_quote\_as\_string;}
+\DoxyCodeLine{00018\ \ \ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ big\_array\_literal\_as\_flux\_emit;}
+\DoxyCodeLine{00019\ \ \ \textcolor{keywordtype}{bool}\ resolve\_method\_call\_as\_call;}
+\DoxyCodeLine{00020\ \}\ \doxymbox{\hyperlink{structCompilerSettings}{CompilerSettings}};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{comment}{//\ Holds\ the\ global\ state\ for\ a\ single\ compilation\ session}}
+\DoxyCodeLine{00026\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00027\ \ \ \doxymbox{\hyperlink{structArena}{Arena}}\ *arena;}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \textcolor{keywordtype}{int}\ lexer\_error\_count;}
+\DoxyCodeLine{00030\ \ \ \textcolor{keywordtype}{int}\ parser\_error\_count;}
+\DoxyCodeLine{00031\ \ \ \textcolor{keywordtype}{int}\ semantic\_error\_count;}
+\DoxyCodeLine{00032\ \ \ \textcolor{keywordtype}{int}\ alir\_error\_count;}
+\DoxyCodeLine{00033\ \ \ \textcolor{keywordtype}{int}\ error\_count;}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \textcolor{comment}{//\ Diagnostic\ State\ (formerly\ globals\ in\ diagnostic.c)}}
+\DoxyCodeLine{00036\ \ \ \textcolor{keywordtype}{char}\ current\_namespace[256];}
+\DoxyCodeLine{00037\ \ \ \textcolor{keywordtype}{char}\ last\_reported\_namespace[256];}
+\DoxyCodeLine{00038\ \ \ \textcolor{keywordtype}{char}\ last\_reported\_filename[1024];}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \doxymbox{\hyperlink{structHashMap}{HashMap}}\ string\_pool;}
+\DoxyCodeLine{00041\ \ \ \doxymbox{\hyperlink{structHashMap}{HashMap}}\ error\_table;}
+\DoxyCodeLine{00042\ \ \ \textcolor{keywordtype}{int}\ next\_error\_id;}
+\DoxyCodeLine{00043\ \ \ \textcolor{keywordtype}{void}\ *macro\_head;}
+\DoxyCodeLine{00044\ \ \ \doxymbox{\hyperlink{structCompilerSettings}{CompilerSettings}}\ settings;}
+\DoxyCodeLine{00045\ \ \ \doxymbox{\hyperlink{structHashMap}{HashMap}}\ import\_cache;}
+\DoxyCodeLine{00046\ \ \ \textcolor{keywordtype}{char}\ cflags[4096];}
+\DoxyCodeLine{00047\ \ \ \textcolor{keywordtype}{char}\ link\_flags[4096];}
+\DoxyCodeLine{00048\ \}\ \doxymbox{\hyperlink{structCompilerContext}{CompilerContext}};}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00055\ \textcolor{keywordtype}{void}\ context\_init(\doxymbox{\hyperlink{structCompilerContext}{CompilerContext}}\ *ctx,\ \doxymbox{\hyperlink{structArena}{Arena}}\ *arena);}
+\DoxyCodeLine{00062\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ context\_intern(\doxymbox{\hyperlink{structCompilerContext}{CompilerContext}}\ *ctx,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *str);}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ CONTEXT\_H}}
+
+\end{DoxyCode}

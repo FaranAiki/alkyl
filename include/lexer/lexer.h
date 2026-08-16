@@ -209,8 +209,10 @@ typedef enum {
   TOKEN_UNKNOWN
 } TokenType;
 
+/**
+ * @brief A token produced by the lexer.
+ */
 typedef struct {
-  TokenType type;
   char *text;
   int int_val;
   unsigned long long long_val;
@@ -231,8 +233,10 @@ typedef enum {
     COMMENT_HASH          // Use #
 } CommentStyle;
 
+/**
+ * @brief Lexer configuration options.
+ */
 typedef struct {
-    ScopeStyle scope_style;
     CommentStyle comment_style;
     int spaces_per_indent;
     int require_semicolons;  // 1: semicolons are strictly required
@@ -241,8 +245,10 @@ typedef struct {
     int warning_indent_deep; // 0: never warn, >0: warn when indent_level reaches this depth
 } LexerSettings;
 
+/**
+ * @brief The main lexer state structure.
+ */
 typedef struct {
-  CompilerContext *ctx;
   LexerSettings settings;
   const char *src;
   const char *filename;
@@ -259,8 +265,10 @@ typedef struct {
   int last_calc_pos;
 } Lexer;
 
+/**
+ * @brief A keyword definition mapping a word to a token type.
+ */
 typedef struct {
-    const char *word;
     TokenType type;
 } KeywordDef;
 
@@ -372,8 +380,25 @@ static const KeywordDef keywords[] = {
     {"while", TOKEN_WHILE},
 };
 
+/**
+ * @brief Initializes a lexer instance.
+ * @param l The lexer to initialize.
+ * @param ctx The compiler context.
+ * @param filename The name of the source file.
+ * @param src The null-terminated source string.
+ * @param settings Optional lexer settings; uses defaults if NULL.
+ */
 void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char *src, LexerSettings *settings);
+/**
+ * @brief Advances the lexer and returns the next token.
+ * @param l The lexer instance.
+ * @return The next token in the source stream.
+ */
 Token lexer_next(Lexer *l);
+/**
+ * @brief Skips whitespace and comments from the current lexer position.
+ * @param l The lexer instance.
+ */
 void skip_whitespace_and_comments(Lexer *l);
 
 #include "emitter.h"

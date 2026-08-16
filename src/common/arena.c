@@ -12,6 +12,10 @@
 
 // ArenaBlock is now defined in arena.h
 
+/**
+ * @brief Initializes an arena allocator.
+ * @param a The arena to initialize.
+ */
 void arena_init(Arena *a) {
     if (a) {
         a->head = NULL;
@@ -26,6 +30,11 @@ void arena_init(Arena *a) {
     }
 }
 
+/**
+ * @brief Creates a new memory block for the arena.
+ * @param size The size of the block in bytes.
+ * @return A pointer to the new block, or NULL on failure.
+ */
 static ArenaBlock* arena_create_block(size_t size) {
     if (size > SIZE_MAX - sizeof(ArenaBlock)) return NULL;
     ArenaBlock *block = (ArenaBlock*)malloc(sizeof(ArenaBlock) + size);
@@ -37,6 +46,12 @@ static ArenaBlock* arena_create_block(size_t size) {
     return block;
 }
 
+/**
+ * @brief Slow path for arena allocation; creates a new block when needed.
+ * @param a The arena allocator.
+ * @param aligned_size The aligned size to allocate.
+ * @return A pointer to the allocated memory, or NULL on failure.
+ */
 void* arena_alloc_slow(Arena *a, size_t aligned_size) {
     if (a->current && a->current->next) {
         ArenaBlock *next = a->current->next;
@@ -68,6 +83,10 @@ void* arena_alloc_slow(Arena *a, size_t aligned_size) {
     return ptr;
 }
 
+/**
+ * @brief Resets all blocks in the arena for reuse without freeing.
+ * @param a The arena allocator.
+ */
 void arena_reset(Arena *a) {
     if (!a) return;
     ArenaBlock *block = a->head;
@@ -78,6 +97,10 @@ void arena_reset(Arena *a) {
     a->current = a->head;
 }
 
+/**
+ * @brief Frees all memory associated with the arena.
+ * @param a The arena allocator.
+ */
 void arena_free(Arena *a) {
     if (!a) return;
     ArenaBlock *block = a->head;
@@ -94,6 +117,12 @@ void arena_free(Arena *a) {
     }
 }
 
+/**
+ * @brief Computes a FNV-1a hash for a byte buffer.
+ * @param str The input buffer.
+ * @param len The length of the buffer.
+ * @return The 32-bit hash value.
+ */
 static uint32_t hash_str(const char *str, size_t len) {
     uint32_t hash = 2166136261u;
     for (size_t i = 0; i < len; i++) {
@@ -103,6 +132,13 @@ static uint32_t hash_str(const char *str, size_t len) {
     return hash;
 }
 
+/**
+ * @brief Interns a string of given length within the arena's interner.
+ * @param a The arena allocator.
+ * @param str The input buffer.
+ * @param len The length of the string.
+ * @return A canonical pointer to the interned string, or NULL on failure.
+ */
 static const char* intern_string(Arena *a, const char *str, size_t len) {
     if (!a || !a->interner.strings) {
         char *new_str = (char*)arena_alloc(a, len + 1);
@@ -155,11 +191,24 @@ static const char* intern_string(Arena *a, const char *str, size_t len) {
     return new_str;
 }
 
+/**
+ * @brief Duplicates a string into the arena allocator (also interns it).
+ * @param a The arena allocator.
+ * @param str The null-terminated string to duplicate.
+ * @return A pointer to the duplicated string, or NULL on failure.
+ */
 char* arena_strdup(Arena *a, const char *str) {
     if (!str) return NULL;
     return (char*)intern_string(a, str, strlen(str));
 }
 
+/**
+ * @brief Duplicates a string of given length into the arena allocator.
+ * @param a The arena allocator.
+ * @param str The string buffer to duplicate.
+ * @param len The length of the string.
+ * @return A pointer to the duplicated string, or NULL on failure.
+ */
 char* arena_strndup(Arena *a, const char *str, size_t len) {
     if (!str) return NULL;
     return (char*)intern_string(a, str, len);

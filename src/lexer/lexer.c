@@ -7,6 +7,14 @@
 #include <string.h>
 #include <stdint.h>
 
+/**
+ * @brief Initializes a lexer instance.
+ * @param l The lexer to initialize.
+ * @param ctx The compiler context.
+ * @param filename The name of the source file.
+ * @param src The null-terminated source string.
+ * @param settings Optional lexer settings; uses defaults if NULL.
+ */
 void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char* src, LexerSettings *settings) {
   l->src = src;
   l->filename = filename;
@@ -34,18 +42,40 @@ void lexer_init(Lexer *l, CompilerContext *ctx, const char *filename, const char
 }
 
 #define peek(l) ((l)->src[(l)->pos])
+/**
+ * @brief Advances the lexer by one character and returns it.
+ * @param l The lexer instance.
+ * @return The character at the current position before advancing.
+ */
 static inline char advance(Lexer *l) {
     return l->src[l->pos++];
 }
 
+/**
+ * @brief Interns a string into the compiler's arena allocator.
+ * @param l The lexer instance.
+ * @param str The null-terminated string to intern.
+ * @return A pointer to the interned string.
+ */
 static char* intern_string(Lexer *l, const char *str) {
     return arena_strdup(l->ctx->arena, str);
 }
 
+/**
+ * @brief Interns a string of given length into the arena allocator.
+ * @param l The lexer instance.
+ * @param str The string buffer to intern.
+ * @param len The length of the string.
+ * @return A pointer to the interned string.
+ */
 static char* intern_strndup(Lexer *l, const char *str, size_t len) {
     return arena_strndup(l->ctx->arena, str, len);
 }
 
+/**
+ * @brief Skips whitespace and comments from the current lexer position.
+ * @param l The lexer instance.
+ */
 void skip_whitespace_and_comments(Lexer *l) {
   while (1) {
     char c = peek(l);
@@ -101,6 +131,12 @@ void skip_whitespace_and_comments(Lexer *l) {
   }
 }
 
+/**
+ * @brief Attempts to lex a symbol token at the current position.
+ * @param l The lexer instance.
+ * @param t The token to fill on success.
+ * @return 1 if a symbol was recognized, 0 otherwise.
+ */
 static int lex_symbol(Lexer *l, Token *t) {
   char c = peek(l);
 
@@ -279,6 +315,12 @@ static int lex_symbol(Lexer *l, Token *t) {
   return 0;
 }
 
+/**
+ * @brief Attempts to lex a numeric literal at the current position.
+ * @param l The lexer instance.
+ * @param t The token to fill on success.
+ * @return 1 if a number was recognized, 0 otherwise.
+ */
 static int lex_number(Lexer *l, Token *t) {
     if (!isdigit(peek(l))) return 0;
 
@@ -422,6 +464,12 @@ static int lex_number(Lexer *l, Token *t) {
     return 1;
 }
 
+/**
+ * @brief Attempts to lex a character literal at the current position.
+ * @param l The lexer instance.
+ * @param t The token to fill on success.
+ * @return 1 if a character literal was recognized, 0 otherwise.
+ */
 static int lex_char(Lexer *l, Token *t) {
     if (peek(l) != '\'') return 0;
 
@@ -455,6 +503,11 @@ static int lex_char(Lexer *l, Token *t) {
 }
 
 // Dynamically scales using StringBuilder, eliminating hard limits and data loss.
+/**
+ * @brief Consumes and returns the content of a string literal, handling escapes.
+ * @param l The lexer instance.
+ * @return The interned string content.
+ */
 static char* consume_string_content(Lexer *l) {
     StringBuilder sb;
     sb_init(&sb, l->ctx->arena);
@@ -490,6 +543,12 @@ static char* consume_string_content(Lexer *l) {
     return final_str;
 }
 
+/**
+ * @brief Attempts to lex a string literal at the current position.
+ * @param l The lexer instance.
+ * @param t The token to fill on success.
+ * @return 1 if a string was recognized, 0 otherwise.
+ */
 static int lex_string(Lexer *l, Token *t) {
   char c = peek(l);
 
@@ -528,6 +587,11 @@ static int lex_string(Lexer *l, Token *t) {
 static KeywordDef kw_hash[KW_HASH_SIZE];
 static int kw_hash_init = 0;
 
+/**
+ * @brief Computes a hash for a null-terminated string.
+ * @param str The input string.
+ * @return The computed hash value.
+ */
 static unsigned int hash_str(const char *str) {
     unsigned int hash = 5381;
     int c;
@@ -535,6 +599,9 @@ static unsigned int hash_str(const char *str) {
     return hash;
 }
 
+/**
+ * @brief Initializes the keyword hash table on first use.
+ */
 static void init_kw_hash() {
     if (kw_hash_init) return;
     int num_keywords = sizeof(keywords) / sizeof(keywords[0]);
@@ -548,6 +615,12 @@ static void init_kw_hash() {
     kw_hash_init = 1;
 }
 
+/**
+ * @brief Computes a hash for a string of given length.
+ * @param str The input string buffer.
+ * @param len The length of the string.
+ * @return The computed hash value.
+ */
 static unsigned int hash_strn(const char *str, size_t len) {
     unsigned int hash = 5381;
     for (size_t i = 0; i < len; i++) {
@@ -556,16 +629,32 @@ static unsigned int hash_strn(const char *str, size_t len) {
     return hash;
 }
 
+/**
+ * @brief Checks if a character is valid at the start of an identifier.
+ * @param c The character to check.
+ * @return Non-zero if the character can start an identifier.
+ */
 static int is_ident_start(char c) {
     unsigned char uc = (unsigned char)c;
     return isalpha(uc) || uc == '_' || uc >= 0x80;
 }
 
+/**
+ * @brief Checks if a character is valid inside an identifier.
+ * @param c The character to check.
+ * @return Non-zero if the character can appear inside an identifier.
+ */
 static int is_ident_part(char c) {
     unsigned char uc = (unsigned char)c;
     return isalnum(uc) || uc == '_' || uc >= 0x80;
 }
 
+/**
+ * @brief Attempts to lex an identifier or keyword at the current position.
+ * @param l The lexer instance.
+ * @param t The token to fill on success.
+ * @return 1 if an identifier/keyword was recognized, 0 otherwise.
+ */
 static int lex_word(Lexer *l, Token *t) {
   char c = peek(l);
   if (!is_ident_start(c)) return 0;
@@ -594,6 +683,11 @@ static int lex_word(Lexer *l, Token *t) {
 }
 
 
+/**
+ * @brief Advances the lexer and returns the next token.
+ * @param l The lexer instance.
+ * @return The next token in the source stream.
+ */
 Token lexer_next(Lexer *l) {
   if (l->pending_count > 0) {
       Token t = l->pending_tokens[0];

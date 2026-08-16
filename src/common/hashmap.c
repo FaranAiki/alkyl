@@ -8,12 +8,21 @@
 #define PERTURB_SHIFT 5
 #define TOMBSTONE ((uint32_t)0xFFFFFFFF)
 
+/**
+ * @brief An entry in the hash map dictionary.
+ */
 typedef struct {
     uint32_t hash;
     const char *key;
     void *value;
 } DictEntry;
 
+/**
+ * @brief MurmurHash3 32-bit implementation.
+ * @param key The input key buffer.
+ * @param len The length of the key in bytes.
+ * @return The 32-bit hash value.
+ */
 static uint32_t murmur3_32(const char *key, size_t len) {
     uint32_t h = 0x811c9dc5;
     const uint8_t *data = (const uint8_t *)key;
@@ -54,14 +63,30 @@ static uint32_t murmur3_32(const char *key, size_t len) {
     return h;
 }
 
+/**
+ * @brief Computes the hash of a null-terminated string.
+ * @param str The input string.
+ * @return The hash value.
+ */
 static uint32_t hash_string(const char *str) {
     return murmur3_32(str, strlen(str));
 }
 
+/**
+ * @brief Computes the hash of a string with explicit length.
+ * @param str The input string buffer.
+ * @param len The length of the string.
+ * @return The hash value.
+ */
 static uint32_t hash_string_n(const char *str, size_t len) {
     return murmur3_32(str, len);
 }
 
+/**
+ * @brief Rounds up to the next power of two, with a minimum of 8.
+ * @param n The input value.
+ * @return The next power of two >= n, or 8.
+ */
 static uint32_t next_pow2(uint32_t n) {
     if (n == 0) return 8;
     n--;
@@ -74,6 +99,10 @@ static uint32_t next_pow2(uint32_t n) {
     return n < 8 ? 8 : n;
 }
 
+/**
+ * @brief Resizes the hash map to accommodate more entries.
+ * @param map The hash map to resize.
+ */
 static void hashmap_resize(HashMap *map) {
     uint32_t old_cap = map->capacity;
     uint32_t new_cap = old_cap == 0 ? 8 : old_cap * 2;
@@ -125,6 +154,12 @@ static void hashmap_resize(HashMap *map) {
     map->buckets = (MapEntry **)new_block;
 }
 
+/**
+ * @brief Initializes a hash map.
+ * @param map The hash map to initialize.
+ * @param arena The arena allocator, or NULL for malloc.
+ * @param initial_capacity The initial bucket count hint.
+ */
 void hashmap_init(HashMap *map, Arena *arena, uint32_t initial_capacity) {
     if (!map) return;
 
@@ -152,6 +187,12 @@ void hashmap_init(HashMap *map, Arena *arena, uint32_t initial_capacity) {
     }
 }
 
+/**
+ * @brief Inserts or updates a key-value pair in the hash map.
+ * @param map The hash map.
+ * @param key The key string.
+ * @param value The value to associate with the key.
+ */
 void hashmap_put(HashMap *map, const char *key, void *value) {
     if (!map || !key) return;
 
@@ -199,6 +240,12 @@ void hashmap_put(HashMap *map, const char *key, void *value) {
     }
 }
 
+/**
+ * @brief Interns a key string and returns the canonical pointer.
+ * @param map The hash map.
+ * @param key The key string to intern.
+ * @return The canonical pointer for the key, or NULL on failure.
+ */
 const char* hashmap_intern(HashMap *map, const char *key) {
     if (!map || !key) return NULL;
 
@@ -243,6 +290,12 @@ const char* hashmap_intern(HashMap *map, const char *key) {
     return entries[new_idx].key;
 }
 
+/**
+ * @brief Retrieves the value associated with a key.
+ * @param map The hash map.
+ * @param key The key to look up.
+ * @return The associated value, or NULL if not found.
+ */
 void* hashmap_get(HashMap *map, const char *key) {
     if (!map || !key || !map->buckets) return NULL;
 
@@ -274,6 +327,13 @@ void* hashmap_get(HashMap *map, const char *key) {
     return NULL;
 }
 
+/**
+ * @brief Retrieves the value associated with a key of known length.
+ * @param map The hash map.
+ * @param key The key buffer.
+ * @param len The length of the key.
+ * @return The associated value, or NULL if not found.
+ */
 void* hashmap_get_n(HashMap *map, const char *key, size_t len) {
     if (!map || !key || !map->buckets) return NULL;
 
@@ -302,10 +362,22 @@ void* hashmap_get_n(HashMap *map, const char *key, size_t len) {
     return NULL;
 }
 
+/**
+ * @brief Checks whether a key exists in the hash map.
+ * @param map The hash map.
+ * @param key The key to check.
+ * @return 1 if the key exists, 0 otherwise.
+ */
 int hashmap_has(HashMap *map, const char *key) {
     return hashmap_get(map, key) != NULL;
 }
 
+/**
+ * @brief Increments the integer counter stored for a key, initializing to 1 if absent.
+ * @param map The hash map.
+ * @param key The key to increment.
+ * @return The new counter value.
+ */
 int hashmap_inc(HashMap *map, const char *key) {
     if (!map || !key) return 0;
 
@@ -353,6 +425,12 @@ int hashmap_inc(HashMap *map, const char *key) {
     return 1;
 }
 
+/**
+ * @brief Removes a key from the hash map.
+ * @param map The hash map.
+ * @param key The key to remove.
+ * @return 1 if the key was removed, 0 if it was not found.
+ */
 int hashmap_remove(HashMap *map, const char *key) {
     if (!map || !key || !map->buckets) return 0;
 
@@ -383,6 +461,10 @@ int hashmap_remove(HashMap *map, const char *key) {
     return 0;
 }
 
+/**
+ * @brief Frees all memory associated with the hash map.
+ * @param map The hash map. Does nothing if the map uses an arena.
+ */
 void hashmap_free(HashMap *map) {
     if (!map || map->arena) return;
 

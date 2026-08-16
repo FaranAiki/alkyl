@@ -26,6 +26,9 @@ VarType *g_type_namespace = NULL;
 VarType *g_type_error = NULL;
 VarType *g_type_unknown = NULL;
 
+/**
+ * @brief A node in the canonical type hash table chain.
+ */
 typedef struct TypeNode {
     VarType type;
     struct TypeNode *next;
@@ -36,6 +39,23 @@ static TypeNode *g_type_table[TYPE_HASHTABLE_SIZE];
 static Arena g_types_arena;
 static bool g_types_inited = false;
 
+/**
+ * @brief Computes a hash key for a canonical type descriptor.
+ * @param base The base type kind.
+ * @param ptr_depth Pointer indirection depth.
+ * @param class_name Class name for class types, or NULL.
+ * @param array_size Array size, or 0.
+ * @param array_depth Array nesting depth.
+ * @param is_unsigned Whether the type is unsigned.
+ * @param is_tainted Whether the type is tainted.
+ * @param is_pristine Whether the type is pristine.
+ * @param is_func_ptr Whether the type is a function pointer.
+ * @param fp_ret_type Return type of the function pointer, or NULL.
+ * @param fp_param_types Parameter types of the function pointer, or NULL.
+ * @param fp_param_count Number of parameters.
+ * @param fp_is_varargs Whether the function pointer is variadic.
+ * @return The hash value.
+ */
 static uint32_t hash_type_key(
     BaseType base, int ptr_depth, const char *class_name,
     int array_size, int array_depth, bool is_unsigned,
@@ -65,6 +85,24 @@ static uint32_t hash_type_key(
     return h;
 }
 
+/**
+ * @brief Checks whether a VarType matches all the given field values.
+ * @param t The type to check.
+ * @param base Expected base type.
+ * @param ptr_depth Expected pointer depth.
+ * @param class_name Expected class name.
+ * @param array_size Expected array size.
+ * @param array_depth Expected array depth.
+ * @param is_unsigned Expected unsigned flag.
+ * @param is_tainted Expected tainted flag.
+ * @param is_pristine Expected pristine flag.
+ * @param is_func_ptr Expected function-pointer flag.
+ * @param fp_ret_type Expected function-pointer return type.
+ * @param fp_param_types Expected function-pointer parameter types.
+ * @param fp_param_count Expected function-pointer parameter count.
+ * @param fp_is_varargs Expected function-pointer varargs flag.
+ * @return true if all fields match.
+ */
 static bool type_fields_match(
     const VarType *t, BaseType base, int ptr_depth,
     const char *class_name, int array_size, int array_depth,
@@ -86,6 +124,23 @@ static bool type_fields_match(
     return true;
 }
 
+/**
+ * @brief Retrieves or creates a canonical type descriptor for the given type specification.
+ * @param base The base type kind.
+ * @param ptr_depth Pointer indirection depth.
+ * @param class_name Class name for class types, or NULL.
+ * @param array_size Array size, or 0.
+ * @param array_depth Array nesting depth.
+ * @param is_unsigned Whether the type is unsigned.
+ * @param is_tainted Whether the type is tainted.
+ * @param is_pristine Whether the type is pristine.
+ * @param is_func_ptr Whether the type is a function pointer.
+ * @param fp_ret_type Return type of the function pointer, or NULL.
+ * @param fp_param_types Parameter types of the function pointer, or NULL.
+ * @param fp_param_count Number of parameters.
+ * @param fp_is_varargs Whether the function pointer is variadic.
+ * @return A pointer to the canonical VarType.
+ */
 VarType* get_canonical_type_full(
     BaseType base,
     int ptr_depth,
@@ -156,10 +211,23 @@ VarType* get_canonical_type_full(
     return &node->type;
 }
 
+/**
+ * @brief Retrieves or creates a canonical type by base kind, pointer depth, and class name.
+ * @param base The base type kind.
+ * @param ptr_depth Pointer indirection depth.
+ * @param class_name Class name for class types, or NULL.
+ * @return A pointer to the canonical VarType.
+ */
 VarType* get_canonical_type(BaseType base, int ptr_depth, const char *class_name) {
     return get_canonical_type_full(base, ptr_depth, class_name, 0, 0, false, false, false, false, NULL, NULL, 0, false);
 }
 
+/**
+ * @brief Retrieves or creates a canonical array type.
+ * @param element_type The element type of the array.
+ * @param size The array size.
+ * @return A pointer to the canonical array VarType.
+ */
 VarType* get_canonical_array_type(VarType *element_type, int size) {
     if (!element_type) return g_type_unknown;
     return get_canonical_type_full(
@@ -171,6 +239,11 @@ VarType* get_canonical_array_type(VarType *element_type, int size) {
     );
 }
 
+/**
+ * @brief Retrieves or creates a canonical pointer type.
+ * @param base_type The pointed-to type.
+ * @return A pointer to the canonical pointer VarType.
+ */
 VarType* get_canonical_ptr_type(VarType *base_type) {
     if (!base_type) return g_type_unknown;
     return get_canonical_type_full(
@@ -182,6 +255,14 @@ VarType* get_canonical_ptr_type(VarType *base_type) {
     );
 }
 
+/**
+ * @brief Retrieves or creates a canonical function-pointer type.
+ * @param ret_type The return type of the function.
+ * @param param_types Array of parameter types.
+ * @param param_count Number of parameters.
+ * @param is_varargs Whether the function is variadic.
+ * @return A pointer to the canonical function-pointer VarType.
+ */
 VarType* get_canonical_func_ptr_type(VarType *ret_type, VarType **param_types, int param_count, bool is_varargs) {
     return get_canonical_type_full(
         TYPE_VOID, 0, NULL, 0, 0, false, false, false,
@@ -189,6 +270,9 @@ VarType* get_canonical_func_ptr_type(VarType *ret_type, VarType **param_types, i
     );
 }
 
+/**
+ * @brief Initializes the global type singletons and canonical type arena.
+ */
 void types_init(void) {
     if (g_types_inited) return;
     arena_init(&g_types_arena, 128 * 1024);
@@ -217,10 +301,22 @@ void types_init(void) {
     g_type_unknown = get_canonical_type(TYPE_UNKNOWN, 0, NULL);
 }
 
+/**
+ * @brief Checks structural equality of two types via pointer identity.
+ * @param a First type.
+ * @param b Second type.
+ * @return true if a and b point to the same canonical type.
+ */
 bool types_are_equal(const VarType* a, const VarType* b) {
     return a == b;
 }
 
+/**
+ * @brief Checks semantic equality of two types via pointer identity.
+ * @param a First type.
+ * @param b Second type.
+ * @return true if a and b point to the same canonical type.
+ */
 bool sem_types_are_equal(const VarType* a, const VarType* b) {
     return a == b;
 }

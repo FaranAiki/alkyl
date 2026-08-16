@@ -3,6 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * @brief Sets the current diagnostic namespace.
+ * @param ctx The compiler context.
+ * @param ns The namespace name to set.
+ */
 void diag_set_namespace(CompilerContext *ctx, const char *ns) {
     if (!ctx) return;
     if (ns == ctx->current_namespace) return;
@@ -14,11 +19,22 @@ void diag_set_namespace(CompilerContext *ctx, const char *ns) {
     }
 }
 
+/**
+ * @brief Retrieves the current diagnostic namespace.
+ * @param ctx The compiler context.
+ * @return The current namespace name, or "unknown" if ctx is NULL.
+ */
 const char* diag_get_namespace(CompilerContext *ctx) {
     if (!ctx) return "unknown";
     return ctx->current_namespace;
 }
 
+/**
+ * @brief Computes a shortened file path for diagnostic output.
+ * @param in The full input path.
+ * @param out The output buffer for the shortened path.
+ * @param size The size of the output buffer.
+ */
 static void get_short_path(const char *in, char *out, size_t size) {
     if (!in || strlen(in) == 0) {
         out[0] = 0;
@@ -51,6 +67,13 @@ static void get_short_path(const char *in, char *out, size_t size) {
     snprintf(out, size, ".../%s", p);
 }
 
+/**
+ * @brief Returns the minimum of three integers.
+ * @param a First value.
+ * @param b Second value.
+ * @param c Third value.
+ * @return The smallest of a, b, and c.
+ */
 int min3(int a, int b, int c) {
     int m = a;
     if (b < m) m = b;
@@ -58,6 +81,12 @@ int min3(int a, int b, int c) {
     return m;
 }
 
+/**
+ * @brief Computes the Levenshtein distance between two strings.
+ * @param s1 First string.
+ * @param s2 Second string.
+ * @return The edit distance, or 100 on null input.
+ */
 int levenshtein_dist(const char *s1, const char *s2) {
     if (!s1 || !s2) return 100;
     int len1 = strlen(s1);
@@ -88,6 +117,11 @@ int levenshtein_dist(const char *s1, const char *s2) {
     return matrix[len1][len2];
 }
 
+/**
+ * @brief Finds the closest keyword to an identifier using Levenshtein distance.
+ * @param ident The identifier to match.
+ * @return The closest keyword, or NULL if none is within distance 3.
+ */
 const char* find_closest_keyword(const char *ident) {
     const char *keywords[] = {
         "int", "void", "char", "bool", "single", "double", "return",
@@ -137,6 +171,14 @@ static void print_source_snippet(Lexer *l, Token t) {
     fprintf(stderr, "%s^%s\n", DIAG_BOLD, DIAG_RESET);
 }
 
+/**
+ * @brief Core diagnostic reporting logic shared by error/warning/info.
+ * @param l The lexer instance (for location and context).
+ * @param t The token associated with the diagnostic.
+ * @param label The severity label (e.g. "error", "warning", "info").
+ * @param color The ANSI color code for the label.
+ * @param msg The diagnostic message.
+ */
 static void report_generic(Lexer *l, Token t, const char *label, const char *color, const char *msg) {
     if (!l || !l->ctx) return;
     CompilerContext *ctx = l->ctx;
@@ -166,11 +208,23 @@ static void report_generic(Lexer *l, Token t, const char *label, const char *col
     print_source_snippet(l, t);
 }
 
+/**
+ * @brief Reports a lexer error with source snippet.
+ * @param l The lexer instance.
+ * @param t The token associated with the error.
+ * @param msg The error message.
+ */
 void report_error(Lexer *l, Token t, const char *msg) {
     report_generic(l, t, "error", DIAG_RED, msg);
     if (l && l->ctx) l->ctx->error_count++;
 }
 
+/**
+ * @brief Reports a C header lexer error.
+ * @param l The C lexer instance.
+ * @param t The token associated with the error.
+ * @param msg The error message.
+ */
 void report_c_error(CLexer *l, CToken t, const char *msg) {
     if (!l || !l->ctx) return;
     CompilerContext *ctx = l->ctx;
@@ -189,25 +243,54 @@ void report_c_error(CLexer *l, CToken t, const char *msg) {
     ctx->error_count++;
 }
 
+/**
+ * @brief Reports a lexer warning with source snippet.
+ * @param l The lexer instance.
+ * @param t The token associated with the warning.
+ * @param msg The warning message.
+ */
 void report_warning(Lexer *l, Token t, const char *msg) {
     report_generic(l, t, "warning", DIAG_PURPLE, msg);
 }
 
+/**
+ * @brief Reports a hint message.
+ * @param l The lexer instance (unused).
+ * @param t The token associated with the hint (unused).
+ * @param msg The hint message.
+ */
 void report_hint(Lexer *l, Token t, const char *msg) {
     (void)l; (void)t;
     fprintf(stderr, "%shint:%s %s\n", DIAG_YELLOW, DIAG_RESET, msg);
 }
 
+/**
+ * @brief Reports an informational message with source snippet.
+ * @param l The lexer instance.
+ * @param t The token associated with the info.
+ * @param msg The info message.
+ */
 void report_info(Lexer *l, Token t, const char *msg) {
     report_generic(l, t, "info", DIAG_BLUE, msg);
 }
 
+/**
+ * @brief Reports a reason message with source snippet.
+ * @param l The lexer instance.
+ * @param t The token associated with the reason.
+ * @param msg The reason message.
+ */
 void report_reason(Lexer *l, Token t, const char *msg) {
     fprintf(stderr, "%d:%d: %sreason:%s %s\n", t.line, t.col, DIAG_PURPLE, DIAG_RESET, msg);
     if (l) print_source_snippet(l, t);
 }
 
 // TODO use ENUMS!
+/**
+ * @brief Converts a token type to its human-readable string representation.
+ * @param type The token type to convert.
+ * @return A string describing the token type.
+ */
 const char* token_type_to_string(TokenType type) {
     switch (type) {
         case TOKEN_EOF: return "EOF";
@@ -387,6 +470,11 @@ const char* token_type_to_string(TokenType type) {
     return "unknown";
 }
 
+/**
+ * @brief Returns a short description of a token type for display.
+ * @param type The token type.
+ * @return A short string describing the token.
+ */
 const char* get_token_description(TokenType type) {
     switch(type) {
         case TOKEN_SEMICOLON: return ";";

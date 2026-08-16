@@ -1,0 +1,24 @@
+\doxysection{linker.\+h}
+\hypertarget{linker_8h_source}{}\label{linker_8h_source}\index{include/common/linker.h@{include/common/linker.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ LINKER\_H}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ LINKER\_H}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <stddef.h>}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00007\ \ \ \ \ LINKER\_GCC,}
+\DoxyCodeLine{00008\ \ \ \ \ LINKER\_CLANG,}
+\DoxyCodeLine{00009\ \ \ \ \ LINKER\_LLD,}
+\DoxyCodeLine{00010\ \ \ \ \ LINKER\_MOLD,}
+\DoxyCodeLine{00011\ \ \ \ \ LINKER\_ALYNK,}
+\DoxyCodeLine{00012\ \ \ \ \ LINKER\_NONE}
+\DoxyCodeLine{00013\ \}\ LinkerType;}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ alkyl\_get\_linker\_command(LinkerType\ type);}
+\DoxyCodeLine{00029\ \textcolor{keywordtype}{int}\ alkyl\_link(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *obj\_file,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *output\_basename,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *link\_flags,\ LinkerType\ linker\_type);}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ LINKER\_H}}
+
+\end{DoxyCode}

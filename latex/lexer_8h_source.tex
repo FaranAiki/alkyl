@@ -1,0 +1,383 @@
+\doxysection{lexer.\+h}
+\hypertarget{lexer_8h_source}{}\label{lexer_8h_source}\index{include/lexer/lexer.h@{include/lexer/lexer.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ LEXER\_H}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ LEXER\_H}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}../common/context.h"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00007\ \ \ TOKEN\_EOF,}
+\DoxyCodeLine{00008\ \ \ TOKEN\_LOOP,}
+\DoxyCodeLine{00009\ \ \ TOKEN\_WHILE,}
+\DoxyCodeLine{00010\ \ \ TOKEN\_ONCE,}
+\DoxyCodeLine{00011\ \ \ TOKEN\_LBRACKET,}
+\DoxyCodeLine{00012\ \ \ TOKEN\_RBRACKET,}
+\DoxyCodeLine{00013\ \ \ TOKEN\_LBRACE,}
+\DoxyCodeLine{00014\ \ \ TOKEN\_RBRACE,}
+\DoxyCodeLine{00015\ \ \ TOKEN\_LPAREN,}
+\DoxyCodeLine{00016\ \ \ TOKEN\_RPAREN,}
+\DoxyCodeLine{00017\ \ \ TOKEN\_SEMICOLON,}
+\DoxyCodeLine{00018\ \ \ TOKEN\_COLON,}
+\DoxyCodeLine{00019\ \ \ TOKEN\_QUESTION,}
+\DoxyCodeLine{00020\ \ \ TOKEN\_DOLLAR,}
+\DoxyCodeLine{00021\ \ \ TOKEN\_QUESTION\_QUESTION,}
+\DoxyCodeLine{00022\ \ \ TOKEN\_COMMA,}
+\DoxyCodeLine{00023\ \ \ TOKEN\_ELLIPSIS,}
+\DoxyCodeLine{00024\ \ \ TOKEN\_DOT,}
+\DoxyCodeLine{00025\ \ \ TOKEN\_AT,}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ TOKEN\_RANGE\_INCL,\ \textcolor{comment}{//\ ..=}}
+\DoxyCodeLine{00028\ \ \ TOKEN\_RANGE\_EXCL,\ \textcolor{comment}{//\ ..<}}
+\DoxyCodeLine{00029\ \ \ TOKEN\_RANGE\_INCL\_GTE,\ \textcolor{comment}{//\ ..>=}}
+\DoxyCodeLine{00030\ \ \ TOKEN\_RANGE\_EXCL\_GT,\ \textcolor{comment}{//\ ..>}}
+\DoxyCodeLine{00031\ \ \ TOKEN\_RANGE\_INCL\_LTE,\ \textcolor{comment}{//\ ..<=}}
+\DoxyCodeLine{00032\ \ \ TOKEN\_RANGE,\ \textcolor{comment}{//\ ..\ (Rust-\/style\ exclusive\ range)}}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ TOKEN\_NUMBER,}
+\DoxyCodeLine{00035\ \ \ TOKEN\_SINGLE\_LIT,}
+\DoxyCodeLine{00036\ \ \ TOKEN\_STRING,}
+\DoxyCodeLine{00037\ \ \ TOKEN\_C\_STRING,}
+\DoxyCodeLine{00038\ \ \ TOKEN\_BYTE\_STRING,}
+\DoxyCodeLine{00039\ \ \ TOKEN\_CHAR\_LIT,}
+\DoxyCodeLine{00040\ \ \ TOKEN\_IDENTIFIER,}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \textcolor{comment}{//\ Assignment}}
+\DoxyCodeLine{00043\ \ \ TOKEN\_ASSIGN,\ \ \ \ \ \ \ \textcolor{comment}{//\ =}}
+\DoxyCodeLine{00044\ \ \ TOKEN\_PLUS\_ASSIGN,\ \ \textcolor{comment}{//\ +=}}
+\DoxyCodeLine{00045\ \ \ TOKEN\_MINUS\_ASSIGN,\ \textcolor{comment}{//\ -\/=}}
+\DoxyCodeLine{00046\ \ \ TOKEN\_STAR\_ASSIGN,\ \ \textcolor{comment}{//\ *=}}
+\DoxyCodeLine{00047\ \ \ TOKEN\_SLASH\_ASSIGN,\ \textcolor{comment}{//\ /=}}
+\DoxyCodeLine{00048\ \ \ TOKEN\_MOD\_ASSIGN,\ \ \ \textcolor{comment}{//\ \%=}}
+\DoxyCodeLine{00049\ \ \ TOKEN\_AND\_ASSIGN,\ \ \ \textcolor{comment}{//\ \&=}}
+\DoxyCodeLine{00050\ \ \ TOKEN\_OR\_ASSIGN,\ \ \ \ \textcolor{comment}{//\ |=}}
+\DoxyCodeLine{00051\ \ \ TOKEN\_XOR\_ASSIGN,\ \ \ \textcolor{comment}{//\ \string^=}}
+\DoxyCodeLine{00052\ \ \ TOKEN\_LSHIFT\_ASSIGN,\textcolor{comment}{//\ <<=}}
+\DoxyCodeLine{00053\ \ \ TOKEN\_RSHIFT\_ASSIGN,\textcolor{comment}{//\ >>=}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \textcolor{comment}{//\ Assembly\ type\ shit}}
+\DoxyCodeLine{00056\ \ \ TOKEN\_ALIR,}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ TOKEN\_IF,}
+\DoxyCodeLine{00059\ \ \ TOKEN\_THEN,}
+\DoxyCodeLine{00060\ \ \ TOKEN\_ELSE,}
+\DoxyCodeLine{00061\ \ \ TOKEN\_RETURN,}
+\DoxyCodeLine{00062\ \ \ TOKEN\_PURGE,}
+\DoxyCodeLine{00063\ \ \ TOKEN\_BREAK,}
+\DoxyCodeLine{00064\ \ \ TOKEN\_CONTINUE,}
+\DoxyCodeLine{00065\ \ \ TOKEN\_STOP,}
+\DoxyCodeLine{00066\ \ \ TOKEN\_SWITCH,}
+\DoxyCodeLine{00067\ \ \ TOKEN\_CASE,}
+\DoxyCodeLine{00068\ \ \ TOKEN\_DEFAULT,}
+\DoxyCodeLine{00069\ \ \ TOKEN\_LEAK,}
+\DoxyCodeLine{00070\ \ \ TOKEN\_WASH,\ \textcolor{comment}{//\ error\ handling\ first,\ then\ run}}
+\DoxyCodeLine{00071\ \ \ TOKEN\_RESIDUE,}
+\DoxyCodeLine{00072\ \ \ TOKEN\_UNTAINT,\ \textcolor{comment}{//\ run\ first,\ then\ error}}
+\DoxyCodeLine{00073\ \ \ TOKEN\_DEFINE,}
+\DoxyCodeLine{00074\ \ \ TOKEN\_AS,}
+\DoxyCodeLine{00075\ \ \ TOKEN\_BEING,}
+\DoxyCodeLine{00076\ \ \ TOKEN\_TYPEDEF,}
+\DoxyCodeLine{00077\ \ \ TOKEN\_META,}
+\DoxyCodeLine{00078\ \ \ TOKEN\_POSTMETA,}
+\DoxyCodeLine{00079\ \ \ TOKEN\_PREMETA,}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \textcolor{comment}{//\ OOP\ Keywords}}
+\DoxyCodeLine{00082\ \ \ TOKEN\_UNION,}
+\DoxyCodeLine{00083\ \ \ TOKEN\_IS,}
+\DoxyCodeLine{00084\ \ \ TOKEN\_HAS,}
+\DoxyCodeLine{00085\ \ \ TOKEN\_OPEN,}
+\DoxyCodeLine{00086\ \ \ TOKEN\_CLOSED,}
+\DoxyCodeLine{00087\ \ \ TOKEN\_PUBLIC,}
+\DoxyCodeLine{00088\ \ \ TOKEN\_PRIVATE,}
+\DoxyCodeLine{00089\ \ \ TOKEN\_NAKED,}
+\DoxyCodeLine{00090\ \ \ TOKEN\_REACTIVE,}
+\DoxyCodeLine{00091\ \ \ TOKEN\_INERT,}
+\DoxyCodeLine{00092\ \ \ TOKEN\_PURE,}
+\DoxyCodeLine{00093\ \ \ TOKEN\_IMPURE,}
+\DoxyCodeLine{00094\ \ \ TOKEN\_TAINTED,}
+\DoxyCodeLine{00095\ \ \ TOKEN\_CLEAN,}
+\DoxyCodeLine{00096\ \ \ TOKEN\_PRISTINE,}
+\DoxyCodeLine{00097\ \ \ TOKEN\_PARTIAL,}
+\DoxyCodeLine{00098\ \ \ TOKEN\_TOTAL,}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \textcolor{comment}{//\ goated\ compo}}
+\DoxyCodeLine{00101\ \ \ TOKEN\_CLASS,}
+\DoxyCodeLine{00102\ \ \ TOKEN\_STRUCT,}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ TOKEN\_ACCEPT,}
+\DoxyCodeLine{00105\ \ \ TOKEN\_REJECT,}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ TOKEN\_TYPEOF,}
+\DoxyCodeLine{00108\ \ \ TOKEN\_HASMETHOD,}
+\DoxyCodeLine{00109\ \ \ TOKEN\_HASATTRIBUTE,}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ TOKEN\_NAMESPACE,}
+\DoxyCodeLine{00112\ \ \ TOKEN\_ENUM,}
+\DoxyCodeLine{00113\ \ \ TOKEN\_ERRNUM,}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \ \ \textcolor{comment}{//\ Flux\ /\ Generator\ Support}}
+\DoxyCodeLine{00116\ \ \ TOKEN\_FLUX,}
+\DoxyCodeLine{00117\ \ \ TOKEN\_EMIT,}
+\DoxyCodeLine{00118\ \ \ TOKEN\_FOR,}
+\DoxyCodeLine{00119\ \ \ TOKEN\_IN,}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ TOKEN\_ABSTRACT,}
+\DoxyCodeLine{00122\ \ \ TOKEN\_CONTAINER,}
+\DoxyCodeLine{00123\ \ \ TOKEN\_EXACT,}
+\DoxyCodeLine{00124\ \ \ TOKEN\_FRAME,}
+\DoxyCodeLine{00125\ \ \ TOKEN\_METHOD,}
+\DoxyCodeLine{00126\ \ \ TOKEN\_PRAGMA,}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ TOKEN\_KW\_VOID,}
+\DoxyCodeLine{00129\ \ \ TOKEN\_KW\_INT,}
+\DoxyCodeLine{00130\ \ \ TOKEN\_KW\_CHAR,}
+\DoxyCodeLine{00131\ \ \ TOKEN\_KW\_BOOL,}
+\DoxyCodeLine{00132\ \ \ TOKEN\_KW\_SINGLE,}
+\DoxyCodeLine{00133\ \ \ TOKEN\_KW\_DOUBLE,}
+\DoxyCodeLine{00134\ \ \ TOKEN\_KW\_LET,}
+\DoxyCodeLine{00135\ \ \ TOKEN\_KW\_SIZEOF,}
+\DoxyCodeLine{00136\ \ \ TOKEN\_KW\_ALIGNOF,}
+\DoxyCodeLine{00137\ \ \ TOKEN\_KW\_DEFINED,}
+\DoxyCodeLine{00138\ \ \ TOKEN\_KW\_ISCOMPATIBLE,}
+\DoxyCodeLine{00139\ \ \ TOKEN\_DEFER,}
+\DoxyCodeLine{00140\ \ \ TOKEN\_EXTENDED,}
+\DoxyCodeLine{00141\ \ \ TOKEN\_OVERRIDE,}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \ \ TOKEN\_KW\_SHORT,}
+\DoxyCodeLine{00144\ \ \ TOKEN\_KW\_LONG,}
+\DoxyCodeLine{00145\ \ \ TOKEN\_KW\_UNSIGNED,}
+\DoxyCodeLine{00146\ \ \ TOKEN\_KW\_SIGNED,}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \textcolor{comment}{//\ Extended\ Literal\ Tokens}}
+\DoxyCodeLine{00149\ \ \ TOKEN\_ULONG\_LONG\_LIT,}
+\DoxyCodeLine{00150\ \ \ TOKEN\_LONG\_LONG\_LIT,}
+\DoxyCodeLine{00151\ \ \ TOKEN\_ULONG\_LIT,}
+\DoxyCodeLine{00152\ \ \ TOKEN\_LONG\_LIT,}
+\DoxyCodeLine{00153\ \ \ TOKEN\_UINT\_LIT,}
+\DoxyCodeLine{00154\ \ \ TOKEN\_LONG\_DOUBLE\_LIT,}
+\DoxyCodeLine{00155\ \ \ TOKEN\_DOUBLE\_LIT,}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00157\ \ \ TOKEN\_KW\_MUT,}
+\DoxyCodeLine{00158\ \ \ TOKEN\_KW\_IMUT,}
+\DoxyCodeLine{00159\ \ \ TOKEN\_CONST,}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \ \ TOKEN\_IMPORT,}
+\DoxyCodeLine{00162\ \ \ TOKEN\_EXPORT,}
+\DoxyCodeLine{00163\ \ \ TOKEN\_EXTERN,}
+\DoxyCodeLine{00164\ \ \ TOKEN\_LINK,}
+\DoxyCodeLine{00165\ \ \ TOKEN\_REASON,}
+\DoxyCodeLine{00166\ \ \ TOKEN\_COMPOUND,}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ TOKEN\_TRUE,}
+\DoxyCodeLine{00169\ \ \ TOKEN\_FALSE,}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \ \ TOKEN\_NOT,\ \ \ \ \ \textcolor{comment}{//\ !}}
+\DoxyCodeLine{00172\ \ \ TOKEN\_BIT\_NOT,\ \textcolor{comment}{//\ \string~}}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ TOKEN\_PLUS,\ \ \ \ \textcolor{comment}{//\ +}}
+\DoxyCodeLine{00175\ \ \ TOKEN\_INCREMENT,\ \textcolor{comment}{//\ ++}}
+\DoxyCodeLine{00176\ \ \ TOKEN\_MINUS,\ \ \ \textcolor{comment}{//\ -\/}}
+\DoxyCodeLine{00177\ \ \ TOKEN\_DECREMENT,\ \textcolor{comment}{//\ -\/-\/}}
+\DoxyCodeLine{00178\ \ \ TOKEN\_STAR,\ \ \ \ \textcolor{comment}{//\ *}}
+\DoxyCodeLine{00179\ \ \ TOKEN\_SLASH,\ \ \ \textcolor{comment}{//\ /}}
+\DoxyCodeLine{00180\ \ \ TOKEN\_MOD,\ \ \ \ \ \textcolor{comment}{//\ \%}}
+\DoxyCodeLine{00181\ \ \ TOKEN\_AND,\ \ \ \ \ \textcolor{comment}{//\ \&}}
+\DoxyCodeLine{00182\ \ \ TOKEN\_OR,\ \ \ \ \ \ \textcolor{comment}{//\ |}}
+\DoxyCodeLine{00183\ \ \ TOKEN\_XOR,\ \ \ \ \ \textcolor{comment}{//\ \string^}}
+\DoxyCodeLine{00184\ \ \ TOKEN\_LSHIFT,\ \ \textcolor{comment}{//\ <<}}
+\DoxyCodeLine{00185\ \ \ TOKEN\_RSHIFT,\ \ \textcolor{comment}{//\ >>}}
+\DoxyCodeLine{00186\ \ \ \textcolor{comment}{//\ TODO\ make\ this\ perfect}}
+\DoxyCodeLine{00187\ \ \ \textcolor{comment}{//\ but\ this\ operator\ should\ maps\ to\ llvm.fshl\ and\ llvm.fshr}}
+\DoxyCodeLine{00188\ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00189\ \ \ TOKEN\_LROTATE,\ \ \textcolor{comment}{//\ \%>>}}
+\DoxyCodeLine{00190\ \ \ TOKEN\_RROTATE,\ \ \textcolor{comment}{//\ <<\%}}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ TOKEN\_AND\_AND,\ \textcolor{comment}{//\ \&\&}}
+\DoxyCodeLine{00193\ \ \ TOKEN\_OR\_OR,\ \ \ \textcolor{comment}{//\ ||}}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \ \ TOKEN\_EQ,}
+\DoxyCodeLine{00196\ \ \ TOKEN\_NEQ,}
+\DoxyCodeLine{00197\ \ \ TOKEN\_LT,}
+\DoxyCodeLine{00198\ \ \ TOKEN\_GT,}
+\DoxyCodeLine{00199\ \ \ TOKEN\_LTE,}
+\DoxyCodeLine{00200\ \ \ TOKEN\_GTE,}
+\DoxyCodeLine{00201\ }
+\DoxyCodeLine{00202\ \ \ TOKEN\_COVALENT,}
+\DoxyCodeLine{00203\ \ \ TOKEN\_INFMUT,}
+\DoxyCodeLine{00204\ \ \ TOKEN\_PREMUT,}
+\DoxyCodeLine{00205\ \ \ TOKEN\_SUFMUT,}
+\DoxyCodeLine{00206\ \ \ TOKEN\_INFOP,}
+\DoxyCodeLine{00207\ \ \ TOKEN\_PREFOP,}
+\DoxyCodeLine{00208\ \ \ TOKEN\_SUFFOP,}
+\DoxyCodeLine{00209\ \ \ TOKEN\_UNKNOWN}
+\DoxyCodeLine{00210\ \}\ TokenType;}
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00215\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00216\ \ \ \textcolor{keywordtype}{char}\ *text;}
+\DoxyCodeLine{00217\ \ \ \textcolor{keywordtype}{int}\ int\_val;}
+\DoxyCodeLine{00218\ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ long\_val;}
+\DoxyCodeLine{00219\ \ \ \textcolor{keywordtype}{double}\ double\_val;}
+\DoxyCodeLine{00220\ \ \ \textcolor{keywordtype}{int}\ line;}
+\DoxyCodeLine{00221\ \ \ \textcolor{keywordtype}{int}\ col;}
+\DoxyCodeLine{00222\ \ \ \textcolor{keywordtype}{int}\ length;}
+\DoxyCodeLine{00223\ \ \ \textcolor{keywordtype}{int}\ has\_space\_before;}
+\DoxyCodeLine{00224\ \}\ \doxymbox{\hyperlink{structToken}{Token}};}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00227\ \ \ \ \ SCOPE\_BRACKETS,\ \ \ \ \ \ \ \textcolor{comment}{//\ Use\ \{\ and\ \}}}
+\DoxyCodeLine{00228\ \ \ \ \ SCOPE\_INDENTATION\ \ \ \ \ \textcolor{comment}{//\ Use\ whitespace\ indentation}}
+\DoxyCodeLine{00229\ \}\ ScopeStyle;}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00231\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00232\ \ \ \ \ COMMENT\_SLASH,\ \ \ \ \ \ \ \ \textcolor{comment}{//\ Use\ //}}
+\DoxyCodeLine{00233\ \ \ \ \ COMMENT\_HASH\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Use\ \#}}
+\DoxyCodeLine{00234\ \}\ CommentStyle;}
+\DoxyCodeLine{00235\ }
+\DoxyCodeLine{00239\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00240\ \ \ \ \ CommentStyle\ comment\_style;}
+\DoxyCodeLine{00241\ \ \ \ \ \textcolor{keywordtype}{int}\ spaces\_per\_indent;}
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{keywordtype}{int}\ require\_semicolons;\ \ \textcolor{comment}{//\ 1:\ semicolons\ are\ strictly\ required}}
+\DoxyCodeLine{00243\ \ \ \ \ \textcolor{keywordtype}{int}\ double\_quote\_as\_string;\ \textcolor{comment}{//\ 1:\ treat\ "{}..."{}\ as\ string(c"{}..."{}),\ 0:\ treat\ "{}..."{}\ as\ c"{}..."{}}}
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{keywordtype}{int}\ import\_require\_double\_quotes;}
+\DoxyCodeLine{00245\ \ \ \ \ \textcolor{keywordtype}{int}\ warning\_indent\_deep;\ \textcolor{comment}{//\ 0:\ never\ warn,\ >0:\ warn\ when\ indent\_level\ reaches\ this\ depth}}
+\DoxyCodeLine{00246\ \}\ \doxymbox{\hyperlink{structLexerSettings}{LexerSettings}};}
+\DoxyCodeLine{00247\ }
+\DoxyCodeLine{00251\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00252\ \ \ \doxymbox{\hyperlink{structLexerSettings}{LexerSettings}}\ settings;}
+\DoxyCodeLine{00253\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *src;}
+\DoxyCodeLine{00254\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *filename;}
+\DoxyCodeLine{00255\ \ \ \textcolor{keywordtype}{int}\ lexer\_error\_count;}
+\DoxyCodeLine{00256\ \ \ \textcolor{keywordtype}{int}\ pos;}
+\DoxyCodeLine{00257\ \ \ \textcolor{keywordtype}{int}\ line;}
+\DoxyCodeLine{00258\ \ \ \textcolor{keywordtype}{int}\ col;}
+\DoxyCodeLine{00259\ }
+\DoxyCodeLine{00260\ \ \ \textcolor{keywordtype}{int}\ indent\_stack[128];}
+\DoxyCodeLine{00261\ \ \ \textcolor{keywordtype}{int}\ indent\_level;}
+\DoxyCodeLine{00262\ }
+\DoxyCodeLine{00263\ \ \ \doxymbox{\hyperlink{structToken}{Token}}\ pending\_tokens[16];}
+\DoxyCodeLine{00264\ \ \ \textcolor{keywordtype}{int}\ pending\_count;}
+\DoxyCodeLine{00265\ \ \ \textcolor{keywordtype}{int}\ last\_calc\_pos;}
+\DoxyCodeLine{00266\ \}\ \doxymbox{\hyperlink{structLexer}{Lexer}};}
+\DoxyCodeLine{00267\ }
+\DoxyCodeLine{00271\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00272\ \ \ \ \ TokenType\ type;}
+\DoxyCodeLine{00273\ \}\ \doxymbox{\hyperlink{structKeywordDef}{KeywordDef}};}
+\DoxyCodeLine{00274\ }
+\DoxyCodeLine{00275\ \textcolor{comment}{//\ NOTE:\ Must\ be\ strictly\ alphabetical\ for\ bsearch}}
+\DoxyCodeLine{00276\ \textcolor{comment}{//\ TODO:\ Do\ we\ need\ b-\/search\ tho?}}
+\DoxyCodeLine{00277\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \doxymbox{\hyperlink{structKeywordDef}{KeywordDef}}\ keywords[]\ =\ \{}
+\DoxyCodeLine{00278\ \ \ \ \ \{\textcolor{stringliteral}{"{}abstract"{}},\ TOKEN\_ABSTRACT\},}
+\DoxyCodeLine{00279\ \ \ \ \ \{\textcolor{stringliteral}{"{}accept"{}},\ TOKEN\_ACCEPT\},}
+\DoxyCodeLine{00280\ \ \ \ \ \{\textcolor{stringliteral}{"{}alignof"{}},\ TOKEN\_KW\_ALIGNOF\},}
+\DoxyCodeLine{00281\ \ \ \ \ \{\textcolor{stringliteral}{"{}alir"{}},\ TOKEN\_ALIR\},}
+\DoxyCodeLine{00282\ \ \ \ \ \{\textcolor{stringliteral}{"{}as"{}},\ TOKEN\_AS\},}
+\DoxyCodeLine{00283\ \ \ \ \ \{\textcolor{stringliteral}{"{}being"{}},\ TOKEN\_BEING\},}
+\DoxyCodeLine{00284\ \ \ \ \ \{\textcolor{stringliteral}{"{}bool"{}},\ TOKEN\_KW\_BOOL\},}
+\DoxyCodeLine{00285\ \ \ \ \ \{\textcolor{stringliteral}{"{}break"{}},\ TOKEN\_BREAK\},}
+\DoxyCodeLine{00286\ \ \ \ \ \{\textcolor{stringliteral}{"{}case"{}},\ TOKEN\_CASE\},}
+\DoxyCodeLine{00287\ \ \ \ \ \{\textcolor{stringliteral}{"{}char"{}},\ TOKEN\_KW\_CHAR\},}
+\DoxyCodeLine{00288\ \ \ \ \ \{\textcolor{stringliteral}{"{}class"{}},\ TOKEN\_CLASS\},}
+\DoxyCodeLine{00289\ \ \ \ \ \{\textcolor{stringliteral}{"{}clean"{}},\ TOKEN\_CLEAN\},}
+\DoxyCodeLine{00290\ \ \ \ \ \{\textcolor{stringliteral}{"{}closed"{}},\ TOKEN\_CLOSED\},}
+\DoxyCodeLine{00291\ \ \ \ \ \{\textcolor{stringliteral}{"{}compound"{}},\ TOKEN\_COMPOUND\},}
+\DoxyCodeLine{00292\ \ \ \ \ \{\textcolor{stringliteral}{"{}const"{}},\ TOKEN\_CONST\},}
+\DoxyCodeLine{00293\ \ \ \ \ \{\textcolor{stringliteral}{"{}container"{}},\ TOKEN\_CONTAINER\},}
+\DoxyCodeLine{00294\ \ \ \ \ \{\textcolor{stringliteral}{"{}continue"{}},\ TOKEN\_CONTINUE\},}
+\DoxyCodeLine{00295\ \ \ \ \ \{\textcolor{stringliteral}{"{}covalent"{}},\ TOKEN\_COVALENT\},}
+\DoxyCodeLine{00296\ \ \ \ \ \{\textcolor{stringliteral}{"{}default"{}},\ TOKEN\_DEFAULT\},}
+\DoxyCodeLine{00297\ \ \ \ \ \{\textcolor{stringliteral}{"{}defer"{}},\ TOKEN\_DEFER\},}
+\DoxyCodeLine{00298\ \ \ \ \ \{\textcolor{stringliteral}{"{}define"{}},\ TOKEN\_DEFINE\},}
+\DoxyCodeLine{00299\ \ \ \ \ \{\textcolor{stringliteral}{"{}defined"{}},\ TOKEN\_KW\_DEFINED\},}
+\DoxyCodeLine{00300\ \ \ \ \ \{\textcolor{stringliteral}{"{}double"{}},\ TOKEN\_KW\_DOUBLE\},}
+\DoxyCodeLine{00301\ \ \ \ \ \{\textcolor{stringliteral}{"{}else"{}},\ TOKEN\_ELSE\},}
+\DoxyCodeLine{00302\ \ \ \ \ \{\textcolor{stringliteral}{"{}emit"{}},\ TOKEN\_EMIT\},}
+\DoxyCodeLine{00303\ \ \ \ \ \{\textcolor{stringliteral}{"{}enum"{}},\ TOKEN\_ENUM\},}
+\DoxyCodeLine{00304\ \ \ \ \ \{\textcolor{stringliteral}{"{}errnum"{}},\ TOKEN\_ERRNUM\},}
+\DoxyCodeLine{00305\ \ \ \ \ \{\textcolor{stringliteral}{"{}exact"{}},\ TOKEN\_EXACT\},}
+\DoxyCodeLine{00306\ \ \ \ \ \{\textcolor{stringliteral}{"{}export"{}},\ TOKEN\_EXPORT\},}
+\DoxyCodeLine{00307\ \ \ \ \ \{\textcolor{stringliteral}{"{}extended"{}},\ TOKEN\_EXTENDED\},}
+\DoxyCodeLine{00308\ \ \ \ \ \{\textcolor{stringliteral}{"{}extern"{}},\ TOKEN\_EXTERN\},}
+\DoxyCodeLine{00309\ \ \ \ \ \{\textcolor{stringliteral}{"{}false"{}},\ TOKEN\_FALSE\},}
+\DoxyCodeLine{00310\ \ \ \ \ \{\textcolor{stringliteral}{"{}flux"{}},\ TOKEN\_FLUX\},}
+\DoxyCodeLine{00311\ \ \ \ \ \{\textcolor{stringliteral}{"{}for"{}},\ TOKEN\_FOR\},}
+\DoxyCodeLine{00312\ \ \ \ \ \{\textcolor{stringliteral}{"{}frame"{}},\ TOKEN\_FRAME\},}
+\DoxyCodeLine{00313\ \ \ \ \ \{\textcolor{stringliteral}{"{}has"{}},\ TOKEN\_HAS\},}
+\DoxyCodeLine{00314\ \ \ \ \ \{\textcolor{stringliteral}{"{}hasattribute"{}},\ TOKEN\_HASATTRIBUTE\},}
+\DoxyCodeLine{00315\ \ \ \ \ \{\textcolor{stringliteral}{"{}hasmethod"{}},\ TOKEN\_HASMETHOD\},}
+\DoxyCodeLine{00316\ \ \ \ \ \{\textcolor{stringliteral}{"{}if"{}},\ TOKEN\_IF\},}
+\DoxyCodeLine{00317\ \ \ \ \ \{\textcolor{stringliteral}{"{}immutable"{}},\ TOKEN\_KW\_IMUT\},}
+\DoxyCodeLine{00318\ \ \ \ \ \{\textcolor{stringliteral}{"{}import"{}},\ TOKEN\_IMPORT\},}
+\DoxyCodeLine{00319\ \ \ \ \ \{\textcolor{stringliteral}{"{}impure"{}},\ TOKEN\_IMPURE\},}
+\DoxyCodeLine{00320\ \ \ \ \ \{\textcolor{stringliteral}{"{}imut"{}},\ TOKEN\_KW\_IMUT\},}
+\DoxyCodeLine{00321\ \ \ \ \ \{\textcolor{stringliteral}{"{}in"{}},\ TOKEN\_IN\},}
+\DoxyCodeLine{00322\ \ \ \ \ \{\textcolor{stringliteral}{"{}inert"{}},\ TOKEN\_INERT\},}
+\DoxyCodeLine{00323\ \ \ \ \ \{\textcolor{stringliteral}{"{}infmut"{}},\ TOKEN\_INFMUT\},}
+\DoxyCodeLine{00324\ \ \ \ \ \{\textcolor{stringliteral}{"{}infop"{}},\ TOKEN\_INFOP\},}
+\DoxyCodeLine{00325\ \ \ \ \ \{\textcolor{stringliteral}{"{}int"{}},\ TOKEN\_KW\_INT\},}
+\DoxyCodeLine{00326\ \ \ \ \ \{\textcolor{stringliteral}{"{}is"{}},\ TOKEN\_IS\},}
+\DoxyCodeLine{00327\ \ \ \ \ \{\textcolor{stringliteral}{"{}iscompatible"{}},\ TOKEN\_KW\_ISCOMPATIBLE\},}
+\DoxyCodeLine{00328\ \ \ \ \ \{\textcolor{stringliteral}{"{}leak"{}},\ TOKEN\_LEAK\},}
+\DoxyCodeLine{00329\ \ \ \ \ \{\textcolor{stringliteral}{"{}let"{}},\ TOKEN\_KW\_LET\},}
+\DoxyCodeLine{00330\ \ \ \ \ \{\textcolor{stringliteral}{"{}link"{}},\ TOKEN\_LINK\},}
+\DoxyCodeLine{00331\ \ \ \ \ \{\textcolor{stringliteral}{"{}long"{}},\ TOKEN\_KW\_LONG\},}
+\DoxyCodeLine{00332\ \ \ \ \ \{\textcolor{stringliteral}{"{}loop"{}},\ TOKEN\_LOOP\},}
+\DoxyCodeLine{00333\ \ \ \ \ \{\textcolor{stringliteral}{"{}meta"{}},\ TOKEN\_META\},}
+\DoxyCodeLine{00334\ \ \ \ \ \{\textcolor{stringliteral}{"{}method"{}},\ TOKEN\_METHOD\},}
+\DoxyCodeLine{00335\ \ \ \ \ \{\textcolor{stringliteral}{"{}mut"{}},\ TOKEN\_KW\_MUT\},}
+\DoxyCodeLine{00336\ \ \ \ \ \{\textcolor{stringliteral}{"{}mutable"{}},\ TOKEN\_KW\_MUT\},}
+\DoxyCodeLine{00337\ \ \ \ \ \{\textcolor{stringliteral}{"{}naked"{}},\ TOKEN\_NAKED\},}
+\DoxyCodeLine{00338\ \ \ \ \ \{\textcolor{stringliteral}{"{}namespace"{}},\ TOKEN\_NAMESPACE\},}
+\DoxyCodeLine{00339\ \ \ \ \ \{\textcolor{stringliteral}{"{}not"{}},\ TOKEN\_NOT\},}
+\DoxyCodeLine{00340\ \ \ \ \ \{\textcolor{stringliteral}{"{}once"{}},\ TOKEN\_ONCE\},}
+\DoxyCodeLine{00341\ \ \ \ \ \{\textcolor{stringliteral}{"{}open"{}},\ TOKEN\_OPEN\},}
+\DoxyCodeLine{00342\ \ \ \ \ \{\textcolor{stringliteral}{"{}override"{}},\ TOKEN\_OVERRIDE\},}
+\DoxyCodeLine{00343\ \ \ \ \ \{\textcolor{stringliteral}{"{}partial"{}},\ TOKEN\_PARTIAL\},}
+\DoxyCodeLine{00344\ \ \ \ \ \{\textcolor{stringliteral}{"{}postmeta"{}},\ TOKEN\_POSTMETA\},}
+\DoxyCodeLine{00345\ \ \ \ \ \{\textcolor{stringliteral}{"{}pragma"{}},\ TOKEN\_PRAGMA\},}
+\DoxyCodeLine{00346\ \ \ \ \ \{\textcolor{stringliteral}{"{}prefop"{}},\ TOKEN\_PREFOP\},}
+\DoxyCodeLine{00347\ \ \ \ \ \{\textcolor{stringliteral}{"{}premeta"{}},\ TOKEN\_PREMETA\},}
+\DoxyCodeLine{00348\ \ \ \ \ \{\textcolor{stringliteral}{"{}premut"{}},\ TOKEN\_PREMUT\},}
+\DoxyCodeLine{00349\ \ \ \ \ \{\textcolor{stringliteral}{"{}pristine"{}},\ TOKEN\_PRISTINE\},}
+\DoxyCodeLine{00350\ \ \ \ \ \{\textcolor{stringliteral}{"{}private"{}},\ TOKEN\_PRIVATE\},}
+\DoxyCodeLine{00351\ \ \ \ \ \{\textcolor{stringliteral}{"{}public"{}},\ TOKEN\_PUBLIC\},}
+\DoxyCodeLine{00352\ \ \ \ \ \{\textcolor{stringliteral}{"{}pure"{}},\ TOKEN\_PURE\},}
+\DoxyCodeLine{00353\ \ \ \ \ \{\textcolor{stringliteral}{"{}purge"{}},\ TOKEN\_PURGE\},}
+\DoxyCodeLine{00354\ \ \ \ \ \{\textcolor{stringliteral}{"{}reactive"{}},\ TOKEN\_REACTIVE\},}
+\DoxyCodeLine{00355\ \ \ \ \ \{\textcolor{stringliteral}{"{}reason"{}},\ TOKEN\_REASON\},}
+\DoxyCodeLine{00356\ \ \ \ \ \{\textcolor{stringliteral}{"{}reject"{}},\ TOKEN\_REJECT\},}
+\DoxyCodeLine{00357\ \ \ \ \ \{\textcolor{stringliteral}{"{}residue"{}},\ TOKEN\_RESIDUE\},}
+\DoxyCodeLine{00358\ \ \ \ \ \{\textcolor{stringliteral}{"{}return"{}},\ TOKEN\_RETURN\},}
+\DoxyCodeLine{00359\ \ \ \ \ \{\textcolor{stringliteral}{"{}short"{}},\ TOKEN\_KW\_SHORT\},}
+\DoxyCodeLine{00360\ \ \ \ \ \{\textcolor{stringliteral}{"{}signed"{}},\ TOKEN\_KW\_SIGNED\},}
+\DoxyCodeLine{00361\ \ \ \ \ \{\textcolor{stringliteral}{"{}single"{}},\ TOKEN\_KW\_SINGLE\},}
+\DoxyCodeLine{00362\ \ \ \ \ \{\textcolor{stringliteral}{"{}sizeof"{}},\ TOKEN\_KW\_SIZEOF\},}
+\DoxyCodeLine{00363\ }
+\DoxyCodeLine{00364\ \ \ \ \ \{\textcolor{stringliteral}{"{}struct"{}},\ TOKEN\_STRUCT\},}
+\DoxyCodeLine{00365\ \ \ \ \ \{\textcolor{stringliteral}{"{}suffop"{}},\ TOKEN\_SUFFOP\},}
+\DoxyCodeLine{00366\ \ \ \ \ \{\textcolor{stringliteral}{"{}sufmut"{}},\ TOKEN\_SUFMUT\},}
+\DoxyCodeLine{00367\ \ \ \ \ \{\textcolor{stringliteral}{"{}switch"{}},\ TOKEN\_SWITCH\},}
+\DoxyCodeLine{00368\ \ \ \ \ \{\textcolor{stringliteral}{"{}tainted"{}},\ TOKEN\_TAINTED\},}
+\DoxyCodeLine{00369\ \ \ \ \ \{\textcolor{stringliteral}{"{}then"{}},\ TOKEN\_THEN\},}
+\DoxyCodeLine{00370\ \ \ \ \ \{\textcolor{stringliteral}{"{}total"{}},\ TOKEN\_TOTAL\},}
+\DoxyCodeLine{00371\ \ \ \ \ \{\textcolor{stringliteral}{"{}true"{}},\ TOKEN\_TRUE\},}
+\DoxyCodeLine{00372\ \ \ \ \ \{\textcolor{stringliteral}{"{}typedef"{}},\ TOKEN\_TYPEDEF\},}
+\DoxyCodeLine{00373\ \ \ \ \ \{\textcolor{stringliteral}{"{}typeof"{}},\ TOKEN\_TYPEOF\},}
+\DoxyCodeLine{00374\ \ \ \ \ \{\textcolor{stringliteral}{"{}union"{}},\ TOKEN\_UNION\},}
+\DoxyCodeLine{00375\ \ \ \ \ \{\textcolor{stringliteral}{"{}unsigned"{}},\ TOKEN\_KW\_UNSIGNED\},}
+\DoxyCodeLine{00376\ \ \ \ \ \{\textcolor{stringliteral}{"{}untaint"{}},\ TOKEN\_UNTAINT\},}
+\DoxyCodeLine{00377\ }
+\DoxyCodeLine{00378\ \ \ \ \ \{\textcolor{stringliteral}{"{}void"{}},\ TOKEN\_KW\_VOID\},}
+\DoxyCodeLine{00379\ \ \ \ \ \{\textcolor{stringliteral}{"{}wash"{}},\ TOKEN\_WASH\},}
+\DoxyCodeLine{00380\ \ \ \ \ \{\textcolor{stringliteral}{"{}while"{}},\ TOKEN\_WHILE\},}
+\DoxyCodeLine{00381\ \};}
+\DoxyCodeLine{00382\ }
+\DoxyCodeLine{00391\ \textcolor{keywordtype}{void}\ lexer\_init(\doxymbox{\hyperlink{structLexer}{Lexer}}\ *l,\ \doxymbox{\hyperlink{structCompilerContext}{CompilerContext}}\ *ctx,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *filename,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *src,\ \doxymbox{\hyperlink{structLexerSettings}{LexerSettings}}\ *settings);}
+\DoxyCodeLine{00397\ \doxymbox{\hyperlink{structToken}{Token}}\ lexer\_next(\doxymbox{\hyperlink{structLexer}{Lexer}}\ *l);}
+\DoxyCodeLine{00402\ \textcolor{keywordtype}{void}\ skip\_whitespace\_and\_comments(\doxymbox{\hyperlink{structLexer}{Lexer}}\ *l);}
+\DoxyCodeLine{00403\ }
+\DoxyCodeLine{00404\ \textcolor{preprocessor}{\#include\ "{}emitter.h"{}}}
+\DoxyCodeLine{00405\ }
+\DoxyCodeLine{00406\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

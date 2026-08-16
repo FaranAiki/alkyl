@@ -1,0 +1,58 @@
+\doxysection{Lexer Struct Reference}
+\hypertarget{structLexer}{}\label{structLexer}\index{Lexer@{Lexer}}
+
+
+The main lexer state structure.  
+
+
+
+
+{\ttfamily \+\#include $<$lexer.\+h$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{structLexer_ad4b883c64b0c172c4a062bfcd4c1cc55}\label{structLexer_ad4b883c64b0c172c4a062bfcd4c1cc55} 
+\doxymbox{\hyperlink{structLexerSettings}{Lexer\+Settings}} {\bfseries settings}
+\item 
+\Hypertarget{structLexer_a3401563c6c2af46bce8d2ee6da777ded}\label{structLexer_a3401563c6c2af46bce8d2ee6da777ded} 
+const char \texorpdfstring{$\ast$}{*} {\bfseries src}
+\item 
+\Hypertarget{structLexer_ab4d90bfe6c5e6f3e5674c92fae95bf6f}\label{structLexer_ab4d90bfe6c5e6f3e5674c92fae95bf6f} 
+const char \texorpdfstring{$\ast$}{*} {\bfseries filename}
+\item 
+\Hypertarget{structLexer_aa990d17f63b4d3023717841f38e9ca52}\label{structLexer_aa990d17f63b4d3023717841f38e9ca52} 
+int {\bfseries lexer\+\_\+error\+\_\+count}
+\item 
+\Hypertarget{structLexer_aecee5b337104d58494ea6708c3b5df15}\label{structLexer_aecee5b337104d58494ea6708c3b5df15} 
+int {\bfseries pos}
+\item 
+\Hypertarget{structLexer_a35d0802ee5cced4c5294fb6dc77ad2f4}\label{structLexer_a35d0802ee5cced4c5294fb6dc77ad2f4} 
+int {\bfseries line}
+\item 
+\Hypertarget{structLexer_a95f59d6049ab0ccc0934d4d675e78d66}\label{structLexer_a95f59d6049ab0ccc0934d4d675e78d66} 
+int {\bfseries col}
+\item 
+\Hypertarget{structLexer_a6f93c1c4c1d00ca15547ac5182617f24}\label{structLexer_a6f93c1c4c1d00ca15547ac5182617f24} 
+int {\bfseries indent\+\_\+stack} \+[128]\+
+\item 
+\Hypertarget{structLexer_af6cfe887400a62c02e500b2d25c407e6}\label{structLexer_af6cfe887400a62c02e500b2d25c407e6} 
+int {\bfseries indent\+\_\+level}
+\item 
+\Hypertarget{structLexer_ae7c6304746efe6162aac578290a3c90d}\label{structLexer_ae7c6304746efe6162aac578290a3c90d} 
+\doxymbox{\hyperlink{structToken}{Token}} {\bfseries pending\+\_\+tokens} \+[16]\+
+\item 
+\Hypertarget{structLexer_a4e38401cd4c0dedff180f845d186704d}\label{structLexer_a4e38401cd4c0dedff180f845d186704d} 
+int {\bfseries pending\+\_\+count}
+\item 
+\Hypertarget{structLexer_ac1f55d72dbb8bede43c03af4cc704812}\label{structLexer_ac1f55d72dbb8bede43c03af4cc704812} 
+int {\bfseries last\+\_\+calc\+\_\+pos}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The main lexer state structure. 
+
+The documentation for this struct was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+include/\+lexer/\+lexer.\+h\end{DoxyCompactItemize}

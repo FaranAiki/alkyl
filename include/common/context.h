@@ -6,6 +6,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+/**
+ * @brief Compiler settings that control compilation behavior.
+ */
 typedef struct {
   bool no_purge;
   bool allocator_arc;
@@ -17,6 +20,9 @@ typedef struct {
 } CompilerSettings;
 
 // Holds the global state for a single compilation session
+/**
+ * @brief Holds the global state for a single compilation session.
+ */
 typedef struct {
   Arena *arena;
 
@@ -41,8 +47,18 @@ typedef struct {
   char link_flags[4096];
 } CompilerContext;
 
-// Initialize the context with a provided arena
+/**
+ * @brief Initializes the context with a provided arena.
+ * @param ctx The compiler context to initialize.
+ * @param arena The arena allocator for this context.
+ */
 void context_init(CompilerContext *ctx, Arena *arena);
+/**
+ * @brief Interns a string into the compiler context's arena.
+ * @param ctx The compiler context.
+ * @param str The null-terminated string to intern.
+ * @return A pointer to the interned string, or NULL on failure.
+ */
 const char* context_intern(CompilerContext *ctx, const char *str);
 
 #endif // CONTEXT_H

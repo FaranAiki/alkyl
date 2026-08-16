@@ -1,6 +1,9 @@
 #ifndef COMMON_ALIASES_H
 #define COMMON_ALIASES_H
 
+/**
+ * @brief A union type for holding values of various primitive types.
+ */
 typedef union {
   char char_val;
   unsigned char unsigned_char_val;
