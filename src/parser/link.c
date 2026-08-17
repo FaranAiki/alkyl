@@ -7,6 +7,19 @@
 #include <stdio.h>
 #include <string.h>
 
+static int is_system_lib(const char *name) {
+    static const char *sys_libs[] = {
+        "m", "pthread", "dl", "z", "c", "rt", "nsl",
+        "socket", "crypt", "resolv", "ldl", "stdc++", "ncurses",
+        "X11", "Xext", "xcb", "GL", "GLU", "gtk-3", "gdk-3",
+        NULL
+    };
+    for (int i = 0; sys_libs[i]; i++) {
+        if (strcmp(name, sys_libs[i]) == 0) return 1;
+    }
+    return 0;
+}
+
 void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) {
     char cmd[1024];
     char output[2048];
@@ -15,41 +28,43 @@ void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) {
 
     if (!ctx || !lib_name) return;
 
-    snprintf(cmd, sizeof(cmd), "pkg-config --cflags %s 2>/dev/null", lib_name);
-    pf = popen(cmd, "r");
-    if (pf) {
-        if (fgets(output, sizeof(output), pf)) {
-            size_t len = strlen(output);
-            while (len > 0 && (output[len - 1] == '\n' || output[len - 1] == '\r')) {
-                output[--len] = '\0';
-            }
-            if (len > 0) {
-                if (strlen(ctx->cflags) + len + 2 < sizeof(ctx->cflags)) {
-                    strcat(ctx->cflags, " ");
-                    strcat(ctx->cflags, output);
+    if (!is_system_lib(lib_name)) {
+        snprintf(cmd, sizeof(cmd), "pkg-config --cflags %s 2>/dev/null", lib_name);
+        pf = popen(cmd, "r");
+        if (pf) {
+            if (fgets(output, sizeof(output), pf)) {
+                size_t len = strlen(output);
+                while (len > 0 && (output[len - 1] == '\n' || output[len - 1] == '\r')) {
+                    output[--len] = '\0';
+                }
+                if (len > 0) {
+                    if (strlen(ctx->cflags) + len + 2 < sizeof(ctx->cflags)) {
+                        strcat(ctx->cflags, " ");
+                        strcat(ctx->cflags, output);
+                    }
                 }
             }
+            pclose(pf);
         }
-        pclose(pf);
-    }
 
-    snprintf(cmd, sizeof(cmd), "pkg-config --libs %s 2>/dev/null", lib_name);
-    pf = popen(cmd, "r");
-    if (pf) {
-        if (fgets(output, sizeof(output), pf)) {
-            size_t len = strlen(output);
-            while (len > 0 && (output[len - 1] == '\n' || output[len - 1] == '\r')) {
-                output[--len] = '\0';
-            }
-            if (len > 0) {
-                got_libs = 1;
-                if (strlen(ctx->link_flags) + len + 2 < sizeof(ctx->link_flags)) {
-                    strcat(ctx->link_flags, " ");
-                    strcat(ctx->link_flags, output);
+        snprintf(cmd, sizeof(cmd), "pkg-config --libs %s 2>/dev/null", lib_name);
+        pf = popen(cmd, "r");
+        if (pf) {
+            if (fgets(output, sizeof(output), pf)) {
+                size_t len = strlen(output);
+                while (len > 0 && (output[len - 1] == '\n' || output[len - 1] == '\r')) {
+                    output[--len] = '\0';
+                }
+                if (len > 0) {
+                    got_libs = 1;
+                    if (strlen(ctx->link_flags) + len + 2 < sizeof(ctx->link_flags)) {
+                        strcat(ctx->link_flags, " ");
+                        strcat(ctx->link_flags, output);
+                    }
                 }
             }
+            pclose(pf);
         }
-        pclose(pf);
     }
 
     if (!got_libs) {
@@ -261,17 +276,6 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
         import_stack_pop(stack);
         
         if (resolved) {
-            ASTNode *lnk = resolved;
-            while (lnk) {
-                if (lnk->type == NODE_LINK) {
-                    LinkNode *link_node = (LinkNode*)lnk;
-                    if (p && p->l && p->l->ctx) {
-                        add_pkg_config_flags(p->l->ctx, link_node->lib_name);
-                    }
-                }
-                lnk = lnk->next;
-            }
-
             ASTNode **curr = &resolved;
             while (*curr) {
                 ASTNode *res_node = resolve_imports_node(p, *curr, stack);
