@@ -767,11 +767,11 @@ void alkyl_mlir_build_switch_set_cond_insertion(AlkylMlirContext c_ctx, void* sw
 #endif
 }
 
-void alkyl_mlir_build_switch_case_start(AlkylMlirContext c_ctx, void* switch_op_ptr, AlkylMlirValue val, int is_leak) {
+void* alkyl_mlir_build_switch_case_start(AlkylMlirContext c_ctx, void* switch_op_ptr, AlkylMlirValue val, int is_leak) {
     (void)is_leak;
     (void)c_ctx;
 #ifdef HAS_MLIR
-    if (!global_builder || !switch_op_ptr) return;
+    if (!global_builder || !switch_op_ptr) return NULL;
     auto state = static_cast<SwitchState*>(switch_op_ptr);
     auto case_val = static_cast<mlir::Value>(reinterpret_cast<mlir::detail::ValueImpl*>(val));
     mlir::Region* parentRegion = state->current_cond_block->getParent();
@@ -779,13 +779,11 @@ void alkyl_mlir_build_switch_case_start(AlkylMlirContext c_ctx, void* switch_op_
     mlir::Block* case_block = new mlir::Block();
     mlir::Block* next_cond_block = new mlir::Block();
 
-    // Insert before merge_block
     parentRegion->getBlocks().insert(mlir::Region::iterator(state->merge_block), case_block);
     parentRegion->getBlocks().insert(mlir::Region::iterator(state->merge_block), next_cond_block);
 
     global_builder->setInsertionPointToEnd(state->current_cond_block);
 
-    // Ensure same types for cmpi
     if (state->cond.getType() != case_val.getType()) {
         auto cond_type = state->cond.getType();
         auto case_type = case_val.getType();
@@ -814,6 +812,7 @@ void alkyl_mlir_build_switch_case_start(AlkylMlirContext c_ctx, void* switch_op_
 #else
     (void)c_ctx; (void)switch_op_ptr; (void)val; (void)is_leak;
 #endif
+    return nullptr;
 }
 
 void alkyl_mlir_build_switch_case_end(AlkylMlirContext c_ctx, void* switch_op_ptr, int is_leak) {

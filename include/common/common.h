@@ -11,6 +11,7 @@
  * @brief A dynamic string builder backed by an arena or malloc.
  */
 typedef struct {
+    char *data;
     int len;
     int cap;
     Arena *arena; // Link to the arena

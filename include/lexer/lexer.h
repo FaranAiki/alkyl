@@ -213,6 +213,7 @@ typedef enum {
  * @brief A token produced by the lexer.
  */
 typedef struct {
+  TokenType type;
   char *text;
   int int_val;
   unsigned long long long_val;
@@ -238,6 +239,7 @@ typedef enum {
  */
 typedef struct {
     CommentStyle comment_style;
+    ScopeStyle scope_style;
     int spaces_per_indent;
     int require_semicolons;  // 1: semicolons are strictly required
     int double_quote_as_string; // 1: treat "..." as string(c"..."), 0: treat "..." as c"..."
@@ -263,12 +265,14 @@ typedef struct {
   Token pending_tokens[16];
   int pending_count;
   int last_calc_pos;
+  CompilerContext *ctx;
 } Lexer;
 
 /**
  * @brief A keyword definition mapping a word to a token type.
  */
 typedef struct {
+    const char *word;
     TokenType type;
 } KeywordDef;
 

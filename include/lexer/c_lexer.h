@@ -171,6 +171,7 @@ typedef enum {
  * @brief A single C token produced by the lexer.
  */
 typedef struct {
+    CTokenType type;
     char *text;
     long long int_val;
     double double_val;
