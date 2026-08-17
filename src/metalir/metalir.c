@@ -28,6 +28,9 @@ MetalirRunner* metalir_runner_create(const char *module_name,
         ps.exponentation_if_word_digit = 1;
         ps.greedy_space_calls = 0;
     }
+    if (module_name && strstr(module_name, "ethyl")) {
+        ps.function_auto_call = 1;
+    }
     r->parser.l = &r->lexer;
     parser_init(&r->parser, &r->lexer, &ps);
 

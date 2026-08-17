@@ -106,6 +106,7 @@ typedef struct {
     bool replace_variable;
     bool namespace_auto_search;
     bool namespace_ausearch_warning;
+    bool function_auto_call;
 } SemanticSettings;
 
 typedef struct {

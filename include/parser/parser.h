@@ -35,6 +35,7 @@ typedef struct {
     int array_separator_with_space; // default 0
     int multiplication_if_digit_word; // default 0: 2pi -> 2*pi
     int exponentation_if_word_digit;  // default 0: pi2 -> pi**2 (future)
+    int function_auto_call;          // default 0: allow calling member access without parens
     const char **import_paths;
     int import_path_count;
 } ParserSettings;

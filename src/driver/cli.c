@@ -19,6 +19,7 @@ static SemanticSettings default_sem_settings(void) {
     s.implicit_let = true;
     s.replace_variable = true;
     s.namespace_auto_search = true;
+    s.function_auto_call = true;
     return s;
 }
 

@@ -298,6 +298,10 @@ typedef struct {
   ASTNode base;
   ASTNode *object;
   char *member_name;
+  ASTNode *args;
+  char *mangled_name;
+  char *owner_class;
+  bool is_static : 1;
 } MemberAccessNode;
 
 typedef struct {

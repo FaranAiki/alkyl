@@ -45,6 +45,9 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
         p->settings.namespace_ausearch_warning = 1;
         p->settings.function_call_require_comma = 1;
         p->settings.array_separator_with_space = 0;
+        p->settings.multiplication_if_digit_word = 0;
+        p->settings.exponentation_if_word_digit = 0;
+        p->settings.function_auto_call = 0;
     }
 
     if (l) {

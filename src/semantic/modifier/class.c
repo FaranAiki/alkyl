@@ -51,6 +51,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
         
         SemSymbol *current_class = class_sym;
         int found = 0;
+        SemSymbol *found_member = NULL;
         
         while (current_class) {
             if (current_class->inner_scope && current_class->inner_scope->symbol_map) {
@@ -58,6 +59,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
                 if (member) {
                     sem_set_node_type(ctx, (ASTNode*)node, member->type);
                     found = 1;
+                    found_member = member;
                     if (sem_get_node_tainted(ctx, node->object) && !member->is_pristine) {
                         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
                     } else if (member->is_pristine) {
@@ -74,6 +76,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
                         if (member) {
                             sem_set_node_type(ctx, (ASTNode*)node, member->type);
                             found = 1;
+                            found_member = member;
                             char *obj_name = "obj";
                             int should_warn = 1;
                             if (node->object) {
@@ -108,6 +111,10 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
         if (!found) {
             sem_error(ctx, (ASTNode*)node, "Class '%s' has no member named '%s'", obj_type.class_name, node->member_name);
             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+        } else if (ctx->settings.function_auto_call && found_member && found_member->kind == SYM_FUNC) {
+            node->base.type = NODE_METHOD_CALL;
+            node->args = NULL;
+            sem_check_method_call(ctx, (MethodCallNode*)node);
         }
     }
     else if (obj_type.base == TYPE_ENUM && obj_type.class_name) {
@@ -144,7 +151,13 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
              SemSymbol *member = ns_sym->inner_scope->symbols;
              while (member) {
                  if (streq_lit(member->name, node->member_name)) {
-                     sem_set_node_type(ctx, (ASTNode*)node, member->type);
+                     if (ctx->settings.function_auto_call && member->kind == SYM_FUNC) {
+                         node->base.type = NODE_METHOD_CALL;
+                         node->args = NULL;
+                         sem_check_method_call(ctx, (MethodCallNode*)node);
+                     } else {
+                         sem_set_node_type(ctx, (ASTNode*)node, member->type);
+                     }
                      return;
                  }
                  member = member->next;

@@ -180,7 +180,7 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                 putchar(buffer[j]);
             }
             
-            if (suggestion != NULL && pos == len && i == len && word_len > 0) {
+            if (suggestion != NULL && pos == len && i == len) {
                 printf("\033[90m%s\033[0m", suggestion + word_len);
             }
             
@@ -271,6 +271,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
 
         int word_len = 0;
         char *suggestion = NULL;
+        SymbolKind suggested_kind = SYM_VAR;
         int word_start = current_line_start;
         
         if (pos == len) {
@@ -281,12 +282,14 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                 }
             }
             word_len = pos - word_start;
-            if (word_len > 0) {
+            if (word_len > 0 || (word_start > 0 && input_buffer[word_start - 1] == '.')) {
                 if (sem_ctx != NULL) {
                     SemanticCtx *sem = (SemanticCtx*)sem_ctx;
                     SemScope *scope = sem->current_scope;
+                    int after_dot = 0;
                     
                     if (word_start > 0 && input_buffer[word_start - 1] == '.') {
+                        after_dot = 1;
                         int prefix_start = 0;
                         for (int i = word_start - 2; i >= current_line_start; i--) {
                             if (!isalnum((unsigned char)input_buffer[i]) && input_buffer[i] != '_' && input_buffer[i] != '.') {
@@ -316,17 +319,18 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                             int sym_len = strlen(sym->name);
                             if (sym_len > word_len && strncmp(input_buffer + word_start, sym->name, word_len) == 0) {
                                 suggestion = sym->name;
+                                suggested_kind = sym->kind;
                                 break;
                             }
                             sym = sym->next;
                         }
                         if (suggestion != NULL) break;
-                        if (word_start > 0 && input_buffer[word_start - 1] == '.') break; // only search the exact namespace/class
+                        if (after_dot) break; // only search the exact namespace/class
                         scope = scope->parent;
                     }
                 }
 
-                if (suggestion == NULL) {
+                if (suggestion == NULL && !(word_start > 0 && input_buffer[word_start - 1] == '.')) {
                     const char *keywords[] = {
                         "let", "mut", "if", "else", "while", "for", "in", "return", "switch", "case",
                         "break", "continue", "func", "class", "struct", "union", "enum", "errnum",
@@ -421,8 +425,12 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                 input_buffer[word_start + sug_len] = '\0';
                 int added_len = (int)(sug_len - word_len);
                 if (len + added_len + 1 < MAX_INPUT_LEN - 1) {
+                    char append_char = ' ';
+                    if (suggested_kind == SYM_NAMESPACE || suggested_kind == SYM_CLASS) {
+                        append_char = '.';
+                    }
                     for(int j = len; j >= pos; j--) input_buffer[j + added_len + 1] = input_buffer[j];
-                    input_buffer[pos + added_len] = ' ';
+                    input_buffer[pos + added_len] = append_char;
                     len += added_len + 1;
                     pos += added_len + 1;
                 }
