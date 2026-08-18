@@ -181,7 +181,9 @@ static int lex_symbol(Lexer *l, Token *t) {
 
   switch (c) {
       case ',': advance(l); t->type = TOKEN_COMMA; return 1;
-      case ':': advance(l); t->type = TOKEN_COLON; return 1;
+      case ':': advance(l); 
+          if (peek(l) == '=') { advance(l); t->type = TOKEN_WALRUS; return 1; }
+          t->type = TOKEN_COLON; return 1;
       case '[': advance(l); t->type = TOKEN_LBRACKET; return 1;
       case ']': advance(l); t->type = TOKEN_RBRACKET; return 1;
       case '{': advance(l); t->type = TOKEN_LBRACE; return 1;

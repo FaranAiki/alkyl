@@ -539,6 +539,44 @@ ASTNode* parse_top_level_internal(Parser *p) {
   }
 
   if (p->current_token.type == TOKEN_DEFINE) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_define(p); }
+  if (p->current_token.type == TOKEN_IDENTIFIER && parser_peek_token(p).type == TOKEN_WALRUS) {
+      if(modifiers) parser_fail(p, "Modifiers not allowed");
+      char *name = parser_strdup(p, p->current_token.text);
+      eat(p, TOKEN_IDENTIFIER);
+      eat(p, TOKEN_WALRUS);
+      
+      Token *body_tokens = parser_alloc_raw(p, sizeof(Token) * 32);
+      int body_cap = 32;
+      int body_len = 0;
+      int brace_depth = 0;
+      int saved_disable = p->disable_macro_expansion;
+      p->disable_macro_expansion = 1;
+      while (p->current_token.type != TOKEN_SEMICOLON && 
+             p->current_token.type != TOKEN_EOF) {
+          if (p->current_token.type == TOKEN_LBRACE) {
+              brace_depth++;
+          } else if (p->current_token.type == TOKEN_RBRACE) {
+              if (brace_depth == 0) break;
+              brace_depth--;
+              if (brace_depth == 0) break;
+          }
+          if (body_len >= body_cap) {
+              body_cap *= 2;
+              Token *new_toks = parser_alloc_raw(p, sizeof(Token) * body_cap);
+              memcpy(new_toks, body_tokens, sizeof(Token) * body_len);
+              body_tokens = new_toks;
+          }
+          Token t = p->current_token;
+          if (t.text) t.text = parser_strdup(p, t.text);
+          body_tokens[body_len++] = t;
+          eat(p, p->current_token.type);
+      }
+      p->disable_macro_expansion = saved_disable;
+      
+      register_macro(p, name, NULL, 0, body_tokens, body_len);
+      if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
+      return NULL;
+  }
   if (p->current_token.type == TOKEN_TYPEDEF) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_typedef(p); }
   if (p->current_token.type == TOKEN_ENUM) { if(modifiers) parser_fail(p, "Modifiers not allowed"); return parse_enum(p); }
   if (p->current_token.type == TOKEN_ERRNUM) {

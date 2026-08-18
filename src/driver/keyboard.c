@@ -120,14 +120,90 @@ static void insert_newline_line(char *buffer, int *len, int *pos) {
     }
     if (current_brace < 0) current_brace = 0;
 
-    int insert_len = 1 + current_brace * 4;
+    int line_start = 0;
+    for (int i = *pos - 1; i >= 0; i--) {
+        if (buffer[i] == '\n') {
+            line_start = i + 1;
+            break;
+        }
+    }
+    int current_indent = 0;
+    for (int i = line_start; i < *pos; i++) {
+        if (buffer[i] == ' ' || buffer[i] == '\t') current_indent++;
+        else break;
+    }
+
+    int insert_len = 1 + current_indent + current_brace * 4;
     if (*len + insert_len < MAX_INPUT_LEN - 1) {
         for (int j = *len; j >= *pos; j--) buffer[j + insert_len] = buffer[j];
         buffer[*pos] = '\n';
-        for (int j = 1; j <= current_brace * 4; j++) buffer[*pos + j] = ' ';
+        for (int j = 1; j <= current_indent + current_brace * 4; j++) buffer[*pos + j] = ' ';
         *len += insert_len;
         *pos += insert_len;
     }
+}
+
+static int ends_with_incomplete_operator(const char *buffer, int len) {
+    while (len > 0 && (buffer[len-1] == ' ' || buffer[len-1] == '\t')) len--;
+    if (len == 0) return 0;
+
+    if (len >= 2) {
+        int as_end = 0;
+        if (buffer[len-2] == 'a' && buffer[len-1] == 's') {
+            if (len == 2 || (!isalnum((unsigned char)buffer[len-3]) && buffer[len-3] != '_')) {
+                as_end = 1;
+            }
+        }
+        if (as_end) return 1;
+    }
+
+    if (len >= 2) {
+        char a = buffer[len-2], b = buffer[len-1];
+        if ((a == '+' && b == '=') || (a == '-' && b == '=') || (a == '*' && b == '=') ||
+            (a == '/' && b == '=') || (a == '%' && b == '=') || (a == '&' && b == '=') ||
+            (a == '|' && b == '=') || (a == '^' && b == '=') || (a == '<' && b == '=') ||
+            (a == '>' && b == '=') || (a == '=' && b == '=') || (a == '!' && b == '=') ||
+            (a == '<' && b == '<') || (a == '>' && b == '>') || (a == '&' && b == '&') ||
+            (a == '|' && b == '|') || (a == ':' && b == '=') || (a == '?' && b == '?')) {
+            return 1;
+        }
+    }
+
+    char last = buffer[len-1];
+    if (last == '=' || last == '+' || last == '-' || last == '*' || last == '/' || 
+        last == '%' || last == '&' || last == '|' || last == '^' || last == '<' || 
+        last == '>' || last == '?' || last == ':' || last == '!' || last == '~') {
+        if (len >= 2 && buffer[len-2] == last && (last == '+' || last == '-')) {
+            return 0;
+        }
+        return 1;
+    }
+
+    return 0;
+}
+
+static int get_line_indent(const char *buffer, int line_start, int end) {
+    int indent = 0;
+    for (int i = line_start; i < end; i++) {
+        if (buffer[i] == ' ' || buffer[i] == '\t') indent++;
+        else break;
+    }
+    return indent;
+}
+
+static int get_base_indent(const char *buffer, int len) {
+    int base_indent = -1;
+    int line_start = 0;
+    for (int i = 0; i <= len; i++) {
+        if (i == len || buffer[i] == '\n') {
+            int indent = get_line_indent(buffer, line_start, i);
+            if (i > line_start || indent > 0) {
+                if (base_indent < 0 || indent < base_indent) base_indent = indent;
+            }
+            line_start = i + 1;
+        }
+    }
+    return base_indent >= 0 ? base_indent : 0;
 }
 
 static void cursor_word_left(char *buffer, int len, int *pos) {
@@ -380,7 +456,22 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                 }
             }
 
-            if (paren <= 0 && bracket <= 0 && brace <= 0 && !in_str && !in_char) {
+            int current_line_start = 0;
+            for (int i = pos - 1; i >= 0; i--) {
+                if (input_buffer[i] == '\n') {
+                    current_line_start = i + 1;
+                    break;
+                }
+            }
+            int current_indent = get_line_indent(input_buffer, current_line_start, pos);
+            int base_indent = get_base_indent(input_buffer, len);
+            int current_line_empty = (pos <= current_line_start) ||
+                (pos > current_line_start &&
+                 get_line_indent(input_buffer, current_line_start, pos) >= (pos - current_line_start));
+
+            if (paren <= 0 && bracket <= 0 && brace <= 0 && !in_str && !in_char &&
+                !ends_with_incomplete_operator(input_buffer, len) &&
+                (current_line_empty || current_indent <= base_indent)) {
                 redraw(base_prompt, base_prompt_no_color, input_buffer, len, pos, NULL, 0, &last_cursor_row);
 
                 int total_rows = 1;
