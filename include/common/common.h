@@ -5,6 +5,55 @@
 #include <stdint.h>
 #include "common/arena.h"
 
+// --- Terminal Colors ---
+
+#define COLOR_RESET   "\033[0m"
+#define COLOR_BOLD    "\033[1m"
+#define COLOR_DIM     "\033[2m"
+#define COLOR_UNDERLINE "\033[4m"
+#define COLOR_BLINK   "\033[5m"
+#define COLOR_REVERSE "\033[7m"
+#define COLOR_HIDDEN  "\033[8m"
+
+#define COLOR_BLACK   "\033[30m"
+#define COLOR_RED     "\033[1;31m"
+#define COLOR_GREEN   "\033[1;32m"
+#define COLOR_YELLOW  "\033[1;33m"
+#define COLOR_BLUE    "\033[1;34m"
+#define COLOR_MAGENTA "\033[1;35m"
+#define COLOR_CYAN    "\033[1;36m"
+#define COLOR_WHITE   "\033[1;37m"
+
+#define COLOR_GRAY    "\033[90m"
+#define COLOR_BOLD_RED     "\033[1;31m"
+#define COLOR_BOLD_GREEN   "\033[1;32m"
+#define COLOR_BOLD_YELLOW  "\033[1;33m"
+#define COLOR_BOLD_BLUE    "\033[1;34m"
+#define COLOR_BOLD_MAGENTA "\033[1;35m"
+#define COLOR_BOLD_CYAN    "\033[1;36m"
+#define COLOR_BOLD_WHITE   "\033[1;37m"
+
+// --- Terminal Control ---
+
+#define TERM_CURSOR_UP(n)    "\033[" #n "A"
+#define TERM_CURSOR_DOWN(n)  "\033[" #n "B"
+#define TERM_CURSOR_FORWARD(n) "\033[" #n "C"
+#define TERM_CURSOR_NEXT_LINE "\033[E"
+#define TERM_CURSOR_PREV_LINE "\033[F"
+#define TERM_CURSOR_COLUMN(n) "\033[" #n "G"
+
+#define CLEAR_LINE      "\033[K"
+#define CLEAR_SCREEN    "\033[J"
+#define CLEAR_TO_EOL    "\033[K"
+#define CLEAR_TO_EOS    "\033[J"
+
+#define CURSOR_HOME     "\033[H"
+#define CURSOR_SAVE     "\033[s"
+#define CURSOR_RESTORE  "\033[u"
+
+#define PROMPT_COLOR    COLOR_GREEN
+#define PROMPT_RESET    COLOR_RESET
+
 // --- String Builder ---
 
 /**

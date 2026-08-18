@@ -11,7 +11,22 @@ export namespace random {
         __c_lib.srand(__c_lib.time(0 as void*) as unsigned int);
     }
 
+    // TODO: make sure that random.random and random.fast_random is different!
+    int random() {
+        return fast_random();
+    }
+
+    double uniform(double min_num, double max_num) {
+        return fast_uniform(min_num, max_num);
+    }
+
     int fast_random() {
         return __c_lib.rand();
+    }
+
+    double fast_uniform(double min_num, double max_num) {
+        // hardcode initially
+        RAND_MAX := 2147483647;
+        return min_num + ((fast_random() as double) / RAND_MAX) * (max_num - min_num);
     }
 }
