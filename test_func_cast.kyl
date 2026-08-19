@@ -1,0 +1,6 @@
+void my_func() {}
+@c extern { void take_func(void* f); }
+int main() {
+    take_func(my_func);
+    return 0;
+}

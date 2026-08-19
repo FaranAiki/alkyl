@@ -1,0 +1,8 @@
+import "wlroots/core";
+void my_notify(void* listener, void* data) {}
+int main() {
+    let backend = 0 as wlroots.wlr_backend*;
+    let listener = 0 as wlroots.wl_listener*;
+    wlroots.backend_on_new_output(backend, listener, my_notify);
+    return 0;
+}

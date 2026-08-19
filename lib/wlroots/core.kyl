@@ -9,7 +9,7 @@ link "wayland-server";
 link "wlroots-0.18";
 
 namespace wlroots {
-    @c import "project/wmyl/bridge.h"
+    @c import "lib/wlroots/bridge.h"
 
     class wl_display {}
     class wlr_backend {}
@@ -18,6 +18,16 @@ namespace wlroots {
     class wlr_compositor {}
     class wlr_data_device_manager {}
     class wlr_output_layout {}
+    class wlr_xdg_shell {}
+    class wlr_seat {}
+
+    class wlr_output {}
+    class wlr_xdg_surface {}
+    class wl_listener {
+        void* link_prev;
+        void* link_next;
+        void* notify;
+    }
 
     // Display
     errnum [ErrDisplayCreation] wlroots.wl_display*? create_display() {
@@ -102,6 +112,24 @@ namespace wlroots {
         return layout as wlroots.wlr_output_layout*;
     }
 
+    // Xdg Shell
+    errnum [ErrXdgShellCreation] wlroots.wlr_xdg_shell*? create_xdg_shell(pristine wlroots.wl_display* display, int version) {
+        let shell = wlr_xdg_shell_create(display, version);
+        if (shell == 0 as void*) {
+            purge ErrXdgShellCreation;
+        }
+        return shell as wlroots.wlr_xdg_shell*;
+    }
+
+    // Seat
+    errnum [ErrSeatCreation] wlroots.wlr_seat*? create_seat(pristine wlroots.wl_display* display, char* name) {
+        let seat = wlr_seat_create(display, name);
+        if (seat == 0 as void*) {
+            purge ErrSeatCreation;
+        }
+        return seat as wlroots.wlr_seat*;
+    }
+
     // Run & Destroy
     void run_display(pristine wlroots.wl_display* display) {
         wl_display_run(display);
@@ -117,5 +145,26 @@ namespace wlroots {
 
     void destroy_backend(pristine wlroots.wlr_backend* backend) {
         wlr_backend_destroy(backend);
+    }
+}
+
+    // Listeners
+    void init_listener(pristine wlroots.wl_listener* listener, void* notify_func) {
+        init_wl_listener(listener, notify_func);
+    }
+    void backend_on_new_output(pristine wlroots.wlr_backend* backend, pristine wlroots.wl_listener* listener, void* notify_func) {
+        wlr_backend_on_new_output(backend, listener, notify_func);
+    }
+    void output_on_frame(pristine wlroots.wlr_output* output, pristine wlroots.wl_listener* listener, void* notify_func) {
+        wlr_output_on_frame(output, listener, notify_func);
+    }
+    void output_enable_and_commit(pristine wlroots.wlr_output* output, pristine wlroots.wlr_allocator* allocator, pristine wlroots.wlr_renderer* renderer) {
+        wlr_output_enable_and_commit(output, allocator, renderer);
+    }
+    void xdg_shell_on_new_surface(pristine wlroots.wlr_xdg_shell* shell, pristine wlroots.wl_listener* listener, void* notify_func) {
+        wlr_xdg_shell_on_new_surface(shell, listener, notify_func);
+    }
+    void scene_add_xdg_surface(void* scene, pristine wlroots.wlr_xdg_surface* xdg_surface) {
+        wlr_scene_add_xdg_surface(scene, xdg_surface);
     }
 }

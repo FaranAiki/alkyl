@@ -34,6 +34,7 @@ public open namespace heap {
         }
 
         void free(tainted void* ptr) {
+            untaint ptr residue err { return; }
             my.free(ptr); // from lib/c
         }
     }
@@ -47,7 +48,7 @@ public open namespace heap {
         return default_allocator.malloc(size);
     }
 
-    public tainted void free(tainted void* ptr) {
+    public void free(tainted void* ptr) {
         default_allocator.free(ptr);
     }
 

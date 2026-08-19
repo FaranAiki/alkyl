@@ -28,7 +28,6 @@ int main() {
         return 1;
     }
 
-    setenv("WAYLAND_DISPLAY", socket, 1);
     std.printf("Running Wayland display on {}...\n", socket);
 
     std.printf("Starting backend...\n");
@@ -71,6 +70,12 @@ int main() {
     let output_layout = wlroots.create_output_layout(display);
     untaint output_layout residue err { return 1; }
 
+    let xdg_shell = wlroots.create_xdg_shell(display, 3);
+    untaint xdg_shell residue err { return 1; }
+
+    let seat = wlroots.create_seat(display, "seat0");
+    untaint seat residue err { return 1; }
+
     // 6. Start backend
     let started = wlroots.start_backend(backend);
     untaint started residue err {
@@ -82,6 +87,7 @@ int main() {
 
     std.printf("Backend started successfully! Spawning kitty...\n");
 
+    setenv("WAYLAND_DISPLAY", socket, 1);
     let pid = fork();
     if (pid == 0) {
         execl("/bin/sh", "/bin/sh", "-c", "kitty", 0 as void*);
