@@ -110,7 +110,27 @@ ASTNode* parse_define(Parser *p) {
   /* Store body tokens literally; expansion happens at each use site. */
   int saved_disable = p->disable_macro_expansion;
   p->disable_macro_expansion = 1;
+  int brace_depth = 0;
   while (p->current_token.type != TOKEN_SEMICOLON && p->current_token.type != TOKEN_EOF) { if (p->has_error) break;
+      if (p->current_token.type == TOKEN_LBRACE) {
+          brace_depth++;
+      } else if (p->current_token.type == TOKEN_RBRACE) {
+          if (brace_depth == 0) break;
+          brace_depth--;
+          if (brace_depth == 0) {
+              Token t = p->current_token;
+              if (t.text) t.text = parser_strdup(p, t.text);
+              if (body_len >= body_cap) {
+                  body_cap *= 2;
+                  Token *new_toks = parser_alloc_raw(p, sizeof(Token) * body_cap);
+                  memcpy(new_toks, body_tokens, sizeof(Token) * body_len);
+                  body_tokens = new_toks;
+              }
+              body_tokens[body_len++] = t;
+              eat(p, TOKEN_RBRACE);
+              break;
+          }
+      }
       if (body_len >= body_cap) { 
           body_cap *= 2; 
           Token *new_toks = parser_alloc_raw(p, sizeof(Token)*body_cap);
@@ -127,6 +147,8 @@ ASTNode* parse_define(Parser *p) {
   for(int i=0; i<sig_count; i++) {
       register_macro(p, sigs[i].name, sigs[i].params, sigs[i].param_count, body_tokens, body_len);
   }
+  
+  p->current_token = expand_macros_from(p, p->current_token);
   
   if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
 

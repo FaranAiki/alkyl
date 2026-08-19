@@ -4,7 +4,7 @@ source_filename = "main_module"
 
 %StringObj = type { i32 }
 
-define i32 @main___op_167_141_StringObj_StringObj(%StringObj %0, %StringObj %1) {
+define i32 @main___op_168_142_StringObj_StringObj(%StringObj %0, %StringObj %1) {
 entry:
   %alloc = alloca %StringObj, align 8
   store %StringObj %0, ptr %alloc, align 4
@@ -18,7 +18,7 @@ entry:
   ret i32 %add
 }
 
-define i32 @main___op_167_157_StringObj_StringObj(%StringObj %0, %StringObj %1) {
+define i32 @main___op_168_158_StringObj_StringObj(%StringObj %0, %StringObj %1) {
 entry:
   %alloc = alloca %StringObj, align 8
   store %StringObj %0, ptr %alloc, align 4
@@ -51,7 +51,7 @@ entry:
   store i32 5, ptr %struct_gep4, align 4
   %load = load %StringObj, ptr %alloc, align 4
   %load5 = load %StringObj, ptr %alloc1, align 4
-  %call = call i32 @main___op_167_141_StringObj_StringObj(%StringObj %load, %StringObj %load5)
+  %call = call i32 @main___op_168_142_StringObj_StringObj(%StringObj %load, %StringObj %load5)
   %eq = icmp eq i32 %call, 15
   %not = xor i1 %eq, true
   br i1 %not, label %then, label %merge
@@ -62,7 +62,7 @@ then:                                             ; preds = %entry
 merge:                                            ; preds = %entry
   %load6 = load %StringObj, ptr %alloc, align 4
   %load7 = load %StringObj, ptr %alloc1, align 4
-  %call8 = call i32 @main___op_167_157_StringObj_StringObj(%StringObj %load6, %StringObj %load7)
+  %call8 = call i32 @main___op_168_158_StringObj_StringObj(%StringObj %load6, %StringObj %load7)
   %eq9 = icmp eq i32 %call8, 0
   %not10 = xor i1 %eq9, true
   br i1 %not10, label %then_2, label %merge_2
@@ -73,7 +73,7 @@ then_2:                                           ; preds = %merge
 merge_2:                                          ; preds = %merge
   %load11 = load %StringObj, ptr %alloc, align 4
   %load12 = load %StringObj, ptr %alloc3, align 4
-  %call13 = call i32 @main___op_167_157_StringObj_StringObj(%StringObj %load11, %StringObj %load12)
+  %call13 = call i32 @main___op_168_158_StringObj_StringObj(%StringObj %load11, %StringObj %load12)
   %eq14 = icmp eq i32 %call13, 1
   %not15 = xor i1 %eq14, true
   br i1 %not15, label %then_3, label %merge_3

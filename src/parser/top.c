@@ -558,7 +558,19 @@ ASTNode* parse_top_level_internal(Parser *p) {
           } else if (p->current_token.type == TOKEN_RBRACE) {
               if (brace_depth == 0) break;
               brace_depth--;
-              if (brace_depth == 0) break;
+              if (brace_depth == 0) {
+                  Token t = p->current_token;
+                  if (t.text) t.text = parser_strdup(p, t.text);
+                  if (body_len >= body_cap) {
+                      body_cap *= 2;
+                      Token *new_toks = parser_alloc_raw(p, sizeof(Token) * body_cap);
+                      memcpy(new_toks, body_tokens, sizeof(Token) * body_len);
+                      body_tokens = new_toks;
+                  }
+                  body_tokens[body_len++] = t;
+                  eat(p, TOKEN_RBRACE);
+                  break;
+              }
           }
           if (body_len >= body_cap) {
               body_cap *= 2;
@@ -574,6 +586,8 @@ ASTNode* parse_top_level_internal(Parser *p) {
       p->disable_macro_expansion = saved_disable;
       
       register_macro(p, name, NULL, 0, body_tokens, body_len);
+
+      p->current_token = expand_macros_from(p, p->current_token);
       if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
       return NULL;
   }

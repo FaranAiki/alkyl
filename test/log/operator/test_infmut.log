@@ -4,7 +4,7 @@ source_filename = "main_module"
 
 %Counter = type { i32 }
 
-define void @main_Counter___op_164_33_i32(ptr %0, i32 %1) {
+define void @main_Counter___op_165_34_i32(ptr %0, i32 %1) {
 entry:
   %struct_gep = getelementptr inbounds nuw %Counter, ptr %0, i32 0, i32 0
   %load = load i32, ptr %struct_gep, align 4
@@ -19,7 +19,7 @@ entry:
   %alloc = alloca %Counter, align 8
   %struct_gep = getelementptr inbounds nuw %Counter, ptr %alloc, i32 0, i32 0
   store i32 10, ptr %struct_gep, align 4
-  call void @main_Counter___op_164_33_i32(ptr %alloc, i32 5)
+  call void @main_Counter___op_165_34_i32(ptr %alloc, i32 5)
   %struct_gep1 = getelementptr inbounds nuw %Counter, ptr %alloc, i32 0, i32 0
   %load = load i32, ptr %struct_gep1, align 4
   %eq = icmp eq i32 %load, 15

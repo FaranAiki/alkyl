@@ -4,7 +4,7 @@ source_filename = "main_module"
 
 %Vector = type { i32, i32 }
 
-define %Vector @main___op_167_141_Vector_i32(%Vector %0, i32 %1) {
+define %Vector @main___op_168_142_Vector_i32(%Vector %0, i32 %1) {
 entry:
   %alloc = alloca %Vector, align 8
   store %Vector %0, ptr %alloc, align 4
@@ -23,7 +23,7 @@ entry:
   ret %Vector %load7
 }
 
-define %Vector @main___op_167_141_i32_Vector(i32 %0, %Vector %1) {
+define %Vector @main___op_168_142_i32_Vector(i32 %0, %Vector %1) {
 entry:
   %alloc = alloca %Vector, align 8
   store %Vector %1, ptr %alloc, align 4
@@ -50,11 +50,11 @@ entry:
   %struct_gep1 = getelementptr inbounds nuw %Vector, ptr %alloc, i32 0, i32 1
   store i32 20, ptr %struct_gep1, align 4
   %load = load %Vector, ptr %alloc, align 4
-  %call = call %Vector @main___op_167_141_Vector_i32(%Vector %load, i32 5)
+  %call = call %Vector @main___op_168_142_Vector_i32(%Vector %load, i32 5)
   %alloc2 = alloca %Vector, align 8
   store %Vector %call, ptr %alloc2, align 4
   %load3 = load %Vector, ptr %alloc, align 4
-  %call4 = call %Vector @main___op_167_141_i32_Vector(i32 10, %Vector %load3)
+  %call4 = call %Vector @main___op_168_142_i32_Vector(i32 10, %Vector %load3)
   %alloc5 = alloca %Vector, align 8
   store %Vector %call4, ptr %alloc5, align 4
   %struct_gep6 = getelementptr inbounds nuw %Vector, ptr %alloc2, i32 0, i32 0

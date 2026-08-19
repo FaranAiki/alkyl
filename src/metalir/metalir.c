@@ -18,6 +18,13 @@ MetalirRunner* metalir_runner_create(const char *module_name,
 
     LexerSettings ds = {0};
     ds.scope_style = SCOPE_INDENTATION;
+    ds.comment_style = COMMENT_SLASH;
+    ds.spaces_per_indent = 4;
+    ds.require_semicolons = 0;
+    ds.double_quote_as_string = 0;
+    ds.import_require_double_quotes = 0;
+    ds.warning_indent_deep = 4;
+
     lexer_init(&r->lexer, &r->ctx, module_name, "", &ds);
     ParserSettings ps = {0};
     ps.function_call_require_comma = function_call_require_comma;
@@ -59,7 +66,7 @@ void metalir_runner_destroy(MetalirRunner *r) {
 
 ASTNode* metalir_parse(MetalirRunner *r, const char *source,
                        const char *filename, const LexerSettings *settings) {
-    LexerSettings s = {0};
+    LexerSettings s = r->lexer.settings;
     if (settings) memcpy(&s, settings, sizeof(LexerSettings));
     lexer_init(&r->lexer, &r->ctx, filename, source, &s);
     r->parser.l = &r->lexer;
@@ -68,6 +75,7 @@ ASTNode* metalir_parse(MetalirRunner *r, const char *source,
     r->parser.tokens = NULL;
     r->parser.token_capacity = 0;
     r->parser.current_token.type = TOKEN_UNKNOWN;
+    
     return parse_program(&r->parser);
 }
 

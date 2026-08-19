@@ -86,7 +86,8 @@ int run_repl(void) {
         r->ctx.semantic_error_count = 0;
         r->ctx.error_count = 0;
 
-        char *buffer = get_smart_input(&r->ast_arena, cmd_count, &r->sem);
+        int is_indent_scope = (r->parser.l->settings.scope_style == SCOPE_INDENTATION) ? 1 : 0;
+        char *buffer = get_smart_input(&r->ast_arena, cmd_count, &r->sem, is_indent_scope);
         if (!buffer) break;
 
         int len = strlen(buffer);

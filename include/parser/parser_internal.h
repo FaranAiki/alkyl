@@ -98,6 +98,7 @@ int is_typename(Parser *p, const char *name);
 int is_type_start(Parser *p);
 void register_alias(Parser *p, const char *name, VarType target);
 VarType* get_alias(Parser *p, const char *name);
+Token expand_macros_from(Parser *p, Token t);
 
 Token lexer_next_raw(Parser *p); 
 

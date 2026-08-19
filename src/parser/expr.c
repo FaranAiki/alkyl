@@ -94,6 +94,8 @@ static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
   ASTNode *args_head = NULL;
   ASTNode **curr_arg = &args_head;
 
+  int last_line = target ? target->line : p->current_token.line;
+
   while (1) {
     if (p->current_token.type == TOKEN_SEMICOLON ||
         p->current_token.type == TOKEN_RPAREN ||
@@ -101,6 +103,10 @@ static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
         p->current_token.type == TOKEN_RBRACE ||
         p->current_token.type == TOKEN_ELSE ||
         p->current_token.type == TOKEN_EOF) {
+        break;
+    }
+
+    if (p->current_token.line > last_line) {
         break;
     }
 
@@ -113,6 +119,8 @@ static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
     if (!p->settings.greedy_space_calls) p->in_space_separated_call--;
 
     if (!expr) break;
+
+    last_line = expr->line;
 
     *curr_arg = expr;
     curr_arg = &(*curr_arg)->next;
@@ -326,10 +334,12 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             set_loc(node, line, col);
         }
         else if ((p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) && p->in_space_separated_call == 0 && p->disable_space_call == 0) {
+            if (node && p->current_token.line > node->line) break;
             node = parse_space_separated_call(p, node);
             set_loc(node, line, col);
         }
         else if (p->in_space_separated_call == 0 && p->disable_space_call == 0 && is_unambiguous_expr_start(p)) {
+            if (node && p->current_token.line > node->line) break;
             node = parse_space_separated_call(p, node);
             set_loc(node, line, col);
         }

@@ -22,7 +22,6 @@ define i32 @main() {
 entry:
   %alloc = alloca %__Union_hex_value_floatdec_value, align 8
   store i32 1, ptr %alloc, align 4
-  store i32 3, ptr %alloc, align 4
   %load = load i32, ptr %alloc, align 4
   %call = call i32 (ptr, ...) @printf(ptr @str.0, i32 %load)
   ret i32 0

@@ -224,7 +224,7 @@ static Token fetch_safe(Parser *p) { return get_next_token_expanded(p); }
 
 /* Expand object/function-like macros starting at token `t`. Used by eat() and
  * parse_program so the first token of a REPL line also expands (e.g. define aliases). */
-static Token expand_macros_from(Parser *p, Token t) {
+Token expand_macros_from(Parser *p, Token t) {
     while (!p->disable_macro_expansion && t.type == TOKEN_IDENTIFIER) {
         Macro *m = find_macro(p, t.text);
         if (!m || macro_is_expanding(p, m->name)) break;

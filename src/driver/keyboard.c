@@ -113,13 +113,6 @@ static bool cursor_down(char *buffer, int len, int *pos) {
 }
 
 static void insert_newline_line(char *buffer, int *len, int *pos) {
-    int current_brace = 0;
-    for (int i = 0; i < *pos; i++) {
-        if (buffer[i] == '{') current_brace++;
-        if (buffer[i] == '}') current_brace--;
-    }
-    if (current_brace < 0) current_brace = 0;
-
     int line_start = 0;
     for (int i = *pos - 1; i >= 0; i--) {
         if (buffer[i] == '\n') {
@@ -127,17 +120,49 @@ static void insert_newline_line(char *buffer, int *len, int *pos) {
             break;
         }
     }
+
+    int current_brace = 0;
+    for (int i = line_start; i < *pos; i++) {
+        if (buffer[i] == '{') current_brace++;
+        if (buffer[i] == '}') current_brace--;
+    }
+    
     int current_indent = 0;
     for (int i = line_start; i < *pos; i++) {
         if (buffer[i] == ' ' || buffer[i] == '\t') current_indent++;
         else break;
     }
 
-    int insert_len = 1 + current_indent + current_brace * 4;
+    int word_len = 0;
+    int word_start = line_start + current_indent;
+    while(word_start + word_len < *pos && isalnum((unsigned char)buffer[word_start + word_len])) word_len++;
+
+    if (current_brace == 0 && word_len > 0) {
+        if ((word_len == 2 && memcmp(buffer + word_start, "if", 2) == 0) ||
+            (word_len == 3 && memcmp(buffer + word_start, "for", 3) == 0) ||
+            (word_len == 5 && memcmp(buffer + word_start, "while", 5) == 0) ||
+            (word_len == 4 && memcmp(buffer + word_start, "else", 4) == 0) ||
+            (word_len == 4 && memcmp(buffer + word_start, "func", 4) == 0) ||
+            (word_len == 5 && memcmp(buffer + word_start, "class", 5) == 0)) {
+            // Also ensure it isn't a single-line statement by checking if it ends with a semicolon or brace
+            int ends_stmt = 0;
+            for (int k = word_start + word_len; k < *pos; k++) {
+                if (buffer[k] == ';' || buffer[k] == '}') ends_stmt = 1;
+            }
+            if (!ends_stmt) {
+                current_brace = 1; // fake a brace for auto-indent
+            }
+        }
+    }
+
+    int target_indent = current_indent + current_brace * 4;
+    if (target_indent < 0) target_indent = 0;
+
+    int insert_len = 1 + target_indent;
     if (*len + insert_len < MAX_INPUT_LEN - 1) {
         for (int j = *len; j >= *pos; j--) buffer[j + insert_len] = buffer[j];
         buffer[*pos] = '\n';
-        for (int j = 1; j <= current_indent + current_brace * 4; j++) buffer[*pos + j] = ' ';
+        for (int j = 1; j <= target_indent; j++) buffer[*pos + j] = ' ';
         *len += insert_len;
         *pos += insert_len;
     }
@@ -176,6 +201,53 @@ static int ends_with_incomplete_operator(const char *buffer, int len) {
         if (len >= 2 && buffer[len-2] == last && (last == '+' || last == '-')) {
             return 0;
         }
+        return 1;
+    }
+
+    return 0;
+}
+
+static int needs_continuation(const char *buffer, int len, int indentation_scope) {
+    int i = len - 1;
+    while (i >= 0 && (buffer[i] == ' ' || buffer[i] == '\t' || buffer[i] == '\n' || buffer[i] == '\r')) i--;
+    if (i < 0) return 0;
+    if (buffer[i] == '{' || buffer[i] == ';' || buffer[i] == '}') return 0;
+
+    int line_start = i;
+    while (line_start > 0 && buffer[line_start - 1] != '\n') {
+        line_start--;
+    }
+    while (line_start <= i && (buffer[line_start] == ' ' || buffer[line_start] == '\t')) {
+        line_start++;
+    }
+
+    int word_len = 0;
+    while (line_start + word_len <= i && isalnum((unsigned char)buffer[line_start + word_len])) {
+        word_len++;
+    }
+
+    if (word_len > 0) {
+        if (word_len == 2 && memcmp(buffer + line_start, "if", 2) == 0) return 1;
+        if (word_len == 3 && memcmp(buffer + line_start, "for", 3) == 0) return 1;
+        if (word_len == 5 && memcmp(buffer + line_start, "while", 5) == 0) return 1;
+        if (word_len == 4 && memcmp(buffer + line_start, "else", 4) == 0) return 1;
+        if (word_len == 4 && memcmp(buffer + line_start, "func", 4) == 0) return 1;
+        if (word_len == 5 && memcmp(buffer + line_start, "class", 5) == 0) return 1;
+    }
+
+    if (!indentation_scope) return 0;
+
+    // Check if the current line has indentation. If it does, we are in a block,
+    // so we need continuation, UNLESS the line is entirely whitespace.
+    int current_indent = 0;
+    int k = line_start;
+    while (k <= i && (buffer[k] == ' ' || buffer[k] == '\t')) {
+        current_indent++;
+        k++;
+    }
+    
+    // If the line is not just whitespace and it's indented, continue block
+    if (current_indent > 0 && k <= i) {
         return 1;
     }
 
@@ -223,7 +295,7 @@ static void cursor_word_right(char *buffer, int len, int *pos) {
     *pos = i;
 }
 
-static void redraw(const char *base_prompt, const char *base_prompt_no_color, const char *buffer, int len, int pos, const char *suggestion, int word_len, int *last_cursor_row) {
+static void redraw(const char *base_prompt, const char *base_prompt_no_color, const char *buffer, int len, int pos, const char *suggestion, int word_len_sugg, int *last_cursor_row, void *sem_ctx) {
     if (*last_cursor_row > 0) {
         char seq[32];
         snprintf(seq, sizeof(seq), "\033[%dA", *last_cursor_row);
@@ -309,9 +381,44 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                         while (token_end + 1 < i && ((buffer[token_end+1] >= 'a' && buffer[token_end+1] <= 'z') || (buffer[token_end+1] >= 'A' && buffer[token_end+1] <= 'Z') || (buffer[token_end+1] >= '0' && buffer[token_end+1] <= '9') || buffer[token_end+1] == '_')) token_end++;
                         int word_len = token_end - word_start + 1;
                         const char *kw = NULL;
-                        if (word_len == 3 && memcmp(buffer + word_start, "let", 3) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 3 && memcmp(buffer + word_start, "mut", 3) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 4 && memcmp(buffer + word_start, "imut", 4) == 0) kw = COLOR_CYAN;
+                        // Declarations
+                        if (word_len == 3 && memcmp(buffer + word_start, "let", 3) == 0) kw = COLOR_BLUE;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "func", 4) == 0) kw = COLOR_BLUE;
+                        else if (word_len == 5 && memcmp(buffer + word_start, "class", 5) == 0) kw = COLOR_BLUE;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "struct", 6) == 0) kw = COLOR_BLUE;
+                        else if (word_len == 5 && memcmp(buffer + word_start, "union", 5) == 0) kw = COLOR_BLUE;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "enum", 4) == 0) kw = COLOR_BLUE;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "errnum", 6) == 0) kw = COLOR_BLUE;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "import", 6) == 0) kw = COLOR_BLUE;
+                        else if (word_len == 9 && memcmp(buffer + word_start, "namespace", 9) == 0) kw = COLOR_BLUE;
+                        else if (word_len == 7 && memcmp(buffer + word_start, "typedef", 7) == 0) kw = COLOR_BLUE;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "define", 6) == 0) kw = COLOR_BLUE;
+                        // Modifiers
+                        else if (word_len == 3 && memcmp(buffer + word_start, "mut", 3) == 0) kw = COLOR_RED;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "imut", 4) == 0) kw = COLOR_RED;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "extern", 6) == 0) kw = COLOR_RED;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "pure", 4) == 0) kw = COLOR_RED;
+                        else if (word_len == 7 && memcmp(buffer + word_start, "pristine", 7) == 0) kw = COLOR_RED;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "public", 6) == 0) kw = COLOR_RED;
+                        else if (word_len == 7 && memcmp(buffer + word_start, "private", 7) == 0) kw = COLOR_RED;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "open", 4) == 0) kw = COLOR_RED;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "closed", 6) == 0) kw = COLOR_RED;
+                        else if (word_len == 5 && memcmp(buffer + word_start, "const", 5) == 0) kw = COLOR_RED;
+                        else if (word_len == 5 && memcmp(buffer + word_start, "inert", 5) == 0) kw = COLOR_RED;
+                        else if (word_len == 7 && memcmp(buffer + word_start, "reactive", 7) == 0) kw = COLOR_RED;
+                        else if (word_len == 5 && memcmp(buffer + word_start, "naked", 5) == 0) kw = COLOR_RED;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "static", 6) == 0) kw = COLOR_RED;
+                        else if (word_len == 8 && memcmp(buffer + word_start, "abstract", 8) == 0) kw = COLOR_RED;
+                        else if (word_len == 5 && memcmp(buffer + word_start, "exact", 5) == 0) kw = COLOR_RED;
+                        else if (word_len == 5 && memcmp(buffer + word_start, "pragma", 5) == 0) kw = COLOR_RED;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "method", 6) == 0) kw = COLOR_RED;
+                        else if (word_len == 9 && memcmp(buffer + word_start, "container", 9) == 0) kw = COLOR_RED;
+                        else if (word_len == 5 && memcmp(buffer + word_start, "frame", 5) == 0) kw = COLOR_RED;
+                        else if (word_len == 5 && memcmp(buffer + word_start, "total", 5) == 0) kw = COLOR_RED;
+                        else if (word_len == 7 && memcmp(buffer + word_start, "partial", 7) == 0) kw = COLOR_RED;
+                        else if (word_len == 8 && memcmp(buffer + word_start, "extended", 8) == 0) kw = COLOR_RED;
+                        else if (word_len == 8 && memcmp(buffer + word_start, "override", 8) == 0) kw = COLOR_RED;
+                        // Control flow
                         else if (word_len == 2 && memcmp(buffer + word_start, "if", 2) == 0) kw = COLOR_CYAN;
                         else if (word_len == 4 && memcmp(buffer + word_start, "else", 4) == 0) kw = COLOR_CYAN;
                         else if (word_len == 5 && memcmp(buffer + word_start, "while", 5) == 0) kw = COLOR_CYAN;
@@ -322,50 +429,35 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                         else if (word_len == 4 && memcmp(buffer + word_start, "case", 4) == 0) kw = COLOR_CYAN;
                         else if (word_len == 5 && memcmp(buffer + word_start, "break", 5) == 0) kw = COLOR_CYAN;
                         else if (word_len == 8 && memcmp(buffer + word_start, "continue", 8) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 4 && memcmp(buffer + word_start, "func", 4) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 5 && memcmp(buffer + word_start, "class", 5) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 6 && memcmp(buffer + word_start, "struct", 6) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 5 && memcmp(buffer + word_start, "union", 5) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 4 && memcmp(buffer + word_start, "enum", 4) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 6 && memcmp(buffer + word_start, "errnum", 6) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 6 && memcmp(buffer + word_start, "import", 6) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 9 && memcmp(buffer + word_start, "namespace", 9) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 4 && memcmp(buffer + word_start, "true", 4) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 5 && memcmp(buffer + word_start, "false", 5) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 4 && memcmp(buffer + word_start, "null", 4) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 6 && memcmp(buffer + word_start, "extern", 6) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 4 && memcmp(buffer + word_start, "pure", 4) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 7 && memcmp(buffer + word_start, "pristine", 7) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 6 && memcmp(buffer + word_start, "define", 6) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 7 && memcmp(buffer + word_start, "typedef", 7) == 0) kw = COLOR_CYAN;
                         else if (word_len == 2 && memcmp(buffer + word_start, "as", 2) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 8 && memcmp(buffer + word_start, "compound", 8) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 4 && memcmp(buffer + word_start, "flux", 4) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 4 && memcmp(buffer + word_start, "emit", 4) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 6 && memcmp(buffer + word_start, "typeof", 6) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 9 && memcmp(buffer + word_start, "hasmethod", 9) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 11 && memcmp(buffer + word_start, "hasattribute", 11) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 6 && memcmp(buffer + word_start, "sizeof", 6) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 7 && memcmp(buffer + word_start, "alignof", 7) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 7 && memcmp(buffer + word_start, "defined", 7) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 11 && memcmp(buffer + word_start, "iscompatible", 11) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 6 && memcmp(buffer + word_start, "public", 6) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 7 && memcmp(buffer + word_start, "private", 7) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 4 && memcmp(buffer + word_start, "open", 4) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 6 && memcmp(buffer + word_start, "closed", 6) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 5 && memcmp(buffer + word_start, "const", 5) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 5 && memcmp(buffer + word_start, "inert", 5) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 7 && memcmp(buffer + word_start, "reactive", 7) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 5 && memcmp(buffer + word_start, "naked", 5) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 6 && memcmp(buffer + word_start, "static", 6) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 8 && memcmp(buffer + word_start, "abstract", 8) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 5 && memcmp(buffer + word_start, "exact", 5) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 5 && memcmp(buffer + word_start, "pragma", 5) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 6 && memcmp(buffer + word_start, "method", 6) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 9 && memcmp(buffer + word_start, "container", 9) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 5 && memcmp(buffer + word_start, "frame", 5) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 5 && memcmp(buffer + word_start, "total", 5) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 7 && memcmp(buffer + word_start, "partial", 7) == 0) kw = COLOR_CYAN;
+                        // Literals
+                        else if (word_len == 4 && memcmp(buffer + word_start, "true", 4) == 0) kw = COLOR_MAGENTA;
+                        else if (word_len == 5 && memcmp(buffer + word_start, "false", 5) == 0) kw = COLOR_MAGENTA;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "null", 4) == 0) kw = COLOR_MAGENTA;
+                        // Built-ins
+                        else if (word_len == 8 && memcmp(buffer + word_start, "compound", 8) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "flux", 4) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "emit", 4) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "typeof", 6) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 9 && memcmp(buffer + word_start, "hasmethod", 9) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 11 && memcmp(buffer + word_start, "hasattribute", 11) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "sizeof", 6) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 7 && memcmp(buffer + word_start, "alignof", 7) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 7 && memcmp(buffer + word_start, "defined", 7) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 11 && memcmp(buffer + word_start, "iscompatible", 11) == 0) kw = COLOR_YELLOW;
+                        // Types
+                        else if (word_len == 3 && memcmp(buffer + word_start, "int", 3) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 5 && memcmp(buffer + word_start, "float", 5) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "double", 6) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "single", 6) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "bool", 4) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "void", 4) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "char", 4) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "string", 6) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 5 && memcmp(buffer + word_start, "short", 5) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "long", 4) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 8 && memcmp(buffer + word_start, "unsigned", 8) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "signed", 6) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 5 && memcmp(buffer + word_start, "usize", 5) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 6 && memcmp(buffer + word_start, "size_t", 6) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 2 && memcmp(buffer + word_start, "i8", 2) == 0) kw = COLOR_YELLOW;
@@ -376,33 +468,22 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                         else if (word_len == 3 && memcmp(buffer + word_start, "u16", 3) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 3 && memcmp(buffer + word_start, "u32", 3) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 3 && memcmp(buffer + word_start, "u64", 3) == 0) kw = COLOR_YELLOW;
-                        else if (word_len == 8 && memcmp(buffer + word_start, "extended", 8) == 0) kw = COLOR_CYAN;
-                        else if (word_len == 8 && memcmp(buffer + word_start, "override", 8) == 0) kw = COLOR_CYAN;
                         else if (word_len == 7 && memcmp(buffer + word_start, "mutable", 7) == 0) kw = COLOR_CYAN;
                         
-                        if (!kw) {
-                            if (word_len == 3 && memcmp(buffer + word_start, "int", 3) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 5 && memcmp(buffer + word_start, "float", 5) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 6 && memcmp(buffer + word_start, "double", 6) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 6 && memcmp(buffer + word_start, "single", 6) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 4 && memcmp(buffer + word_start, "bool", 4) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 4 && memcmp(buffer + word_start, "void", 4) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 4 && memcmp(buffer + word_start, "char", 4) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 6 && memcmp(buffer + word_start, "string", 6) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 5 && memcmp(buffer + word_start, "short", 5) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 4 && memcmp(buffer + word_start, "long", 4) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 8 && memcmp(buffer + word_start, "unsigned", 8) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 6 && memcmp(buffer + word_start, "signed", 6) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 5 && memcmp(buffer + word_start, "usize", 5) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 6 && memcmp(buffer + word_start, "size_t", 6) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 2 && memcmp(buffer + word_start, "i8", 2) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 3 && memcmp(buffer + word_start, "i16", 3) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 3 && memcmp(buffer + word_start, "i32", 3) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 3 && memcmp(buffer + word_start, "i64", 3) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 2 && memcmp(buffer + word_start, "u8", 2) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 3 && memcmp(buffer + word_start, "u16", 3) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 3 && memcmp(buffer + word_start, "u32", 3) == 0) kw = COLOR_YELLOW;
-                            else if (word_len == 3 && memcmp(buffer + word_start, "u64", 3) == 0) kw = COLOR_YELLOW;
+                        if (!kw && sem_ctx) {
+                            char word_buf[256];
+                            int wl = word_len < 255 ? word_len : 255;
+                            memcpy(word_buf, buffer + word_start, wl);
+                            word_buf[wl] = '\0';
+                            
+                            SemanticCtx *sem = (SemanticCtx*)sem_ctx;
+                            SemSymbol *sym = sem_symbol_lookup(sem, word_buf, NULL);
+                            if (sym) {
+                                if (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM) kw = COLOR_YELLOW;
+                                else if (sym->kind == SYM_FUNC || sym->kind == SYM_TEMPLATE) kw = COLOR_BLUE;
+                                else if (sym->kind == SYM_NAMESPACE) kw = COLOR_GREEN;
+                                else if (sym->kind == SYM_VAR) kw = COLOR_CYAN;
+                            }
                         }
                         color = kw;
                     }
@@ -423,7 +504,7 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
             if (cur_color) printf(COLOR_RESET);
             
             if (suggestion != NULL && pos == len && i == len) {
-                printf(COLOR_GRAY"%s"COLOR_RESET, suggestion + word_len);
+                printf(COLOR_GRAY "%s" COLOR_RESET, suggestion + word_len_sugg);
             }
             
             if (i < len) {
@@ -479,7 +560,7 @@ static char* get_smart_input_piped(void *arena, int cmd_count) {
     return input_buffer;
 }
 
-char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
+char* get_smart_input(void *arena, int cmd_count, void *sem_ctx, int indentation_scope) {
     if (!isatty(STDIN_FILENO)) {
         return get_smart_input_piped(arena, cmd_count);
     }
@@ -594,7 +675,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
             }
         }
 
-        redraw(base_prompt, base_prompt_no_color, input_buffer, len, pos, suggestion, word_len, &last_cursor_row);
+        redraw(base_prompt, base_prompt_no_color, input_buffer, len, pos, suggestion, word_len, &last_cursor_row, sem_ctx);
 
         int c = getchar();
 
@@ -640,10 +721,12 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx) {
                 (pos > current_line_start &&
                  get_line_indent(input_buffer, current_line_start, pos) >= (pos - current_line_start));
 
+            int cont = ends_with_incomplete_operator(input_buffer, len);
+            if (!cont) cont = needs_continuation(input_buffer, len, indentation_scope);
+
             if (paren <= 0 && bracket <= 0 && brace <= 0 && !in_str && !in_char &&
-                !ends_with_incomplete_operator(input_buffer, len) &&
-                (current_line_empty || current_indent <= base_indent)) {
-                redraw(base_prompt, base_prompt_no_color, input_buffer, len, pos, NULL, 0, &last_cursor_row);
+                !cont && (current_line_empty || current_indent <= base_indent)) {
+                redraw(base_prompt, base_prompt_no_color, input_buffer, len, pos, NULL, 0, &last_cursor_row, sem_ctx);
 
                 int total_rows = 1;
                 for(int i = 0; i < len; i++) if (input_buffer[i] == '\n') total_rows++;

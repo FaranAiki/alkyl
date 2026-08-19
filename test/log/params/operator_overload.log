@@ -17,7 +17,7 @@ entry:
   ret void
 }
 
-define %Vector @main___op_167_141_Vector_Vector(%Vector %0, %Vector %1) {
+define %Vector @main___op_168_142_Vector_Vector(%Vector %0, %Vector %1) {
 entry:
   %alloc = alloca %Vector, align 8
   store %Vector %0, ptr %alloc, align 4
@@ -50,7 +50,7 @@ entry:
   call void @Vector(ptr %alloc1, i32 30, i32 40)
   %load = load %Vector, ptr %alloc, align 4
   %load2 = load %Vector, ptr %alloc1, align 4
-  %call = call %Vector @main___op_167_141_Vector_Vector(%Vector %load, %Vector %load2)
+  %call = call %Vector @main___op_168_142_Vector_Vector(%Vector %load, %Vector %load2)
   %alloc3 = alloca %Vector, align 8
   store %Vector %call, ptr %alloc3, align 4
   %struct_gep = getelementptr inbounds nuw %Vector, ptr %alloc3, i32 0, i32 0
