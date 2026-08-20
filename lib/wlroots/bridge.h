@@ -1,3 +1,6 @@
+// TODO:
+// MAKE SURE THAT ALL OF THESE WELL DEFINED FUNCTION
+// IS WRITTEN IN ALKYL, NOT C!
 #define WLR_USE_UNSTABLE 1
 #include <pixman.h>
 #include <wayland-server-core.h>

@@ -126,7 +126,7 @@ static void insert_newline_line(char *buffer, int *len, int *pos) {
         if (buffer[i] == '{') current_brace++;
         if (buffer[i] == '}') current_brace--;
     }
-    
+
     int current_indent = 0;
     for (int i = line_start; i < *pos; i++) {
         if (buffer[i] == ' ' || buffer[i] == '\t') current_indent++;
@@ -195,8 +195,8 @@ static int ends_with_incomplete_operator(const char *buffer, int len) {
     }
 
     char last = buffer[len-1];
-    if (last == '=' || last == '+' || last == '-' || last == '*' || last == '/' || 
-        last == '%' || last == '&' || last == '|' || last == '^' || last == '<' || 
+    if (last == '=' || last == '+' || last == '-' || last == '*' || last == '/' ||
+        last == '%' || last == '&' || last == '|' || last == '^' || last == '<' ||
         last == '>' || last == '?' || last == ':' || last == '!' || last == '~') {
         if (len >= 2 && buffer[len-2] == last && (last == '+' || last == '-')) {
             return 0;
@@ -245,7 +245,7 @@ static int needs_continuation(const char *buffer, int len, int indentation_scope
         current_indent++;
         k++;
     }
-    
+
     // If the line is not just whitespace and it's indented, continue block
     if (current_indent > 0 && k <= i) {
         return 1;
@@ -304,20 +304,20 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
     printf("\r" CLEAR_LINE CLEAR_SCREEN);
 
     int base_prompt_len = strlen(base_prompt_no_color);
-    
+
     int target_row = 0;
     int target_col = 0;
-    
+
     int line_start = 0;
     int current_row = 0;
     int hl_state = 0;
-    
+
     for (int i = 0; i <= len; i++) {
         if (i == pos) {
             target_row = current_row;
             target_col = i - line_start;
         }
-        
+
         if (i == len || buffer[i] == '\n') {
             if (current_row == 0) {
                 printf("%s", base_prompt);
@@ -326,14 +326,14 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                 int padding = base_prompt_len - 4;
                 for (int p = 0; p < padding; p++) printf(" ");
             }
-            
+
             const char *cur_color = NULL;
             int j = line_start;
             while (j < i) {
                 const char *color = NULL;
                 char c = buffer[j];
                 int token_end = j;
-                
+
                 if (hl_state == 1) {
                     color = COLOR_GRAY;
                     if (c == '\n') hl_state = 0;
@@ -381,9 +381,9 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                         while (token_end + 1 < i && ((buffer[token_end+1] >= 'a' && buffer[token_end+1] <= 'z') || (buffer[token_end+1] >= 'A' && buffer[token_end+1] <= 'Z') || (buffer[token_end+1] >= '0' && buffer[token_end+1] <= '9') || buffer[token_end+1] == '_')) token_end++;
                         int word_len = token_end - word_start + 1;
                         const char *kw = NULL;
+                        // TODO: whatever the fuck is this, make this modular
                         // Declarations
                         if (word_len == 3 && memcmp(buffer + word_start, "let", 3) == 0) kw = COLOR_BLUE;
-                        else if (word_len == 4 && memcmp(buffer + word_start, "func", 4) == 0) kw = COLOR_BLUE;
                         else if (word_len == 5 && memcmp(buffer + word_start, "class", 5) == 0) kw = COLOR_BLUE;
                         else if (word_len == 6 && memcmp(buffer + word_start, "struct", 6) == 0) kw = COLOR_BLUE;
                         else if (word_len == 5 && memcmp(buffer + word_start, "union", 5) == 0) kw = COLOR_BLUE;
@@ -421,6 +421,7 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                         // Control flow
                         else if (word_len == 2 && memcmp(buffer + word_start, "if", 2) == 0) kw = COLOR_CYAN;
                         else if (word_len == 4 && memcmp(buffer + word_start, "else", 4) == 0) kw = COLOR_CYAN;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "then", 4) == 0) kw = COLOR_CYAN;
                         else if (word_len == 5 && memcmp(buffer + word_start, "while", 5) == 0) kw = COLOR_CYAN;
                         else if (word_len == 3 && memcmp(buffer + word_start, "for", 3) == 0) kw = COLOR_CYAN;
                         else if (word_len == 2 && memcmp(buffer + word_start, "in", 2) == 0) kw = COLOR_CYAN;
@@ -469,13 +470,14 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                         else if (word_len == 3 && memcmp(buffer + word_start, "u32", 3) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 3 && memcmp(buffer + word_start, "u64", 3) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 7 && memcmp(buffer + word_start, "mutable", 7) == 0) kw = COLOR_CYAN;
-                        
+                        else if (word_len == 9 && memcmp(buffer + word_start, "immutable", 9) == 0) kw = COLOR_CYAN;
+
                         if (!kw && sem_ctx) {
                             char word_buf[256];
                             int wl = word_len < 255 ? word_len : 255;
                             memcpy(word_buf, buffer + word_start, wl);
                             word_buf[wl] = '\0';
-                            
+
                             SemanticCtx *sem = (SemanticCtx*)sem_ctx;
                             SemSymbol *sym = sem_symbol_lookup(sem, word_buf, NULL);
                             if (sym) {
@@ -488,13 +490,13 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                         color = kw;
                     }
                 }
-                
+
                 if (color != cur_color) {
                     if (cur_color) printf(COLOR_RESET);
                     if (color) printf("%s", color);
                     cur_color = color;
                 }
-                
+
                 for (int k = j; k <= token_end; k++) {
                     putchar(buffer[k]);
                     if (k == pos) target_col = k - line_start;
@@ -502,37 +504,37 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                 j = token_end + 1;
             }
             if (cur_color) printf(COLOR_RESET);
-            
+
             if (suggestion != NULL && pos == len && i == len) {
                 printf(COLOR_GRAY "%s" COLOR_RESET, suggestion + word_len_sugg);
             }
-            
+
             if (i < len) {
                 printf("\n");
             }
-            
+
             hl_state = 0;
             line_start = i + 1;
             current_row++;
         }
     }
-    
+
     int total_rows = current_row;
-    
+
     int rows_up = (total_rows - 1) - target_row;
     if (rows_up > 0) {
         char seq[32];
         snprintf(seq, sizeof(seq), "\033[%dA", rows_up);
         printf("%s", seq);
     }
-    
+
     printf("\r");
     if (base_prompt_len + target_col > 0) {
         char seq[32];
         snprintf(seq, sizeof(seq), "\033[%dC", base_prompt_len + target_col);
         printf("%s", seq);
     }
-    
+
     *last_cursor_row = target_row;
     fflush(stdout);
 }
@@ -601,7 +603,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx, int indentation
         char *suggestion = NULL;
         SymbolKind suggested_kind = SYM_VAR;
         int word_start = current_line_start;
-        
+
         if (pos == len) {
             for (int i = pos - 1; i >= current_line_start; i--) {
                 if (!isalnum(input_buffer[i]) && input_buffer[i] != '_') {
@@ -615,7 +617,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx, int indentation
                     SemanticCtx *sem = (SemanticCtx*)sem_ctx;
                     SemScope *scope = sem->current_scope;
                     int after_dot = 0;
-                    
+
                     if (word_start > 0 && input_buffer[word_start - 1] == '.') {
                         after_dot = 1;
                         int prefix_start = 0;
@@ -899,7 +901,7 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx, int indentation
                                     }
                                 }
                             }
-                            
+
                             history_view_idx = found_idx;
                             if (history_view_idx == cmd_history_count) {
                                 strcpy(input_buffer, temp_buffer);
@@ -961,6 +963,6 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx, int indentation
             }
         }
     }
-    
+
     return NULL;
 }

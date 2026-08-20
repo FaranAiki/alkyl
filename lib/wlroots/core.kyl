@@ -8,7 +8,10 @@ private namespace {
 link "wayland-server";
 link "wlroots-0.18";
 
-namespace wlroots {
+// TODO: instead of 0 as void*, maybe use null!
+// and yes, when a (tainted) pointer is null in alkyl (w/ no C), it causes ErrNull
+// I guess
+export namespace wlroots {
     @c import "lib/wlroots/bridge.h"
 
     class wl_display {}
