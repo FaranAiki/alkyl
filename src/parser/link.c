@@ -20,6 +20,11 @@ static int is_system_lib(const char *name) {
     return 0;
 }
 
+/**
+ * @brief Appends pkg-config cflags and libs for a library to the compiler context.
+ * @param ctx Compiler context to update.
+ * @param lib_name Name of the library to resolve.
+ */
 void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) {
     char cmd[1024];
     char output[2048];
@@ -99,6 +104,12 @@ static ASTNode* resolve_c_import(Parser *p, const char *fname) {
     return c_nodes;
 }
 
+/**
+ * @brief Parses and caches an imported file, sharing parser state with the parent.
+ * @param p Parser context.
+ * @param fname File path to import.
+ * @return AST root node for the imported file, or NULL on error.
+ */
 ASTNode* parse_import_internal(Parser *p, const char *fname) {
    if (p->ctx) {
        ASTNode *cached = (ASTNode*)hashmap_get(&p->ctx->import_cache, fname);
@@ -146,6 +157,11 @@ ASTNode* parse_import_internal(Parser *p, const char *fname) {
    return imported_root;
 }
 
+/**
+ * @brief Parses an import statement, resolving the file path from a string or identifier.
+ * @param p Parser context.
+ * @return AST node for the import, or NULL on error.
+ */
 ASTNode* parse_import(Parser *p) {
    eat(p, TOKEN_IMPORT);
    if (p->has_error) return NULL;
@@ -206,6 +222,11 @@ ASTNode* parse_import(Parser *p) {
    return (ASTNode*)node;
 }
 
+/**
+ * @brief Parses a link statement to request a system library.
+ * @param p Parser context.
+ * @return AST node for the link statement, or NULL on error.
+ */
 ASTNode* parse_link(Parser *p) {
   eat(p, TOKEN_LINK);
   char *lib_name = NULL;
@@ -369,6 +390,11 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
     return node;
 }
 
+/**
+ * @brief Recursively resolves all import nodes in the AST and flattens them into the root list.
+ * @param p Parser context.
+ * @param root_ptr Pointer to the root AST node pointer.
+ */
 void resolve_imports(Parser *p, ASTNode **root_ptr) {
     if (!root_ptr || !*root_ptr) return;
     

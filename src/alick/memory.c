@@ -6,6 +6,11 @@
 #include "../../include/common/hashmap.h"
 
 // Helper to extract a string identifier for an AlirValue (Temp IDs or Var names)
+/**
+ * @brief Extract a string key identifying an ALIR value.
+ * @param val Value to key.
+ * @param out_key Buffer to receive the null-terminated key string.
+ */
 static void get_val_key(AlirValue *val, char *out_key) {
     if (!val) {
         out_key[0] = '\0';
@@ -22,6 +27,11 @@ static void get_val_key(AlirValue *val, char *out_key) {
 
 // Memory Safety Pass (Block-Local)
 // Detects basic Use-After-Free and Double-Free vulnerabilities within single blocks.
+/**
+ * @brief Perform block-local memory safety checks (use-after-free, double-free).
+ * @param ctx ALIR checker context.
+ * @param func Function to check.
+ */
 void alick_check_memory(AlickCtx *ctx, AlirFunction *func) {
     AlirBlock *b = func->blocks;
     

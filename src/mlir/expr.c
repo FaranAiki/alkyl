@@ -6,6 +6,13 @@
 #include "common/hashmap.h"
 #include <stdio.h>
 
+/**
+ * @brief Generate MLIR code for an expression node.
+ * @param ctx The MLIR context.
+ * @param mod The MLIR module.
+ * @param node The AST expression node.
+ * @return The generated MLIR value.
+ */
 AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node) {
     if (!node) return NULL;
 

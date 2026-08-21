@@ -7,7 +7,17 @@
 #include <stdint.h>
 #include <string.h>
 
+/**
+ * @brief Write a single byte to a binary file.
+ * @param f Open file handle.
+ * @param v Byte value to write.
+ */
 static void bw_u8(FILE *f, uint8_t v) { fwrite(&v, 1, 1, f); }
+/**
+ * @brief Write a LEB128-encoded unsigned 32-bit integer to a binary file.
+ * @param f Open file handle.
+ * @param v Value to encode and write.
+ */
 static void bw_u32(FILE *f, uint32_t v) {
     do {
         uint8_t byte = v & 0x7F;
@@ -16,8 +26,18 @@ static void bw_u32(FILE *f, uint32_t v) {
         fwrite(&byte, 1, 1, f);
     } while (v != 0);
 }
+/**
+ * @brief Write an 8-byte unsigned integer to a binary file.
+ * @param f Open file handle.
+ * @param v Value to write.
+ */
 static void bw_u64(FILE *f, uint64_t v) { fwrite(&v, 8, 1, f); }
 
+/**
+ * @brief Write a length-prefixed string to a binary file.
+ * @param f Open file handle.
+ * @param s Null-terminated string to write.
+ */
 static void bw_str(FILE *f, const char *s) {
     if (!s) { bw_u32(f, 0); return; }
     uint32_t len = strlen(s);
@@ -25,6 +45,11 @@ static void bw_str(FILE *f, const char *s) {
     if (len > 0) fwrite(s, 1, len, f);
 }
 
+/**
+ * @brief Write a VarType structure to a binary file.
+ * @param f Open file handle.
+ * @param t Type to serialize.
+ */
 static void bw_type(FILE *f, VarType t) {
     bw_u8(f, t.base);
     bw_u32(f, t.ptr_depth);
@@ -38,6 +63,11 @@ static void bw_type(FILE *f, VarType t) {
     // The spec usually lowers function types into pointers
 }
 
+/**
+ * @brief Write an AlirValue to a binary file.
+ * @param f Open file handle.
+ * @param v Value to serialize.
+ */
 static void bw_value(FILE *f, AlirValue *v) {
     if (!v) { bw_u8(f, 0xFF); return; }
     bw_u8(f, v->kind);
@@ -51,6 +81,11 @@ static void bw_value(FILE *f, AlirValue *v) {
     }
 }
 
+/**
+ * @brief Write an AlirInstruction to a binary file.
+ * @param f Open file handle.
+ * @param i Instruction to serialize.
+ */
 static void bw_inst(FILE *f, AlirInst *i) {
     bw_u32(f, i->op);
     bw_value(f, i->dest);
@@ -65,6 +100,11 @@ static void bw_inst(FILE *f, AlirInst *i) {
     bw_u32(f, i->col);
 }
 
+/**
+ * @brief Write an AlirBlock (basic block) to a binary file.
+ * @param f Open file handle.
+ * @param b Block to serialize.
+ */
 static void bw_block(FILE *f, AlirBlock *b) {
     if (!b) return;
     bw_str(f, b->label);
@@ -78,6 +118,11 @@ static void bw_block(FILE *f, AlirBlock *b) {
     while(i) { bw_inst(f, i); i = i->next; }
 }
 
+/**
+ * @brief Write an AlirFunction to a binary file.
+ * @param f Open file handle.
+ * @param fn Function to serialize.
+ */
 static void bw_func(FILE *f, AlirFunction *fn) {
     bw_str(f, fn->name);
     bw_type(f, fn->ret_type);
@@ -102,6 +147,11 @@ static void bw_func(FILE *f, AlirFunction *fn) {
     while(b) { bw_block(f, b); b = b->next; }
 }
 
+/**
+ * @brief Write an AlirStruct definition to a binary file.
+ * @param f Open file handle.
+ * @param st Struct to serialize.
+ */
 static void bw_struct(FILE *f, AlirStruct *st) {
     bw_str(f, st->name);
     bw_u32(f, st->field_count);
@@ -118,6 +168,11 @@ static void bw_struct(FILE *f, AlirStruct *st) {
     }
 }
 
+/**
+ * @brief Write an AlirGlobal variable to a binary file.
+ * @param f Open file handle.
+ * @param g Global to serialize.
+ */
 static void bw_global(FILE *f, AlirGlobal *g) {
     bw_str(f, g->name);
     bw_type(f, g->type);
@@ -128,6 +183,12 @@ static const uint8_t MAGIC2[5] = {0xfa, 0x8a, 0x11, 0xa1, 0xc1};
 static const uint8_t MAGIC[9] = {0x2f, 0x58, 0xb0, 0x4f, 0x2e, 0xc2, 0xa8, 0xee, 0x24};
 static const uint8_t VERSION = 1;
 
+/**
+ * @brief Write a complete ALIR module to a binary file.
+ * @param mod Module to serialize.
+ * @param filename Output file path.
+ * @return 0 on success, non-zero on failure.
+ */
 int alir_write_binary(AlirModule *mod, const char *filename) {
     FILE *f = fopen(filename, "wb");
     if (!f) return 1;

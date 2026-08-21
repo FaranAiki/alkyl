@@ -8,6 +8,12 @@
 #include <string.h>
 #include <stdio.h>
 
+/**
+ * @brief Allocates memory within an ALIR module's arena.
+ * @param mod ALIR module.
+ * @param size Number of bytes to allocate.
+ * @return Pointer to zeroed memory.
+ */
 void* alir_alloc(AlirModule *mod, size_t size) {
     if (mod && mod->compiler_ctx && mod->compiler_ctx->arena) {
         void *ptr = arena_alloc(mod->compiler_ctx->arena, size);
@@ -18,6 +24,12 @@ void* alir_alloc(AlirModule *mod, size_t size) {
     return ptr;
 }
 
+/**
+ * @brief Duplicates a string into an ALIR module's context (interning if available).
+ * @param mod ALIR module.
+ * @param str String to duplicate.
+ * @return Duplicated string, or NULL if str is NULL.
+ */
 char* alir_strdup(AlirModule *mod, const char *str) {
     if (!str) return NULL;
     if (mod && mod->compiler_ctx) {
@@ -26,6 +38,12 @@ char* alir_strdup(AlirModule *mod, const char *str) {
     return strdup(str);
 }
 
+/**
+ * @brief Creates a new ALIR module.
+ * @param ctx Compiler context.
+ * @param name Module name.
+ * @return Pointer to the new ALIR module.
+ */
 AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
     AlirModule *m;
     if (ctx && ctx->arena) {
@@ -44,6 +62,14 @@ AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
     return m;
 }
 
+/**
+ * @brief Adds a function to an ALIR module, or updates it if it already exists.
+ * @param mod ALIR module.
+ * @param name Function name.
+ * @param ret Return VarType.
+ * @param is_flux Non-zero if the function is a flux function.
+ * @return Pointer to the ALIR function.
+ */
  AlirFunction* alir_add_function(AlirModule *mod, const char *name, VarType ret, int is_flux) {
      debug_alir("alir_add_function: %s\n", name);
      AlirFunction *existing = hashmap_get(&mod->func_map, name);
@@ -77,6 +103,13 @@ AlirModule* alir_create_module(CompilerContext *ctx, const char *name) {
      return f;
  }
 
+/**
+ * @brief Adds a parameter to an ALIR function.
+ * @param mod ALIR module.
+ * @param func Function to add the parameter to.
+ * @param name Parameter name.
+ * @param type Parameter VarType.
+ */
 void alir_func_add_param(AlirModule *mod, AlirFunction *func, const char *name, VarType type) {
     if (streq_lit(func->name, "printf")) {
         debug_alir("printf adding param '%s' type.base=%d\n", name, type.base);
@@ -95,7 +128,13 @@ void alir_func_add_param(AlirModule *mod, AlirFunction *func, const char *name, 
     func->param_count++;
 }
 
-// Update alir_module_add_string_literal (around line 52) to use the passed VarType
+/**
+ * @brief Adds a string literal to the ALIR module's global constants, reusing if already present.
+ * @param mod ALIR module.
+ * @param content String content.
+ * @param type VarType of the string.
+ * @return ALIR value representing the string literal.
+ */
 AlirValue* alir_module_add_string_literal(AlirModule *mod, const char *content, VarType type) {
     AlirGlobal *curr = mod->globals;
     while (curr) {
@@ -125,6 +164,13 @@ static HashMap label_map;
 static AlirFunction *current_tracked_func = NULL;
 static Arena *current_tracked_arena = NULL;
 
+/**
+ * @brief Adds a new basic block to an ALIR function with an optional label hint.
+ * @param mod ALIR module.
+ * @param func Function to add the block to.
+ * @param label_hint Optional label hint for the block.
+ * @return Pointer to the new ALIR block.
+ */
 AlirBlock* alir_add_block(AlirModule *mod, AlirFunction *func, const char *label_hint) {
     Arena *arena = (mod && mod->compiler_ctx) ? mod->compiler_ctx->arena : NULL;
 
@@ -166,6 +212,11 @@ AlirBlock* alir_add_block(AlirModule *mod, AlirFunction *func, const char *label
     return b;
 }
 
+/**
+ * @brief Appends an instruction to an ALIR basic block.
+ * @param block Basic block to append to.
+ * @param inst Instruction to append.
+ */
 void alir_append_inst(AlirBlock *block, AlirInst *inst) {
     if (!block->head) {
         block->head = inst;
@@ -176,6 +227,13 @@ void alir_append_inst(AlirBlock *block, AlirInst *inst) {
     }
 }
 
+/**
+ * @brief Registers a struct type in the ALIR module.
+ * @param mod ALIR module.
+ * @param name Struct name.
+ * @param fields Linked list of struct fields.
+ * @param is_union Non-zero if this is a union.
+ */
 void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields, int is_union) {
     AlirStruct *st = alir_alloc(mod, sizeof(AlirStruct));
     debug_alir("DEBUG_REGISTER: st=%p name=%s next=%p\n", st, name, mod->structs);
@@ -200,6 +258,12 @@ void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields, 
     hashmap_put(&mod->struct_map, name, st);
 }
 
+/**
+ * @brief Finds a registered struct by name in the ALIR module.
+ * @param mod ALIR module.
+ * @param name Struct name to find.
+ * @return Pointer to the AlirStruct, or NULL if not found.
+ */
 AlirStruct* alir_find_struct(AlirModule *mod, const char *name) {
     AlirStruct *st = hashmap_get(&mod->struct_map, name);
     if (st) return st;
@@ -223,6 +287,13 @@ AlirStruct* alir_find_struct(AlirModule *mod, const char *name) {
     return NULL;
 }
 
+/**
+ * @brief Gets the index of a field within a struct.
+ * @param mod ALIR module.
+ * @param struct_name Name of the struct.
+ * @param field_name Name of the field.
+ * @return Field index, or -1 if not found.
+ */
 int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *field_name) {
     AlirStruct *st = alir_find_struct(mod, struct_name);
     if (!st) return -1;
@@ -236,6 +307,11 @@ int alir_get_field_index(AlirModule *mod, const char *struct_name, const char *f
 }
 
 // TODO change this into ENUM!
+/**
+ * @brief Returns the string representation of an ALIR opcode.
+ * @param op Opcode to convert.
+ * @return String name of the opcode.
+ */
 const char* alir_op_str(AlirOpcode op) {
     switch(op) {
         case ALIR_OP_ALLOCA: return "alloc";

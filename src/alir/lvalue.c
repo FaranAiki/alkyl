@@ -4,6 +4,12 @@
  */
 #include "alir.h"
 
+/**
+ * @brief Generate IR for an increment/decrement expression.
+ * @param ctx The ALIR context.
+ * @param id The increment/decrement AST node.
+ * @return The value before or after the operation, depending on prefix/suffix.
+ */
 AlirValue* alir_gen_inc_dec(AlirCtx *ctx, IncDecNode *id) {
     if (id->overloaded_func_name) {
         AlirValue *operand = alir_gen_expr(ctx, id->target);
@@ -49,6 +55,12 @@ AlirValue* alir_gen_inc_dec(AlirCtx *ctx, IncDecNode *id) {
 }
 
 
+/**
+ * @brief Generate IR for a being (endian cast) expression.
+ * @param ctx The ALIR context.
+ * @param bn The being AST node.
+ * @return The bitcasted result value.
+ */
 AlirValue* alir_gen_being(AlirCtx *ctx, BeingNode *bn) {
     AlirValue *op_val = alir_gen_expr(ctx, bn->operand);
     AlirValue *res = new_temp(ctx, bn->var_type);
@@ -60,6 +72,12 @@ AlirValue* alir_gen_being(AlirCtx *ctx, BeingNode *bn) {
     return res;
 }
 
+/**
+ * @brief Generate IR for a type cast expression.
+ * @param ctx The ALIR context.
+ * @param cn The cast AST node.
+ * @return The casted result value, or NULL on failure.
+ */
 AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
     if (cn->custom_cast_method) {
         VarType obj_t = sem_get_node_type(ctx->sem, cn->operand);
@@ -130,6 +148,12 @@ AlirValue* alir_gen_cast(AlirCtx *ctx, CastNode *cn) {
     return dest;
 }
 
+/**
+ * @brief Generate IR for a method call expression.
+ * @param ctx The ALIR context.
+ * @param mc The method call AST node.
+ * @return The return value of the method, or NULL on failure.
+ */
 AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
     VarType obj_t = sem_get_node_type(ctx->sem, mc->object);
     if (obj_t.base == TYPE_UNKNOWN && mc->object->type == NODE_VAR_REF) {
@@ -398,6 +422,12 @@ AlirValue* alir_gen_method_call(AlirCtx *ctx, MethodCallNode *mc) {
 }
 
 // Lowers an array literal (e.g. [1, 2, 3])
+/**
+ * @brief Lower an array literal to stack-allocated IR instructions.
+ * @param ctx The ALIR context.
+ * @param node The array literal AST node.
+ * @return Pointer to the stack-allocated array.
+ */
 AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     ArrayLitNode *al = (ArrayLitNode*)node;
 
@@ -451,6 +481,12 @@ AlirValue* alir_gen_array_lit(AlirCtx *ctx, ASTNode *node) {
     return stack_ptr;
 }
 
+/**
+ * @brief Generate IR for any expression AST node by dispatching on node type.
+ * @param ctx The ALIR context.
+ * @param node The expression AST node.
+ * @return The computed ALIR value, or NULL on failure.
+ */
 AlirValue* alir_gen_expr(AlirCtx *ctx, ASTNode *node) {
     if (!node) return NULL;
 

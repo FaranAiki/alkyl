@@ -8,6 +8,11 @@
 #include <string.h>
 #include <stdio.h>
 
+/**
+ * @brief Initializes an LLVM code generation context.
+ * @param mod The ALIR module to generate code for.
+ * @return A pointer to the initialized CodegenCtx, or NULL on failure.
+ */
 CodegenCtx* codegen_init(AlirModule *mod) {
     CodegenCtx *ctx = mod->compiler_ctx && mod->compiler_ctx->arena ? arena_alloc(mod->compiler_ctx->arena, sizeof(CodegenCtx)) : calloc(1, sizeof(CodegenCtx));
     if(ctx) memset(ctx, 0, sizeof(CodegenCtx));
@@ -28,6 +33,10 @@ CodegenCtx* codegen_init(AlirModule *mod) {
     return ctx;
 }
 
+/**
+ * @brief Disposes of an LLVM code generation context.
+ * @param ctx The codegen context to dispose.
+ */
 void codegen_dispose(CodegenCtx *ctx) {
     if (!ctx) return;
     LLVMDisposeBuilder(ctx->builder);
@@ -37,6 +46,12 @@ void codegen_dispose(CodegenCtx *ctx) {
     if (!ctx->arena) free(ctx);
 }
 
+/**
+ * @brief Maps an Alkyl variable type to its corresponding LLVM type.
+ * @param ctx The codegen context.
+ * @param t The variable type to convert.
+ * @return The corresponding LLVMTypeRef.
+ */
 LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
     LLVMTypeRef base = NULL;
 
@@ -131,6 +146,12 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
     return base;
 }
 
+/**
+ * @brief Stores an LLVM value in the codegen context's value or temp maps.
+ * @param ctx The codegen context.
+ * @param v The ALIR value to associate with the LLVM value.
+ * @param llvm_val The LLVM value to store.
+ */
 void set_llvm_value(CodegenCtx *ctx, AlirValue *v, LLVMValueRef llvm_val) {
     if (!v) return;
     if (v->kind == ALIR_VAL_TEMP) {
@@ -142,6 +163,12 @@ void set_llvm_value(CodegenCtx *ctx, AlirValue *v, LLVMValueRef llvm_val) {
     }
 }
 
+/**
+ * @brief Retrieves the LLVM value associated with an ALIR value.
+ * @param ctx The codegen context.
+ * @param v The ALIR value to look up.
+ * @return The corresponding LLVMValueRef, or NULL if not found.
+ */
 LLVMValueRef get_llvm_value(CodegenCtx *ctx, AlirValue *v) {
     if (!v) return NULL;
 
@@ -203,6 +230,11 @@ LLVMValueRef get_llvm_value(CodegenCtx *ctx, AlirValue *v) {
     }
 }
 
+/**
+ * @brief Generates the full LLVM module from the ALIR module.
+ * @param ctx The codegen context.
+ * @return The generated LLVM module reference.
+ */
 LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
     // 1. Pre-declare Structs (Opaque pass to resolve cross references)
     AlirStruct *st = ctx->alir_mod->structs;

@@ -5,6 +5,11 @@
 #include "semantic.h"
 
 // TODO check for in
+/**
+ * @brief Semantic-check the loop body and iterator variable of a for-in statement.
+ * @param ctx Semantic context.
+ * @param node For-in AST node to check.
+ */
 void sem_check_for_in(SemanticCtx *ctx, ASTNode *node) {
     ForInNode *fn = (ForInNode*)node;
     sem_check_expr(ctx, fn->collection);
@@ -73,6 +78,11 @@ void sem_check_for_in(SemanticCtx *ctx, ASTNode *node) {
     ctx->in_loop--;
 }
 
+/**
+ * @brief Semantic-check a unary operator expression, including operator overloading.
+ * @param ctx Semantic context.
+ * @param node Unary operator AST node.
+ */
 void sem_check_unary_op_switch(SemanticCtx *ctx, ASTNode *node) {
     UnaryOpNode *un = (UnaryOpNode*)node;
     sem_check_expr(ctx, un->operand);
@@ -117,6 +127,11 @@ void sem_check_unary_op_switch(SemanticCtx *ctx, ASTNode *node) {
     sem_set_node_type(ctx, node, t);
 }
 
+/**
+ * @brief Semantic-check a variable reference expression.
+ * @param ctx Semantic context.
+ * @param node Variable reference AST node.
+ */
 void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
     VarRefNode *ref = (VarRefNode*)node;
 
@@ -199,6 +214,11 @@ void sem_check_var_ref(SemanticCtx *ctx, ASTNode *node) {
     sem_set_node_type(ctx, node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
 }
 
+/**
+ * @brief Semantic-check an index/array access expression, including union and trait access.
+ * @param ctx Semantic context.
+ * @param node Index access AST node.
+ */
 void sem_check_index_access(SemanticCtx *ctx, ASTNode *node) {
   debug_semantic("sem_check_index_access type base: %d, array_size: %d\n", sem_get_node_type(ctx, ((IndexAccessNode*)node)->target).base, sem_get_node_type(ctx, ((IndexAccessNode*)node)->target).array_size);
     IndexAccessNode *aa = (IndexAccessNode*)node;

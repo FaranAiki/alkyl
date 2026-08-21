@@ -13,6 +13,11 @@
 #include <dlfcn.h>
 #endif
 
+/**
+ * @brief Evaluate a CALL instruction in the MetalirVM.
+ * @param ctx The VM execution context.
+ * @param inst The ALIR instruction to evaluate.
+ */
 void vm_eval_call(VMContext *ctx, AlirInst *inst) {
     switch(inst->op) {
 case ALIR_OP_CALL: {

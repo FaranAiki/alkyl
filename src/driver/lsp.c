@@ -14,6 +14,11 @@
 
 // A minimal LSP server that implements Semantic Tokens for Vim/Neovim
 
+/**
+ * @brief Read an entire file into a malloc'd buffer.
+ * @param path Path to the file.
+ * @return The file contents, or NULL on error.
+ */
 static char* read_file_lsp(const char *path) {
     FILE *f = fopen(path, "rb");
     if (!f) return NULL;
@@ -29,6 +34,12 @@ static char* read_file_lsp(const char *path) {
     return buf;
 }
 
+/**
+ * @brief Generate LSP semantic tokens for a source file.
+ * @param filepath Path to the source file.
+ * @param out_data Output array of token data.
+ * @param out_len Output length of the token array.
+ */
 static void generate_semantic_tokens(const char *filepath, int **out_data, int *out_len) {
     char *code = read_file_lsp(filepath);
     if (!code) {
@@ -135,6 +146,10 @@ static void generate_semantic_tokens(const char *filepath, int **out_data, int *
 }
 
 
+/**
+ * @brief Read the Content-Length header from LSP stdin.
+ * @param length Output variable for the content length.
+ */
 static void read_content_length(int *length) {
     *length = 0;
     char buffer[256];
@@ -151,12 +166,19 @@ static void read_content_length(int *length) {
     }
 }
 
+/**
+ * @brief Send an LSP JSON response to stdout.
+ * @param json_response The JSON response string.
+ */
 static void send_response(const char *json_response) {
     int len = strlen(json_response);
     fprintf(stdout, "Content-Length: %d\r\n\r\n%s", len, json_response);
     fflush(stdout);
 }
 
+/**
+ * @brief Start the Alkyl LSP server main loop.
+ */
 void start_lsp_server(void) {
     fprintf(stderr, "Starting Alkyl LSP server...\n");
     Arena lsp_arena;

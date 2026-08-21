@@ -4,6 +4,11 @@
  */
 #include "vm_internal.h"
 
+/**
+ * @brief Evaluate a flow-control instruction in the MetalirVM.
+ * @param ctx The VM execution context.
+ * @param inst The ALIR instruction to evaluate.
+ */
 void vm_eval_flow(VMContext *ctx, AlirInst *inst) {
     switch(inst->op) {
 case ALIR_OP_JUMP: {

@@ -4,6 +4,12 @@
  */
 #include "semantic.h"
 
+/**
+ * @brief Resolve a method call on a class object, searching class members and traits.
+ * @param ctx Semantic context.
+ * @param node Method call AST node.
+ * @return 1 if the method was found and resolved, 0 otherwise.
+ */
 int sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
     VarType obj_type = sem_get_node_type(ctx, node->object);
 
@@ -190,6 +196,15 @@ int sem_lookup_class_call(SemanticCtx *ctx, MethodCallNode *node) {
     return 0;
 }
 
+/**
+ * @brief Select the best overloaded function matching the given arguments.
+ * @param ctx Semantic context.
+ * @param args Pointer to the argument linked list (may be reordered).
+ * @param out_arg_count Optional output parameter receiving the matched argument count.
+ * @param first_sym First overload symbol to search.
+ * @param err_node AST node used for error reporting.
+ * @return Pointer to the best matching symbol, or NULL if none found.
+ */
 SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_count, SemSymbol *first_sym, ASTNode *err_node) {
     int arg_count = 0;
     ASTNode *curr_arg = *args;

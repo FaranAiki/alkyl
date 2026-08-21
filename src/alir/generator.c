@@ -8,6 +8,12 @@
 #include <stdio.h>
 
 // Loop Stack
+/**
+ * @brief Push a loop context onto the loop stack for break/continue handling.
+ * @param ctx The ALIR context.
+ * @param cont The continue-target block.
+ * @param brk The break-target block.
+ */
 void push_loop(AlirCtx *ctx, AlirBlock *cont, AlirBlock *brk) {
     AlirCtx *node = alir_alloc(ctx->module, sizeof(AlirCtx));
     node->loop_continue = ctx->loop_continue;
@@ -19,6 +25,10 @@ void push_loop(AlirCtx *ctx, AlirBlock *cont, AlirBlock *brk) {
     ctx->loop_break = brk;
 }
 
+/**
+ * @brief Pop the current loop context from the loop stack.
+ * @param ctx The ALIR context.
+ */
 void pop_loop(AlirCtx *ctx) {
     if (!ctx->loop_parent) return;
     AlirCtx *node = ctx->loop_parent;
@@ -28,6 +38,11 @@ void pop_loop(AlirCtx *ctx) {
 }
 
 // Helper to check if an instruction is a block terminator
+/**
+ * @brief Check if an opcode is a block terminator.
+ * @param op The opcode to check.
+ * @return 1 if terminator, 0 otherwise.
+ */
 int is_terminator(AlirOpcode op) {
     return op == ALIR_OP_RET ||
            op == ALIR_OP_JUMP ||
@@ -36,6 +51,12 @@ int is_terminator(AlirOpcode op) {
 }
 
 // Helper to extract constant integer from AST node (Literals or Enum Members)
+/**
+ * @brief Evaluate an AST node as a constant integer at compile time.
+ * @param ctx The ALIR context.
+ * @param node The AST node to evaluate.
+ * @return The constant integer value, or -42 on failure.
+ */
 long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
     if (!node) return 0;
 
@@ -100,6 +121,12 @@ long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
     return -42; // Fallback / Error
 }
 
+/**
+ * @brief Build the field list for a struct, inheriting from parent classes and traits.
+ * @param ctx The ALIR context.
+ * @param cn The class AST node.
+ * @param st The ALIR struct descriptor to populate.
+ */
 void build_struct_fields(AlirCtx *ctx, ClassNode *cn, AlirStruct *st) {
     if (st->field_count != -1) return; // Already built
 
@@ -178,6 +205,12 @@ void build_struct_fields(AlirCtx *ctx, ClassNode *cn, AlirStruct *st) {
     st->field_count = idx;
 }
 
+/**
+ * @brief Pass 1: walk the AST and register all classes and enums in the module.
+ * @param ctx The ALIR context.
+ * @param n Current AST node.
+ * @param current_ns Current namespace prefix.
+ */
 void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
     while(n) {
         if (n->type == NODE_CLASS) {
@@ -239,6 +272,13 @@ void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
     }
 }
 
+/**
+ * @brief Pass 2: walk the AST and populate struct field layouts.
+ * @param ctx The ALIR context.
+ * @param root Root AST node.
+ * @param n Current AST node.
+ * @param current_ns Current namespace prefix.
+ */
 void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current_ns) {
     while(n) {
         if (n->type == NODE_CLASS) {
@@ -283,6 +323,11 @@ void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current
     }
 }
 
+/**
+ * @brief Scan the AST root, register all classes, and populate struct fields.
+ * @param ctx The ALIR context.
+ * @param root Root AST node.
+ */
 void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root) {
     hashmap_init(&ctx->class_map, ctx->module->compiler_ctx ? ctx->module->compiler_ctx->arena : NULL, 64);
     pass1_register(ctx, root, NULL);
@@ -290,6 +335,11 @@ void alir_scan_and_register_classes(AlirCtx *ctx, ASTNode *root) {
 }
 
 
+/**
+ * @brief Generate IR for a switch statement, emitting cascading equality branches.
+ * @param ctx The ALIR context.
+ * @param sn The switch AST node.
+ */
 void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
     AlirValue *cond = alir_gen_expr(ctx, sn->condition);
     if (!cond) cond = alir_const_int(ctx->module, 0); // Safety net for unresolvable conditions
@@ -410,6 +460,12 @@ void alir_gen_switch(AlirCtx *ctx, SwitchNode *sn) {
 
 // This is for the implicit constructor
 // TODO learn this
+/**
+ * @brief Generate an implicit constructor for a class that has no explicit init.
+ * @param ctx The ALIR context.
+ * @param cn The class AST node.
+ * @param fqn Fully qualified class name.
+ */
 void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn, const char *fqn) {
     AlirFunction *af = alir_add_function(ctx->module, fqn, (VarType){TYPE_VOID, 0}, 0);
     ctx->current_func = af;
@@ -475,6 +531,13 @@ void alir_gen_implicit_constructor(AlirCtx *ctx, ClassNode *cn, const char *fqn)
 }
 
 // Emits inherited methods from parent and traits down to the derived class scope
+/**
+ * @brief Recursively emit inherited methods from parent classes and traits into the derived class.
+ * @param ctx The ALIR context.
+ * @param cn The source class to inherit from.
+ * @param target_class_fqn Fully qualified name of the target class.
+ * @param target_node The target class AST node.
+ */
 void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_class_fqn, ClassNode *target_node) {
     if (!cn) return;
 
@@ -543,6 +606,12 @@ void alir_gen_inherited_methods(AlirCtx *ctx, ClassNode *cn, const char *target_
 }
 
 // Deeply scan AST for Class/Methods and Standard Functions
+/**
+ * @brief Recursively generate ALIR functions for all nodes in the AST.
+ * @param ctx The ALIR context.
+ * @param root Root AST node.
+ * @param current_ns Current namespace prefix.
+ */
 void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *current_ns) {
     ASTNode *curr = root;
     while(curr) {
@@ -628,6 +697,12 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
     }
 }
 
+/**
+ * @brief Run the full ALIR generation pipeline over the AST.
+ * @param sem The semantic context.
+ * @param root Root AST node.
+ * @return The generated ALIR module.
+ */
 AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
     AlirCtx ctx;
     memset(&ctx, 0, sizeof(AlirCtx));

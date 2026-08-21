@@ -13,6 +13,11 @@ LLVMValueRef translate_misc(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
 #include "../../include/codegen_llvm/translate.h"
 #include "../semantic/semantic.h"
 
+/**
+ * @brief Translate a single ALIR instruction to LLVM IR.
+ * @param ctx Code generation context.
+ * @param inst ALIR instruction to translate.
+ */
 void translate_inst(CodegenCtx *ctx, AlirInst *inst) {
     LLVMValueRef op1 = get_llvm_value(ctx, inst->op1);
     LLVMValueRef op2 = get_llvm_value(ctx, inst->op2);

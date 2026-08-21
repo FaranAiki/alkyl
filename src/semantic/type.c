@@ -7,6 +7,13 @@
 int sem_count_required_class_fields(SemanticCtx *ctx, SemSymbol *sym);
 #include <stdio.h>
 
+/**
+ * @brief Emit informational hints for implicit casts between char and string types.
+ * @param ctx Semantic context.
+ * @param node AST node involved in the cast.
+ * @param dest Destination type.
+ * @param src Source type.
+ */
 void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarType src) {
     int dest_is_str = (dest.base == TYPE_CLASS && dest.class_name && streq_lit(dest.class_name, "string") && dest.ptr_depth == 0);
     int src_is_char = (src.base == TYPE_CHAR && (src.ptr_depth > 0 || src.array_size > 0));
@@ -30,6 +37,12 @@ void sem_check_implicit_cast(SemanticCtx *ctx, ASTNode *node, VarType dest, VarT
     }
 }
 
+/**
+ * @brief Type-check a variable declaration, including initializer and scope registration.
+ * @param ctx Semantic context.
+ * @param node Variable declaration AST node.
+ * @param register_sym Non-zero to register the symbol in the current scope.
+ */
 void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
     if (node->is_array && node->var_type.ptr_depth == 0) {
         ASTNode *dim = node->array_size;
@@ -221,6 +234,12 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
     }
 }
 
+/**
+ * @brief Check whether an AST node represents a mutable lvalue.
+ * @param ctx Semantic context.
+ * @param node AST node to check.
+ * @return 1 if the node is a mutable lvalue, 0 otherwise.
+ */
 static bool sem_is_lvalue_mutable(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return true;
     if (node->type == NODE_VAR_REF) {
@@ -245,6 +264,11 @@ static bool sem_is_lvalue_mutable(SemanticCtx *ctx, ASTNode *node) {
     return true;
 }
 
+/**
+ * @brief Type-check an assignment statement.
+ * @param ctx Semantic context.
+ * @param node Assignment AST node.
+ */
 void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
     sem_check_expr(ctx, node->value);
     VarType rhs_type = sem_get_node_type(ctx, node->value);
@@ -553,18 +577,38 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
 }
 }
 
+/**
+ * @brief Check whether a type is numeric (int, long, single, double, etc.).
+ * @param t Type to check.
+ * @return 1 if numeric, 0 otherwise.
+ */
 int is_numeric(VarType t) {
     return ((t.base >= TYPE_INT && t.base <= TYPE_LONG_DOUBLE) || t.base == TYPE_ENUM) && t.ptr_depth == 0;
 }
 
+/**
+ * @brief Check whether a type is integer.
+ * @param t Type to check.
+ * @return 1 if integer, 0 otherwise.
+ */
 int is_integer(VarType t) {
     return ((t.base >= TYPE_INT && t.base <= TYPE_CHAR) || t.base == TYPE_ENUM) && t.ptr_depth == 0;
 }
 
+/**
+ * @brief Check whether a type is bool.
+ * @param t Type to check.
+ * @return 1 if bool, 0 otherwise.
+ */
 int is_bool(VarType t) {
     return (t.base == TYPE_BOOL && t.ptr_depth == 0);
 }
 
+/**
+ * @brief Check whether a type is a pointer or array.
+ * @param t Type to check.
+ * @return 1 if pointer/array/string/vector or function pointer, 0 otherwise.
+ */
 int is_pointer(VarType t) {
     return t.ptr_depth > 0 || t.array_size > 0 || (t.base == TYPE_CLASS && t.class_name && (streq_lit(t.class_name, "string") || streq_lit(t.class_name, "vector"))) || t.is_func_ptr;
 }

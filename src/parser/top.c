@@ -10,6 +10,11 @@
 Token parser_peek_token_n(Parser *p, int offset);
 
 // TODO modularize this
+/**
+ * @brief Applies an implicit return to the last expression in a function body.
+ * @param p Parser context.
+ * @param body_ptr Pointer to the linked list of body statements.
+ */
 void apply_implicit_return(Parser *p, ASTNode **body_ptr) {
     if (!p->settings.allow_implicit_return || !body_ptr || !*body_ptr) return;
     ASTNode *last = *body_ptr;
@@ -130,6 +135,12 @@ static ASTNode* parse_single_extern(Parser *p, int modifiers) {
   return (ASTNode*)node;
 }
 
+/**
+ * @brief Parses an extern declaration or block of extern declarations.
+ * @param p Parser context.
+ * @param modifiers Pre-parsed modifier flags.
+ * @return AST node for the extern declaration, or NULL on error.
+ */
 ASTNode* parse_extern(Parser *p, int modifiers) {
   eat(p, TOKEN_EXTERN);
 
@@ -161,6 +172,12 @@ ASTNode* parse_extern(Parser *p, int modifiers) {
 }
 
 
+/**
+ * @brief Parses a compound type definition with type parameters and optional body.
+ * @param p Parser context.
+ * @param modifiers Pre-parsed modifier flags.
+ * @return AST node for the compound, or NULL on error.
+ */
 ASTNode* parse_compound(Parser *p, int modifiers) {
   int line = p->current_token.line;
   int col = p->current_token.col;
@@ -258,6 +275,11 @@ ASTNode* parse_compound(Parser *p, int modifiers) {
 
 ASTNode* parse_top_level_internal(Parser *p);
 
+/**
+ * @brief Parses a top-level declaration, attaching an optional reason string.
+ * @param p Parser context.
+ * @return AST node for the declaration, or NULL.
+ */
 ASTNode* parse_top_level(Parser *p) {
     char *reason_str = NULL;
     if (p->current_token.type == TOKEN_REASON) {
@@ -287,6 +309,11 @@ ASTNode* parse_func_def_after_type(Parser *p, int modifiers, VarType vtype, int 
 // Parses `errnum [ErrA, ErrB, ...]` which MUST be immediately followed by a
 // function definition (no semicolon). The error set is attached to that
 // function, marking its return type as tainted and recording the error names.
+/**
+ * @brief Parses an errnum declaration attached to the following function.
+ * @param p Parser context.
+ * @return AST node for the annotated function, or NULL on error.
+ */
 ASTNode* parse_errnum(Parser *p) {
     int line = p->current_token.line;
     int col = p->current_token.col;
@@ -358,6 +385,11 @@ ASTNode* parse_errnum(Parser *p) {
     return fn;
 }
 
+/**
+ * @brief Core implementation for parsing any top-level construct.
+ * @param p Parser context.
+ * @return AST node for the construct, or NULL.
+ */
 ASTNode* parse_top_level_internal(Parser *p) {
   if (p->current_token.type == TOKEN_SEMICOLON) {
       eat_semi(p);
@@ -944,6 +976,16 @@ ASTNode* parse_top_level_internal(Parser *p) {
 // Parses a function definition given an already-parsed return type.
 // Used both for normal function definitions and for functions decorated
 // with an attached `errnum [...]` error set.
+/**
+ * @brief Parses a function definition given the return type and modifiers.
+ * @param p Parser context.
+ * @param modifiers Pre-parsed modifier flags.
+ * @param vtype Parsed return type.
+ * @param line Source line of the definition.
+ * @param col Source column of the definition.
+ * @param is_flux Whether the function is a flux function.
+ * @return AST node for the function definition, or NULL on error.
+ */
 ASTNode* parse_func_def_after_type(Parser *p, int modifiers, VarType vtype, int line, int col, int is_flux) {
   char *name = NULL;
   if (p->current_token.type == TOKEN_PREFOP || p->current_token.type == TOKEN_INFOP || p->current_token.type == TOKEN_SUFFOP ||

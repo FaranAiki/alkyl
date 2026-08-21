@@ -1,5 +1,11 @@
 #include "alir.h"
 
+/**
+ * @brief Generate the address of a variable reference, handling class members and globals.
+ * @param ctx The ALIR context.
+ * @param node The variable reference AST node.
+ * @return Pointer to the variable, or NULL on failure.
+ */
 AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
     VarRefNode *vn = (VarRefNode*)node;
     if (vn->is_class_member) {
@@ -141,6 +147,12 @@ AlirValue* alir_gen_addr_var_ref(AlirCtx *ctx, ASTNode *node) {
     return NULL;
 }
 
+/**
+ * @brief Generate the address of a member access expression.
+ * @param ctx The ALIR context.
+ * @param node The member access AST node.
+ * @return Pointer to the member field, or NULL on failure.
+ */
 AlirValue* alir_gen_addr_member_access(AlirCtx *ctx, ASTNode *node) {
     MemberAccessNode *ma = (MemberAccessNode*)node;
     VarType obj_t = sem_get_node_type(ctx->sem, ma->object);
@@ -226,6 +238,12 @@ AlirValue* alir_gen_addr_member_access(AlirCtx *ctx, ASTNode *node) {
     return res;
 }
 
+/**
+ * @brief Generate the address of any addressable AST node.
+ * @param ctx The ALIR context.
+ * @param node The AST node.
+ * @return Pointer value, or NULL if the node is not addressable.
+ */
 AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
     if (!node) return NULL;
 
@@ -343,6 +361,12 @@ AlirValue* alir_gen_addr(AlirCtx *ctx, ASTNode *node) {
 
 
 // TODO add this for literal
+/**
+ * @brief Generate an ALIR constant value from a literal node.
+ * @param ctx The ALIR context.
+ * @param ln The literal AST node.
+ * @return Constant ALIR value.
+ */
 AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
     if (ln->var_type.ptr_depth == 0 && ln->var_type.array_size == 0) {
         switch (ln->var_type.base) {
@@ -404,6 +428,12 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
     return alir_const_int(ctx->module, 0);
 }
 
+/**
+ * @brief Generate IR for a variable reference expression, loading its value.
+ * @param ctx The ALIR context.
+ * @param vn The variable reference AST node.
+ * @return Loaded value, or NULL on failure.
+ */
 AlirValue* alir_gen_var_ref(AlirCtx *ctx, VarRefNode *vn) {
     if (vn->is_error_id) {
         return alir_const_int(ctx->module, vn->error_id);

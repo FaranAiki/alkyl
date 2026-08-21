@@ -13,6 +13,11 @@ typedef struct {
     int is_float;
 } EvalVal;
 
+/**
+ * @brief Extract a constant value from an ALIR value for pure-function evaluation.
+ * @param v The ALIR value.
+ * @return The evaluation value wrapper.
+ */
 static EvalVal get_val(AlirValue *v) {
     EvalVal res = {0};
     if (!v) return res;
@@ -29,6 +34,15 @@ static EvalVal get_val(AlirValue *v) {
     return res;
 }
 
+/**
+ * @brief Evaluate a pure function at compile time with constant arguments.
+ * @param module The ALIR module.
+ * @param func The pure function to evaluate.
+ * @param args Constant argument values.
+ * @param arg_count Number of arguments.
+ * @param ret_type Expected return type.
+ * @return The evaluation result.
+ */
 static EvalVal eval_pure_function_impl(AlirModule *module, AlirFunction *func, AlirValue **args, int arg_count, VarType ret_type) {
     (void)module;
     EvalVal res = {0};
@@ -82,6 +96,15 @@ static EvalVal eval_pure_function_impl(AlirModule *module, AlirFunction *func, A
     return res;
 }
 
+/**
+ * @brief Evaluate a pure function at compile time and return a ConstVal.
+ * @param module The ALIR module.
+ * @param func The pure function to evaluate.
+ * @param args Constant argument values.
+ * @param arg_count Number of arguments.
+ * @param ret_type Expected return type.
+ * @return The constant result wrapper.
+ */
 ConstVal eval_pure_function(AlirModule *module, AlirFunction *func, AlirValue **args, int arg_count, VarType ret_type) {
     EvalVal ev = eval_pure_function_impl(module, func, args, arg_count, ret_type);
     ConstVal res = {0};

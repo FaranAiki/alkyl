@@ -7,12 +7,22 @@
 #include <string.h>
 #include <ctype.h>
 
+/**
+ * @brief Initialize a used-set structure.
+ * @param set The used set to initialize.
+ */
 static void used_set_init(UsedSet *set) {
     set->names = NULL;
     set->count = 0;
     set->capacity = 0;
 }
 
+/**
+ * @brief Add a name to a used set.
+ * @param arena Arena allocator.
+ * @param set The used set.
+ * @param name The name to add.
+ */
 static void used_set_add(Arena *arena, UsedSet *set, const char *name) {
     if (!name) return;
     for (int i = 0; i < set->count; i++) {
@@ -30,6 +40,12 @@ static void used_set_add(Arena *arena, UsedSet *set, const char *name) {
     set->names[set->count++] = arena_strdup(arena, name);
 }
 
+/**
+ * @brief Check if a name is in a used set.
+ * @param set The used set.
+ * @param name The name to check.
+ * @return 1 if present, 0 otherwise.
+ */
 static int used_set_has(const UsedSet *set, const char *name) {
     if (!name) return 0;
     for (int i = 0; i < set->count; i++) {
@@ -38,12 +54,21 @@ static int used_set_has(const UsedSet *set, const char *name) {
     return 0;
 }
 
+/**
+ * @brief Free a used set (reset fields).
+ * @param set The used set to free.
+ */
 static void used_set_free(UsedSet *set) {
     set->names = NULL;
     set->count = 0;
     set->capacity = 0;
 }
 
+/**
+ * @brief Collect all function names referenced by CALL instructions.
+ * @param module The ALIR module.
+ * @param called Output used set of called function names.
+ */
 static void collect_called_functions(AlirModule *module, UsedSet *called) {
     Arena *arena = module->compiler_ctx ? module->compiler_ctx->arena : NULL;
     AlirFunction *f = module->functions;
@@ -77,6 +102,12 @@ static void collect_called_functions(AlirModule *module, UsedSet *called) {
     }
 }
 
+/**
+ * @brief Add a struct type name to the used-struct set if it is a class type.
+ * @param arena Arena allocator.
+ * @param used_structs The used struct set.
+ * @param type The type to check.
+ */
 static void check_type_for_struct(Arena *arena, UsedSet *used_structs, VarType *type) {
     if (!type) return;
     if (type->base == TYPE_CLASS && type->class_name) {
@@ -85,6 +116,12 @@ static void check_type_for_struct(Arena *arena, UsedSet *used_structs, VarType *
     }
 }
 
+/**
+ * @brief Check if a struct is considered used by name or suffix.
+ * @param used_structs The used struct set.
+ * @param st_name The struct name to check.
+ * @return True if the struct is used.
+ */
 static bool is_struct_used(UsedSet *used_structs, const char *st_name) {
     if (used_set_has(used_structs, st_name)) return true;
     const char *dot = strrchr(st_name, '.');
@@ -94,6 +131,11 @@ static bool is_struct_used(UsedSet *used_structs, const char *st_name) {
     return false;
 }
 
+/**
+ * @brief Collect all struct types referenced in a module.
+ * @param module The ALIR module.
+ * @param used_structs Output used struct set.
+ */
 static void collect_used_structs(AlirModule *module, UsedSet *used_structs) {
     Arena *arena = module->compiler_ctx ? module->compiler_ctx->arena : NULL;
 
@@ -150,6 +192,11 @@ static void collect_used_structs(AlirModule *module, UsedSet *used_structs) {
     } while (changed);
 }
 
+/**
+ * @brief Collect all global variable names referenced in a module.
+ * @param module The ALIR module.
+ * @param used_globals Output used globals set.
+ */
 static void collect_used_globals(AlirModule *module, UsedSet *used_globals) {
     Arena *arena = module->compiler_ctx ? module->compiler_ctx->arena : NULL;
     AlirFunction *f = module->functions;
@@ -182,6 +229,11 @@ static void collect_used_globals(AlirModule *module, UsedSet *used_globals) {
     }
 }
 
+/**
+ * @brief Build the set of functions that are actually used (called or referenced).
+ * @param module The ALIR module.
+ * @param used_funcs Output used function set.
+ */
 static void build_used_function_set(AlirModule *module, UsedSet *used_funcs) {
     Arena *arena = module->compiler_ctx ? module->compiler_ctx->arena : NULL;
     UsedSet called;
@@ -205,6 +257,10 @@ static void build_used_function_set(AlirModule *module, UsedSet *used_funcs) {
     used_set_free(&called);
 }
 
+/**
+ * @brief Remove unused functions from a module.
+ * @param module The ALIR module.
+ */
 void optlir_remove_unused_function(AlirModule *module) {
     UsedSet used_funcs;
     used_set_init(&used_funcs);
@@ -223,6 +279,10 @@ void optlir_remove_unused_function(AlirModule *module) {
     used_set_free(&used_funcs);
 }
 
+/**
+ * @brief Remove unused structs from a module.
+ * @param module The ALIR module.
+ */
 void optlir_remove_unused_struct(AlirModule *module) {
     UsedSet used_structs;
     used_set_init(&used_structs);
@@ -241,6 +301,10 @@ void optlir_remove_unused_struct(AlirModule *module) {
     used_set_free(&used_structs);
 }
 
+/**
+ * @brief Remove unused global variables from a module.
+ * @param module The ALIR module.
+ */
 void optlir_remove_unused_variable(AlirModule *module) {
     UsedSet used_globals;
     used_set_init(&used_globals);
@@ -259,6 +323,10 @@ void optlir_remove_unused_variable(AlirModule *module) {
     used_set_free(&used_globals);
 }
 
+/**
+ * @brief Remove all unused functions, structs, and variables from a module.
+ * @param module The ALIR module.
+ */
 void optlir_remove_unused(AlirModule *module) {
     optlir_remove_unused_function(module);
     optlir_remove_unused_struct(module);

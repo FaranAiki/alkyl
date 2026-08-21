@@ -28,6 +28,11 @@
 
 #include "driver/lsp.h"
 
+/**
+ * @brief Recursively prints a C AST node and its children for debugging.
+ * @param node The AST node to print.
+ * @param indent Current indentation level.
+ */
 static void print_c_ast_node(ASTNode *node, int indent) {
     if (!node) return;
     char indent_str[64] = {0};
@@ -72,6 +77,12 @@ static void print_c_ast_node(ASTNode *node, int indent) {
     }
 }
 
+/**
+ * @brief Compiler entry point for the Alkyl compiler.
+ * @param argc Argument count.
+ * @param argv Argument vector.
+ * @return Exit code.
+ */
 int main(int argc, char **argv) {
     char *filename = NULL;
     char *c_header_file = NULL;

@@ -5,6 +5,12 @@
 #include "../../include/alick/alick_internal.h"
 #include <string.h>
 
+/**
+ * @brief Find a basic block by its label within a function.
+ * @param func Function to search.
+ * @param label Block label to find.
+ * @return Pointer to the block, or NULL if not found.
+ */
 static AlirBlock* find_block(AlirFunction *func, const char *label) {
     AlirBlock *b = func->blocks;
     while (b) {
@@ -14,6 +20,11 @@ static AlirBlock* find_block(AlirFunction *func, const char *label) {
     return NULL;
 }
 
+/**
+ * @brief Validate the control-flow graph of an ALIR function.
+ * @param ctx ALIR checker context.
+ * @param func Function whose CFG is validated.
+ */
 void alick_check_cfg(AlickCtx *ctx, AlirFunction *func) {
     AlirBlock *b = func->blocks;
     

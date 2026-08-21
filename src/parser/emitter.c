@@ -11,10 +11,20 @@
 #include <string.h>
 #include <stdarg.h>
 
+/**
+ * @brief Emits indentation spaces into the string builder.
+ * @param sb String builder to append to.
+ * @param indent Number of indentation levels.
+ */
 void parser_emit_indent(StringBuilder *sb, int indent) {
     for (int i = 0; i < indent; i++) sb_append(sb, "  ");
 }
 
+/**
+ * @brief Emits a type keyword into the string builder.
+ * @param sb String builder to append to.
+ * @param t Variable type to emit.
+ */
 void parser_emit_type(StringBuilder *sb, VarType t) {
     if (t.is_unsigned) sb_append(sb, "unsigned ");
     
@@ -44,6 +54,11 @@ void parser_emit_type(StringBuilder *sb, VarType t) {
     }
 }
 
+/**
+ * @brief Determines whether an AST node requires a trailing semicolon.
+ * @param node AST node to check.
+ * @return 1 if the node needs a semicolon, 0 otherwise.
+ */
 int needs_semicolon(ASTNode *node) {
     if (!node) return 0;
     switch (node->type) {
@@ -68,6 +83,12 @@ int needs_semicolon(ASTNode *node) {
     }
 }
 
+/**
+ * @brief Emits a braced block of AST nodes.
+ * @param sb String builder to append to.
+ * @param body Linked list of AST nodes to emit.
+ * @param indent Current indentation level.
+ */
 void parser_emit_block(StringBuilder *sb, ASTNode *body, int indent) {
     sb_append(sb, " {\n");
     ASTNode *curr = body;
@@ -84,6 +105,12 @@ void parser_emit_block(StringBuilder *sb, ASTNode *body, int indent) {
     sb_append(sb, "}");
 }
 
+/**
+ * @brief Emits a single AST node to the string builder.
+ * @param sb String builder to append to.
+ * @param node AST node to emit.
+ * @param indent Current indentation level.
+ */
 void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
     if (!node) return;
 
@@ -611,6 +638,12 @@ void parser_emit_ast_node(StringBuilder *sb, ASTNode *node, int indent) {
     }
 }
 
+/**
+ * @brief Converts an AST root node to a C source string.
+ * @param parser Parser context.
+ * @param root Root AST node to convert.
+ * @return Dynamically allocated source string.
+ */
 char* parser_to_string(Parser *parser, ASTNode *root) {
     StringBuilder sb;
     sb_init(&sb, parser->ctx->arena);
@@ -626,6 +659,12 @@ char* parser_to_string(Parser *parser, ASTNode *root) {
     return sb.data;
 }
 
+/**
+ * @brief Writes an AST root node to a file as C source.
+ * @param parser Parser context.
+ * @param root Root AST node to convert.
+ * @param filename Path of the output file.
+ */
 void parser_to_file(Parser *parser, ASTNode *root, const char *filename) {
     char *str = parser_to_string(parser, root);
     if (str) {
@@ -637,6 +676,11 @@ void parser_to_file(Parser *parser, ASTNode *root, const char *filename) {
     }
 }
 
+/**
+ * @brief Parses a source string and converts the resulting AST back to a source string.
+ * @param src Input source code.
+ * @return Dynamically allocated source string.
+ */
 char* parser_string_to_string(const char *src) {
     Arena arena;
     arena_init(&arena);
@@ -660,6 +704,11 @@ char* parser_string_to_string(const char *src) {
     return res;
 }
 
+/**
+ * @brief Parses a source string and writes the resulting AST to a file.
+ * @param src Input source code.
+ * @param filename Path of the output file.
+ */
 void parser_string_to_file(const char *src, const char *filename) {
     Arena arena;
     arena_init(&arena);

@@ -24,7 +24,7 @@ class Server {
     wlr_output_layout* output_layout;
     wlr_xdg_shell* xdg_shell;
     wlr_seat* seat;
-    
+
     wlroots.wl_listener new_input;
 }
 
@@ -100,7 +100,7 @@ int main() {
     setenv("WAYLAND_DISPLAY", socket, 1);
     let pid = fork();
     if (pid == 0) {
-        execl("/bin/sh", "/bin/sh", "-c", "kitty", null as void*);
+        execl("/bin/sh", "/bin/sh", "-c", "kitty", null);
         _exit(1);
     }
 

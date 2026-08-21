@@ -4,6 +4,11 @@
  */
 #include "modif.h"
 
+/**
+ * @brief Parses a macro definition (`define Name as ...` or `define Name(params) as ...`).
+ * @param p Parser context.
+ * @return NULL (macro bodies are stored in the macro table, not returned as AST).
+ */
 ASTNode* parse_define(Parser *p) {
   eat(p, TOKEN_DEFINE);
 
@@ -155,6 +160,11 @@ ASTNode* parse_define(Parser *p) {
   return NULL; 
 }
 
+/**
+ * @brief Parses a typedef declaration and registers the new type alias.
+ * @param p Parser context.
+ * @return NULL (typedefs are stored in the type table, not returned as AST).
+ */
 ASTNode* parse_typedef(Parser *p) {
   eat(p, TOKEN_TYPEDEF);
   

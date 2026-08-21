@@ -9,11 +9,22 @@
 #include <stdio.h>
 #include <stdint.h>
 
+/**
+ * @brief Compute a hash bucket index for an AST node pointer.
+ * @param node AST node pointer to hash.
+ * @return Unsigned bucket index.
+ */
 unsigned int hash_ptr(ASTNode *node) {
     uintptr_t ptr_val = (uintptr_t)node;
     return (unsigned int)((ptr_val >> 3) % TYPE_TABLE_SIZE);
 }
 
+/**
+ * @brief Record the semantic type for an AST node in the type table.
+ * @param ctx Semantic context.
+ * @param node AST node whose type to set.
+ * @param type Type to associate with the node.
+ */
 void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
     if (!node) return;
     node->sem_type = type;
@@ -41,6 +52,12 @@ void sem_set_node_type(SemanticCtx *ctx, ASTNode *node, VarType type) {
     ctx->type_buckets[idx] = entry;
 }
 
+/**
+ * @brief Retrieve the recorded semantic type for an AST node.
+ * @param ctx Semantic context.
+ * @param node AST node to query.
+ * @return The recorded VarType, or TYPE_UNKNOWN if not set.
+ */
 VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
 
@@ -64,6 +81,12 @@ VarType sem_get_node_type(SemanticCtx *ctx, ASTNode *node) {
     return res;
 }
 
+/**
+ * @brief Record the taint flag for an AST node.
+ * @param ctx Semantic context.
+ * @param node AST node whose taint to set.
+ * @param is_tainted Non-zero for tainted, 0 for pristine.
+ */
 void sem_set_node_tainted(SemanticCtx *ctx, ASTNode *node, int is_tainted) {
     if (!node) return;
     unsigned int idx = hash_ptr(node);
@@ -80,6 +103,12 @@ void sem_set_node_tainted(SemanticCtx *ctx, ASTNode *node, int is_tainted) {
     ctx->type_buckets[idx]->is_tainted = is_tainted;
 }
 
+/**
+ * @brief Retrieve the taint flag for an AST node.
+ * @param ctx Semantic context.
+ * @param node AST node to query.
+ * @return 1 if tainted, 0 otherwise.
+ */
 int sem_get_node_tainted(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return 0;
     unsigned int idx = hash_ptr(node);
@@ -91,6 +120,12 @@ int sem_get_node_tainted(SemanticCtx *ctx, ASTNode *node) {
     return 0;
 }
 
+/**
+ * @brief Record the impurity flag for an AST node.
+ * @param ctx Semantic context.
+ * @param node AST node whose impurity to set.
+ * @param is_impure Non-zero for impure, 0 otherwise.
+ */
 void sem_set_node_impure(SemanticCtx *ctx, ASTNode *node, int is_impure) {
     if (!node) return;
     unsigned int idx = hash_ptr(node);
@@ -107,6 +142,12 @@ void sem_set_node_impure(SemanticCtx *ctx, ASTNode *node, int is_impure) {
     ctx->type_buckets[idx]->is_impure = is_impure;
 }
 
+/**
+ * @brief Retrieve the impurity flag for an AST node.
+ * @param ctx Semantic context.
+ * @param node AST node to query.
+ * @return 1 if impure, 0 otherwise.
+ */
 int sem_get_node_impure(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return 0;
     unsigned int idx = hash_ptr(node);
@@ -118,6 +159,12 @@ int sem_get_node_impure(SemanticCtx *ctx, ASTNode *node) {
     return 0;
 }
 
+/**
+ * @brief Look up a symbol by name directly in a scope, without traversing parents.
+ * @param scope Scope to search.
+ * @param name Symbol name to look up.
+ * @return Pointer to the symbol, or NULL if not found (excluding constructors in class scopes).
+ */
 SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
     if (scope->symbol_map) {
         SemSymbol *res = (SemSymbol*)hashmap_get((HashMap*)scope->symbol_map, name);
@@ -141,6 +188,12 @@ SemSymbol* find_in_scope_direct(SemScope *scope, const char *name) {
     return NULL;
 }
 
+/**
+ * @brief Initialize a semantic analysis context.
+ * @param ctx Context to initialize.
+ * @param compiler_ctx Compiler context (may be NULL).
+ * @param settings Semantic settings (may be NULL).
+ */
 void sem_init(SemanticCtx *ctx, CompilerContext *compiler_ctx, SemanticSettings *settings) {
     ctx->compiler_ctx = compiler_ctx;
     if (settings) {
@@ -172,6 +225,10 @@ void sem_init(SemanticCtx *ctx, CompilerContext *compiler_ctx, SemanticSettings 
     }
 }
 
+/**
+ * @brief Reset a semantic context (release scopes and type buckets).
+ * @param ctx Context to clean up.
+ */
 void sem_cleanup(SemanticCtx *ctx) {
     ctx->current_scope = NULL;
     ctx->global_scope = NULL;
@@ -181,6 +238,12 @@ void sem_cleanup(SemanticCtx *ctx) {
     }
 }
 
+/**
+ * @brief Enter a new scope (function or block) for semantic analysis.
+ * @param ctx Semantic context.
+ * @param is_func Non-zero for a function scope, 0 for a block scope.
+ * @param ret_type Expected return type (used for function scopes).
+ */
 void sem_scope_enter(SemanticCtx *ctx, int is_func, VarType ret_type) {
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
 
@@ -206,12 +269,24 @@ void sem_scope_enter(SemanticCtx *ctx, int is_func, VarType ret_type) {
     ctx->current_scope = new_scope;
 }
 
+/**
+ * @brief Exit the current scope, restoring the parent scope.
+ * @param ctx Semantic context.
+ */
 void sem_scope_exit(SemanticCtx *ctx) {
     if (ctx->current_scope->parent) {
         ctx->current_scope = ctx->current_scope->parent;
     }
 }
 
+/**
+ * @brief Add a new symbol to the current scope, linking overloaded functions together.
+ * @param ctx Semantic context.
+ * @param name Symbol name.
+ * @param kind Kind of symbol (var, func, class, etc.).
+ * @param type Semantic type of the symbol.
+ * @return Pointer to the newly added symbol, or NULL on failure.
+ */
 SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, VarType type) {
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return NULL;
 
@@ -282,6 +357,12 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
     return sym;
 }
 
+/**
+ * @brief Look up a type symbol (class, enum, namespace, or template) by name.
+ * @param ctx Semantic context.
+ * @param name Dot-qualified name to look up.
+ * @return Pointer to the type symbol, or NULL if not found.
+ */
 SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
     if (!name) return NULL;
     const char *dot = strchr(name, '.');
@@ -353,6 +434,13 @@ SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
     return NULL;
 }
 
+/**
+ * @brief Look up any symbol by name, searching scopes and parent/inherited scopes.
+ * @param ctx Semantic context.
+ * @param name Dot-qualified name to look up.
+ * @param out_scope Optional output parameter receiving the scope where the symbol was found.
+ * @return Pointer to the symbol, or NULL if not found.
+ */
 SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_scope) {
     if (!name) return NULL;
     const char *dot = strchr(name, '.');
@@ -499,6 +587,12 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
     return NULL;
 }
 
+/**
+ * @brief Check whether two VarTypes are exactly equal (base, ptr, array, etc.).
+ * @param a First type.
+ * @param b Second type.
+ * @return 1 if equal, 0 otherwise.
+ */
 int sem_types_are_equal(VarType a, VarType b) {
     if (a.base != b.base) return 0;
     if (a.array_size != b.array_size) return 0;
@@ -550,6 +644,13 @@ int sem_types_are_equal(VarType a, VarType b) {
 }
 
 /* TODO fix this for implicit casting */
+/**
+ * @brief Check whether a source type is implicitly assignable to a destination type.
+ * @param ctx Semantic context.
+ * @param dest Destination type.
+ * @param src Source type.
+ * @return 1 if an implicit cast is allowed, 0 otherwise.
+ */
 bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
     if (dest.base == TYPE_CLASS && src.base == TYPE_CLASS && dest.class_name && src.class_name) {
         if (dest.ptr_depth == src.ptr_depth) {
@@ -628,6 +729,13 @@ bool sem_types_are_compatible(SemanticCtx *ctx, VarType dest, VarType src) {
     return false;
 }
 
+/**
+ * @brief Check whether a source type is explicitly castable to a destination type.
+ * @param ctx Semantic context.
+ * @param dest Destination type.
+ * @param src Source type.
+ * @return 1 if an explicit cast is allowed, 0 otherwise.
+ */
 bool sem_types_are_castable(SemanticCtx *ctx, VarType dest, VarType src) {
     if (sem_types_are_compatible(ctx, dest, src)) return true;
     
@@ -714,6 +822,11 @@ static void sem_type_to_str_rec(VarType t, char *buf, int max_len, int *pos) {
     }
 }
 
+/**
+ * @brief Convert a VarType to a human-readable string (ring-buffer of 16 buffers).
+ * @param t Type to convert.
+ * @return Pointer to a static buffer containing the type string.
+ */
 char* sem_type_to_str(VarType t) {
     static char buffers[16][1024];
     static int idx = 0;
@@ -726,6 +839,11 @@ char* sem_type_to_str(VarType t) {
 
     return buf;
 }
+/**
+ * @brief Mangle a type into a simple string suitable for function name demangling.
+ * @param t Type to mangle.
+ * @return Pointer to a static buffer containing the mangled type string.
+ */
 char* sem_mangle_type(VarType t) {
     const char *base = "unknown";
     switch(t.base) {
@@ -757,6 +875,11 @@ char* sem_mangle_type(VarType t) {
     return buf;
 }
 
+/**
+ * @brief Mangle a type into Itanium C++ ABI format.
+ * @param t Type to mangle.
+ * @return Pointer to a static buffer containing the Itanium-mangled type string.
+ */
 char* sem_mangle_itanium_type(VarType t) {
     const char *base = "v";
     switch(t.base) {
@@ -788,6 +911,14 @@ char* sem_mangle_itanium_type(VarType t) {
     return buf;
 }
 
+/**
+ * @brief Mangle a function name using Itanium C++ ABI conventions.
+ * @param ctx Semantic context (for arena allocation).
+ * @param class_name Optional class name for member functions.
+ * @param base_name Function base name.
+ * @param params Parameter list.
+ * @return Mangled function name (arena- or heap-allocated).
+ */
 char* sem_mangle_itanium_func_name(SemanticCtx *ctx, const char *class_name, const char *base_name, Parameter *params) {
     char buf[1024];
     int pos = 0;
@@ -805,6 +936,14 @@ char* sem_mangle_itanium_func_name(SemanticCtx *ctx, const char *class_name, con
     return ctx && ctx->compiler_ctx && ctx->compiler_ctx->arena ? arena_strdup(ctx->compiler_ctx->arena, buf) : strdup(buf);
 }
 
+/**
+ * @brief Mangle a function name by concatenating class, base, and parameter type suffixes.
+ * @param ctx Semantic context (for arena allocation).
+ * @param class_name Optional class name for member functions.
+ * @param base_name Function base name.
+ * @param params Parameter list.
+ * @return Mangled function name (arena- or heap-allocated).
+ */
 char* sem_mangle_func_name(SemanticCtx *ctx, const char *class_name, const char *base_name, Parameter *params) {
     char buf[1024];
     int pos = 0;

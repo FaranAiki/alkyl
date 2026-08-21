@@ -8,6 +8,12 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+/**
+ * @brief Initializes a Parser with a lexer and settings.
+ * @param p Parser to initialize.
+ * @param l Lexer to use.
+ * @param settings Parser settings (may be NULL for defaults).
+ */
 void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
     p->l = l;
     p->ctx = l->ctx;
@@ -55,6 +61,12 @@ void parser_init(Parser *p, Lexer *l, ParserSettings *settings) {
     }
 }
 
+/**
+ * @brief Allocates memory for a parser AST node, zeroing it and attaching source info.
+ * @param p Parser context.
+ * @param size Number of bytes to allocate.
+ * @return Pointer to zeroed memory.
+ */
 void* parser_alloc(Parser *p, size_t size) {
     if (!p || !p->ctx || !p->ctx->arena) return calloc(1, size);
     void *ptr = arena_alloc(p->ctx->arena, size);
@@ -68,6 +80,12 @@ void* parser_alloc(Parser *p, size_t size) {
     return ptr;
 }
 
+/**
+ * @brief Allocates raw memory for parser use, zeroing it.
+ * @param p Parser context.
+ * @param size Number of bytes to allocate.
+ * @return Pointer to zeroed memory.
+ */
 void* parser_alloc_raw(Parser *p, size_t size) {
     if (!p || !p->ctx || !p->ctx->arena) return calloc(1, size);
     void *ptr = arena_alloc(p->ctx->arena, size);
@@ -75,12 +93,24 @@ void* parser_alloc_raw(Parser *p, size_t size) {
     return ptr;
 }
 
+/**
+ * @brief Duplicates a string using the parser's arena allocator.
+ * @param p Parser context.
+ * @param str String to duplicate.
+ * @return Duplicated string, or NULL if str is NULL.
+ */
 char* parser_strdup(Parser *p, const char *str) {
     if (!str) return NULL;
     if (!p || !p->ctx || !p->ctx->arena) return strdup(str);
     return arena_strdup(p->ctx->arena, str);
 }
 
+/**
+ * @brief Registers a type name in the parser's type map.
+ * @param p Parser context.
+ * @param name Name of the type.
+ * @param is_enum Non-zero if the type is an enum.
+ */
 void register_typename(Parser *p, const char *name, int is_enum) {
     hashmap_put(&p->types_map, name, (void*)(intptr_t)(is_enum ? 2 : 1));
 
@@ -92,10 +122,21 @@ void register_typename(Parser *p, const char *name, int is_enum) {
     }
 }
 
+/**
+ * @brief Checks whether a name is registered as a type.
+ * @param p Parser context.
+ * @param name Type name to check.
+ * @return Non-zero if the name is a known type.
+ */
 int is_typename(Parser *p, const char *name) {
     return hashmap_has(&p->types_map, name);
 }
 
+/**
+ * @brief Checks whether the current token starts a type declaration.
+ * @param p Parser context.
+ * @return Non-zero if the current token begins a type.
+ */
 int is_type_start(Parser *p) {
     TokenType ct = p->current_token.type;
     if (ct == TOKEN_KW_INT || ct == TOKEN_KW_SHORT || ct == TOKEN_KW_LONG ||
@@ -132,6 +173,12 @@ static int get_typename_kind(Parser *p, const char *name) {
     return 0;
 }
 
+/**
+ * @brief Registers or updates a type alias.
+ * @param p Parser context.
+ * @param name Alias name.
+ * @param target Target VarType for the alias.
+ */
 void register_alias(Parser *p, const char *name, VarType target) {
     TypeAlias *curr = p->alias_head;
     while(curr) {
@@ -151,6 +198,12 @@ void register_alias(Parser *p, const char *name, VarType target) {
     p->alias_head = a;
 }
 
+/**
+ * @brief Looks up a registered type alias.
+ * @param p Parser context.
+ * @param name Alias name to look up.
+ * @return Pointer to the alias VarType, or NULL if not found.
+ */
 VarType* get_alias(Parser *p, const char *name) {
     TypeAlias *curr = p->alias_head;
     while(curr) {
@@ -160,12 +213,27 @@ VarType* get_alias(Parser *p, const char *name) {
     return NULL;
 }
 
+/**
+ * @brief Clones a token, duplicating its text via the parser allocator.
+ * @param p Parser context.
+ * @param t Token to clone.
+ * @return Cloned token.
+ */
 Token token_clone(Parser *p, Token t) {
     Token new_t = t;
     if (t.text) new_t.text = parser_strdup(p, t.text);
     return new_t;
 }
 
+/**
+ * @brief Registers a macro in the parser's macro table.
+ * @param p Parser context.
+ * @param name Macro name.
+ * @param params Parameter names (NULL for object-like macros).
+ * @param param_count Number of parameters.
+ * @param body Replacement tokens for the macro body.
+ * @param body_len Length of the body token array.
+ */
 void register_macro(Parser *p, const char *name, char **params, int param_count, Token *body, int body_len) {
     Macro *m = parser_alloc_raw(p, sizeof(Macro));
     m->name = parser_strdup(p, name);
@@ -198,6 +266,11 @@ static int macro_is_expanding(Parser *p, const char *name) {
     return 0;
 }
 
+/**
+ * @brief Returns the next raw token from the parser's token buffer.
+ * @param p Parser context.
+ * @return Next token, or TOKEN_EOF if exhausted.
+ */
 Token lexer_next_raw(Parser *p) {
     if (p->tokens && p->token_pos < p->token_count) {
         return p->tokens[p->token_pos++];
@@ -208,6 +281,11 @@ Token lexer_next_raw(Parser *p) {
     return eof;
 }
 
+/**
+ * @brief Returns the next token, expanding macros if applicable.
+ * @param p Parser context.
+ * @return Next expanded token.
+ */
 Token get_next_token_expanded(Parser *p) {
     if (p->expansion_head) {
         if (p->expansion_head->pos < p->expansion_head->count) {
@@ -224,6 +302,12 @@ static Token fetch_safe(Parser *p) { return get_next_token_expanded(p); }
 
 /* Expand object/function-like macros starting at token `t`. Used by eat() and
  * parse_program so the first token of a REPL line also expands (e.g. define aliases). */
+/**
+ * @brief Expands macros starting from a given token.
+ * @param p Parser context.
+ * @param t Starting token for expansion.
+ * @return The first token after expansion.
+ */
 Token expand_macros_from(Parser *p, Token t) {
     while (!p->disable_macro_expansion && t.type == TOKEN_IDENTIFIER) {
         Macro *m = find_macro(p, t.text);
@@ -325,16 +409,31 @@ Token expand_macros_from(Parser *p, Token t) {
     return t;
 }
 
+/**
+ * @brief Reports a parse error at a specific token and increments the error count.
+ * @param p Parser context.
+ * @param t Token where the error occurred.
+ * @param msg Error message.
+ */
 void parser_fail_at(Parser *p, Token t, const char *msg) {
     report_error(p->l, t, msg);
     if (p->ctx) p->ctx->error_count++;
     p->has_error = 1;
 }
 
+/**
+ * @brief Reports a parse error at the current token.
+ * @param p Parser context.
+ * @param msg Error message.
+ */
 void parser_fail(Parser *p, const char *msg) {
     parser_fail_at(p, p->current_token, msg);
 }
 
+/**
+ * @brief Synchronizes the parser after an error by consuming tokens until a safe resync point.
+ * @param p Parser context.
+ */
 void parser_sync(Parser *p) {
     p->has_error = 0; // Clear error so eat() can consume tokens
     while (p->current_token.type != TOKEN_EOF) {
@@ -370,6 +469,11 @@ void parser_sync(Parser *p) {
     }
 }
 
+/**
+ * @brief Consumes the current token if it matches the expected type, otherwise reports an error.
+ * @param p Parser context.
+ * @param type Expected token type.
+ */
 void eat(Parser *p, TokenType type) {
   if (p->has_error) return;
   if (p->current_token.type == type) {
@@ -390,6 +494,11 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name);
 VarType parse_func_sig_decl(Parser *p, VarType ret_type, char **out_name);
 static Token parser_peek_past_parens(Parser *p);
 
+/**
+ * @brief Parses a type specification from the current token stream.
+ * @param p Parser context.
+ * @return Parsed VarType.
+ */
 VarType parse_type(Parser *p) {
   VarType t = {0};
   t.base = TYPE_UNKNOWN;
@@ -747,6 +856,13 @@ VarType parse_type(Parser *p) {
 
 // TODO understand what the fuck is this
 // This is for varshit idk wtf
+/**
+ * @brief Parses a function pointer type declaration.
+ * @param p Parser context.
+ * @param ret_type Return type of the function pointer.
+ * @param out_name Optional output parameter for the function pointer name.
+ * @return Parsed VarType representing the function pointer type.
+ */
 VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     VarType vt = {0};
     vt.is_func_ptr = 1;
@@ -831,6 +947,13 @@ VarType parse_func_ptr_decl(Parser *p, VarType ret_type, char **out_name) {
     return vt;
 }
 
+/**
+ * @brief Parses a function signature declaration (parameter list only).
+ * @param p Parser context.
+ * @param ret_type Return type of the function.
+ * @param out_name Optional output parameter for the function name.
+ * @return Parsed VarType representing the function signature.
+ */
 VarType parse_func_sig_decl(Parser *p, VarType ret_type, char **out_name) {
     VarType vt = {0};
     vt.is_func_ptr = 1;
@@ -932,6 +1055,12 @@ static char* read_file_content(Parser *p, const char* path) {
     return buf;
 }
 
+/**
+ * @brief Reads and returns the content of an imported file, searching multiple extensions and paths.
+ * @param p Parser context.
+ * @param filename Name of the file to read (without extension).
+ * @return File content as a null-terminated string, or NULL on failure.
+ */
 char* read_import_file(Parser *p, const char* filename) {
     const char *exts[] = { ".kyl", ".hky", ".alk", ".alky", ".alkyl", ".aky", ".zyl", "" };
     char path[1024];
@@ -972,6 +1101,10 @@ char* read_import_file(Parser *p, const char* filename) {
     return NULL;
 }
 
+/**
+ * @brief Sets the default import search paths in the parser settings.
+ * @param ps Parser settings to populate with default paths.
+ */
 void parser_set_default_import_paths(ParserSettings *ps) {
     static const char *paths[4];
     int count = 0;
@@ -988,6 +1121,11 @@ void parser_set_default_import_paths(ParserSettings *ps) {
     ps->import_path_count = count;
 }
 
+/**
+ * @brief Peeks at the next token without consuming it.
+ * @param p Parser context.
+ * @return The next token.
+ */
 Token parser_peek_token(Parser *p) {
     if (p->expansion_head) {
         if (p->expansion_head->pos < p->expansion_head->count) {
@@ -1003,6 +1141,12 @@ Token parser_peek_token(Parser *p) {
     return eof;
 }
 
+/**
+ * @brief Peeks at a token N positions ahead without consuming.
+ * @param p Parser context.
+ * @param offset Number of tokens ahead to peek.
+ * @return The token at the given offset.
+ */
 Token parser_peek_token_n(Parser *p, int offset) {
     if (p->expansion_head) {
         int pos = p->expansion_head->pos + offset;
@@ -1060,6 +1204,10 @@ static Token parser_peek_past_parens(Parser *p) {
     return eof;
 }
 
+/**
+ * @brief Pre-scans tokens to register type names (class, struct, union, enum) without consuming.
+ * @param p Parser context.
+ */
 void parser_prescan(Parser *p) {
     int saved_pos = p->token_pos;
     while (p->token_pos < p->token_count) {
@@ -1075,6 +1223,11 @@ void parser_prescan(Parser *p) {
     p->token_pos = saved_pos;
 }
 
+/**
+ * @brief Parses the entire program from the current token stream.
+ * @param p Parser context.
+ * @return Root AST node of the parsed program.
+ */
 ASTNode* parse_program(Parser *p) {
   if (p->l) {
       p->token_capacity = 1024;

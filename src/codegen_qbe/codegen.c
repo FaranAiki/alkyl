@@ -12,6 +12,11 @@
 int s_next_qbe_temp = 0;
 AlirFunction *s_current_qbe_function = NULL;
 
+/**
+ * @brief Returns the size in bytes of a variable of the given type.
+ * @param t The variable type.
+ * @return The size in bytes.
+ */
 static int get_qbe_type_size_for_var(VarType t) {
     if (t.ptr_depth > 0) return 8;
     if (t.is_tainted) return 8;
@@ -39,6 +44,11 @@ static int get_qbe_type_size_for_var(VarType t) {
     }
 }
 
+/**
+ * @brief Returns the alignment in bytes of a variable of the given type.
+ * @param t The variable type.
+ * @return The alignment in bytes.
+ */
 static int get_qbe_type_align_for_var(VarType t) {
     if (t.ptr_depth > 0) return 8;
     if (t.is_tainted) return 4;
@@ -65,6 +75,13 @@ static int get_qbe_type_align_for_var(VarType t) {
     }
 }
 
+/**
+ * @brief Computes the byte offset of a struct field by index.
+ * @param module The ALIR module.
+ * @param struct_name The name of the struct.
+ * @param field_index The index of the field.
+ * @return The byte offset of the field.
+ */
 static int get_struct_field_offset(AlirModule *module, const char *struct_name, int field_index) {
     AlirStruct *st = alir_find_struct(module, struct_name);
     if (!st || !st->fields) return field_index * 8;
@@ -84,6 +101,12 @@ static int get_struct_field_offset(AlirModule *module, const char *struct_name, 
     return field_index * 8;
 }
 
+/**
+ * @brief Computes the total size in bytes of a struct.
+ * @param module The ALIR module.
+ * @param struct_name The name of the struct.
+ * @return The size in bytes.
+ */
 static int get_struct_size(AlirModule *module, const char *struct_name) {
     AlirStruct *st = alir_find_struct(module, struct_name);
     if (!st || !st->fields) return 8;
@@ -100,6 +123,11 @@ static int get_struct_size(AlirModule *module, const char *struct_name) {
     return (offset + 7) & ~7;
 }
 
+/**
+ * @brief Finds the highest temporary ID used across all instructions in the module.
+ * @param module The ALIR module to scan.
+ * @return The maximum temporary ID + 1.
+ */
 int find_max_temp(AlirModule *module) {
     int max_temp = 0;
     for (AlirFunction *f = module->functions; f; f = f->next) {
@@ -114,10 +142,21 @@ int find_max_temp(AlirModule *module) {
     return max_temp;
 }
 
+/**
+ * @brief Allocates a new QBE temporary variable ID.
+ * @return The next available temporary ID.
+ */
 int alloc_qbe_temp(void) {
     return s_next_qbe_temp++;
 }
 
+/**
+ * @brief Emits a single ALIR instruction as QBE text output.
+ * @param out The output file stream.
+ * @param module The ALIR module.
+ * @param inst The instruction to emit.
+ * @param next_block The next basic block in sequence (for fallback branching).
+ */
 void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_block) {
     if (!inst) return;
 

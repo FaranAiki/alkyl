@@ -7,6 +7,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/**
+ * @brief Run the MLIR backend: generate MLIR, lower to LLVM IR, and compile.
+ * @param sem_ctx Semantic context (unused).
+ * @param root The AST root node.
+ * @param basename Base name for output files.
+ * @param link_flags Linker flags.
+ * @param optimization_level Optimization level (unused).
+ * @param linker Linker type (unused).
+ * @return 0 on success, non-zero on failure.
+ */
 int backend_run_semantic(SemanticCtx *sem_ctx, ASTNode *root, const char *basename, const char *link_flags, int optimization_level, LinkerType linker) {
     (void)link_flags;
     (void)optimization_level;

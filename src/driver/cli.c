@@ -14,6 +14,10 @@
 #include <unistd.h>
 #include <signal.h>
 
+/**
+ * @brief Returns the default semantic settings for the interpreter.
+ * @return A SemanticSettings struct with default values enabled.
+ */
 static SemanticSettings default_sem_settings(void) {
     SemanticSettings s = {0};
     s.implicit_let = true;
@@ -23,6 +27,11 @@ static SemanticSettings default_sem_settings(void) {
     return s;
 }
 
+/**
+ * @brief Prints symbol information (members of a class or namespace) to stdout.
+ * @param ctx The semantic context.
+ * @param rt The variable type whose members to display.
+ */
 static void print_symbol_info(SemanticCtx *ctx, VarType rt) {
     SemSymbol *sym = sem_symbol_lookup_type(ctx, rt.class_name);
     if (sym && sym->inner_scope) {
@@ -64,11 +73,18 @@ static void print_symbol_info(SemanticCtx *ctx, VarType rt) {
     }
 }
 
+/**
+ * @brief Prints the interpreter welcome banner to stdout.
+ */
 static void display_init(void) {
     printf("\033[36mEthyl (Alkyl interpreter) by Faran Aiki \033[0m\n");
     printf("Type \033[33m'exit'\033[0m or \033[33m'quit'\033[0m to leave.\n\n");
 }
 
+/**
+ * @brief Runs the interactive REPL (read-eval-print loop).
+ * @return 0 on normal exit.
+ */
 int run_repl(void) {
     display_init();
 
@@ -242,6 +258,11 @@ int run_repl(void) {
     return 0;
 }
 
+/**
+ * @brief Executes an Alkyl source file.
+ * @param filename The path to the source file.
+ * @return 0 on success, 1 on error.
+ */
 int run_file(const char *filename) {
     char *code = read_file(filename);
     if (!code) {
@@ -352,12 +373,23 @@ int run_file(const char *filename) {
     return exit_code;
 }
 
+/**
+ * @brief Imports a module by name.
+ * @param module_name The name of the module to import.
+ * @return 0 on success.
+ */
 int import_module(const char *module_name) {
     printf("Importing module: %s\n", module_name);
     // here is metalir_load_module(r, module_name);
     return 0;
 }
 
+/**
+ * @brief Entry point for the Alkyl interpreter.
+ * @param argc Argument count.
+ * @param argv Argument vector.
+ * @return Exit code.
+ */
 int main(int argc, char *argv[]) {
     if (argc == 1) {
         return run_repl();

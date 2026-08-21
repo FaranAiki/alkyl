@@ -6,6 +6,12 @@
 #include "semantic/semantic.h"
 #include <string.h>
 
+/**
+ * @brief Resolve an ALIR value operand to a long long.
+ * @param op1 The ALIR value operand.
+ * @param ctx The VM execution context.
+ * @return The resolved value.
+ */
 static long long resolve_src(AlirValue *op1, VMContext *ctx) {
     if (op1->kind == ALIR_VAL_TEMP) {
         return ctx->registers[op1->temp_id].as.int_val;
@@ -24,6 +30,11 @@ static long long resolve_src(AlirValue *op1, VMContext *ctx) {
     return metalir_vm_resolve_var(op1, ctx->module, ctx->vm, ctx->args, ctx->arg_count);
 }
 
+/**
+ * @brief Evaluate a miscellaneous instruction in the MetalirVM.
+ * @param ctx The VM execution context.
+ * @param inst The ALIR instruction to evaluate.
+ */
 void vm_eval_misc(VMContext *ctx, AlirInst *inst) {
     switch(inst->op) {
 case ALIR_OP_FALLBACK:

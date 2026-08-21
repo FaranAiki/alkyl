@@ -7,6 +7,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/**
+ * @brief Clone a variable type, applying generic parameter substitutions and renames.
+ * @param ctx The compiler context.
+ * @param t The type to clone.
+ * @param type_params Generic type parameter names.
+ * @param replace_with Replacement types for generic parameters.
+ * @param num_params Number of generic parameters.
+ * @param rename_from Names to rename.
+ * @param rename_to New names.
+ * @param num_renames Number of renames.
+ * @return The cloned type.
+ */
 VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarType *replace_with, int num_params, char **rename_from, char **rename_to, int num_renames) {
     if (t.base == TYPE_CLASS && t.class_name) {
         char *bracket = strchr(t.class_name, '[');
@@ -83,6 +95,18 @@ VarType clone_var_type(CompilerContext *ctx, VarType t, char **type_params, VarT
     return res;
 }
 
+/**
+ * @brief Deep-clone an AST subtree with optional generic substitution and renaming.
+ * @param ctx The compiler context.
+ * @param node The AST node to clone.
+ * @param type_params Generic type parameter names.
+ * @param replace_with Replacement types for generic parameters.
+ * @param num_params Number of generic parameters.
+ * @param rename_from Names to rename.
+ * @param rename_to New names.
+ * @param num_renames Number of renames.
+ * @return The cloned AST node.
+ */
 ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarType *replace_with, int num_params, char **rename_from, char **rename_to, int num_renames) {
     if (!ctx || !node) return NULL;
 
@@ -440,6 +464,16 @@ ASTNode* ast_clone(CompilerContext *ctx, ASTNode *node, char **type_params, VarT
     return clone;
 }
 
+/**
+ * @brief Rewrite a macro call by substituting parameters with cloned argument subtrees.
+ * @param ctx The compiler context.
+ * @param node The AST node to rewrite.
+ * @param varargs_head Head of the varargs list.
+ * @param param_names Macro parameter names.
+ * @param param_args Macro argument nodes.
+ * @param num_params Number of macro parameters.
+ * @return The rewritten AST node.
+ */
 ASTNode* ast_rewrite_macro(CompilerContext *ctx, ASTNode *node, ASTNode *varargs_head, char **param_names, ASTNode **param_args, int num_params) {
     if (!node) return NULL;
 

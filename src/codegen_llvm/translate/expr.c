@@ -5,6 +5,15 @@
 #include "../../../include/codegen_llvm/translate.h"
 #include "../../semantic/semantic.h"
 
+/**
+ * @brief Translate an expression-type ALIR instruction to LLVM IR.
+ * @param ctx Code generation context.
+ * @param inst ALIR instruction to translate.
+ * @param op1 Pre-resolved LLVM value for operand 1.
+ * @param op2 Pre-resolved LLVM value for operand 2.
+ * @param is_float Non-zero if the operation involves floating-point operands.
+ * @return Generated LLVM value, or NULL on failure.
+ */
 LLVMValueRef translate_expr(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, LLVMValueRef op2, int is_float) {
     LLVMValueRef res = NULL;
     switch (inst->op) {

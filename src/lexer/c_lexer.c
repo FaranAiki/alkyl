@@ -7,6 +7,11 @@
 #include <stdint.h>
 
 #define peek(l) ((l)->src[(l)->pos])
+/**
+ * @brief Advances the lexer position by one character.
+ * @param l The C lexer instance.
+ * @return The character at the current position before advancing.
+ */
 static inline char advance(CLexer *l) {
     return l->src[l->pos++];
 }

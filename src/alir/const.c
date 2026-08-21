@@ -5,6 +5,12 @@
 #include "alir.h"
 #include "../common/hashmap.h"
 
+/**
+ * @brief Create an ALIR constant integer value.
+ * @param mod Module used for allocation.
+ * @param val Integer value.
+ * @return Newly allocated constant value.
+ */
 AlirValue* alir_const_int(AlirModule *mod, long val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
@@ -13,6 +19,12 @@ AlirValue* alir_const_int(AlirModule *mod, long val) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR constant boolean value.
+ * @param mod Module used for allocation.
+ * @param val Boolean value (0 or 1).
+ * @return Newly allocated constant value.
+ */
 AlirValue* alir_const_bool(AlirModule *mod, int val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
@@ -21,6 +33,12 @@ AlirValue* alir_const_bool(AlirModule *mod, int val) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR constant character value.
+ * @param mod Module used for allocation.
+ * @param val Character value.
+ * @return Newly allocated constant value.
+ */
 AlirValue* alir_const_char(AlirModule *mod, char val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
@@ -29,6 +47,12 @@ AlirValue* alir_const_char(AlirModule *mod, char val) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR constant unsigned character value.
+ * @param mod Module used for allocation.
+ * @param val Unsigned character value.
+ * @return Newly allocated constant value.
+ */
 AlirValue* alir_const_unsigned_char(AlirModule *mod, unsigned char val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
@@ -37,6 +61,12 @@ AlirValue* alir_const_unsigned_char(AlirModule *mod, unsigned char val) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR constant unsigned integer value.
+ * @param mod Module used for allocation.
+ * @param val Unsigned integer value.
+ * @return Newly allocated constant value.
+ */
 AlirValue* alir_const_unsigned_int(AlirModule *mod, unsigned int val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
@@ -45,6 +75,12 @@ AlirValue* alir_const_unsigned_int(AlirModule *mod, unsigned int val) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR constant long value.
+ * @param mod Module used for allocation.
+ * @param val Long value.
+ * @return Newly allocated constant value.
+ */
 AlirValue* alir_const_long(AlirModule *mod, long val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
@@ -53,6 +89,12 @@ AlirValue* alir_const_long(AlirModule *mod, long val) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR constant long long value.
+ * @param mod Module used for allocation.
+ * @param val Long long value.
+ * @return Newly allocated constant value.
+ */
 AlirValue* alir_const_long_long(AlirModule *mod, long long val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
@@ -61,6 +103,12 @@ AlirValue* alir_const_long_long(AlirModule *mod, long long val) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR constant unsigned long value.
+ * @param mod Module used for allocation.
+ * @param val Unsigned long value.
+ * @return Newly allocated constant value.
+ */
 AlirValue* alir_const_unsigned_long(AlirModule *mod, unsigned long val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
@@ -69,6 +117,12 @@ AlirValue* alir_const_unsigned_long(AlirModule *mod, unsigned long val) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR constant unsigned long long value.
+ * @param mod Module used for allocation.
+ * @param val Unsigned long long value.
+ * @return Newly allocated constant value.
+ */
 AlirValue* alir_const_unsigned_long_long(AlirModule *mod, unsigned long long val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
@@ -77,6 +131,12 @@ AlirValue* alir_const_unsigned_long_long(AlirModule *mod, unsigned long long val
     return v;
 }
 
+/**
+ * @brief Create an ALIR constant float (single-precision) value.
+ * @param mod Module used for allocation.
+ * @param val Float value.
+ * @return Newly allocated constant value.
+ */
 AlirValue* alir_const_float(AlirModule *mod, float val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
@@ -85,6 +145,12 @@ AlirValue* alir_const_float(AlirModule *mod, float val) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR constant double value.
+ * @param mod Module used for allocation.
+ * @param val Double value.
+ * @return Newly allocated constant value.
+ */
 AlirValue* alir_const_double(AlirModule *mod, double val) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_CONST;
@@ -93,6 +159,13 @@ AlirValue* alir_const_double(AlirModule *mod, double val) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR temporary value.
+ * @param mod Module used for allocation.
+ * @param t Type of the temporary.
+ * @param id Unique temporary identifier.
+ * @return Newly allocated temporary value.
+ */
 AlirValue* alir_val_temp(AlirModule *mod, VarType t, int id) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_TEMP;
@@ -101,6 +174,12 @@ AlirValue* alir_val_temp(AlirModule *mod, VarType t, int id) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR variable reference value.
+ * @param mod Module used for allocation.
+ * @param name Variable name.
+ * @return Newly allocated variable value.
+ */
 AlirValue* alir_val_var(AlirModule *mod, const char *name) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_VAR;
@@ -108,6 +187,13 @@ AlirValue* alir_val_var(AlirModule *mod, const char *name) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR global variable reference value.
+ * @param mod Module used for allocation.
+ * @param name Global variable name.
+ * @param type Type of the global.
+ * @return Newly allocated global value.
+ */
 AlirValue* alir_val_global(AlirModule *mod, const char *name, VarType type) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_GLOBAL;
@@ -116,6 +202,12 @@ AlirValue* alir_val_global(AlirModule *mod, const char *name, VarType type) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR label value.
+ * @param mod Module used for allocation.
+ * @param label Label string.
+ * @return Newly allocated label value.
+ */
 AlirValue* alir_val_label(AlirModule *mod, const char *label) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_LABEL;
@@ -123,6 +215,12 @@ AlirValue* alir_val_label(AlirModule *mod, const char *label) {
     return v;
 }
 
+/**
+ * @brief Create an ALIR type-reference value.
+ * @param mod Module used for allocation.
+ * @param type_name Name of the referenced type.
+ * @return Newly allocated type value.
+ */
 AlirValue* alir_val_type(AlirModule *mod, const char *type_name) {
     AlirValue *v = alir_alloc(mod, sizeof(AlirValue));
     v->kind = ALIR_VAL_TYPE;
@@ -133,6 +231,12 @@ AlirValue* alir_val_type(AlirModule *mod, const char *type_name) {
 
 static AlirValue* fold_const_expr_ahead(AlirCtx *ctx, ASTNode *node);
 
+/**
+ * @brief Register an enum type in the module.
+ * @param mod Module to register into.
+ * @param name Enum name.
+ * @param entries Linked list of enum entries.
+ */
 void alir_register_enum(AlirModule *mod, const char *name, AlirEnumEntry *entries) {
     AlirEnum *e = alir_alloc(mod, sizeof(AlirEnum));
     e->name = alir_strdup(mod, name);
@@ -142,6 +246,12 @@ void alir_register_enum(AlirModule *mod, const char *name, AlirEnumEntry *entrie
     hashmap_put(&mod->enum_map, name, e);
 }
 
+/**
+ * @brief Find a registered enum by name.
+ * @param mod Module to search.
+ * @param name Enum name.
+ * @return Pointer to the enum, or NULL if not found.
+ */
 AlirEnum* alir_find_enum(AlirModule *mod, const char *name) {
     AlirEnum *e = hashmap_get(&mod->enum_map, name);
     if (e) return e;
@@ -156,6 +266,14 @@ AlirEnum* alir_find_enum(AlirModule *mod, const char *name) {
     return NULL;
 }
 
+/**
+ * @brief Look up the integer value of an enum entry.
+ * @param mod Module containing the enum.
+ * @param enum_name Name of the enum.
+ * @param entry_name Name of the entry to look up.
+ * @param out_val Pointer to receive the entry's value.
+ * @return 1 if found, 0 otherwise.
+ */
 int alir_get_enum_value(AlirModule *mod, const char *enum_name, const char *entry_name, long *out_val) {
     AlirEnum *e = alir_find_enum(mod, enum_name);
     if (!e) return 0;
@@ -171,6 +289,12 @@ int alir_get_enum_value(AlirModule *mod, const char *enum_name, const char *entr
     return 0;
 }
 
+/**
+ * @brief Fold a literal AST node into a constant ALIR value.
+ * @param ctx Compilation context.
+ * @param ln Literal AST node.
+ * @return Constant value, or NULL if unsupported.
+ */
 static AlirValue* fold_literal(AlirCtx *ctx, LiteralNode *ln) {
     VarType t = ln->base.sem_type;
     switch (t.base) {
@@ -199,6 +323,12 @@ static AlirValue* fold_literal(AlirCtx *ctx, LiteralNode *ln) {
     }
 }
 
+/**
+ * @brief Fold a binary operation AST node if both operands are constant.
+ * @param ctx Compilation context.
+ * @param bn Binary operation AST node.
+ * @return Folded constant value, or NULL if not foldable.
+ */
 static AlirValue* fold_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     AlirValue *left = fold_const_expr_ahead(ctx, bn->left);
     AlirValue *right = fold_const_expr_ahead(ctx, bn->right);
@@ -309,6 +439,12 @@ static AlirValue* fold_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     return NULL;
 }
 
+/**
+ * @brief Fold a unary operation AST node if the operand is constant.
+ * @param ctx Compilation context.
+ * @param un Unary operation AST node.
+ * @return Folded constant value, or NULL if not foldable.
+ */
 static AlirValue* fold_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
     AlirValue *val = fold_const_expr_ahead(ctx, un->operand);
     if (!val || val->kind != ALIR_VAL_CONST) return NULL;
@@ -327,6 +463,12 @@ static AlirValue* fold_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
     return NULL;
 }
 
+/**
+ * @brief Attempt to fold an AST expression node into a constant value.
+ * @param ctx Compilation context.
+ * @param node AST expression node.
+ * @return Constant value, or NULL if not foldable.
+ */
 static AlirValue* fold_const_expr_ahead(AlirCtx *ctx, ASTNode *node) {
     if (!node) return NULL;
 
@@ -403,6 +545,13 @@ static AlirValue* fold_const_expr_ahead(AlirCtx *ctx, ASTNode *node) {
     }
 }
 
+/**
+ * @brief Fold a constant expression to a target type if possible.
+ * @param ctx Compilation context.
+ * @param node AST expression node.
+ * @param target Desired result type.
+ * @return Folded and cast constant value, or NULL if not foldable.
+ */
 AlirValue* alir_fold_const_expr(AlirCtx *ctx, ASTNode *node, VarType target) {
     if (!node) return NULL;
     AlirValue *val = fold_const_expr_ahead(ctx, node);
@@ -424,6 +573,11 @@ AlirValue* alir_fold_const_expr(AlirCtx *ctx, ASTNode *node, VarType target) {
     return val;
 }
 
+/**
+ * @brief Scan an AST for constant variable declarations and fold them.
+ * @param ctx Compilation context.
+ * @param node AST node to scan.
+ */
 void scan_and_fold_consts(AlirCtx *ctx, ASTNode *node) {
     while (node) {
         if (node->type == NODE_NAMESPACE) {

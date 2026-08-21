@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/**
+ * @brief Consumes a semicolon if present; otherwise accepts implicit termination.
+ * @param p Parser context.
+ */
 void eat_semi(Parser *p) {
     if (p->current_token.type == TOKEN_SEMICOLON) {
         eat(p, TOKEN_SEMICOLON);
@@ -21,10 +25,21 @@ void eat_semi(Parser *p) {
     }
 }
 
+/**
+ * @brief Sets the source location on an AST node.
+ * @param n AST node to update (may be NULL).
+ * @param line Source line number.
+ * @param col Source column number.
+ */
 void set_loc(ASTNode *n, int line, int col) {
     if(n) { n->line = line; n->col = col; }
 }
 
+/**
+ * @brief Parses a return statement, optionally with a value expression.
+ * @param p Parser context.
+ * @return AST node for the return statement, or NULL on error.
+ */
 ASTNode* parse_return(Parser *p) {
   int line = p->current_token.line, col = p->current_token.col;
   eat(p, TOKEN_RETURN);
@@ -43,6 +58,11 @@ ASTNode* parse_return(Parser *p) {
   return (ASTNode*)node;
 }
 
+/**
+ * @brief Parses an emit statement (`emit expr;`).
+ * @param p Parser context.
+ * @return AST node for the emit statement, or NULL on error.
+ */
 ASTNode* parse_emit(Parser *p) {
     int line = p->current_token.line, col = p->current_token.col;
     eat(p, TOKEN_EMIT);
@@ -56,6 +76,11 @@ ASTNode* parse_emit(Parser *p) {
     return (ASTNode*)node;
 }
 
+/**
+ * @brief Parses an assignment or a call expression statement.
+ * @param p Parser context.
+ * @return AST node for the assignment/call, or NULL on error.
+ */
 ASTNode* parse_assignment_or_call(Parser *p) {
   Token start_token = p->current_token;
   if (start_token.text) start_token.text = parser_strdup(p, start_token.text); 
@@ -206,6 +231,11 @@ ASTNode* parse_assignment_or_call(Parser *p) {
 
 ASTNode* parse_single_statement_or_block_internal(Parser *p);
 
+/**
+ * @brief Parses a single statement or a braced block, attaching an optional reason string.
+ * @param p Parser context.
+ * @return AST node for the statement/block, or NULL on error.
+ */
 ASTNode* parse_single_statement_or_block(Parser *p) {
     if (p->has_error) return NULL;
     char *reason_str = NULL;
@@ -286,6 +316,11 @@ static ResidueCase* parse_residue_cases(Parser *p, char *default_err_var) {
     return head;
 }
 
+/**
+ * @brief Core implementation for parsing a single statement or block.
+ * @param p Parser context.
+ * @return AST node for the statement/block, or NULL on error.
+ */
 ASTNode* parse_single_statement_or_block_internal(Parser *p) {
   if (p->has_error) return NULL;
   if (p->current_token.type == TOKEN_LBRACE) {
@@ -603,6 +638,11 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
   return expr;
 }
 
+/**
+ * @brief Parses a sequence of statements until EOF or a closing brace.
+ * @param p Parser context.
+ * @return Linked list of statement AST nodes.
+ */
 ASTNode* parse_statements(Parser *p) {
   ASTNode *head = NULL;
   ASTNode **current = &head;

@@ -4,6 +4,11 @@
  */
 #include "../../include/alick/alick_internal.h"
 
+/**
+ * @brief Validate operand types and counts for instructions in a function.
+ * @param ctx ALIR checker context.
+ * @param func Function to check.
+ */
 void alick_check_types(AlickCtx *ctx, AlirFunction *func) {
     AlirBlock *b = func->blocks;
     

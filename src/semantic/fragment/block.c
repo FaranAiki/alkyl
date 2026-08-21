@@ -4,6 +4,11 @@
  */
 #include "semantic.h"
 
+/**
+ * @brief Type-check a single statement node.
+ * @param ctx Semantic context.
+ * @param node Statement AST node to check.
+ */
 void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
     if (node->filename) ctx->current_filename = node->filename;
@@ -348,6 +353,11 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
     }
 }
 
+/**
+ * @brief Type-check a single AST node, dispatching to the appropriate checker.
+ * @param ctx Semantic context.
+ * @param node AST node to check.
+ */
 void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
     if (node->filename) ctx->current_filename = node->filename;
@@ -460,6 +470,11 @@ void sem_check_node(SemanticCtx *ctx, ASTNode *node) {
 }
 
 
+/**
+ * @brief Type-check a linked list of statement nodes (a block).
+ * @param ctx Semantic context.
+ * @param block Head of the AST node linked list to check.
+ */
 void sem_check_block(SemanticCtx *ctx, ASTNode *block) {
     debug_semantic("sem_check_block: ns='%s'\n", ctx->compiler_ctx ? diag_get_namespace(ctx->compiler_ctx) : "(null)");
     ASTNode *curr = block;

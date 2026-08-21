@@ -6,6 +6,11 @@
 #include "semantic/semantic.h"
 #include "metalir/vm.h"
 
+/**
+ * @brief Generate IR for a single statement AST node.
+ * @param ctx The ALIR context.
+ * @param node The statement AST node.
+ */
 void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
     if (!node) return;
     if (ctx->current_block && ctx->current_block->tail && is_terminator(ctx->current_block->tail->op)) return;

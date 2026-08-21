@@ -1,10 +1,20 @@
 #include "alir.h"
 
+/**
+ * @brief Check if a variable type is an integer type.
+ * @param t The variable type.
+ * @return 1 if integer, 0 otherwise.
+ */
 int alir_is_integer_type(VarType t) {
     return t.base == TYPE_INT || t.base == TYPE_CHAR || t.base == TYPE_BOOL;
 }
 
 // THIS IS ALIR STMT VAR DECLARATION
+/**
+ * @brief Generate IR for a variable declaration statement.
+ * @param ctx The ALIR context.
+ * @param node The variable declaration AST node.
+ */
 void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
     VarDeclNode *vn = (VarDeclNode*)node;
 
@@ -191,6 +201,11 @@ void alir_stmt_vardecl(AlirCtx *ctx, ASTNode *node) {
     }
 }
 
+/**
+ * @brief Generate IR for an assignment statement.
+ * @param ctx The ALIR context.
+ * @param node The assignment AST node.
+ */
 void alir_stmt_assign(AlirCtx *ctx, ASTNode *node) {
     AssignNode *an = (AssignNode*)node;
     if (an->overloaded_func_name) {
@@ -278,6 +293,11 @@ void alir_stmt_assign(AlirCtx *ctx, ASTNode *node) {
     emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, val, ptr));
 }
 
+/**
+ * @brief Generate IR for a while loop statement.
+ * @param ctx The ALIR context.
+ * @param node The while loop AST node.
+ */
 void alir_stmt_while(AlirCtx *ctx, ASTNode *node) {
     WhileNode *wn = (WhileNode*)node;
     AlirBlock *cond_bb = alir_add_block(ctx->module, ctx->current_func, "while_cond");
@@ -310,6 +330,12 @@ void alir_stmt_while(AlirCtx *ctx, ASTNode *node) {
     ctx->current_block = end_bb;
 }
 
+/**
+ * @brief Generate IR for a for-in loop iterating over an integer range.
+ * @param ctx The ALIR context.
+ * @param node The for-in AST node.
+ * @param col The integer limit value.
+ */
 void alir_for_in_int(AlirCtx *ctx, ASTNode  *node, AlirValue *col) {
     ForInNode *fn = (ForInNode*)node;
     AlirValue *limit = col;
@@ -356,6 +382,13 @@ void alir_for_in_int(AlirCtx *ctx, ASTNode  *node, AlirValue *col) {
 }
 
 
+/**
+ * @brief Generate IR for a for-in loop over an on-stack array.
+ * @param ctx The ALIR context.
+ * @param node The for-in AST node.
+ * @param col Pointer to the stack array.
+ * @param limit Upper bound of iteration.
+ */
 void alir_for_in_onstack(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *limit) {
     ForInNode *fn = (ForInNode*)node;
     AlirBlock *cond_bb = alir_add_block(ctx->module, ctx->current_func, "for_cond");
@@ -420,6 +453,13 @@ void alir_for_in_onstack(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue 
     return;
 }
 
+/**
+ * @brief Generate IR for a for-in loop over a pointer/heap array.
+ * @param ctx The ALIR context.
+ * @param node The for-in AST node.
+ * @param col Pointer to the heap array.
+ * @param limit Upper bound of iteration.
+ */
 void alir_for_in_ptr(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *limit) {
     ForInNode *fn = (ForInNode*)node;
     AlirBlock *cond_bb = alir_add_block(ctx->module, ctx->current_func, "for_cond");
@@ -488,6 +528,12 @@ void alir_for_in_ptr(AlirCtx *ctx, ASTNode *node, AlirValue *col, AlirValue *lim
     return;
 }
 
+/**
+ * @brief Generate IR for a for-in loop over a flux (generator) collection.
+ * @param ctx The ALIR context.
+ * @param node The for-in AST node.
+ * @param col The flux context value.
+ */
 void alir_for_in_flux(AlirCtx *ctx, ASTNode *node, AlirValue *col) {
     ForInNode *fn = (ForInNode*)node;
     char *flux_func_name = col->type.class_name + 8;
@@ -551,6 +597,11 @@ void alir_for_in_flux(AlirCtx *ctx, ASTNode *node, AlirValue *col) {
 }
 
 // TODO split this
+/**
+ * @brief Generate IR for a for-in statement, dispatching to the appropriate loop backend.
+ * @param ctx The ALIR context.
+ * @param node The for-in AST node.
+ */
 void alir_stmt_for_in(AlirCtx *ctx, ASTNode *node) {
     ForInNode *fn = (ForInNode*)node;
     VarType col_t = sem_get_node_type(ctx->sem, fn->collection);

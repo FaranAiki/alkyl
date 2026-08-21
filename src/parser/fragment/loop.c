@@ -7,6 +7,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/**
+ * @brief Parses a while/do-while loop.
+ * @param p Parser context.
+ * @return AST node for the while loop, or NULL on error.
+ */
 ASTNode* parse_while(Parser *p) {
     int line = p->current_token.line, col = p->current_token.col;
     eat(p, TOKEN_WHILE);
@@ -41,6 +46,11 @@ ASTNode* parse_while(Parser *p) {
     return (ASTNode*)node;
 }
 
+/**
+ * @brief Parses a fixed-iteration loop (`loop expr { ... }`).
+ * @param p Parser context.
+ * @return AST node for the loop, or NULL on error.
+ */
 ASTNode* parse_loop(Parser *p) {
   int line = p->current_token.line, col = p->current_token.col;
   eat(p, TOKEN_LOOP);
@@ -53,6 +63,11 @@ ASTNode* parse_loop(Parser *p) {
   return (ASTNode*)node;
 }
 
+/**
+ * @brief Parses a for-in loop (`for var in collection { ... }`).
+ * @param p Parser context.
+ * @return AST node for the for-in loop, or NULL on error.
+ */
 ASTNode* parse_for_in(Parser *p) {
     int line = p->current_token.line, col = p->current_token.col;
     eat(p, TOKEN_FOR);
@@ -96,6 +111,11 @@ ASTNode* parse_for_in(Parser *p) {
     return (ASTNode*)node;
 }
 
+/**
+ * @brief Parses a break statement.
+ * @param p Parser context.
+ * @return AST node for the break statement.
+ */
 ASTNode* parse_break(Parser *p) {
     int line = p->current_token.line, col = p->current_token.col;
     eat(p, TOKEN_BREAK);
@@ -106,6 +126,11 @@ ASTNode* parse_break(Parser *p) {
     return (ASTNode*)node;
 }
 
+/**
+ * @brief Parses a continue statement.
+ * @param p Parser context.
+ * @return AST node for the continue statement.
+ */
 ASTNode* parse_continue(Parser *p) {
     int line = p->current_token.line, col = p->current_token.col;
     eat(p, TOKEN_CONTINUE);

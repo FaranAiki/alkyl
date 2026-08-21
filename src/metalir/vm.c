@@ -19,6 +19,11 @@
 
 #define MAX_VM_STACK 1024
 
+/**
+ * @brief Initialize a MetalirVM instance.
+ * @param arena Arena allocator for the VM.
+ * @return Pointer to the initialized VM.
+ */
 MetalirVM* metalir_vm_init(Arena *arena) {
     MetalirVM *vm = arena_alloc(arena, sizeof(MetalirVM));
     vm->arena = arena;
@@ -28,10 +33,20 @@ MetalirVM* metalir_vm_init(Arena *arena) {
     return vm;
 }
 
+/**
+ * @brief Free a MetalirVM instance (currently a no-op; memory is arena-allocated).
+ * @param vm The VM to free.
+ */
 void metalir_vm_free(MetalirVM *vm) {
     (void)vm;
 }
 
+/**
+ * @brief Find a block in a function by its label.
+ * @param func The ALIR function.
+ * @param label The block label to find.
+ * @return The block, or NULL if not found.
+ */
 AlirBlock* find_block(AlirFunction *func, const char *label) {
     AlirBlock *curr = func->blocks;
     while(curr) {
@@ -41,6 +56,15 @@ AlirBlock* find_block(AlirFunction *func, const char *label) {
     return NULL;
 }
 
+/**
+ * @brief Resolve an ALIR value to a concrete long long at runtime.
+ * @param val The ALIR value to resolve.
+ * @param module The ALIR module.
+ * @param vm The MetalirVM instance.
+ * @param args Function call arguments.
+ * @param arg_count Number of arguments.
+ * @return The resolved value.
+ */
 long long metalir_vm_resolve_var(AlirValue *val, AlirModule *module, MetalirVM *vm, long long *args, int arg_count) {
     if (!val) return 0;
     if (val->kind == ALIR_VAL_VAR) {
@@ -84,6 +108,16 @@ long long metalir_vm_resolve_var(AlirValue *val, AlirModule *module, MetalirVM *
     return 0;
 }
 
+/**
+ * @brief Execute an ALIR function in the MetalirVM.
+ * @param vm The MetalirVM instance.
+ * @param module The ALIR module.
+ * @param func The ALIR function to execute.
+ * @param sem_ctx_ptr Semantic context pointer.
+ * @param args Function call arguments.
+ * @param arg_count Number of arguments.
+ * @return The function's return value.
+ */
 long long metalir_vm_execute(MetalirVM *vm, AlirModule *module, AlirFunction *func, void *sem_ctx_ptr, long long *args, int arg_count) {
     if (!vm || !func) return 0;
 

@@ -26,6 +26,10 @@ static char cmd_history[MAX_HISTORY][MAX_INPUT_LEN];
 static int cmd_history_count = 0;
 static int history_view_idx = 0;
 
+/**
+ * @brief Add a command line to the history buffer.
+ * @param line The command line to add.
+ */
 static void add_to_cmd_history(const char *line) {
     if (strlen(line) == 0) return;
     if (cmd_history_count > 0 && streq_lit(cmd_history[cmd_history_count - 1], line)) return;
@@ -40,6 +44,13 @@ static void add_to_cmd_history(const char *line) {
 
 
 
+/**
+ * @brief Move the cursor up one line in the buffer.
+ * @param buffer The input buffer.
+ * @param len Length of the buffer.
+ * @param pos Pointer to the current cursor position.
+ * @return True if the cursor was moved, false if already at the first line.
+ */
 static bool cursor_up(char *buffer, int len, int *pos) {
     (void)len;
     int current_line_start = 0;
@@ -72,6 +83,13 @@ static bool cursor_up(char *buffer, int len, int *pos) {
     return true;
 }
 
+/**
+ * @brief Move the cursor down one line in the buffer.
+ * @param buffer The input buffer.
+ * @param len Length of the buffer.
+ * @param pos Pointer to the current cursor position.
+ * @return True if the cursor was moved, false if already at the last line.
+ */
 static bool cursor_down(char *buffer, int len, int *pos) {
     int current_line_start = 0;
     for (int i = *pos - 1; i >= 0; i--) {
@@ -112,6 +130,12 @@ static bool cursor_down(char *buffer, int len, int *pos) {
     return true;
 }
 
+/**
+ * @brief Insert a newline with auto-indentation at the current cursor position.
+ * @param buffer The input buffer.
+ * @param len Pointer to the current buffer length.
+ * @param pos Pointer to the current cursor position.
+ */
 static void insert_newline_line(char *buffer, int *len, int *pos) {
     int line_start = 0;
     for (int i = *pos - 1; i >= 0; i--) {
@@ -168,6 +192,12 @@ static void insert_newline_line(char *buffer, int *len, int *pos) {
     }
 }
 
+/**
+ * @brief Check if the buffer ends with an incomplete operator.
+ * @param buffer The input buffer.
+ * @param len Length of the buffer.
+ * @return 1 if the buffer ends with an incomplete operator, 0 otherwise.
+ */
 static int ends_with_incomplete_operator(const char *buffer, int len) {
     while (len > 0 && (buffer[len-1] == ' ' || buffer[len-1] == '\t')) len--;
     if (len == 0) return 0;
@@ -207,6 +237,13 @@ static int ends_with_incomplete_operator(const char *buffer, int len) {
     return 0;
 }
 
+/**
+ * @brief Check if the current line needs continuation (e.g., after if/for/while).
+ * @param buffer The input buffer.
+ * @param len Length of the buffer.
+ * @param indentation_scope Whether indentation-based scope is active.
+ * @return 1 if continuation is needed, 0 otherwise.
+ */
 static int needs_continuation(const char *buffer, int len, int indentation_scope) {
     int i = len - 1;
     while (i >= 0 && (buffer[i] == ' ' || buffer[i] == '\t' || buffer[i] == '\n' || buffer[i] == '\r')) i--;
@@ -254,6 +291,13 @@ static int needs_continuation(const char *buffer, int len, int indentation_scope
     return 0;
 }
 
+/**
+ * @brief Get the indentation of a line.
+ * @param buffer The input buffer.
+ * @param line_start Start index of the line.
+ * @param end End index of the line.
+ * @return Number of leading spaces/tabs.
+ */
 static int get_line_indent(const char *buffer, int line_start, int end) {
     int indent = 0;
     for (int i = line_start; i < end; i++) {
@@ -263,6 +307,12 @@ static int get_line_indent(const char *buffer, int line_start, int end) {
     return indent;
 }
 
+/**
+ * @brief Get the base (minimum) indentation across all non-empty lines.
+ * @param buffer The input buffer.
+ * @param len Length of the buffer.
+ * @return Base indentation level.
+ */
 static int get_base_indent(const char *buffer, int len) {
     int base_indent = -1;
     int line_start = 0;
@@ -278,6 +328,12 @@ static int get_base_indent(const char *buffer, int len) {
     return base_indent >= 0 ? base_indent : 0;
 }
 
+/**
+ * @brief Move the cursor to the beginning of the previous word.
+ * @param buffer The input buffer.
+ * @param len Length of the buffer.
+ * @param pos Pointer to the current cursor position.
+ */
 static void cursor_word_left(char *buffer, int len, int *pos) {
     (void)len;
     if (*pos == 0) return;
@@ -287,6 +343,12 @@ static void cursor_word_left(char *buffer, int len, int *pos) {
     *pos = i + 1;
 }
 
+/**
+ * @brief Move the cursor to the beginning of the next word.
+ * @param buffer The input buffer.
+ * @param len Length of the buffer.
+ * @param pos Pointer to the current cursor position.
+ */
 static void cursor_word_right(char *buffer, int len, int *pos) {
     if (*pos >= len) return;
     int i = *pos;
@@ -295,6 +357,18 @@ static void cursor_word_right(char *buffer, int len, int *pos) {
     *pos = i;
 }
 
+/**
+ * @brief Redraw the REPL prompt and input buffer with syntax highlighting.
+ * @param base_prompt Colored prompt string.
+ * @param base_prompt_no_color Uncolored prompt string for width calculations.
+ * @param buffer The input buffer.
+ * @param len Length of the buffer.
+ * @param pos Current cursor position.
+ * @param suggestion Current autocomplete suggestion.
+ * @param word_len_sugg Length of the suggestion prefix.
+ * @param last_cursor_row Pointer to the last rendered cursor row.
+ * @param sem_ctx Semantic context for symbol highlighting.
+ */
 static void redraw(const char *base_prompt, const char *base_prompt_no_color, const char *buffer, int len, int pos, const char *suggestion, int word_len_sugg, int *last_cursor_row, void *sem_ctx) {
     if (*last_cursor_row > 0) {
         char seq[32];
@@ -539,6 +613,12 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
     fflush(stdout);
 }
 
+/**
+ * @brief Read a line of input from a piped stdin (non-interactive mode).
+ * @param arena Arena allocator for the input buffer.
+ * @param cmd_count Current command count for the prompt.
+ * @return The input string, or NULL on EOF/error.
+ */
 static char* get_smart_input_piped(void *arena, int cmd_count) {
     char prompt[128];
     snprintf(prompt, sizeof(prompt), PROMPT_COLOR "In [%d]:" PROMPT_RESET " ", cmd_count);
@@ -562,6 +642,14 @@ static char* get_smart_input_piped(void *arena, int cmd_count) {
     return input_buffer;
 }
 
+/**
+ * @brief Read interactive input with smart editing features.
+ * @param arena Arena allocator for the input buffer.
+ * @param cmd_count Current command count for the prompt.
+ * @param sem_ctx Semantic context for autocomplete.
+ * @param indentation_scope Whether indentation-based scope is active.
+ * @return The input string, or NULL on EOF/error.
+ */
 char* get_smart_input(void *arena, int cmd_count, void *sem_ctx, int indentation_scope) {
     if (!isatty(STDIN_FILENO)) {
         return get_smart_input_piped(arena, cmd_count);

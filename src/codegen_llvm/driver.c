@@ -19,6 +19,9 @@ static int llvm_native_initialized = 0;
 static LLVMTargetMachineRef cached_target_machine = NULL;
 static char *cached_triple = NULL;
 
+/**
+ * @brief Ensures the LLVM native target infrastructure is initialized.
+ */
 static void ensure_llvm_initialized(void) {
     if (!llvm_native_initialized) {
         LLVMInitializeNativeTarget();
@@ -28,6 +31,11 @@ static void ensure_llvm_initialized(void) {
     }
 }
 
+/**
+ * @brief Retrieves (and caches) the LLVM target machine for a given optimization level.
+ * @param optimization_level The LLVM optimization level to use.
+ * @return The LLVM target machine, or NULL on failure.
+ */
 static LLVMTargetMachineRef get_target_machine(int optimization_level) {
     static int current_level = -1;
     static LLVMTargetMachineRef aggressive_machine = NULL;
@@ -65,6 +73,15 @@ static LLVMTargetMachineRef get_target_machine(int optimization_level) {
     return cached_target_machine;
 }
 
+/**
+ * @brief Runs the LLVM backend on an ALIR module to produce an object file and link it.
+ * @param module The ALIR module to compile.
+ * @param basename The output file basename.
+ * @param link_flags Extra flags to pass to the linker.
+ * @param optimization_level The LLVM optimization level.
+ * @param linker The linker type to use.
+ * @return 0 on success, 1 on error.
+ */
 int backend_run_alir(AlirModule *module, const char *basename, const char *link_flags, int optimization_level, LinkerType linker) {
     if (!module) return 1;
 

@@ -6,6 +6,14 @@
 #include "../../include/common/diagnostic.h"
 #include <stdarg.h>
 
+/**
+ * @brief Report a formatted ALIR checker error.
+ * @param ctx ALIR checker context.
+ * @param func Function containing the error.
+ * @param block Block containing the error.
+ * @param inst Instruction causing the error.
+ * @param fmt printf-style format string.
+ */
 void alick_error(AlickCtx *ctx, AlirFunction *func, AlirBlock *block, AlirInst *inst, const char *fmt, ...) {
     ctx->error_count++;
     if (ctx->module && ctx->module->compiler_ctx) {
@@ -52,6 +60,14 @@ void alick_error(AlickCtx *ctx, AlirFunction *func, AlirBlock *block, AlirInst *
     }
 }
 
+/**
+ * @brief Report a formatted ALIR checker warning.
+ * @param ctx ALIR checker context.
+ * @param func Function containing the warning.
+ * @param block Block containing the warning.
+ * @param inst Instruction causing the warning.
+ * @param fmt printf-style format string.
+ */
 void alick_warning(AlickCtx *ctx, AlirFunction *func, AlirBlock *block, AlirInst *inst, const char *fmt, ...) {
     ctx->warning_count++;
     
@@ -90,6 +106,11 @@ void alick_warning(AlickCtx *ctx, AlirFunction *func, AlirBlock *block, AlirInst
     }
 }
 
+/**
+ * @brief Run all ALIR checker passes over a module.
+ * @param mod Module to verify.
+ * @return Number of errors found.
+ */
 int alick_check_module(AlirModule *mod) {
     if (!mod) return 0;
     

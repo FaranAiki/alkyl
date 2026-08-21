@@ -6,7 +6,13 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-// Helper to construct a temporary lexer for reporting
+/**
+ * @brief Sets up a temporary lexer for diagnostic reporting.
+ * @param l Lexer to initialize.
+ * @param ctx Semantic context.
+ * @param filename Filename for the report.
+ * @param source Source code for the report.
+ */
 static void setup_report_lexer(Lexer *l, SemanticCtx *ctx, const char *filename, const char *source) {
     if (ctx->compiler_ctx) {
         lexer_init(l, ctx->compiler_ctx,
@@ -20,6 +26,13 @@ static void setup_report_lexer(Lexer *l, SemanticCtx *ctx, const char *filename,
     }
 }
 
+/**
+ * @brief Emits a semantic hint message tied to an AST node.
+ * @param ctx Semantic context.
+ * @param node AST node for location info.
+ * @param fmt Format string.
+ * @param ... Variadic arguments for the format string.
+ */
 void sem_hint(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     char msg[1024];
     va_list args;
@@ -45,6 +58,13 @@ void sem_hint(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     }
 }
 
+/**
+ * @brief Emits a semantic error message tied to an AST node and increments the error count.
+ * @param ctx Semantic context.
+ * @param node AST node for location info.
+ * @param fmt Format string.
+ * @param ... Variadic arguments for the format string.
+ */
 void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     if (ctx->compiler_ctx) {
         ctx->compiler_ctx->semantic_error_count++;
@@ -78,6 +98,12 @@ void sem_error(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     }
 }
 // DFS to check for size cycles
+/**
+ * @brief Recursively checks for cyclic dependencies in class sizes.
+ * @param ctx Semantic context.
+ * @param sym Symbol to check.
+ * @return 1 if no cycle, 0 if a cycle is detected.
+ */
 static int check_class_size_cycle(SemanticCtx *ctx, SemSymbol *sym) {
     if (!sym || sym->kind != SYM_CLASS) return 1;
     if (sym->must_pure) { // visiting
@@ -115,6 +141,13 @@ static int check_class_size_cycle(SemanticCtx *ctx, SemSymbol *sym) {
     return 1;
 }
 
+/**
+ * @brief Emits a semantic warning message tied to an AST node.
+ * @param ctx Semantic context.
+ * @param node AST node for location info.
+ * @param fmt Format string.
+ * @param ... Variadic arguments for the format string.
+ */
 void sem_warning(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     char msg[1024];
     va_list args;
@@ -142,6 +175,13 @@ void sem_warning(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     }
 }
 
+/**
+ * @brief Emits a semantic info message tied to an AST node.
+ * @param ctx Semantic context.
+ * @param node AST node for location info.
+ * @param fmt Format string.
+ * @param ... Variadic arguments for the format string.
+ */
 void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
     char msg[1024];
     va_list args;
@@ -169,6 +209,10 @@ void sem_info(SemanticCtx *ctx, ASTNode *node, const char *fmt, ...) {
 
 // TODO: make sure that
 // ErrFileNotFound(char* fn) is possible!
+/**
+ * @brief Registers built-in error symbols in the semantic context.
+ * @param ctx Semantic context.
+ */
 void sem_register_builtins(SemanticCtx *ctx) {
     if (ctx->compiler_ctx) {
         VarType err_type = {TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
@@ -190,6 +234,12 @@ void sem_register_builtins(SemanticCtx *ctx) {
     }
 }
 
+/**
+ * @brief Runs full semantic checking on an AST program.
+ * @param ctx Semantic context.
+ * @param root Root AST node of the program.
+ * @return Number of semantic errors found.
+ */
 int sem_check_program(SemanticCtx *ctx, ASTNode *root) {
     if (!root) return 0;
 

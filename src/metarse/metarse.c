@@ -44,6 +44,10 @@ void executor_init(Executor *e, const char *module_name,
     }
 }
 
+/**
+ * @brief Clean up an Executor and free all associated resources.
+ * @param e The Executor to clean up.
+ */
 void executor_cleanup(Executor *e) {
     metalir_vm_free(e->vm);
     arena_free(&e->vm_arena);
@@ -67,6 +71,11 @@ ASTNode* executor_parse_source(Executor *e, const char *source,
     return parse_program(&e->p);
 }
 
+/**
+ * @brief Generate ALIR from a semantic-checked AST.
+ * @param e The Executor instance.
+ * @param root The root AST node.
+ */
 void executor_alir_generate(Executor *e, ASTNode *root) {
     AlirCtx a = {0};
     a.sem = &e->sem;
@@ -79,6 +88,12 @@ void executor_alir_generate(Executor *e, ASTNode *root) {
     }
 }
 
+/**
+ * @brief Find an ALIR function by name in a module.
+ * @param module The ALIR module.
+ * @param name Function name to find.
+ * @return The ALIR function, or NULL if not found.
+ */
 AlirFunction* alir_find_function(AlirModule *module, const char *name) {
     AlirFunction *f = module->functions;
     while (f) {
@@ -88,6 +103,14 @@ AlirFunction* alir_find_function(AlirModule *module, const char *name) {
     return NULL;
 }
 
+/**
+ * @brief Execute a variable declaration node, optionally with an initializer.
+ * @param e The Executor instance.
+ * @param vd The variable declaration node.
+ * @param seq Sequence number for generating temporary function names.
+ * @param prefix Prefix for generated function names.
+ * @return The initial value of the variable.
+ */
 long long exec_var_decl(Executor *e, VarDeclNode *vd, int seq, const char *prefix) {
     long long initial_val = 0;
 
@@ -148,6 +171,12 @@ long long exec_var_decl(Executor *e, VarDeclNode *vd, int seq, const char *prefi
     return initial_val;
 }
 
+/**
+ * @brief Run a class definition node through semantic checking and ALIR generation.
+ * @param e The Executor instance.
+ * @param curr The class AST node.
+ * @param root The root AST node.
+ */
 void exec_class(Executor *e, ASTNode *curr, ASTNode *root) {
     sem_check_node(&e->sem, curr);
 
@@ -159,6 +188,11 @@ void exec_class(Executor *e, ASTNode *curr, ASTNode *root) {
     alir_gen_functions_recursive(&a, curr, NULL);
 }
 
+/**
+ * @brief Run a function definition node through ALIR generation.
+ * @param e The Executor instance.
+ * @param curr The function definition AST node.
+ */
 void exec_func_def(Executor *e, ASTNode *curr) {
     FuncDefNode *f = (FuncDefNode*)curr;
     if (f->has_body && !f->is_macro) {
@@ -169,6 +203,12 @@ void exec_func_def(Executor *e, ASTNode *curr) {
     }
 }
 
+/**
+ * @brief Dynamically link a shared library.
+ * @param e The Executor instance (unused).
+ * @param ln The link node containing the library name.
+ * @param is_repl Whether running in REPL mode.
+ */
 void exec_link(Executor *e, LinkNode *ln, int is_repl) {
     (void)e;
     (void)is_repl;
@@ -206,6 +246,11 @@ void exec_link(Executor *e, LinkNode *ln, int is_repl) {
 
 // TODO make sure this is possible to use the
 // import std.print okay
+/**
+ * @brief Print a REPL result value in a human-readable format.
+ * @param rt The result type.
+ * @param result The result value.
+ */
 static void print_repl_value(VarType rt, long long result) {
     if (rt.is_func_ptr) {
         printf("-> %p (%s)\n", (void*)(intptr_t)result, sem_type_to_str(rt));

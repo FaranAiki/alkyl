@@ -7,6 +7,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/**
+ * @brief Parses a variable declaration, handling mut/let, types, and initializers.
+ * @param p Parser context.
+ * @return Linked list of AST nodes (one per declared variable), or NULL on error.
+ */
 ASTNode* parse_var_decl_internal(Parser *p) {
   int line = p->current_token.line, col = p->current_token.col;
   int is_mut = 1; 

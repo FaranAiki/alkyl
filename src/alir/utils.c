@@ -5,6 +5,15 @@
 #include "alir.h"
 #include "common.h"
 
+/**
+ * @brief Allocate a new ALIR instruction.
+ * @param mod The ALIR module (used for allocation).
+ * @param op The opcode.
+ * @param dest Optional destination value.
+ * @param op1 First operand.
+ * @param op2 Second operand.
+ * @return The allocated instruction.
+ */
 AlirInst* mk_inst(AlirModule *mod, AlirOpcode op, AlirValue *dest, AlirValue *op1, AlirValue *op2) {
     AlirInst *i = alir_alloc(mod, sizeof(AlirInst));
     i->op = op;
@@ -16,6 +25,11 @@ AlirInst* mk_inst(AlirModule *mod, AlirOpcode op, AlirValue *dest, AlirValue *op
     return i;
 }
 
+/**
+ * @brief Append an instruction to the current ALIR block, stamping source location.
+ * @param ctx The ALIR context.
+ * @param i The instruction to emit.
+ */
 void emit(AlirCtx *ctx, AlirInst *i) {
     if (!ctx->current_block) return;
     if (i) {
@@ -34,10 +48,23 @@ void emit(AlirCtx *ctx, AlirInst *i) {
     alir_append_inst(ctx->current_block, i);
 }
 
+/**
+ * @brief Allocate a new temporary ALIR value.
+ * @param ctx The ALIR context.
+ * @param t The type of the temporary.
+ * @return The new temporary value.
+ */
 AlirValue* new_temp(AlirCtx *ctx, VarType t) {
     return alir_val_temp(ctx->module, t, ctx->temp_counter++);
 }
 
+/**
+ * @brief Promote a value to a target type, inserting a cast if necessary.
+ * @param ctx The ALIR context.
+ * @param v The value to promote.
+ * @param target The target type.
+ * @return The (possibly casted) value.
+ */
 AlirValue* promote(AlirCtx *ctx, AlirValue *v, VarType target) {
     if (v->type.base == target.base && v->type.ptr_depth == target.ptr_depth && v->type.is_tainted == target.is_tainted) return v;
 
@@ -47,6 +74,13 @@ AlirValue* promote(AlirCtx *ctx, AlirValue *v, VarType target) {
 }
 
 // Symbol Table (IR Level: Maps names to Allocas/Registers)
+/**
+ * @brief Add a symbol to the IR-level symbol table.
+ * @param ctx The ALIR context.
+ * @param name Symbol name.
+ * @param ptr Pointer value associated with the symbol.
+ * @param t Type of the symbol.
+ */
 void alir_add_symbol(AlirCtx *ctx, const char *name, AlirValue *ptr, VarType t) {
     AlirSymbol *s = alir_alloc(ctx->module, sizeof(AlirSymbol));
     s->name = alir_strdup(ctx->module, name);
@@ -57,6 +91,12 @@ void alir_add_symbol(AlirCtx *ctx, const char *name, AlirValue *ptr, VarType t) 
     hashmap_put(&ctx->symbol_map, s->name, s);
 }
 
+/**
+ * @brief Look up a symbol in the IR-level symbol table.
+ * @param ctx The ALIR context.
+ * @param name Symbol name to find.
+ * @return The symbol, or NULL if not found.
+ */
 AlirSymbol* alir_find_symbol(AlirCtx *ctx, const char *name) {
     AlirSymbol *s = (AlirSymbol*)hashmap_get(&ctx->symbol_map, name);
     if (s) return s;
@@ -71,6 +111,13 @@ AlirSymbol* alir_find_symbol(AlirCtx *ctx, const char *name) {
 }
 
 // what is new lower object
+/**
+ * @brief Lower a `new ClassName(args)` expression into IR allocation + constructor call.
+ * @param ctx The ALIR context.
+ * @param class_name Name of the class to instantiate.
+ * @param args Argument list AST node.
+ * @return The allocated object value, or NULL on failure.
+ */
 AlirValue* alir_lower_new_object(AlirCtx *ctx, const char *class_name, ASTNode *args) {
     // Verify struct exists in IR
     AlirStruct *st = alir_find_struct(ctx->module, class_name);

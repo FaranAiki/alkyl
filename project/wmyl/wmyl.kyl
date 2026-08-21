@@ -12,10 +12,6 @@ import "wlroots/core";
     void _exit(int status);
 }
 
-meta {
-    parser.ufcs = false;
-}
-
 class Server {
     void* new_input; // wl_listener must be first for container_of hack
     void* display;
@@ -29,8 +25,9 @@ class Server {
     void* seat;
 }
 
-@c extern { 
-    void* malloc(int size); 
+// TODO avoid using this I guess
+@c extern {
+    void* malloc(int size);
 }
 
 void server_new_input(void* listener, void* data) {
@@ -51,12 +48,12 @@ void server_new_input(void* listener, void* data) {
 int main() {
     std.printf("Starting wmyl (wlroots minimal WM)...\n");
 
-    let server = malloc(256) as Server*;
+    Server *server = malloc(256);
     server.new_input = malloc(64); // size of wl_listener
 
-    let display = wlroots.create_display();
+    void *display = wlroots.create_display();
     untaint display residue err { return 1; }
-    server.display = display as void*;
+    server.display = display;
 
     let socket = wlroots.add_socket_auto(display);
     untaint socket residue err { return 1; }
@@ -107,7 +104,7 @@ int main() {
     setenv("WAYLAND_DISPLAY", socket, 1);
     let pid = fork();
     if (pid == 0) {
-        execl("/bin/sh", "/bin/sh", "-c", "kitty", null as void*);
+        execl("/bin/sh", "/bin/sh", "-c", "kitty", null);
         _exit(1);
     }
 

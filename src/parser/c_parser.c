@@ -11,11 +11,21 @@
 #include <string.h>
 #include <ctype.h>
 
+/**
+ * @brief Report a C header parsing error.
+ * @param p The C parser.
+ * @param msg The error message.
+ */
 static void c_parser_error(CParser *p, const char *msg) {
     report_c_error(&p->lexer, p->current, msg);
     p->has_error = 1;
 }
 
+/**
+ * @brief Consume the current token if it matches the expected type.
+ * @param p The C parser.
+ * @param type The expected token type.
+ */
 static void c_eat(CParser *p, CTokenType type) {
     if (p->current.type == type) {
         p->current = c_lexer_next(&p->lexer);
@@ -29,10 +39,22 @@ static void c_eat(CParser *p, CTokenType type) {
     }
 }
 
+/**
+ * @brief Check if the current token matches the given type.
+ * @param p The C parser.
+ * @param type The token type to check.
+ * @return 1 if the current token matches, 0 otherwise.
+ */
 static int c_match(CParser *p, CTokenType type) {
     return p->current.type == type;
 }
 
+/**
+ * @brief Register a typedef name in the parser's typedef map.
+ * @param p The C parser.
+ * @param name The typedef name.
+ * @param type The associated type.
+ */
 static void c_register_typedef(CParser *p, const char *name, VarType type) {
     if (!name) return;
     VarType *vt = p->ctx ? arena_alloc(p->ctx->arena, sizeof(VarType)) : calloc(1, sizeof(VarType));
@@ -42,6 +64,12 @@ static void c_register_typedef(CParser *p, const char *name, VarType type) {
 
 static BaseType c_identifier_to_base_type(const char *name);
 
+/**
+ * @brief Look up a typedef name in the parser's typedef map.
+ * @param p The C parser.
+ * @param name The name to look up.
+ * @return The associated type, or TYPE_UNKNOWN if not found.
+ */
 static VarType c_lookup_typedef(CParser *p, const char *name) {
     if (!name) return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
     VarType *vt = (VarType*)hashmap_get(&p->typedef_map, name);
@@ -51,6 +79,11 @@ static VarType c_lookup_typedef(CParser *p, const char *name) {
     return (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
 }
 
+/**
+ * @brief Map a C type identifier string to an Alkyl base type.
+ * @param name The identifier string.
+ * @return The corresponding base type, or TYPE_UNKNOWN.
+ */
 static BaseType c_identifier_to_base_type(const char *name) {
     if (!name) return TYPE_UNKNOWN;
     if (streq_lit(name, "size_t")) return TYPE_UNSIGNED_LONG;
@@ -86,6 +119,12 @@ static BaseType c_identifier_to_base_type(const char *name) {
     return TYPE_UNKNOWN;
 }
 
+/**
+ * @brief Check if a token represents a C type keyword or known typedef.
+ * @param p The C parser.
+ * @param tok The token to check.
+ * @return 1 if it is a type token, 0 otherwise.
+ */
 static int c_is_type_token(CParser *p, CToken tok) {
     if (tok.type == C_TOKEN_VOID || tok.type == C_TOKEN_CHAR_KW || tok.type == C_TOKEN_SHORT ||
         tok.type == C_TOKEN_INT || tok.type == C_TOKEN_LONG || tok.type == C_TOKEN_FLOAT ||
@@ -103,6 +142,10 @@ static int c_is_type_token(CParser *p, CToken tok) {
     return 0;
 }
 
+/**
+ * @brief Skip C type modifiers (extern, static, const, etc.) while parsing.
+ * @param p The C parser.
+ */
 static void c_skip_modifiers(CParser *p) {
     while (!p->has_error && p->current.type != C_TOKEN_EOF) {
         if (c_match(p, C_TOKEN_TYPEDEF) || c_match(p, C_TOKEN_STRUCT) || c_match(p, C_TOKEN_UNION) || c_match(p, C_TOKEN_ENUM)) {
@@ -202,6 +245,13 @@ static void c_skip_modifiers(CParser *p) {
 
 static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs);
 
+/**
+ * @brief Parse a C type specifier into an Alkyl VarType.
+ * @param p The C parser.
+ * @param out_ptr_depth Output pointer depth.
+ * @param out_array_size Output array size.
+ * @return The parsed VarType.
+ */
 static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_size) {
     c_skip_modifiers(p);
     VarType type = {TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0};
@@ -508,6 +558,11 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
     return type;
 }
 
+/**
+ * @brief Parse an extern function declaration.
+ * @param p The C parser.
+ * @return The parsed function definition AST node, or NULL on error.
+ */
 static ASTNode* c_parse_extern_function(CParser *p) {
     char *cconv = NULL;
     char *extern_name = NULL;
@@ -632,6 +687,12 @@ static ASTNode* c_parse_extern_function(CParser *p) {
     return (ASTNode*)func;
 }
 
+/**
+ * @brief Parse a C function parameter list.
+ * @param p The C parser.
+ * @param out_is_varargs Output flag indicating if the function is varargs.
+ * @return The parameter list, or NULL.
+ */
 static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
     Parameter *head = NULL;
     Parameter **curr = &head;
@@ -766,6 +827,12 @@ static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
     return head;
 }
 
+/**
+ * @brief Parse a C struct or union definition.
+ * @param p The C parser.
+ * @param is_union 1 if parsing a union, 0 if parsing a struct.
+ * @return The parsed struct/union AST node, or NULL on error.
+ */
 static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
     if (c_match(p, C_TOKEN_STRUCT) || c_match(p, C_TOKEN_UNION)) {
         c_eat(p, p->current.type);
@@ -1295,6 +1362,11 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
     return (ASTNode*)sn;
 }
 
+/**
+ * @brief Parse a C enum definition.
+ * @param p The C parser.
+ * @return The parsed enum AST node, or NULL on error.
+ */
 static ASTNode* c_parse_enum(CParser *p) {
     c_eat(p, C_TOKEN_ENUM);
 
@@ -1425,6 +1497,11 @@ static ASTNode* c_parse_enum(CParser *p) {
     return (ASTNode*)en;
 }
 
+/**
+ * @brief Parse a C typedef declaration.
+ * @param p The C parser.
+ * @return The parsed typedef AST node, or NULL on error.
+ */
 static ASTNode* c_parse_typedef(CParser *p) {
     c_eat(p, C_TOKEN_TYPEDEF);
 
@@ -1794,6 +1871,11 @@ static ASTNode* c_parse_typedef(CParser *p) {
     return NULL;
 }
 
+/**
+ * @brief Parse an extern variable declaration.
+ * @param p The C parser.
+ * @return The parsed variable declaration AST node, or NULL on error.
+ */
 static ASTNode* c_parse_extern_variable(CParser *p) {
     c_skip_modifiers(p);
 
@@ -1839,6 +1921,11 @@ static ASTNode* c_parse_extern_variable(CParser *p) {
     return (ASTNode*)var;
 }
 
+/**
+ * @brief Parse a generic C declaration (function, variable, typedef, etc.).
+ * @param p The C parser.
+ * @return The parsed declaration AST node, or NULL on error.
+ */
 static ASTNode* c_parse_declaration(CParser *p) {
     p->has_error = 0;
     c_skip_modifiers(p);
@@ -1985,6 +2072,13 @@ static ASTNode* c_parse_declaration(CParser *p) {
     }
 }
 
+/**
+ * @brief Initialize a C parser instance.
+ * @param p The C parser to initialize.
+ * @param ctx The compiler context.
+ * @param filename The source filename.
+ * @param source The source code string.
+ */
 void c_parser_init(CParser *p, CompilerContext *ctx, const char *filename, const char *source) {
     memset(p, 0, sizeof(CParser));
     c_lexer_init(&p->lexer, ctx, filename, source);
@@ -2001,6 +2095,11 @@ void c_parser_init(CParser *p, CompilerContext *ctx, const char *filename, const
     p->cond_stack.active = arena_alloc(ctx->arena, sizeof(int) * p->cond_stack.capacity);
 }
 
+/**
+ * @brief Parse a C header file into an AST.
+ * @param p The C parser.
+ * @return The root AST node, or NULL on error.
+ */
 ASTNode* c_parse_header(CParser *p) {
     ASTNode *head = NULL;
     ASTNode **curr = &head;
@@ -2024,6 +2123,12 @@ ASTNode* c_parse_header(CParser *p) {
     return head;
 }
 
+/**
+ * @brief Preprocess a C header file (read and return contents).
+ * @param ctx The compiler context.
+ * @param fname The header file path.
+ * @return The file contents, or NULL on error.
+ */
 char* c_preprocess_header(CompilerContext *ctx, const char *fname) {
     char cmd[4096] = {0};
     char include_flags[1024] = {0};

@@ -8,6 +8,11 @@
 #include "alir/lvalue.h"
 #include "alir/lvalue.h"
 
+/**
+ * @brief Get the alignment requirement for a type.
+ * @param t The variable type.
+ * @return The alignment in bytes.
+ */
 static int vm_get_type_align(VarType t) {
     if (t.ptr_depth > 0) return 8;
     if (t.array_size > 0) return 8;
@@ -19,6 +24,13 @@ static int vm_get_type_align(VarType t) {
     }
 }
 
+/**
+ * @brief Get the byte offset of a struct field by index.
+ * @param mod The ALIR module.
+ * @param struct_name Name of the struct.
+ * @param field_index Index of the field.
+ * @return Byte offset of the field.
+ */
 static int get_struct_field_offset_vm(AlirModule *mod, const char *struct_name, int field_index) {
     AlirStruct *st = alir_find_struct(mod, struct_name);
     if (!st || !st->fields) return field_index * 8;
@@ -37,6 +49,11 @@ static int get_struct_field_offset_vm(AlirModule *mod, const char *struct_name, 
     return field_index * 8;
 }
 
+/**
+ * @brief Evaluate a memory instruction in the MetalirVM.
+ * @param ctx The VM execution context.
+ * @param inst The ALIR instruction to evaluate.
+ */
 void vm_eval_mem(VMContext *ctx, AlirInst *inst) {
     switch(inst->op) {
 case ALIR_OP_ALLOCA: {

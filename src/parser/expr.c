@@ -10,6 +10,12 @@ Token parser_peek_token_n(Parser *p, int offset);
 
 ASTNode* parse_unary(Parser *p);
 
+/**
+ * @brief Parses a function/method call expression.
+ * @param p Parser context.
+ * @param target Target expression (e.g. member access for method calls).
+ * @return AST node for the call, or NULL on error.
+ */
 ASTNode* parse_call(Parser *p, ASTNode *target) {
   char *name = NULL;
   if (target && target->type == NODE_VAR_REF) {
@@ -157,6 +163,12 @@ static ASTNode* parse_space_separated_call(Parser *p, ASTNode *target) {
   return (ASTNode*)node;
 }
 
+/**
+ * @brief Parses postfix expressions (member access, indexing, calls, casts, etc.).
+ * @param p Parser context.
+ * @param node Initial expression node.
+ * @return AST node after applying postfix operators.
+ */
 ASTNode* parse_postfix(Parser *p, ASTNode *node) {
     while (1) { if (p->has_error) break;
         int line = p->current_token.line;
@@ -352,6 +364,11 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
 }
 
 // TODO split this
+/**
+ * @brief Parses a primary factor (literal, identifier, type name, array, import, etc.).
+ * @param p Parser context.
+ * @return AST node for the factor, or NULL on error.
+ */
 ASTNode* parse_factor(Parser *p) {
   ASTNode *node = NULL;
   int line = p->current_token.line;
@@ -1096,6 +1113,11 @@ ASTNode* parse_factor(Parser *p) {
   return parse_postfix(p, node);
 }
 
+/**
+ * @brief Parses a unary expression (prefix operators, parenthesized expressions).
+ * @param p Parser context.
+ * @return AST node for the unary expression, or NULL on error.
+ */
 ASTNode* parse_unary(Parser *p) {
   if (p->has_error) return NULL;
   int line = p->current_token.line;
@@ -1166,47 +1188,102 @@ static ASTNode* parse_binary_op(Parser *p, ASTNode* (*sub_parser)(Parser*), Toke
   return left;
 }
 
+/**
+ * @brief Parses multiplicative expressions (star, slash, mod).
+ * @param p Parser context.
+ * @return AST node for the term.
+ */
 ASTNode* parse_term(Parser *p) {
   TokenType ops[] = {TOKEN_STAR, TOKEN_SLASH, TOKEN_MOD};
   return parse_binary_op(p, parse_unary, ops, 3);
 }
+/**
+ * @brief Parses additive expressions (plus, minus).
+ * @param p Parser context.
+ * @return AST node for the additive expression.
+ */
 ASTNode* parse_additive(Parser *p) {
   TokenType ops[] = {TOKEN_PLUS, TOKEN_MINUS};
   return parse_binary_op(p, parse_term, ops, 2);
 }
+/**
+ * @brief Parses shift expressions (<<, >>, <<%, %>>).
+ * @param p Parser context.
+ * @return AST node for the shift expression.
+ */
 ASTNode* parse_shift(Parser *p) {
   TokenType ops[] = {TOKEN_LSHIFT, TOKEN_RSHIFT, TOKEN_LROTATE, TOKEN_RROTATE};
   return parse_binary_op(p, parse_additive, ops, 4);
 }
+/**
+ * @brief Parses relational expressions (<, >, <=, >=).
+ * @param p Parser context.
+ * @return AST node for the relational expression.
+ */
 ASTNode* parse_relational(Parser *p) {
   TokenType ops[] = {TOKEN_LT, TOKEN_GT, TOKEN_LTE, TOKEN_GTE};
   return parse_binary_op(p, parse_shift, ops, 4);
 }
+/**
+ * @brief Parses equality expressions (==, !=).
+ * @param p Parser context.
+ * @return AST node for the equality expression.
+ */
 ASTNode* parse_equality(Parser *p) {
   TokenType ops[] = {TOKEN_EQ, TOKEN_NEQ};
   return parse_binary_op(p, parse_relational, ops, 2);
 }
+/**
+ * @brief Parses bitwise AND expressions (&).
+ * @param p Parser context.
+ * @return AST node for the bitwise AND expression.
+ */
 ASTNode* parse_bitwise_and(Parser *p) {
   TokenType ops[] = {TOKEN_AND};
   return parse_binary_op(p, parse_equality, ops, 1);
 }
+/**
+ * @brief Parses bitwise XOR expressions (^).
+ * @param p Parser context.
+ * @return AST node for the bitwise XOR expression.
+ */
 ASTNode* parse_bitwise_xor(Parser *p) {
   TokenType ops[] = {TOKEN_XOR};
   return parse_binary_op(p, parse_bitwise_and, ops, 1);
 }
+/**
+ * @brief Parses bitwise OR expressions (|).
+ * @param p Parser context.
+ * @return AST node for the bitwise OR expression.
+ */
 ASTNode* parse_bitwise_or(Parser *p) {
   TokenType ops[] = {TOKEN_OR};
   return parse_binary_op(p, parse_bitwise_xor, ops, 1);
 }
+/**
+ * @brief Parses logical AND expressions (&&).
+ * @param p Parser context.
+ * @return AST node for the logical AND expression.
+ */
 ASTNode* parse_logic_and(Parser *p) {
   TokenType ops[] = {TOKEN_AND_AND};
   return parse_binary_op(p, parse_bitwise_or, ops, 1);
 }
+/**
+ * @brief Parses logical OR expressions (||).
+ * @param p Parser context.
+ * @return AST node for the logical OR expression.
+ */
 ASTNode* parse_logic_or(Parser *p) {
   TokenType ops[] = {TOKEN_OR_OR};
   return parse_binary_op(p, parse_logic_and, ops, 1);
 }
 
+/**
+ * @brief Parses fallback/ternary expressions (? and ??).
+ * @param p Parser context.
+ * @return AST node for the fallback expression.
+ */
 ASTNode* parse_fallback(Parser *p) {
   ASTNode *left = parse_logic_or(p);
   while (p->current_token.type == TOKEN_QUESTION || p->current_token.type == TOKEN_QUESTION_QUESTION) { if (p->has_error) break;
@@ -1284,6 +1361,11 @@ ASTNode* parse_fallback(Parser *p) {
   return left;
 }
 
+/**
+ * @brief Parses the dollar-prefix call syntax ($expr).
+ * @param p Parser context.
+ * @return AST node for the dollar expression.
+ */
 ASTNode* parse_dollar(Parser *p) {
   ASTNode *lhs = parse_fallback(p);
   if (p->has_error) return lhs;
@@ -1326,6 +1408,11 @@ ASTNode* parse_dollar(Parser *p) {
   return lhs;
 }
 
+/**
+ * @brief Parses assignment expressions (including compound assignments).
+ * @param p Parser context.
+ * @return AST node for the assignment, or the LHS if no assignment operator follows.
+ */
 ASTNode* parse_assignment(Parser *p) {
   ASTNode *lhs = parse_dollar(p);
   if (p->has_error) return lhs;
@@ -1367,10 +1454,21 @@ ASTNode* parse_assignment(Parser *p) {
   return lhs;
 }
 
+/**
+ * @brief Parses a full expression (entry point for expression parsing).
+ * @param p Parser context.
+ * @return AST node for the expression, or NULL on error.
+ */
 ASTNode* parse_expression(Parser *p) {
   if (p->has_error) return NULL;
   return parse_assignment(p);
 }
+/**
+ * @brief Parses an initializer (assignment or constructor-call style).
+ * @param p Parser context.
+ * @param vtype Expected type for the initializer.
+ * @return AST node for the initializer, or NULL if not present.
+ */
 ASTNode* parse_initializer(Parser *p, VarType vtype) {
     if (p->current_token.type == TOKEN_ASSIGN) {
         eat(p, TOKEN_ASSIGN);

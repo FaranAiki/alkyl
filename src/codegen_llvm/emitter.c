@@ -8,6 +8,11 @@
 #include <string.h>
 #include <stdio.h>
 
+/**
+ * @brief Emit the LLVM module to an object or IR file.
+ * @param ctx Code generation context.
+ * @param filename Output file path.
+ */
 void codegen_emit_to_file(CodegenCtx *ctx, const char *filename) {
     if (!ctx || !ctx->llvm_mod) return;
     char *err_msg = NULL;
@@ -18,6 +23,10 @@ void codegen_emit_to_file(CodegenCtx *ctx, const char *filename) {
     }
 }
 
+/**
+ * @brief Print the LLVM module IR to stdout.
+ * @param ctx Code generation context.
+ */
 void codegen_print(CodegenCtx *ctx) {
     if (!ctx || !ctx->llvm_mod) return;
     char *ir = LLVMPrintModuleToString(ctx->llvm_mod);

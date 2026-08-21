@@ -11,16 +11,30 @@ ASTNode **mlir_defers = NULL;
 int mlir_defer_count = 0;
 int mlir_defer_capacity = 0;
 
+/**
+ * @brief Reset the MLIR defer statement stack.
+ */
 void reset_mlir_defers() {
     mlir_defer_count = 0;
 }
 
+/**
+ * @brief Execute all deferred statements in LIFO order.
+ * @param ctx The MLIR context.
+ * @param mod The MLIR module.
+ */
 void execute_mlir_defers(AlkylMlirContext ctx, AlkylMlirModule mod) {
     for (int i = mlir_defer_count - 1; i >= 0; i--) {
         mlir_gen_stmt(ctx, mod, mlir_defers[i]);
     }
 }
 
+/**
+ * @brief Generate MLIR code for an AST statement node.
+ * @param ctx The MLIR context.
+ * @param mod The MLIR module.
+ * @param node The AST statement node.
+ */
 void mlir_gen_stmt(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node) {
     if (!node) return;
     

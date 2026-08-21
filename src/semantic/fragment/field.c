@@ -4,6 +4,12 @@
  */
 #include "semantic.h"
 
+/**
+ * @brief Count the total number of fields in a class, including inherited and trait fields.
+ * @param ctx Semantic context.
+ * @param sym Class symbol to count fields for.
+ * @return Total number of fields.
+ */
 int sem_count_class_fields(SemanticCtx *ctx, SemSymbol *sym) {
     if (!sym || sym->kind != SYM_CLASS) return 0;
     int count = 0;
@@ -27,6 +33,12 @@ int sem_count_class_fields(SemanticCtx *ctx, SemSymbol *sym) {
     return count;
 }
 
+/**
+ * @brief Count the number of required fields (those without default initializers) in a class.
+ * @param ctx Semantic context.
+ * @param sym Class symbol to count required fields for.
+ * @return Number of required fields.
+ */
 int sem_count_required_class_fields(SemanticCtx *ctx, SemSymbol *sym) {
     if (!sym || sym->kind != SYM_CLASS) return 0;
     int count = 0;
@@ -57,6 +69,13 @@ int sem_count_required_class_fields(SemanticCtx *ctx, SemSymbol *sym) {
     return count;
 }
 
+/**
+ * @brief Collect all VarDeclNode pointers for a class's fields into an array.
+ * @param ctx Semantic context.
+ * @param sym Class symbol to collect fields from.
+ * @param fields Output array of VarDeclNode pointers.
+ * @param idx Pointer to an index counter updated during collection.
+ */
 void sem_collect_class_fields(SemanticCtx *ctx, SemSymbol *sym, VarDeclNode **fields, int *idx) {
     if (!sym || sym->kind != SYM_CLASS) return;
     if (sym->parent_name) {

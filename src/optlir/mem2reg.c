@@ -8,6 +8,10 @@
 #include <string.h>
 #include <stdio.h>
 
+/**
+ * @brief Promote stack allocations to registers where possible (local mem2reg pass).
+ * @param module The ALIR module.
+ */
 void optlir_mem2reg_local(AlirModule *module) {
     AlirFunction *func = module->functions;
     while(func) {
@@ -91,6 +95,10 @@ void optlir_mem2reg_local(AlirModule *module) {
     }
 }
 
+/**
+ * @brief Dead-code eliminate unused alloca instructions.
+ * @param module The ALIR module.
+ */
 void optlir_dce_allocs(AlirModule *module) {
     AlirFunction *func = module->functions;
     while(func) {

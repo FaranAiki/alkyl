@@ -9,6 +9,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * @brief Runs the QBE backend on an ALIR module to produce an SSA file, invoke QBE, and link.
+ * @param module The ALIR module to compile.
+ * @param basename The output file basename.
+ * @param link_flags Extra flags to pass to the linker.
+ * @param optimization_level Optimization level (currently unused for QBE).
+ * @param linker The linker type to use.
+ * @return 0 on success, 1 on error.
+ */
 int backend_run_alir(AlirModule *module, const char *basename, const char *link_flags, int optimization_level, LinkerType linker) {
     (void)optimization_level;
     char outname[256];

@@ -9,6 +9,11 @@
 #include <string.h>
 #include <ctype.h>
 
+/**
+ * @brief Maps an Alkyl variable type to its QBE type character code.
+ * @param t The variable type.
+ * @return The QBE type character (e.g. 'w', 'l', 's', 'd', 'v').
+ */
 char qbe_type(VarType t) {
     if (t.ptr_depth > 0) return 'l';
     if (t.is_tainted) return 'l';
@@ -48,6 +53,11 @@ char qbe_type(VarType t) {
     }
 }
 
+/**
+ * @brief Returns the size in bytes for a given QBE type character.
+ * @param qtype The QBE type character.
+ * @return The size in bytes.
+ */
 int qbe_type_size(char qtype) {
     switch (qtype) {
         case 'w': return 4;
@@ -58,6 +68,11 @@ int qbe_type_size(char qtype) {
     }
 }
 
+/**
+ * @brief Prints an ALIR value as a QBE operand to the output stream.
+ * @param out The output file stream.
+ * @param v The ALIR value to print.
+ */
 void print_val(FILE *out, AlirValue *v) {
     if (!v) return;
     switch (v->kind) {

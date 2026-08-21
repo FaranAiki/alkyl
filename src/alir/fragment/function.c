@@ -1,5 +1,11 @@
 #include "alir.h"
 
+/**
+ * @brief Generate ALIR for a function definition, setting up parameters and body.
+ * @param ctx The ALIR context.
+ * @param fn The function definition AST node.
+ * @param class_name Optional class name if this is a method.
+ */
 void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     if (fn->is_macro) return;
     if (fn->is_flux) {
@@ -178,6 +184,12 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
     }
 }
 
+/**
+ * @brief Generate IR for a standard (non-method) function call.
+ * @param ctx The ALIR context.
+ * @param cn The call AST node.
+ * @return Result value of the call, or NULL on failure.
+ */
 AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
     debug_alir("CALL_STD: name=%s mangled=%s target_type=%d\n", cn->name ? cn->name : "NULL", cn->mangled_name ? cn->mangled_name : "NULL", cn->target ? (int)cn->target->type : -1);
     const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;
@@ -397,6 +409,12 @@ AlirValue* alir_gen_call_std(AlirCtx *ctx, CallNode *cn) {
     return dest;
 }
 
+/**
+ * @brief Generate IR for a function call, dispatching to constructor, macro, or std call.
+ * @param ctx The ALIR context.
+ * @param cn The call AST node.
+ * @return Result value of the call, or NULL on failure.
+ */
 AlirValue* alir_gen_call(AlirCtx *ctx, CallNode *cn) {
     debug_alir("GEN_CALL: name=%s mangled=%s\n", cn->name ? cn->name : "NULL", cn->mangled_name ? cn->mangled_name : "NULL");
     const char *target_name = cn->mangled_name ? cn->mangled_name : cn->name;

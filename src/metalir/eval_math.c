@@ -7,6 +7,11 @@
 #include <string.h>
 #include "common/diagnostic.h"
 
+/**
+ * @brief Evaluate a math instruction in the MetalirVM.
+ * @param ctx The VM execution context.
+ * @param inst The ALIR instruction to evaluate.
+ */
 void vm_eval_math(VMContext *ctx, AlirInst *inst) {
     long long v1 = 0, v2 = 0;
     switch(inst->op) {

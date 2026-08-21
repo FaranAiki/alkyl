@@ -11,6 +11,11 @@
 
 ConstVal eval_pure_function(AlirModule *module, AlirFunction *func, AlirValue **args, int arg_count, VarType ret_type);
 
+/**
+ * @brief Extract a constant value from an ALIR value if possible.
+ * @param val The ALIR value.
+ * @return The constant value wrapper.
+ */
 static ConstVal get_const_for_value(AlirValue *val) {
     ConstVal res = {0};
     if (!val) return res;
@@ -30,6 +35,14 @@ static ConstVal get_const_for_value(AlirValue *val) {
     return res;
 }
 
+/**
+ * @brief Evaluate a binary operation on two constant values.
+ * @param op The ALIR operation code.
+ * @param l Left-hand constant value.
+ * @param r Right-hand constant value.
+ * @param type The result type.
+ * @return The computed constant value.
+ */
 static ConstVal eval_const_binary(int op, ConstVal l, ConstVal r, VarType type) {
     ConstVal res = {0};
     res.is_float = (type.base == TYPE_SINGLE || type.base == TYPE_DOUBLE);
@@ -94,6 +107,13 @@ static ConstVal eval_const_binary(int op, ConstVal l, ConstVal r, VarType type) 
     return res;
 }
 
+/**
+ * @brief Evaluate a unary operation on a constant value.
+ * @param op The ALIR operation code.
+ * @param v The constant value.
+ * @param type The result type.
+ * @return The computed constant value.
+ */
 static ConstVal eval_const_unary(int op, ConstVal v, VarType type) {
     ConstVal res = {0};
     res.is_float = (type.base == TYPE_SINGLE || type.base == TYPE_DOUBLE);
@@ -116,6 +136,12 @@ static ConstVal eval_const_unary(int op, ConstVal v, VarType type) {
     return res;
 }
 
+/**
+ * @brief Check if an operation is an identity for a given constant.
+ * @param op The ALIR operation code.
+ * @param c The constant value.
+ * @return 1 if the operation is an identity, 0 otherwise.
+ */
 static int is_identity_op(int op, ConstVal c) {
     if (!c.is_const) return 0;
     if (c.int_val == 0 && (op == ALIR_OP_ADD || op == ALIR_OP_SUB || op == ALIR_OP_OR || op == ALIR_OP_XOR)) return 1;
@@ -125,10 +151,21 @@ static int is_identity_op(int op, ConstVal c) {
     return 0;
 }
 
+/**
+ * @brief Check if an operation is self-canceling (e.g., x - x, x ^ x).
+ * @param op The ALIR operation code.
+ * @return 1 if the operation is self-canceling, 0 otherwise.
+ */
 static int is_self_cancel_op(int op) {
     return (op == ALIR_OP_SUB || op == ALIR_OP_XOR);
 }
 
+/**
+ * @brief Remove an instruction from a block's instruction list.
+ * @param block The ALIR block.
+ * @param prev The previous instruction, or NULL if removing the head.
+ * @param inst The instruction to remove.
+ */
 static void remove_instruction(AlirBlock *block, AlirInst *prev, AlirInst *inst) {
     if (prev) {
         prev->next = inst->next;
@@ -140,10 +177,21 @@ static void remove_instruction(AlirBlock *block, AlirInst *prev, AlirInst *inst)
     }
 }
 
+/**
+ * @brief Free a block edge list (currently a no-op).
+ * @param e The block edge to free.
+ */
 static void free_edges(BlockEdge *e) {
     (void)e;
 }
 
+/**
+ * @brief Redirect all jump targets matching old_label to new_label within a block.
+ * @param module The ALIR module.
+ * @param b The block to process.
+ * @param old_label The label to replace.
+ * @param new_label The replacement label.
+ */
 static void redirect_label_to(AlirModule *module, AlirBlock *b, const char *old_label, const char *new_label) {
     if (!b || !old_label || !new_label || streq_lit(old_label, new_label)) return;
     AlirInst *i = b->head;
@@ -165,6 +213,13 @@ static void redirect_label_to(AlirModule *module, AlirBlock *b, const char *old_
     }
 }
 
+/**
+ * @brief Redirect a label in all blocks of a function.
+ * @param module The ALIR module.
+ * @param func The ALIR function.
+ * @param old_label The label to replace.
+ * @param new_label The replacement label.
+ */
 static void redirect_label_in_all_blocks(AlirModule *module, AlirFunction *func, const char *old_label, const char *new_label) {
     AlirBlock *b = func->blocks;
     while (b) {
@@ -175,6 +230,11 @@ static void redirect_label_in_all_blocks(AlirModule *module, AlirFunction *func,
 
 static AlirBlock* find_block_by_label(AlirFunction *func, const char *label);
 
+/**
+ * @brief Build predecessor and successor edges for all blocks in a function.
+ * @param func The ALIR function.
+ * @param arena Arena allocator for edges.
+ */
 static void build_pred_succ(AlirFunction *func, Arena *arena) {
     if (!func || !func->blocks) return;
     AlirBlock *b = func->blocks;
@@ -233,6 +293,11 @@ static void build_pred_succ(AlirFunction *func, Arena *arena) {
     }
 }
 
+/**
+ * @brief Perform constant propagation on a single function.
+ * @param module The ALIR module.
+ * @param func The ALIR function.
+ */
 static void constant_propagate_function(AlirModule *module, AlirFunction *func) {
     (void)module;
     if (!func || !func->blocks) return;
@@ -342,6 +407,11 @@ static void constant_propagate_function(AlirModule *module, AlirFunction *func) 
     }
 }
 
+/**
+ * @brief Fold conditional branches with constant conditions in a function.
+ * @param module The ALIR module.
+ * @param func The ALIR function.
+ */
 static void fold_branches_function(AlirModule *module, AlirFunction *func) {
     if (!func || !func->blocks) return;
 
@@ -381,6 +451,12 @@ typedef struct BlockSet {
     int capacity;
 } BlockSet;
 
+/**
+ * @brief Initialize a block set.
+ * @param set The block set to initialize.
+ * @param capacity Initial capacity.
+ * @param arena Arena allocator.
+ */
 static void block_set_init(BlockSet *set, int capacity, Arena *arena) {
     set->blocks = arena_alloc(arena, sizeof(AlirBlock *) * capacity);
     memset(set->blocks, 0, sizeof(AlirBlock *) * capacity);
@@ -388,6 +464,12 @@ static void block_set_init(BlockSet *set, int capacity, Arena *arena) {
     set->capacity = capacity;
 }
 
+/**
+ * @brief Add a block to a block set.
+ * @param set The block set.
+ * @param b The block to add.
+ * @param arena Arena allocator for growth.
+ */
 static void block_set_add(BlockSet *set, AlirBlock *b, Arena *arena) {
     if (!b) return;
     for (int i = 0; i < set->count; i++) {
@@ -406,6 +488,12 @@ static void block_set_add(BlockSet *set, AlirBlock *b, Arena *arena) {
     set->blocks[set->count++] = b;
 }
 
+/**
+ * @brief Check if a block is in a block set.
+ * @param set The block set.
+ * @param b The block to check.
+ * @return 1 if present, 0 otherwise.
+ */
 static int block_set_has(BlockSet *set, AlirBlock *b) {
     if (!b) return 0;
     for (int i = 0; i < set->count; i++) {
@@ -414,12 +502,22 @@ static int block_set_has(BlockSet *set, AlirBlock *b) {
     return 0;
 }
 
+/**
+ * @brief Free a block set (reset fields).
+ * @param set The block set to free.
+ */
 static void block_set_free(BlockSet *set) {
     set->blocks = NULL;
     set->count = 0;
     set->capacity = 0;
 }
 
+/**
+ * @brief Find a block in a function by label.
+ * @param func The ALIR function.
+ * @param label The block label.
+ * @return The block, or NULL if not found.
+ */
 static AlirBlock* find_block_by_label(AlirFunction *func, const char *label) {
     if (!func || !label) return NULL;
     AlirBlock *b = func->blocks;
@@ -430,6 +528,12 @@ static AlirBlock* find_block_by_label(AlirFunction *func, const char *label) {
     return NULL;
 }
 
+/**
+ * @brief Mark all reachable blocks from the entry block.
+ * @param func The ALIR function.
+ * @param reachable Output block set of reachable blocks.
+ * @param arena Arena allocator for the stack.
+ */
 static void mark_reachable_blocks(AlirFunction *func, BlockSet *reachable, Arena *arena) {
     if (!func || !func->blocks) return;
 
@@ -472,6 +576,11 @@ static void mark_reachable_blocks(AlirFunction *func, BlockSet *reachable, Arena
     }
 }
 
+/**
+ * @brief Remove unreachable blocks from a function.
+ * @param module The ALIR module.
+ * @param func The ALIR function.
+ */
 static void remove_unreachable_blocks_function(AlirModule *module, AlirFunction *func) {
     if (!func || !func->blocks) return;
 
@@ -509,6 +618,12 @@ static void remove_unreachable_blocks_function(AlirModule *module, AlirFunction 
     block_set_free(&reachable);
 }
 
+/**
+ * @brief Merge basic blocks where a block ends in an unconditional jump to its sole successor.
+ * @param module The ALIR module.
+ * @param func The ALIR function.
+ * @return 1 if any merge occurred, 0 otherwise.
+ */
 static int merge_blocks_function(AlirModule *module, AlirFunction *func) {
     if (!func || !func->blocks) return 0;
 
@@ -600,6 +715,12 @@ static int merge_blocks_function(AlirModule *module, AlirFunction *func) {
     return overall_changed;
 }
 
+/**
+ * @brief Check if an ALIR temp value is used anywhere in the function.
+ * @param func The ALIR function.
+ * @param val The value to check.
+ * @return 1 if used, 0 otherwise.
+ */
 static int value_is_used_somewhere(AlirFunction *func, AlirValue *val) {
     if (!val || val->kind != ALIR_VAL_TEMP) return 1;
 
@@ -631,6 +752,11 @@ static int value_is_used_somewhere(AlirFunction *func, AlirValue *val) {
     return 0;
 }
 
+/**
+ * @brief Remove dead store instructions (stores to unused allocas).
+ * @param module The ALIR module.
+ * @param func The ALIR function.
+ */
 static void remove_dead_stores_function(AlirModule *module, AlirFunction *func) {
     (void)module;
     if (!func || !func->blocks) return;
@@ -666,6 +792,13 @@ static void remove_dead_stores_function(AlirModule *module, AlirFunction *func) 
     }
 }
 
+/**
+ * @brief Check if a temp is used anywhere except in a specific load instruction.
+ * @param func The ALIR function.
+ * @param temp The temp value to check.
+ * @param exclude_load The load instruction to exclude.
+ * @return 1 if used elsewhere, 0 otherwise.
+ */
 static int is_temp_used_except_in_load(AlirFunction *func, AlirValue *temp, AlirInst *exclude_load) {
     if (!func || !temp || temp->kind != ALIR_VAL_TEMP) return 1;
 
@@ -697,6 +830,11 @@ static int is_temp_used_except_in_load(AlirFunction *func, AlirValue *temp, Alir
     return 0;
 }
 
+/**
+ * @brief Propagate parameter copies to eliminate redundant alloca/load/store sequences.
+ * @param module The ALIR module.
+ * @param func The ALIR function.
+ */
 static void propagate_param_copies_function(AlirModule *module, AlirFunction *func) {
     Arena *arena = module->compiler_ctx ? module->compiler_ctx->arena : NULL;
     (void)module;
@@ -745,6 +883,11 @@ static void propagate_param_copies_function(AlirModule *module, AlirFunction *fu
     }
 }
 
+/**
+ * @brief Check if all arguments to an instruction are constants.
+ * @param inst The ALIR instruction.
+ * @return 1 if all args are constant, 0 otherwise.
+ */
 static int all_args_const(AlirInst *inst) {
     if (!inst || inst->arg_count <= 0) return 1;
     for (int i = 0; i < inst->arg_count; i++) {
@@ -754,6 +897,11 @@ static int all_args_const(AlirInst *inst) {
     return 1;
 }
 
+/**
+ * @brief Evaluate pure function calls at compile time if all arguments are constant.
+ * @param module The ALIR module.
+ * @param func The ALIR function.
+ */
 static void eval_pure_call_function(AlirModule *module, AlirFunction *func) {
     if (!func || !func->blocks || func->is_extern || !func->is_pure) return;
 
@@ -796,6 +944,11 @@ static void eval_pure_call_function(AlirModule *module, AlirFunction *func) {
     }
 }
 
+/**
+ * @brief Forward empty blocks (single-jump blocks) to their successors.
+ * @param module The ALIR module.
+ * @param func The ALIR function.
+ */
 static void forward_empty_blocks_function(AlirModule *module, AlirFunction *func) {
     if (!func || !func->blocks) return;
     
@@ -821,6 +974,11 @@ static void forward_empty_blocks_function(AlirModule *module, AlirFunction *func
     } while (changed);
 }
 
+/**
+ * @brief Run all local ALIR optimization passes on a module.
+ * @param module The ALIR module.
+ * @param opt_level Optimization level (0 = none, higher = more passes).
+ */
 void optlir_optimize(AlirModule *module, int opt_level) {
     if (!module || opt_level <= 0) return;
 

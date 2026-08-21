@@ -4,6 +4,13 @@
  */
 #include "../../include/codegen_llvm/codegen.h"
 
+/**
+ * @brief Initialize an inline iterator state block for a flux collection.
+ * @param ctx Code generation context.
+ * @param inst ALIR instruction describing the collection.
+ * @param op1 Base pointer or value for the collection.
+ * @param res Pointer to the allocated iterator state to initialize.
+ */
 void codegen_llvm_flux_iter_init(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, LLVMValueRef *res) {
     LLVMTypeRef i64_ty = LLVMInt64TypeInContext(ctx->llvm_ctx);
     LLVMTypeRef ptr_ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
@@ -46,6 +53,13 @@ void codegen_llvm_flux_iter_init(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef o
     LLVMBuildStore(ctx->builder, LLVMConstInt(i64_ty, 0, 0), p_idx);
 }
 
+/**
+ * @brief Load the current element from an inline iterator state.
+ * @param ctx Code generation context.
+ * @param inst ALIR instruction describing the destination type.
+ * @param op1 Iterator state block pointer.
+ * @param res Pointer to store the loaded element value.
+ */
 void codegen_llvm_flux_iter_get(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, LLVMValueRef *res) {
     LLVMTypeRef i64_ty = LLVMInt64TypeInContext(ctx->llvm_ctx);
     LLVMTypeRef ptr_ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
@@ -67,6 +81,11 @@ void codegen_llvm_flux_iter_get(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op
     }
 }
 
+/**
+ * @brief Advance the inline iterator state to the next element.
+ * @param ctx Code generation context.
+ * @param op1 Iterator state block pointer.
+ */
 void codegen_llvm_flux_iter_next(CodegenCtx *ctx, LLVMValueRef op1) {
     LLVMTypeRef i64_ty = LLVMInt64TypeInContext(ctx->llvm_ctx);
     LLVMTypeRef ptr_ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
@@ -81,6 +100,12 @@ void codegen_llvm_flux_iter_next(CodegenCtx *ctx, LLVMValueRef op1) {
     }
 }
 
+/**
+ * @brief Check whether the inline iterator state is still valid.
+ * @param ctx Code generation context.
+ * @param op1 Iterator state block pointer.
+ * @param res Pointer to store the validity boolean (i1).
+ */
 void codegen_llvm_flux_iter_valid(CodegenCtx *ctx, LLVMValueRef op1, LLVMValueRef *res) {
     LLVMTypeRef i64_ty = LLVMInt64TypeInContext(ctx->llvm_ctx);
     LLVMTypeRef ptr_ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);

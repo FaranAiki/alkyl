@@ -8,6 +8,11 @@
 #include <stdio.h>
 
 static ASTNode* parse_case_body_stmts(Parser *p);
+/**
+ * @brief Parses an if/else statement.
+ * @param p Parser context.
+ * @return AST node for the if statement, or NULL on error.
+ */
 ASTNode* parse_if(Parser *p) {
   int line = p->current_token.line, col = p->current_token.col;
   eat(p, TOKEN_IF);
@@ -39,6 +44,11 @@ ASTNode* parse_if(Parser *p) {
   return (ASTNode*)node;
 }
 
+/**
+ * @brief Parses a switch statement with cases and optional default.
+ * @param p Parser context.
+ * @return AST node for the switch statement, or NULL on error.
+ */
 ASTNode* parse_switch(Parser *p) {
     int line = p->current_token.line, col = p->current_token.col;
     eat(p, TOKEN_SWITCH);

@@ -1,5 +1,11 @@
 #include "alir.h"
 
+/**
+ * @brief Generate IR for a binary operation expression.
+ * @param ctx The ALIR context.
+ * @param bn The binary operation AST node.
+ * @return Result value, or NULL on failure.
+ */
 AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     if (bn->overloaded_func_name) {
         // Emit as function call
@@ -185,6 +191,12 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     return dest;
 }
 
+/**
+ * @brief Generate IR for a unary operation expression.
+ * @param ctx The ALIR context.
+ * @param un The unary operation AST node.
+ * @return Result value, or NULL on failure.
+ */
 AlirValue* alir_gen_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
     if (un->overloaded_func_name) {
         // Emit as function call

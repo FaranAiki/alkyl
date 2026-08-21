@@ -9,6 +9,11 @@
 
 ASTNode* parse_class_impl(Parser *p, int modifiers);
 
+/**
+ * @brief Parses an enum definition.
+ * @param p Parser context.
+ * @return AST node for the enum, or NULL on error.
+ */
 ASTNode* parse_enum(Parser *p) {
   eat(p, TOKEN_ENUM);
   char *enum_name = NULL;
@@ -68,6 +73,12 @@ ASTNode* parse_enum(Parser *p) {
   return (ASTNode*)en;
 }
 
+/**
+ * @brief Core implementation for parsing a class, struct, or union.
+ * @param p Parser context.
+ * @param modifiers Pre-parsed modifier flags.
+ * @return AST node for the class, or NULL on error.
+ */
 ASTNode* parse_class_impl(Parser *p, int modifiers) {
   int is_open = 0;
   if (modifiers & MODIFIER_OPEN) is_open = 1;
@@ -608,6 +619,11 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
   return NULL;
 }
 
+/**
+ * @brief Parses a class, struct, or union declaration (parses modifiers first).
+ * @param p Parser context.
+ * @return AST node for the class, or NULL on error.
+ */
 ASTNode* parse_class(Parser *p) {
     return parse_class_impl(p, parse_modifiers(p));
 }

@@ -6,6 +6,11 @@
 
 // TODO: make sure that we have
 // text_read.c && text_write.c
+/**
+ * @brief Print a variable type to a file stream.
+ * @param f Output file stream.
+ * @param t Variable type to print.
+ */
 void alir_fprint_type(FILE *f, VarType t) {
     if (t.is_tainted) {
         fprintf(f, "{int, ");
@@ -39,6 +44,11 @@ void alir_fprint_type(FILE *f, VarType t) {
     for(int i=1; i<t.ptr_depth; i++) fprintf(f, "*");
 }
 
+/**
+ * @brief Print an ALIR value to a file stream.
+ * @param f Output file stream.
+ * @param v Value to print.
+ */
 void alir_fprint_val(FILE *f, AlirValue *v) {
     if (!v) { fprintf(f, "void"); return; }
     switch(v->kind) {
@@ -71,6 +81,11 @@ void alir_fprint_val(FILE *f, AlirValue *v) {
 
 // TODO separate this
 // and make sure unknowns do not exist
+/**
+ * @brief Emit all functions in an ALIR module to a file stream.
+ * @param mod The ALIR module.
+ * @param f Output file stream.
+ */
 void alir_emit_function(AlirModule *mod, FILE *f) {
   AlirFunction *func = mod->functions;
   while(func) {
@@ -213,6 +228,11 @@ void alir_emit_function(AlirModule *mod, FILE *f) {
 
   }
 }
+/**
+ * @brief Emit a complete ALIR module (enums, structs, globals, functions) to a stream.
+ * @param mod The ALIR module.
+ * @param f Output file stream.
+ */
 void alir_emit_stream(AlirModule *mod, FILE *f) {
     fprintf(f, "; Alir Module: %s\n", mod->name);
 
@@ -269,10 +289,19 @@ void alir_emit_stream(AlirModule *mod, FILE *f) {
     alir_emit_function(mod, f);
 }
 
+/**
+ * @brief Print an ALIR module to stdout.
+ * @param mod The ALIR module.
+ */
 void alir_print(AlirModule *mod) {
     alir_emit_stream(mod, stdout);
 }
 
+/**
+ * @brief Emit an ALIR module to a file on disk.
+ * @param mod The ALIR module.
+ * @param filename Path to the output file.
+ */
 void alir_emit_to_file(AlirModule *mod, const char *filename) {
     FILE *f = fopen(filename, "w");
     if (!f) {

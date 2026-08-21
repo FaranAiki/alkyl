@@ -1,5 +1,10 @@
 #include "alir.h"
 
+/**
+ * @brief Get the size in bytes of a variable type.
+ * @param t The variable type.
+ * @return Size in bytes.
+ */
 int alir_get_type_size(VarType t) {
     // All pointers are 8 bytes on a 64-bit architecture
     if (t.ptr_depth > 0) return 8;
@@ -24,6 +29,11 @@ int alir_get_type_size(VarType t) {
     }
 }
 
+/**
+ * @brief Get the alignment in bytes of a variable type.
+ * @param t The variable type.
+ * @return Alignment in bytes.
+ */
 static int alir_get_type_align(VarType t) {
     if (t.ptr_depth > 0) return 8;
     if (t.array_size > 0) return 8;
@@ -46,6 +56,12 @@ static int alir_get_type_align(VarType t) {
     }
 }
 
+/**
+ * @brief Get the total size in bytes of a struct type, accounting for field alignment.
+ * @param mod The ALIR module.
+ * @param struct_name Name of the struct.
+ * @return Size in bytes, or 8 on failure.
+ */
 int alir_get_struct_size(AlirModule *mod, const char *struct_name) {
     AlirStruct *st = alir_find_struct(mod, struct_name);
     if (!st || !st->fields) return 8;
@@ -62,6 +78,13 @@ int alir_get_struct_size(AlirModule *mod, const char *struct_name) {
     return (offset + 7) & ~7;
 }
 
+/**
+ * @brief Robustly find the field index for a given field name, searching all structs if needed.
+ * @param ctx The ALIR context.
+ * @param hint_class Optional class name hint for the struct.
+ * @param field_name Name of the field to find.
+ * @return Field index, or 0 if not found.
+ */
 int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char *field_name) {
     if (hint_class && streq_lit(hint_class, "string")) {
         if (streq_lit(field_name, "data")) return 1;
@@ -87,6 +110,12 @@ int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char
 }
 
 // Handles L-Values: Returns the memory address of arr[index]
+/**
+ * @brief Generate IR to compute the address of arr[index] (l-value pointer).
+ * @param ctx The ALIR context.
+ * @param aa The index access AST node.
+ * @return Pointer value to the element, or NULL on failure.
+ */
 AlirValue* alir_gen_addr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     // 1. Get the address of the array variable itself
     AlirValue *base_ptr = alir_gen_addr(ctx, aa->target);
@@ -151,6 +180,12 @@ AlirValue* alir_gen_addr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
 }
 
 // Handles R-Values: Returns the actual data inside arr[index]
+/**
+ * @brief Generate IR to load the value at arr[index] (r-value).
+ * @param ctx The ALIR context.
+ * @param aa The index access AST node.
+ * @return Loaded value, or NULL on failure.
+ */
 AlirValue* alir_gen_expr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     VarType elem_t = sem_get_node_type(ctx->sem, (ASTNode*)aa);
     VarType target_t = sem_get_node_type(ctx->sem, aa->target);
@@ -184,6 +219,12 @@ AlirValue* alir_gen_expr_index_access(AlirCtx *ctx, IndexAccessNode *aa) {
     return loaded_val;
 }
 
+/**
+ * @brief Generate IR for an access expression (member or index), returning the loaded value.
+ * @param ctx The ALIR context.
+ * @param node The AST access node.
+ * @return Loaded value, or NULL on failure.
+ */
 AlirValue* alir_gen_access(AlirCtx *ctx, ASTNode *node) {
     // Special Enum Handling: If member access resolves to an Enum Type
     if (node->type == NODE_MEMBER_ACCESS) {

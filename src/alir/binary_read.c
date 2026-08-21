@@ -7,11 +7,21 @@
 #include <stdint.h>
 #include <string.h>
 
+/**
+ * @brief Read a single byte from a binary file.
+ * @param f Open file handle.
+ * @return Byte value read, or 0 on EOF/error.
+ */
 static uint8_t br_u8(FILE *f) { 
     uint8_t v; 
     if (fread(&v, 1, 1, f) != 1) return 0;
     return v; 
 }
+/**
+ * @brief Read a LEB128-encoded unsigned 32-bit integer from a binary file.
+ * @param f Open file handle.
+ * @return Decoded 32-bit value.
+ */
 static uint32_t br_u32(FILE *f) {
     uint32_t result = 0;
     uint32_t shift = 0;
@@ -23,12 +33,23 @@ static uint32_t br_u32(FILE *f) {
     }
     return result;
 }
+/**
+ * @brief Read an 8-byte unsigned integer from a binary file.
+ * @param f Open file handle.
+ * @return 64-bit value read, or 0 on EOF/error.
+ */
 static uint64_t br_u64(FILE *f) { 
     uint64_t v; 
     if (fread(&v, 8, 1, f) != 1) return 0;
     return v; 
 }
 
+/**
+ * @brief Read a length-prefixed string from a binary file.
+ * @param m Module used for allocation.
+ * @param f Open file handle.
+ * @return Null-terminated string, or NULL on failure.
+ */
 static char* br_str(AlirModule *m, FILE *f) {
     uint32_t len = br_u32(f);
     if (len == 0) return NULL;
@@ -40,6 +61,12 @@ static char* br_str(AlirModule *m, FILE *f) {
     return buf;
 }
 
+/**
+ * @brief Read a VarType structure from a binary file.
+ * @param m Module used for allocation.
+ * @param f Open file handle.
+ * @return Decoded VarType.
+ */
 static VarType br_type(AlirModule *m, FILE *f) {
     VarType t; memset(&t, 0, sizeof(VarType));
     t.base = br_u8(f);
@@ -53,6 +80,12 @@ static VarType br_type(AlirModule *m, FILE *f) {
     return t;
 }
 
+/**
+ * @brief Read an AlirValue from a binary file.
+ * @param m Module used for allocation.
+ * @param f Open file handle.
+ * @return Pointer to the decoded value, or NULL on failure.
+ */
 static AlirValue* br_value(AlirModule *m, FILE *f) {
     uint8_t kind = br_u8(f);
     if (kind == 0xFF) return NULL;
@@ -69,6 +102,12 @@ static AlirValue* br_value(AlirModule *m, FILE *f) {
     return v;
 }
 
+/**
+ * @brief Read an AlirInstruction from a binary file.
+ * @param m Module used for allocation.
+ * @param f Open file handle.
+ * @return Pointer to the decoded instruction.
+ */
 static AlirInst* br_inst(AlirModule *m, FILE *f) {
     AlirInst *i = alir_alloc(m, sizeof(AlirInst));
     i->op = br_u32(f);
@@ -88,6 +127,12 @@ static AlirInst* br_inst(AlirModule *m, FILE *f) {
     return i;
 }
 
+/**
+ * @brief Read an AlirBlock (basic block) from a binary file.
+ * @param m Module used for allocation.
+ * @param f Open file handle.
+ * @return Pointer to the decoded block.
+ */
 static AlirBlock* br_block(AlirModule *m, FILE *f) {
     AlirBlock *b = alir_alloc(m, sizeof(AlirBlock));
     b->label = br_str(m, f);
@@ -103,6 +148,12 @@ static AlirBlock* br_block(AlirModule *m, FILE *f) {
     return b;
 }
 
+/**
+ * @brief Read an AlirFunction from a binary file.
+ * @param m Module used for allocation.
+ * @param f Open file handle.
+ * @return Pointer to the decoded function.
+ */
 static AlirFunction* br_func(AlirModule *m, FILE *f) {
     AlirFunction *fn = alir_alloc(m, sizeof(AlirFunction));
     fn->name = br_str(m, f);
@@ -132,6 +183,12 @@ static AlirFunction* br_func(AlirModule *m, FILE *f) {
     return fn;
 }
 
+/**
+ * @brief Read an AlirStruct definition from a binary file.
+ * @param m Module used for allocation.
+ * @param f Open file handle.
+ * @return Pointer to the decoded struct.
+ */
 static AlirStruct* br_struct(AlirModule *m, FILE *f) {
     AlirStruct *st = alir_alloc(m, sizeof(AlirStruct));
     st->name = br_str(m, f);
@@ -150,6 +207,12 @@ static AlirStruct* br_struct(AlirModule *m, FILE *f) {
     return st;
 }
 
+/**
+ * @brief Read an AlirGlobal variable from a binary file.
+ * @param m Module used for allocation.
+ * @param f Open file handle.
+ * @return Pointer to the decoded global.
+ */
 static AlirGlobal* br_global(AlirModule *m, FILE *f) {
     AlirGlobal *g = alir_alloc(m, sizeof(AlirGlobal));
     g->name = br_str(m, f);
@@ -162,6 +225,12 @@ static const uint8_t MAGIC2[5] = {0xfa, 0x8a, 0x11, 0xa1, 0xc1};
 static const uint8_t MAGIC[9] = {0x2f, 0x58, 0xb0, 0x4f, 0x2e, 0xc2, 0xa8, 0xee, 0x24};
 static const uint8_t VERSION = 1;
 
+/**
+ * @brief Read a complete ALIR module from a binary file.
+ * @param ctx Compiler context.
+ * @param filename Path to the binary file.
+ * @return Pointer to the loaded module, or NULL on failure.
+ */
 AlirModule* alir_read_binary(CompilerContext *ctx, const char *filename) {
     FILE *f = fopen(filename, "rb");
     if (!f) return NULL;

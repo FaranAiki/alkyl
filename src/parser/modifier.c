@@ -5,6 +5,11 @@
 #include "parser.h"
 #include <string.h>
 
+/**
+ * @brief Parses a sequence of modifier tokens from the current position.
+ * @param p Parser context.
+ * @return Bitmask of parsed modifier flags.
+ */
 int parse_modifiers(Parser* p) {
     int modifiers = 0;
 
@@ -68,6 +73,11 @@ int parse_modifiers(Parser* p) {
 }
 
 // Applies extracted modifiers correctly to ClassNodes
+/**
+ * @brief Applies a modifier bitmask to a class node.
+ * @param node Class node to modify.
+ * @param modifiers Bitmask of modifier flags.
+ */
 void apply_class_modifiers(ClassNode* node, int modifiers) {
     if (modifiers & MODIFIER_PUBLIC) node->is_public = 1;
     if (modifiers & MODIFIER_PRIVATE) node->is_public = 0;
@@ -109,6 +119,11 @@ void apply_class_modifiers(ClassNode* node, int modifiers) {
 }
 
 // Applies extracted modifiers correctly to FuncDefNodes
+/**
+ * @brief Applies a modifier bitmask to a function definition node.
+ * @param node Function definition node to modify.
+ * @param modifiers Bitmask of modifier flags.
+ */
 void apply_func_modifiers(FuncDefNode* node, int modifiers) {
     if (modifiers & MODIFIER_PUBLIC) node->is_public = 1;
     if (modifiers & MODIFIER_PRIVATE) node->is_public = 0;
@@ -150,6 +165,11 @@ void apply_func_modifiers(FuncDefNode* node, int modifiers) {
 }
 
 // Applies extracted modifiers correctly to VarDeclNodes
+/**
+ * @brief Applies a modifier bitmask to a variable declaration node.
+ * @param node Variable declaration node to modify.
+ * @param modifiers Bitmask of modifier flags.
+ */
 void apply_var_modifiers(VarDeclNode* node, int modifiers) {
     if (modifiers & MODIFIER_PUBLIC) node->is_public = 1;
     if (modifiers & MODIFIER_PRIVATE) node->is_public = 0;
@@ -176,6 +196,11 @@ void apply_var_modifiers(VarDeclNode* node, int modifiers) {
 
 }
 
+/**
+ * @brief Applies a modifier bitmask to a parameter node.
+ * @param param Parameter node to modify.
+ * @param modifiers Bitmask of modifier flags.
+ */
 void apply_param_modifiers(Parameter* param, int modifiers) {
     param->is_pure = !(modifiers & MODIFIER_IMPURE);
     param->has_explicit_pure = (modifiers & MODIFIER_PURE) != 0;
@@ -189,6 +214,11 @@ void apply_param_modifiers(Parameter* param, int modifiers) {
 }
 
 
+/**
+ * @brief Dispatches modifier application to the appropriate typed function.
+ * @param node Generic AST node to modify.
+ * @param modifiers Bitmask of modifier flags.
+ */
 void apply_modifiers_to_node(ASTNode *node, int modifiers) {
     if (!node) return;
     if (node->type == NODE_CLASS) apply_class_modifiers((ClassNode*)node, modifiers);

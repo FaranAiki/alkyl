@@ -56,6 +56,10 @@ MetalirRunner* metalir_runner_create(const char *module_name,
     return r;
 }
 
+/**
+ * @brief Destroy a MetalirRunner and free all associated resources.
+ * @param r The MetalirRunner to destroy.
+ */
 void metalir_runner_destroy(MetalirRunner *r) {
     if (!r) return;
     metalir_vm_free(r->vm);
@@ -79,6 +83,11 @@ ASTNode* metalir_parse(MetalirRunner *r, const char *source,
     return parse_program(&r->parser);
 }
 
+/**
+ * @brief Run semantic checking on an AST root node.
+ * @param r The MetalirRunner instance.
+ * @param root The root AST node.
+ */
 void metalir_sem_check(MetalirRunner *r, ASTNode *root) {
     r->sem.current_source = r->parser.l->src;
     r->sem.current_filename = r->parser.l->filename;
@@ -100,6 +109,11 @@ void metalir_sem_check(MetalirRunner *r, ASTNode *root) {
     }
 }
 
+/**
+ * @brief Generate ALIR from a semantic-checked AST.
+ * @param r The MetalirRunner instance.
+ * @param root The root AST node.
+ */
 void metalir_alir_generate(MetalirRunner *r, ASTNode *root) {
     AlirCtx a = {0};
     a.sem = &r->sem;
@@ -111,6 +125,12 @@ void metalir_alir_generate(MetalirRunner *r, ASTNode *root) {
     r->module->filename = r->sem.current_filename;
 }
 
+/**
+ * @brief Execute an ALIR function by name.
+ * @param r The MetalirRunner instance.
+ * @param func_name Name of the function to execute.
+ * @return The function's return value.
+ */
 long long metalir_execute_alir(MetalirRunner *r, const char *func_name) {
     AlirFunction *f = r->module->functions;
     while (f) {
@@ -121,6 +141,12 @@ long long metalir_execute_alir(MetalirRunner *r, const char *func_name) {
     return metalir_vm_execute(r->vm, r->module, f, &r->sem, NULL, 0);
 }
 
+/**
+ * @brief Find an ALIR function by name in the runner's module.
+ * @param r The MetalirRunner instance.
+ * @param name Function name to find.
+ * @return The ALIR function, or NULL if not found.
+ */
 static AlirFunction* find_func(MetalirRunner *r, const char *name) {
     AlirFunction *f = r->module->functions;
     while (f) {
@@ -130,6 +156,11 @@ static AlirFunction* find_func(MetalirRunner *r, const char *name) {
     return NULL;
 }
 
+/**
+ * @brief Print a REPL result value in a human-readable format.
+ * @param rt The result type.
+ * @param result The result value.
+ */
 void metalir_print_repl_value(VarType rt, long long result) {
     if (rt.is_func_ptr) {
         printf("-> %p (%s)\n", (void*)(intptr_t)result, sem_type_to_str(rt));
@@ -243,6 +274,13 @@ void metalir_print_repl_value(VarType rt, long long result) {
     }
 }
 
+/**
+ * @brief Execute a variable declaration node, optionally with an initializer.
+ * @param r The MetalirRunner instance.
+ * @param vd The variable declaration node.
+ * @param seq Sequence number for generating temporary function names.
+ * @return The initial value of the variable.
+ */
 long long metalir_run_var_decl(MetalirRunner *r, VarDeclNode *vd, int seq) {
     long long initial_val = 0;
 
@@ -313,6 +351,12 @@ long long metalir_run_var_decl(MetalirRunner *r, VarDeclNode *vd, int seq) {
     return initial_val;
 }
 
+/**
+ * @brief Run a class definition node through semantic checking and ALIR generation.
+ * @param r The MetalirRunner instance.
+ * @param curr The class AST node.
+ * @param root The root AST node.
+ */
 void metalir_run_class(MetalirRunner *r, ASTNode *curr, ASTNode *root) {
     sem_check_node(&r->sem, curr);
 
@@ -325,6 +369,11 @@ void metalir_run_class(MetalirRunner *r, ASTNode *curr, ASTNode *root) {
     alir_gen_functions_recursive(&a, curr, NULL);
 }
 
+/**
+ * @brief Run a function definition node through ALIR generation.
+ * @param r The MetalirRunner instance.
+ * @param curr The function definition AST node.
+ */
 void metalir_run_func_def(MetalirRunner *r, ASTNode *curr) {
     FuncDefNode *f = (FuncDefNode*)curr;
     if (f->has_body && !f->is_macro) {
@@ -335,6 +384,11 @@ void metalir_run_func_def(MetalirRunner *r, ASTNode *curr) {
     }
 }
 
+/**
+ * @brief Dynamically link a shared library.
+ * @param r The MetalirRunner instance (unused).
+ * @param ln The link node containing the library name.
+ */
 void metalir_run_link(MetalirRunner *r, LinkNode *ln) {
     (void)r;
 #ifndef _WIN32
@@ -503,6 +557,12 @@ long long metalir_execute_string(MetalirRunner *r, const char *source,
     return metalir_execute_parse(r, root, source, filename);
 }
 
+/**
+ * @brief Load and execute a module from a file path.
+ * @param r The MetalirRunner instance.
+ * @param path Path to the module file.
+ * @return 0 on success, -1 on failure.
+ */
 int metalir_load_module(MetalirRunner *r, const char *path) {
     char *src = read_file(path);
     int from_malloc = 0;
@@ -520,6 +580,11 @@ int metalir_load_module(MetalirRunner *r, const char *path) {
     return 0;
 }
 
+/**
+ * @brief Resolve import statements in the AST.
+ * @param r The MetalirRunner instance.
+ * @param root Pointer to the root AST node pointer.
+ */
 void metalir_resolve_imports(MetalirRunner *r, ASTNode **root) {
     resolve_imports(&r->parser, root);
 }

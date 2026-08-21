@@ -11,6 +11,13 @@
 
 static HashMap mlir_class_map;
 
+/**
+ * @brief Re-mangle an inherited method name for a target class.
+ * @param original_mangled The original mangled name.
+ * @param method_name The method name.
+ * @param target_class_name The target class name.
+ * @return The re-mangled name, or NULL on failure.
+ */
 static char* mlir_re_mangle_inherited(const char *original_mangled, const char *method_name, const char *target_class_name) {
     if (!original_mangled || !target_class_name || !method_name) {
         return NULL;
@@ -41,6 +48,14 @@ static char* mlir_re_mangle_inherited(const char *original_mangled, const char *
     return result;
 }
 
+/**
+ * @brief Generate MLIR wrappers for inherited methods from parent classes/traits.
+ * @param ctx The MLIR context.
+ * @param mod The MLIR module.
+ * @param cn The current class node.
+ * @param target_class_name The target class name for mangling.
+ * @param target_node The target class AST node.
+ */
 static void generate_inherited_methods(AlkylMlirContext ctx, AlkylMlirModule mod, ClassNode *cn, const char *target_class_name, ClassNode *target_node) {
     if (!cn) return;
 
@@ -217,6 +232,12 @@ static void generate_inherited_methods(AlkylMlirContext ctx, AlkylMlirModule mod
     }
 }
 
+/**
+ * @brief Generate MLIR code for an AST node (function, class, namespace, etc.).
+ * @param ctx The MLIR context.
+ * @param mod The MLIR module.
+ * @param node The AST node to generate.
+ */
 static void generate_node(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node) {
     if (!node) return;
 
@@ -346,6 +367,10 @@ static void generate_node(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *no
     generate_node(ctx, mod, node->next);
 }
 
+/**
+ * @brief Scan the AST and register all classes in the MLIR class map.
+ * @param root The root AST node.
+ */
 static void scan_classes(ASTNode *root) {
     hashmap_init(&mlir_class_map, NULL, 64);
     ASTNode *curr = root;
@@ -370,6 +395,11 @@ static void scan_classes(ASTNode *root) {
 ASTNode *mlir_global_ast_root = NULL;
 HashMap *mlir_vars = NULL;
 
+/**
+ * @brief Generate MLIR output for an entire AST.
+ * @param root The root AST node.
+ * @param basename Base name for the output .mlir file.
+ */
 void mlir_generate(ASTNode *root, const char *basename) {
     mlir_global_ast_root = root;
     mlir_vars = malloc(sizeof(HashMap));

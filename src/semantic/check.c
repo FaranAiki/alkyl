@@ -10,6 +10,12 @@
 #include "../parser/c_parser.h"
 #include "../parser/link.h"
 
+/**
+ * @brief Look up a symbol by name in the current scope.
+ * @param ctx Semantic context.
+ * @param name Symbol name to look up.
+ * @return Pointer to the symbol, or NULL if not found.
+ */
 SemSymbol* lookup_local_symbol(SemanticCtx *ctx, const char *name) {
     if (!ctx->current_scope) return NULL;
     SemSymbol *sym = ctx->current_scope->symbols;
@@ -20,6 +26,11 @@ SemSymbol* lookup_local_symbol(SemanticCtx *ctx, const char *name) {
     return NULL;
 }
 
+/**
+ * @brief Check whether an AST node is a nonzero constant.
+ * @param node AST node to check.
+ * @return 1 if the node is a nonzero constant, 0 otherwise.
+ */
 int sem_is_constant_nonzero(ASTNode* node) {
     if (!node) return 0;
     if (node->type == NODE_LITERAL) {
@@ -45,6 +56,12 @@ int sem_is_constant_nonzero(ASTNode* node) {
     return 0;
 }
 
+/**
+ * @brief Insert an implicit cast node to convert an expression to the target type.
+ * @param ctx Semantic context.
+ * @param node_ptr Pointer to the AST node pointer to potentially wrap in a cast.
+ * @param target_type Type to cast to.
+ */
 void sem_insert_implicit_cast(SemanticCtx *ctx, ASTNode **node_ptr, VarType target_type) {
     if (!node_ptr || !*node_ptr) return;
     VarType current = sem_get_node_type(ctx, *node_ptr);
@@ -72,6 +89,11 @@ void sem_insert_implicit_cast(SemanticCtx *ctx, ASTNode **node_ptr, VarType targ
 
 // TODO split this into
 // multiple functions
+/**
+ * @brief Recursively scan top-level AST nodes to register symbols.
+ * @param ctx Semantic context.
+ * @param node Top-level AST node to scan.
+ */
 void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
 
@@ -276,6 +298,14 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
     }
 }
 
+/**
+ * @brief Inject default class field arguments into a constructor call node.
+ * @param ctx Semantic context.
+ * @param node Call node for the constructor.
+ * @param sym Class symbol being constructed.
+ * @param arg_count Number of arguments already provided.
+ * @param total_fields Total number of class fields.
+ */
 void sem_inject_default_class_args(SemanticCtx *ctx, CallNode *node, SemSymbol *sym, int arg_count, int total_fields) {
     VarDeclNode **fields = arena_alloc(ctx->compiler_ctx->arena, sizeof(VarDeclNode*) * total_fields);
     int idx = 0;
@@ -307,6 +337,11 @@ void sem_inject_default_class_args(SemanticCtx *ctx, CallNode *node, SemSymbol *
     }
 }
 
+/**
+ * @brief Type-check a binary operator expression node.
+ * @param ctx Semantic context.
+ * @param node Binary operator AST node.
+ */
 void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     sem_check_expr(ctx, node->left);
     sem_check_expr(ctx, node->right);
@@ -444,6 +479,11 @@ void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
 
 // TODO break this into a modularized form!
 // because this is too big!
+/**
+ * @brief Recursively type-check an expression node.
+ * @param ctx Semantic context.
+ * @param node Expression AST node to check.
+ */
 void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
     if (!node) return;
     if (node->filename) ctx->current_filename = node->filename;

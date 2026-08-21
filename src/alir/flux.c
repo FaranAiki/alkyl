@@ -4,11 +4,22 @@
  */
 #include "alir.h"
 
+/**
+ * @brief Check whether an opcode is a terminator instruction.
+ * @param op Opcode to check.
+ * @return Non-zero if the opcode is a terminator, 0 otherwise.
+ */
 static int is_terminator_op(AlirOpcode op) {
     return op == ALIR_OP_RET || op == ALIR_OP_JUMP || op == ALIR_OP_CONDI || op == ALIR_OP_PANIC;
 }
 
 // TODO should this use parser tho?
+/**
+ * @brief Recursively collect flux (generator) variables from an AST subtree.
+ * @param ctx Compilation context.
+ * @param node Current AST node.
+ * @param idx_ptr Pointer to the current flux variable index counter.
+ */
 void collect_flux_vars_recursive(AlirCtx *ctx, ASTNode *node, int *idx_ptr) {
     if (!node) return;
     
@@ -55,6 +66,12 @@ void collect_flux_vars_recursive(AlirCtx *ctx, ASTNode *node, int *idx_ptr) {
 }
 
 
+/**
+ * @brief Generate the ALIR definition (init + resume) for a flux function.
+ * @param ctx Compilation context.
+ * @param fn Function definition AST node.
+ * @param class_name Class name if the function is a method, or NULL.
+ */
 void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     char func_name[512];
     if (fn->mangled_name) {
@@ -308,6 +325,11 @@ void alir_gen_flux_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name) {
     ctx->flux_resume_cases = NULL;
 }
 
+/**
+ * @brief Generate ALIR instructions for a yield statement inside a flux function.
+ * @param ctx Compilation context.
+ * @param en Yield expression AST node.
+ */
 void alir_gen_flux_yield(AlirCtx *ctx, EmitNode *en) {
     if (ctx->in_flux_resume) {
         AlirValue *val = alir_gen_expr(ctx, en->value);
