@@ -1,4 +1,138 @@
+step: Finished lexing. Start parsing.
+debug: parser: after parse_type, vt.base=16, token.type=32
+debug: parser: after parse_type, vt.base=16, token.type=32
+debug: parser: parse_postfix: before parse_call, node->type=47
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55f1bf597520 target=0x55f1bf597360
+debug: semantic: sem_check_block: ns='clib'
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='clib'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=2 line=15 col=38 node=0x55f1bf597520
+debug: semantic: sem_check_call: name='(null)', ns='main'
+debug: semantic: sem_check_expr: type=47 line=15 col=33 node=0x55f1bf597360
+debug: semantic: &ctx->ast_tail=0x7ffd1cc71c88, ctx->ast_tail=0x55f1bf597f78, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=14 line=9 col=30 node=0x55f1bf5a7ba8
+debug: semantic: sem_check_expr: type=14 line=9 col=21 node=0x55f1bf5a7c50
+debug: semantic: sem_check_expr: type=26 line=9 col=18 node=0x55f1bf5a7cf8
+debug: semantic: sem_check_expr: type=13 line=9 col=14 node=0x55f1bf5a7d90
+debug: semantic: sem_check_expr: type=26 line=9 col=27 node=0x55f1bf5a7e10
+debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x55f1bf5a7ea8
+debug: semantic: sem_check_expr: type=14 line=9 col=39 node=0x55f1bf5a7f28
+debug: semantic: sem_check_expr: type=26 line=9 col=36 node=0x55f1bf5a7fd0
+debug: semantic: sem_check_expr: type=13 line=9 col=32 node=0x55f1bf5a8068
+debug: semantic: sem_check_expr: type=26 line=9 col=45 node=0x55f1bf5a80e8
+debug: semantic: sem_check_expr: type=13 line=9 col=41 node=0x55f1bf5a8180
+debug: semantic: sem_check_expr: type=16 line=15 col=39 node=0x55f1bf5973e0
+debug: semantic: sem_check_expr: type=16 line=15 col=43 node=0x55f1bf597480
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=16 col=15 node=0x55f1bf597a60
+debug: semantic: sem_check_expr: type=13 line=16 col=3 node=0x55f1bf597678
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
+debug: semantic: sem_check_expr: type=16 line=16 col=15 node=0x55f1bf597790
+debug: semantic: sem_check_expr: type=26 line=16 col=43 node=0x55f1bf5978b0
+debug: semantic: sem_check_expr: type=13 line=16 col=34 node=0x55f1bf597830
+debug: semantic: sem_check_expr: type=26 line=16 col=56 node=0x55f1bf5979c8
+debug: semantic: sem_check_expr: type=13 line=16 col=47 node=0x55f1bf597948
+debug: semantic: sem_check_expr: type=16 line=16 col=15 node=0x55f1bf597790
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=17 col=15 node=0x55f1bf597dc8
+debug: semantic: sem_check_expr: type=13 line=17 col=3 node=0x55f1bf597af8
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
+debug: semantic: sem_check_expr: type=16 line=17 col=15 node=0x55f1bf597c10
+debug: semantic: sem_check_expr: type=27 line=17 col=42 node=0x55f1bf597d30
+debug: semantic: sem_check_expr: type=13 line=17 col=33 node=0x55f1bf597cb0
+debug: semantic: sem_check_method_call: method='distance_square', obj_base=16, obj_class='Vector_int'
+debug: semantic: sem_lookup_class_call for 'Vector_int', class_sym=0x55f1bf5a8278
+debug: semantic: sem_check_expr: type=16 line=17 col=15 node=0x55f1bf597c10
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=19 col=10 node=0x55f1bf597e60
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=14 line=9 col=30 node=0x55f1bf5a7ba8
+debug: semantic: sem_check_expr: type=14 line=9 col=21 node=0x55f1bf5a7c50
+debug: semantic: sem_check_expr: type=26 line=9 col=18 node=0x55f1bf5a7cf8
+debug: semantic: sem_check_expr: type=13 line=9 col=14 node=0x55f1bf5a7d90
+debug: semantic: sem_check_expr: type=26 line=9 col=27 node=0x55f1bf5a7e10
+debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x55f1bf5a7ea8
+debug: semantic: sem_check_expr: type=14 line=9 col=39 node=0x55f1bf5a7f28
+debug: semantic: sem_check_expr: type=26 line=9 col=36 node=0x55f1bf5a7fd0
+debug: semantic: sem_check_expr: type=13 line=9 col=32 node=0x55f1bf5a8068
+debug: semantic: sem_check_expr: type=26 line=9 col=45 node=0x55f1bf5a80e8
+debug: semantic: sem_check_expr: type=13 line=9 col=41 node=0x55f1bf5a8180
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: Visiting class Vector_int
+debug: alir: DEBUG_REGISTER: st=0x55f1bf5acd08 name=Vector_int next=(nil)
+debug: alir: DEBUG_PASS1_END: struct list:
  - Vector_int fields: 2
+debug: alir: Found namespace clib
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: printf adding param '(null)' type.base=8
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: alir_gen_function_def fn->name=distance_square class_name=Vector_int fn->mangled_name=main_Vector_int_distance_square -> func_name=main_Vector_int_distance_square
+debug: alir: alir_add_function: main_Vector_int_distance_square
+debug: alir: alir_add_function: Vector_int
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+debug: optlir: Check Type for Struct Marking Vector_int
+step: Finished alir optimization. Start code generation using LLVM codegen
 ; ModuleID = 'main_module'
 source_filename = "main_module"
 

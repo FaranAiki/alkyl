@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 
     if (argc < 2) {
         printf("Usage: %s <file.kyl|file.zyl> [-l<lib>] [--linker gcc|clang|lld|mold] | --lsp | --parse-c <file.h>\n", argv[0]);
-      return 1;
+      return __LINE__;
     }
 
     if (argc == 2 && streq_lit(argv[1], "--lsp")) {
@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
                 strcat(link_flags, argv[i]);
             } else {
                 fprintf(stderr, "Too many link flags\n");
-                return 1;
+                return __LINE__;
             }
         } else if (streq_lit(argv[i], "--emit-alir")) {
             emit_alir = 1;
@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
                 emit_ast = 1;
             } else {
                 fprintf(stderr, "--parse-c requires a file argument\n");
-                return 1;
+                return __LINE__;
             }
         } else {
             filename = argv[i];
@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
     if (parse_c_mode) {
         if (!c_header_file) {
             fprintf(stderr, "No C header file specified for --parse-c\n");
-            return 1;
+            return __LINE__;
         }
 
         arena_init(&arena);
@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
         char *code = c_preprocess_header(&comp_ctx, c_header_file);
         if (!code) {
             fprintf(stderr, "Could not read or preprocess C header file: %s\n", c_header_file);
-            return 1;
+            return __LINE__;
         }
 
         CParser cp;
@@ -219,11 +219,11 @@ int main(int argc, char **argv) {
 
     if (!filename) {
         fprintf(stderr, "No input file specified\n");
-        return 1;
+        return __LINE__;
     }
 
     char *code = read_file(filename);
-    if (!code) { fprintf(stderr, "Could not read file: %s\n", filename); return 1; }
+    if (!code) { fprintf(stderr, "Could not read file: %s\n", filename); return __LINE__; }
 
     arena_init(&arena);
     context_init(&comp_ctx, &arena);
@@ -263,7 +263,7 @@ int main(int argc, char **argv) {
     if (comp_ctx.error_count > 0) {
         free(code);
         arena_free(&arena);
-        return 1;
+        return __LINE__;
     }
 
     SemanticCtx sem_ctx;
@@ -276,7 +276,7 @@ int main(int argc, char **argv) {
         sem_cleanup(&sem_ctx);
         free(code);
         arena_free(&arena);
-        return 1;
+        return __LINE__;
     }
 
     // We keep sem_ctx alive if we want to use the Side Table for Codegen later.
@@ -307,7 +307,7 @@ int main(int argc, char **argv) {
       sem_cleanup(&sem_ctx);
       free(code);
       arena_free(&arena);
-      return 1;
+      return __LINE__;
     }
 #else
     AlirModule *alir_module = NULL;
@@ -323,7 +323,7 @@ int main(int argc, char **argv) {
         sem_cleanup(&sem_ctx);
         free(code);
         arena_free(&arena);
-        return 1;
+        return __LINE__;
     }
 
 #ifndef ALKYL_ENABLE_MLIR
@@ -347,7 +347,7 @@ int main(int argc, char **argv) {
           sem_cleanup(&sem_ctx);
           free(code);
           arena_free(&arena);
-          return 1;
+          return __LINE__;
         }
 
         if (emit_alir) {

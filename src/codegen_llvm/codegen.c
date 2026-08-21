@@ -159,6 +159,14 @@ LLVMValueRef get_llvm_value(CodegenCtx *ctx, AlirValue *v) {
                     if (val == 0) return LLVMConstNull(ty);
                     return LLVMConstIntToPtr(LLVMConstInt(LLVMInt64TypeInContext(ctx->llvm_ctx), val, 0), ty);
                 }
+                if (LLVMGetTypeKind(ty) == LLVMStructTypeKind) {
+                    if (val == 0) return LLVMConstNull(ty);
+                    LLVMValueRef elements[2] = {
+                        LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0),
+                        LLVMConstIntToPtr(LLVMConstInt(LLVMInt64TypeInContext(ctx->llvm_ctx), val, 0), LLVMStructGetTypeAtIndex(ty, 1))
+                    };
+                    return LLVMConstStructInContext(ctx->llvm_ctx, elements, 2, 0);
+                }
                 return LLVMConstInt(ty, val, !v->type.is_unsigned);
             }
         }

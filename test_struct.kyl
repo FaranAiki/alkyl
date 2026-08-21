@@ -1,0 +1,23 @@
+class wl_list {
+    wl_list* prev;
+    wl_list* next;
+}
+class wl_signal {
+    wl_list listener_list;
+}
+class wl_listener {
+    wl_list link_node;
+    void* notify;
+}
+void wl_list_insert(wl_list* list, wl_list* elm) {
+    elm.prev = list;
+    elm.next = list.next;
+    list.next = elm;
+    elm.next.prev = elm;
+}
+void wl_signal_add(wl_signal* signal, wl_listener* listener) {
+    wl_list_insert(signal.listener_list.prev, &(listener.link_node));
+}
+int main() {
+    return 0;
+}

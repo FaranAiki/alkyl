@@ -164,10 +164,10 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
 
         if (p->current_token.type == TOKEN_DOT) {
             eat(p, TOKEN_DOT);
-            if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected member name after '.'");
+            if (p->current_token.type != TOKEN_IDENTIFIER && p->current_token.text == NULL) parser_fail(p, "Expected member name after '.'");
             char *member = p->current_token.text;
             p->current_token.text = NULL;
-            eat(p, TOKEN_IDENTIFIER);
+            eat(p, p->current_token.type); // consume whatever token it is
 
             if (p->current_token.type == TOKEN_LPAREN) {
                 eat(p, TOKEN_LPAREN);

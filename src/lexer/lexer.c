@@ -673,6 +673,7 @@ static int lex_word(Lexer *l, Token *t) {
   while (kw_hash[h].word != NULL) {
       if (strncmp(kw_hash[h].word, start, length) == 0 && kw_hash[h].word[length] == '\0') {
           t->type = kw_hash[h].type;
+          t->text = kw_hash[h].word;
           return 1;
       }
       h = (h + 1) % KW_HASH_SIZE;

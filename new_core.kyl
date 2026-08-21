@@ -1,0 +1,97 @@
+export namespace wlroots {
+    @c import "wlr/backend.h"
+    @c import "wlr/render/allocator.h"
+    @c import "wlr/render/wlr_renderer.h"
+    @c import "wlr/types/wlr_output.h"
+    @c import "wlr/types/wlr_xdg_shell.h"
+    @c import "wlr/types/wlr_scene.h"
+    @c import "wlr/types/wlr_seat.h"
+    @c import "wlr/types/wlr_compositor.h"
+    @c import "wlr/types/wlr_data_device.h"
+    @c import "wayland-server-core.h"
+
+    link "wayland-server";
+    link "wlroots-0.18";
+
+    class wl_list {
+        wl_list* prev;
+        wl_list* next;
+    }
+    class wl_signal {
+        wl_list listener_list;
+    }
+    class wl_listener {
+        wl_list link_node;
+        void* notify;
+    }
+
+    void wl_list_insert(wl_list* list, wl_list* elm) {
+        elm.prev = list;
+        elm.next = list.next;
+        list.next = elm;
+        elm.next.prev = elm;
+    }
+
+    void wl_signal_add(wl_signal* signal, wl_listener* listener) {
+        wl_list_insert(signal.listener_list.prev, &(listener.link_node));
+    }
+
+    extern class wlr_backend;
+    extern class wlr_allocator;
+    extern class wlr_compositor;
+    extern class wlr_data_device_manager;
+    extern class wlr_output_layout;
+    extern class wlr_xdg_shell;
+    extern class wlr_seat;
+    extern class wlr_scene;
+    extern class wlr_output;
+    extern class wlr_output_state;
+    extern class wlr_xdg_surface;
+    extern class wlr_renderer;
+    extern class wl_display;
+
+    void init_listener(pristine wlroots.wl_listener* listener, void* notify_func) {
+        listener.notify = notify_func;
+    }
+
+    void backend_on_new_output(pristine wlroots.wlr_backend* backend, pristine wlroots.wl_listener* listener, void* notify_func) {
+        listener.notify = notify_func;
+        let signal = ((backend as long) + 8) as wlroots.wl_signal*;
+        wl_signal_add(signal, listener);
+    }
+
+    void output_on_frame(pristine wlroots.wlr_output* output, pristine wlroots.wl_listener* listener, void* notify_func) {
+        listener.notify = notify_func;
+        let signal = ((output as long) + 168) as wlroots.wl_signal*;
+        wl_signal_add(signal, listener);
+    }
+
+    void output_enable_and_commit(pristine wlroots.wlr_output* output, pristine wlroots.wlr_allocator* allocator, pristine wlroots.wlr_renderer* renderer) {
+        wlr_output_init_render(output, allocator, renderer);
+        let state = malloc(1024) as wlroots.wlr_output_state*;
+        wlr_output_state_init(state);
+        wlr_output_state_set_enabled(state, true);
+        
+        let mode = wlr_output_preferred_mode(output);
+        if (mode != null ? true) {
+            wlr_output_state_set_mode(state, mode);
+        }
+        
+        wlr_output_commit_state(output, state);
+        wlr_output_state_finish(state);
+        free(state as void*);
+    }
+
+    void xdg_shell_on_new_surface(pristine wlroots.wlr_xdg_shell* shell, pristine wlroots.wl_listener* listener, void* notify_func) {
+        listener.notify = notify_func;
+        let signal = ((shell as long) + 80) as wlroots.wl_signal*;
+        wl_signal_add(signal, listener);
+    }
+
+    void scene_add_xdg_surface(pristine wlroots.wlr_scene* scene, pristine wlroots.wlr_xdg_surface* xdg_surface) {
+        if (xdg_surface.role == 1) { // WLR_XDG_SURFACE_ROLE_TOPLEVEL = 1
+            wlr_scene_xdg_surface_create(&(scene.tree), xdg_surface);
+            wlr_xdg_toplevel_set_mapped(xdg_surface.toplevel, true);
+        }
+    }
+}
