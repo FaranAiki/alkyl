@@ -1,5 +1,241 @@
+step: Finished lexing. Start parsing.
 at namespace main:
 in .../code/c_interop/test_stdio_debug.kyl:
 3:42: error: Expected ')' but found '__format'
   | extern int printf(const char *__restrict __format, ...);
   |                                          ^
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x5591d6f95428 target=0x5591d6f95308
+debug: c_header: LOOP START token=72
+debug: c_header: LOOP START token=72
+debug: c_header: LOOP START token=84
+debug: c_header: LOOP START token=85
+debug: c_header: LOOP START token=58
+debug: c_header: LOOP START token=1
+debug: c_header: LOOP START token=1
+debug: c_header: LOOP START token=1
+debug: c_header: LOOP START token=1
+debug: c_header: LOOP START token=72 line=266 text='int'
+debug: c_header: LOOP START token=58 line=269 text='char'
+debug: c_header: LOOP START token=58 line=270 text='char'
+debug: c_header: LOOP START token=58 line=271 text='char'
+debug: c_header: LOOP START token=58 line=272 text='char'
+debug: c_header: LOOP START token=58 line=273 text='char'
+debug: c_header: LOOP START token=58 line=274 text='char'
+debug: c_header: LOOP START token=58 line=275 text='char'
+debug: c_header: LOOP START token=58 line=276 text='char'
+debug: c_header: LOOP START token=58 line=279 text='char'
+debug: c_header: LOOP START token=58 line=280 text='char'
+debug: c_header: LOOP START token=58 line=281 text='char'
+debug: c_header: LOOP START token=81 line=283 text='struct'
+debug: c_header: LOOP START token=81 line=285 text='struct'
+debug: c_header: LOOP START token=72 line=287 text='int'
+debug: c_header: LOOP START token=72 line=288 text='int'
+debug: c_header: LOOP START token=58 line=290 text='char'
+debug: c_header: LOOP START token=1 line=291 text='__off_t'
+debug: c_header: LOOP START token=85 line=294 text='unsigned'
+debug: c_header: LOOP START token=78 line=295 text='signed'
+debug: c_header: LOOP START token=58 line=296 text='char'
+debug: c_header: LOOP START token=1 line=298 text='_IO_lock_t'
+debug: c_header: LOOP START token=1 line=306 text='__off64_t'
+debug: c_header: LOOP START token=81 line=308 text='struct'
+debug: c_header: LOOP START token=81 line=309 text='struct'
+debug: c_header: LOOP START token=81 line=310 text='struct'
+debug: c_header: LOOP START token=86 line=311 text='void'
+debug: c_header: LOOP START token=81 line=312 text='struct'
+debug: c_header: LOOP START token=72 line=313 text='int'
+debug: c_header: LOOP START token=72 line=315 text='int'
+debug: c_header: LOOP START token=1 line=317 text='__uint64_t'
+debug: c_header: LOOP START token=58 line=322 text='char'
+debug: c_header: LOOP START token=1
+debug: c_header: LOOP START token=1
+debug: c_header: LOOP START token=1
+debug: c_header: LOOP START token=1
+debug: c_header: w_name=remove
+debug: c_header: parsed function remove with 1 params (varargs=0) at line 399
+debug: c_header: w_name=rename
+debug: c_header: parsed function rename with 2 params (varargs=0) at line 405
+debug: c_header: w_name=renameat
+debug: c_header: parsed function renameat with 4 params (varargs=0) at line 414
+debug: c_header: w_name=fclose
+debug: c_header: parsed function fclose with 1 params (varargs=0) at line 420
+debug: c_header: w_name=tmpfile
+debug: c_header: parsed function tmpfile with 0 params (varargs=0) at line 431
+debug: c_header: w_name=tmpnam
+debug: c_header: parsed function tmpnam with 1 params (varargs=0) at line 445
+debug: c_header: w_name=tmpnam_r
+debug: c_header: parsed function tmpnam_r with 1 params (varargs=0) at line 454
+debug: c_header: w_name=tempnam
+debug: c_header: parsed function tempnam with 2 params (varargs=0) at line 461
+debug: c_header: w_name=fflush
+debug: c_header: parsed function fflush with 1 params (varargs=0) at line 470
+debug: c_header: w_name=fflush_unlocked
+debug: c_header: parsed function fflush_unlocked with 1 params (varargs=0) at line 472
+debug: c_header: w_name=fopen
+debug: c_header: parsed function fopen with 2 params (varargs=0) at line 478
+debug: c_header: w_name=freopen
+debug: c_header: parsed function freopen with 3 params (varargs=0) at line 497
+debug: c_header: w_name=fdopen
+debug: c_header: parsed function fdopen with 2 params (varargs=0) at line 507
+debug: c_header: w_name=fopencookie
+debug: c_header: parsed function fopencookie with 3 params (varargs=0) at line 528
+debug: c_header: w_name=fmemopen
+debug: c_header: parsed function fmemopen with 3 params (varargs=0) at line 547
+debug: c_header: w_name=open_memstream
+debug: c_header: parsed function open_memstream with 2 params (varargs=0) at line 564
+debug: c_header: w_name=setbuf
+debug: c_header: parsed function setbuf with 2 params (varargs=0) at line 579
+debug: c_header: w_name=setvbuf
+debug: c_header: parsed function setvbuf with 4 params (varargs=0) at line 593
+debug: c_header: w_name=setbuffer
+debug: c_header: parsed function setbuffer with 3 params (varargs=0) at line 607
+debug: c_header: w_name=setlinebuf
+debug: c_header: parsed function setlinebuf with 1 params (varargs=0) at line 618
+debug: c_header: w_name=fprintf
+debug: c_header: parsed function fprintf with 2 params (varargs=1) at line 635
+debug: c_header: w_name=printf
+debug: c_header: parsed function printf with 1 params (varargs=1) at line 646
+debug: c_header: w_name=sprintf
+debug: c_header: parsed function sprintf with 2 params (varargs=1) at line 651
+debug: c_header: w_name=vfprintf
+debug: c_header: parsed function vfprintf with 3 params (varargs=0) at line 662
+debug: c_header: w_name=vprintf
+debug: c_header: parsed function vprintf with 2 params (varargs=0) at line 673
+debug: c_header: w_name=vsprintf
+debug: c_header: parsed function vsprintf with 3 params (varargs=0) at line 678
+debug: c_header: w_name=snprintf
+debug: c_header: parsed function snprintf with 3 params (varargs=1) at line 688
+debug: c_header: w_name=vsnprintf
+debug: c_header: parsed function vsnprintf with 4 params (varargs=0) at line 696
+debug: c_header: w_name=vasprintf
+debug: c_header: parsed function vasprintf with 3 params (varargs=0) at line 708
+debug: c_header: w_name=__asprintf
+debug: c_header: parsed function __asprintf with 2 params (varargs=1) at line 715
+debug: c_header: w_name=asprintf
+debug: c_header: parsed function asprintf with 2 params (varargs=1) at line 722
+debug: c_header: w_name=vdprintf
+debug: c_header: parsed function vdprintf with 3 params (varargs=0) at line 731
+debug: c_header: w_name=dprintf
+debug: c_header: parsed function dprintf with 2 params (varargs=1) at line 733
+debug: c_header: w_name=fscanf
+debug: c_header: parsed function fscanf with 2 params (varargs=1) at line 744
+debug: c_header: w_name=scanf
+debug: c_header: parsed function scanf with 1 params (varargs=1) at line 755
+debug: c_header: w_name=sscanf
+debug: c_header: parsed function sscanf with 2 params (varargs=1) at line 760
+debug: c_header: w_name=fscanf
+debug: c_header: parsed function fscanf with 2 params (varargs=1) at line 782
+debug: c_header: w_name=scanf
+debug: c_header: parsed function scanf with 1 params (varargs=1) at line 797
+debug: c_header: w_name=sscanf
+debug: c_header: parsed function sscanf with 2 params (varargs=1) at line 807
+debug: c_header: w_name=vfscanf
+debug: c_header: parsed function vfscanf with 3 params (varargs=0) at line 819
+debug: c_header: w_name=vscanf
+debug: c_header: parsed function vscanf with 2 params (varargs=0) at line 834
+debug: c_header: w_name=vsscanf
+debug: c_header: parsed function vsscanf with 3 params (varargs=0) at line 841
+debug: c_header: w_name=vfscanf
+debug: c_header: parsed function vfscanf with 3 params (varargs=0) at line 852
+debug: c_header: w_name=vscanf
+debug: c_header: parsed function vscanf with 2 params (varargs=0) at line 873
+debug: c_header: w_name=vsscanf
+debug: c_header: parsed function vsscanf with 3 params (varargs=0) at line 884
+debug: c_header: w_name=fgetc
+debug: c_header: parsed function fgetc with 1 params (varargs=0) at line 898
+debug: c_header: w_name=getc
+debug: c_header: parsed function getc with 1 params (varargs=0) at line 907
+debug: c_header: w_name=getchar
+debug: c_header: parsed function getchar with 0 params (varargs=0) at line 919
+debug: c_header: w_name=getc_unlocked
+debug: c_header: parsed function getc_unlocked with 1 params (varargs=0) at line 928
+debug: c_header: w_name=getchar_unlocked
+debug: c_header: parsed function getchar_unlocked with 0 params (varargs=0) at line 935
+debug: c_header: w_name=fgetc_unlocked
+debug: c_header: parsed function fgetc_unlocked with 1 params (varargs=0) at line 939
+debug: c_header: w_name=fputc
+debug: c_header: parsed function fputc with 2 params (varargs=0) at line 955
+debug: c_header: w_name=putc
+debug: c_header: parsed function putc with 2 params (varargs=0) at line 964
+debug: c_header: w_name=putchar
+debug: c_header: parsed function putchar with 1 params (varargs=0) at line 976
+debug: c_header: w_name=fputc_unlocked
+debug: c_header: parsed function fputc_unlocked with 2 params (varargs=0) at line 980
+debug: c_header: w_name=putc_unlocked
+debug: c_header: parsed function putc_unlocked with 2 params (varargs=0) at line 996
+debug: c_header: w_name=putchar_unlocked
+debug: c_header: parsed function putchar_unlocked with 1 params (varargs=0) at line 1003
+debug: c_header: w_name=getw
+debug: c_header: parsed function getw with 1 params (varargs=0) at line 1012
+debug: c_header: w_name=putw
+debug: c_header: parsed function putw with 2 params (varargs=0) at line 1023
+debug: c_header: w_name=fgets
+debug: c_header: parsed function fgets with 3 params (varargs=0) at line 1040
+debug: c_header: w_name=__getdelim
+debug: c_header: parsed function __getdelim with 4 params (varargs=0) at line 1064
+debug: c_header: w_name=getdelim
+debug: c_header: parsed function getdelim with 4 params (varargs=0) at line 1075
+debug: c_header: w_name=getline
+debug: c_header: parsed function getline with 3 params (varargs=0) at line 1088
+debug: c_header: w_name=fputs
+debug: c_header: parsed function fputs with 2 params (varargs=0) at line 1105
+debug: c_header: w_name=puts
+debug: c_header: parsed function puts with 1 params (varargs=0) at line 1117
+debug: c_header: w_name=ungetc
+debug: c_header: parsed function ungetc with 2 params (varargs=0) at line 1126
+debug: c_header: w_name=fread
+debug: c_header: parsed function fread with 4 params (varargs=0) at line 1143
+debug: c_header: w_name=fwrite
+debug: c_header: parsed function fwrite with 4 params (varargs=0) at line 1157
+debug: c_header: w_name=fread_unlocked
+debug: c_header: parsed function fread_unlocked with 4 params (varargs=0) at line 1169
+debug: c_header: w_name=fwrite_unlocked
+debug: c_header: parsed function fwrite_unlocked with 4 params (varargs=0) at line 1180
+debug: c_header: w_name=fseek
+debug: c_header: parsed function fseek with 3 params (varargs=0) at line 1197
+debug: c_header: w_name=ftell
+debug: c_header: parsed function ftell with 1 params (varargs=0) at line 1210
+debug: c_header: w_name=rewind
+debug: c_header: parsed function rewind with 1 params (varargs=0) at line 1223
+debug: c_header: w_name=fseeko
+debug: c_header: parsed function fseeko with 3 params (varargs=0) at line 1234
+debug: c_header: w_name=ftello
+debug: c_header: parsed function ftello with 1 params (varargs=0) at line 1247
+debug: c_header: w_name=fgetpos
+debug: c_header: parsed function fgetpos with 2 params (varargs=0) at line 1258
+debug: c_header: w_name=fsetpos
+debug: c_header: parsed function fsetpos with 2 params (varargs=0) at line 1271
+debug: c_header: w_name=clearerr
+debug: c_header: parsed function clearerr with 1 params (varargs=0) at line 1281
+debug: c_header: w_name=feof
+debug: c_header: parsed function feof with 1 params (varargs=0) at line 1291
+debug: c_header: w_name=ferror
+debug: c_header: parsed function ferror with 1 params (varargs=0) at line 1301
+debug: c_header: w_name=clearerr_unlocked
+debug: c_header: parsed function clearerr_unlocked with 1 params (varargs=0) at line 1313
+debug: c_header: w_name=feof_unlocked
+debug: c_header: parsed function feof_unlocked with 1 params (varargs=0) at line 1322
+debug: c_header: w_name=ferror_unlocked
+debug: c_header: parsed function ferror_unlocked with 1 params (varargs=0) at line 1331
+debug: c_header: w_name=perror
+debug: c_header: parsed function perror with 1 params (varargs=0) at line 1347
+debug: c_header: w_name=fileno
+debug: c_header: parsed function fileno with 1 params (varargs=0) at line 1356
+debug: c_header: w_name=fileno_unlocked
+debug: c_header: parsed function fileno_unlocked with 1 params (varargs=0) at line 1369
+debug: c_header: w_name=pclose
+debug: c_header: parsed function pclose with 1 params (varargs=0) at line 1379
+debug: c_header: w_name=popen
+debug: c_header: parsed function popen with 2 params (varargs=0) at line 1394
+debug: c_header: w_name=ctermid
+debug: c_header: parsed function ctermid with 1 params (varargs=0) at line 1413
+debug: c_header: w_name=flockfile
+debug: c_header: parsed function flockfile with 1 params (varargs=0) at line 1424
+debug: c_header: w_name=ftrylockfile
+debug: c_header: parsed function ftrylockfile with 1 params (varargs=0) at line 1436
+debug: c_header: w_name=funlockfile
+debug: c_header: parsed function funlockfile with 1 params (varargs=0) at line 1447
+debug: c_header: w_name=__uflow
+debug: c_header: parsed function __uflow with 1 params (varargs=0) at line 1455
+debug: c_header: w_name=__overflow
+debug: c_header: parsed function __overflow with 2 params (varargs=0) at line 1456

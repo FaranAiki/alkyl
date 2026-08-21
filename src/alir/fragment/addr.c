@@ -390,7 +390,7 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
         return alir_const_int(ctx->module, ln->val.long_val);
     }
 
-    if (ln->var_type.base == TYPE_UNKNOWN && ln->var_type.ptr_depth == 1) {
+    if ((ln->var_type.base == TYPE_UNKNOWN || ln->var_type.base == TYPE_VOID) && ln->var_type.ptr_depth >= 1) {
         AlirValue *v = alir_alloc(ctx->module, sizeof(AlirValue));
         v->kind = ALIR_VAL_CONST;
         v->type = ln->var_type;
@@ -400,7 +400,7 @@ AlirValue* alir_gen_literal(AlirCtx *ctx, LiteralNode *ln) {
 
     // Fallback for empty/unhandled literals
     // TODO fix this
-    printf("Unknown literal!\n");
+    debug_alir("Unknown literal! type base %d", ln->var_type.base);
     return alir_const_int(ctx->module, 0);
 }
 

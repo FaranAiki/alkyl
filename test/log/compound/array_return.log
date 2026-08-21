@@ -1,30 +1,659 @@
+step: Finished lexing. Start parsing.
+debug: parser: after parse_type, vt.base=16, token.type=32
+debug: parser: after parse_type, vt.base=0, token.type=32
+debug: parser: after parse_type, vt.base=16, token.type=32
+debug: parser: parse_postfix: before parse_call, node->type=47
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x558b672385a0 target=0x558b672383e0
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x558b67238890 target=0x558b672386f8
+debug: parser: parse_postfix: before parse_call, node->type=47
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x558b67238e68 target=0x558b67238ca8
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x558b672393f0 target=0x558b67239258
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print_int_array target_type=13 line=0 col=0 node=0x558b6725e898 target=0x558b6725e530
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print_uint_array target_type=13 line=0 col=0 node=0x558b6725ef00 target=0x558b6725eb98
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print_long_array target_type=13 line=0 col=0 node=0x558b6725f568 target=0x558b6725f200
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print_ulong_array target_type=13 line=0 col=0 node=0x558b6725fbd0 target=0x558b6725f868
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print_single_array target_type=13 line=0 col=0 node=0x558b67260238 target=0x558b6725fed0
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print_double_array target_type=13 line=0 col=0 node=0x558b672608a0 target=0x558b67260538
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x558b67262b68 target=0x558b67262a68
+debug: semantic: sem_check_block: ns='__c_lib'
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='__c_lib'
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='__c_lib'
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='__c_lib'
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x558b6724aef0
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x558b6724add0
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x558b6724ae50
+debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x558b6724ae50
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=17 col=23 node=0x558b6724af88
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=18 col=14 node=0x558b6724b1e8
+debug: semantic: sem_check_expr: type=13 line=18 col=12 node=0x558b6724b0e8
+debug: semantic: sem_check_expr: type=13 line=18 col=16 node=0x558b6724b168
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x558b6724ba18
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x558b6724b780
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=19 col=26 node=0x558b6724b800
+debug: semantic: sem_check_expr: type=18 line=19 col=35 node=0x558b6724b9a0
+debug: semantic: sem_check_index_access type base: 0, array_size: 0
+debug: semantic: sem_check_expr: type=13 line=19 col=32 node=0x558b6724b8a0
+debug: semantic: sem_check_expr: type=13 line=19 col=36 node=0x558b6724b920
+debug: semantic: sem_check_expr: type=16 line=19 col=26 node=0x558b6724b800
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=20 col=15 node=0x558b6724bcf8
+debug: semantic: sem_check_expr: type=13 line=20 col=13 node=0x558b6724bab0
+debug: semantic: sem_check_expr: type=14 line=20 col=22 node=0x558b6724bc50
+debug: semantic: sem_check_expr: type=13 line=20 col=17 node=0x558b6724bb30
+debug: semantic: sem_check_expr: type=16 line=20 col=24 node=0x558b6724bbb0
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x558b6724c450
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x558b6724c290
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=20 col=46 node=0x558b6724c310
+debug: semantic: sem_check_expr: type=16 line=20 col=52 node=0x558b6724c3b0
+debug: semantic: sem_check_expr: type=16 line=20 col=46 node=0x558b6724c310
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=21 col=14 node=0x558b6724c5e8
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x558b6724cdb0
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x558b6724cc90
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=23 col=13 node=0x558b6724cd10
+debug: semantic: sem_check_expr: type=16 line=23 col=13 node=0x558b6724cd10
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x558b6724d5e8
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x558b6724d4c8
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=27 col=13 node=0x558b6724d548
+debug: semantic: sem_check_expr: type=16 line=27 col=13 node=0x558b6724d548
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=28 col=23 node=0x558b6724d680
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=29 col=14 node=0x558b6724d8e0
+debug: semantic: sem_check_expr: type=13 line=29 col=12 node=0x558b6724d7e0
+debug: semantic: sem_check_expr: type=13 line=29 col=16 node=0x558b6724d860
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x558b6724e110
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x558b6724de78
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=30 col=26 node=0x558b6724def8
+debug: semantic: sem_check_expr: type=18 line=30 col=35 node=0x558b6724e098
+debug: semantic: sem_check_index_access type base: 0, array_size: 0
+debug: semantic: sem_check_expr: type=13 line=30 col=32 node=0x558b6724df98
+debug: semantic: sem_check_expr: type=13 line=30 col=36 node=0x558b6724e018
+debug: semantic: sem_check_expr: type=16 line=30 col=26 node=0x558b6724def8
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=31 col=15 node=0x558b6724e3f0
+debug: semantic: sem_check_expr: type=13 line=31 col=13 node=0x558b6724e1a8
+debug: semantic: sem_check_expr: type=14 line=31 col=22 node=0x558b6724e348
+debug: semantic: sem_check_expr: type=13 line=31 col=17 node=0x558b6724e228
+debug: semantic: sem_check_expr: type=16 line=31 col=24 node=0x558b6724e2a8
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x558b6724eb48
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x558b6724e988
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=31 col=46 node=0x558b6724ea08
+debug: semantic: sem_check_expr: type=16 line=31 col=52 node=0x558b6724eaa8
+debug: semantic: sem_check_expr: type=16 line=31 col=46 node=0x558b6724ea08
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=32 col=14 node=0x558b6724ece0
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x558b6724f4a8
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x558b6724f388
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=34 col=13 node=0x558b6724f408
+debug: semantic: sem_check_expr: type=16 line=34 col=13 node=0x558b6724f408
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x558b6724fce0
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x558b6724fbc0
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=38 col=13 node=0x558b6724fc40
+debug: semantic: sem_check_expr: type=16 line=38 col=13 node=0x558b6724fc40
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=39 col=23 node=0x558b6724fd78
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=40 col=14 node=0x558b6724ffd8
+debug: semantic: sem_check_expr: type=13 line=40 col=12 node=0x558b6724fed8
+debug: semantic: sem_check_expr: type=13 line=40 col=16 node=0x558b6724ff58
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x558b672508b0
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x558b67250570
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=41 col=26 node=0x558b672505f0
+debug: semantic: sem_check_expr: type=18 line=41 col=47 node=0x558b67250838
+debug: semantic: sem_check_index_access type base: 0, array_size: 0
+debug: semantic: sem_check_expr: type=31 line=41 col=38 node=0x558b67250710
+debug: semantic: sem_check_expr: type=13 line=41 col=34 node=0x558b67250690
+debug: semantic: sem_check_expr: type=13 line=41 col=48 node=0x558b672507b8
+debug: semantic: sem_check_expr: type=16 line=41 col=26 node=0x558b672505f0
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=42 col=15 node=0x558b67250b90
+debug: semantic: sem_check_expr: type=13 line=42 col=13 node=0x558b67250948
+debug: semantic: sem_check_expr: type=14 line=42 col=22 node=0x558b67250ae8
+debug: semantic: sem_check_expr: type=13 line=42 col=17 node=0x558b672509c8
+debug: semantic: sem_check_expr: type=16 line=42 col=24 node=0x558b67250a48
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x558b672512e8
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x558b67251128
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=42 col=46 node=0x558b672511a8
+debug: semantic: sem_check_expr: type=16 line=42 col=52 node=0x558b67251248
+debug: semantic: sem_check_expr: type=16 line=42 col=46 node=0x558b672511a8
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=43 col=14 node=0x558b67251480
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x558b67251c48
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x558b67251b28
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=45 col=13 node=0x558b67251ba8
+debug: semantic: sem_check_expr: type=16 line=45 col=13 node=0x558b67251ba8
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x558b67252480
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x558b67252360
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=49 col=13 node=0x558b672523e0
+debug: semantic: sem_check_expr: type=16 line=49 col=13 node=0x558b672523e0
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=50 col=23 node=0x558b67252518
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=51 col=14 node=0x558b67252778
+debug: semantic: sem_check_expr: type=13 line=51 col=12 node=0x558b67252678
+debug: semantic: sem_check_expr: type=13 line=51 col=16 node=0x558b672526f8
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x558b67253050
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x558b67252d10
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=52 col=26 node=0x558b67252d90
+debug: semantic: sem_check_expr: type=18 line=52 col=56 node=0x558b67252fd8
+debug: semantic: sem_check_index_access type base: 0, array_size: 0
+debug: semantic: sem_check_expr: type=31 line=52 col=38 node=0x558b67252eb0
+debug: semantic: sem_check_expr: type=13 line=52 col=34 node=0x558b67252e30
+debug: semantic: sem_check_expr: type=13 line=52 col=57 node=0x558b67252f58
+debug: semantic: sem_check_expr: type=16 line=52 col=26 node=0x558b67252d90
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=53 col=15 node=0x558b67253330
+debug: semantic: sem_check_expr: type=13 line=53 col=13 node=0x558b672530e8
+debug: semantic: sem_check_expr: type=14 line=53 col=22 node=0x558b67253288
+debug: semantic: sem_check_expr: type=13 line=53 col=17 node=0x558b67253168
+debug: semantic: sem_check_expr: type=16 line=53 col=24 node=0x558b672531e8
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x558b67253a88
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x558b672538c8
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=53 col=46 node=0x558b67253948
+debug: semantic: sem_check_expr: type=16 line=53 col=52 node=0x558b672539e8
+debug: semantic: sem_check_expr: type=16 line=53 col=46 node=0x558b67253948
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=54 col=14 node=0x558b67253c20
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x558b672543e8
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x558b672542c8
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=56 col=13 node=0x558b67254348
+debug: semantic: sem_check_expr: type=16 line=56 col=13 node=0x558b67254348
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x558b67254c20
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x558b67254b00
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=60 col=13 node=0x558b67254b80
+debug: semantic: sem_check_expr: type=16 line=60 col=13 node=0x558b67254b80
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=61 col=23 node=0x558b67254cb8
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=62 col=14 node=0x558b67254f18
+debug: semantic: sem_check_expr: type=13 line=62 col=12 node=0x558b67254e18
+debug: semantic: sem_check_expr: type=13 line=62 col=16 node=0x558b67254e98
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x558b672557f0
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x558b672554b0
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=63 col=26 node=0x558b67255530
+debug: semantic: sem_check_expr: type=18 line=63 col=48 node=0x558b67255778
+debug: semantic: sem_check_index_access type base: 0, array_size: 0
+debug: semantic: sem_check_expr: type=31 line=63 col=37 node=0x558b67255650
+debug: semantic: sem_check_expr: type=13 line=63 col=33 node=0x558b672555d0
+debug: semantic: sem_check_expr: type=13 line=63 col=49 node=0x558b672556f8
+debug: semantic: sem_check_expr: type=16 line=63 col=26 node=0x558b67255530
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=64 col=15 node=0x558b67255ad0
+debug: semantic: sem_check_expr: type=13 line=64 col=13 node=0x558b67255888
+debug: semantic: sem_check_expr: type=14 line=64 col=22 node=0x558b67255a28
+debug: semantic: sem_check_expr: type=13 line=64 col=17 node=0x558b67255908
+debug: semantic: sem_check_expr: type=16 line=64 col=24 node=0x558b67255988
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x558b67256228
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x558b67256068
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=64 col=46 node=0x558b672560e8
+debug: semantic: sem_check_expr: type=16 line=64 col=52 node=0x558b67256188
+debug: semantic: sem_check_expr: type=16 line=64 col=46 node=0x558b672560e8
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=65 col=14 node=0x558b672563c0
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x558b67256b88
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x558b67256a68
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=67 col=13 node=0x558b67256ae8
+debug: semantic: sem_check_expr: type=16 line=67 col=13 node=0x558b67256ae8
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x558b672573c0
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x558b672572a0
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=71 col=13 node=0x558b67257320
+debug: semantic: sem_check_expr: type=16 line=71 col=13 node=0x558b67257320
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=72 col=23 node=0x558b67257458
+debug: semantic: sem_check_block: visiting node type=7
+debug: semantic: sem_check_expr: type=14 line=73 col=14 node=0x558b672576b8
+debug: semantic: sem_check_expr: type=13 line=73 col=12 node=0x558b672575b8
+debug: semantic: sem_check_expr: type=13 line=73 col=16 node=0x558b67257638
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x558b67257f90
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x558b67257c50
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=74 col=26 node=0x558b67257cd0
+debug: semantic: sem_check_expr: type=18 line=74 col=49 node=0x558b67257f18
+debug: semantic: sem_check_index_access type base: 0, array_size: 0
+debug: semantic: sem_check_expr: type=31 line=74 col=38 node=0x558b67257df0
+debug: semantic: sem_check_expr: type=13 line=74 col=34 node=0x558b67257d70
+debug: semantic: sem_check_expr: type=13 line=74 col=50 node=0x558b67257e98
+debug: semantic: sem_check_expr: type=16 line=74 col=26 node=0x558b67257cd0
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=75 col=15 node=0x558b67258270
+debug: semantic: sem_check_expr: type=13 line=75 col=13 node=0x558b67258028
+debug: semantic: sem_check_expr: type=14 line=75 col=22 node=0x558b672581c8
+debug: semantic: sem_check_expr: type=13 line=75 col=17 node=0x558b672580a8
+debug: semantic: sem_check_expr: type=16 line=75 col=24 node=0x558b67258128
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x558b672589c8
+debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x558b67258808
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=75 col=46 node=0x558b67258888
+debug: semantic: sem_check_expr: type=16 line=75 col=52 node=0x558b67258928
+debug: semantic: sem_check_expr: type=16 line=75 col=46 node=0x558b67258888
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=76 col=14 node=0x558b67258b60
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x558b672593b8
+debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x558b67259298
+debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
+debug: semantic: sem_check_expr: type=16 line=78 col=13 node=0x558b67259318
+debug: semantic: sem_check_expr: type=16 line=78 col=13 node=0x558b67259318
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=2 line=15 col=32 node=0x558b672385a0
+debug: semantic: sem_check_call: name='(null)', ns='main'
+debug: semantic: sem_check_expr: type=47 line=15 col=24 node=0x558b672383e0
+debug: parser: clone_var_type bracket-typeparam: Type[2] -> base=(null) array_size=2
+debug: semantic: &ctx->ast_tail=0x7ffda0b8f498, ctx->ast_tail=0x558b67239490, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=13 line=6 col=14 node=0x558b6726c898
+debug: semantic: sem_check_expr: type=26 line=6 col=9 node=0x558b6726c918
+debug: semantic: sem_check_expr: type=13 line=6 col=5 node=0x558b6726c9b0
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=13 line=7 col=14 node=0x558b6726cac8
+debug: semantic: sem_check_expr: type=26 line=7 col=9 node=0x558b6726cb48
+debug: semantic: sem_check_expr: type=13 line=7 col=5 node=0x558b6726cbe0
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=17 line=10 col=12 node=0x558b6726cdc0
+debug: semantic: sem_check_expr: type=13 line=10 col=13 node=0x558b6726ce38
+debug: semantic: sem_check_expr: type=13 line=10 col=15 node=0x558b6726ceb8
+debug: semantic: sem_check_expr: type=16 line=15 col=33 node=0x558b67238460
+debug: semantic: sem_check_expr: type=16 line=15 col=38 node=0x558b67238500
+debug: parser: inferring type for v_single, init_type.base=16
+debug: parser: debug: inferred type Vector_single for v_single
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=17 col=8 name=print target_type=13 node=0x558b67238890
+debug: semantic: sem_check_expr: type=2 line=17 col=8 node=0x558b67238890
+debug: semantic: sem_check_call: name='print', ns='main'
+debug: semantic: sem_check_expr: type=13 line=17 col=3 node=0x558b672386f8
+debug: semantic: table.c lookup: name='print', found_ns='std', current_ns='main'
 at namespace main:
 in .../code/compound/array_return.kyl:
 17:3: warning: Implicitly resolved 'print' to 'std.print'
   |   print(v_single.get());
   |   ^
 hint: consider writing std.print
+debug: semantic: table.c lookup: name='print', found_ns='std', current_ns='main'
 17:3: warning: Implicitly resolved 'print' to 'std.print'
   |   print(v_single.get());
   |   ^
 hint: consider writing std.print
+debug: semantic: sem_check_expr: type=27 line=17 col=17 node=0x558b672387f8
+debug: semantic: sem_check_expr: type=13 line=17 col=9 node=0x558b67238778
+debug: semantic: sem_check_method_call: method='get', obj_base=16, obj_class='Vector_single'
+debug: semantic: sem_lookup_class_call for 'Vector_single', class_sym=0x558b6726cf38
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=2 line=19 col=26 node=0x558b67238e68
+debug: semantic: sem_check_call: name='(null)', ns='main'
+debug: semantic: sem_check_expr: type=47 line=19 col=21 node=0x558b67238ca8
+debug: parser: clone_var_type bracket-typeparam: Type[2] -> base=(null) array_size=2
+debug: semantic: &ctx->ast_tail=0x7ffda0b8f498, ctx->ast_tail=0x558b6726c458, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=13 line=6 col=14 node=0x558b6726e690
+debug: semantic: sem_check_expr: type=26 line=6 col=9 node=0x558b6726e710
+debug: semantic: sem_check_expr: type=13 line=6 col=5 node=0x558b6726e7a8
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=13 line=7 col=14 node=0x558b6726e8c0
+debug: semantic: sem_check_expr: type=26 line=7 col=9 node=0x558b6726e940
+debug: semantic: sem_check_expr: type=13 line=7 col=5 node=0x558b6726e9d8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=17 line=10 col=12 node=0x558b6726ebb8
+debug: semantic: sem_check_expr: type=13 line=10 col=13 node=0x558b6726ec30
+debug: semantic: sem_check_expr: type=13 line=10 col=15 node=0x558b6726ecb0
+debug: semantic: sem_check_expr: type=16 line=19 col=27 node=0x558b67238d28
+debug: semantic: sem_check_expr: type=16 line=19 col=30 node=0x558b67238dc8
+debug: parser: inferring type for v_int, init_type.base=16
+debug: parser: debug: inferred type Vector_int for v_int
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=21 col=8 node=0x558b67239180
+debug: semantic: sem_check_expr: type=13 line=21 col=3 node=0x558b67238fc0
+debug: semantic: sem_check_method_call: method='set', obj_base=16, obj_class='Vector_int'
+debug: semantic: sem_lookup_class_call for 'Vector_int', class_sym=0x558b6726ed30
+debug: semantic: sem_check_expr: type=16 line=21 col=13 node=0x558b67239040
+debug: semantic: sem_check_expr: type=16 line=21 col=16 node=0x558b672390e0
+debug: semantic: sem_check_expr: type=16 line=21 col=13 node=0x558b67239040
+debug: semantic: sem_check_expr: type=16 line=21 col=16 node=0x558b672390e0
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=22 col=8 name=print target_type=13 node=0x558b672393f0
+debug: semantic: sem_check_expr: type=2 line=22 col=8 node=0x558b672393f0
+debug: semantic: sem_check_call: name='print', ns='main'
+debug: semantic: sem_check_expr: type=13 line=22 col=3 node=0x558b67239258
+debug: semantic: table.c lookup: name='print', found_ns='std', current_ns='main'
 22:3: warning: Implicitly resolved 'print' to 'std.print'
   |   print(v_int.get());
   |   ^
 hint: consider writing std.print
+debug: semantic: table.c lookup: name='print', found_ns='std', current_ns='main'
 22:3: warning: Implicitly resolved 'print' to 'std.print'
   |   print(v_int.get());
   |   ^
 hint: consider writing std.print
+debug: semantic: sem_check_expr: type=27 line=22 col=14 node=0x558b67239358
+debug: semantic: sem_check_expr: type=13 line=22 col=9 node=0x558b672392d8
+debug: semantic: sem_check_method_call: method='get', obj_base=16, obj_class='Vector_int'
+debug: semantic: sem_lookup_class_call for 'Vector_int', class_sym=0x558b6726ed30
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=13 line=6 col=14 node=0x558b6726c898
+debug: semantic: sem_check_expr: type=26 line=6 col=9 node=0x558b6726c918
+debug: semantic: sem_check_expr: type=13 line=6 col=5 node=0x558b6726c9b0
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=13 line=7 col=14 node=0x558b6726cac8
+debug: semantic: sem_check_expr: type=26 line=7 col=9 node=0x558b6726cb48
+debug: semantic: sem_check_expr: type=13 line=7 col=5 node=0x558b6726cbe0
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=17 line=10 col=12 node=0x558b6726cdc0
+debug: semantic: sem_check_expr: type=13 line=10 col=13 node=0x558b6726ce38
+debug: semantic: sem_check_expr: type=13 line=10 col=15 node=0x558b6726ceb8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=13 line=6 col=14 node=0x558b6726e690
+debug: semantic: sem_check_expr: type=26 line=6 col=9 node=0x558b6726e710
+debug: semantic: sem_check_expr: type=13 line=6 col=5 node=0x558b6726e7a8
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=13 line=7 col=14 node=0x558b6726e8c0
+debug: semantic: sem_check_expr: type=26 line=7 col=9 node=0x558b6726e940
+debug: semantic: sem_check_expr: type=13 line=7 col=5 node=0x558b6726e9d8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=17 line=10 col=12 node=0x558b6726ebb8
+debug: semantic: sem_check_expr: type=13 line=10 col=13 node=0x558b6726ec30
+debug: semantic: sem_check_expr: type=13 line=10 col=15 node=0x558b6726ecb0
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: Visiting class Vector_single
+debug: alir: DEBUG_REGISTER: st=0x558b672745b0 name=Vector_single next=(nil)
+debug: alir: Visiting class Vector_int
+debug: alir: DEBUG_REGISTER: st=0x558b672745d0 name=Vector_int next=0x558b672745b0
+debug: alir: DEBUG_PASS1_END: struct list:
  - Vector_int fields: 2
  - Vector_single fields: 2
+debug: alir: Found namespace __c_lib
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: printf adding param '(null)' type.base=8
+debug: alir: Found func_def putchar
+debug: alir: alir_gen_function_def fn->name=putchar class_name=NULL fn->mangled_name=putchar -> func_name=putchar
+debug: alir: alir_add_function: putchar
+debug: alir: Found func_def puts
+debug: alir: alir_gen_function_def fn->name=puts class_name=NULL fn->mangled_name=puts -> func_name=puts
+debug: alir: alir_add_function: puts
+debug: alir: Found namespace std
+debug: alir: Found func_def print_int_array
+debug: alir: alir_gen_function_def fn->name=print_int_array class_name=NULL fn->mangled_name=std_print_int_array_i32_p_i64 -> func_name=std_print_int_array_i32_p_i64
+debug: alir: alir_add_function: std_print_int_array_i32_p_i64
+debug: alir: Found func_def print_uint_array
+debug: alir: alir_gen_function_def fn->name=print_uint_array class_name=NULL fn->mangled_name=std_print_uint_array_i32_p_i64 -> func_name=std_print_uint_array_i32_p_i64
+debug: alir: alir_add_function: std_print_uint_array_i32_p_i64
+debug: alir: Found func_def print_long_array
+debug: alir: alir_gen_function_def fn->name=print_long_array class_name=NULL fn->mangled_name=std_print_long_array_void_p_i64 -> func_name=std_print_long_array_void_p_i64
+debug: alir: alir_add_function: std_print_long_array_void_p_i64
+debug: alir: Found func_def print_ulong_array
+debug: alir: alir_gen_function_def fn->name=print_ulong_array class_name=NULL fn->mangled_name=std_print_ulong_array_void_p_i64 -> func_name=std_print_ulong_array_void_p_i64
+debug: alir: alir_add_function: std_print_ulong_array_void_p_i64
+debug: alir: Found func_def print_single_array
+debug: alir: alir_gen_function_def fn->name=print_single_array class_name=NULL fn->mangled_name=std_print_single_array_void_p_i64 -> func_name=std_print_single_array_void_p_i64
+debug: alir: alir_add_function: std_print_single_array_void_p_i64
+debug: alir: Found func_def print_double_array
+debug: alir: alir_gen_function_def fn->name=print_double_array class_name=NULL fn->mangled_name=std_print_double_array_void_p_i64 -> func_name=std_print_double_array_void_p_i64
+debug: alir: alir_add_function: std_print_double_array_void_p_i64
+debug: alir: Found func_def print
+debug: alir: Found func_def printf
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: GEN_CALL: name=print mangled=std.print
+debug: alir: Looking up 'std.print'
+debug: alir: Found symbol print, kind=1, is_macro=1, node_ptr=0x558b67261a78
+debug: alir: macro: mangled='std.print', old_ns='main'
+debug: alir: macro: setting ns to 'std'
+debug: alir: macro: before sem_check_block, ns='std'
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=87 col=25 node=0x558b67289fc8
+debug: semantic: sem_check_expr: type=28 line=87 col=13 node=0x558b6728a070
+debug: semantic: sem_check_expr: type=28 line=87 col=28 node=0x558b6728a190
+debug: semantic: sem_check_expr: type=14 line=89 col=32 node=0x558b6728a528
+debug: semantic: sem_check_expr: type=28 line=89 col=20 node=0x558b6728a5d0
+debug: semantic: sem_check_expr: type=28 line=89 col=35 node=0x558b6728a6f0
+debug: semantic: sem_check_expr: type=14 line=91 col=32 node=0x558b6728aa48
+debug: semantic: sem_check_expr: type=28 line=91 col=20 node=0x558b6728aaf0
+debug: semantic: sem_check_expr: type=28 line=91 col=35 node=0x558b6728ac10
+debug: semantic: sem_check_expr: type=14 line=93 col=32 node=0x558b6728af68
+debug: semantic: sem_check_expr: type=28 line=93 col=20 node=0x558b6728b010
+debug: semantic: sem_check_expr: type=28 line=93 col=35 node=0x558b6728b130
+debug: semantic: sem_check_expr: type=14 line=95 col=32 node=0x558b6728b488
+debug: semantic: sem_check_expr: type=28 line=95 col=20 node=0x558b6728b530
+debug: semantic: sem_check_expr: type=28 line=95 col=35 node=0x558b6728b650
+debug: semantic: sem_check_expr: type=14 line=97 col=32 node=0x558b6728b9a8
+debug: semantic: sem_check_expr: type=28 line=97 col=20 node=0x558b6728ba50
+debug: semantic: sem_check_expr: type=28 line=97 col=35 node=0x558b6728bb70
+debug: semantic: sem_check_expr: type=14 line=99 col=32 node=0x558b6728bec8
+debug: semantic: sem_check_expr: type=28 line=99 col=20 node=0x558b6728bf70
+debug: semantic: sem_check_expr: type=28 line=99 col=35 node=0x558b6728c090
+debug: semantic: sem_check_expr: type=14 line=105 col=32 node=0x558b6728c908
+debug: semantic: sem_check_expr: type=28 line=105 col=20 node=0x558b6728c9b0
+debug: semantic: sem_check_expr: type=28 line=105 col=35 node=0x558b6728cad0
+debug: semantic: sem_check_expr: type=14 line=107 col=32 node=0x558b6728cfe0
+debug: semantic: sem_check_expr: type=28 line=107 col=20 node=0x558b6728d088
+debug: semantic: sem_check_expr: type=28 line=107 col=35 node=0x558b6728d1a8
+debug: semantic: sem_check_expr: type=14 line=109 col=32 node=0x558b6728d6b8
+debug: semantic: sem_check_expr: type=28 line=109 col=20 node=0x558b6728d760
+debug: semantic: sem_check_expr: type=28 line=109 col=35 node=0x558b6728d880
+debug: semantic: sem_check_expr: type=14 line=111 col=32 node=0x558b6728dd90
+debug: semantic: sem_check_expr: type=28 line=111 col=20 node=0x558b6728de38
+debug: semantic: sem_check_expr: type=28 line=111 col=35 node=0x558b6728df58
+debug: semantic: sem_check_expr: type=14 line=113 col=32 node=0x558b6728e468
+debug: semantic: sem_check_expr: type=28 line=113 col=20 node=0x558b6728e510
+debug: semantic: sem_check_expr: type=28 line=113 col=35 node=0x558b6728e630
+debug: semantic: sem_check_expr: type=14 line=115 col=32 node=0x558b6728eb40
+debug: semantic: sem_check_expr: type=28 line=115 col=20 node=0x558b6728ebe8
+debug: semantic: sem_check_expr: type=28 line=115 col=35 node=0x558b6728ed08
+debug: semantic: sem_check_expr: type=14 line=117 col=32 node=0x558b6728f218
+debug: semantic: sem_check_expr: type=28 line=117 col=20 node=0x558b6728f2c0
+debug: semantic: sem_check_expr: type=28 line=117 col=35 node=0x558b6728f3e0
+debug: alir: macro: after sem_check_block, ns='std'
+debug: alir: GEN_CALL: name=print_single_array mangled=NULL
+debug: semantic: table.c lookup: name='print_single_array', found_ns='std', current_ns='std'
+debug: alir: Looking up 'print_single_array'
+debug: semantic: table.c lookup: name='print_single_array', found_ns='std', current_ns='std'
+debug: alir: Found symbol print_single_array, kind=1, is_macro=0, node_ptr=0x558b67256c20
+debug: alir: CALL_STD: name=print_single_array mangled=NULL target_type=13
+debug: semantic: table.c lookup: name='print_single_array', found_ns='std', current_ns='std'
+debug: semantic: table.c lookup: name='print_single_array', found_ns='std', current_ns='std'
+debug: alir: GLOBAL VAR ADDR: print_single_array
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=11 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=36 dest_kind=5 dest_type_base=7 op1_kind=8 op1_type_base=11
+debug: alir: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=7
+debug: alir: TAINTED PTR: ctx->module=0x558b67270e38 target_name=print_single_array count=2
+debug: semantic: table.c lookup: name='print_single_array', found_ns='std', current_ns='std'
+debug: semantic: table.c lookup: name='print_single_array', found_ns='std', current_ns='std'
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
+debug: alir: GEN_CALL: name=print mangled=std.print
+debug: alir: Looking up 'std.print'
+debug: alir: Found symbol print, kind=1, is_macro=1, node_ptr=0x558b67261a78
+debug: alir: macro: mangled='std.print', old_ns='main'
+debug: alir: macro: setting ns to 'std'
+debug: alir: macro: before sem_check_block, ns='std'
+debug: semantic: sem_check_block: ns='std'
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=87 col=25 node=0x558b6729cbb0
+debug: semantic: sem_check_expr: type=28 line=87 col=13 node=0x558b6729cc58
+debug: semantic: sem_check_expr: type=28 line=87 col=28 node=0x558b6729cd78
+debug: semantic: sem_check_expr: type=14 line=89 col=32 node=0x558b6729d0d0
+debug: semantic: sem_check_expr: type=28 line=89 col=20 node=0x558b6729d178
+debug: semantic: sem_check_expr: type=28 line=89 col=35 node=0x558b6729d298
+debug: semantic: sem_check_expr: type=14 line=91 col=32 node=0x558b6729d5f0
+debug: semantic: sem_check_expr: type=28 line=91 col=20 node=0x558b6729d698
+debug: semantic: sem_check_expr: type=28 line=91 col=35 node=0x558b6729d7b8
+debug: semantic: sem_check_expr: type=14 line=93 col=32 node=0x558b6729db10
+debug: semantic: sem_check_expr: type=28 line=93 col=20 node=0x558b6729dbb8
+debug: semantic: sem_check_expr: type=28 line=93 col=35 node=0x558b6729dcd8
+debug: semantic: sem_check_expr: type=14 line=95 col=32 node=0x558b6729e030
+debug: semantic: sem_check_expr: type=28 line=95 col=20 node=0x558b6729e0d8
+debug: semantic: sem_check_expr: type=28 line=95 col=35 node=0x558b6729e1f8
+debug: semantic: sem_check_expr: type=14 line=97 col=32 node=0x558b6729e550
+debug: semantic: sem_check_expr: type=28 line=97 col=20 node=0x558b6729e5f8
+debug: semantic: sem_check_expr: type=28 line=97 col=35 node=0x558b6729e718
+debug: semantic: sem_check_expr: type=14 line=99 col=32 node=0x558b6729ea70
+debug: semantic: sem_check_expr: type=28 line=99 col=20 node=0x558b6729eb18
+debug: semantic: sem_check_expr: type=28 line=99 col=35 node=0x558b6729ec38
+debug: semantic: sem_check_expr: type=14 line=105 col=32 node=0x558b6729f4b0
+debug: semantic: sem_check_expr: type=28 line=105 col=20 node=0x558b6729f558
+debug: semantic: sem_check_expr: type=28 line=105 col=35 node=0x558b6729f678
+debug: semantic: sem_check_expr: type=14 line=107 col=32 node=0x558b6729fb88
+debug: semantic: sem_check_expr: type=28 line=107 col=20 node=0x558b6729fc30
+debug: semantic: sem_check_expr: type=28 line=107 col=35 node=0x558b6729fd50
+debug: semantic: sem_check_expr: type=14 line=109 col=32 node=0x558b672a0260
+debug: semantic: sem_check_expr: type=28 line=109 col=20 node=0x558b672a0308
+debug: semantic: sem_check_expr: type=28 line=109 col=35 node=0x558b672a0428
+debug: semantic: sem_check_expr: type=14 line=111 col=32 node=0x558b672a0938
+debug: semantic: sem_check_expr: type=28 line=111 col=20 node=0x558b672a09e0
+debug: semantic: sem_check_expr: type=28 line=111 col=35 node=0x558b672a0b00
+debug: semantic: sem_check_expr: type=14 line=113 col=32 node=0x558b672a1010
+debug: semantic: sem_check_expr: type=28 line=113 col=20 node=0x558b672a10b8
+debug: semantic: sem_check_expr: type=28 line=113 col=35 node=0x558b672a11d8
+debug: semantic: sem_check_expr: type=14 line=115 col=32 node=0x558b672a16e8
+debug: semantic: sem_check_expr: type=28 line=115 col=20 node=0x558b672a1790
+debug: semantic: sem_check_expr: type=28 line=115 col=35 node=0x558b672a18b0
+debug: semantic: sem_check_expr: type=14 line=117 col=32 node=0x558b672a1dc0
+debug: semantic: sem_check_expr: type=28 line=117 col=20 node=0x558b672a1e68
+debug: semantic: sem_check_expr: type=28 line=117 col=35 node=0x558b672a1f88
+debug: alir: macro: after sem_check_block, ns='std'
+debug: alir: GEN_CALL: name=print_int_array mangled=NULL
+debug: semantic: table.c lookup: name='print_int_array', found_ns='std', current_ns='std'
+debug: alir: Looking up 'print_int_array'
+debug: semantic: table.c lookup: name='print_int_array', found_ns='std', current_ns='std'
+debug: alir: Found symbol print_int_array, kind=1, is_macro=0, node_ptr=0x558b6724ce48
+debug: alir: CALL_STD: name=print_int_array mangled=NULL target_type=13
+debug: semantic: table.c lookup: name='print_int_array', found_ns='std', current_ns='std'
+debug: semantic: table.c lookup: name='print_int_array', found_ns='std', current_ns='std'
+debug: alir: GLOBAL VAR ADDR: print_int_array
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=36 dest_kind=5 dest_type_base=7 op1_kind=8 op1_type_base=1
+debug: alir: func=main op=20 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=7
+debug: alir: TAINTED PTR: ctx->module=0x558b67270e38 target_name=print_int_array count=2
+debug: semantic: table.c lookup: name='print_int_array', found_ns='std', current_ns='std'
+debug: semantic: table.c lookup: name='print_int_array', found_ns='std', current_ns='std'
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: alir_gen_function_def fn->name=set class_name=Vector_single fn->mangled_name=main_Vector_single_set_f32_f32 -> func_name=main_Vector_single_set_f32_f32
+debug: alir: alir_add_function: main_Vector_single_set_f32_f32
+debug: alir: alir_gen_function_def fn->name=get class_name=Vector_single fn->mangled_name=main_Vector_single_get -> func_name=main_Vector_single_get
+debug: alir: alir_add_function: main_Vector_single_get
+debug: alir: alir_add_function: Vector_single
+debug: alir: alir_gen_function_def fn->name=set class_name=Vector_int fn->mangled_name=main_Vector_int_set_i32_i32 -> func_name=main_Vector_int_set_i32_i32
+debug: alir: alir_add_function: main_Vector_int_set_i32_i32
+debug: alir: alir_gen_function_def fn->name=get class_name=Vector_int fn->mangled_name=main_Vector_int_get -> func_name=main_Vector_int_get
+debug: alir: alir_add_function: main_Vector_int_get
+debug: alir: alir_add_function: Vector_int
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen
 ; ModuleID = 'main_module'
 source_filename = "main_module"
 
 %Vector_single = type { float, float }
 %Vector_int = type { i32, i32 }
 
+@str.7 = private constant [4 x i8] c"%lf\00"
 @str.6 = private constant [3 x i8] c"%f\00"
+@str.5 = private constant [4 x i8] c"%lu\00"
+@str.4 = private constant [4 x i8] c"%ld\00"
+@str.3 = private constant [3 x i8] c"%u\00"
 @str.2 = private constant [3 x i8] c", \00"
 @str.1 = private constant [3 x i8] c"%s\00"
 @str.0 = private constant [3 x i8] c"%d\00"
@@ -33,47 +662,213 @@ declare i32 @printf(ptr %0, ...)
 
 declare i32 @putchar(i32 %0)
 
+declare i32 @puts(ptr %0)
+
 define void @std_print_int_array_i32_p_i64(ptr %0, i64 %1) {
 entry:
   %alloc = alloca ptr, align 8
   store ptr %0, ptr %alloc, align 8
   %alloc1 = alloca i64, align 8
   store i64 %1, ptr %alloc1, align 4
+  %alloc2 = alloca i32, align 4
+  store i32 0, ptr %alloc2, align 4
   %call = call i32 @putchar(i32 91)
-  %alloc2 = alloca i64, align 8
-  store i64 0, ptr %alloc2, align 4
+  %alloc3 = alloca i64, align 8
+  store i64 0, ptr %alloc3, align 4
   br label %while_cond
 
 while_cond:                                       ; preds = %merge, %entry
-  %load = load i64, ptr %alloc2, align 4
-  %load3 = load i64, ptr %alloc1, align 4
-  %lt = icmp slt i64 %load, %load3
+  %load = load i64, ptr %alloc3, align 4
+  %load4 = load i64, ptr %alloc1, align 4
+  %lt = icmp slt i64 %load, %load4
   br i1 %lt, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_cond
-  %load4 = load ptr, ptr %alloc, align 8
-  %load5 = load i64, ptr %alloc2, align 4
-  %ptr_gep = getelementptr i32, ptr %load4, i64 %load5
-  %load6 = load i32, ptr %ptr_gep, align 4
-  %call7 = call i32 (ptr, ...) @printf(ptr @str.0, i32 %load6)
-  %load8 = load i64, ptr %alloc2, align 4
-  %load9 = load i64, ptr %alloc1, align 4
-  %sub = sub i64 %load9, 1
-  %lt10 = icmp slt i64 %load8, %sub
-  br i1 %lt10, label %then, label %merge
+  %alloc5 = alloca i32, align 4
+  store i32 0, ptr %alloc5, align 4
+  %load6 = load ptr, ptr %alloc, align 8
+  %load7 = load i64, ptr %alloc3, align 4
+  %ptr_gep = getelementptr i32, ptr %load6, i64 %load7
+  %load8 = load i32, ptr %ptr_gep, align 4
+  %call9 = call i32 (ptr, ...) @printf(ptr @str.0, i32 %load8)
+  %load10 = load i64, ptr %alloc3, align 4
+  %load11 = load i64, ptr %alloc1, align 4
+  %sub = sub i64 %load11, 1
+  %lt12 = icmp slt i64 %load10, %sub
+  br i1 %lt12, label %then, label %merge
 
 while_end:                                        ; preds = %while_cond
-  %call11 = call i32 @putchar(i32 93)
+  %alloc13 = alloca i32, align 4
+  store i32 0, ptr %alloc13, align 4
+  %call14 = call i32 @putchar(i32 93)
   ret void
 
 then:                                             ; preds = %while_body
-  %call12 = call i32 (ptr, ...) @printf(ptr @str.1, ptr @str.2)
+  %alloc15 = alloca i32, align 4
+  store i32 0, ptr %alloc15, align 4
+  %call16 = call i32 (ptr, ...) @printf(ptr @str.1, ptr @str.2)
   br label %merge
 
 merge:                                            ; preds = %then, %while_body
-  %load13 = load i64, ptr %alloc2, align 4
-  %add = add i64 %load13, 1
-  store i64 %add, ptr %alloc2, align 4
+  %load17 = load i64, ptr %alloc3, align 4
+  %add = add i64 %load17, 1
+  store i64 %add, ptr %alloc3, align 4
+  br label %while_cond
+}
+
+define void @std_print_uint_array_i32_p_i64(ptr %0, i64 %1) {
+entry:
+  %alloc = alloca ptr, align 8
+  store ptr %0, ptr %alloc, align 8
+  %alloc1 = alloca i64, align 8
+  store i64 %1, ptr %alloc1, align 4
+  %alloc2 = alloca i32, align 4
+  store i32 0, ptr %alloc2, align 4
+  %call = call i32 @putchar(i32 91)
+  %alloc3 = alloca i64, align 8
+  store i64 0, ptr %alloc3, align 4
+  br label %while_cond
+
+while_cond:                                       ; preds = %merge, %entry
+  %load = load i64, ptr %alloc3, align 4
+  %load4 = load i64, ptr %alloc1, align 4
+  %lt = icmp slt i64 %load, %load4
+  br i1 %lt, label %while_body, label %while_end
+
+while_body:                                       ; preds = %while_cond
+  %alloc5 = alloca i32, align 4
+  store i32 0, ptr %alloc5, align 4
+  %load6 = load ptr, ptr %alloc, align 8
+  %load7 = load i64, ptr %alloc3, align 4
+  %ptr_gep = getelementptr i32, ptr %load6, i64 %load7
+  %load8 = load i32, ptr %ptr_gep, align 4
+  %call9 = call i32 (ptr, ...) @printf(ptr @str.3, i32 %load8)
+  %load10 = load i64, ptr %alloc3, align 4
+  %load11 = load i64, ptr %alloc1, align 4
+  %sub = sub i64 %load11, 1
+  %lt12 = icmp slt i64 %load10, %sub
+  br i1 %lt12, label %then, label %merge
+
+while_end:                                        ; preds = %while_cond
+  %alloc13 = alloca i32, align 4
+  store i32 0, ptr %alloc13, align 4
+  %call14 = call i32 @putchar(i32 93)
+  ret void
+
+then:                                             ; preds = %while_body
+  %alloc15 = alloca i32, align 4
+  store i32 0, ptr %alloc15, align 4
+  %call16 = call i32 (ptr, ...) @printf(ptr @str.1, ptr @str.2)
+  br label %merge
+
+merge:                                            ; preds = %then, %while_body
+  %load17 = load i64, ptr %alloc3, align 4
+  %add = add i64 %load17, 1
+  store i64 %add, ptr %alloc3, align 4
+  br label %while_cond
+}
+
+define void @std_print_long_array_void_p_i64(ptr %0, i64 %1) {
+entry:
+  %alloc = alloca ptr, align 8
+  store ptr %0, ptr %alloc, align 8
+  %alloc1 = alloca i64, align 8
+  store i64 %1, ptr %alloc1, align 4
+  %alloc2 = alloca i32, align 4
+  store i32 0, ptr %alloc2, align 4
+  %call = call i32 @putchar(i32 91)
+  %alloc3 = alloca i64, align 8
+  store i64 0, ptr %alloc3, align 4
+  br label %while_cond
+
+while_cond:                                       ; preds = %merge, %entry
+  %load = load i64, ptr %alloc3, align 4
+  %load4 = load i64, ptr %alloc1, align 4
+  %lt = icmp slt i64 %load, %load4
+  br i1 %lt, label %while_body, label %while_end
+
+while_body:                                       ; preds = %while_cond
+  %alloc5 = alloca i32, align 4
+  store i32 0, ptr %alloc5, align 4
+  %load6 = load ptr, ptr %alloc, align 8
+  %load7 = load i64, ptr %alloc3, align 4
+  %ptr_gep = getelementptr i64, ptr %load6, i64 %load7
+  %load8 = load i64, ptr %ptr_gep, align 4
+  %call9 = call i32 (ptr, ...) @printf(ptr @str.4, i64 %load8)
+  %load10 = load i64, ptr %alloc3, align 4
+  %load11 = load i64, ptr %alloc1, align 4
+  %sub = sub i64 %load11, 1
+  %lt12 = icmp slt i64 %load10, %sub
+  br i1 %lt12, label %then, label %merge
+
+while_end:                                        ; preds = %while_cond
+  %alloc13 = alloca i32, align 4
+  store i32 0, ptr %alloc13, align 4
+  %call14 = call i32 @putchar(i32 93)
+  ret void
+
+then:                                             ; preds = %while_body
+  %alloc15 = alloca i32, align 4
+  store i32 0, ptr %alloc15, align 4
+  %call16 = call i32 (ptr, ...) @printf(ptr @str.1, ptr @str.2)
+  br label %merge
+
+merge:                                            ; preds = %then, %while_body
+  %load17 = load i64, ptr %alloc3, align 4
+  %add = add i64 %load17, 1
+  store i64 %add, ptr %alloc3, align 4
+  br label %while_cond
+}
+
+define void @std_print_ulong_array_void_p_i64(ptr %0, i64 %1) {
+entry:
+  %alloc = alloca ptr, align 8
+  store ptr %0, ptr %alloc, align 8
+  %alloc1 = alloca i64, align 8
+  store i64 %1, ptr %alloc1, align 4
+  %alloc2 = alloca i32, align 4
+  store i32 0, ptr %alloc2, align 4
+  %call = call i32 @putchar(i32 91)
+  %alloc3 = alloca i64, align 8
+  store i64 0, ptr %alloc3, align 4
+  br label %while_cond
+
+while_cond:                                       ; preds = %merge, %entry
+  %load = load i64, ptr %alloc3, align 4
+  %load4 = load i64, ptr %alloc1, align 4
+  %lt = icmp slt i64 %load, %load4
+  br i1 %lt, label %while_body, label %while_end
+
+while_body:                                       ; preds = %while_cond
+  %alloc5 = alloca i32, align 4
+  store i32 0, ptr %alloc5, align 4
+  %load6 = load ptr, ptr %alloc, align 8
+  %load7 = load i64, ptr %alloc3, align 4
+  %ptr_gep = getelementptr i64, ptr %load6, i64 %load7
+  %load8 = load i64, ptr %ptr_gep, align 4
+  %call9 = call i32 (ptr, ...) @printf(ptr @str.5, i64 %load8)
+  %load10 = load i64, ptr %alloc3, align 4
+  %load11 = load i64, ptr %alloc1, align 4
+  %sub = sub i64 %load11, 1
+  %lt12 = icmp slt i64 %load10, %sub
+  br i1 %lt12, label %then, label %merge
+
+while_end:                                        ; preds = %while_cond
+  %alloc13 = alloca i32, align 4
+  store i32 0, ptr %alloc13, align 4
+  %call14 = call i32 @putchar(i32 93)
+  ret void
+
+then:                                             ; preds = %while_body
+  %alloc15 = alloca i32, align 4
+  store i32 0, ptr %alloc15, align 4
+  %call16 = call i32 (ptr, ...) @printf(ptr @str.1, ptr @str.2)
+  br label %merge
+
+merge:                                            ; preds = %then, %while_body
+  %load17 = load i64, ptr %alloc3, align 4
+  %add = add i64 %load17, 1
+  store i64 %add, ptr %alloc3, align 4
   br label %while_cond
 }
 
@@ -83,42 +878,102 @@ entry:
   store ptr %0, ptr %alloc, align 8
   %alloc1 = alloca i64, align 8
   store i64 %1, ptr %alloc1, align 4
+  %alloc2 = alloca i32, align 4
+  store i32 0, ptr %alloc2, align 4
   %call = call i32 @putchar(i32 91)
-  %alloc2 = alloca i64, align 8
-  store i64 0, ptr %alloc2, align 4
+  %alloc3 = alloca i64, align 8
+  store i64 0, ptr %alloc3, align 4
   br label %while_cond
 
 while_cond:                                       ; preds = %merge, %entry
-  %load = load i64, ptr %alloc2, align 4
-  %load3 = load i64, ptr %alloc1, align 4
-  %lt = icmp slt i64 %load, %load3
+  %load = load i64, ptr %alloc3, align 4
+  %load4 = load i64, ptr %alloc1, align 4
+  %lt = icmp slt i64 %load, %load4
   br i1 %lt, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_cond
-  %load4 = load ptr, ptr %alloc, align 8
-  %load5 = load i64, ptr %alloc2, align 4
-  %ptr_gep = getelementptr float, ptr %load4, i64 %load5
-  %load6 = load float, ptr %ptr_gep, align 4
-  %prom_f32_f64 = fpext float %load6 to double
-  %call7 = call i32 (ptr, ...) @printf(ptr @str.6, double %prom_f32_f64)
-  %load8 = load i64, ptr %alloc2, align 4
-  %load9 = load i64, ptr %alloc1, align 4
-  %sub = sub i64 %load9, 1
-  %lt10 = icmp slt i64 %load8, %sub
-  br i1 %lt10, label %then, label %merge
+  %alloc5 = alloca i32, align 4
+  store i32 0, ptr %alloc5, align 4
+  %load6 = load ptr, ptr %alloc, align 8
+  %load7 = load i64, ptr %alloc3, align 4
+  %ptr_gep = getelementptr float, ptr %load6, i64 %load7
+  %load8 = load float, ptr %ptr_gep, align 4
+  %prom_f32_f64 = fpext float %load8 to double
+  %call9 = call i32 (ptr, ...) @printf(ptr @str.6, double %prom_f32_f64)
+  %load10 = load i64, ptr %alloc3, align 4
+  %load11 = load i64, ptr %alloc1, align 4
+  %sub = sub i64 %load11, 1
+  %lt12 = icmp slt i64 %load10, %sub
+  br i1 %lt12, label %then, label %merge
 
 while_end:                                        ; preds = %while_cond
-  %call11 = call i32 @putchar(i32 93)
+  %alloc13 = alloca i32, align 4
+  store i32 0, ptr %alloc13, align 4
+  %call14 = call i32 @putchar(i32 93)
   ret void
 
 then:                                             ; preds = %while_body
-  %call12 = call i32 (ptr, ...) @printf(ptr @str.1, ptr @str.2)
+  %alloc15 = alloca i32, align 4
+  store i32 0, ptr %alloc15, align 4
+  %call16 = call i32 (ptr, ...) @printf(ptr @str.1, ptr @str.2)
   br label %merge
 
 merge:                                            ; preds = %then, %while_body
-  %load13 = load i64, ptr %alloc2, align 4
-  %add = add i64 %load13, 1
-  store i64 %add, ptr %alloc2, align 4
+  %load17 = load i64, ptr %alloc3, align 4
+  %add = add i64 %load17, 1
+  store i64 %add, ptr %alloc3, align 4
+  br label %while_cond
+}
+
+define void @std_print_double_array_void_p_i64(ptr %0, i64 %1) {
+entry:
+  %alloc = alloca ptr, align 8
+  store ptr %0, ptr %alloc, align 8
+  %alloc1 = alloca i64, align 8
+  store i64 %1, ptr %alloc1, align 4
+  %alloc2 = alloca i32, align 4
+  store i32 0, ptr %alloc2, align 4
+  %call = call i32 @putchar(i32 91)
+  %alloc3 = alloca i64, align 8
+  store i64 0, ptr %alloc3, align 4
+  br label %while_cond
+
+while_cond:                                       ; preds = %merge, %entry
+  %load = load i64, ptr %alloc3, align 4
+  %load4 = load i64, ptr %alloc1, align 4
+  %lt = icmp slt i64 %load, %load4
+  br i1 %lt, label %while_body, label %while_end
+
+while_body:                                       ; preds = %while_cond
+  %alloc5 = alloca i32, align 4
+  store i32 0, ptr %alloc5, align 4
+  %load6 = load ptr, ptr %alloc, align 8
+  %load7 = load i64, ptr %alloc3, align 4
+  %ptr_gep = getelementptr double, ptr %load6, i64 %load7
+  %load8 = load double, ptr %ptr_gep, align 8
+  %call9 = call i32 (ptr, ...) @printf(ptr @str.7, double %load8)
+  %load10 = load i64, ptr %alloc3, align 4
+  %load11 = load i64, ptr %alloc1, align 4
+  %sub = sub i64 %load11, 1
+  %lt12 = icmp slt i64 %load10, %sub
+  br i1 %lt12, label %then, label %merge
+
+while_end:                                        ; preds = %while_cond
+  %alloc13 = alloca i32, align 4
+  store i32 0, ptr %alloc13, align 4
+  %call14 = call i32 @putchar(i32 93)
+  ret void
+
+then:                                             ; preds = %while_body
+  %alloc15 = alloca i32, align 4
+  store i32 0, ptr %alloc15, align 4
+  %call16 = call i32 (ptr, ...) @printf(ptr @str.1, ptr @str.2)
+  br label %merge
+
+merge:                                            ; preds = %then, %while_body
+  %load17 = load i64, ptr %alloc3, align 4
+  %add = add i64 %load17, 1
+  store i64 %add, ptr %alloc3, align 4
   br label %while_cond
 }
 
@@ -142,18 +997,41 @@ entry:
   ret i32 0
 }
 
+define void @main_Vector_single_set_f32_f32(ptr %0, float %1, float %2) {
+entry:
+  %alloc = alloca ptr, align 8
+  store ptr %0, ptr %alloc, align 8
+  %alloc1 = alloca float, align 4
+  store float %1, ptr %alloc1, align 4
+  %alloc2 = alloca float, align 4
+  store float %2, ptr %alloc2, align 4
+  %load = load float, ptr %alloc1, align 4
+  %load3 = load ptr, ptr %alloc, align 8
+  %struct_gep = getelementptr inbounds nuw %Vector_single, ptr %load3, i32 0, i32 0
+  store float %load, ptr %struct_gep, align 4
+  %load4 = load float, ptr %alloc2, align 4
+  %load5 = load ptr, ptr %alloc, align 8
+  %struct_gep6 = getelementptr inbounds nuw %Vector_single, ptr %load5, i32 0, i32 1
+  store float %load4, ptr %struct_gep6, align 4
+  ret void
+}
+
 define [2 x float] @main_Vector_single_get(ptr %0) {
 entry:
-  %alloc = alloca [2 x float], align 4
-  %struct_gep = getelementptr inbounds nuw %Vector_single, ptr %0, i32 0, i32 0
-  %load = load float, ptr %struct_gep, align 4
-  %array_gep = getelementptr [2 x float], ptr %alloc, i32 0, i32 0
-  store float %load, ptr %array_gep, align 4
-  %struct_gep1 = getelementptr inbounds nuw %Vector_single, ptr %0, i32 0, i32 1
-  %load2 = load float, ptr %struct_gep1, align 4
-  %array_gep3 = getelementptr [2 x float], ptr %alloc, i32 0, i32 1
-  store float %load2, ptr %array_gep3, align 4
-  %load_ret = load [2 x float], ptr %alloc, align 4
+  %alloc = alloca ptr, align 8
+  store ptr %0, ptr %alloc, align 8
+  %alloc1 = alloca [2 x float], align 4
+  %load = load ptr, ptr %alloc, align 8
+  %struct_gep = getelementptr inbounds nuw %Vector_single, ptr %load, i32 0, i32 0
+  %load2 = load float, ptr %struct_gep, align 4
+  %array_gep = getelementptr [2 x float], ptr %alloc1, i32 0, i32 0
+  store float %load2, ptr %array_gep, align 4
+  %load3 = load ptr, ptr %alloc, align 8
+  %struct_gep4 = getelementptr inbounds nuw %Vector_single, ptr %load3, i32 0, i32 1
+  %load5 = load float, ptr %struct_gep4, align 4
+  %array_gep6 = getelementptr [2 x float], ptr %alloc1, i32 0, i32 1
+  store float %load5, ptr %array_gep6, align 4
+  %load_ret = load [2 x float], ptr %alloc1, align 4
   ret [2 x float] %load_ret
 }
 
@@ -168,25 +1046,39 @@ entry:
 
 define void @main_Vector_int_set_i32_i32(ptr %0, i32 %1, i32 %2) {
 entry:
-  %struct_gep = getelementptr inbounds nuw %Vector_int, ptr %0, i32 0, i32 0
-  store i32 %1, ptr %struct_gep, align 4
-  %struct_gep1 = getelementptr inbounds nuw %Vector_int, ptr %0, i32 0, i32 1
-  store i32 %2, ptr %struct_gep1, align 4
+  %alloc = alloca ptr, align 8
+  store ptr %0, ptr %alloc, align 8
+  %alloc1 = alloca i32, align 4
+  store i32 %1, ptr %alloc1, align 4
+  %alloc2 = alloca i32, align 4
+  store i32 %2, ptr %alloc2, align 4
+  %load = load i32, ptr %alloc1, align 4
+  %load3 = load ptr, ptr %alloc, align 8
+  %struct_gep = getelementptr inbounds nuw %Vector_int, ptr %load3, i32 0, i32 0
+  store i32 %load, ptr %struct_gep, align 4
+  %load4 = load i32, ptr %alloc2, align 4
+  %load5 = load ptr, ptr %alloc, align 8
+  %struct_gep6 = getelementptr inbounds nuw %Vector_int, ptr %load5, i32 0, i32 1
+  store i32 %load4, ptr %struct_gep6, align 4
   ret void
 }
 
 define [2 x i32] @main_Vector_int_get(ptr %0) {
 entry:
-  %alloc = alloca [2 x i32], align 4
-  %struct_gep = getelementptr inbounds nuw %Vector_int, ptr %0, i32 0, i32 0
-  %load = load i32, ptr %struct_gep, align 4
-  %array_gep = getelementptr [2 x i32], ptr %alloc, i32 0, i32 0
-  store i32 %load, ptr %array_gep, align 4
-  %struct_gep1 = getelementptr inbounds nuw %Vector_int, ptr %0, i32 0, i32 1
-  %load2 = load i32, ptr %struct_gep1, align 4
-  %array_gep3 = getelementptr [2 x i32], ptr %alloc, i32 0, i32 1
-  store i32 %load2, ptr %array_gep3, align 4
-  %load_ret = load [2 x i32], ptr %alloc, align 4
+  %alloc = alloca ptr, align 8
+  store ptr %0, ptr %alloc, align 8
+  %alloc1 = alloca [2 x i32], align 4
+  %load = load ptr, ptr %alloc, align 8
+  %struct_gep = getelementptr inbounds nuw %Vector_int, ptr %load, i32 0, i32 0
+  %load2 = load i32, ptr %struct_gep, align 4
+  %array_gep = getelementptr [2 x i32], ptr %alloc1, i32 0, i32 0
+  store i32 %load2, ptr %array_gep, align 4
+  %load3 = load ptr, ptr %alloc, align 8
+  %struct_gep4 = getelementptr inbounds nuw %Vector_int, ptr %load3, i32 0, i32 1
+  %load5 = load i32, ptr %struct_gep4, align 4
+  %array_gep6 = getelementptr [2 x i32], ptr %alloc1, i32 0, i32 1
+  store i32 %load5, ptr %array_gep6, align 4
+  %load_ret = load [2 x i32], ptr %alloc1, align 4
   ret [2 x i32] %load_ret
 }
 
@@ -198,6 +1090,30 @@ entry:
   store i32 %2, ptr %struct_gep1, align 4
   ret void
 }
+DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8
+DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8
+DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8
+DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8
+DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8
+DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8
+DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8
+DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
+DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8
+DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+DEBUG CALL: expected_ty=12, arg_ty=12
 DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8
 DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
 DEBUG CALL: expected_ty=12, arg_ty=12

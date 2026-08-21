@@ -83,7 +83,7 @@ static int is_unambiguous_expr_start(Parser *p) {
            t == TOKEN_ULONG_LIT || t == TOKEN_LONG_LONG_LIT || t == TOKEN_ULONG_LONG_LIT ||
            t == TOKEN_SINGLE_LIT || t == TOKEN_DOUBLE_LIT || t == TOKEN_LONG_DOUBLE_LIT ||
            t == TOKEN_STRING || t == TOKEN_C_STRING || t == TOKEN_BYTE_STRING ||
-           t == TOKEN_TRUE || t == TOKEN_FALSE ||
+           t == TOKEN_TRUE || t == TOKEN_FALSE || t == TOKEN_NULL ||
            t == TOKEN_CHAR_LIT || t == TOKEN_LPAREN || t == TOKEN_LBRACKET ||
            t == TOKEN_TYPEOF || t == TOKEN_KW_SIZEOF || t == TOKEN_KW_ALIGNOF ||
            t == TOKEN_KW_DEFINED || t == TOKEN_HASMETHOD || t == TOKEN_HASATTRIBUTE ||
@@ -971,6 +971,18 @@ ASTNode* parse_factor(Parser *p) {
     ln->var_type.base = TYPE_BOOL;
     ln->val.long_val = (p->current_token.type == TOKEN_TRUE) ? 1 : 0;
     eat(p, p->current_token.type);
+    node = (ASTNode*)ln;
+    set_loc(node, line, col);
+  }
+  else if (p->current_token.type == TOKEN_NULL) {
+    LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
+    ln->base.type = NODE_LITERAL;
+    ln->var_type.base = TYPE_VOID;
+    ln->var_type.ptr_depth = 1; // void*
+    // Important: mark it as tainted so `t ?? 5` handles it as an error when null
+    ln->var_type.is_tainted = true; 
+    ln->val.any = 0; // null pointer
+    eat(p, TOKEN_NULL);
     node = (ASTNode*)ln;
     set_loc(node, line, col);
   }

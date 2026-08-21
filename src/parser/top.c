@@ -630,9 +630,10 @@ ASTNode* parse_top_level_internal(Parser *p) {
                        snprintf(buf, sizeof(buf), "%lld", (long long)p->current_token.int_val);
                        val = parser_strdup(p, buf);
                        eat(p, TOKEN_NUMBER);
-                   } else if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING || p->current_token.type == TOKEN_TRUE || p->current_token.type == TOKEN_FALSE) {
+                   } else if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING || p->current_token.type == TOKEN_TRUE || p->current_token.type == TOKEN_FALSE || p->current_token.type == TOKEN_NULL) {
                        if (p->current_token.type == TOKEN_TRUE) val = "true";
                        else if (p->current_token.type == TOKEN_FALSE) val = "false";
+                       else if (p->current_token.type == TOKEN_NULL) val = "null";
                        else val = parser_strdup(p, p->current_token.text);
                        eat(p, p->current_token.type);
                    }
@@ -716,9 +717,10 @@ ASTNode* parse_top_level_internal(Parser *p) {
                } else if (p->current_token.type == TOKEN_ASSIGN) {
                    eat(p, TOKEN_ASSIGN);
                    char *val = NULL;
-                   if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_NUMBER || p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING || p->current_token.type == TOKEN_TRUE || p->current_token.type == TOKEN_FALSE) {
+                   if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_NUMBER || p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING || p->current_token.type == TOKEN_TRUE || p->current_token.type == TOKEN_FALSE || p->current_token.type == TOKEN_NULL) {
                        if (p->current_token.type == TOKEN_TRUE) val = "true";
                        else if (p->current_token.type == TOKEN_FALSE) val = "false";
+                       else if (p->current_token.type == TOKEN_NULL) val = "null";
                        else val = parser_strdup(p, p->current_token.text);
                        eat(p, p->current_token.type);
                    }

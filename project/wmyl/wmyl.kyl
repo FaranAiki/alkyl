@@ -90,7 +90,7 @@ int main() {
     setenv("WAYLAND_DISPLAY", socket, 1);
     let pid = fork();
     if (pid == 0) {
-        execl("/bin/sh", "/bin/sh", "-c", "kitty", 0 as void*);
+        execl("/bin/sh", "/bin/sh", "-c", "kitty", null);
         _exit(1);
     }
 

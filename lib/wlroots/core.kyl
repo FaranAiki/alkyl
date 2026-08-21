@@ -8,7 +8,7 @@ private namespace {
 link "wayland-server";
 link "wlroots-0.18";
 
-// TODO: instead of 0 as void*, maybe use null!
+// TODO: instead of null, maybe use null!
 // and yes, when a (tainted) pointer is null in alkyl (w/ no C), it causes ErrNull
 // I guess
 export namespace wlroots {
@@ -35,7 +35,7 @@ export namespace wlroots {
     // Display
     errnum [ErrDisplayCreation] wlroots.wl_display*? create_display() {
         let display = wl_display_create();
-        if (display == 0 as void*) {
+        if (display == null) {
             purge ErrDisplayCreation;
         }
         return display as wlroots.wl_display*;
@@ -43,7 +43,7 @@ export namespace wlroots {
 
     errnum [ErrSocketCreation] char*? add_socket_auto(pristine wlroots.wl_display* display) {
         let socket = wl_display_add_socket_auto(display);
-        if (socket == 0 as void*) {
+        if (socket == null) {
             purge ErrSocketCreation;
         }
         return socket;
@@ -52,8 +52,8 @@ export namespace wlroots {
     // Backend
     errnum [ErrBackendCreation] wlroots.wlr_backend*? create_backend(pristine wlroots.wl_display* display) {
         let event_loop = wl_display_get_event_loop(display);
-        let backend = wlr_backend_autocreate(event_loop, 0 as void**);
-        if (backend == 0 as void*) {
+        let backend = wlr_backend_autocreate(event_loop, null*);
+        if (backend == null) {
             purge ErrBackendCreation;
         }
         return backend as wlroots.wlr_backend*;
@@ -69,7 +69,7 @@ export namespace wlroots {
     // Renderer
     errnum [ErrRendererCreation] wlroots.wlr_renderer*? create_renderer(pristine wlroots.wlr_backend* backend) {
         let renderer = wlr_renderer_autocreate(backend);
-        if (renderer == 0 as void*) {
+        if (renderer == null) {
             purge ErrRendererCreation;
         }
         return renderer as wlroots.wlr_renderer*;
@@ -82,7 +82,7 @@ export namespace wlroots {
     // Allocator
     errnum [ErrAllocatorCreation] wlroots.wlr_allocator*? create_allocator(pristine wlroots.wlr_backend* backend, pristine wlroots.wlr_renderer* renderer) {
         let allocator = wlr_allocator_autocreate(backend, renderer);
-        if (allocator == 0 as void*) {
+        if (allocator == null) {
             purge ErrAllocatorCreation;
         }
         return allocator as wlroots.wlr_allocator*;
@@ -91,7 +91,7 @@ export namespace wlroots {
     // Compositor
     errnum [ErrCompositorCreation] wlroots.wlr_compositor*? create_compositor(pristine wlroots.wl_display* display, pristine wlroots.wlr_renderer* renderer) {
         let compositor = wlr_compositor_create(display, 5, renderer);
-        if (compositor == 0 as void*) {
+        if (compositor == null) {
             purge ErrCompositorCreation;
         }
         return compositor as wlroots.wlr_compositor*;
@@ -100,7 +100,7 @@ export namespace wlroots {
     // Data Device Manager
     errnum [ErrDataDeviceManagerCreation] wlroots.wlr_data_device_manager*? create_data_device_manager(pristine wlroots.wl_display* display) {
         let manager = wlr_data_device_manager_create(display);
-        if (manager == 0 as void*) {
+        if (manager == null) {
             purge ErrDataDeviceManagerCreation;
         }
         return manager as wlroots.wlr_data_device_manager*;
@@ -109,7 +109,7 @@ export namespace wlroots {
     // Output Layout
     errnum [ErrOutputLayoutCreation] wlroots.wlr_output_layout*? create_output_layout(pristine wlroots.wl_display* display) {
         let layout = wlr_output_layout_create(display);
-        if (layout == 0 as void*) {
+        if (layout == null) {
             purge ErrOutputLayoutCreation;
         }
         return layout as wlroots.wlr_output_layout*;
@@ -118,7 +118,7 @@ export namespace wlroots {
     // Xdg Shell
     errnum [ErrXdgShellCreation] wlroots.wlr_xdg_shell*? create_xdg_shell(pristine wlroots.wl_display* display, int version) {
         let shell = wlr_xdg_shell_create(display, version);
-        if (shell == 0 as void*) {
+        if (shell == null) {
             purge ErrXdgShellCreation;
         }
         return shell as wlroots.wlr_xdg_shell*;
@@ -127,7 +127,7 @@ export namespace wlroots {
     // Seat
     errnum [ErrSeatCreation] wlroots.wlr_seat*? create_seat(pristine wlroots.wl_display* display, char* name) {
         let seat = wlr_seat_create(display, name);
-        if (seat == 0 as void*) {
+        if (seat == null) {
             purge ErrSeatCreation;
         }
         return seat as wlroots.wlr_seat*;
@@ -153,21 +153,36 @@ export namespace wlroots {
 
     // Listeners
     void init_listener(pristine wlroots.wl_listener* listener, void* notify_func) {
-        init_wl_listener(listener, notify_func);
+        listener->notify = notify_func;
     }
     void backend_on_new_output(pristine wlroots.wlr_backend* backend, pristine wlroots.wl_listener* listener, void* notify_func) {
-        wlr_backend_on_new_output(backend, listener, notify_func);
+        listener->notify = notify_func;
+        wl_signal_add(&(backend->events.new_output), listener);
     }
     void output_on_frame(pristine wlroots.wlr_output* output, pristine wlroots.wl_listener* listener, void* notify_func) {
-        wlr_output_on_frame(output, listener, notify_func);
+        listener->notify = notify_func;
+        wl_signal_add(&(output->events.frame), listener);
     }
     void output_enable_and_commit(pristine wlroots.wlr_output* output, pristine wlroots.wlr_allocator* allocator, pristine wlroots.wlr_renderer* renderer) {
-        wlr_output_enable_and_commit(output, allocator, renderer);
+        wlr_output_init_render(output, allocator, renderer);
+        wlroots.wlr_output_state state;
+        wlr_output_state_init(&state);
+        wlr_output_state_set_enabled(&state, true);
+        let mode = wlr_output_preferred_mode(output);
+        if (mode != null) {
+            wlr_output_state_set_mode(&state, mode);
+        }
+        wlr_output_commit_state(output, &state);
+        wlr_output_state_finish(&state);
     }
     void xdg_shell_on_new_surface(pristine wlroots.wlr_xdg_shell* shell, pristine wlroots.wl_listener* listener, void* notify_func) {
-        wlr_xdg_shell_on_new_surface(shell, listener, notify_func);
+        listener->notify = notify_func;
+        wl_signal_add(&(shell->events.new_surface), listener);
     }
-    void scene_add_xdg_surface(void* scene, pristine wlroots.wlr_xdg_surface* xdg_surface) {
-        wlr_scene_add_xdg_surface(scene, xdg_surface);
+    void scene_add_xdg_surface(pristine wlroots.wlr_scene* scene, pristine wlroots.wlr_xdg_surface* xdg_surface) {
+        if (xdg_surface->role == WLR_XDG_SURFACE_ROLE_TOPLEVEL) {
+            wlr_scene_xdg_surface_create(&(scene->tree), xdg_surface);
+            wlr_xdg_toplevel_set_mapped(xdg_surface->toplevel, true);
+        }
     }
 }

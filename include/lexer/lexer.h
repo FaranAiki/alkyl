@@ -168,6 +168,7 @@ typedef enum {
 
   TOKEN_TRUE,
   TOKEN_FALSE,
+  TOKEN_NULL,
 
   TOKEN_NOT,     // !
   TOKEN_BIT_NOT, // ~
@@ -342,6 +343,7 @@ static const KeywordDef keywords[] = {
     {"naked", TOKEN_NAKED},
     {"namespace", TOKEN_NAMESPACE},
     {"not", TOKEN_NOT},
+  {"null", TOKEN_NULL},
     {"once", TOKEN_ONCE},
     {"open", TOKEN_OPEN},
     {"override", TOKEN_OVERRIDE},

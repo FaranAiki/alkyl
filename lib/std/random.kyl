@@ -8,7 +8,7 @@ private namespace __c_lib {
 
 export namespace random {
     void init() {
-        __c_lib.srand(__c_lib.time(0 as void*) as unsigned int);
+        __c_lib.srand(__c_lib.time(null) as unsigned int);
     }
 
     // TODO: make sure that random.random and random.fast_random is different!
