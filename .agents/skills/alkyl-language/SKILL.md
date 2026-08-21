@@ -5,7 +5,12 @@ description: Understand and write code in the Alkyl programming language, includ
 
 # Alkyl Language Guide
 
-Alkyl is a statically typed, compiled programming language that blends C-style syntax with modern features like namespaces, classes (with traits), string handling, and macro definitions. It compiles to LLVM IR.
+Alkyl is a statically typed, compiled programming language that blends C-style syntax with modern features like namespaces, classes (with traits), macro definitions, and robust error handling (pristine/tainted). It compiles to LLVM IR.
+
+> **CRITICAL: Alkyl is C++-inspired for OOP and modules, NOT Rust-like.**
+> Visibility modifiers: `public`, `private`, `open`, `closed`.
+> Export namespaces with `export namespace`.
+> **`string` is NOT a built-in primitive.** It is a library class in `lib/std/string.kyl` and is NOT fully implemented (contains TODOs). Use `char*` for strings unless explicitly importing the `string` library.
 
 ## 1. Basics
 
@@ -19,9 +24,9 @@ Alkyl is a statically typed, compiled programming language that blends C-style s
 - `bool`: Boolean (`true`/`false`)
 - `single`: Single-precision floating point (float)
 - `double`: Double-precision floating point
-- `string`: String type (managed `char*`)
 - `void`: Empty type
 - `let` / `auto`: Type inference
+- **`string` is NOT a primitive.** It is a library class (`lib/std/string.kyl`) and NOT fully implemented. Use `char*` for strings.
 
 ### Variables
 - Explicit: `int x = 10;`
@@ -49,7 +54,9 @@ Supports function overloading.
 - **Classes**: `open class Vector { int x; int y; void print_vec() { ... } }`
 - **Inheritance**: `class Player is Entity { ... }`
 - **Traits (Mixins)**: `class User has Printable { ... }`
-- **Visibility**: `open` (public), `closed` (private).
+- **Visibility**: `open` (public/subclassable), `closed` (private/not subclassable), `public`, `private`.
+- **Namespaces**: `namespace Math { ... }`, `export namespace Math { ... }`
+- **Export**: Use `export namespace` to make a namespace available across modules.
 
 ## 5. Metaprogramming & Macros
 - `define PI as 3.14159;`

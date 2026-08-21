@@ -1,5 +1,33 @@
 Here is the architectural documentation and programming guide for the **Alkyl** compiler project. (Also applicable for Kilo Code and other AI assistants)
 
+<CRITICAL_SYNTAX_RULE>
+**Alkyl uses C-like syntax, NOT modern Rust-like syntax.**
+
+Function declarations use C-style: `int main() { }`, NOT Rust-style `main: int`.
+Variable declarations use C-style: `int x = 10;` or type-inferred `let x = 10;`.
+The `let` keyword is analogous to `auto` in C++ — it infers the type from the initializer.
+**`let t: int = 0` is INVALID and makes no sense in Alkyl.** Do NOT use colon-type annotations (`: type`) after variable names.
+Always write `int p = 1;` for explicit typing, or `let p = 1;` for type inference.
+</CRITICAL_SYNTAX_RULE>
+
+<CRITICAL_LANGUAGE_FEATURES_RULE>
+**Alkyl is C++-inspired for OOP and module features, NOT Rust-like.**
+
+Visibility modifiers (C++-style): `public`, `private`, `open`, `closed`.
+- `public`: Accessible everywhere.
+- `private`: Accessible only within the declaring scope.
+- `open`: Can be subclassed / reopened (for classes and namespaces).
+- `closed`: Cannot be subclassed / reopened.
+
+Namespaces use C++-style syntax: `namespace Math { ... }`.
+Export namespaces with `export namespace`: `export namespace Math { ... }`.
+Classes support single inheritance (`is`) and traits/mixins (`has`).
+Functions can be declared `pure` / `impure` and `total` / `partial`.
+Variables and expressions use `pristine` / `tainted` for error safety (Zig-inspired, orthogonal to pure/impure).
+
+**`string` is NOT a built-in primitive type.** It is a library class defined in `lib/std/string.kyl` and is NOT fully implemented (contains TODOs). Do NOT treat `string` as a primitive like `int` or `char`. Use `char*` for strings unless explicitly importing the `string` library.
+</CRITICAL_LANGUAGE_FEATURES_RULE>
+
 <RULE>
 **Debugging Print Rule:**
 Every `fprintf` or `printf` that is used for debugging MUST be replaced by a module-specific debug macro (e.g. `debug_parser`, `debug_alir`, `debug_lexer`, `debug_semantic`, `debug_codegen`) or `debug_any("msg", ...);` if none fit. Do NOT use `printf("DEBUG: ...")` or `fprintf(stderr, ...)`.
@@ -10,20 +38,32 @@ Do NOT use `strcmp` for string comparisons inside the compiler codebase. ALWAYS 
 
 # How to Program in Alkyl
 1. **Variables and Assignment**: 
-   - Declare variables with `let`, e.g., `let p = 1;`, `let p: int = 1;`
+   - Declare variables with `let` (type inference) or C-style explicit typing, e.g., `let p = 1;` or `int p = 1;`
    - In the REPL, `p = 1` also acts as an implicit declaration if `p` doesn't exist.
    - The REPL automatically saves the last evaluated expression in a global variable called `res` (similar to `_` in Python or `it` in GHCi).
 2. **Types**: 
    - Primitives: `int`, `double`, `single`, `long`, `char`, `bool`.
+   - **`string` is NOT a primitive.** It is a library class in `lib/std/string.kyl` and is NOT fully implemented (contains TODOs). Use `char*` for strings unless explicitly importing the `string` library.
    - Arrays: `[1, 2, 3]` (Array literals are fully supported in REPL).
    - User-defined: `class`, `namespace`, `enum`. Unions are synthetic types.
 3. **Control Flow**: 
    - Standard `if`, `while`, `switch`.
 4. **Functions & Macros**: 
    - Functions are defined using C-like syntax WITHOUT a `func` keyword: `int add(int a, int b) { return a + b; }`
+   - Visibility modifiers (C++-style): `public`, `private`, `open`, `closed`.
    - Macros are defined with `meta void` and are expanded at the AST level. Never eagerly compile an unexpanded macro to ALIR.
    - Nullability: Alkyl does not use null pointers (e.g. `0 as void*`). Instead, absence of a value is represented as an error state (e.g., `purge ErrNull`).
-5. **Foreign Function Interface (FFI) & Calling Conventions**:
+5. **Namespaces & Modules**: 
+   - Namespaces use C++-style syntax: `namespace Math { ... }`.
+   - Export namespaces with `export namespace`: `export namespace Math { ... }`.
+   - Namespaces can be `public`, `private`, `open`, or `closed`.
+6. **Object-Oriented Programming**: 
+   - Classes support single inheritance (`class Player is Entity`) and traits/mixins (`class User has Printable`).
+   - Class visibility: `public` (accessible everywhere), `private` (accessible only within declaring scope), `open` (can be subclassed), `closed` (cannot be subclassed).
+7. **Effects & Error Handling**: 
+   - Functions: `pure` / `impure` (side effects), `total` / `partial` (termination).
+   - Values: `pristine` / `tainted` (error safety). `tainted` is orthogonal to `pure`/`impure`. Use `wash`, `clean`, `untaint`, or `?` to handle tainted values.
+8. **Foreign Function Interface (FFI) & Calling Conventions**:
    - Use `@identifier` before `extern` or `func` to specify calling conventions or name mangling schemas without using pragmas. 
    - Example: `@cpp extern { int some_cpp_func(); }` will use C++ Itanium name mangling.
    - Example: `@stdcall int my_func();`

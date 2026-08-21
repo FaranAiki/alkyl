@@ -48,6 +48,10 @@ This is the most **unsupported** as Cranelift's library (Rust architecture) is d
 
 Core feature is the high-level and simplicity of C, combined with C++'s' and Java's object oriented programming with is-a has-a feature.The language itself enforces SOLID principles and modularization, but without as much as bloat in other programming languages.
 
+Alkyl also features C++-style visibility modifiers: `public`, `private`, `open`, `closed`. Classes and namespaces can use these modifiers. Namespaces can be exported with `export namespace`.
+
+**Note on `string`**: Alkyl does NOT have a built-in `string` primitive. The `string` type is a library class defined in `lib/std/string.kyl` and is NOT fully implemented (contains TODOs). Use `char*` for strings unless explicitly importing the `string` library.
+
 Alkyl also features a robust, **fully orthogonal** effect and error-handling type system which is heavily similar to Zig:
 * **`pure` vs `impure`**: Determines if a function has side-effects (state mutation, IO).
 * **`total` vs `partial`**: Determines if a function is guaranteed to terminate. A `total` function must not contain infinite loops or call `partial` functions.

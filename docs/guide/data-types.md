@@ -1,5 +1,11 @@
 # Basic Data Types
 
+> **CRITICAL: Alkyl uses C-like syntax, NOT Rust-like syntax.**
+> 
+> Variable declarations use C-style: `int x = 10;` (type before name).
+> The `let` keyword is like `auto` in C++ — it infers the type, so `let t: int = 0` is **INVALID**.
+> **`string` is NOT a built-in primitive.** It is a library class in `lib/std/string.kyl` and is NOT fully implemented (contains TODOs). Use `char*` for strings unless explicitly importing the `string` library.
+
 Alkyl is a statically-typed language, meaning every variable must have a specific type known at compile time. Alkyl provides several primitive types for your everyday programming needs.
 
 ## Variables
@@ -8,7 +14,7 @@ You can declare a variable using the `let` keyword.
 
 ```alkyl
 let age = 25;           // Type inferred as int
-let name: string = "Alkyl"; // Explicitly typed
+char* name = "Alkyl";   // Explicitly typed (C-style, string is NOT a primitive)
 ```
 
 ## Primitive Types
@@ -25,7 +31,7 @@ Standard whole numbers.
 ### Floating Point
 Numbers with decimals.
 
-* **`single`**: 32-bit floating point (similar to `float` in C). (e.g. `let pi: single = 3.14;`)
+* **`single`**: 32-bit floating point (similar to `float` in C). (e.g. `single pi = 3.14;`)
 * **`double`**: 64-bit floating point for higher precision. (e.g. `let precise_pi = 3.14159265;`)
 
 ### Booleans

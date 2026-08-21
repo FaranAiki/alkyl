@@ -1,5 +1,13 @@
 # Alkyl Language Specification and Design
 
+> **CRITICAL: Alkyl uses C-like syntax, NOT Rust-like syntax.**
+> 
+> Function declarations: `int main() { }` (C-style), NOT `main: int`.
+> Variable declarations: `int x = 10;` (type before name).
+> The `let` keyword is like `auto` in C++ — it infers the type, so `let y: int = 20` is **INVALID**.
+> Use `int y = 20;` or `let y = 20;`, never `let y: int = 20;`.
+> **`string` is NOT a built-in primitive.** It is a library class in `lib/std/string.kyl` and is NOT fully implemented. Use `char*` for strings.
+
 Alkyl is a statically typed, compiled programming language that blends C-style syntax with modern features like namespaces, classes, generics (templates), and robust error handling (pristine/tainted semantics). It compiles directly to LLVM IR using the pure C `llvm-c` API. It also features a powerful REPL (JIT interpreter) called `ethyl`.
 
 ## 1. Basics & Data Types
@@ -9,6 +17,7 @@ Alkyl supports standard C-style primitives:
 *   `single` (32-bit float), `double` (64-bit float)
 *   `char`, `bool`
 *   Arrays and pointers: `int[]`, `int*`, `int[5]`
+*   **`string` is NOT a primitive.** It is a library class (`lib/std/string.kyl`) and NOT fully implemented. Use `char*` for strings.
 
 Array literals are fully supported natively:
 ```alkyl
@@ -20,7 +29,7 @@ let arr = [1, 2, 3, 4, 5]; // Infers as int[]
 Variables are declared using `let` (type inference is supported):
 ```alkyl
 let x = 10;
-let y: int = 20;
+int y = 20;
 const z = 30;
 ```
 In the interactive REPL (`ethyl`), implicit assignment (e.g., `x = 5;`) acts exactly identically to `let x = 5;`, allowing for seamless Python-like interactions.
@@ -71,6 +80,24 @@ namespace Math {
 ```
 *   **is-a**: Single inheritance (`class Player is Entity`).
 *   **has-a**: Traits/mixins (`class User has Printable`).
+
+### Visibility & Export (C++-style)
+
+Alkyl uses C++-style visibility modifiers for classes, namespaces, functions, and variables:
+
+*   **`public`**: Accessible from any scope.
+*   **`private`**: Accessible only within the declaring scope.
+*   **`open`**: Can be subclassed or reopened (for namespaces/classes).
+*   **`closed`**: Cannot be subclassed or reopened.
+
+Namespaces can be exported for cross-module use:
+
+```alkyl
+export namespace Math {
+    public class Vector { ... }
+    private double epsilon = 0.0001;
+}
+```
 
 ## 5. Generics & Template Argument Deduction
 
