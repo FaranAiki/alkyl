@@ -1,3 +1,240 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=getProfile target_type=13 line=0 col=0 node=0x563f410164d8 target=0x563f410163b8
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x563f41016ab8 target=0x563f41016918
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=getProfile target_type=13 line=0 col=0 node=0x563f41016c70 target=0x563f41016b50
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x563f410175c8 target=0x563f410173d0
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=getProfile target_type=13 line=0 col=0 node=0x563f41017780 target=0x563f41017660
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x563f41018080 target=0x563f41017ee0
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=getProfile target_type=13 line=0 col=0 node=0x563f41018238 target=0x563f41018118
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x563f41018b38 target=0x563f41018998
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=4 col=11 node=0x563f41015938
+debug: semantic: sem_check_expr: type=13 line=4 col=9 node=0x563f41015818
+debug: semantic: sem_check_expr: type=16 line=4 col=14 node=0x563f41015898
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=45
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=5 col=11 node=0x563f41015c78
+debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x563f41015b58
+debug: semantic: sem_check_expr: type=16 line=5 col=14 node=0x563f41015bd8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=45
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=6 col=11 node=0x563f41015fb8
+debug: semantic: sem_check_expr: type=13 line=6 col=9 node=0x563f41015e98
+debug: semantic: sem_check_expr: type=16 line=6 col=14 node=0x563f41015f18
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=45
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=13 line=7 col=12 node=0x563f410161d8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=14 line=15 col=42 node=0x563f41016788
+debug: semantic: sem_check_expr: type=14 line=15 col=35 node=0x563f41016618
+debug: semantic: sem_check_expr: type=2 line=15 col=31 node=0x563f410164d8
+debug: semantic: sem_check_call: name='getProfile', ns='main'
+debug: semantic: sem_check_expr: type=13 line=15 col=21 node=0x563f410163b8
+debug: semantic: sem_check_expr: type=16 line=15 col=32 node=0x563f41016438
+debug: semantic: sem_check_expr: type=16 line=15 col=32 node=0x563f41016438
+debug: semantic: sem_check_expr: type=16 line=15 col=38 node=0x563f41016578
+debug: semantic: sem_check_expr: type=16 line=15 col=44 node=0x563f410166e8
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=16 col=11 name=printf target_type=13 node=0x563f41016ab8
+debug: semantic: sem_check_expr: type=2 line=16 col=11 node=0x563f41016ab8
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=16 col=5 node=0x563f41016918
+debug: semantic: sem_check_expr: type=16 line=16 col=12 node=0x563f41016998
+debug: semantic: sem_check_expr: type=13 line=16 col=39 node=0x563f41016a38
+debug: semantic: sem_check_expr: type=16 line=16 col=12 node=0x563f41016998
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=14 line=18 col=82 node=0x563f41017240
+debug: semantic: sem_check_expr: type=14 line=18 col=60 node=0x563f410170d0
+debug: semantic: sem_check_expr: type=14 line=18 col=42 node=0x563f41016f40
+debug: semantic: sem_check_expr: type=14 line=18 col=35 node=0x563f41016db0
+debug: semantic: sem_check_expr: type=2 line=18 col=31 node=0x563f41016c70
+debug: semantic: sem_check_call: name='getProfile', ns='main'
+debug: semantic: sem_check_expr: type=13 line=18 col=21 node=0x563f41016b50
+debug: semantic: sem_check_expr: type=16 line=18 col=32 node=0x563f41016bd0
+debug: semantic: sem_check_expr: type=16 line=18 col=32 node=0x563f41016bd0
+debug: semantic: sem_check_expr: type=16 line=18 col=38 node=0x563f41016d10
+debug: semantic: sem_check_expr: type=16 line=18 col=56 node=0x563f41016ea0
+debug: semantic: sem_check_expr: type=16 line=18 col=78 node=0x563f41017030
+debug: semantic: sem_check_expr: type=16 line=18 col=84 node=0x563f410171a0
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=19 col=11 name=printf target_type=13 node=0x563f410175c8
+debug: semantic: sem_check_expr: type=2 line=19 col=11 node=0x563f410175c8
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=19 col=5 node=0x563f410173d0
+debug: semantic: sem_check_expr: type=16 line=19 col=12 node=0x563f410174a8
+debug: semantic: sem_check_expr: type=13 line=19 col=42 node=0x563f41017548
+debug: semantic: sem_check_expr: type=16 line=19 col=12 node=0x563f410174a8
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=14 line=21 col=82 node=0x563f41017d50
+debug: semantic: sem_check_expr: type=14 line=21 col=60 node=0x563f41017be0
+debug: semantic: sem_check_expr: type=14 line=21 col=42 node=0x563f41017a50
+debug: semantic: sem_check_expr: type=14 line=21 col=35 node=0x563f410178c0
+debug: semantic: sem_check_expr: type=2 line=21 col=31 node=0x563f41017780
+debug: semantic: sem_check_call: name='getProfile', ns='main'
+debug: semantic: sem_check_expr: type=13 line=21 col=21 node=0x563f41017660
+debug: semantic: sem_check_expr: type=16 line=21 col=32 node=0x563f410176e0
+debug: semantic: sem_check_expr: type=16 line=21 col=32 node=0x563f410176e0
+debug: semantic: sem_check_expr: type=16 line=21 col=38 node=0x563f41017820
+debug: semantic: sem_check_expr: type=16 line=21 col=56 node=0x563f410179b0
+debug: semantic: sem_check_expr: type=16 line=21 col=78 node=0x563f41017b40
+debug: semantic: sem_check_expr: type=16 line=21 col=84 node=0x563f41017cb0
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=22 col=11 name=printf target_type=13 node=0x563f41018080
+debug: semantic: sem_check_expr: type=2 line=22 col=11 node=0x563f41018080
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=22 col=5 node=0x563f41017ee0
+debug: semantic: sem_check_expr: type=16 line=22 col=12 node=0x563f41017f60
+debug: semantic: sem_check_expr: type=13 line=22 col=46 node=0x563f41018000
+debug: semantic: sem_check_expr: type=16 line=22 col=12 node=0x563f41017f60
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=14 line=24 col=82 node=0x563f41018808
+debug: semantic: sem_check_expr: type=14 line=24 col=60 node=0x563f41018698
+debug: semantic: sem_check_expr: type=14 line=24 col=42 node=0x563f41018508
+debug: semantic: sem_check_expr: type=14 line=24 col=35 node=0x563f41018378
+debug: semantic: sem_check_expr: type=2 line=24 col=31 node=0x563f41018238
+debug: semantic: sem_check_call: name='getProfile', ns='main'
+debug: semantic: sem_check_expr: type=13 line=24 col=21 node=0x563f41018118
+debug: semantic: sem_check_expr: type=16 line=24 col=32 node=0x563f41018198
+debug: semantic: sem_check_expr: type=16 line=24 col=32 node=0x563f41018198
+debug: semantic: sem_check_expr: type=16 line=24 col=38 node=0x563f410182d8
+debug: semantic: sem_check_expr: type=16 line=24 col=56 node=0x563f41018468
+debug: semantic: sem_check_expr: type=16 line=24 col=78 node=0x563f410185f8
+debug: semantic: sem_check_expr: type=16 line=24 col=84 node=0x563f41018768
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=25 col=11 name=printf target_type=13 node=0x563f41018b38
+debug: semantic: sem_check_expr: type=2 line=25 col=11 node=0x563f41018b38
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=25 col=5 node=0x563f41018998
+debug: semantic: sem_check_expr: type=16 line=25 col=12 node=0x563f41018a18
+debug: semantic: sem_check_expr: type=13 line=25 col=37 node=0x563f41018ab8
+debug: semantic: sem_check_expr: type=16 line=25 col=12 node=0x563f41018a18
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=27 col=12 node=0x563f41018bd0
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: printf adding param 'fmt' type.base=8
+debug: alir: Found func_def getProfile
+debug: alir: alir_gen_function_def fn->name=getProfile class_name=NULL fn->mangled_name=main_getProfile_i32 -> func_name=main_getProfile_i32
+debug: alir: alir_add_function: main_getProfile_i32
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: GEN_CALL: name=getProfile mangled=main_getProfile_i32
+debug: alir: Looking up 'main_getProfile_i32'
+debug: alir: Found symbol getProfile, kind=1, is_macro=0, node_ptr=0x563f410162c8
+debug: alir: CALL_STD: name=getProfile mangled=main_getProfile_i32 target_type=13
+debug: alir: GLOBAL VAR ADDR: getProfile
+debug: alir: TAINTED PTR: ctx->module=0x563f4101b8f0 target_name=main_getProfile_i32 count=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: GEN_CALL: name=printf mangled=printf
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x563f410156d8
+debug: alir: CALL_STD: name=printf mangled=printf target_type=13
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: TAINTED PTR: ctx->module=0x563f4101b8f0 target_name=printf count=2
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: GEN_CALL: name=getProfile mangled=main_getProfile_i32
+debug: alir: Looking up 'main_getProfile_i32'
+debug: alir: Found symbol getProfile, kind=1, is_macro=0, node_ptr=0x563f410162c8
+debug: alir: CALL_STD: name=getProfile mangled=main_getProfile_i32 target_type=13
+debug: alir: GLOBAL VAR ADDR: getProfile
+debug: alir: TAINTED PTR: ctx->module=0x563f4101b8f0 target_name=main_getProfile_i32 count=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: GEN_CALL: name=printf mangled=printf
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x563f410156d8
+debug: alir: CALL_STD: name=printf mangled=printf target_type=13
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: TAINTED PTR: ctx->module=0x563f4101b8f0 target_name=printf count=2
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: GEN_CALL: name=getProfile mangled=main_getProfile_i32
+debug: alir: Looking up 'main_getProfile_i32'
+debug: alir: Found symbol getProfile, kind=1, is_macro=0, node_ptr=0x563f410162c8
+debug: alir: CALL_STD: name=getProfile mangled=main_getProfile_i32 target_type=13
+debug: alir: GLOBAL VAR ADDR: getProfile
+debug: alir: TAINTED PTR: ctx->module=0x563f4101b8f0 target_name=main_getProfile_i32 count=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: GEN_CALL: name=printf mangled=printf
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x563f410156d8
+debug: alir: CALL_STD: name=printf mangled=printf target_type=13
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: TAINTED PTR: ctx->module=0x563f4101b8f0 target_name=printf count=2
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: GEN_CALL: name=getProfile mangled=main_getProfile_i32
+debug: alir: Looking up 'main_getProfile_i32'
+debug: alir: Found symbol getProfile, kind=1, is_macro=0, node_ptr=0x563f410162c8
+debug: alir: CALL_STD: name=getProfile mangled=main_getProfile_i32 target_type=13
+debug: alir: GLOBAL VAR ADDR: getProfile
+debug: alir: TAINTED PTR: ctx->module=0x563f4101b8f0 target_name=main_getProfile_i32 count=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: GEN_CALL: name=printf mangled=printf
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x563f410156d8
+debug: alir: CALL_STD: name=printf mangled=printf target_type=13
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: TAINTED PTR: ctx->module=0x563f4101b8f0 target_name=printf count=2
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking string
+debug: optlir: Check Type for Struct Marking string
+debug: optlir: Check Type for Struct Marking string
+debug: optlir: Check Type for Struct Marking string
+debug: optlir: Check Type for Struct Marking string
+debug: optlir: Check Type for Struct Marking string
+debug: optlir: Check Type for Struct Marking string
+debug: optlir: Check Type for Struct Marking string
+debug: optlir: Check Type for Struct Marking string
+debug: optlir: Check Type for Struct Marking string
+debug: optlir: Check Type for Struct Marking string
+debug: optlir: Check Type for Struct Marking string
+step: Finished alir optimization. Start code generation using LLVM codegen
 ; ModuleID = 'main_module'
 source_filename = "main_module"
 
@@ -146,13 +383,13 @@ entry:
   %call84 = call i32 (ptr, ...) @printf(ptr @str.6, i32 %fallback_res83)
   ret i32 0
 }
-Setting body for string: class_type=0x55f968b2eb90 types[0]=0x55f968b2c650 types[1]=0x55f968b2eab0 i32=0x55f968b2c650
+Setting body for string: class_type=0x563f41043b90 types[0]=0x563f41041650 types[1]=0x563f41043ab0 i32=0x563f41041650
 ALIR_OP_PANIC in func. ret_ty kind: 10
-Terminator after LLVMBuildRet: 0x55f968b33420
+Terminator after LLVMBuildRet: 0x563f41048420
 ALIR_OP_PANIC in func. ret_ty kind: 10
-Terminator after LLVMBuildRet: 0x55f968b33690
+Terminator after LLVMBuildRet: 0x563f41048690
 ALIR_OP_PANIC in func. ret_ty kind: 10
-Terminator after LLVMBuildRet: 0x55f968b33aa0
+Terminator after LLVMBuildRet: 0x563f41048aa0
 DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8
 DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
 DEBUG CALL: expected_ty=12, arg_ty=12

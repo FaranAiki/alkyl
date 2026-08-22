@@ -1,3 +1,55 @@
+step: Finished lexing. Start parsing.
+debug: semantic: sem_check_block: ns='clib'
+debug: semantic: sem_check_block: visiting node type=1
+debug: semantic: sem_check_block: ns='clib'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x563636454300
+debug: semantic: sem_check_block: visiting node type=45
+debug: semantic: sem_check_expr: type=13 line=7 col=22 node=0x563636454558
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=8 col=10 node=0x5636364546f8
+debug: semantic: sem_check_expr: type=13 line=8 col=8 node=0x5636364545d8
+debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x563636454658
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=27
+debug: semantic: sem_check_expr: type=27 line=9 col=13 node=0x5636364548e8
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x5636364547c8
+debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
+debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x563636454848
+debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x563636454848
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x563636454a00
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found namespace clib
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: printf adding param '(null)' type.base=8
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_base=0
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen
 ; ModuleID = 'main_module'
 source_filename = "main_module"
 

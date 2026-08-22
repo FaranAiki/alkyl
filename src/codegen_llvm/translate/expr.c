@@ -302,7 +302,16 @@ case ALIR_OP_BITCAST: {
                 LLVMTypeRef src_ty = LLVMTypeOf(op1);
                 LLVMTypeKind dst_kind = LLVMGetTypeKind(dst_ty);
                 LLVMTypeKind src_kind = LLVMGetTypeKind(src_ty);
-                if (src_kind == LLVMIntegerTypeKind && dst_kind == LLVMPointerTypeKind) {
+                
+                // Explicitly handle taint wrapping / unwrapping FIRST
+                if (!inst->dest->type.is_tainted && inst->op1->type.is_tainted) {
+                    res = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext_taint");
+                } else if (inst->dest->type.is_tainted && !inst->op1->type.is_tainted) {
+                    LLVMValueRef err_val = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
+                    LLVMValueRef taint = LLVMGetUndef(dst_ty);
+                    taint = LLVMBuildInsertValue(ctx->builder, taint, err_val, 0, "ins_err");
+                    res = LLVMBuildInsertValue(ctx->builder, taint, op1, 1, "ins_val");
+                } else if (src_kind == LLVMIntegerTypeKind && dst_kind == LLVMPointerTypeKind) {
                     res = LLVMBuildIntToPtr(ctx->builder, op1, dst_ty, "int2ptr");
                 } else if (src_kind == LLVMPointerTypeKind && dst_kind == LLVMIntegerTypeKind) {
                     res = LLVMBuildPtrToInt(ctx->builder, op1, dst_ty, "ptr2int");
@@ -326,14 +335,6 @@ case ALIR_OP_BITCAST: {
                     if (src_kind == LLVMDoubleTypeKind && dst_kind == LLVMFloatTypeKind) res = LLVMBuildFPTrunc(ctx->builder, op1, dst_ty, "fptrunc");
                     else if (src_kind == LLVMFloatTypeKind && dst_kind == LLVMDoubleTypeKind) res = LLVMBuildFPExt(ctx->builder, op1, dst_ty, "fpext");
                     else res = op1;
-                } else if (src_kind == LLVMStructTypeKind && dst_kind != LLVMStructTypeKind) {
-                    res = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext_taint");
-                } else if (src_kind != LLVMStructTypeKind && dst_kind == LLVMStructTypeKind) {
-                    // Casting untainted to tainted (assume error = 0)
-                    LLVMValueRef err_val = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0);
-                    LLVMValueRef taint = LLVMGetUndef(dst_ty);
-                    taint = LLVMBuildInsertValue(ctx->builder, taint, err_val, 0, "ins_err");
-                    res = LLVMBuildInsertValue(ctx->builder, taint, op1, 1, "ins_val");
                 } else {
                     res = LLVMBuildBitCast(ctx->builder, op1, dst_ty, "bitcast");
                 }

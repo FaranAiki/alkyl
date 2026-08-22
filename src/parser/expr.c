@@ -996,8 +996,8 @@ ASTNode* parse_factor(Parser *p) {
     ln->base.type = NODE_LITERAL;
     ln->var_type.base = TYPE_VOID;
     ln->var_type.ptr_depth = 1; // void*
-    // Important: mark it as tainted so `t ?? 5` handles it as an error when null
-    ln->var_type.is_tainted = true; 
+    // Do not mark as tainted to allow automatic safe casting to any pointer type
+    ln->var_type.is_tainted = false; 
     ln->val.any = 0; // null pointer
     eat(p, TOKEN_NULL);
     node = (ASTNode*)ln;

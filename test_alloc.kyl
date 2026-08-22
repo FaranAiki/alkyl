@@ -1,0 +1,8 @@
+import "lib/std/heap";
+class Listener { int a; }
+int main() {
+    let ac = heap.ArenaAllocator(null, 65536);
+    let p = ac.alloc[Listener]();
+    let q = ac.alloc[Listener]();
+    return 0;
+}

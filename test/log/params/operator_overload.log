@@ -1,4 +1,216 @@
+step: Finished lexing. Start parsing.
+debug: parser: after parse_type, vt.base=1, token.type=32
+debug: parser: after parse_type, vt.base=1, token.type=32
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=cprintf target_type=13 line=0 col=0 node=0x55de3696ad50 target=0x55de3696ab18
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=14 line=9 col=17 node=0x55de36969978
+debug: semantic: sem_check_expr: type=26 line=9 col=14 node=0x55de369697c8
+debug: semantic: sem_check_expr: type=13 line=9 col=13 node=0x55de36969748
+debug: semantic: sem_check_expr: type=26 line=9 col=20 node=0x55de369698e0
+debug: semantic: sem_check_expr: type=13 line=9 col=19 node=0x55de36969860
+debug: semantic: sem_check_expr: type=26 line=9 col=14 node=0x55de369697c8
+debug: semantic: sem_check_expr: type=13 line=9 col=13 node=0x55de36969748
+debug: semantic: sem_check_expr: type=26 line=9 col=20 node=0x55de369698e0
+debug: semantic: sem_check_expr: type=13 line=9 col=19 node=0x55de36969860
+debug: semantic: sem_check_expr: type=26 line=9 col=14 node=0x55de369697c8
+debug: semantic: sem_check_expr: type=13 line=9 col=13 node=0x55de36969748
+debug: semantic: sem_check_expr: type=26 line=9 col=8 node=0x55de369696b0
+debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x55de36969630
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=14 line=10 col=17 node=0x55de36969e00
+debug: semantic: sem_check_expr: type=26 line=10 col=14 node=0x55de36969c50
+debug: semantic: sem_check_expr: type=13 line=10 col=13 node=0x55de36969bd0
+debug: semantic: sem_check_expr: type=26 line=10 col=20 node=0x55de36969d68
+debug: semantic: sem_check_expr: type=13 line=10 col=19 node=0x55de36969ce8
+debug: semantic: sem_check_expr: type=26 line=10 col=14 node=0x55de36969c50
+debug: semantic: sem_check_expr: type=13 line=10 col=13 node=0x55de36969bd0
+debug: semantic: sem_check_expr: type=26 line=10 col=20 node=0x55de36969d68
+debug: semantic: sem_check_expr: type=13 line=10 col=19 node=0x55de36969ce8
+debug: semantic: sem_check_expr: type=26 line=10 col=14 node=0x55de36969c50
+debug: semantic: sem_check_expr: type=13 line=10 col=13 node=0x55de36969bd0
+debug: semantic: sem_check_expr: type=26 line=10 col=8 node=0x55de36969b38
+debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x55de36969ab8
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=13 line=11 col=12 node=0x55de36969f40
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=2 line=15 col=25 node=0x55de3696a260
+debug: semantic: sem_check_call: name='Vector', ns='main'
+debug: semantic: sem_check_expr: type=16 line=15 col=18 node=0x55de3696a120
+debug: semantic: sem_check_expr: type=16 line=15 col=22 node=0x55de3696a1c0
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=2 line=16 col=25 node=0x55de3696a4f8
+debug: semantic: sem_check_call: name='Vector', ns='main'
+debug: semantic: sem_check_expr: type=16 line=16 col=18 node=0x55de3696a3b8
+debug: semantic: sem_check_expr: type=16 line=16 col=22 node=0x55de3696a458
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=14 line=18 col=22 node=0x55de3696a750
+debug: semantic: sem_check_expr: type=13 line=18 col=20 node=0x55de3696a650
+debug: semantic: sem_check_expr: type=13 line=18 col=24 node=0x55de3696a6d0
+debug: semantic: sem_check_expr: type=13 line=18 col=20 node=0x55de3696a650
+debug: semantic: sem_check_expr: type=13 line=18 col=24 node=0x55de3696a6d0
+debug: semantic: sem_check_expr: type=13 line=18 col=20 node=0x55de3696a650
+debug: semantic: sem_check_expr: type=13 line=18 col=24 node=0x55de3696a6d0
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=19 col=13 node=0x55de3696aa70
+debug: semantic: sem_check_expr: type=26 line=19 col=10 node=0x55de3696a938
+debug: semantic: sem_check_expr: type=13 line=19 col=9 node=0x55de3696a8b8
+debug: semantic: sem_check_expr: type=16 line=19 col=16 node=0x55de3696a9d0
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=19 col=30 name=cprintf target_type=13 node=0x55de3696ad50
+debug: semantic: sem_check_expr: type=2 line=19 col=30 node=0x55de3696ad50
+debug: semantic: sem_check_call: name='cprintf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=19 col=23 node=0x55de3696ab18
+debug: semantic: sem_check_expr: type=16 line=19 col=31 node=0x55de3696ab98
+debug: semantic: sem_check_expr: type=26 line=19 col=57 node=0x55de3696acb8
+debug: semantic: sem_check_expr: type=13 line=19 col=56 node=0x55de3696ac38
+debug: semantic: sem_check_expr: type=16 line=19 col=31 node=0x55de3696ab98
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=19 col=69 node=0x55de3696ade8
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=20 col=13 node=0x55de3696b168
+debug: semantic: sem_check_expr: type=26 line=20 col=10 node=0x55de3696aff8
+debug: semantic: sem_check_expr: type=13 line=20 col=9 node=0x55de3696af78
+debug: semantic: sem_check_expr: type=16 line=20 col=16 node=0x55de3696b0c8
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=20 col=27 node=0x55de3696b210
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=21 col=12 node=0x55de3696b3a0
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: Visiting class Vector
+debug: alir: DEBUG_REGISTER: st=0x55de36971388 name=Vector next=(nil)
+debug: alir: DEBUG_PASS1_END: struct list:
  - Vector fields: 2
+debug: alir: Found func_def cprintf
+debug: alir: alir_gen_function_def fn->name=cprintf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: printf adding param '(null)' type.base=8
+debug: alir: alir_add_function: Vector
+debug: alir: Found func_def __op_169_143
+debug: alir: alir_gen_function_def fn->name=__op_169_143 class_name=NULL fn->mangled_name=main___op_169_143_Vector_Vector -> func_name=main___op_169_143_Vector_Vector
+debug: alir: alir_add_function: main___op_169_143_Vector_Vector
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=16 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=16 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=16 op1_kind=4 op1_type_base=0
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=18 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
+debug: alir: GEN_CALL: name=cprintf mangled=printf
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x55de369691b0
+debug: alir: CALL_STD: name=cprintf mangled=printf target_type=13
+debug: alir: GLOBAL VAR ADDR: cprintf
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: TAINTED PTR: ctx->module=0x55de3696dc10 target_name=printf count=2
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=18 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+debug: optlir: Check Type for Struct Marking Vector
+step: Finished alir optimization. Start code generation using LLVM codegen
 ; ModuleID = 'main_module'
 source_filename = "main_module"
 
@@ -17,7 +229,7 @@ entry:
   ret void
 }
 
-define %Vector @main___op_168_142_Vector_Vector(%Vector %0, %Vector %1) {
+define %Vector @main___op_169_143_Vector_Vector(%Vector %0, %Vector %1) {
 entry:
   %alloc = alloca %Vector, align 8
   store %Vector %0, ptr %alloc, align 4
@@ -50,7 +262,7 @@ entry:
   call void @Vector(ptr %alloc1, i32 30, i32 40)
   %load = load %Vector, ptr %alloc, align 4
   %load2 = load %Vector, ptr %alloc1, align 4
-  %call = call %Vector @main___op_168_142_Vector_Vector(%Vector %load, %Vector %load2)
+  %call = call %Vector @main___op_169_143_Vector_Vector(%Vector %load, %Vector %load2)
   %alloc3 = alloca %Vector, align 8
   store %Vector %call, ptr %alloc3, align 4
   %struct_gep = getelementptr inbounds nuw %Vector, ptr %alloc3, i32 0, i32 0

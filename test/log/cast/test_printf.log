@@ -2,13 +2,13 @@ step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=3 col=12 name=printf target_type=13 node=0x55e5948084d8
-debug: semantic: sem_check_expr: type=2 line=3 col=12 node=0x55e5948084d8
+debug: semantic: sem_check_block: Call line=3 col=12 name=printf target_type=13 node=0x55fa8f8234d8
+debug: semantic: sem_check_expr: type=2 line=3 col=12 node=0x55fa8f8234d8
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=3 col=5 node=0x55e594808318
-debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x55e594808398
-debug: semantic: sem_check_expr: type=16 line=3 col=19 node=0x55e594808438
-debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x55e594808398
+debug: semantic: sem_check_expr: type=13 line=3 col=5 node=0x55fa8f823318
+debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x55fa8f823398
+debug: semantic: sem_check_expr: type=16 line=3 col=19 node=0x55fa8f823438
+debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x55fa8f823398
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -21,10 +21,10 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55e594808228
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55fa8f823228
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
-debug: alir: TAINTED PTR: ctx->module=0x55e594809428 target_name=printf count=2
+debug: alir: TAINTED PTR: ctx->module=0x55fa8f824428 target_name=printf count=2
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.

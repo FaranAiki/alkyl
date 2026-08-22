@@ -113,7 +113,14 @@ void sem_check_unary_op_switch(SemanticCtx *ctx, ASTNode *node) {
     }
 
     if (t.base == TYPE_VOID && t.ptr_depth == 0) {
-         sem_error(ctx, node, "Operand of unary expression cannot be 'void'");
+        int is_func = 0;
+        if (un->operand->type == NODE_VAR_REF) {
+            SemSymbol *sym = sem_symbol_lookup(ctx, ((VarRefNode*)un->operand)->name, NULL);
+            if (sym && sym->kind == SYM_FUNC) is_func = 1;
+        }
+        if (!is_func) {
+             sem_error(ctx, node, "Operand of unary expression cannot be 'void'");
+        }
     }
 
     if (un->op == TOKEN_AND) {

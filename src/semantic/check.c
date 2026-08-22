@@ -599,7 +599,14 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
 
             VarType op_t = sem_get_node_type(ctx, cn->operand);
             if (op_t.base == TYPE_VOID && op_t.ptr_depth == 0) {
-                sem_error(ctx, node, "Cannot cast 'void' value");
+                int is_func = 0;
+                if (cn->operand->type == NODE_VAR_REF) {
+                    SemSymbol *sym = sem_symbol_lookup(ctx, ((VarRefNode*)cn->operand)->name, NULL);
+                    if (sym && sym->kind == SYM_FUNC) is_func = 1;
+                }
+                if (!is_func) {
+                    sem_error(ctx, node, "Cannot cast 'void' value");
+                }
             }
 
             const char *op_class_name = op_t.class_name;
@@ -1031,7 +1038,24 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 strncat(mangled, t_str, sizeof(mangled) - strlen(mangled) - 1);
             }
 
-            SemSymbol *inst_sym = sem_symbol_lookup(ctx, mangled, NULL);
+            SemSymbol *inst_sym = NULL;
+            if (found_in_scope) {
+                if (found_in_scope->symbol_map) {
+                    inst_sym = hashmap_get((HashMap*)found_in_scope->symbol_map, mangled);
+                }
+                if (!inst_sym) {
+                    SemSymbol *s = found_in_scope->symbols;
+                    while (s) {
+                        if (streq_lit(s->name, mangled)) {
+                            inst_sym = s;
+                            break;
+                        }
+                        s = s->next;
+                    }
+                }
+            } else {
+                inst_sym = sem_symbol_lookup(ctx, mangled, NULL);
+            }
             if (!inst_sym) {
             // 1. Collect all top-level names in the block and their mangled names
             int num_renames = 0;

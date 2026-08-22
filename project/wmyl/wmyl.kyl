@@ -1,16 +1,16 @@
 /*
     wlroots wayland window manager
 */
+meta { lexer.scope_style = SCOPE_BRACKETS; }
 
 import "std/print";
+import "std/heap";
 import "wlroots/core";
 
-@c extern {
-    int setenv(char* name, char* value, int overwrite);
-    int fork();
-    int execl(char* path, char* arg0, char* arg1, char* arg2, void* arg3);
-    void _exit(int status);
-}
+@c extern int setenv(char* name, char* value, int overwrite);
+@c extern int fork();
+@c extern int execl(char* path, char* arg0, char* arg1, char* arg2, void* arg3);
+@c extern void _exit(int status);
 
 class Server {
     void* new_input; // wl_listener must be first for container_of hack
@@ -25,13 +25,16 @@ class Server {
     void* seat;
 }
 
-// TODO avoid using this I guess
-@c extern {
-    void* malloc(int size);
+class Listener {
+    void* link_prev;
+    void* link_next;
+    void* notify;
+    void* data; // custom user data
 }
 
-void server_new_input(void* listener, void* data) {
-    Server *server = listener;
+void server_new_input(void* listener_ptr, void* data) {
+    Listener *listener = listener_ptr;
+    Server *server = listener.data;
     let device = data;
     let type = (device as int*)[0]; // enum wlr_input_device_type is at offset 0
     if (type == 0) { // WLR_INPUT_DEVICE_KEYBOARD
@@ -48,10 +51,17 @@ void server_new_input(void* listener, void* data) {
 int main() {
     std.printf("Starting wmyl (wlroots minimal WM)...\n");
 
-    Server *server = malloc(256);
-    server.new_input = malloc(64); // size of wl_listener
+    let ac = heap.ArenaAllocator(null, 65536);
 
-    void *display = wlroots.create_display();
+    let server = ac.alloc[Server]();
+    untaint server residue err { return 1; }
+
+    let new_input = ac.alloc[Listener]();
+    untaint new_input residue err { return 1; }
+    new_input.data = server as void*;
+    server.new_input = new_input as void*;
+
+    let display = wlroots.create_display();
     untaint display residue err { return 1; }
     server.display = display;
 
@@ -86,7 +96,7 @@ int main() {
     untaint output_layout residue err { return 1; }
     server.output_layout = output_layout as void*;
 
-    void *xdg_shell = wlroots.create_xdg_shell(display, 3);
+    let xdg_shell = wlroots.create_xdg_shell(display, 3);
     untaint xdg_shell residue err { return 1; }
     server.xdg_shell = xdg_shell;
 
@@ -94,7 +104,7 @@ int main() {
     untaint seat residue err { return 1; }
     server.seat = seat as void*;
 
-    wlroots.backend_on_new_input(backend, server as void*, &server_new_input as void*);
+    wlroots.backend_on_new_input(backend, server.new_input, &server_new_input as void*);
 
     let started = wlroots.start_backend(backend);
     untaint started residue err { return 1; }
