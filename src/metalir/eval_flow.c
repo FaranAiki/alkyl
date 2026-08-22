@@ -43,7 +43,14 @@ case ALIR_OP_RET: {
                                 double d = ctx->registers[inst->op1->temp_id].as.single_val;
                                 memcpy(&(*ctx->ret_val), &d, sizeof(double));
                             } else {
-                                (*ctx->ret_val) = ctx->registers[inst->op1->temp_id].as.int_val; 
+                                if (ctx->func && ctx->func->ret_type.is_tainted && !inst->op1->type.is_tainted) {
+                                    void *wrap = arena_alloc(ctx->vm->arena, 16);
+                                    *(int*)wrap = 0;
+                                    *(long long*)((char*)wrap + 8) = ctx->registers[inst->op1->temp_id].as.int_val;
+                                    (*ctx->ret_val) = (long long)(intptr_t)wrap;
+                                } else {
+                                    (*ctx->ret_val) = ctx->registers[inst->op1->temp_id].as.int_val; 
+                                }
                             }
                             ctx->should_return = 1; return;
                         }

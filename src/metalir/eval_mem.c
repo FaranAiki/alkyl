@@ -125,6 +125,8 @@ case ALIR_OP_STORE: {
                                 *(unsigned int*)ptr = len;
                                 *(void**)((char*)ptr + 8) = (void*)(intptr_t)val;
                             }
+                        } else if (ptr && inst->op1->type.is_tainted) {
+                            memcpy(ptr, (void*)(intptr_t)val, 16);
                         } else if (ptr && src_ptr && (uintptr_t)src_ptr > 0xFFF) {
                             int struct_size = 1024;
                             if (ctx->module && inst->op1->type.class_name) {

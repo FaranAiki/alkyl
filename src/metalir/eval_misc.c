@@ -69,12 +69,7 @@ case ALIR_OP_SIZEOF: {
             case TYPE_LONG_DOUBLE: base_sz = 8; break;
             case TYPE_CLASS: {
                 if (t.class_name) {
-                    // For JIT, class struct size is not easily available here.
-                    // Let's fallback to 8 (pointer) as object refs are pointers.
-                    // Wait, if it's a value type, we should look it up in sym table.
-                    // We don't have symtable here easily. But wait!
-                    // Let's just use 8 for now, as most classes are pointers.
-                    base_sz = 8;
+                    base_sz = alir_get_type_size(t);
                 } else {
                     base_sz = 8;
                 }

@@ -183,9 +183,16 @@ case ALIR_OP_CALL: {
                                             debug_metalir("MALLOC FFI RETURN: %lld\n", rc_int);
                                         }
                                         if (inst->dest) {
-                                            if (inst->dest->type.base == TYPE_DOUBLE) ctx->registers[inst->dest->temp_id].as.single_val = rc_double;
-                                            else if (inst->dest->type.base == TYPE_SINGLE) ctx->registers[inst->dest->temp_id].as.single_val = (double)rc_float;
-                                            else ctx->registers[inst->dest->temp_id].as.int_val = rc_int;
+                                            if (inst->dest->type.is_tainted) {
+                                                void *wrap = arena_alloc(ctx->vm->arena, 16);
+                                                *(int*)wrap = 0; // err_code = 0
+                                                *(long long*)((char*)wrap + 8) = rc_int;
+                                                ctx->registers[inst->dest->temp_id].as.int_val = (long long)(intptr_t)wrap;
+                                            } else {
+                                                if (inst->dest->type.base == TYPE_DOUBLE) ctx->registers[inst->dest->temp_id].as.single_val = rc_double;
+                                                else if (inst->dest->type.base == TYPE_SINGLE) ctx->registers[inst->dest->temp_id].as.single_val = (double)rc_float;
+                                                else ctx->registers[inst->dest->temp_id].as.int_val = rc_int;
+                                            }
                                         }
                                     }
                                 } else {
