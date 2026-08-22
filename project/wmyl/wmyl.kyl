@@ -31,7 +31,7 @@ class Server {
 }
 
 void server_new_input(void* listener, void* data) {
-    let server = listener as Server*;
+    Server *server = listener;
     let device = data;
     let type = (device as int*)[0]; // enum wlr_input_device_type is at offset 0
     if (type == 0) { // WLR_INPUT_DEVICE_KEYBOARD
@@ -86,9 +86,9 @@ int main() {
     untaint output_layout residue err { return 1; }
     server.output_layout = output_layout as void*;
 
-    let xdg_shell = wlroots.create_xdg_shell(display, 3);
+    void *xdg_shell = wlroots.create_xdg_shell(display, 3);
     untaint xdg_shell residue err { return 1; }
-    server.xdg_shell = xdg_shell as void*;
+    server.xdg_shell = xdg_shell;
 
     let seat = wlroots.create_seat(display, "seat0");
     untaint seat residue err { return 1; }

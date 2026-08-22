@@ -420,6 +420,12 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
 
                               Parameter *pm = parser_alloc_raw(p, sizeof(Parameter));
                               pm->type = pt; pm->name = pname;
+                              if (p->current_token.type == TOKEN_ASSIGN) {
+                                  eat(p, TOKEN_ASSIGN);
+                                  pm->default_value = parse_expression(p);
+                              } else {
+                                  pm->default_value = NULL;
+                              }
                               *curr_p = pm; curr_p = &pm->next;
                               if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
                           }
@@ -497,6 +503,12 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                           Parameter *pm = parser_alloc_raw(p, sizeof(Parameter));
                           pm->type = pt; pm->name = pname;
                           apply_param_modifiers(pm, pmods);
+                          if (p->current_token.type == TOKEN_ASSIGN) {
+                              eat(p, TOKEN_ASSIGN);
+                              pm->default_value = parse_expression(p);
+                          } else {
+                              pm->default_value = NULL;
+                          }
                           *curr_p = pm; curr_p = &pm->next;
                           if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA); else break;
                       }

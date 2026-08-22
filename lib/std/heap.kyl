@@ -133,7 +133,7 @@ public open namespace heap {
         }
 
         compound [type T]
-        T* alloc(long count) {
+        T* alloc(long count = 1) {
             return this.malloc(count * sizeof(T)) as T*;
         }
     }

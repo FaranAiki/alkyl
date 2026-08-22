@@ -307,7 +307,10 @@ long long metalir_run_var_decl(MetalirRunner *r, VarDeclNode *vd, int seq) {
         alir_gen_function_def(&a, fn, NULL);
 
         AlirFunction *cfn = find_func(r, fname);
-        if (cfn) initial_val = metalir_vm_execute(r->vm, r->module, cfn, &r->sem, NULL, 0);
+        if (cfn) {
+            initial_val = metalir_vm_execute(r->vm, r->module, cfn, &r->sem, NULL, 0);
+            if (r->sem.compiler_ctx->error_count > 0) return 0;
+        }
 
         VarType init_type = sem_get_node_type(&r->sem, vd->initializer);
         if (vd->var_type.base == TYPE_DOUBLE && init_type.base != TYPE_DOUBLE) {
