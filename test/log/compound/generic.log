@@ -2,36 +2,39 @@ step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=16, token.type=32
 debug: parser: after parse_type, vt.base=16, token.type=32
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x562064d29cf0 target=0x562064d29b30
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x564709c9dcf0 target=0x564709c9db30
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x562064d2a198 target=0x562064d29e48
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x564709c9e198 target=0x564709c9de48
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=10 col=34 node=0x562064d29cf0
+debug: semantic: sem_check_expr: type=2 line=10 col=34 node=0x564709c9dcf0
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=10 col=21 node=0x562064d29b30
-debug: semantic: &ctx->ast_tail=0x7ffdd8532be8, ctx->ast_tail=0x562064d2a238, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_expr: type=16 line=10 col=35 node=0x562064d29bb0
-debug: semantic: sem_check_expr: type=16 line=10 col=39 node=0x562064d29c50
+debug: semantic: sem_check_expr: type=47 line=10 col=21 node=0x564709c9db30
+debug: semantic: &ctx->ast_tail=0x7ffe4c0f1598, ctx->ast_tail=0x564709c9e238, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=16 line=10 col=35 node=0x564709c9dbb0
+debug: semantic: sem_check_expr: type=16 line=10 col=39 node=0x564709c9dc50
 debug: parser: inferring type for my_pair, init_type.base=16
 debug: parser: debug: inferred type Pair_int_double for my_pair
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=11 col=9 name=printf target_type=13 node=0x562064d2a198
-debug: semantic: sem_check_expr: type=2 line=11 col=9 node=0x562064d2a198
+debug: semantic: sem_check_block: Call line=11 col=9 name=printf target_type=13 node=0x564709c9e198
+debug: semantic: sem_check_expr: type=2 line=11 col=9 node=0x564709c9e198
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=11 col=3 node=0x562064d29e48
-debug: semantic: sem_check_expr: type=16 line=11 col=10 node=0x562064d29ec8
-debug: semantic: sem_check_expr: type=26 line=11 col=36 node=0x562064d29fe8
-debug: semantic: sem_check_expr: type=13 line=11 col=29 node=0x562064d29f68
-debug: semantic: sem_check_expr: type=26 line=11 col=51 node=0x562064d2a100
-debug: semantic: sem_check_expr: type=13 line=11 col=44 node=0x562064d2a080
-debug: semantic: sem_check_expr: type=16 line=11 col=10 node=0x562064d29ec8
+debug: semantic: sem_check_expr: type=13 line=11 col=3 node=0x564709c9de48
+debug: semantic: sem_check_expr: type=16 line=11 col=10 node=0x564709c9dec8
+debug: semantic: sem_check_expr: type=26 line=11 col=36 node=0x564709c9dfe8
+debug: semantic: sem_check_expr: type=13 line=11 col=29 node=0x564709c9df68
+debug: semantic: sem_check_expr: type=26 line=11 col=51 node=0x564709c9e100
+debug: semantic: sem_check_expr: type=13 line=11 col=44 node=0x564709c9e080
+debug: semantic: sem_check_expr: type=16 line=11 col=10 node=0x564709c9dec8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Pair_int_double
-debug: alir: DEBUG_REGISTER: st=0x562064d2f338 name=Pair_int_double next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x564709ca3338 name=Pair_int_double next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
+REGISTER_STRUCT Pair_int_double fields 0
+POPULATING Pair_int_double has_body=1
+BUILT Pair_int_double with 2 fields (was -1)
  - Pair_int_double fields: 2
 debug: alir: Found func_def printf
 debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
@@ -44,14 +47,14 @@ debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_ba
 debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x562064d292c0
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x564709c9d2c0
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=12 op1_kind=5 op1_type_base=16
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=12 op1_kind=5 op1_type_base=12
-debug: alir: TAINTED PTR: ctx->module=0x562064d2bbc0 target_name=printf count=3
+debug: alir: TAINTED PTR: ctx->module=0x564709c9fbc0 target_name=printf count=3
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 debug: alir: alir_add_function: Pair_int_double
@@ -101,6 +104,8 @@ entry:
   store double %2, ptr %struct_gep1, align 8
   ret void
 }
+HINT_CLASS Pair_int_double
+HINT_CLASS Pair_int_double
 DEBUG CALL param 0: num_params=3, expected_ty=12, arg_ty=12
 DEBUG CALL: expected_ty=12, arg_ty=12
 DEBUG CALL param 1: num_params=3, expected_ty=8, arg_ty=8

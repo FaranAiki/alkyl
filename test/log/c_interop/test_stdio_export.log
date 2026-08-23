@@ -232,7 +232,7 @@ debug: c_header: w_name=__uflow
 debug: c_header: parsed function __uflow with 1 params (varargs=0) at line 1455
 debug: c_header: w_name=__overflow
 debug: c_header: parsed function __overflow with 2 params (varargs=0) at line 1456
-debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x55b2979b72a0
+debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x557e3ab032a0
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
@@ -331,14 +331,67 @@ debug: parser: inferring type for stdio, init_type.base=18
 debug: parser: debug: inferred type /usr/include/stdio.h for stdio
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x55b2979b7500
-debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55b2979b73e0
+debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x557e3ab03500
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x557e3ab033e0
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='/usr/include/stdio.h'
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55b2979b7460
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55b2979b7460
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x557e3ab03460
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x557e3ab03460
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: Visiting class __anon_typedef
+debug: alir: DEBUG_REGISTER: st=0x557e3ab4d9a8 name=__anon_typedef next=(nil)
+debug: alir: Visiting class __anon_typedef
+debug: alir: Visiting class _G_fpos_t
+debug: alir: DEBUG_REGISTER: st=0x557e3ab4d9c8 name=_G_fpos_t next=0x557e3ab4d9a8
+REGISTER_STRUCT __anon_typedef fields 0
+debug: alir: Visiting class _G_fpos64_t
+debug: alir: DEBUG_REGISTER: st=0x557e3ab4d9e8 name=_G_fpos64_t next=0x557e3ab4d9c8
+REGISTER_STRUCT _G_fpos_t fields 0
+debug: alir: Visiting class _IO_FILE
+debug: alir: DEBUG_REGISTER: st=0x557e3ab4da08 name=_IO_FILE next=0x557e3ab4d9e8
+REGISTER_STRUCT _G_fpos64_t fields 0
+debug: alir: Visiting class _IO_FILE
+debug: alir: Visiting class _IO_FILE
+debug: alir: Visiting class _IO_marker
+debug: alir: DEBUG_REGISTER: st=0x557e3ab4da28 name=_IO_marker next=0x557e3ab4da08
+REGISTER_STRUCT _IO_FILE fields 0
+debug: alir: Visiting class _IO_codecvt
+debug: alir: DEBUG_REGISTER: st=0x557e3ab4da48 name=_IO_codecvt next=0x557e3ab4da28
+REGISTER_STRUCT _IO_marker fields 0
+debug: alir: Visiting class _IO_wide_data
+debug: alir: DEBUG_REGISTER: st=0x557e3ab4da68 name=_IO_wide_data next=0x557e3ab4da48
+REGISTER_STRUCT _IO_codecvt fields 0
+debug: alir: Visiting class _IO_FILE
+debug: alir: Visiting class _IO_cookie_io_functions_t
+debug: alir: DEBUG_REGISTER: st=0x557e3ab4da88 name=_IO_cookie_io_functions_t next=0x557e3ab4da68
+REGISTER_STRUCT _IO_wide_data fields 0
 debug: alir: DEBUG_PASS1_END: struct list:
+REGISTER_STRUCT _IO_cookie_io_functions_t fields 0
+POPULATING __anon_typedef has_body=1
+BUILT __anon_typedef with 1 fields (was -1)
+POPULATING __anon_typedef has_body=1
+POPULATING _G_fpos_t has_body=1
+BUILT _G_fpos_t with 2 fields (was -1)
+POPULATING _G_fpos64_t has_body=1
+BUILT _G_fpos64_t with 2 fields (was -1)
+POPULATING _IO_FILE has_body=0
+POPULATING _IO_FILE has_body=0
+POPULATING _IO_FILE has_body=0
+POPULATING _IO_marker has_body=0
+POPULATING _IO_codecvt has_body=0
+POPULATING _IO_wide_data has_body=0
+POPULATING _IO_FILE has_body=1
+BUILT _IO_FILE with 31 fields (was -1)
+POPULATING _IO_cookie_io_functions_t has_body=1
+BUILT _IO_cookie_io_functions_t with 4 fields (was -1)
+ - _IO_cookie_io_functions_t fields: 4
+ - _IO_wide_data fields: -1
+ - _IO_codecvt fields: -1
+ - _IO_marker fields: -1
+ - _IO_FILE fields: 31
+ - _G_fpos64_t fields: 2
+ - _G_fpos_t fields: 2
+ - __anon_typedef fields: 1
 debug: alir: Found func_def remove
 debug: alir: alir_gen_function_def fn->name=remove class_name=NULL fn->mangled_name=remove -> func_name=remove
 debug: alir: alir_add_function: remove

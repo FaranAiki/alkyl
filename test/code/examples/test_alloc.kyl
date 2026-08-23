@@ -2,17 +2,24 @@ import "std/heap";
 import "std/print";
 
 int main() {
-    tainted int* arr = default_allocator.alloc[int](10 as long);
-    arr[0] = 5;
-    arr[1] = 10;
+    tainted int* arr = heap.default_allocator.alloc[int](10 as long);
+
+    // TODO:
+    // make sure that tainted forces we cannot do something like
+    // arr[0] = ...
+    // or even accessing arr[0]
 
     untaint arr residue err {
         std.print("Allocation failed");
         return 1;
     }
+
+    arr[0] = 5;
+    arr[1] = 10;
+
     int x = arr[0];
     int y = arr[1];
-    std.print x ? 0, " ", y ? 0, "\n";
-    default_allocator.free(arr as void*);
+    std.print (x ? 0, " ", y ? 0, "\n");
+    default_allocator.free(arr);
     return 0;
 }

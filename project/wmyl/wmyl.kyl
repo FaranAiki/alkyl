@@ -81,7 +81,7 @@ void keyboard_handle_modifiers(void* listener_ptr, void* data) {
     // In wlroots 0.18, wlr_keyboard_set_modifiers might be called or we can just pass the modifiers struct from wlr_keyboard.
     // Actually, wlr_seat_keyboard_notify_modifiers(seat, &keyboard->modifiers)
     let wlr_keyboard = kb.wlr_keyboard;
-    let modifiers_ptr = ((wlr_keyboard as long) + 280) as void*;
+    let modifiers_ptr = &(wlr_keyboard as wlroots.wlr_keyboard*).modifiers as void*;
     wlroots.wlr_seat_keyboard_notify_modifiers(server.seat, modifiers_ptr);
 }
 

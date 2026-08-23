@@ -2,17 +2,20 @@ step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x55fe678bb210
+debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x561d45a3f210
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x55fe678bb4b8
+debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x561d45a3f4b8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Range
-debug: alir: DEBUG_REGISTER: st=0x55fe678c07e0 name=Range next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x561d45a447e0 name=Range next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
+REGISTER_STRUCT Range fields 0
+POPULATING Range has_body=1
+BUILT Range with 1 fields (was -1)
  - Range fields: 1
-debug: alir: DEBUG_REGISTER: st=0x55fe678c09e0 name=FluxCtx_main_Range_iterate next=0x55fe678c07e0
+debug: alir: DEBUG_REGISTER: st=0x561d45a449e0 name=FluxCtx_main_Range_iterate next=0x561d45a447e0
 debug: alir: alir_add_function: main_Range_iterate
 debug: alir: alir_add_function: main_Range_iterate_Resume
 debug: alir: alir_add_function: Range
@@ -36,3 +39,4 @@ define i32 @main() {
 entry:
   ret i32 0
 }
+REGISTER_STRUCT FluxCtx_main_Range_iterate fields 0

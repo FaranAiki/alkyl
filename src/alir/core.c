@@ -237,7 +237,7 @@ void alir_append_inst(AlirBlock *block, AlirInst *inst) {
 void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields, int is_union) {
     AlirStruct *st = alir_alloc(mod, sizeof(AlirStruct));
     debug_alir("DEBUG_REGISTER: st=%p name=%s next=%p\n", st, name, mod->structs);
-    fflush(stdout);
+    fflush(stdout); printf("REGISTER_STRUCT %s fields %d\n", name, st->field_count);
     st->is_union = is_union;
     st->name = alir_strdup(mod, name);
     st->fields = fields;
@@ -266,7 +266,7 @@ void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields, 
  */
 AlirStruct* alir_find_struct(AlirModule *mod, const char *name) {
     AlirStruct *st = hashmap_get(&mod->struct_map, name);
-    if (st) return st;
+    if (st) { if (streq_lit(name, "wlroots.wl_listener")) printf("CACHED %s fields %d\n", st->name, st->field_count); return st; }
     st = mod->structs;
     while(st) {
         if (streq_lit(st->name, name)) {

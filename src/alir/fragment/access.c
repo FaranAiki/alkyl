@@ -91,16 +91,36 @@ int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char
         if (streq_lit(field_name, "len")) return 0;
     }
     
-    int idx = -1;
+    int idx = -1; if (hint_class) printf("HINT_CLASS %s\n", hint_class);
     if (hint_class) {
         idx = alir_get_field_index(ctx->module, hint_class, field_name);
+        if (idx == -1) {
+            AlirStruct *st = ctx->module->structs;
+            while (st) {
+                const char *dot = strrchr(st->name, '.');
+                if (dot && streq_lit(dot + 1, hint_class)) {
+                    AlirField *f = st->fields;
+                    while (f) {
+                        if (streq_lit(f->name, field_name)) {
+                            printf("FOUND %s in %s with index %d\n", field_name, st->name, f->index);
+                            return f->index;
+                        }
+                        f = f->next;
+                    }
+                }
+                st = st->next;
+            }
+        }
     }
     if (idx == -1) {
         AlirStruct *search = ctx->module->structs;
         while (search) {
             AlirField *f = search->fields;
             while(f) {
-                if (streq_lit(f->name, field_name)) return f->index;
+                if (streq_lit(f->name, field_name)) {
+                    printf("FOUND_FALLBACK %s in %s with index %d\n", field_name, search->name, f->index);
+                    return f->index;
+                }
                 f = f->next;
             }
             search = search->next;

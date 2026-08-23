@@ -714,6 +714,7 @@ VarType parse_type(Parser *p) {
 
               ClassNode *cls = parser_alloc(p, sizeof(ClassNode));
               cls->base.type = NODE_CLASS;
+              cls->has_body = 1;
               cls->is_union = 1;
               ASTNode *last_member = NULL;
               int field_idx = 0;
@@ -765,6 +766,7 @@ VarType parse_type(Parser *p) {
 
                       ClassNode *cls = parser_alloc(p, sizeof(ClassNode));
                       cls->base.type = NODE_CLASS;
+              cls->has_body = 1;
                       ASTNode *last_member = NULL;
 
                        while (p->current_token.type != TOKEN_RBRACE && p->current_token.type != TOKEN_EOF) {

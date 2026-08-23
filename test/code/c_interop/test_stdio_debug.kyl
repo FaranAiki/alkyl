@@ -1,7 +1,8 @@
 @c import "/usr/include/stdio.h";
 
-extern int printf(const char *__restrict __format, ...);
+const stdio = @c import("/usr/include/stdio.h");
 
 int main() {
-    printf("Hello, World!\\n");
+    printf("Hello, World!\n");
+    stdio.printf("Hello, World!\n");
 }

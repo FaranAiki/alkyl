@@ -6,18 +6,24 @@ debug: parser: after parse_type, vt.base=16, token.type=32
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=26 line=5 col=17 node=0x563ff3a583c8
-debug: semantic: sem_check_expr: type=13 line=5 col=16 node=0x563ff3a58348
+debug: semantic: sem_check_expr: type=26 line=5 col=17 node=0x55db974de3c8
+debug: semantic: sem_check_expr: type=13 line=5 col=16 node=0x55db974de348
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=15 col=12 node=0x563ff3a58880
+debug: semantic: sem_check_expr: type=16 line=15 col=12 node=0x55db974de880
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class A
-debug: alir: DEBUG_REGISTER: st=0x563ff3a5d830 name=A next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55db974e3830 name=A next=(nil)
 debug: alir: Visiting class B
-debug: alir: DEBUG_REGISTER: st=0x563ff3a5d850 name=B next=0x563ff3a5d830
+debug: alir: DEBUG_REGISTER: st=0x55db974e3850 name=B next=0x55db974e3830
+REGISTER_STRUCT A fields 0
 debug: alir: DEBUG_PASS1_END: struct list:
+REGISTER_STRUCT B fields 0
+POPULATING A has_body=1
+BUILT A with 2 fields (was -1)
+POPULATING B has_body=1
+BUILT B with 2 fields (was -1)
  - B fields: 2
  - A fields: 2
 debug: alir: alir_gen_function_def fn->name=get_b_y class_name=A fn->mangled_name=main_A_get_b_y -> func_name=main_A_get_b_y
@@ -38,3 +44,4 @@ define i32 @main() {
 entry:
   ret i32 0
 }
+HINT_CLASS B

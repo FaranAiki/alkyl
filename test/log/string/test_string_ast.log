@@ -3,12 +3,15 @@ debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: after parse_type, vt.base=8, token.type=32
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=5 col=21 node=0x563cb0262378
+debug: semantic: sem_check_expr: type=16 line=5 col=21 node=0x563370dc8378
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class string
-debug: alir: DEBUG_REGISTER: st=0x563cb02677e0 name=string next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x563370dcd7e0 name=string next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
+REGISTER_STRUCT string fields 0
+POPULATING string has_body=1
+BUILT string with 2 fields (was -1)
  - string fields: 2
 debug: alir: alir_add_function: string
 debug: alir: Found func_def main

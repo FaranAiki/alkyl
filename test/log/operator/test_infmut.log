@@ -3,37 +3,40 @@ debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: after parse_type, vt.base=0, token.type=166
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=14 line=5 col=29 node=0x55912d03a5b8
-debug: semantic: sem_check_expr: type=26 line=5 col=24 node=0x55912d03a4a0
-debug: semantic: sem_check_expr: type=13 line=5 col=20 node=0x55912d03a420
-debug: semantic: sem_check_expr: type=13 line=5 col=31 node=0x55912d03a538
-debug: semantic: sem_check_expr: type=26 line=5 col=13 node=0x55912d03a388
-debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x55912d03a308
+debug: semantic: sem_check_expr: type=14 line=5 col=29 node=0x5633909485b8
+debug: semantic: sem_check_expr: type=26 line=5 col=24 node=0x5633909484a0
+debug: semantic: sem_check_expr: type=13 line=5 col=20 node=0x563390948420
+debug: semantic: sem_check_expr: type=13 line=5 col=31 node=0x563390948538
+debug: semantic: sem_check_expr: type=26 line=5 col=13 node=0x563390948388
+debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x563390948308
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
 debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=11 col=13 node=0x55912d03aa60
-debug: semantic: sem_check_expr: type=26 line=11 col=6 node=0x55912d03a9c8
-debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x55912d03a948
+debug: semantic: sem_check_expr: type=16 line=11 col=13 node=0x563390948a60
+debug: semantic: sem_check_expr: type=26 line=11 col=6 node=0x5633909489c8
+debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x563390948948
 debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x55912d03ac18
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x55912d03ac18
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x55912d03ac18
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x563390948c18
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x563390948c18
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x563390948c18
 debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=13 col=15 node=0x55912d03af08
-debug: semantic: sem_check_expr: type=26 line=13 col=10 node=0x55912d03add0
-debug: semantic: sem_check_expr: type=13 line=13 col=9 node=0x55912d03ad50
-debug: semantic: sem_check_expr: type=16 line=13 col=18 node=0x55912d03ae68
+debug: semantic: sem_check_expr: type=14 line=13 col=15 node=0x563390948f08
+debug: semantic: sem_check_expr: type=26 line=13 col=10 node=0x563390948dd0
+debug: semantic: sem_check_expr: type=13 line=13 col=9 node=0x563390948d50
+debug: semantic: sem_check_expr: type=16 line=13 col=18 node=0x563390948e68
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=13 col=29 node=0x55912d03afb0
+debug: semantic: sem_check_expr: type=16 line=13 col=29 node=0x563390948fb0
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x55912d03b140
+debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x563390949140
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Counter
-debug: alir: DEBUG_REGISTER: st=0x55912d040338 name=Counter next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x56339094e338 name=Counter next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
+REGISTER_STRUCT Counter fields 0
+POPULATING Counter has_body=1
+BUILT Counter with 1 fields (was -1)
  - Counter fields: 1
 debug: alir: alir_gen_function_def fn->name=__op_166_34 class_name=Counter fn->mangled_name=main_Counter___op_166_34_i32 -> func_name=main_Counter___op_166_34_i32
 debug: alir: alir_add_function: main_Counter___op_166_34_i32
@@ -109,6 +112,10 @@ then:                                             ; preds = %entry
 merge:                                            ; preds = %entry
   ret i32 0
 }
+HINT_CLASS Counter
+HINT_CLASS Counter
+HINT_CLASS Counter
+HINT_CLASS Counter
 DEBUG CALL param 0: num_params=2, expected_ty=12, arg_ty=12
 DEBUG CALL: expected_ty=12, arg_ty=12
 DEBUG CALL param 1: num_params=2, expected_ty=8, arg_ty=8

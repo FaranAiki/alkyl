@@ -225,6 +225,11 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
                 SemSymbol *sym = sem_symbol_add(ctx, f->name, SYM_TEMPLATE, type_tmpl);
                 sym->template_node = cn;
             }
+        } else if (mem->type == NODE_CLASS) {
+            ASTNode *next_node = mem->next;
+            mem->next = NULL;
+            sem_scan_top_level(ctx, mem);
+            mem->next = next_node;
         }
         mem = mem->next;
     }

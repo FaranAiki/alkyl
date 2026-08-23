@@ -129,6 +129,7 @@ long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
  */
 void build_struct_fields(AlirCtx *ctx, ClassNode *cn, AlirStruct *st) {
     if (st->field_count != -1) return; // Already built
+    if (!cn->has_body) return; // Wait for actual definition
 
     int idx = 0;
     AlirField *head = NULL;
@@ -201,7 +202,7 @@ void build_struct_fields(AlirCtx *ctx, ClassNode *cn, AlirStruct *st) {
         mem = mem->next;
     }
 
-    st->fields = head;
+    st->fields = head; printf("BUILT %s with %d fields (was %d)\n", cn->name, idx, st->field_count);
     st->field_count = idx;
 }
 
@@ -222,8 +223,15 @@ void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
                 snprintf(buf, sizeof(buf), "%s.%s", current_ns, cn->name);
                 fqn = alir_strdup(ctx->module, buf);
             }
-            alir_register_struct(ctx->module, fqn, NULL, cn->is_union);
-            hashmap_put(&ctx->class_map, cn->name, cn);
+            ClassNode *existing = hashmap_get(&ctx->class_map, cn->name);
+            if (existing) {
+                if (!existing->has_body && cn->has_body) {
+                    hashmap_put(&ctx->class_map, cn->name, cn);
+                }
+            } else {
+                alir_register_struct(ctx->module, fqn, NULL, cn->is_union);
+                hashmap_put(&ctx->class_map, cn->name, cn);
+            }
         } else if (n->type == NODE_ENUM) {
             EnumNode *en = (EnumNode*)n;
             AlirEnumEntry *head = NULL;
@@ -290,7 +298,7 @@ void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current
                 fqn = alir_strdup(ctx->module, buf);
             }
             AlirStruct *st = alir_find_struct(ctx->module, fqn);
-            if (st) build_struct_fields(ctx, cn, st);
+            if (st) { printf("POPULATING %s has_body=%d\n", fqn, cn->has_body); build_struct_fields(ctx, cn, st); } else { printf("NOT FOUND %s\n", fqn); }
         } else if (n->type == NODE_NAMESPACE) {
             NamespaceNode *ns = (NamespaceNode*)n;
             char *next_ns = ns->name;

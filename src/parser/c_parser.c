@@ -292,6 +292,7 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
             type.fp_param_count = 0;
 
             if (c_match(p, C_TOKEN_IDENTIFIER)) {
+                type.class_name = arena_strdup(p->ctx->arena, p->current.text);
                 c_eat(p, C_TOKEN_IDENTIFIER);
             }
 
@@ -494,6 +495,7 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
             type.fp_param_count = 0;
 
             if (c_match(p, C_TOKEN_IDENTIFIER)) {
+                type.class_name = arena_strdup(p->ctx->arena, p->current.text);
                 c_eat(p, C_TOKEN_IDENTIFIER);
             }
 
@@ -1002,7 +1004,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
             sn->has_body = 1;
             sn->is_extern = 1; sn->is_container = 1; sn->is_public = 1;
 
-            ASTNode **curr_member = &sn->members;
+            ASTNode **inner_curr_member = &sn->members;
     while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { debug_c_header("LOOP START token=%d line=%d text='%s'\n", p->current.type, p->current.line, p->current.text ? p->current.text : "N/A");
                 while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_EXTENSION)) {
                     c_eat(p, p->current.type);
@@ -1080,14 +1082,47 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                         if (c_match(p, C_TOKEN_SEMICOLON)) c_eat(p, C_TOKEN_SEMICOLON);
                     }
                     c_eat(p, C_TOKEN_RBRACE);
-                    *curr_member = (ASTNode*)anon;
-                    curr_member = &anon->base.next;
+                    fprintf(stderr, "DEBUG_C_PARSER: ate RBRACE, next token is type=%d text=%s\n", p->current.type, p->current.text ? p->current.text : "NULL");
+                    *inner_curr_member = (ASTNode*)anon;
+                    inner_curr_member = &anon->base.next;
+                    if (c_match(p, C_TOKEN_IDENTIFIER)) {
+                        char *anon_name = arena_strdup(p->ctx->arena, p->current.text);
+                        c_eat(p, C_TOKEN_IDENTIFIER);
+                        fprintf(stderr, "DEBUG_C_PARSER: created nested anon struct member %s\n", anon_name);
+                        VarDeclNode *var = arena_alloc(p->ctx->arena, sizeof(VarDeclNode));
+                        memset(var, 0, sizeof(VarDeclNode));
+                        var->base.type = NODE_VAR_DECL;
+                        var->base.line = p->current.line;
+                        var->base.col = p->current.col;
+                        var->name = anon_name;
+                        var->var_type.base = TYPE_CLASS;
+                        var->var_type.class_name = arena_strdup(p->ctx->arena, anon->name);
+                        var->var_type.ptr_depth = 0;
+                        var->is_mutable = 1;
+                        *inner_curr_member = (ASTNode*)var;
+                        inner_curr_member = &var->base.next;
+                    }
                     if (c_match(p, C_TOKEN_SEMICOLON)) {
                         c_eat(p, C_TOKEN_SEMICOLON);
                     } else if (c_match(p, C_TOKEN_COMMA)) {
                         while (c_match(p, C_TOKEN_COMMA)) {
                             c_eat(p, C_TOKEN_COMMA);
-                            if (c_match(p, C_TOKEN_IDENTIFIER)) c_eat(p, C_TOKEN_IDENTIFIER);
+                            if (c_match(p, C_TOKEN_IDENTIFIER)) {
+                                char *anon_name2 = arena_strdup(p->ctx->arena, p->current.text);
+                                c_eat(p, C_TOKEN_IDENTIFIER);
+                                VarDeclNode *var2 = arena_alloc(p->ctx->arena, sizeof(VarDeclNode));
+                                memset(var2, 0, sizeof(VarDeclNode));
+                                var2->base.type = NODE_VAR_DECL;
+                                var2->base.line = p->current.line;
+                                var2->base.col = p->current.col;
+                                var2->name = anon_name2;
+                                var2->var_type.base = TYPE_CLASS;
+                                var2->var_type.class_name = arena_strdup(p->ctx->arena, anon->name);
+                                var2->var_type.ptr_depth = 0;
+                                var2->is_mutable = 1;
+                                *inner_curr_member = (ASTNode*)var2;
+                                inner_curr_member = &var2->base.next;
+                            }
                         }
                         if (c_match(p, C_TOKEN_SEMICOLON)) c_eat(p, C_TOKEN_SEMICOLON);
                     }
@@ -1124,8 +1159,8 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                     var->var_type.array_size = inner_array > 0 ? inner_array : inner_type.array_size;
                     var->is_array = inner_array > 0;
                     var->is_mutable = 1;
-                    *curr_member = (ASTNode*)var;
-                    curr_member = &var->base.next;
+                    *inner_curr_member = (ASTNode*)var;
+                    inner_curr_member = &var->base.next;
                 }
 
                 if (c_match(p, C_TOKEN_SEMICOLON)) {
@@ -1145,8 +1180,8 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                         var->var_type.array_size = inner_array > 0 ? inner_array : inner_type.array_size;
                         var->is_array = inner_array > 0;
                         var->is_mutable = 1;
-                        *curr_member = (ASTNode*)var;
-                        curr_member = &var->base.next;
+                        *inner_curr_member = (ASTNode*)var;
+                        inner_curr_member = &var->base.next;
                         if (c_match(p, C_TOKEN_COMMA)) c_eat(p, C_TOKEN_COMMA);
                         else break;
                     }
@@ -1734,6 +1769,13 @@ static ASTNode* c_parse_typedef(CParser *p) {
     int ptr_depth = 0;
     int array_size = 0;
     VarType base_type = c_parse_c_type(p, &ptr_depth, &array_size);
+
+    if (base_type.is_func_ptr && base_type.class_name != NULL) {
+        c_register_typedef(p, base_type.class_name, base_type);
+        base_type.class_name = NULL;
+        if (c_match(p, C_TOKEN_SEMICOLON)) c_eat(p, C_TOKEN_SEMICOLON);
+        return NULL;
+    }
 
     if (c_match(p, C_TOKEN_IDENTIFIER)) {
         char *typedef_name = arena_strdup(p->ctx->arena, p->current.text);

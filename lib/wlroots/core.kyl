@@ -215,18 +215,18 @@ export namespace wlroots {
 
     void backend_on_new_output(pristine wlr_backend* backend, pristine wl_listener* listener, void* notify_func) {
         listener.notify = notify_func;
-        let signal = ((backend as long) + 40) as wl_signal*;
+        let signal = &backend.events.new_output;
         wl_signal_add(signal, listener);
     }
 
     void backend_on_new_input(pristine wlr_backend* backend, pristine wl_listener* listener, void* notify_func) {
         listener.notify = notify_func;
-        let signal = ((backend as long) + 24) as wl_signal*;
+        let signal = &backend.events.new_input;
         wl_signal_add(signal, listener);
     }
 
     void output_on_frame(void* output, void* listener, void* notify_func) {
-        let signal = ((output as long) + 168) as wl_signal*;
+        let signal = &(output as wlr_output*).events.frame;
         let lst = listener as wl_listener*;
         lst.notify = notify_func;
         wl_signal_add(signal, lst);
@@ -252,29 +252,29 @@ export namespace wlroots {
     void xdg_shell_on_new_surface(void* shell, void* listener, void* notify_func) {
         let lst = listener as wl_listener*;
         lst.notify = notify_func;
-        let signal = ((shell as long) + 80) as wl_signal*;
+        let signal = &(shell as wlr_xdg_shell*).events.new_surface;
         wl_signal_add(signal, lst);
     }
 
     void scene_add_xdg_surface(pristine wlr_scene* scene, pristine wlr_xdg_surface* xdg_surface) {
-        let role_ptr = ((xdg_surface as long) + 40) as int*;
-        if (role_ptr[0] == 1) { 
+        let role = xdg_surface.role;
+        if (role == 1) { 
             wlr_scene_xdg_surface_create(scene as wlr_scene_tree*, xdg_surface);
-            let toplevel_ptr = ((xdg_surface as long) + 56) as wlr_xdg_toplevel**;
+            let toplevel = xdg_surface.toplevel;
         }
     }
 
     void wlr_keyboard_on_key(void* keyboard, void* listener, void* notify_func) {
         let lst = listener as wl_listener*;
         lst.notify = notify_func;
-        let signal = ((keyboard as long) + 304) as wl_signal*;
+        let signal = &(keyboard as wlr_keyboard*).events.key;
         wl_signal_add(signal, lst);
     }
 
     void wlr_keyboard_on_modifiers(void* keyboard, void* listener, void* notify_func) {
         let lst = listener as wl_listener*;
         lst.notify = notify_func;
-        let signal = ((keyboard as long) + 320) as wl_signal*;
+        let signal = &(keyboard as wlr_keyboard*).events.modifiers;
         wl_signal_add(signal, lst);
     }
 

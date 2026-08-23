@@ -15,77 +15,95 @@ debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=ContainerClass target_type=13 line=0 col=0 node=0x56323c0e40f0 target=0x56323c0e3f30
+debug: parser: Created Call name=ContainerClass target_type=13 line=0 col=0 node=0x555ba78020f0 target=0x555ba7801f30
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=7 col=13 node=0x56323c0e26f0
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=13 line=8 col=24 node=0x56323c0e2850
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x56323c0e2c60
-debug: semantic: sem_check_expr: type=16 line=21 col=13 node=0x56323c0e2f20
+debug: semantic: sem_check_expr: type=16 line=7 col=13 node=0x555ba78006f0
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=24 col=14 node=0x56323c0e3140
+debug: semantic: sem_check_expr: type=13 line=8 col=24 node=0x555ba7800850
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x555ba7800c60
+debug: semantic: sem_check_expr: type=16 line=21 col=13 node=0x555ba7800f20
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=27 col=14 node=0x56323c0e3340
-debug: semantic: sem_check_expr: type=16 line=32 col=13 node=0x56323c0e35e0
+debug: semantic: sem_check_expr: type=16 line=24 col=14 node=0x555ba7801140
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=27 col=14 node=0x555ba7801340
+debug: semantic: sem_check_expr: type=16 line=32 col=13 node=0x555ba78015e0
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=0 col=0 node=0x56323c0e84c8
+debug: semantic: sem_check_expr: type=2 line=0 col=0 node=0x555ba78064c8
 debug: semantic: sem_check_call: name='ExactClass', ns='main'
-debug: semantic: sem_check_expr: type=16 line=7 col=13 node=0x56323c0e85a0
+debug: semantic: sem_check_expr: type=16 line=7 col=13 node=0x555ba78065a0
 debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=40 col=13 node=0x56323c0e3cf8
-debug: semantic: sem_check_expr: type=26 line=40 col=10 node=0x56323c0e3bc0
-debug: semantic: sem_check_expr: type=13 line=40 col=8 node=0x56323c0e3b40
-debug: semantic: sem_check_expr: type=16 line=40 col=16 node=0x56323c0e3c58
+debug: semantic: sem_check_expr: type=14 line=40 col=13 node=0x555ba7801cf8
+debug: semantic: sem_check_expr: type=26 line=40 col=10 node=0x555ba7801bc0
+debug: semantic: sem_check_expr: type=13 line=40 col=8 node=0x555ba7801b40
+debug: semantic: sem_check_expr: type=16 line=40 col=16 node=0x555ba7801c58
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=40 col=30 node=0x56323c0e3da0
+debug: semantic: sem_check_expr: type=16 line=40 col=30 node=0x555ba7801da0
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=42 col=39 node=0x56323c0e40f0
+debug: semantic: sem_check_expr: type=2 line=42 col=39 node=0x555ba78020f0
 debug: semantic: sem_check_call: name='ContainerClass', ns='main'
-debug: semantic: sem_check_expr: type=13 line=42 col=25 node=0x56323c0e3f30
-debug: semantic: sem_check_expr: type=16 line=42 col=40 node=0x56323c0e3fb0
-debug: semantic: sem_check_expr: type=16 line=42 col=44 node=0x56323c0e4050
+debug: semantic: sem_check_expr: type=13 line=42 col=25 node=0x555ba7801f30
+debug: semantic: sem_check_expr: type=16 line=42 col=40 node=0x555ba7801fb0
+debug: semantic: sem_check_expr: type=16 line=42 col=44 node=0x555ba7802050
 debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=43 col=13 node=0x56323c0e44c0
-debug: semantic: sem_check_expr: type=26 line=43 col=10 node=0x56323c0e42c8
-debug: semantic: sem_check_expr: type=13 line=43 col=8 node=0x56323c0e4248
-debug: semantic: sem_check_expr: type=26 line=43 col=18 node=0x56323c0e4428
-debug: semantic: sem_check_expr: type=13 line=43 col=16 node=0x56323c0e43a8
+debug: semantic: sem_check_expr: type=14 line=43 col=13 node=0x555ba78024c0
+debug: semantic: sem_check_expr: type=26 line=43 col=10 node=0x555ba78022c8
+debug: semantic: sem_check_expr: type=13 line=43 col=8 node=0x555ba7802248
+debug: semantic: sem_check_expr: type=26 line=43 col=18 node=0x555ba7802428
+debug: semantic: sem_check_expr: type=13 line=43 col=16 node=0x555ba78023a8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=43 col=33 node=0x56323c0e4568
+debug: semantic: sem_check_expr: type=16 line=43 col=33 node=0x555ba7802568
 debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=44 col=13 node=0x56323c0e48b0
-debug: semantic: sem_check_expr: type=26 line=44 col=10 node=0x56323c0e4778
-debug: semantic: sem_check_expr: type=13 line=44 col=8 node=0x56323c0e46f8
-debug: semantic: sem_check_expr: type=16 line=44 col=16 node=0x56323c0e4810
+debug: semantic: sem_check_expr: type=14 line=44 col=13 node=0x555ba78028b0
+debug: semantic: sem_check_expr: type=26 line=44 col=10 node=0x555ba7802778
+debug: semantic: sem_check_expr: type=13 line=44 col=8 node=0x555ba78026f8
+debug: semantic: sem_check_expr: type=16 line=44 col=16 node=0x555ba7802810
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=44 col=31 node=0x56323c0e4958
+debug: semantic: sem_check_expr: type=16 line=44 col=31 node=0x555ba7802958
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=46 col=12 node=0x56323c0e4ae8
+debug: semantic: sem_check_expr: type=16 line=46 col=12 node=0x555ba7802ae8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class AbstractClass
-debug: alir: DEBUG_REGISTER: st=0x56323c0eca70 name=AbstractClass next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x555ba780aa70 name=AbstractClass next=(nil)
 debug: alir: Visiting class ExactClass
-debug: alir: DEBUG_REGISTER: st=0x56323c0eca90 name=ExactClass next=0x56323c0eca70
+debug: alir: DEBUG_REGISTER: st=0x555ba780aa90 name=ExactClass next=0x555ba780aa70
+REGISTER_STRUCT AbstractClass fields 0
 debug: alir: Visiting class MethodClass
-debug: alir: DEBUG_REGISTER: st=0x56323c0ecab0 name=MethodClass next=0x56323c0eca90
+debug: alir: DEBUG_REGISTER: st=0x555ba780aab0 name=MethodClass next=0x555ba780aa90
+REGISTER_STRUCT ExactClass fields 0
 debug: alir: Visiting class ContainerClass
-debug: alir: DEBUG_REGISTER: st=0x56323c0ecad0 name=ContainerClass next=0x56323c0ecab0
+debug: alir: DEBUG_REGISTER: st=0x555ba780aad0 name=ContainerClass next=0x555ba780aab0
+REGISTER_STRUCT MethodClass fields 0
 debug: alir: Visiting class PragmaClass
-debug: alir: DEBUG_REGISTER: st=0x56323c0ecaf0 name=PragmaClass next=0x56323c0ecad0
+debug: alir: DEBUG_REGISTER: st=0x555ba780aaf0 name=PragmaClass next=0x555ba780aad0
+REGISTER_STRUCT ContainerClass fields 0
 debug: alir: Visiting class FrameClass
-debug: alir: DEBUG_REGISTER: st=0x56323c0ecb10 name=FrameClass next=0x56323c0ecaf0
+debug: alir: DEBUG_REGISTER: st=0x555ba780ab10 name=FrameClass next=0x555ba780aaf0
+REGISTER_STRUCT PragmaClass fields 0
 debug: alir: DEBUG_PASS1_END: struct list:
+REGISTER_STRUCT FrameClass fields 0
+POPULATING AbstractClass has_body=1
+BUILT AbstractClass with 1 fields (was -1)
+POPULATING ExactClass has_body=1
+BUILT ExactClass with 1 fields (was -1)
+POPULATING MethodClass has_body=1
+BUILT MethodClass with 0 fields (was -1)
+POPULATING ContainerClass has_body=1
+BUILT ContainerClass with 2 fields (was -1)
+POPULATING PragmaClass has_body=1
+BUILT PragmaClass with 2 fields (was -1)
+POPULATING FrameClass has_body=1
+BUILT FrameClass with 2 fields (was -1)
  - FrameClass fields: 2
  - PragmaClass fields: 2
  - ContainerClass fields: 2
@@ -231,6 +249,10 @@ then_3:                                           ; preds = %merge_2
 merge_3:                                          ; preds = %merge_2
   ret i32 0
 }
+HINT_CLASS ExactClass
+HINT_CLASS ContainerClass
+HINT_CLASS ContainerClass
+HINT_CLASS ContainerClass
 DEBUG CALL param 0: num_params=2, expected_ty=12, arg_ty=12
 DEBUG CALL: expected_ty=12, arg_ty=12
 DEBUG CALL param 1: num_params=2, expected_ty=8, arg_ty=8

@@ -4,81 +4,87 @@ debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=Person target_type=13 line=0 col=0 node=0x55580de12718 target=0x55580de12558
+debug: parser: Created Call name=Person target_type=13 line=0 col=0 node=0x559bfb874718 target=0x559bfb874558
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=9 col=13 name=cprintf target_type=13 node=0x55580de11640
-debug: semantic: sem_check_expr: type=2 line=9 col=13 node=0x55580de11640
+debug: semantic: sem_check_block: Call line=9 col=13 name=cprintf target_type=13 node=0x559bfb873640
+debug: semantic: sem_check_expr: type=2 line=9 col=13 node=0x559bfb873640
 debug: semantic: sem_check_call: name='cprintf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x55580de11520
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55580de115a0
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55580de115a0
+debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x559bfb873520
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x559bfb8735a0
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x559bfb8735a0
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x55580de116d8
+debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x559bfb8736d8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=16 col=13 name=cprintf target_type=13 node=0x55580de11bd0
-debug: semantic: sem_check_expr: type=2 line=16 col=13 node=0x55580de11bd0
+debug: semantic: sem_check_block: Call line=16 col=13 name=cprintf target_type=13 node=0x559bfb873bd0
+debug: semantic: sem_check_expr: type=2 line=16 col=13 node=0x559bfb873bd0
 debug: semantic: sem_check_call: name='cprintf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=16 col=5 node=0x55580de11998
-debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x55580de11a18
-debug: semantic: sem_check_expr: type=26 line=16 col=35 node=0x55580de11b38
-debug: semantic: sem_check_expr: type=13 line=16 col=31 node=0x55580de11ab8
+debug: semantic: sem_check_expr: type=13 line=16 col=5 node=0x559bfb873998
+debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x559bfb873a18
+debug: semantic: sem_check_expr: type=26 line=16 col=35 node=0x559bfb873b38
+debug: semantic: sem_check_expr: type=13 line=16 col=31 node=0x559bfb873ab8
 at namespace main:
 in .../code/composition/test.kyl:
 16:35: warning: age is from Identity, consider this[Identity]
   |     cprintf "I am %d y.o.\n", this.age;
   |                                   ^
-debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x55580de11a18
+debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x559bfb873a18
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=17 col=13 name=cprintf target_type=13 node=0x55580de12220
-debug: semantic: sem_check_expr: type=2 line=17 col=13 node=0x55580de12220
+debug: semantic: sem_check_block: Call line=17 col=13 name=cprintf target_type=13 node=0x559bfb874220
+debug: semantic: sem_check_expr: type=2 line=17 col=13 node=0x559bfb874220
 debug: semantic: sem_check_call: name='cprintf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=17 col=5 node=0x55580de11c68
-debug: semantic: sem_check_expr: type=16 line=17 col=13 node=0x55580de11ce8
-debug: semantic: sem_check_expr: type=26 line=17 col=46 node=0x55580de12188
-debug: semantic: sem_check_expr: type=47 line=17 col=36 node=0x55580de12108
-debug: semantic: sem_check_expr: type=18 line=17 col=36 node=0x55580de12108
+debug: semantic: sem_check_expr: type=13 line=17 col=5 node=0x559bfb873c68
+debug: semantic: sem_check_expr: type=16 line=17 col=13 node=0x559bfb873ce8
+debug: semantic: sem_check_expr: type=26 line=17 col=46 node=0x559bfb874188
+debug: semantic: sem_check_expr: type=47 line=17 col=36 node=0x559bfb874108
+debug: semantic: sem_check_expr: type=18 line=17 col=36 node=0x559bfb874108
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=17 col=32 node=0x55580de11d88
-debug: semantic: sem_check_expr: type=16 line=17 col=36 node=0x55580de14ae0
-debug: semantic: sem_check_expr: type=16 line=17 col=13 node=0x55580de11ce8
+debug: semantic: sem_check_expr: type=13 line=17 col=32 node=0x559bfb873d88
+debug: semantic: sem_check_expr: type=16 line=17 col=36 node=0x559bfb876ae0
+debug: semantic: sem_check_expr: type=16 line=17 col=13 node=0x559bfb873ce8
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=18 col=12 node=0x55580de122b8
+debug: semantic: sem_check_expr: type=16 line=18 col=12 node=0x559bfb8742b8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=23 col=20 node=0x55580de12718
+debug: semantic: sem_check_expr: type=2 line=23 col=20 node=0x559bfb874718
 debug: semantic: sem_check_call: name='Person', ns='main'
-debug: semantic: sem_check_expr: type=13 line=23 col=14 node=0x55580de12558
+debug: semantic: sem_check_expr: type=13 line=23 col=14 node=0x559bfb874558
 23:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-debug: semantic: sem_check_expr: type=16 line=23 col=21 node=0x55580de125d8
-debug: semantic: sem_check_expr: type=16 line=23 col=35 node=0x55580de12678
+debug: semantic: sem_check_expr: type=16 line=23 col=21 node=0x559bfb8745d8
+debug: semantic: sem_check_expr: type=16 line=23 col=35 node=0x559bfb874678
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=24 col=14 node=0x55580de12c70
-debug: semantic: sem_check_expr: type=47 line=24 col=4 node=0x55580de12bf0
-debug: semantic: sem_check_expr: type=18 line=24 col=4 node=0x55580de12bf0
+debug: semantic: sem_check_expr: type=27 line=24 col=14 node=0x559bfb874c70
+debug: semantic: sem_check_expr: type=47 line=24 col=4 node=0x559bfb874bf0
+debug: semantic: sem_check_expr: type=18 line=24 col=4 node=0x559bfb874bf0
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=24 col=3 node=0x55580de12870
-debug: semantic: sem_check_expr: type=16 line=24 col=4 node=0x55580de150c8
+debug: semantic: sem_check_expr: type=13 line=24 col=3 node=0x559bfb874870
+debug: semantic: sem_check_expr: type=16 line=24 col=4 node=0x559bfb8770c8
 debug: semantic: sem_check_method_call: method='speak', obj_base=16, obj_class='Identity'
-debug: semantic: sem_lookup_class_call for 'Identity', class_sym=0x55580de13810
+debug: semantic: sem_lookup_class_call for 'Identity', class_sym=0x559bfb875810
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=25 col=4 node=0x55580de12d88
-debug: semantic: sem_check_expr: type=13 line=25 col=3 node=0x55580de12d08
+debug: semantic: sem_check_expr: type=27 line=25 col=4 node=0x559bfb874d88
+debug: semantic: sem_check_expr: type=13 line=25 col=3 node=0x559bfb874d08
 debug: semantic: sem_check_method_call: method='intro', obj_base=16, obj_class='Person'
-debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x55580de13d00
+debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x559bfb875d00
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=26 col=10 node=0x55580de12e20
+debug: semantic: sem_check_expr: type=16 line=26 col=10 node=0x559bfb874e20
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Identity
-debug: alir: DEBUG_REGISTER: st=0x55580de18ae8 name=Identity next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x559bfb87aae8 name=Identity next=(nil)
 debug: alir: Visiting class Person
-debug: alir: DEBUG_REGISTER: st=0x55580de18b08 name=Person next=0x55580de18ae8
+debug: alir: DEBUG_REGISTER: st=0x559bfb87ab08 name=Person next=0x559bfb87aae8
+REGISTER_STRUCT Identity fields 0
 debug: alir: DEBUG_PASS1_END: struct list:
+REGISTER_STRUCT Person fields 0
+POPULATING Identity has_body=1
+BUILT Identity with 2 fields (was -1)
+POPULATING Person has_body=1
+BUILT Person with 2 fields (was -1)
  - Person fields: 2
  - Identity fields: 2
 debug: alir: Found func_def cprintf
@@ -89,33 +95,33 @@ debug: alir: alir_gen_function_def fn->name=speak class_name=Identity fn->mangle
 debug: alir: alir_add_function: main_Identity_speak
 debug: alir: GEN_CALL: name=cprintf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x55580de112b0
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x559bfb8732b0
 debug: alir: CALL_STD: name=cprintf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: cprintf
-debug: alir: TAINTED PTR: ctx->module=0x55580de15370 target_name=printf count=1
+debug: alir: TAINTED PTR: ctx->module=0x559bfb877370 target_name=printf count=1
 debug: alir: alir_add_function: Identity
 debug: alir: alir_gen_function_def fn->name=intro class_name=Person fn->mangled_name=main_Person_intro -> func_name=main_Person_intro
 debug: alir: alir_add_function: main_Person_intro
 debug: alir: GEN_CALL: name=cprintf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x55580de112b0
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x559bfb8732b0
 debug: alir: CALL_STD: name=cprintf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: cprintf
-debug: alir: TAINTED PTR: ctx->module=0x55580de15370 target_name=printf count=2
+debug: alir: TAINTED PTR: ctx->module=0x559bfb877370 target_name=printf count=2
 debug: alir: GEN_CALL: name=cprintf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x55580de112b0
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x559bfb8732b0
 debug: alir: CALL_STD: name=cprintf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: cprintf
-debug: alir: TAINTED PTR: ctx->module=0x55580de15370 target_name=printf count=2
+debug: alir: TAINTED PTR: ctx->module=0x559bfb877370 target_name=printf count=2
 debug: alir: alir_gen_function_def fn->name=speak class_name=Person fn->mangled_name=main_Identity_speak -> func_name=main_Person_speak
 debug: alir: alir_add_function: main_Person_speak
 debug: alir: GEN_CALL: name=cprintf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x55580de112b0
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x559bfb8732b0
 debug: alir: CALL_STD: name=cprintf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: cprintf
-debug: alir: TAINTED PTR: ctx->module=0x55580de15370 target_name=printf count=1
+debug: alir: TAINTED PTR: ctx->module=0x559bfb877370 target_name=printf count=1
 debug: alir: alir_add_function: Person
 debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
@@ -216,6 +222,8 @@ entry:
   %call1 = call i32 @main_Person_intro(ptr %alloc)
   ret i32 0
 }
+HINT_CLASS Person
+HINT_CLASS Identity
 DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
 DEBUG CALL: expected_ty=12, arg_ty=12
 DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12

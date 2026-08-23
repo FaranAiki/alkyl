@@ -616,6 +616,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
 
       ClassNode *cls = parser_alloc(p, sizeof(ClassNode));
       cls->base.type = NODE_CLASS;
+      cls->has_body = 1;
       cls->name = class_name;
       cls->parent_name = parent_name;
       cls->traits.names = traits;
