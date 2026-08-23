@@ -104,7 +104,7 @@ int main() {
     untaint seat residue err { return 1; }
     server.seat = seat as void*;
 
-    wlroots.backend_on_new_input(backend, server.new_input, &server_new_input as void*);
+    wlroots.backend_on_new_input(backend, server.new_input, server_new_input as void*);
 
     let started = wlroots.start_backend(backend);
     untaint started residue err { return 1; }

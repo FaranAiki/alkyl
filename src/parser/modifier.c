@@ -38,6 +38,7 @@ int parse_modifiers(Parser* p) {
             case TOKEN_EXTENDED: modifiers |= MODIFIER_EXTENDED; eat(p, TOKEN_EXTENDED); break;
             case TOKEN_OVERRIDE: modifiers |= MODIFIER_OVERRIDE; eat(p, TOKEN_OVERRIDE); break;
             case TOKEN_CONTAINER: modifiers |= MODIFIER_CONTAINER; eat(p, TOKEN_CONTAINER); break;
+            case TOKEN_EXPORT: modifiers |= MODIFIER_EXPORT; eat(p, TOKEN_EXPORT); break;
             case TOKEN_FRAME: modifiers |= MODIFIER_FRAME; eat(p, TOKEN_FRAME); break;
             case TOKEN_META: {
                 TokenType next = parser_peek_token(p).type;

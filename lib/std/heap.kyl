@@ -1,12 +1,10 @@
 
-/* private closed */ namespace my {
+private closed namespace my {
   @c extern void *malloc(unsigned int);
   @c extern void free(void*);
-
-  const void *nil = 0;
 }
 
-public open namespace heap {
+export public open namespace heap {
     abstract method class Allocator {
     public tainted {
         void* malloc(long size);
@@ -54,16 +52,16 @@ public open namespace heap {
 
     exact container class ArenaBlock {
     public {
-        void* data = my.nil;
+        void* data = null;
         long capacity = 0;
         long used = 0;
-        ArenaBlock* next = my.nil;
+        ArenaBlock* next = null;
     }
     }
 
     open class ArenaAllocator {
     public {
-        ArenaBlock* head = my.nil;
+        ArenaBlock* head = null;
         long default_block_size = 65536;
     }
 
@@ -73,9 +71,9 @@ public open namespace heap {
         }
 
         void* malloc_aligned(long size, long align) {
-            if size < 0 || align <= 0 then return my.nil;
+            if size < 0 || align <= 0 then return null;
 
-            if this.head == my.nil {
+            if this.head == null {
                 return this.new_block_and_malloc(size, align);
             }
 
@@ -142,20 +140,20 @@ public open namespace heap {
         // free() returns all memory back to the OS/default allocator
         void free() {
             ArenaBlock* curr = this.head;
-            while curr != my.nil {
+            while curr != null {
                 ArenaBlock* next = curr.next;
                 default_allocator.free(curr.data);
                 default_allocator.free(curr as void*);
                 curr = next;
             }
-            this.head = my.nil;
+            this.head = null;
         }
 
         // reset() keeps the allocated memory blocks but marks them as completely empty,
         // allowing extremely fast O(1) bulk deallocation and reuse across loop iterations.
         void reset() {
             ArenaBlock* curr = this.head;
-            while curr != my.nil {
+            while curr != null {
                 curr.used = 0;
                 curr = curr.next;
             }

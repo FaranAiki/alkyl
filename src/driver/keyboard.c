@@ -464,6 +464,7 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                         else if (word_len == 4 && memcmp(buffer + word_start, "enum", 4) == 0) kw = COLOR_BLUE;
                         else if (word_len == 6 && memcmp(buffer + word_start, "errnum", 6) == 0) kw = COLOR_BLUE;
                         else if (word_len == 6 && memcmp(buffer + word_start, "import", 6) == 0) kw = COLOR_BLUE;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "export", 6) == 0) kw = COLOR_BLUE;
                         else if (word_len == 9 && memcmp(buffer + word_start, "namespace", 9) == 0) kw = COLOR_BLUE;
                         else if (word_len == 7 && memcmp(buffer + word_start, "typedef", 7) == 0) kw = COLOR_BLUE;
                         else if (word_len == 6 && memcmp(buffer + word_start, "define", 6) == 0) kw = COLOR_BLUE;
@@ -472,7 +473,11 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                         else if (word_len == 4 && memcmp(buffer + word_start, "imut", 4) == 0) kw = COLOR_RED;
                         else if (word_len == 6 && memcmp(buffer + word_start, "extern", 6) == 0) kw = COLOR_RED;
                         else if (word_len == 4 && memcmp(buffer + word_start, "pure", 4) == 0) kw = COLOR_RED;
+                        else if (word_len == 6 && memcmp(buffer + word_start, "impure", 6) == 0) kw = COLOR_RED;
                         else if (word_len == 7 && memcmp(buffer + word_start, "pristine", 7) == 0) kw = COLOR_RED;
+                        else if (word_len == 7 && memcmp(buffer + word_start, "tainted", 7) == 0) kw = COLOR_RED;
+                        else if (word_len == 8 && memcmp(buffer + word_start, "covalent", 8) == 0) kw = COLOR_RED;
+                        else if (word_len == 4 && memcmp(buffer + word_start, "meta", 4) == 0) kw = COLOR_RED;
                         else if (word_len == 6 && memcmp(buffer + word_start, "public", 6) == 0) kw = COLOR_RED;
                         else if (word_len == 7 && memcmp(buffer + word_start, "private", 7) == 0) kw = COLOR_RED;
                         else if (word_len == 4 && memcmp(buffer + word_start, "open", 4) == 0) kw = COLOR_RED;

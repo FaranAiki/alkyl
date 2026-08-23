@@ -39,6 +39,7 @@
 #define MODIFIER_EXTENDED  (1 << 24)
 #define MODIFIER_OVERRIDE  (1 << 25)
 #define MODIFIER_MUTABLE   (1 << 26)
+#define MODIFIER_EXPORT    (1 << 27)
 
 int parse_modifiers(Parser* p);
 void apply_class_modifiers(ClassNode* node, int modifiers);
