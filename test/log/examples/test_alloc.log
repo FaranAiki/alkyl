@@ -1,1432 +1,155 @@
-step: Finished lexing. Start parsing.
-debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55d78c606c50 target=0x55d78c606a88
-debug: parser: after parse_type, vt.base=0, token.type=32
-debug: parser: after parse_type, vt.base=0, token.type=32
-debug: parser: after parse_type, vt.base=16, token.type=32
-debug: parser: after parse_type, vt.base=16, token.type=8
-debug: parser: constructor check: vt.class_name='CAllocator', class_name='CAllocator'
-debug: parser: after parse_type, vt.base=0, token.type=32
-debug: parser: after parse_type, vt.base=16, token.type=32
-debug: parser: after parse_type, vt.base=0, token.type=32
-debug: parser: after parse_type, vt.base=0, token.type=32
-debug: parser: after parse_type, vt.base=4, token.type=32
-debug: parser: after parse_type, vt.base=4, token.type=32
-debug: parser: after parse_type, vt.base=16, token.type=32
-debug: parser: after parse_type, vt.base=16, token.type=32
-debug: parser: after parse_type, vt.base=4, token.type=32
-debug: parser: after parse_type, vt.base=0, token.type=32
-debug: parser: after parse_type, vt.base=0, token.type=32
-debug: parser: after parse_type, vt.base=0, token.type=32
-debug: parser: after parse_type, vt.base=16, token.type=32
-debug: parser: after parse_type, vt.base=0, token.type=32
-debug: parser: after parse_type, vt.base=0, token.type=32
-debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print_int_array target_type=13 line=0 col=0 node=0x55d78c64c338 target=0x55d78c64bfd0
-debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print_uint_array target_type=13 line=0 col=0 node=0x55d78c64c9a0 target=0x55d78c64c638
-debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print_long_array target_type=13 line=0 col=0 node=0x55d78c64d008 target=0x55d78c64cca0
-debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print_ulong_array target_type=13 line=0 col=0 node=0x55d78c64d670 target=0x55d78c64d308
-debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print_single_array target_type=13 line=0 col=0 node=0x55d78c64dcd8 target=0x55d78c64d970
-debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print_double_array target_type=13 line=0 col=0 node=0x55d78c64e340 target=0x55d78c64dfd8
-debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55d78c650608 target=0x55d78c650508
-debug: semantic: sem_check_block: ns='my'
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='my'
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='my'
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=21
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=21
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=25 col=21 node=0x55d78c618b80
-debug: semantic: sem_check_expr: type=13 line=25 col=16 node=0x55d78c618a60
-debug: semantic: sem_check_expr: type=16 line=25 col=23 node=0x55d78c618ae0
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=45
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=27 line=26 col=22 node=0x55d78c618ea0
-debug: semantic: sem_check_expr: type=13 line=26 col=20 node=0x55d78c618da0
-debug: semantic: sem_check_method_call: method='malloc', obj_base=18, obj_class='my'
-debug: semantic: sem_check_expr: type=13 line=26 col=30 node=0x55d78c618e20
-debug: semantic: sem_check_expr: type=13 line=26 col=30 node=0x55d78c618e20
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=37
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=36 col=15 node=0x55d78c619a10
-debug: semantic: sem_check_expr: type=13 line=36 col=13 node=0x55d78c619910
-debug: semantic: sem_check_method_call: method='free', obj_base=18, obj_class='my'
-debug: semantic: sem_check_expr: type=13 line=36 col=21 node=0x55d78c619990
-debug: semantic: sem_check_expr: type=13 line=36 col=21 node=0x55d78c619990
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=0 col=0 node=0x55d78c656568
-debug: semantic: sem_check_call: name='CAllocator', ns='heap'
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=27 line=46 col=33 node=0x55d78c619e48
-debug: semantic: sem_check_expr: type=13 line=46 col=16 node=0x55d78c619d48
-debug: semantic: sem_check_method_call: method='malloc', obj_base=16, obj_class='CAllocator'
-debug: semantic: sem_lookup_class_call for 'CAllocator', class_sym=0x55d78c652360
-debug: semantic: sem_check_expr: type=13 line=46 col=41 node=0x55d78c619dc8
-debug: semantic: sem_check_expr: type=13 line=46 col=41 node=0x55d78c619dc8
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=50 col=26 node=0x55d78c61a190
-debug: semantic: sem_check_expr: type=13 line=50 col=9 node=0x55d78c61a090
-debug: semantic: sem_check_method_call: method='free', obj_base=16, obj_class='CAllocator'
-debug: semantic: sem_lookup_class_call for 'CAllocator', class_sym=0x55d78c652360
-debug: semantic: sem_check_expr: type=13 line=50 col=32 node=0x55d78c61a110
-debug: semantic: sem_check_expr: type=13 line=50 col=32 node=0x55d78c61a110
-debug: semantic: sem_check_block: visiting node type=21
-debug: semantic: sem_check_expr: type=16 line=55 col=22 node=0x55d78c61a328
-debug: semantic: sem_check_expr: type=16 line=56 col=25 node=0x55d78c61a488
-debug: semantic: sem_check_expr: type=16 line=57 col=21 node=0x55d78c61a5e8
-debug: semantic: sem_check_expr: type=16 line=58 col=28 node=0x55d78c61a748
-debug: semantic: sem_check_block: visiting node type=21
-debug: semantic: sem_check_expr: type=16 line=64 col=28 node=0x55d78c61a960
-debug: semantic: sem_check_expr: type=16 line=65 col=35 node=0x55d78c61aac0
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=27 line=70 col=24 node=0x55d78c61ae10
-debug: semantic: sem_check_expr: type=13 line=70 col=20 node=0x55d78c61ac70
-debug: semantic: sem_check_method_call: method='malloc_aligned', obj_base=16, obj_class='ArenaAllocator'
-debug: semantic: sem_lookup_class_call for 'ArenaAllocator', class_sym=0x55d78c653170
-debug: semantic: sem_check_expr: type=13 line=70 col=40 node=0x55d78c61acf0
-debug: semantic: sem_check_expr: type=16 line=70 col=46 node=0x55d78c61ad70
-debug: semantic: sem_check_expr: type=13 line=70 col=40 node=0x55d78c61acf0
-debug: semantic: sem_check_expr: type=16 line=70 col=46 node=0x55d78c61ad70
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=74 col=25 node=0x55d78c61b438
-debug: semantic: sem_check_expr: type=14 line=74 col=21 node=0x55d78c61b1c8
-debug: semantic: sem_check_expr: type=13 line=74 col=16 node=0x55d78c61b0a8
-debug: semantic: sem_check_expr: type=16 line=74 col=23 node=0x55d78c61b128
-debug: semantic: sem_check_expr: type=14 line=74 col=34 node=0x55d78c61b390
-debug: semantic: sem_check_expr: type=13 line=74 col=28 node=0x55d78c61b270
-debug: semantic: sem_check_expr: type=16 line=74 col=37 node=0x55d78c61b2f0
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=74 col=51 node=0x55d78c61b4e0
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=76 col=26 node=0x55d78c61b828
-debug: semantic: sem_check_expr: type=26 line=76 col=20 node=0x55d78c61b6f0
-debug: semantic: sem_check_expr: type=13 line=76 col=16 node=0x55d78c61b670
-debug: semantic: sem_check_expr: type=16 line=76 col=29 node=0x55d78c61b788
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=27 line=77 col=28 node=0x55d78c61ba50
-debug: semantic: sem_check_expr: type=13 line=77 col=24 node=0x55d78c61b8d0
-debug: semantic: sem_check_method_call: method='new_block_and_malloc', obj_base=16, obj_class='ArenaAllocator'
-debug: semantic: sem_lookup_class_call for 'ArenaAllocator', class_sym=0x55d78c653170
-debug: semantic: sem_check_expr: type=13 line=77 col=50 node=0x55d78c61b950
-debug: semantic: sem_check_expr: type=13 line=77 col=56 node=0x55d78c61b9d0
-debug: semantic: sem_check_expr: type=13 line=77 col=50 node=0x55d78c61b950
-debug: semantic: sem_check_expr: type=13 line=77 col=56 node=0x55d78c61b9d0
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=26 line=80 col=42 node=0x55d78c61bcf0
-debug: semantic: sem_check_expr: type=26 line=80 col=37 node=0x55d78c61bc58
-debug: semantic: sem_check_expr: type=13 line=80 col=33 node=0x55d78c61bbd8
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=14 line=81 col=43 node=0x55d78c61bf48
-debug: semantic: sem_check_expr: type=13 line=81 col=30 node=0x55d78c61be48
-debug: semantic: sem_check_expr: type=13 line=81 col=45 node=0x55d78c61bec8
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=82 col=26 node=0x55d78c61c1d0
-debug: semantic: sem_check_expr: type=13 line=82 col=16 node=0x55d78c61c0b0
-debug: semantic: sem_check_expr: type=16 line=82 col=29 node=0x55d78c61c130
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=14 line=83 col=45 node=0x55d78c61c520
-debug: semantic: sem_check_expr: type=13 line=83 col=32 node=0x55d78c61c2f8
-debug: semantic: sem_check_expr: type=14 line=83 col=54 node=0x55d78c61c478
-debug: semantic: sem_check_expr: type=13 line=83 col=48 node=0x55d78c61c378
-debug: semantic: sem_check_expr: type=13 line=83 col=56 node=0x55d78c61c3f8
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=14 line=86 col=43 node=0x55d78c61c7e0
-debug: semantic: sem_check_expr: type=13 line=86 col=30 node=0x55d78c61c6e0
-debug: semantic: sem_check_expr: type=13 line=86 col=45 node=0x55d78c61c760
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=89 col=41 node=0x55d78c61cdc8
-debug: semantic: sem_check_expr: type=14 line=89 col=26 node=0x55d78c61ca48
-debug: semantic: sem_check_expr: type=13 line=89 col=16 node=0x55d78c61c948
-debug: semantic: sem_check_expr: type=13 line=89 col=28 node=0x55d78c61c9c8
-debug: semantic: sem_check_expr: type=14 line=89 col=54 node=0x55d78c61cd20
-debug: semantic: sem_check_expr: type=13 line=89 col=44 node=0x55d78c61caf0
-debug: semantic: sem_check_expr: type=26 line=89 col=65 node=0x55d78c61cc88
-debug: semantic: sem_check_expr: type=26 line=89 col=60 node=0x55d78c61cbf0
-debug: semantic: sem_check_expr: type=13 line=89 col=56 node=0x55d78c61cb70
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=27 line=90 col=28 node=0x55d78c61cff0
-debug: semantic: sem_check_expr: type=13 line=90 col=24 node=0x55d78c61ce70
-debug: semantic: sem_check_method_call: method='new_block_and_malloc', obj_base=16, obj_class='ArenaAllocator'
-debug: semantic: sem_lookup_class_call for 'ArenaAllocator', class_sym=0x55d78c653170
-debug: semantic: sem_check_expr: type=13 line=90 col=50 node=0x55d78c61cef0
-debug: semantic: sem_check_expr: type=13 line=90 col=56 node=0x55d78c61cf70
-debug: semantic: sem_check_expr: type=13 line=90 col=50 node=0x55d78c61cef0
-debug: semantic: sem_check_expr: type=13 line=90 col=56 node=0x55d78c61cf70
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=31 line=93 col=41 node=0x55d78c61d328
-debug: semantic: sem_check_expr: type=26 line=93 col=35 node=0x55d78c61d290
-debug: semantic: sem_check_expr: type=26 line=93 col=30 node=0x55d78c61d1f8
-debug: semantic: sem_check_expr: type=13 line=93 col=26 node=0x55d78c61d178
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=31 line=94 col=47 node=0x55d78c61d638
-debug: semantic: sem_check_expr: type=14 line=94 col=31 node=0x55d78c61d590
-debug: semantic: sem_check_expr: type=13 line=94 col=26 node=0x55d78c61d490
-debug: semantic: sem_check_expr: type=13 line=94 col=33 node=0x55d78c61d510
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=13 line=95 col=30 node=0x55d78c61d950
-debug: semantic: sem_check_expr: type=26 line=95 col=22 node=0x55d78c61d8b8
-debug: semantic: sem_check_expr: type=26 line=95 col=17 node=0x55d78c61d820
-debug: semantic: sem_check_expr: type=13 line=95 col=13 node=0x55d78c61d7a0
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=13 line=96 col=20 node=0x55d78c61da68
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=26 line=102 col=28 node=0x55d78c61dd68
-debug: semantic: sem_check_expr: type=13 line=102 col=24 node=0x55d78c61dce8
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=103 col=29 node=0x55d78c61e0e8
-debug: semantic: sem_check_expr: type=14 line=103 col=21 node=0x55d78c61dfc0
-debug: semantic: sem_check_expr: type=13 line=103 col=16 node=0x55d78c61dec0
-debug: semantic: sem_check_expr: type=13 line=103 col=23 node=0x55d78c61df40
-debug: semantic: sem_check_expr: type=13 line=103 col=31 node=0x55d78c61e068
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=14 line=103 col=51 node=0x55d78c61e310
-debug: semantic: sem_check_expr: type=13 line=103 col=46 node=0x55d78c61e210
-debug: semantic: sem_check_expr: type=13 line=103 col=53 node=0x55d78c61e290
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=31 line=105 col=90 node=0x55d78c61e688
-debug: semantic: sem_check_expr: type=27 line=105 col=62 node=0x55d78c61e5f0
-debug: semantic: sem_check_expr: type=13 line=105 col=45 node=0x55d78c61e4d0
-debug: semantic: sem_check_method_call: method='malloc', obj_base=16, obj_class='CAllocator'
-debug: semantic: sem_lookup_class_call for 'CAllocator', class_sym=0x55d78c652360
-debug: semantic: sem_check_expr: type=38 line=105 col=70 node=0x55d78c61e550
-debug: semantic: sem_check_expr: type=38 line=105 col=70 node=0x55d78c61e550
-debug: semantic: sem_check_block: visiting node type=37
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=45
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=27 line=110 col=55 node=0x55d78c61ea98
-debug: semantic: sem_check_expr: type=13 line=110 col=38 node=0x55d78c61e998
-debug: semantic: sem_check_method_call: method='malloc', obj_base=16, obj_class='CAllocator'
-debug: semantic: sem_lookup_class_call for 'CAllocator', class_sym=0x55d78c652360
-debug: semantic: sem_check_expr: type=13 line=110 col=63 node=0x55d78c61ea18
-debug: semantic: sem_check_expr: type=13 line=110 col=63 node=0x55d78c61ea18
-debug: semantic: sem_check_block: visiting node type=37
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=112 col=34 node=0x55d78c61edc0
-debug: semantic: sem_check_expr: type=13 line=112 col=17 node=0x55d78c61ec18
-debug: semantic: sem_check_method_call: method='free', obj_base=16, obj_class='CAllocator'
-debug: semantic: sem_lookup_class_call for 'CAllocator', class_sym=0x55d78c652360
-debug: semantic: sem_check_expr: type=31 line=112 col=50 node=0x55d78c61ed18
-debug: semantic: sem_check_expr: type=13 line=112 col=40 node=0x55d78c61ec98
-debug: semantic: sem_check_expr: type=31 line=112 col=50 node=0x55d78c61ed18
-debug: semantic: sem_check_expr: type=13 line=112 col=40 node=0x55d78c61ec98
-debug: semantic: sem_check_block: visiting node type=45
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=31 line=116 col=39 node=0x55d78c61f058
-debug: semantic: sem_check_expr: type=13 line=116 col=30 node=0x55d78c61efd8
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=14 line=117 col=40 node=0x55d78c61f2c0
-debug: semantic: sem_check_expr: type=13 line=117 col=30 node=0x55d78c61f1c0
-debug: semantic: sem_check_expr: type=13 line=117 col=42 node=0x55d78c61f240
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=118 col=27 node=0x55d78c61f428
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=119 col=26 node=0x55d78c61f6a8
-debug: semantic: sem_check_expr: type=13 line=119 col=16 node=0x55d78c61f588
-debug: semantic: sem_check_expr: type=16 line=119 col=29 node=0x55d78c61f608
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=14 line=120 col=32 node=0x55d78c61f8d0
-debug: semantic: sem_check_expr: type=13 line=120 col=26 node=0x55d78c61f7d0
-debug: semantic: sem_check_expr: type=13 line=120 col=34 node=0x55d78c61f850
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=13 line=123 col=30 node=0x55d78c61fba8
-debug: semantic: sem_check_expr: type=26 line=123 col=22 node=0x55d78c61fb10
-debug: semantic: sem_check_expr: type=13 line=123 col=13 node=0x55d78c61fa90
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=13 line=124 col=34 node=0x55d78c61fdd8
-debug: semantic: sem_check_expr: type=26 line=124 col=22 node=0x55d78c61fd40
-debug: semantic: sem_check_expr: type=13 line=124 col=13 node=0x55d78c61fcc0
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=14 line=125 col=37 node=0x55d78c620108
-debug: semantic: sem_check_expr: type=13 line=125 col=30 node=0x55d78c620008
-debug: semantic: sem_check_expr: type=13 line=125 col=39 node=0x55d78c620088
-debug: semantic: sem_check_expr: type=26 line=125 col=22 node=0x55d78c61ff70
-debug: semantic: sem_check_expr: type=13 line=125 col=13 node=0x55d78c61fef0
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=26 line=126 col=34 node=0x55d78c6203e0
-debug: semantic: sem_check_expr: type=13 line=126 col=30 node=0x55d78c620360
-debug: semantic: sem_check_expr: type=26 line=126 col=22 node=0x55d78c6202c8
-debug: semantic: sem_check_expr: type=13 line=126 col=13 node=0x55d78c620248
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=13 line=127 col=25 node=0x55d78c620628
-debug: semantic: sem_check_expr: type=26 line=127 col=17 node=0x55d78c620590
-debug: semantic: sem_check_expr: type=13 line=127 col=13 node=0x55d78c620510
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=31 line=129 col=35 node=0x55d78c6207c0
-debug: semantic: sem_check_expr: type=13 line=129 col=26 node=0x55d78c620740
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=31 line=130 col=36 node=0x55d78c620ad0
-debug: semantic: sem_check_expr: type=14 line=130 col=26 node=0x55d78c620a28
-debug: semantic: sem_check_expr: type=13 line=130 col=21 node=0x55d78c620928
-debug: semantic: sem_check_expr: type=13 line=130 col=28 node=0x55d78c6209a8
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=26 line=142 col=36 node=0x55d78c621500
-debug: semantic: sem_check_expr: type=13 line=142 col=32 node=0x55d78c621480
-debug: semantic: sem_check_block: visiting node type=7
-debug: semantic: sem_check_expr: type=14 line=143 col=24 node=0x55d78c621778
-debug: semantic: sem_check_expr: type=13 line=143 col=19 node=0x55d78c621658
-debug: semantic: sem_check_expr: type=16 line=143 col=27 node=0x55d78c6216d8
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=26 line=144 col=40 node=0x55d78c6218a0
-debug: semantic: sem_check_expr: type=13 line=144 col=36 node=0x55d78c621820
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=145 col=34 node=0x55d78c621b90
-debug: semantic: sem_check_expr: type=13 line=145 col=17 node=0x55d78c6219f8
-debug: semantic: sem_check_method_call: method='free', obj_base=16, obj_class='CAllocator'
-debug: semantic: sem_lookup_class_call for 'CAllocator', class_sym=0x55d78c652360
-debug: semantic: sem_check_expr: type=26 line=145 col=44 node=0x55d78c621af8
-debug: semantic: sem_check_expr: type=13 line=145 col=40 node=0x55d78c621a78
-debug: semantic: sem_check_expr: type=26 line=145 col=44 node=0x55d78c621af8
-debug: semantic: sem_check_expr: type=13 line=145 col=40 node=0x55d78c621a78
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=146 col=34 node=0x55d78c621dd0
-debug: semantic: sem_check_expr: type=13 line=146 col=17 node=0x55d78c621c28
-debug: semantic: sem_check_method_call: method='free', obj_base=16, obj_class='CAllocator'
-debug: semantic: sem_lookup_class_call for 'CAllocator', class_sym=0x55d78c652360
-debug: semantic: sem_check_expr: type=31 line=146 col=45 node=0x55d78c621d28
-debug: semantic: sem_check_expr: type=13 line=146 col=40 node=0x55d78c621ca8
-debug: semantic: sem_check_expr: type=31 line=146 col=45 node=0x55d78c621d28
-debug: semantic: sem_check_expr: type=13 line=146 col=40 node=0x55d78c621ca8
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=13 line=147 col=24 node=0x55d78c621ee8
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=149 col=25 node=0x55d78c622198
-debug: semantic: sem_check_expr: type=26 line=149 col=17 node=0x55d78c622100
-debug: semantic: sem_check_expr: type=13 line=149 col=13 node=0x55d78c622080
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=26 line=155 col=36 node=0x55d78c622440
-debug: semantic: sem_check_expr: type=13 line=155 col=32 node=0x55d78c6223c0
-debug: semantic: sem_check_block: visiting node type=7
-debug: semantic: sem_check_expr: type=14 line=156 col=24 node=0x55d78c6226b8
-debug: semantic: sem_check_expr: type=13 line=156 col=19 node=0x55d78c622598
-debug: semantic: sem_check_expr: type=16 line=156 col=27 node=0x55d78c622618
-debug: semantic: sem_check_block: ns='heap'
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=157 col=29 node=0x55d78c622878
-debug: semantic: sem_check_expr: type=26 line=157 col=21 node=0x55d78c6227e0
-debug: semantic: sem_check_expr: type=13 line=157 col=17 node=0x55d78c622760
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=26 line=158 col=28 node=0x55d78c622ab0
-debug: semantic: sem_check_expr: type=13 line=158 col=24 node=0x55d78c622a30
-debug: semantic: sem_check_block: ns='__c_lib'
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='__c_lib'
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='__c_lib'
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='__c_lib'
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55d78c638978
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55d78c638858
-debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x55d78c6388d8
-debug: semantic: sem_check_expr: type=16 line=16 col=13 node=0x55d78c6388d8
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=17 col=23 node=0x55d78c638a10
-debug: semantic: sem_check_block: visiting node type=7
-debug: semantic: sem_check_expr: type=14 line=18 col=14 node=0x55d78c638c70
-debug: semantic: sem_check_expr: type=13 line=18 col=12 node=0x55d78c638b70
-debug: semantic: sem_check_expr: type=13 line=18 col=16 node=0x55d78c638bf0
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c6394a0
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c639208
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=19 col=26 node=0x55d78c639288
-debug: semantic: sem_check_expr: type=18 line=19 col=35 node=0x55d78c639428
-debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=19 col=32 node=0x55d78c639328
-debug: semantic: sem_check_expr: type=13 line=19 col=36 node=0x55d78c6393a8
-debug: semantic: sem_check_expr: type=16 line=19 col=26 node=0x55d78c639288
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=20 col=15 node=0x55d78c639780
-debug: semantic: sem_check_expr: type=13 line=20 col=13 node=0x55d78c639538
-debug: semantic: sem_check_expr: type=14 line=20 col=22 node=0x55d78c6396d8
-debug: semantic: sem_check_expr: type=13 line=20 col=17 node=0x55d78c6395b8
-debug: semantic: sem_check_expr: type=16 line=20 col=24 node=0x55d78c639638
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c639ed8
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c639d18
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=20 col=46 node=0x55d78c639d98
-debug: semantic: sem_check_expr: type=16 line=20 col=52 node=0x55d78c639e38
-debug: semantic: sem_check_expr: type=16 line=20 col=46 node=0x55d78c639d98
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=21 col=14 node=0x55d78c63a070
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55d78c63a838
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55d78c63a718
-debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=23 col=13 node=0x55d78c63a798
-debug: semantic: sem_check_expr: type=16 line=23 col=13 node=0x55d78c63a798
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55d78c63b070
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55d78c63af50
-debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=27 col=13 node=0x55d78c63afd0
-debug: semantic: sem_check_expr: type=16 line=27 col=13 node=0x55d78c63afd0
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=28 col=23 node=0x55d78c63b108
-debug: semantic: sem_check_block: visiting node type=7
-debug: semantic: sem_check_expr: type=14 line=29 col=14 node=0x55d78c63b368
-debug: semantic: sem_check_expr: type=13 line=29 col=12 node=0x55d78c63b268
-debug: semantic: sem_check_expr: type=13 line=29 col=16 node=0x55d78c63b2e8
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c63bb98
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c63b900
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=30 col=26 node=0x55d78c63b980
-debug: semantic: sem_check_expr: type=18 line=30 col=35 node=0x55d78c63bb20
-debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=30 col=32 node=0x55d78c63ba20
-debug: semantic: sem_check_expr: type=13 line=30 col=36 node=0x55d78c63baa0
-debug: semantic: sem_check_expr: type=16 line=30 col=26 node=0x55d78c63b980
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=31 col=15 node=0x55d78c63be78
-debug: semantic: sem_check_expr: type=13 line=31 col=13 node=0x55d78c63bc30
-debug: semantic: sem_check_expr: type=14 line=31 col=22 node=0x55d78c63bdd0
-debug: semantic: sem_check_expr: type=13 line=31 col=17 node=0x55d78c63bcb0
-debug: semantic: sem_check_expr: type=16 line=31 col=24 node=0x55d78c63bd30
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c63c5d0
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c63c410
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=31 col=46 node=0x55d78c63c490
-debug: semantic: sem_check_expr: type=16 line=31 col=52 node=0x55d78c63c530
-debug: semantic: sem_check_expr: type=16 line=31 col=46 node=0x55d78c63c490
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=32 col=14 node=0x55d78c63c768
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55d78c63cf30
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55d78c63ce10
-debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=34 col=13 node=0x55d78c63ce90
-debug: semantic: sem_check_expr: type=16 line=34 col=13 node=0x55d78c63ce90
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55d78c63d768
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55d78c63d648
-debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=38 col=13 node=0x55d78c63d6c8
-debug: semantic: sem_check_expr: type=16 line=38 col=13 node=0x55d78c63d6c8
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=39 col=23 node=0x55d78c63d800
-debug: semantic: sem_check_block: visiting node type=7
-debug: semantic: sem_check_expr: type=14 line=40 col=14 node=0x55d78c63da60
-debug: semantic: sem_check_expr: type=13 line=40 col=12 node=0x55d78c63d960
-debug: semantic: sem_check_expr: type=13 line=40 col=16 node=0x55d78c63d9e0
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c63e338
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c63dff8
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=41 col=26 node=0x55d78c63e078
-debug: semantic: sem_check_expr: type=18 line=41 col=47 node=0x55d78c63e2c0
-debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=31 line=41 col=38 node=0x55d78c63e198
-debug: semantic: sem_check_expr: type=13 line=41 col=34 node=0x55d78c63e118
-debug: semantic: sem_check_expr: type=13 line=41 col=48 node=0x55d78c63e240
-debug: semantic: sem_check_expr: type=16 line=41 col=26 node=0x55d78c63e078
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=42 col=15 node=0x55d78c63e618
-debug: semantic: sem_check_expr: type=13 line=42 col=13 node=0x55d78c63e3d0
-debug: semantic: sem_check_expr: type=14 line=42 col=22 node=0x55d78c63e570
-debug: semantic: sem_check_expr: type=13 line=42 col=17 node=0x55d78c63e450
-debug: semantic: sem_check_expr: type=16 line=42 col=24 node=0x55d78c63e4d0
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c63ed70
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c63ebb0
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=42 col=46 node=0x55d78c63ec30
-debug: semantic: sem_check_expr: type=16 line=42 col=52 node=0x55d78c63ecd0
-debug: semantic: sem_check_expr: type=16 line=42 col=46 node=0x55d78c63ec30
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=43 col=14 node=0x55d78c63ef08
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55d78c63f6d0
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55d78c63f5b0
-debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=45 col=13 node=0x55d78c63f630
-debug: semantic: sem_check_expr: type=16 line=45 col=13 node=0x55d78c63f630
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55d78c63ff08
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55d78c63fde8
-debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=49 col=13 node=0x55d78c63fe68
-debug: semantic: sem_check_expr: type=16 line=49 col=13 node=0x55d78c63fe68
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=50 col=23 node=0x55d78c63ffa0
-debug: semantic: sem_check_block: visiting node type=7
-debug: semantic: sem_check_expr: type=14 line=51 col=14 node=0x55d78c640200
-debug: semantic: sem_check_expr: type=13 line=51 col=12 node=0x55d78c640100
-debug: semantic: sem_check_expr: type=13 line=51 col=16 node=0x55d78c640180
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c640ad8
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c640798
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=52 col=26 node=0x55d78c640818
-debug: semantic: sem_check_expr: type=18 line=52 col=56 node=0x55d78c640a60
-debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=31 line=52 col=38 node=0x55d78c640938
-debug: semantic: sem_check_expr: type=13 line=52 col=34 node=0x55d78c6408b8
-debug: semantic: sem_check_expr: type=13 line=52 col=57 node=0x55d78c6409e0
-debug: semantic: sem_check_expr: type=16 line=52 col=26 node=0x55d78c640818
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=53 col=15 node=0x55d78c640db8
-debug: semantic: sem_check_expr: type=13 line=53 col=13 node=0x55d78c640b70
-debug: semantic: sem_check_expr: type=14 line=53 col=22 node=0x55d78c640d10
-debug: semantic: sem_check_expr: type=13 line=53 col=17 node=0x55d78c640bf0
-debug: semantic: sem_check_expr: type=16 line=53 col=24 node=0x55d78c640c70
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c641510
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c641350
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=53 col=46 node=0x55d78c6413d0
-debug: semantic: sem_check_expr: type=16 line=53 col=52 node=0x55d78c641470
-debug: semantic: sem_check_expr: type=16 line=53 col=46 node=0x55d78c6413d0
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=54 col=14 node=0x55d78c6416a8
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55d78c641e70
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55d78c641d50
-debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=56 col=13 node=0x55d78c641dd0
-debug: semantic: sem_check_expr: type=16 line=56 col=13 node=0x55d78c641dd0
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55d78c6426a8
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55d78c642588
-debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=60 col=13 node=0x55d78c642608
-debug: semantic: sem_check_expr: type=16 line=60 col=13 node=0x55d78c642608
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=61 col=23 node=0x55d78c642740
-debug: semantic: sem_check_block: visiting node type=7
-debug: semantic: sem_check_expr: type=14 line=62 col=14 node=0x55d78c6429a0
-debug: semantic: sem_check_expr: type=13 line=62 col=12 node=0x55d78c6428a0
-debug: semantic: sem_check_expr: type=13 line=62 col=16 node=0x55d78c642920
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c643278
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c642f38
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=63 col=26 node=0x55d78c642fb8
-debug: semantic: sem_check_expr: type=18 line=63 col=48 node=0x55d78c643200
-debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=31 line=63 col=37 node=0x55d78c6430d8
-debug: semantic: sem_check_expr: type=13 line=63 col=33 node=0x55d78c643058
-debug: semantic: sem_check_expr: type=13 line=63 col=49 node=0x55d78c643180
-debug: semantic: sem_check_expr: type=16 line=63 col=26 node=0x55d78c642fb8
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=64 col=15 node=0x55d78c643558
-debug: semantic: sem_check_expr: type=13 line=64 col=13 node=0x55d78c643310
-debug: semantic: sem_check_expr: type=14 line=64 col=22 node=0x55d78c6434b0
-debug: semantic: sem_check_expr: type=13 line=64 col=17 node=0x55d78c643390
-debug: semantic: sem_check_expr: type=16 line=64 col=24 node=0x55d78c643410
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c643cb0
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c643af0
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=64 col=46 node=0x55d78c643b70
-debug: semantic: sem_check_expr: type=16 line=64 col=52 node=0x55d78c643c10
-debug: semantic: sem_check_expr: type=16 line=64 col=46 node=0x55d78c643b70
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=65 col=14 node=0x55d78c643e48
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55d78c644610
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55d78c6444f0
-debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=67 col=13 node=0x55d78c644570
-debug: semantic: sem_check_expr: type=16 line=67 col=13 node=0x55d78c644570
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55d78c644e48
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55d78c644d28
-debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=71 col=13 node=0x55d78c644da8
-debug: semantic: sem_check_expr: type=16 line=71 col=13 node=0x55d78c644da8
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=72 col=23 node=0x55d78c644ee0
-debug: semantic: sem_check_block: visiting node type=7
-debug: semantic: sem_check_expr: type=14 line=73 col=14 node=0x55d78c645140
-debug: semantic: sem_check_expr: type=13 line=73 col=12 node=0x55d78c645040
-debug: semantic: sem_check_expr: type=13 line=73 col=16 node=0x55d78c6450c0
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c645a18
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c6456d8
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=74 col=26 node=0x55d78c645758
-debug: semantic: sem_check_expr: type=18 line=74 col=49 node=0x55d78c6459a0
-debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=31 line=74 col=38 node=0x55d78c645878
-debug: semantic: sem_check_expr: type=13 line=74 col=34 node=0x55d78c6457f8
-debug: semantic: sem_check_expr: type=13 line=74 col=50 node=0x55d78c645920
-debug: semantic: sem_check_expr: type=16 line=74 col=26 node=0x55d78c645758
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=75 col=15 node=0x55d78c645cf8
-debug: semantic: sem_check_expr: type=13 line=75 col=13 node=0x55d78c645ab0
-debug: semantic: sem_check_expr: type=14 line=75 col=22 node=0x55d78c645c50
-debug: semantic: sem_check_expr: type=13 line=75 col=17 node=0x55d78c645b30
-debug: semantic: sem_check_expr: type=16 line=75 col=24 node=0x55d78c645bb0
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c646450
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c646290
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=75 col=46 node=0x55d78c646310
-debug: semantic: sem_check_expr: type=16 line=75 col=52 node=0x55d78c6463b0
-debug: semantic: sem_check_expr: type=16 line=75 col=46 node=0x55d78c646310
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=76 col=14 node=0x55d78c6465e8
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=11 col=26 node=0x55d78c646db0
-debug: semantic: sem_check_expr: type=13 line=11 col=19 node=0x55d78c646c90
-debug: semantic: sem_check_method_call: method='putchar', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=78 col=13 node=0x55d78c646d10
-debug: semantic: sem_check_expr: type=16 line=78 col=13 node=0x55d78c646d10
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: visiting node type=1
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=5 col=57 node=0x55d78c606c50
-debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=5 col=52 node=0x55d78c606a88
-debug: semantic: sem_check_expr: type=26 line=5 col=28 node=0x55d78c606658
-debug: semantic: sem_check_expr: type=13 line=5 col=24 node=0x55d78c6065d8
 at namespace main:
 in .../code/examples/test_alloc.kyl:
 5:24: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |     tainted int* arr = heap.default_allocator.alloc[int](10 as long);
   |                        ^
 hint: consider writing heap.CAllocator
-debug: semantic: &ctx->ast_tail=0x7ffe86f80e50, ctx->ast_tail=0x55d78c6084b8, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=31 line=31 col=51 node=0x55d78c6649a0
-debug: semantic: sem_check_expr: type=27 line=31 col=24 node=0x55d78c664a48
-debug: semantic: sem_check_expr: type=13 line=31 col=20 node=0x55d78c664ae0
-debug: semantic: sem_check_method_call: method='malloc', obj_base=16, obj_class='CAllocator'
-debug: semantic: sem_lookup_class_call for 'CAllocator', class_sym=0x55d78c652360
-debug: semantic: sem_check_expr: type=14 line=31 col=38 node=0x55d78c664b60
-debug: semantic: sem_check_expr: type=13 line=31 col=32 node=0x55d78c664c08
-debug: semantic: sem_check_expr: type=38 line=31 col=40 node=0x55d78c664c88
-debug: semantic: sem_check_expr: type=14 line=31 col=38 node=0x55d78c664b60
-debug: semantic: sem_check_expr: type=13 line=31 col=32 node=0x55d78c664c08
-debug: semantic: sem_check_expr: type=31 line=31 col=40 node=0x55d78c665278
-debug: semantic: sem_check_expr: type=38 line=31 col=40 node=0x55d78c664c88
-debug: semantic: sem_check_expr: type=26 line=5 col=28 node=0x55d78c606658
-debug: semantic: sem_check_expr: type=13 line=5 col=24 node=0x55d78c6065d8
-debug: semantic: sem_check_method_call: method='alloc_int', obj_base=16, obj_class='CAllocator'
 5:24: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |     tainted int* arr = heap.default_allocator.alloc[int](10 as long);
   |                        ^
 hint: consider writing heap.CAllocator
-debug: semantic: sem_lookup_class_call for 'CAllocator', class_sym=0x55d78c652360
-debug: semantic: sem_check_expr: type=31 line=5 col=61 node=0x55d78c606ba8
-debug: semantic: sem_check_expr: type=16 line=5 col=58 node=0x55d78c606b08
-debug: semantic: sem_check_expr: type=31 line=5 col=61 node=0x55d78c606ba8
-debug: semantic: sem_check_expr: type=16 line=5 col=58 node=0x55d78c606b08
-debug: semantic: sem_check_block: visiting node type=37
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=13 col=12 node=0x55d78c606ef0
-debug: semantic: sem_check_expr: type=13 line=13 col=9 node=0x55d78c606dd0
-debug: semantic: sem_check_method_call: method='print', obj_base=18, obj_class='std'
-debug: semantic: sem_check_call: name='std.print', ns='main'
-debug: semantic: sem_check_expr: type=13 line=13 col=12 node=0x55d78c665940
-debug: semantic: sem_check_expr: type=16 line=13 col=19 node=0x55d78c606e50
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=14 col=16 node=0x55d78c606f88
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=17 col=14 node=0x55d78c6072b8
-debug: semantic: sem_check_expr: type=18 line=17 col=8 node=0x55d78c607240
-debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=17 col=5 node=0x55d78c607120
-debug: semantic: sem_check_expr: type=16 line=17 col=9 node=0x55d78c6071a0
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=18 col=14 node=0x55d78c607588
-debug: semantic: sem_check_expr: type=18 line=18 col=8 node=0x55d78c607510
-debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=18 col=5 node=0x55d78c6073f0
-debug: semantic: sem_check_expr: type=16 line=18 col=9 node=0x55d78c607470
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=18 line=20 col=16 node=0x55d78c6077e0
-debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=20 col=13 node=0x55d78c6076c0
-debug: semantic: sem_check_expr: type=16 line=20 col=17 node=0x55d78c607740
-debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=18 line=21 col=16 node=0x55d78c607a38
-debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=21 col=13 node=0x55d78c607918
-debug: semantic: sem_check_expr: type=16 line=21 col=17 node=0x55d78c607998
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=22 col=8 node=0x55d78c608110
-debug: semantic: sem_check_expr: type=13 line=22 col=5 node=0x55d78c607b70
-debug: semantic: sem_check_method_call: method='print', obj_base=18, obj_class='std'
-debug: semantic: sem_check_call: name='std.print', ns='main'
-debug: semantic: sem_check_expr: type=13 line=22 col=8 node=0x55d78c666140
-debug: semantic: sem_check_expr: type=14 line=22 col=18 node=0x55d78c607d10
-debug: semantic: sem_check_expr: type=13 line=22 col=16 node=0x55d78c607bf0
-debug: semantic: sem_check_expr: type=16 line=22 col=20 node=0x55d78c607c70
-debug: semantic: sem_check_expr: type=16 line=22 col=23 node=0x55d78c607de0
-debug: semantic: sem_check_expr: type=14 line=22 col=30 node=0x55d78c607fa0
-debug: semantic: sem_check_expr: type=13 line=22 col=28 node=0x55d78c607e80
-debug: semantic: sem_check_expr: type=16 line=22 col=32 node=0x55d78c607f00
-debug: semantic: sem_check_expr: type=16 line=22 col=35 node=0x55d78c608070
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=23 col=22 node=0x55d78c608308
-debug: semantic: sem_check_expr: type=13 line=23 col=5 node=0x55d78c6081a8
-debug: semantic: table.c lookup: name='default_allocator', found_ns='heap', current_ns='main'
 23:5: warning: Implicitly resolved 'default_allocator' to 'heap.default_allocator'
   |     default_allocator.free(arr);
   |     ^
 hint: consider writing heap.default_allocator
-debug: semantic: sem_check_method_call: method='free', obj_base=16, obj_class='CAllocator'
 23:5: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |     default_allocator.free(arr);
   |     ^
 hint: consider writing heap.CAllocator
-debug: semantic: sem_lookup_class_call for 'CAllocator', class_sym=0x55d78c652360
-debug: semantic: sem_check_expr: type=13 line=23 col=28 node=0x55d78c608228
-debug: semantic: sem_check_expr: type=13 line=23 col=28 node=0x55d78c608228
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=24 col=12 node=0x55d78c6083a0
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=31 line=31 col=51 node=0x55d78c6649a0
-debug: semantic: sem_check_expr: type=27 line=31 col=24 node=0x55d78c664a48
-debug: semantic: sem_check_expr: type=13 line=31 col=20 node=0x55d78c664ae0
-debug: semantic: sem_check_method_call: method='malloc', obj_base=16, obj_class='CAllocator'
 in std/heap:
 31:20: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                    ^
 hint: consider writing heap.CAllocator
-debug: semantic: sem_lookup_class_call for 'CAllocator', class_sym=0x55d78c652360
-debug: semantic: sem_check_expr: type=14 line=31 col=38 node=0x55d78c664b60
-debug: semantic: sem_check_expr: type=13 line=31 col=32 node=0x55d78c664c08
-debug: semantic: sem_check_expr: type=31 line=31 col=40 node=0x55d78c665278
-debug: semantic: sem_check_expr: type=38 line=31 col=40 node=0x55d78c664c88
-debug: semantic: sem_check_expr: type=14 line=31 col=38 node=0x55d78c664b60
-debug: semantic: sem_check_expr: type=13 line=31 col=32 node=0x55d78c664c08
-debug: semantic: sem_check_expr: type=31 line=31 col=40 node=0x55d78c665278
-debug: semantic: sem_check_expr: type=38 line=31 col=40 node=0x55d78c664c88
-step: Finished Semantic Analysis. Start macro-linking.
-step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
-debug: alir: Visiting class Allocator
-debug: alir: DEBUG_REGISTER: st=0x55d78c66a180 name=heap.Allocator next=(nil)
-debug: alir: REGISTER_STRUCT heap.Allocator fields 0
-debug: alir: Visiting class CAllocator
-debug: alir: DEBUG_REGISTER: st=0x55d78c66a1a0 name=heap.CAllocator next=0x55d78c66a180
-debug: alir: REGISTER_STRUCT heap.CAllocator fields 0
-debug: alir: Visiting class ArenaBlock
-debug: alir: DEBUG_REGISTER: st=0x55d78c66a1c0 name=heap.ArenaBlock next=0x55d78c66a1a0
-debug: alir: REGISTER_STRUCT heap.ArenaBlock fields 0
-debug: alir: Visiting class ArenaAllocator
-debug: alir: DEBUG_REGISTER: st=0x55d78c66a1e0 name=heap.ArenaAllocator next=0x55d78c66a1c0
-debug: alir: REGISTER_STRUCT heap.ArenaAllocator fields 0
-debug: alir: POPULATING heap.Allocator has_body=1
-debug: alir: BUILT Allocator with 0 fields (was -1)
-debug: alir: POPULATING heap.CAllocator has_body=1
-debug: alir: BUILT CAllocator with 0 fields (was -1)
-debug: alir: POPULATING heap.ArenaBlock has_body=1
-debug: alir: BUILT ArenaBlock with 4 fields (was -1)
-debug: alir: POPULATING heap.ArenaAllocator has_body=1
-debug: alir: BUILT ArenaAllocator with 2 fields (was -1)
-debug: alir: DEBUG_PASS1_END: struct list:
  - heap.ArenaAllocator fields: 2
  - heap.ArenaBlock fields: 4
  - heap.CAllocator fields: 0
  - heap.Allocator fields: 0
-debug: alir: Found namespace my
-debug: alir: Found func_def malloc
-debug: alir: alir_gen_function_def fn->name=malloc class_name=NULL fn->mangled_name=malloc -> func_name=malloc
-debug: alir: alir_add_function: malloc
-debug: alir: Found func_def free
-debug: alir: alir_gen_function_def fn->name=free class_name=NULL fn->mangled_name=free -> func_name=free
-debug: alir: alir_add_function: free
-debug: alir: Found namespace heap
-debug: alir: alir_gen_function_def fn->name=malloc class_name=heap.Allocator fn->mangled_name=heap_Allocator_malloc_i64 -> func_name=heap_Allocator_malloc_i64
-debug: alir: alir_add_function: heap_Allocator_malloc_i64
-debug: alir: alir_gen_function_def fn->name=free class_name=heap.Allocator fn->mangled_name=heap_Allocator_free_void_p -> func_name=heap_Allocator_free_void_p
-debug: alir: alir_add_function: heap_Allocator_free_void_p
-debug: alir: alir_add_function: heap.Allocator
-debug: alir: alir_gen_function_def fn->name=CAllocator class_name=heap.CAllocator fn->mangled_name=heap_CAllocator_CAllocator -> func_name=heap_CAllocator_CAllocator
-debug: alir: alir_add_function: heap_CAllocator_CAllocator
-debug: alir: alir_gen_function_def fn->name=malloc class_name=heap.CAllocator fn->mangled_name=heap_CAllocator_malloc_i64 -> func_name=heap_CAllocator_malloc_i64
-debug: alir: alir_add_function: heap_CAllocator_malloc_i64
-debug: alir: alir_gen_function_def fn->name=free class_name=heap.CAllocator fn->mangled_name=heap_CAllocator_free_void_p -> func_name=heap_CAllocator_free_void_p
-debug: alir: alir_add_function: heap_CAllocator_free_void_p
-debug: alir: Found top-level VAR_DECL default_allocator
-debug: alir: Found func_def malloc
-debug: alir: alir_gen_function_def fn->name=malloc class_name=NULL fn->mangled_name=heap_malloc_i64 -> func_name=heap_malloc_i64
-debug: alir: alir_add_function: heap_malloc_i64
-debug: semantic: table.c lookup: name='default_allocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'default_allocator' to 'heap.default_allocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.default_allocator
-debug: alir: GLOBAL VAR ADDR: default_allocator
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: semantic: table.c lookup: name='CAllocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: alir: Found func_def free
-debug: alir: alir_gen_function_def fn->name=free class_name=NULL fn->mangled_name=heap_free_void_p -> func_name=heap_free_void_p
-debug: alir: alir_add_function: heap_free_void_p
-debug: semantic: table.c lookup: name='default_allocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'default_allocator' to 'heap.default_allocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.default_allocator
-debug: alir: GLOBAL VAR ADDR: default_allocator
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: semantic: table.c lookup: name='CAllocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: alir: alir_add_function: heap.ArenaBlock
-debug: alir: alir_gen_function_def fn->name=malloc class_name=heap.ArenaAllocator fn->mangled_name=heap_ArenaAllocator_malloc_i64 -> func_name=heap_ArenaAllocator_malloc_i64
-debug: alir: alir_add_function: heap_ArenaAllocator_malloc_i64
 31:40: warning: Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.ArenaAllocator
-debug: semantic: table.c lookup: name='ArenaAllocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.ArenaAllocator
-debug: alir: alir_gen_function_def fn->name=malloc_aligned class_name=heap.ArenaAllocator fn->mangled_name=heap_ArenaAllocator_malloc_aligned_i64_i64 -> func_name=heap_ArenaAllocator_malloc_aligned_i64_i64
-debug: alir: alir_add_function: heap_ArenaAllocator_malloc_aligned_i64_i64
-debug: alir: HINT_CLASS heap.ArenaAllocator
 31:40: warning: Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.ArenaAllocator
-debug: semantic: table.c lookup: name='ArenaAllocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.ArenaAllocator
-debug: alir: HINT_CLASS heap.ArenaAllocator
-debug: alir: HINT_CLASS ArenaBlock
-debug: alir: HINT_CLASS heap.ArenaAllocator
-debug: alir: HINT_CLASS ArenaBlock
 31:40: warning: Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.ArenaAllocator
-debug: semantic: table.c lookup: name='ArenaAllocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.ArenaAllocator
-debug: alir: HINT_CLASS heap.ArenaAllocator
-debug: alir: HINT_CLASS ArenaBlock
-debug: alir: HINT_CLASS heap.ArenaAllocator
-debug: alir: HINT_CLASS ArenaBlock
-debug: alir: alir_gen_function_def fn->name=new_block_and_malloc class_name=heap.ArenaAllocator fn->mangled_name=heap_ArenaAllocator_new_block_and_malloc_i64_i64 -> func_name=heap_ArenaAllocator_new_block_and_malloc_i64_i64
-debug: alir: alir_add_function: heap_ArenaAllocator_new_block_and_malloc_i64_i64
-debug: alir: HINT_CLASS heap.ArenaAllocator
-debug: semantic: table.c lookup: name='default_allocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'default_allocator' to 'heap.default_allocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.default_allocator
-debug: alir: GLOBAL VAR ADDR: default_allocator
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: semantic: table.c lookup: name='CAllocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: semantic: table.c lookup: name='default_allocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'default_allocator' to 'heap.default_allocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.default_allocator
-debug: alir: GLOBAL VAR ADDR: default_allocator
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: semantic: table.c lookup: name='CAllocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: alir: HINT_CLASS ArenaBlock
-debug: alir: HINT_CLASS ArenaBlock
-debug: alir: HINT_CLASS ArenaBlock
-debug: alir: HINT_CLASS heap.ArenaAllocator
-debug: alir: HINT_CLASS ArenaBlock
-debug: alir: HINT_CLASS heap.ArenaAllocator
-debug: alir: alir_gen_function_def fn->name=free class_name=heap.ArenaAllocator fn->mangled_name=heap_ArenaAllocator_free -> func_name=heap_ArenaAllocator_free
-debug: alir: alir_add_function: heap_ArenaAllocator_free
-debug: alir: HINT_CLASS heap.ArenaAllocator
-debug: alir: HINT_CLASS ArenaBlock
-debug: semantic: table.c lookup: name='default_allocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'default_allocator' to 'heap.default_allocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.default_allocator
-debug: alir: GLOBAL VAR ADDR: default_allocator
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: alir: HINT_CLASS ArenaBlock
-debug: semantic: table.c lookup: name='CAllocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: semantic: table.c lookup: name='default_allocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'default_allocator' to 'heap.default_allocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.default_allocator
-debug: alir: GLOBAL VAR ADDR: default_allocator
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: semantic: table.c lookup: name='CAllocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: alir: HINT_CLASS heap.ArenaAllocator
-debug: alir: alir_gen_function_def fn->name=reset class_name=heap.ArenaAllocator fn->mangled_name=heap_ArenaAllocator_reset -> func_name=heap_ArenaAllocator_reset
-debug: alir: alir_add_function: heap_ArenaAllocator_reset
-debug: alir: HINT_CLASS heap.ArenaAllocator
-debug: alir: HINT_CLASS ArenaBlock
-debug: alir: HINT_CLASS ArenaBlock
-debug: alir: alir_add_function: heap.ArenaAllocator
-debug: alir: Found namespace __c_lib
-debug: alir: Found func_def printf
-debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
-debug: alir: alir_add_function: printf
-debug: alir: printf adding param '(null)' type.base=8
-debug: alir: Found func_def putchar
-debug: alir: alir_gen_function_def fn->name=putchar class_name=NULL fn->mangled_name=putchar -> func_name=putchar
-debug: alir: alir_add_function: putchar
-debug: alir: Found func_def puts
-debug: alir: alir_gen_function_def fn->name=puts class_name=NULL fn->mangled_name=puts -> func_name=puts
-debug: alir: alir_add_function: puts
-debug: alir: Found namespace std
-debug: alir: Found func_def print_int_array
-debug: alir: alir_gen_function_def fn->name=print_int_array class_name=NULL fn->mangled_name=std_print_int_array_i32_p_i64 -> func_name=std_print_int_array_i32_p_i64
-debug: alir: alir_add_function: std_print_int_array_i32_p_i64
-debug: alir: Found func_def print_uint_array
-debug: alir: alir_gen_function_def fn->name=print_uint_array class_name=NULL fn->mangled_name=std_print_uint_array_i32_p_i64 -> func_name=std_print_uint_array_i32_p_i64
-debug: alir: alir_add_function: std_print_uint_array_i32_p_i64
-debug: alir: Found func_def print_long_array
-debug: alir: alir_gen_function_def fn->name=print_long_array class_name=NULL fn->mangled_name=std_print_long_array_void_p_i64 -> func_name=std_print_long_array_void_p_i64
-debug: alir: alir_add_function: std_print_long_array_void_p_i64
-debug: alir: Found func_def print_ulong_array
-debug: alir: alir_gen_function_def fn->name=print_ulong_array class_name=NULL fn->mangled_name=std_print_ulong_array_void_p_i64 -> func_name=std_print_ulong_array_void_p_i64
-debug: alir: alir_add_function: std_print_ulong_array_void_p_i64
-debug: alir: Found func_def print_single_array
-debug: alir: alir_gen_function_def fn->name=print_single_array class_name=NULL fn->mangled_name=std_print_single_array_void_p_i64 -> func_name=std_print_single_array_void_p_i64
-debug: alir: alir_add_function: std_print_single_array_void_p_i64
-debug: alir: Found func_def print_double_array
-debug: alir: alir_gen_function_def fn->name=print_double_array class_name=NULL fn->mangled_name=std_print_double_array_void_p_i64 -> func_name=std_print_double_array_void_p_i64
-debug: alir: alir_add_function: std_print_double_array_void_p_i64
-debug: alir: Found func_def print
-debug: alir: Found func_def printf
-debug: alir: Found func_def main
-debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
-debug: alir: alir_add_function: main
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: HINT_CLASS heap
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=15 op1_kind=5 op1_type_base=18
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: semantic: table.c lookup: name='CAllocator', found_ns='heap', current_ns='main'
 31:40: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             return this.malloc(count * sizeof(T)) as T*;
   |                                        ^
 hint: consider writing heap.CAllocator
-debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=27 dest_kind=5 dest_type_base=10 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=30 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=10
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
-debug: alir: GEN_CALL: name=std.print mangled=std.print
-debug: alir: Looking up 'std.print'
-debug: alir: Found symbol print, kind=1, is_macro=1, node_ptr=0x55d78c64f518
-debug: alir: macro: mangled='std.print', old_ns='main'
-debug: alir: macro: setting ns to 'std'
-debug: alir: macro: before sem_check_block, ns='std'
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=87 col=25 node=0x55d78c695378
-debug: semantic: sem_check_expr: type=28 line=87 col=13 node=0x55d78c695420
-debug: semantic: sem_check_expr: type=28 line=87 col=28 node=0x55d78c695540
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c6955e0
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c695678
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=88 col=30 node=0x55d78c6956f8
-debug: semantic: sem_check_expr: type=16 line=88 col=30 node=0x55d78c6956f8
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=87 col=25 node=0x55d78c69eb20
-debug: semantic: sem_check_expr: type=28 line=87 col=13 node=0x55d78c69ebc8
-debug: semantic: sem_check_expr: type=28 line=87 col=28 node=0x55d78c69ece8
-debug: semantic: sem_check_expr: type=14 line=89 col=32 node=0x55d78c69f040
-debug: semantic: sem_check_expr: type=28 line=89 col=20 node=0x55d78c69f0e8
-debug: semantic: sem_check_expr: type=28 line=89 col=35 node=0x55d78c69f208
-debug: semantic: sem_check_expr: type=14 line=91 col=32 node=0x55d78c69f560
-debug: semantic: sem_check_expr: type=28 line=91 col=20 node=0x55d78c69f608
-debug: semantic: sem_check_expr: type=28 line=91 col=35 node=0x55d78c69f728
-debug: semantic: sem_check_expr: type=14 line=93 col=32 node=0x55d78c69fa80
-debug: semantic: sem_check_expr: type=28 line=93 col=20 node=0x55d78c69fb28
-debug: semantic: sem_check_expr: type=28 line=93 col=35 node=0x55d78c69fc48
-debug: semantic: sem_check_expr: type=14 line=95 col=32 node=0x55d78c69ffa0
-debug: semantic: sem_check_expr: type=28 line=95 col=20 node=0x55d78c6a0048
-debug: semantic: sem_check_expr: type=28 line=95 col=35 node=0x55d78c6a0168
-debug: semantic: sem_check_expr: type=14 line=97 col=32 node=0x55d78c6a04c0
-debug: semantic: sem_check_expr: type=28 line=97 col=20 node=0x55d78c6a0568
-debug: semantic: sem_check_expr: type=28 line=97 col=35 node=0x55d78c6a0688
-debug: semantic: sem_check_expr: type=14 line=99 col=32 node=0x55d78c6a09e0
-debug: semantic: sem_check_expr: type=28 line=99 col=20 node=0x55d78c6a0a88
-debug: semantic: sem_check_expr: type=28 line=99 col=35 node=0x55d78c6a0ba8
-debug: semantic: sem_check_expr: type=14 line=105 col=32 node=0x55d78c6a1420
-debug: semantic: sem_check_expr: type=28 line=105 col=20 node=0x55d78c6a14c8
-debug: semantic: sem_check_expr: type=28 line=105 col=35 node=0x55d78c6a15e8
-debug: semantic: sem_check_expr: type=14 line=107 col=32 node=0x55d78c6a1af8
-debug: semantic: sem_check_expr: type=28 line=107 col=20 node=0x55d78c6a1ba0
-debug: semantic: sem_check_expr: type=28 line=107 col=35 node=0x55d78c6a1cc0
-debug: semantic: sem_check_expr: type=14 line=109 col=32 node=0x55d78c6a21d0
-debug: semantic: sem_check_expr: type=28 line=109 col=20 node=0x55d78c6a2278
-debug: semantic: sem_check_expr: type=28 line=109 col=35 node=0x55d78c6a2398
-debug: semantic: sem_check_expr: type=14 line=111 col=32 node=0x55d78c6a28a8
-debug: semantic: sem_check_expr: type=28 line=111 col=20 node=0x55d78c6a2950
-debug: semantic: sem_check_expr: type=28 line=111 col=35 node=0x55d78c6a2a70
-debug: semantic: sem_check_expr: type=14 line=113 col=32 node=0x55d78c6a2f80
-debug: semantic: sem_check_expr: type=28 line=113 col=20 node=0x55d78c6a3028
-debug: semantic: sem_check_expr: type=28 line=113 col=35 node=0x55d78c6a3148
-debug: semantic: sem_check_expr: type=14 line=115 col=32 node=0x55d78c6a3658
-debug: semantic: sem_check_expr: type=28 line=115 col=20 node=0x55d78c6a3700
-debug: semantic: sem_check_expr: type=28 line=115 col=35 node=0x55d78c6a3820
-debug: semantic: sem_check_expr: type=14 line=117 col=32 node=0x55d78c6a3d30
-debug: semantic: sem_check_expr: type=28 line=117 col=20 node=0x55d78c6a3dd8
-debug: semantic: sem_check_expr: type=28 line=117 col=35 node=0x55d78c6a3ef8
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c6a3f98
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c6a4030
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=118 col=30 node=0x55d78c6a40b0
-debug: semantic: sem_check_expr: type=16 line=118 col=30 node=0x55d78c6a40b0
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=87 col=25 node=0x55d78c6a58e0
-debug: semantic: sem_check_expr: type=28 line=87 col=13 node=0x55d78c6a5988
-debug: semantic: sem_check_expr: type=28 line=87 col=28 node=0x55d78c6a5aa8
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c6a5b48
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c6a5be0
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=88 col=30 node=0x55d78c6a5c60
-debug: semantic: sem_check_expr: type=16 line=88 col=30 node=0x55d78c6a5c60
-debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=87 col=25 node=0x55d78c6af070
-debug: semantic: sem_check_expr: type=28 line=87 col=13 node=0x55d78c6af118
-debug: semantic: sem_check_expr: type=28 line=87 col=28 node=0x55d78c6af238
-debug: semantic: sem_check_expr: type=14 line=89 col=32 node=0x55d78c6af590
-debug: semantic: sem_check_expr: type=28 line=89 col=20 node=0x55d78c6af638
-debug: semantic: sem_check_expr: type=28 line=89 col=35 node=0x55d78c6af758
-debug: semantic: sem_check_expr: type=14 line=91 col=32 node=0x55d78c6afab0
-debug: semantic: sem_check_expr: type=28 line=91 col=20 node=0x55d78c6afb58
-debug: semantic: sem_check_expr: type=28 line=91 col=35 node=0x55d78c6afc78
-debug: semantic: sem_check_expr: type=14 line=93 col=32 node=0x55d78c6affd0
-debug: semantic: sem_check_expr: type=28 line=93 col=20 node=0x55d78c6b0078
-debug: semantic: sem_check_expr: type=28 line=93 col=35 node=0x55d78c6b0198
-debug: semantic: sem_check_expr: type=14 line=95 col=32 node=0x55d78c6b04f0
-debug: semantic: sem_check_expr: type=28 line=95 col=20 node=0x55d78c6b0598
-debug: semantic: sem_check_expr: type=28 line=95 col=35 node=0x55d78c6b06b8
-debug: semantic: sem_check_expr: type=14 line=97 col=32 node=0x55d78c6b0a10
-debug: semantic: sem_check_expr: type=28 line=97 col=20 node=0x55d78c6b0ab8
-debug: semantic: sem_check_expr: type=28 line=97 col=35 node=0x55d78c6b0bd8
-debug: semantic: sem_check_expr: type=14 line=99 col=32 node=0x55d78c6b0f30
-debug: semantic: sem_check_expr: type=28 line=99 col=20 node=0x55d78c6b0fd8
-debug: semantic: sem_check_expr: type=28 line=99 col=35 node=0x55d78c6b10f8
-debug: semantic: sem_check_expr: type=14 line=105 col=32 node=0x55d78c6b1970
-debug: semantic: sem_check_expr: type=28 line=105 col=20 node=0x55d78c6b1a18
-debug: semantic: sem_check_expr: type=28 line=105 col=35 node=0x55d78c6b1b38
-debug: semantic: sem_check_expr: type=14 line=107 col=32 node=0x55d78c6b2048
-debug: semantic: sem_check_expr: type=28 line=107 col=20 node=0x55d78c6b20f0
-debug: semantic: sem_check_expr: type=28 line=107 col=35 node=0x55d78c6b2210
-debug: semantic: sem_check_expr: type=14 line=109 col=32 node=0x55d78c6b2720
-debug: semantic: sem_check_expr: type=28 line=109 col=20 node=0x55d78c6b27c8
-debug: semantic: sem_check_expr: type=28 line=109 col=35 node=0x55d78c6b28e8
-debug: semantic: sem_check_expr: type=14 line=111 col=32 node=0x55d78c6b2df8
-debug: semantic: sem_check_expr: type=28 line=111 col=20 node=0x55d78c6b2ea0
-debug: semantic: sem_check_expr: type=28 line=111 col=35 node=0x55d78c6b2fc0
-debug: semantic: sem_check_expr: type=14 line=113 col=32 node=0x55d78c6b34d0
-debug: semantic: sem_check_expr: type=28 line=113 col=20 node=0x55d78c6b3578
-debug: semantic: sem_check_expr: type=28 line=113 col=35 node=0x55d78c6b3698
-debug: semantic: sem_check_expr: type=14 line=115 col=32 node=0x55d78c6b3ba8
-debug: semantic: sem_check_expr: type=28 line=115 col=20 node=0x55d78c6b3c50
-debug: semantic: sem_check_expr: type=28 line=115 col=35 node=0x55d78c6b3d70
-debug: semantic: sem_check_expr: type=14 line=117 col=32 node=0x55d78c6b4280
-debug: semantic: sem_check_expr: type=28 line=117 col=20 node=0x55d78c6b4328
-debug: semantic: sem_check_expr: type=28 line=117 col=35 node=0x55d78c6b4448
-debug: semantic: sem_check_block: ns='std'
-debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=10 col=35 node=0x55d78c6b44e8
-debug: semantic: sem_check_expr: type=13 line=10 col=28 node=0x55d78c6b4580
-debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='__c_lib'
-debug: semantic: sem_check_expr: type=16 line=118 col=30 node=0x55d78c6b4600
-debug: semantic: sem_check_expr: type=16 line=118 col=30 node=0x55d78c6b4600
-debug: alir: macro: after sem_check_block, ns='std'
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-debug: alir: func=main op=0 dest_kind=5 dest_type_base=18 op1_kind=0 op1_type_base=0
-debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_base=0
-debug: semantic: table.c lookup: name='default_allocator', found_ns='heap', current_ns='main'
 in std/print:
 118:30: warning: Implicitly resolved 'default_allocator' to 'heap.default_allocator'
   |             formatted_printf("%s", arg);
   |                              ^
 hint: consider writing heap.default_allocator
-debug: alir: GLOBAL VAR ADDR: default_allocator
 118:30: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             formatted_printf("%s", arg);
   |                              ^
 hint: consider writing heap.CAllocator
-debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: semantic: table.c lookup: name='CAllocator', found_ns='heap', current_ns='main'
 118:30: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             formatted_printf("%s", arg);
   |                              ^
 hint: consider writing heap.CAllocator
-debug: alir: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=4 op1_type_base=0
-debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: Found func_def alloc_int
-debug: alir: alir_gen_function_def fn->name=alloc_int class_name=CAllocator fn->mangled_name=main_CAllocator_alloc_int_i64 -> func_name=main_CAllocator_alloc_int_i64
-debug: alir: alir_add_function: main_CAllocator_alloc_int_i64
 118:30: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             formatted_printf("%s", arg);
   |                              ^
 hint: consider writing heap.CAllocator
-debug: semantic: table.c lookup: name='CAllocator', found_ns='heap', current_ns='main'
 118:30: warning: Implicitly resolved 'CAllocator' to 'heap.CAllocator'
   |             formatted_printf("%s", arg);
   |                              ^
 hint: consider writing heap.CAllocator
-step: Finished alir. Start alir check and analysis.
-step: Finished alir check and analysis. Start alir optimization.
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking string
-debug: optlir: Check Type for Struct Marking heap.CAllocator
-debug: optlir: Check Type for Struct Marking heap.CAllocator
-debug: optlir: Check Type for Struct Marking heap.CAllocator
-debug: optlir: Check Type for Struct Marking heap.CAllocator
-debug: optlir: Check Type for Struct Marking string
-debug: optlir: Check Type for Struct Marking heap.CAllocator
-debug: optlir: Check Type for Struct Marking heap.CAllocator
-debug: optlir: Check Type for Struct Marking heap.CAllocator
-debug: optlir: Check Type for Struct Marking heap.CAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking string
-debug: optlir: Check Type for Struct Marking heap.CAllocator
-debug: optlir: Check Type for Struct Marking string
-debug: optlir: Check Type for Struct Marking heap.CAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking heap.ArenaAllocator
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking ArenaBlock
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking CAllocator
-debug: optlir: Check Type for Struct Marking CAllocator
-step: Finished alir optimization. Start code generation using LLVM codegen
-debug: codegen: ALIR_OP_PANIC in func. ret_ty kind: 10
-debug: codegen: Terminator after LLVMBuildRet: 0x55d78c729db0
-debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8
-debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL param 0: num_params=2, expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL param 1: num_params=2, expected_ty=8, arg_ty=8
-debug: codegen: DEBUG CALL param 0: num_params=2, expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL param 1: num_params=2, expected_ty=8, arg_ty=8
-debug: codegen: DEBUG CALL param 0: num_params=2, expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL param 1: num_params=2, expected_ty=8, arg_ty=8
-debug: codegen: ALIR_OP_CALL wrap: dest->type.ptr_depth=1, dest->type.is_tainted=1, res_kind=12
-debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL param 0: num_params=2, expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL param 1: num_params=2, expected_ty=10, arg_ty=12
-debug: codegen: DEBUG CALL param 0: num_params=2, expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
-debug: codegen: DEBUG CALL param 1: num_params=2, expected_ty=8, arg_ty=8
 ; ModuleID = 'main_module'
 source_filename = "main_module"
 
@@ -1654,4 +377,4 @@ entry:
 declare i32 @puts(ptr %0)
 
 declare void @exit(i32 %0)
-Setting body for string: class_type=0x55d78c7253b0 types[0]=0x55d78c723770 types[1]=0x55d78c7252d0 i32=0x55d78c723770
+Setting body for string: class_type=0x56540ddb53b0 types[0]=0x56540ddb3770 types[1]=0x56540ddb52d0 i32=0x56540ddb3770

@@ -1,14 +1,19 @@
-step: Finished lexing. Start parsing.
-at namespace main:
-in .../code/taint/decl_taint_multiple.kyl:
-5:27: error: Expected ';' but found ','
-  |     tainted mut int x = 10, *y = 0 as int*;
-  |                           ^
-5:43: error: Expected identifier definition after type
-  |     tainted mut int x = 10, *y = 0 as int*;
-  |                                           ^
-debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x5604d8cfbfc0 target=0x5604d8cfbea0
-12:1: error: Unexpected token in expression: '}'
-  | }
-  | ^
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+@str.0 = private constant [14 x i8] c"x is tainted\0A\00"
+
+declare i32 @printf(ptr %0)
+
+define i32 @main() {
+entry:
+  %eq = icmp eq i32 inttoptr (i64 10 to i32), 10
+  br i1 %eq, label %then, label %merge
+
+then:                                             ; preds = %entry
+  %call = call i32 @printf(ptr @str.0)
+  br label %merge
+
+merge:                                            ; preds = %then, %entry
+  ret i32 0
+}
