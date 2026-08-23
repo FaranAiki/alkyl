@@ -2,38 +2,38 @@ step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: after parse_type, vt.base=0, token.type=32
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=cprintf target_type=13 line=0 col=0 node=0x55ec43416928 target=0x55ec434165e8
+debug: parser: Created Call name=cprintf target_type=13 line=0 col=0 node=0x55cf03392928 target=0x55cf033925e8
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=cprintf target_type=13 line=0 col=0 node=0x55ec43416d00 target=0x55ec434169c0
+debug: parser: Created Call name=cprintf target_type=13 line=0 col=0 node=0x55cf03392d00 target=0x55cf033929c0
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=1 col=111 name=cprintf target_type=13 node=0x55ec43416928
-debug: semantic: sem_check_expr: type=2 line=1 col=111 node=0x55ec43416928
+debug: semantic: sem_check_block: Call line=1 col=111 name=cprintf target_type=13 node=0x55cf03392928
+debug: semantic: sem_check_expr: type=2 line=1 col=111 node=0x55cf03392928
 debug: semantic: sem_check_call: name='cprintf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=1 col=104 node=0x55ec434165e8
-debug: semantic: sem_check_expr: type=16 line=1 col=112 node=0x55ec43416668
-debug: semantic: sem_check_expr: type=18 line=1 col=138 node=0x55ec434168b0
+debug: semantic: sem_check_expr: type=13 line=1 col=104 node=0x55cf033925e8
+debug: semantic: sem_check_expr: type=16 line=1 col=112 node=0x55cf03392668
+debug: semantic: sem_check_expr: type=18 line=1 col=138 node=0x55cf033928b0
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=30 line=1 col=121 node=0x55ec43416788
-debug: semantic: sem_check_expr: type=16 line=1 col=139 node=0x55ec43416810
-debug: semantic: sem_check_expr: type=16 line=1 col=112 node=0x55ec43416668
+debug: semantic: sem_check_expr: type=30 line=1 col=121 node=0x55cf03392788
+debug: semantic: sem_check_expr: type=16 line=1 col=139 node=0x55cf03392810
+debug: semantic: sem_check_expr: type=16 line=1 col=112 node=0x55cf03392668
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=1 col=151 name=cprintf target_type=13 node=0x55ec43416d00
-debug: semantic: sem_check_expr: type=2 line=1 col=151 node=0x55ec43416d00
+debug: semantic: sem_check_block: Call line=1 col=151 name=cprintf target_type=13 node=0x55cf03392d00
+debug: semantic: sem_check_expr: type=2 line=1 col=151 node=0x55cf03392d00
 debug: semantic: sem_check_call: name='cprintf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=1 col=144 node=0x55ec434169c0
-debug: semantic: sem_check_expr: type=16 line=1 col=152 node=0x55ec43416a40
-debug: semantic: sem_check_expr: type=18 line=1 col=178 node=0x55ec43416c88
+debug: semantic: sem_check_expr: type=13 line=1 col=144 node=0x55cf033929c0
+debug: semantic: sem_check_expr: type=16 line=1 col=152 node=0x55cf03392a40
+debug: semantic: sem_check_expr: type=18 line=1 col=178 node=0x55cf03392c88
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=30 line=1 col=161 node=0x55ec43416b60
-debug: semantic: sem_check_expr: type=16 line=1 col=179 node=0x55ec43416be8
-debug: semantic: sem_check_expr: type=16 line=1 col=152 node=0x55ec43416a40
+debug: semantic: sem_check_expr: type=30 line=1 col=161 node=0x55cf03392b60
+debug: semantic: sem_check_expr: type=16 line=1 col=179 node=0x55cf03392be8
+debug: semantic: sem_check_expr: type=16 line=1 col=152 node=0x55cf03392a40
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Foo
-debug: alir: DEBUG_REGISTER: st=0x55ec4341c180 name=Foo next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55cf03398180 name=Foo next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
  - Foo fields: 1
 debug: alir: Found func_def cprintf
@@ -48,7 +48,7 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 debug: alir: GEN_CALL: name=cprintf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x55ec434162a8
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x55cf033922a8
 debug: alir: CALL_STD: name=cprintf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: cprintf
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=0 op1_type_base=0
@@ -59,11 +59,11 @@ debug: alir: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_bas
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=8
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
-debug: alir: TAINTED PTR: ctx->module=0x55ec43418a08 target_name=printf count=2
+debug: alir: TAINTED PTR: ctx->module=0x55cf03394a08 target_name=printf count=2
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: GEN_CALL: name=cprintf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x55ec434162a8
+debug: alir: Found symbol cprintf, kind=1, is_macro=0, node_ptr=0x55cf033922a8
 debug: alir: CALL_STD: name=cprintf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: cprintf
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=8 op1_kind=0 op1_type_base=0
@@ -74,7 +74,7 @@ debug: alir: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_bas
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=8
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=8
-debug: alir: TAINTED PTR: ctx->module=0x55ec43418a08 target_name=printf count=2
+debug: alir: TAINTED PTR: ctx->module=0x55cf03394a08 target_name=printf count=2
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.

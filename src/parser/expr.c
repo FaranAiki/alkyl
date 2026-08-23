@@ -303,6 +303,40 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
         else if (p->current_token.type == TOKEN_AS) {
             eat(p, TOKEN_AS);
             VarType t = parse_type(p);
+            
+            if (t.base == TYPE_UNKNOWN && p->current_token.type == TOKEN_IDENTIFIER) {
+                char full_type_name[512] = "";
+                snprintf(full_type_name, sizeof(full_type_name), "%s", p->current_token.text);
+                eat(p, TOKEN_IDENTIFIER);
+                
+                while (p->current_token.type == TOKEN_DOT) {
+                    eat(p, TOKEN_DOT);
+                    size_t len = strlen(full_type_name);
+                    if (len + 1 < sizeof(full_type_name)) {
+                        snprintf(full_type_name + len, sizeof(full_type_name) - len, ".%s", p->current_token.text);
+                    }
+                    if (p->current_token.type == TOKEN_IDENTIFIER) {
+                        eat(p, TOKEN_IDENTIFIER);
+                    }
+                }
+                
+                t.base = TYPE_CLASS;
+                t.class_name = parser_strdup(p, full_type_name);
+                
+                while (p->current_token.type == TOKEN_STAR) {
+                    eat(p, TOKEN_STAR);
+                    t.ptr_depth++;
+                }
+                
+                while (p->current_token.type == TOKEN_LBRACKET) {
+                    eat(p, TOKEN_LBRACKET);
+                    if (p->current_token.type != TOKEN_RBRACKET) {
+                        parse_expression(p);
+                    }
+                    eat(p, TOKEN_RBRACKET);
+                    t.ptr_depth++;
+                }
+            }
 
             CastNode *cn = parser_alloc(p, sizeof(CastNode));
             cn->base.type = NODE_CAST;

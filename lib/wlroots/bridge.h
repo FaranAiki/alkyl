@@ -18,6 +18,7 @@ struct wlr_xdg_shell *wlr_xdg_shell_create(struct wl_display *display, unsigned 
 
 void init_wl_listener(struct wl_listener *listener, void* notify);
 void wlr_backend_on_new_output(struct wlr_backend *backend, struct wl_listener *listener, void* notify);
+void wlr_backend_on_new_input(struct wlr_backend *backend, struct wl_listener *listener, void* notify);
 void wlr_output_on_frame(struct wlr_output *output, struct wl_listener *listener, void* notify);
 void wlr_output_enable_and_commit(struct wlr_output *output, struct wlr_allocator *allocator, struct wlr_renderer *renderer);
 void wlr_xdg_shell_on_new_surface(struct wlr_xdg_shell *shell, struct wl_listener *listener, void* notify);

@@ -1,27 +1,27 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=add target_type=13 line=0 col=0 node=0x557da59638f0 target=0x557da5963680
+debug: parser: Created Call name=add target_type=13 line=0 col=0 node=0x55f58f9bc8f0 target=0x55f58f9bc680
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=14 line=2 col=14 node=0x557da5963318
-debug: semantic: sem_check_expr: type=13 line=2 col=12 node=0x557da59631f8
-debug: semantic: sem_check_expr: type=16 line=2 col=16 node=0x557da5963278
+debug: semantic: sem_check_expr: type=14 line=2 col=14 node=0x55f58f9bc318
+debug: semantic: sem_check_expr: type=13 line=2 col=12 node=0x55f58f9bc1f8
+debug: semantic: sem_check_expr: type=16 line=2 col=16 node=0x55f58f9bc278
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x557da5963520
+debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x55f58f9bc520
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=9 col=8 name=add target_type=13 node=0x557da59638f0
-debug: semantic: sem_check_expr: type=2 line=9 col=8 node=0x557da59638f0
+debug: semantic: sem_check_block: Call line=9 col=8 name=add target_type=13 node=0x55f58f9bc8f0
+debug: semantic: sem_check_expr: type=2 line=9 col=8 node=0x55f58f9bc8f0
 debug: semantic: sem_check_call: name='add', ns='main'
-debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x557da5963680
-debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x557da5963820
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x557da5963700
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x557da5963780
-debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x557da5963820
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x557da5963700
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x557da5963780
+debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x55f58f9bc680
+debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x55f58f9bc820
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55f58f9bc700
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55f58f9bc780
+debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x55f58f9bc820
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55f58f9bc700
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55f58f9bc780
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x557da5963988
+debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x55f58f9bc988
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -36,14 +36,14 @@ debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_bas
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
 debug: alir: GEN_CALL: name=add mangled=main_add_i32
 debug: alir: Looking up 'main_add_i32'
-debug: alir: Found symbol add, kind=1, is_macro=0, node_ptr=0x557da5963430
+debug: alir: Found symbol add, kind=1, is_macro=0, node_ptr=0x55f58f9bc430
 debug: alir: CALL_STD: name=add mangled=main_add_i32 target_type=13
 debug: alir: GLOBAL VAR ADDR: add
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: TAINTED PTR: ctx->module=0x557da5964bd8 target_name=main_add_i32 count=1
+debug: alir: TAINTED PTR: ctx->module=0x55f58f9bdbd8 target_name=main_add_i32 count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.

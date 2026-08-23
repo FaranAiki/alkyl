@@ -10,6 +10,7 @@ export namespace wlroots {
 
     extern wlr_output_layout* wlr_output_layout_create(wl_display* display);
     extern wlr_xdg_shell* wlr_xdg_shell_create(wl_display* display, int version);
+    extern wlr_subcompositor* wlr_subcompositor_create(wl_display* display);
     extern void wlr_output_init_render(wlr_output* output, wlr_allocator* allocator, wlr_renderer* renderer);
     extern void wlr_output_state_init(wlr_output_state* state);
     extern void wlr_output_state_set_enabled(wlr_output_state* state, bool enabled);
@@ -59,6 +60,7 @@ export namespace wlroots {
     class wlr_allocator {}
     class wlr_compositor {}
     class wlr_data_device_manager {}
+    class wlr_subcompositor {}
     class wlr_output_layout {}
     class wlr_xdg_shell {}
     class wlr_seat {}
@@ -143,6 +145,15 @@ export namespace wlroots {
         return manager as wlr_data_device_manager*;
     }
 
+    // Subcompositor
+    errnum [ErrSubcompositorCreation] wlr_subcompositor*? create_subcompositor(pristine wl_display* display) {
+        let subcompositor = wlr_subcompositor_create(display);
+        if (subcompositor == null ? true) {
+            purge ErrSubcompositorCreation;
+        }
+        return subcompositor as wlr_subcompositor*;
+    }
+
     // Output Layout
     errnum [ErrOutputLayoutCreation] wlr_output_layout*? create_output_layout(pristine wl_display* display) {
         let layout = wlr_output_layout_create(display);
@@ -203,7 +214,7 @@ export namespace wlroots {
 
     void backend_on_new_output(pristine wlr_backend* backend, pristine wl_listener* listener, void* notify_func) {
         listener.notify = notify_func;
-        let signal = ((backend as long) + 8) as wl_signal*;
+        let signal = ((backend as long) + 40) as wl_signal*;
         wl_signal_add(signal, listener);
     }
 

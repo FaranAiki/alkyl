@@ -2,30 +2,30 @@ step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=A target_type=13 line=0 col=0 node=0x55ac4199f618 target=0x55ac4199f458
+debug: parser: Created Call name=A target_type=13 line=0 col=0 node=0x560b35754618 target=0x560b35754458
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=10 col=18 node=0x55ac4199f618
+debug: semantic: sem_check_expr: type=2 line=10 col=18 node=0x560b35754618
 debug: semantic: sem_check_call: name='A', ns='main'
-debug: semantic: sem_check_expr: type=13 line=10 col=17 node=0x55ac4199f458
+debug: semantic: sem_check_expr: type=13 line=10 col=17 node=0x560b35754458
 at namespace main:
 in .../code/cast/test_has.kyl:
 10:18: warning: no initialization from A, using B as a constructor
   |     let mut a = A(0, 0); 
   |                  ^
-debug: semantic: sem_check_expr: type=16 line=10 col=19 node=0x55ac4199f4d8
-debug: semantic: sem_check_expr: type=16 line=10 col=22 node=0x55ac4199f578
+debug: semantic: sem_check_expr: type=16 line=10 col=19 node=0x560b357544d8
+debug: semantic: sem_check_expr: type=16 line=10 col=22 node=0x560b35754578
 debug: parser: inferring type for a, init_type.base=16
 debug: parser: debug: inferred type A for a
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=26 line=11 col=13 node=0x55ac4199f7f0
-debug: semantic: sem_check_expr: type=13 line=11 col=12 node=0x55ac4199f770
+debug: semantic: sem_check_expr: type=26 line=11 col=13 node=0x560b357547f0
+debug: semantic: sem_check_expr: type=13 line=11 col=12 node=0x560b35754770
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class A
-debug: alir: DEBUG_REGISTER: st=0x55ac419a47f0 name=A next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x560b357597f0 name=A next=(nil)
 debug: alir: Visiting class B
-debug: alir: DEBUG_REGISTER: st=0x55ac419a4810 name=B next=0x55ac419a47f0
+debug: alir: DEBUG_REGISTER: st=0x560b35759810 name=B next=0x560b357597f0
 debug: alir: DEBUG_PASS1_END: struct list:
  - B fields: 1
  - A fields: 2

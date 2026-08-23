@@ -12,6 +12,11 @@ void wlr_backend_on_new_output(struct wlr_backend *backend, struct wl_listener *
     wl_signal_add(&backend->events.new_output, listener);
 }
 
+void wlr_backend_on_new_input(struct wlr_backend *backend, struct wl_listener *listener, void* notify) {
+    listener->notify = notify;
+    wl_signal_add(&backend->events.new_input, listener);
+}
+
 void wlr_output_on_frame(struct wlr_output *output, struct wl_listener *listener, void* notify) {
     listener->notify = notify;
     wl_signal_add(&output->events.frame, listener);

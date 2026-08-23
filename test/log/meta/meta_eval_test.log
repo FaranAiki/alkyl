@@ -1,21 +1,21 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56166ad5a448 target=0x56166ad5a328
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55e137e28448 target=0x55e137e28328
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56166ad5acc0 target=0x56166ad5abc0
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55e137e28cc0 target=0x55e137e28bc0
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56166ad5b040 target=0x56166ad5af20
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55e137e29040 target=0x55e137e28f20
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56166ad5b1f8 target=0x56166ad5b0d8
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55e137e291f8 target=0x55e137e290d8
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56166ad5b430 target=0x56166ad5b310
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55e137e29430 target=0x55e137e29310
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x56166ad5b768 target=0x56166ad5b648
+debug: parser: Created Call name=print target_type=13 line=0 col=0 node=0x55e137e29768 target=0x55e137e29648
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=43
 debug: semantic: sem_check_block: visiting node type=44
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=30 col=12 node=0x56166ad5bab0
+debug: semantic: sem_check_expr: type=16 line=30 col=12 node=0x55e137e29ab0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -26,32 +26,32 @@ debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x56166ad5ca00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x55e137e2aa00 target_name=print count=1
 debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x56166ad5ca00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x55e137e2aa00 target_name=print count=1
 debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x56166ad5ca00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x55e137e2aa00 target_name=print count=1
 debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x56166ad5ca00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x55e137e2aa00 target_name=print count=1
 debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x56166ad5ca00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x55e137e2aa00 target_name=print count=1
 debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x56166ad5ca00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x55e137e2aa00 target_name=print count=1
 debug: metalir: VM CALL: print
 debug: metalir: VM CALL: print
 debug: metalir: VM CALL: print
@@ -61,7 +61,7 @@ debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x56166ad5ca00 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x55e137e2aa00 target_name=print count=1
 debug: metalir: VM CALL: print
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
