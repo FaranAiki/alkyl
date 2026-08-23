@@ -385,8 +385,8 @@ if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
     endif()
 
     if (MLIR_FOUND)
-        find_program(MLIR_TABLEGEN_EXE mlir-tblgen)
-        if (MLIR_TABLEGEN_EXE)
+        find_program(ACTUAL_MLIR_TABLEGEN_EXE mlir-tblgen)
+        if (ACTUAL_MLIR_TABLEGEN_EXE)
             message(STATUS "Found MLIR ${MLIR_PACKAGE_VERSION}")
             message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
 
@@ -401,20 +401,20 @@ if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
 
             # Generate Dialect declarations and definitions
             add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
-                COMMAND ${MLIR_TABLEGEN_EXE} -gen-dialect-decls ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
+                COMMAND ${ACTUAL_MLIR_TABLEGEN_EXE} -gen-dialect-decls ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
                 DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td)
 
             add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
-                COMMAND ${MLIR_TABLEGEN_EXE} -gen-dialect-defs ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
+                COMMAND ${ACTUAL_MLIR_TABLEGEN_EXE} -gen-dialect-defs ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
                 DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td)
 
             # Generate Ops declarations and definitions
             add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
-                COMMAND ${MLIR_TABLEGEN_EXE} -gen-op-decls ${ALKYL_TABLEGEN_DIR}/AlkylOps.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
+                COMMAND ${ACTUAL_MLIR_TABLEGEN_EXE} -gen-op-decls ${ALKYL_TABLEGEN_DIR}/AlkylOps.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
                 DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylOps.td)
 
             add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
-                COMMAND ${MLIR_TABLEGEN_EXE} -gen-op-defs ${ALKYL_TABLEGEN_DIR}/AlkylOps.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
+                COMMAND ${ACTUAL_MLIR_TABLEGEN_EXE} -gen-op-defs ${ALKYL_TABLEGEN_DIR}/AlkylOps.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
                 DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylOps.td)
 
             # Create a target for the generated files so they build before alkyl_mlir

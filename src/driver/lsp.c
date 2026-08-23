@@ -27,7 +27,8 @@ static char* read_file_lsp(const char *path) {
     fseek(f, 0, SEEK_SET);
     char *buf = malloc(size + 1);
     if (buf) {
-        fread(buf, 1, size, f);
+        size_t read_bytes = fread(buf, 1, size, f);
+        (void)read_bytes;
         buf[size] = '\0';
     }
     fclose(f);
