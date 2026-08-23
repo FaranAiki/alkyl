@@ -123,7 +123,7 @@ Alkyl comes with two very helpful shell scripts inside `scripts/`:
 ```bash
   ./scripts/run_single.sh --update --llvm
 ```
-  and for QBE, I use
+*  and for QBE, I use
 ```bash
   ./scripts/run_single.sh --update --qbe
 ```
