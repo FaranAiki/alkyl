@@ -79,12 +79,7 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             }
             case ALIR_OP_LOAD: {
                 if (op1) {
-                    LLVMTypeRef ty;
-                    if (inst->dest->type.ptr_depth > 0) {
-                        ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
-                    } else {
-                        ty = get_llvm_type(ctx, inst->dest->type);
-                    }
+                    LLVMTypeRef ty = get_llvm_type(ctx, inst->dest->type);
                     if (LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMStructTypeKind) {
                         op1 = LLVMBuildExtractValue(ctx->builder, op1, 1, "ext_ptr_for_load");
                     } else if (LLVMGetTypeKind(LLVMTypeOf(op1)) != LLVMPointerTypeKind) {
@@ -96,12 +91,7 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             }
             case ALIR_OP_BITCAST: {
                 if (op1) {
-                    LLVMTypeRef ty;
-                    if (inst->dest->type.ptr_depth > 0) {
-                        ty = LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0);
-                    } else {
-                        ty = get_llvm_type(ctx, inst->dest->type);
-                    }
+                    LLVMTypeRef ty = get_llvm_type(ctx, inst->dest->type);
                     
                     if (LLVMGetTypeKind(ty) == LLVMPointerTypeKind && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) {
                         res = op1; // Opaque pointers: no bitcast needed!

@@ -105,18 +105,18 @@ Ethyl (Alkyl interpreter) by Faran Aiki
 Type 'exit' or 'quit' to leave.
 
 Linked 'm' successfully.
-In [0]: simul :=
+In [0]: simul := // this is the same as define simul as ...
 ...        t = 2
 ...        while t < 1000
 ...            t *= 2
 ...            print t
 ...
-In [0]: simul
+In [0]: simul // this is a "macro", not a function
 -> 2 (int)
 481632641282565121024-> (void)
-In [1]: cos 2pi + sin 2pi
+In [1]: cos 2pi + sin 2pi // 2pi = 2 * pi, where pi is math.pi from import "std/math"
 -> 1.000000 (double)
-In [2]: heap.ArenaAllocator ac;
+In [2]: heap.ArenaAllocator ac; // from import "std/heap"
 -> 0x563db5335378 (heap.ArenaAllocator)
 In [3]: let myvar = ac.alloc[int]()
 -> 0x563db533bbc8 (tainted int*)
@@ -147,11 +147,11 @@ Alkyl comes with two very helpful shell scripts inside `scripts/`:
   ```bash
   ./scripts/run_tests.sh
   ```
-* What I often use is
+* What I often use is, because for testing purpose I use --update to update all the logs,
 ```bash
   ./scripts/run_single.sh --update --llvm
 ```
-*  and for QBE, I use
+*  and for QBE, I use, which sometimes isomorphic to the llvm since they only differ in backend
 ```bash
   ./scripts/run_single.sh --update --qbe
 ```
@@ -169,7 +169,7 @@ For further information, look at
 * `alkyl/docs/software-arch`: An archictecture containing rigorous definition, formalization, and standardizaton of this project's scope. This includes the Alkyl Programming Language written in C, Alkyl Programming Language written in Alkyl itself, and others. (somewhat unused)
 * `alkyl/docs/business-arch`: An architecture containing views from business perspective of Alkyl Project. (somewhat unused)
 
-# BALIR Format
+# Binary ALIR Format
 The compiled ALIR module uses a binary representation called `.balir`.
 The first magic hex sequence is `fa 8a 11 a1 c1` which stands for faran aiki (because this is really a personal project that I do not plan to very much make it enterprise-like as this is just an experimental)
 The second magic hex sequence `2f 58 b0 4f 2e c2 a8 ee 24` is placed at the start of `.balir` files to identify them.
