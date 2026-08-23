@@ -7,11 +7,16 @@ set(CMAKE_VERBOSE_MAKEFILE OFF CACHE BOOL "Enable verbose makefile output")
 
 set(OPT_LEVEL "")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wno-stringop-overflow")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wno-stringop-overflow")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wno-stringop-overflow")
+
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-stringop-overflow")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stringop-overflow")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wno-stringop-overflow")
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug")
@@ -73,10 +78,14 @@ if(ENABLE_DEBUG_SEMANTIC_OUT)
     add_compile_definitions(DEBUG_SEMANTIC_OUT)
 endif()
 
-add_compile_options(-Wall -Wextra -O${OPT_LEVEL} -flto=auto
--Wno-missing-field-initializers
--Wno-stringop-overflow
-)
+add_compile_options(-Wall -Wextra -O${OPT_LEVEL} -Wno-missing-field-initializers)
+
+# Enable LTO in a cross-platform way
+include(CheckIPOSupported)
+check_ipo_supported(RESULT lto_supported)
+if(lto_supported)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
 
 find_package(PkgConfig)
 pkg_check_modules(LIBZIP libzip)
@@ -376,58 +385,62 @@ if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
     endif()
 
     if (MLIR_FOUND)
-        message(STATUS "Found MLIR ${MLIR_PACKAGE_VERSION}")
-        message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
+        find_program(MLIR_TABLEGEN_EXE mlir-tblgen)
+        if (MLIR_TABLEGEN_EXE)
+            message(STATUS "Found MLIR ${MLIR_PACKAGE_VERSION}")
+            message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
 
-        add_executable(alkyl_mlir ${ALKYL_SOURCES} src/mlir/driver.c)
-        target_include_directories(alkyl_mlir PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-        target_compile_definitions(alkyl_mlir PRIVATE BACKEND=mlir)
+            add_executable(alkyl_mlir ${ALKYL_SOURCES} src/mlir/driver.c)
+            target_include_directories(alkyl_mlir PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+            target_compile_definitions(alkyl_mlir PRIVATE BACKEND=mlir)
 
-        # Setup TableGen
-        find_program(MLIR_TABLEGEN_EXE mlir-tblgen REQUIRED)
-        set(ALKYL_TABLEGEN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/mlir/tablegen)
-        set(ALKYL_TABLEGEN_INC_DIR ${CMAKE_CURRENT_BINARY_DIR}/include/mlir/tablegen)
-        file(MAKE_DIRECTORY ${ALKYL_TABLEGEN_INC_DIR})
+            # Setup TableGen
+            set(ALKYL_TABLEGEN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/mlir/tablegen)
+            set(ALKYL_TABLEGEN_INC_DIR ${CMAKE_CURRENT_BINARY_DIR}/include/mlir/tablegen)
+            file(MAKE_DIRECTORY ${ALKYL_TABLEGEN_INC_DIR})
 
-        # Generate Dialect declarations and definitions
-        add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
-            COMMAND ${MLIR_TABLEGEN_EXE} -gen-dialect-decls ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
-            DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td)
+            # Generate Dialect declarations and definitions
+            add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
+                COMMAND ${MLIR_TABLEGEN_EXE} -gen-dialect-decls ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
+                DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td)
 
-        add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
-            COMMAND ${MLIR_TABLEGEN_EXE} -gen-dialect-defs ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
-            DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td)
+            add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
+                COMMAND ${MLIR_TABLEGEN_EXE} -gen-dialect-defs ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
+                DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylDialect.td)
 
-        # Generate Ops declarations and definitions
-        add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
-            COMMAND ${MLIR_TABLEGEN_EXE} -gen-op-decls ${ALKYL_TABLEGEN_DIR}/AlkylOps.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
-            DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylOps.td)
+            # Generate Ops declarations and definitions
+            add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
+                COMMAND ${MLIR_TABLEGEN_EXE} -gen-op-decls ${ALKYL_TABLEGEN_DIR}/AlkylOps.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
+                DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylOps.td)
 
-        add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
-            COMMAND ${MLIR_TABLEGEN_EXE} -gen-op-defs ${ALKYL_TABLEGEN_DIR}/AlkylOps.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
-            DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylOps.td)
+            add_custom_command(OUTPUT ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
+                COMMAND ${MLIR_TABLEGEN_EXE} -gen-op-defs ${ALKYL_TABLEGEN_DIR}/AlkylOps.td -I ${MLIR_INCLUDE_DIRS} -I ${ALKYL_TABLEGEN_DIR} -o ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
+                DEPENDS ${ALKYL_TABLEGEN_DIR}/AlkylOps.td)
 
-        # Create a target for the generated files so they build before alkyl_mlir
-        add_custom_target(alkyl_mlir_tblgen
-            DEPENDS
-            ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
-            ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
-            ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
-            ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
-        )
+            # Create a target for the generated files so they build before alkyl_mlir
+            add_custom_target(alkyl_mlir_tblgen
+                DEPENDS
+                ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.h.inc
+                ${ALKYL_TABLEGEN_INC_DIR}/AlkylDialect.cpp.inc
+                ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.h.inc
+                ${ALKYL_TABLEGEN_INC_DIR}/AlkylOps.cpp.inc
+            )
 
-        target_include_directories(alkyl_mlir PRIVATE ${LLVM_INCLUDE_DIRS} ${MLIR_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/include)
-        target_link_libraries(alkyl_mlir PRIVATE MLIRIR MLIRFuncDialect MLIRArithDialect MLIRMemRefDialect MLIRSCFDialect MLIRControlFlowDialect MLIRSupport MLIRTransforms MLIRLLVMDialect)
-        target_compile_definitions(alkyl_mlir PRIVATE ALKYL_ENABLE_MLIR)
-        add_dependencies(alkyl_mlir alkyl_mlir_tblgen)
+            target_include_directories(alkyl_mlir PRIVATE ${LLVM_INCLUDE_DIRS} ${MLIR_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/include)
+            target_link_libraries(alkyl_mlir PRIVATE MLIRIR MLIRFuncDialect MLIRArithDialect MLIRMemRefDialect MLIRSCFDialect MLIRControlFlowDialect MLIRSupport MLIRTransforms MLIRLLVMDialect)
+            target_compile_definitions(alkyl_mlir PRIVATE ALKYL_ENABLE_MLIR)
+            add_dependencies(alkyl_mlir alkyl_mlir_tblgen)
 
-        if(UNIX)
-            target_link_libraries(alkyl_mlir PRIVATE m pthread dl z ncurses)
-        endif()
+            if(UNIX)
+                target_link_libraries(alkyl_mlir PRIVATE m pthread dl z ncurses)
+            endif()
 
-        if(LIBZIP_FOUND)
-            target_include_directories(alkyl_mlir PRIVATE ${LIBZIP_INCLUDE_DIRS})
-            target_link_libraries(alkyl_mlir PRIVATE ${LIBZIP_LIBRARIES})
+            if(LIBZIP_FOUND)
+                target_include_directories(alkyl_mlir PRIVATE ${LIBZIP_INCLUDE_DIRS})
+                target_link_libraries(alkyl_mlir PRIVATE ${LIBZIP_LIBRARIES})
+            endif()
+        else()
+            message(STATUS "mlir-tblgen not found, skipping building alkyl_mlir.")
         endif()
     else()
         message(STATUS "MLIR not found, skipping building alkyl_mlir.")
