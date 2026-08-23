@@ -1,40 +1,40 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x557077a0ce88 target=0x557077a0cc50
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55db3afd8e88 target=0x55db3afd8c50
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x557077a0d168 target=0x557077a0cf20
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55db3afd9168 target=0x55db3afd8f20
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
 debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x557077a0cb18
-debug: semantic: sem_check_expr: type=47 line=7 col=4 node=0x557077a0ca98
-debug: semantic: sem_check_expr: type=18 line=7 col=4 node=0x557077a0ca98
+debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55db3afd8b18
+debug: semantic: sem_check_expr: type=47 line=7 col=4 node=0x55db3afd8a98
+debug: semantic: sem_check_expr: type=18 line=7 col=4 node=0x55db3afd8a98
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=7 col=3 node=0x557077a0c718
-debug: semantic: sem_check_expr: type=16 line=7 col=4 node=0x557077a0e418
+debug: semantic: sem_check_expr: type=13 line=7 col=3 node=0x55db3afd8718
+debug: semantic: sem_check_expr: type=16 line=7 col=4 node=0x55db3afda418
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=8 col=9 name=printf target_type=13 node=0x557077a0ce88
-debug: semantic: sem_check_expr: type=2 line=8 col=9 node=0x557077a0ce88
+debug: semantic: sem_check_block: Call line=8 col=9 name=printf target_type=13 node=0x55db3afd8e88
+debug: semantic: sem_check_expr: type=2 line=8 col=9 node=0x55db3afd8e88
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=8 col=3 node=0x557077a0cc50
-debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x557077a0ccd0
-debug: semantic: sem_check_expr: type=26 line=8 col=35 node=0x557077a0cdf0
-debug: semantic: sem_check_expr: type=13 line=8 col=34 node=0x557077a0cd70
-debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x557077a0ccd0
+debug: semantic: sem_check_expr: type=13 line=8 col=3 node=0x55db3afd8c50
+debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x55db3afd8cd0
+debug: semantic: sem_check_expr: type=26 line=8 col=35 node=0x55db3afd8df0
+debug: semantic: sem_check_expr: type=13 line=8 col=34 node=0x55db3afd8d70
+debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x55db3afd8cd0
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=9 col=9 name=printf target_type=13 node=0x557077a0d168
-debug: semantic: sem_check_expr: type=2 line=9 col=9 node=0x557077a0d168
+debug: semantic: sem_check_block: Call line=9 col=9 name=printf target_type=13 node=0x55db3afd9168
+debug: semantic: sem_check_expr: type=2 line=9 col=9 node=0x55db3afd9168
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x557077a0cf20
-debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x557077a0cfa0
-debug: semantic: sem_check_expr: type=31 line=9 col=31 node=0x557077a0d0c0
-debug: semantic: sem_check_expr: type=13 line=9 col=29 node=0x557077a0d040
-debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x557077a0cfa0
+debug: semantic: sem_check_expr: type=13 line=9 col=3 node=0x55db3afd8f20
+debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x55db3afd8fa0
+debug: semantic: sem_check_expr: type=31 line=9 col=31 node=0x55db3afd90c0
+debug: semantic: sem_check_expr: type=13 line=9 col=29 node=0x55db3afd9040
+debug: semantic: sem_check_expr: type=16 line=9 col=10 node=0x55db3afd8fa0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class __Union_suka__f0
-debug: alir: DEBUG_REGISTER: st=0x557077a12030 name=__Union_suka__f0 next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55db3afde030 name=__Union_suka__f0 next=(nil)
 debug: alir: REGISTER_STRUCT __Union_suka__f0 fields 0
 debug: alir: POPULATING __Union_suka__f0 has_body=1
 debug: alir: BUILT __Union_suka__f0 with 2 fields (was -1)
@@ -54,23 +54,23 @@ debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_bas
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x557077a0c2d8
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55db3afd82d8
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
 debug: alir: HINT_CLASS __Union_suka__f0
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: TAINTED PTR: ctx->module=0x557077a0e8b8 target_name=printf count=2
+debug: alir: TAINTED PTR: ctx->module=0x55db3afda8b8 target_name=printf count=2
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x557077a0c2d8
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55db3afd82d8
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
 debug: alir: HINT_CLASS __Union_suka__f0
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: TAINTED PTR: ctx->module=0x557077a0e8b8 target_name=printf count=2
+debug: alir: TAINTED PTR: ctx->module=0x55db3afda8b8 target_name=printf count=2
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 debug: alir: alir_add_function: __Union_suka__f0

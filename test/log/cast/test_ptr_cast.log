@@ -1,17 +1,17 @@
 step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=2 col=13 node=0x561800cbe128
+debug: semantic: sem_check_expr: type=16 line=2 col=13 node=0x560e0471c128
 debug: parser: inferring type for a, init_type.base=1
 debug: parser: debug: inferred type int for a
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=15 line=3 col=13 node=0x561800cbe308
-debug: semantic: sem_check_expr: type=13 line=3 col=14 node=0x561800cbe288
+debug: semantic: sem_check_expr: type=15 line=3 col=13 node=0x560e0471c308
+debug: semantic: sem_check_expr: type=13 line=3 col=14 node=0x560e0471c288
 debug: parser: inferring type for b, init_type.base=1
 debug: parser: debug: inferred type int* for b
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=31 line=4 col=15 node=0x561800cbe4d0
-debug: semantic: sem_check_expr: type=13 line=4 col=13 node=0x561800cbe450
+debug: semantic: sem_check_expr: type=31 line=4 col=15 node=0x560e0471c4d0
+debug: semantic: sem_check_expr: type=13 line=4 col=13 node=0x560e0471c450
 debug: parser: inferring type for c, init_type.base=4
 debug: parser: debug: inferred type long for c
 step: Finished Semantic Analysis. Start macro-linking.
@@ -41,6 +41,7 @@ define i32 @main() {
 entry:
   %alloc = alloca i32, align 4
   store i32 10, ptr %alloc, align 4
+  %load = load i32, ptr %alloc, align 4
   %ptr2int = ptrtoint ptr %alloc to i64
   ret i32 0
 }

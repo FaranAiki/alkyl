@@ -1,33 +1,33 @@
 step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=16, token.type=32
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x5604cdd98df8 target=0x5604cdd98c38
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x5627736b8df8 target=0x5627736b8c38
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x5604cdd993d0 target=0x5604cdd992d0
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x5627736b93d0 target=0x5627736b92d0
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x5604cdd98df8
+debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x5627736b8df8
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=8 col=17 node=0x5604cdd98c38
-debug: semantic: &ctx->ast_tail=0x7fff0b7f0018, ctx->ast_tail=0x5604cdd99640, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x5604cdd98cb8
-debug: semantic: sem_check_expr: type=16 line=8 col=26 node=0x5604cdd98d58
+debug: semantic: sem_check_expr: type=47 line=8 col=17 node=0x5627736b8c38
+debug: semantic: &ctx->ast_tail=0x7ffd8a7371b0, ctx->ast_tail=0x5627736b9640, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x5627736b8cb8
+debug: semantic: sem_check_expr: type=16 line=8 col=26 node=0x5627736b8d58
 debug: parser: inferring type for a, init_type.base=16
 debug: parser: debug: inferred type Vector_int for a
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=9 col=22 node=0x5604cdd993d0
+debug: semantic: sem_check_expr: type=2 line=9 col=22 node=0x5627736b93d0
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=9 col=17 node=0x5604cdd992d0
-debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x5604cdd99350
+debug: semantic: sem_check_expr: type=47 line=9 col=17 node=0x5627736b92d0
+debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x5627736b9350
 debug: semantic: copy check: base=16 expected=16 class_name=Vector_int sym_name=Vector_int
 debug: parser: inferring type for b, init_type.base=16
 debug: parser: debug: inferred type Vector_int for b
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=10 col=10 node=0x5604cdd99528
+debug: semantic: sem_check_expr: type=16 line=10 col=10 node=0x5627736b9528
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Vector_int
-debug: alir: DEBUG_REGISTER: st=0x5604cdd9e3f0 name=Vector_int next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x5627736be3f0 name=Vector_int next=(nil)
 debug: alir: REGISTER_STRUCT Vector_int fields 0
 debug: alir: POPULATING Vector_int has_body=1
 debug: alir: BUILT Vector_int with 2 fields (was -1)

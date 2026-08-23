@@ -1,6 +1,6 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55e2c4ede640 target=0x55e2c4ede520
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x563cdf663640 target=0x563cdf663520
 debug: c_header: LOOP START token=72
 debug: c_header: LOOP START token=72
 debug: c_header: LOOP START token=84
@@ -561,7 +561,7 @@ debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=50 line=3 col=15 node=0x55e2c4ede3e0
+debug: semantic: sem_check_expr: type=50 line=3 col=15 node=0x563cdf6633e0
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
@@ -660,47 +660,47 @@ debug: parser: inferring type for stdio, init_type.base=18
 debug: parser: debug: inferred type /usr/include/stdio.h for stdio
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=6 col=11 name=printf target_type=13 node=0x55e2c4ede640
-debug: semantic: sem_check_expr: type=2 line=6 col=11 node=0x55e2c4ede640
+debug: semantic: sem_check_block: Call line=6 col=11 name=printf target_type=13 node=0x563cdf663640
+debug: semantic: sem_check_expr: type=2 line=6 col=11 node=0x563cdf663640
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=6 col=5 node=0x55e2c4ede520
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x55e2c4ede5a0
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x55e2c4ede5a0
+debug: semantic: sem_check_expr: type=13 line=6 col=5 node=0x563cdf663520
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x563cdf6635a0
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x563cdf6635a0
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=7 col=10 node=0x55e2c4ede7f8
-debug: semantic: sem_check_expr: type=13 line=7 col=5 node=0x55e2c4ede6d8
+debug: semantic: sem_check_expr: type=27 line=7 col=10 node=0x563cdf6637f8
+debug: semantic: sem_check_expr: type=13 line=7 col=5 node=0x563cdf6636d8
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='/usr/include/stdio.h'
-debug: semantic: sem_check_expr: type=16 line=7 col=18 node=0x55e2c4ede758
-debug: semantic: sem_check_expr: type=16 line=7 col=18 node=0x55e2c4ede758
+debug: semantic: sem_check_expr: type=16 line=7 col=18 node=0x563cdf663758
+debug: semantic: sem_check_expr: type=16 line=7 col=18 node=0x563cdf663758
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class __anon_typedef
-debug: alir: DEBUG_REGISTER: st=0x55e2c4f65798 name=__anon_typedef next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x563cdf6ea798 name=__anon_typedef next=(nil)
 debug: alir: REGISTER_STRUCT __anon_typedef fields 0
 debug: alir: Visiting class __anon_typedef
 debug: alir: Visiting class _G_fpos_t
-debug: alir: DEBUG_REGISTER: st=0x55e2c4f657b8 name=_G_fpos_t next=0x55e2c4f65798
+debug: alir: DEBUG_REGISTER: st=0x563cdf6ea7b8 name=_G_fpos_t next=0x563cdf6ea798
 debug: alir: REGISTER_STRUCT _G_fpos_t fields 0
 debug: alir: Visiting class _G_fpos64_t
-debug: alir: DEBUG_REGISTER: st=0x55e2c4f657d8 name=_G_fpos64_t next=0x55e2c4f657b8
+debug: alir: DEBUG_REGISTER: st=0x563cdf6ea7d8 name=_G_fpos64_t next=0x563cdf6ea7b8
 debug: alir: REGISTER_STRUCT _G_fpos64_t fields 0
 debug: alir: Visiting class _IO_FILE
-debug: alir: DEBUG_REGISTER: st=0x55e2c4f657f8 name=_IO_FILE next=0x55e2c4f657d8
+debug: alir: DEBUG_REGISTER: st=0x563cdf6ea7f8 name=_IO_FILE next=0x563cdf6ea7d8
 debug: alir: REGISTER_STRUCT _IO_FILE fields 0
 debug: alir: Visiting class _IO_FILE
 debug: alir: Visiting class _IO_FILE
 debug: alir: Visiting class _IO_marker
-debug: alir: DEBUG_REGISTER: st=0x55e2c4f65818 name=_IO_marker next=0x55e2c4f657f8
+debug: alir: DEBUG_REGISTER: st=0x563cdf6ea818 name=_IO_marker next=0x563cdf6ea7f8
 debug: alir: REGISTER_STRUCT _IO_marker fields 0
 debug: alir: Visiting class _IO_codecvt
-debug: alir: DEBUG_REGISTER: st=0x55e2c4f65838 name=_IO_codecvt next=0x55e2c4f65818
+debug: alir: DEBUG_REGISTER: st=0x563cdf6ea838 name=_IO_codecvt next=0x563cdf6ea818
 debug: alir: REGISTER_STRUCT _IO_codecvt fields 0
 debug: alir: Visiting class _IO_wide_data
-debug: alir: DEBUG_REGISTER: st=0x55e2c4f65858 name=_IO_wide_data next=0x55e2c4f65838
+debug: alir: DEBUG_REGISTER: st=0x563cdf6ea858 name=_IO_wide_data next=0x563cdf6ea838
 debug: alir: REGISTER_STRUCT _IO_wide_data fields 0
 debug: alir: Visiting class _IO_FILE
 debug: alir: Visiting class _IO_cookie_io_functions_t
-debug: alir: DEBUG_REGISTER: st=0x55e2c4f65878 name=_IO_cookie_io_functions_t next=0x55e2c4f65858
+debug: alir: DEBUG_REGISTER: st=0x563cdf6ea878 name=_IO_cookie_io_functions_t next=0x563cdf6ea858
 debug: alir: REGISTER_STRUCT _IO_cookie_io_functions_t fields 0
 debug: alir: Visiting class __anon_typedef
 debug: alir: Visiting class __anon_typedef
@@ -1323,11 +1323,11 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55e2c4ee6c80
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x563cdf66bc80
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
 debug: alir: func=main op=35 dest_kind=5 dest_type_base=8 op1_kind=9 op1_type_base=8
-debug: alir: TAINTED PTR: ctx->module=0x55e2c4f61ff0 target_name=printf count=1
+debug: alir: TAINTED PTR: ctx->module=0x563cdf6e6ff0 target_name=printf count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: GLOBAL VAR ADDR: stdio
 debug: alir: func=main op=35 dest_kind=5 dest_type_base=8 op1_kind=9 op1_type_base=8

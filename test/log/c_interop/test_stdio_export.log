@@ -232,7 +232,7 @@ debug: c_header: w_name=__uflow
 debug: c_header: parsed function __uflow with 1 params (varargs=0) at line 1455
 debug: c_header: w_name=__overflow
 debug: c_header: parsed function __overflow with 2 params (varargs=0) at line 1456
-debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x558b464d02a0
+debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x55c6281302a0
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
@@ -331,40 +331,40 @@ debug: parser: inferring type for stdio, init_type.base=18
 debug: parser: debug: inferred type /usr/include/stdio.h for stdio
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x558b464d0500
-debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x558b464d03e0
+debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x55c628130500
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55c6281303e0
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='/usr/include/stdio.h'
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x558b464d0460
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x558b464d0460
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55c628130460
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55c628130460
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class __anon_typedef
-debug: alir: DEBUG_REGISTER: st=0x558b4651a9a8 name=__anon_typedef next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x55c62817a9a8 name=__anon_typedef next=(nil)
 debug: alir: REGISTER_STRUCT __anon_typedef fields 0
 debug: alir: Visiting class __anon_typedef
 debug: alir: Visiting class _G_fpos_t
-debug: alir: DEBUG_REGISTER: st=0x558b4651a9c8 name=_G_fpos_t next=0x558b4651a9a8
+debug: alir: DEBUG_REGISTER: st=0x55c62817a9c8 name=_G_fpos_t next=0x55c62817a9a8
 debug: alir: REGISTER_STRUCT _G_fpos_t fields 0
 debug: alir: Visiting class _G_fpos64_t
-debug: alir: DEBUG_REGISTER: st=0x558b4651a9e8 name=_G_fpos64_t next=0x558b4651a9c8
+debug: alir: DEBUG_REGISTER: st=0x55c62817a9e8 name=_G_fpos64_t next=0x55c62817a9c8
 debug: alir: REGISTER_STRUCT _G_fpos64_t fields 0
 debug: alir: Visiting class _IO_FILE
-debug: alir: DEBUG_REGISTER: st=0x558b4651aa08 name=_IO_FILE next=0x558b4651a9e8
+debug: alir: DEBUG_REGISTER: st=0x55c62817aa08 name=_IO_FILE next=0x55c62817a9e8
 debug: alir: REGISTER_STRUCT _IO_FILE fields 0
 debug: alir: Visiting class _IO_FILE
 debug: alir: Visiting class _IO_FILE
 debug: alir: Visiting class _IO_marker
-debug: alir: DEBUG_REGISTER: st=0x558b4651aa28 name=_IO_marker next=0x558b4651aa08
+debug: alir: DEBUG_REGISTER: st=0x55c62817aa28 name=_IO_marker next=0x55c62817aa08
 debug: alir: REGISTER_STRUCT _IO_marker fields 0
 debug: alir: Visiting class _IO_codecvt
-debug: alir: DEBUG_REGISTER: st=0x558b4651aa48 name=_IO_codecvt next=0x558b4651aa28
+debug: alir: DEBUG_REGISTER: st=0x55c62817aa48 name=_IO_codecvt next=0x55c62817aa28
 debug: alir: REGISTER_STRUCT _IO_codecvt fields 0
 debug: alir: Visiting class _IO_wide_data
-debug: alir: DEBUG_REGISTER: st=0x558b4651aa68 name=_IO_wide_data next=0x558b4651aa48
+debug: alir: DEBUG_REGISTER: st=0x55c62817aa68 name=_IO_wide_data next=0x55c62817aa48
 debug: alir: REGISTER_STRUCT _IO_wide_data fields 0
 debug: alir: Visiting class _IO_FILE
 debug: alir: Visiting class _IO_cookie_io_functions_t
-debug: alir: DEBUG_REGISTER: st=0x558b4651aa88 name=_IO_cookie_io_functions_t next=0x558b4651aa68
+debug: alir: DEBUG_REGISTER: st=0x55c62817aa88 name=_IO_cookie_io_functions_t next=0x55c62817aa68
 debug: alir: REGISTER_STRUCT _IO_cookie_io_functions_t fields 0
 debug: alir: POPULATING __anon_typedef has_body=1
 debug: alir: BUILT __anon_typedef with 1 fields (was -1)

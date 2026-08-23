@@ -1,27 +1,27 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=add target_type=13 line=0 col=0 node=0x55d484f2e8f0 target=0x55d484f2e680
+debug: parser: Created Call name=add target_type=13 line=0 col=0 node=0x55ca6bde98f0 target=0x55ca6bde9680
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=14 line=2 col=14 node=0x55d484f2e318
-debug: semantic: sem_check_expr: type=13 line=2 col=12 node=0x55d484f2e1f8
-debug: semantic: sem_check_expr: type=16 line=2 col=16 node=0x55d484f2e278
+debug: semantic: sem_check_expr: type=14 line=2 col=14 node=0x55ca6bde9318
+debug: semantic: sem_check_expr: type=13 line=2 col=12 node=0x55ca6bde91f8
+debug: semantic: sem_check_expr: type=16 line=2 col=16 node=0x55ca6bde9278
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x55d484f2e520
+debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x55ca6bde9520
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=9 col=8 name=add target_type=13 node=0x55d484f2e8f0
-debug: semantic: sem_check_expr: type=2 line=9 col=8 node=0x55d484f2e8f0
+debug: semantic: sem_check_block: Call line=9 col=8 name=add target_type=13 node=0x55ca6bde98f0
+debug: semantic: sem_check_expr: type=2 line=9 col=8 node=0x55ca6bde98f0
 debug: semantic: sem_check_call: name='add', ns='main'
-debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x55d484f2e680
-debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x55d484f2e820
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55d484f2e700
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55d484f2e780
-debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x55d484f2e820
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55d484f2e700
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55d484f2e780
+debug: semantic: sem_check_expr: type=13 line=9 col=5 node=0x55ca6bde9680
+debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x55ca6bde9820
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55ca6bde9700
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55ca6bde9780
+debug: semantic: sem_check_expr: type=14 line=9 col=11 node=0x55ca6bde9820
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55ca6bde9700
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x55ca6bde9780
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x55d484f2e988
+debug: semantic: sem_check_expr: type=16 line=10 col=12 node=0x55ca6bde9988
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -36,14 +36,13 @@ debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_bas
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
 debug: alir: GEN_CALL: name=add mangled=main_add_i32
 debug: alir: Looking up 'main_add_i32'
-debug: alir: Found symbol add, kind=1, is_macro=0, node_ptr=0x55d484f2e430
+debug: alir: Found symbol add, kind=1, is_macro=0, node_ptr=0x55ca6bde9430
 debug: alir: CALL_STD: name=add mangled=main_add_i32 target_type=13
 debug: alir: GLOBAL VAR ADDR: add
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: TAINTED PTR: ctx->module=0x55d484f2fbd8 target_name=main_add_i32 count=1
+debug: alir: TAINTED PTR: ctx->module=0x55ca6bdeabd8 target_name=main_add_i32 count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
@@ -61,10 +60,6 @@ entry:
 
 define i32 @main() {
 entry:
-  %alloc = alloca { i32, i32 }, align 8
-  store { i32, i32 } zeroinitializer, ptr %alloc, align 4
-  %taint_gep = getelementptr inbounds nuw { i32, i32 }, ptr %alloc, i32 0, i32 1
-  %load = load i32, ptr %taint_gep, align 4
   %call = call i32 @main_add_i32(i32 0)
   ret i32 0
 }

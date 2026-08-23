@@ -1,20 +1,20 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x561364444618 target=0x561364444478
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x563b3d899618 target=0x563b3d899478
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=4 col=21 node=0x561364444318
+debug: semantic: sem_check_expr: type=16 line=4 col=21 node=0x563b3d899318
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=5 col=11 name=printf target_type=13 node=0x561364444618
-debug: semantic: sem_check_expr: type=2 line=5 col=11 node=0x561364444618
+debug: semantic: sem_check_block: Call line=5 col=11 name=printf target_type=13 node=0x563b3d899618
+debug: semantic: sem_check_expr: type=2 line=5 col=11 node=0x563b3d899618
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=5 col=5 node=0x561364444478
-debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x5613644444f8
-debug: semantic: sem_check_expr: type=13 line=5 col=47 node=0x561364444598
-debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x5613644444f8
+debug: semantic: sem_check_expr: type=13 line=5 col=5 node=0x563b3d899478
+debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x563b3d8994f8
+debug: semantic: sem_check_expr: type=13 line=5 col=47 node=0x563b3d899598
+debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x563b3d8994f8
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x5613644446b0
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x563b3d8996b0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -30,12 +30,15 @@ debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_bas
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x561364444228
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x563b3d899228
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: TAINTED PTR: ctx->module=0x563b3d89a7d0 target_name=printf count=2
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: TAINTED PTR: ctx->module=0x5613644457d0 target_name=printf count=2
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.

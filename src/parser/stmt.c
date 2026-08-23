@@ -527,42 +527,82 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
           }
       }
       
-      int is_array = 0;
-      ASTNode *array_size = NULL;
-      ASTNode **curr_sz = &array_size;
-      
-      while (p->current_token.type == TOKEN_LBRACKET) { if (p->has_error) break;
-        is_array = 1;
-        peek_t.ptr_depth++; 
-        eat(p, TOKEN_LBRACKET);
-        ASTNode *sz = NULL;
-        if (p->current_token.type != TOKEN_RBRACKET) sz = parse_expression(p);
-        else {
-             LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
-             ln->base.type = NODE_LITERAL;
-             ln->var_type.base = TYPE_INT;
-             ln->val.int_val = 0;
-             sz = (ASTNode*)ln;
-        }
-        *curr_sz = sz;
-        curr_sz = &sz->next;
-        eat(p, TOKEN_RBRACKET);
+      ASTNode *head = NULL;
+      ASTNode **curr = &head;
+      char *name_val = name;
+      int next_extra_ptrs = 0;
+
+      while (1) { if (p->has_error) break;
+          VarType current_vtype = peek_t;
+          current_vtype.ptr_depth += next_extra_ptrs;
+
+          if (p->current_token.type == TOKEN_QUESTION) {
+              current_vtype.is_tainted = 1;
+              eat(p, TOKEN_QUESTION);
+          }
+          
+          int is_array = 0;
+          ASTNode *array_size = NULL;
+          ASTNode **curr_sz = &array_size;
+          
+          while (p->current_token.type == TOKEN_LBRACKET) { if (p->has_error) break;
+            is_array = 1;
+            current_vtype.ptr_depth++; 
+            eat(p, TOKEN_LBRACKET);
+            ASTNode *sz = NULL;
+            if (p->current_token.type != TOKEN_RBRACKET) sz = parse_expression(p);
+            else {
+                 LiteralNode *ln = parser_alloc(p, sizeof(LiteralNode));
+                 ln->base.type = NODE_LITERAL;
+                 ln->var_type.base = TYPE_INT;
+                 ln->val.int_val = 0;
+                 sz = (ASTNode*)ln;
+            }
+            *curr_sz = sz;
+            curr_sz = &sz->next;
+            eat(p, TOKEN_RBRACKET);
+          }
+
+          ASTNode *init = parse_initializer(p, current_vtype);
+          
+          VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
+          node->base.type = NODE_VAR_DECL;
+          node->var_type = current_vtype;
+          node->name = name_val;
+          node->initializer = init;
+          node->is_mutable = is_mut;
+          node->is_array = is_array;
+          node->array_size = array_size;
+          set_loc((ASTNode*)node, line, col);
+          
+          *curr = (ASTNode*)node;
+          curr = &node->base.next;
+          
+          if (p->current_token.type == TOKEN_COMMA) {
+              eat(p, TOKEN_COMMA);
+              
+              next_extra_ptrs = 0;
+              while (p->current_token.type == TOKEN_STAR) { if (p->has_error) break;
+                  next_extra_ptrs++;
+                  eat(p, TOKEN_STAR);
+              }
+              
+              if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected identifier after comma");
+              name_val = parser_strdup(p, p->current_token.text);
+              p->current_token.text = NULL;
+              eat(p, TOKEN_IDENTIFIER);
+          } else {
+              break;
+          }
       }
 
-      ASTNode *init = parse_initializer(p, peek_t);
       eat_semi(p);
-      VarDeclNode *node = parser_alloc(p, sizeof(VarDeclNode));
-      node->base.type = NODE_VAR_DECL;
-      node->var_type = peek_t;
-      node->name = name;
-      node->initializer = init;
-      node->is_mutable = is_mut;
-      node->is_array = is_array;
-      node->array_size = array_size;
-      set_loc((ASTNode*)node, line, col);
-      
-      apply_var_modifiers(node, modifiers);
-      return (ASTNode*)node;
+      ASTNode *c = head;
+      while (c) {
+          apply_var_modifiers((VarDeclNode*)c, modifiers);
+          c = c->next;
+      }
+      return head;
   }
   
   if (p->current_token.type == TOKEN_KW_MUT || p->current_token.type == TOKEN_KW_IMUT) {

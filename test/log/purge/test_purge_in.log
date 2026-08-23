@@ -4,22 +4,22 @@ debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='clib'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x5645e6e4f300
+debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x55ce5c040300
 debug: semantic: sem_check_block: visiting node type=45
-debug: semantic: sem_check_expr: type=13 line=7 col=22 node=0x5645e6e4f558
+debug: semantic: sem_check_expr: type=13 line=7 col=22 node=0x55ce5c040558
 debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=8 col=10 node=0x5645e6e4f6f8
-debug: semantic: sem_check_expr: type=13 line=8 col=8 node=0x5645e6e4f5d8
-debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x5645e6e4f658
+debug: semantic: sem_check_expr: type=14 line=8 col=10 node=0x55ce5c0406f8
+debug: semantic: sem_check_expr: type=13 line=8 col=8 node=0x55ce5c0405d8
+debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x55ce5c040658
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=9 col=13 node=0x5645e6e4f8e8
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x5645e6e4f7c8
+debug: semantic: sem_check_expr: type=27 line=9 col=13 node=0x55ce5c0408e8
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55ce5c0407c8
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
-debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x5645e6e4f848
-debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x5645e6e4f848
+debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x55ce5c040848
+debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x55ce5c040848
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x5645e6e4fa00
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x55ce5c040a00
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -35,9 +35,7 @@ debug: alir: func=main op=35 dest_kind=5 dest_type_base=1 op1_kind=7 op1_type_ba
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
-debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
 debug: alir: func=main op=34 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
@@ -63,12 +61,16 @@ define { i32, i32 } @main() {
 entry:
   %alloc = alloca { i32, i32 }, align 8
   store { i32, i32 } zeroinitializer, ptr %alloc, align 4
-  %taint_gep = getelementptr inbounds nuw { i32, i32 }, ptr %alloc, i32 0, i32 1
-  %ptr_gep = getelementptr i32, ptr %taint_gep, i32 0
-  store i32 1, ptr %ptr_gep, align 4
-  %taint_gep1 = getelementptr inbounds nuw { i32, i32 }, ptr %alloc, i32 0, i32 1
-  %load = load i32, ptr %taint_gep1, align 4
-  br i1 false, label %then, label %merge
+  %taint_gep = getelementptr inbounds nuw { i32, i32 }, ptr %alloc, i32 0, i32 0
+  store i32 1, ptr %taint_gep, align 4
+  %load = load { i32, i32 }, ptr %alloc, align 4
+  %load1 = load { i32, i32 }, ptr %alloc, align 4
+  %err_id = extractvalue { i32, i32 } %load1, 0
+  %val = extractvalue { i32, i32 } %load1, 1
+  %has_err = icmp ne i32 %err_id, 0
+  %fallback_res = select i1 %has_err, i32 2, i32 %val
+  %trunc_cond = trunc i32 %fallback_res to i1
+  br i1 %trunc_cond, label %then, label %merge
 
 then:                                             ; preds = %entry
   %call = call i32 (ptr, ...) @printf(ptr @str.0)

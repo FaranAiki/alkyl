@@ -1,18 +1,18 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55a427784510 target=0x55a427784250
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55cafe46b510 target=0x55cafe46b250
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=my_print target_type=13 line=0 col=0 node=0x55a4277847b8 target=0x55a427784698
+debug: parser: Created Call name=my_print target_type=13 line=0 col=0 node=0x55cafe46b7b8 target=0x55cafe46b698
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=6 col=11 name=my_print target_type=13 node=0x55a4277847b8
-debug: semantic: sem_check_expr: type=2 line=6 col=11 node=0x55a4277847b8
+debug: semantic: sem_check_block: Call line=6 col=11 name=my_print target_type=13 node=0x55cafe46b7b8
+debug: semantic: sem_check_expr: type=2 line=6 col=11 node=0x55cafe46b7b8
 debug: semantic: sem_check_call: name='my_print', ns='main'
-debug: semantic: sem_check_expr: type=13 line=6 col=3 node=0x55a427784698
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x55a427784718
+debug: semantic: sem_check_expr: type=13 line=6 col=3 node=0x55cafe46b698
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x55cafe46b718
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=7 col=10 node=0x55a427784850
+debug: semantic: sem_check_expr: type=16 line=7 col=10 node=0x55cafe46b850
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -26,25 +26,25 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 debug: alir: GEN_CALL: name=my_print mangled=main.my_print
 debug: alir: Looking up 'main.my_print'
-debug: alir: Found symbol my_print, kind=1, is_macro=1, node_ptr=0x55a4277845a8
+debug: alir: Found symbol my_print, kind=1, is_macro=1, node_ptr=0x55cafe46b5a8
 debug: alir: macro: mangled='main.my_print', old_ns='main'
 debug: alir: macro: setting ns to 'main'
 debug: alir: macro: before sem_check_block, ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=3 col=9 name=printf target_type=13 node=0x55a42778a050
-debug: semantic: sem_check_expr: type=2 line=3 col=9 node=0x55a42778a050
+debug: semantic: sem_check_block: Call line=3 col=9 name=printf target_type=13 node=0x55cafe471050
+debug: semantic: sem_check_expr: type=2 line=3 col=9 node=0x55cafe471050
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=3 col=3 node=0x55a42778a0d8
-debug: semantic: sem_check_expr: type=16 line=3 col=10 node=0x55a42778a158
-debug: semantic: sem_check_expr: type=16 line=3 col=10 node=0x55a42778a158
+debug: semantic: sem_check_expr: type=13 line=3 col=3 node=0x55cafe4710d8
+debug: semantic: sem_check_expr: type=16 line=3 col=10 node=0x55cafe471158
+debug: semantic: sem_check_expr: type=16 line=3 col=10 node=0x55cafe471158
 debug: alir: macro: after sem_check_block, ns='main'
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55a427784160
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55cafe46b160
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
-debug: alir: TAINTED PTR: ctx->module=0x55a4277859d0 target_name=printf count=2
+debug: alir: TAINTED PTR: ctx->module=0x55cafe46c9d0 target_name=printf count=2
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.

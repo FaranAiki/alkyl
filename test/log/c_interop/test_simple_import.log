@@ -1,17 +1,17 @@
 step: Finished lexing. Start parsing.
 debug: c_header: w_name=printf
 debug: c_header: parsed function printf with 1 params (varargs=1) at line 8
-debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x55d5eea5e298
+debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x5565aa0c4298
 debug: semantic: sem_check_block: ns='main'
 debug: parser: inferring type for stdio, init_type.base=18
 debug: parser: debug: inferred type test/code/c_interop/test_simple.h for stdio
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x55d5eea5e4f8
-debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55d5eea5e3d8
+debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x5565aa0c44f8
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x5565aa0c43d8
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='test/code/c_interop/test_simple.h'
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55d5eea5e458
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55d5eea5e458
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x5565aa0c4458
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x5565aa0c4458
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
