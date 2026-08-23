@@ -1,36 +1,36 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=divbytwo target_type=13 line=0 col=0 node=0x560fbb49bef8 target=0x560fbb49bd38
+debug: parser: Created Call name=divbytwo target_type=13 line=0 col=0 node=0x55b85ae41d58 target=0x55b85ae41b98
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=5 col=8 node=0x560fbb49b808
-debug: semantic: sem_check_expr: type=13 line=5 col=6 node=0x560fbb49b6e8
-debug: semantic: sem_check_expr: type=16 line=5 col=11 node=0x560fbb49b768
+debug: semantic: sem_check_expr: type=14 line=5 col=8 node=0x55b85ae41668
+debug: semantic: sem_check_expr: type=13 line=5 col=6 node=0x55b85ae41548
+debug: semantic: sem_check_expr: type=16 line=5 col=11 node=0x55b85ae415c8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=45
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=14 line=6 col=12 node=0x560fbb49bb28
-debug: semantic: sem_check_expr: type=13 line=6 col=10 node=0x560fbb49ba28
-debug: semantic: sem_check_expr: type=13 line=6 col=14 node=0x560fbb49baa8
+debug: semantic: sem_check_expr: type=14 line=6 col=12 node=0x55b85ae41988
+debug: semantic: sem_check_expr: type=13 line=6 col=10 node=0x55b85ae41888
+debug: semantic: sem_check_expr: type=13 line=6 col=14 node=0x55b85ae41908
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=10 col=27 node=0x560fbb49bef8
+debug: semantic: sem_check_expr: type=2 line=10 col=27 node=0x55b85ae41d58
 debug: semantic: sem_check_call: name='divbytwo', ns='main'
-debug: semantic: sem_check_expr: type=13 line=10 col=19 node=0x560fbb49bd38
-debug: semantic: sem_check_expr: type=16 line=10 col=28 node=0x560fbb49bdb8
-debug: semantic: sem_check_expr: type=16 line=10 col=33 node=0x560fbb49be58
-debug: semantic: sem_check_expr: type=16 line=10 col=28 node=0x560fbb49bdb8
-debug: semantic: sem_check_expr: type=16 line=10 col=33 node=0x560fbb49be58
+debug: semantic: sem_check_expr: type=13 line=10 col=19 node=0x55b85ae41b98
+debug: semantic: sem_check_expr: type=16 line=10 col=28 node=0x55b85ae41c18
+debug: semantic: sem_check_expr: type=16 line=10 col=33 node=0x55b85ae41cb8
+debug: semantic: sem_check_expr: type=16 line=10 col=28 node=0x55b85ae41c18
+debug: semantic: sem_check_expr: type=16 line=10 col=33 node=0x55b85ae41cb8
 debug: semantic: sem_check_block: visiting node type=37
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=12 col=11 name=print target_type=13 node=0x560fbb49c198
-debug: semantic: sem_check_expr: type=2 line=12 col=11 node=0x560fbb49c198
+debug: semantic: sem_check_block: Call line=12 col=11 name=print target_type=13 node=0x55b85ae41ff8
+debug: semantic: sem_check_expr: type=2 line=12 col=11 node=0x55b85ae41ff8
 debug: semantic: sem_check_call: name='print', ns='main'
-debug: semantic: sem_check_expr: type=13 line=12 col=5 node=0x560fbb49c078
-debug: semantic: sem_check_expr: type=16 line=12 col=11 node=0x560fbb49c0f8
-debug: semantic: sem_check_expr: type=16 line=12 col=11 node=0x560fbb49c0f8
+debug: semantic: sem_check_expr: type=13 line=12 col=5 node=0x55b85ae41ed8
+debug: semantic: sem_check_expr: type=16 line=12 col=11 node=0x55b85ae41f58
+debug: semantic: sem_check_expr: type=16 line=12 col=11 node=0x55b85ae41f58
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -46,10 +46,10 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 debug: alir: GEN_CALL: name=divbytwo mangled=main_divbytwo_i32_i32
 debug: alir: Looking up 'main_divbytwo_i32_i32'
-debug: alir: Found symbol divbytwo, kind=1, is_macro=0, node_ptr=0x560fbb49bc40
+debug: alir: Found symbol divbytwo, kind=1, is_macro=0, node_ptr=0x55b85ae41aa0
 debug: alir: CALL_STD: name=divbytwo mangled=main_divbytwo_i32_i32 target_type=13
 debug: alir: GLOBAL VAR ADDR: divbytwo
-debug: alir: TAINTED PTR: ctx->module=0x560fbb49dd28 target_name=main_divbytwo_i32_i32 count=2
+debug: alir: TAINTED PTR: ctx->module=0x55b85ae43b88 target_name=main_divbytwo_i32_i32 count=2
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=1 op1_kind=0 op1_type_base=0
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
@@ -68,4 +68,66 @@ debug: optlir: Check Type for Struct Marking string
 debug: optlir: Check Type for Struct Marking string
 debug: optlir: Check Type for Struct Marking string
 debug: optlir: Check Type for Struct Marking string
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: ALIR_OP_PANIC in func. ret_ty kind: 10
+debug: codegen: Terminator after LLVMBuildRet: 0x55b85ae73cc0
+debug: codegen: DEBUG CALL param 0: num_params=2, expected_ty=8, arg_ty=8
+debug: codegen: DEBUG CALL param 1: num_params=2, expected_ty=8, arg_ty=8
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+%string = type { i32, ptr }
+
+@str.0_data = private constant [21 x i8] c"purge: ErrDivByZero\0A\00"
+@str.0 = private constant %string { i32 20, ptr @str.0_data }
+@div_zero_msg = private unnamed_addr constant [25 x i8] c"purge: ErrDivisionByZero\00", align 1
+
+define { i32, i32 } @main_divbytwo_i32_i32(i32 %0, i32 %1) {
+entry:
+  %alloc = alloca i32, align 4
+  store i32 %0, ptr %alloc, align 4
+  %alloc1 = alloca i32, align 4
+  store i32 %1, ptr %alloc1, align 4
+  %eq = icmp eq i32 %1, 0
+  br i1 %eq, label %then, label %merge
+
+then:                                             ; preds = %entry
+  ret { i32, i32 } { i32 2, i32 undef }
+
+merge:                                            ; preds = %entry
+  %load = load i32, ptr %alloc, align 4
+  %load2 = load i32, ptr %alloc1, align 4
+  %div_cmp = icmp eq i32 %load2, 0
+  br i1 %div_cmp, label %div_zero, label %div_ok
+
+div_ok:                                           ; preds = %merge
+  %div = sdiv i32 %load, %load2
+  %2 = insertvalue { i32, i32 } { i32 0, i32 undef }, i32 %div, 1
+  ret { i32, i32 } %2
+
+div_zero:                                         ; preds = %merge
+  %3 = call i32 @puts(ptr @div_zero_msg)
+  call void @exit(i32 1)
+  unreachable
+}
+
+define i32 @main() {
+entry:
+  %call = call { i32, i32 } @main_divbytwo_i32_i32(i32 100, i32 0)
+  %alloc = alloca { i32, i32 }, align 8
+  store { i32, i32 } %call, ptr %alloc, align 4
+  %taint_gep = getelementptr inbounds nuw { i32, i32 }, ptr %alloc, i32 0, i32 0
+  %load = load i32, ptr %taint_gep, align 4
+  %taint_gep1 = getelementptr inbounds nuw { i32, i32 }, ptr %alloc, i32 0, i32 1
+  %load2 = load i32, ptr %taint_gep1, align 4
+  %eq = icmp eq i32 %load, 0
+  br i1 %eq, label %untaint_merge, label %untaint_merge
+
+untaint_merge:                                    ; preds = %entry, %entry
+  ret i32 0
+}
+
+declare i32 @puts(ptr %0)
+
+declare void @exit(i32 %0)
+Setting body for string: class_type=0x55b85ae6f840 types[0]=0x55b85ae6d3c0 types[1]=0x55b85ae6f820 i32=0x55b85ae6d3c0

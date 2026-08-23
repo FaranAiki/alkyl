@@ -3,71 +3,71 @@ debug: parser: after parse_type, vt.base=12, token.type=32
 debug: parser: after parse_type, vt.base=12, token.type=32
 debug: parser: after parse_type, vt.base=0, token.type=32
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55ae4995dc50 target=0x55ae4995da30
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x56495ca19ab0 target=0x56495ca19890
 debug: parser: after parse_type, vt.base=0, token.type=32
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55ae4995e588 target=0x55ae4995e238
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x56495ca1a3e8 target=0x56495ca1a098
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=Point target_type=13 line=0 col=0 node=0x55ae4995e970 target=0x55ae4995e7b0
+debug: parser: Created Call name=Point target_type=13 line=0 col=0 node=0x56495ca1a7d0 target=0x56495ca1a610
 debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x55ae4995d6d0
-debug: semantic: sem_check_expr: type=16 line=5 col=16 node=0x55ae4995d830
-debug: semantic: sem_check_block: ns='main'
-debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=8 col=15 name=printf target_type=13 node=0x55ae4995dc50
-debug: semantic: sem_check_expr: type=2 line=8 col=15 node=0x55ae4995dc50
-debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=8 col=9 node=0x55ae4995da30
-debug: semantic: sem_check_expr: type=16 line=8 col=16 node=0x55ae4995dab0
-debug: semantic: sem_check_expr: type=13 line=8 col=47 node=0x55ae4995db50
-debug: semantic: sem_check_expr: type=13 line=8 col=57 node=0x55ae4995dbd0
-debug: semantic: sem_check_expr: type=16 line=8 col=16 node=0x55ae4995dab0
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=13 line=9 col=18 node=0x55ae4995de00
-debug: semantic: sem_check_expr: type=26 line=9 col=13 node=0x55ae4995dd68
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x55ae4995dce8
-debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=13 line=10 col=18 node=0x55ae4995e030
-debug: semantic: sem_check_expr: type=26 line=10 col=13 node=0x55ae4995df98
-debug: semantic: sem_check_expr: type=13 line=10 col=9 node=0x55ae4995df18
+debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x56495ca19530
+debug: semantic: sem_check_expr: type=16 line=5 col=16 node=0x56495ca19690
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=14 col=15 name=printf target_type=13 node=0x55ae4995e588
-debug: semantic: sem_check_expr: type=2 line=14 col=15 node=0x55ae4995e588
+debug: semantic: sem_check_block: Call line=8 col=15 name=printf target_type=13 node=0x56495ca19ab0
+debug: semantic: sem_check_expr: type=2 line=8 col=15 node=0x56495ca19ab0
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=14 col=9 node=0x55ae4995e238
-debug: semantic: sem_check_expr: type=16 line=14 col=16 node=0x55ae4995e2b8
-debug: semantic: sem_check_expr: type=26 line=14 col=47 node=0x55ae4995e3d8
-debug: semantic: sem_check_expr: type=13 line=14 col=43 node=0x55ae4995e358
-debug: semantic: sem_check_expr: type=26 line=14 col=55 node=0x55ae4995e4f0
-debug: semantic: sem_check_expr: type=13 line=14 col=51 node=0x55ae4995e470
-debug: semantic: sem_check_expr: type=16 line=14 col=16 node=0x55ae4995e2b8
+debug: semantic: sem_check_expr: type=13 line=8 col=9 node=0x56495ca19890
+debug: semantic: sem_check_expr: type=16 line=8 col=16 node=0x56495ca19910
+debug: semantic: sem_check_expr: type=13 line=8 col=47 node=0x56495ca199b0
+debug: semantic: sem_check_expr: type=13 line=8 col=57 node=0x56495ca19a30
+debug: semantic: sem_check_expr: type=16 line=8 col=16 node=0x56495ca19910
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=13 line=9 col=18 node=0x56495ca19c60
+debug: semantic: sem_check_expr: type=26 line=9 col=13 node=0x56495ca19bc8
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x56495ca19b48
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=13 line=10 col=18 node=0x56495ca19e90
+debug: semantic: sem_check_expr: type=26 line=10 col=13 node=0x56495ca19df8
+debug: semantic: sem_check_expr: type=13 line=10 col=9 node=0x56495ca19d78
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=14 col=15 name=printf target_type=13 node=0x56495ca1a3e8
+debug: semantic: sem_check_expr: type=2 line=14 col=15 node=0x56495ca1a3e8
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=14 col=9 node=0x56495ca1a098
+debug: semantic: sem_check_expr: type=16 line=14 col=16 node=0x56495ca1a118
+debug: semantic: sem_check_expr: type=26 line=14 col=47 node=0x56495ca1a238
+debug: semantic: sem_check_expr: type=13 line=14 col=43 node=0x56495ca1a1b8
+debug: semantic: sem_check_expr: type=26 line=14 col=55 node=0x56495ca1a350
+debug: semantic: sem_check_expr: type=13 line=14 col=51 node=0x56495ca1a2d0
+debug: semantic: sem_check_expr: type=16 line=14 col=16 node=0x56495ca1a118
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=19 col=18 node=0x55ae4995e970
+debug: semantic: sem_check_expr: type=2 line=19 col=18 node=0x56495ca1a7d0
 debug: semantic: sem_check_call: name='Point', ns='main'
-debug: semantic: sem_check_expr: type=13 line=19 col=13 node=0x55ae4995e7b0
-debug: semantic: sem_check_expr: type=16 line=19 col=19 node=0x55ae4995e830
-debug: semantic: sem_check_expr: type=16 line=19 col=24 node=0x55ae4995e8d0
-debug: semantic: sem_check_expr: type=16 line=19 col=19 node=0x55ae4995e830
-debug: semantic: sem_check_expr: type=16 line=19 col=24 node=0x55ae4995e8d0
+debug: semantic: sem_check_expr: type=13 line=19 col=13 node=0x56495ca1a610
+debug: semantic: sem_check_expr: type=16 line=19 col=19 node=0x56495ca1a690
+debug: semantic: sem_check_expr: type=16 line=19 col=24 node=0x56495ca1a730
+debug: semantic: sem_check_expr: type=16 line=19 col=19 node=0x56495ca1a690
+debug: semantic: sem_check_expr: type=16 line=19 col=24 node=0x56495ca1a730
 debug: parser: inferring type for p, init_type.base=16
 debug: parser: debug: inferred type Point for p
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=20 col=6 node=0x55ae4995eb48
-debug: semantic: sem_check_expr: type=13 line=20 col=5 node=0x55ae4995eac8
+debug: semantic: sem_check_expr: type=27 line=20 col=6 node=0x56495ca1a9a8
+debug: semantic: sem_check_expr: type=13 line=20 col=5 node=0x56495ca1a928
 debug: semantic: sem_check_method_call: method='print_cords', obj_base=16, obj_class='Point'
-debug: semantic: sem_lookup_class_call for 'Point', class_sym=0x55ae4995f5e8
+debug: semantic: sem_lookup_class_call for 'Point', class_sym=0x56495ca1b448
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=21 col=12 node=0x55ae4995ebe0
+debug: semantic: sem_check_expr: type=16 line=21 col=12 node=0x56495ca1aa40
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Point
-debug: alir: DEBUG_REGISTER: st=0x55ae499646d0 name=Point next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x56495ca20530 name=Point next=(nil)
+debug: alir: REGISTER_STRUCT Point fields 0
+debug: alir: POPULATING Point has_body=1
+debug: alir: BUILT Point with 2 fields (was -1)
 debug: alir: DEBUG_PASS1_END: struct list:
-REGISTER_STRUCT Point fields 0
-POPULATING Point has_body=1
-BUILT Point with 2 fields (was -1)
  - Point fields: 2
 debug: alir: Found func_def printf
 debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
@@ -77,18 +77,22 @@ debug: alir: alir_gen_function_def fn->name=init class_name=Point fn->mangled_na
 debug: alir: alir_add_function: main_Point_init_f64_f64
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55ae4995d5e0
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x56495ca19440
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
-debug: alir: TAINTED PTR: ctx->module=0x55ae49960f58 target_name=printf count=3
+debug: alir: TAINTED PTR: ctx->module=0x56495ca1cdb8 target_name=printf count=3
+debug: alir: HINT_CLASS Point
+debug: alir: HINT_CLASS Point
 debug: alir: alir_gen_function_def fn->name=print_cords class_name=Point fn->mangled_name=main_Point_print_cords -> func_name=main_Point_print_cords
 debug: alir: alir_add_function: main_Point_print_cords
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55ae4995d5e0
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x56495ca19440
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
-debug: alir: TAINTED PTR: ctx->module=0x55ae49960f58 target_name=printf count=3
+debug: alir: HINT_CLASS Point
+debug: alir: HINT_CLASS Point
+debug: alir: TAINTED PTR: ctx->module=0x56495ca1cdb8 target_name=printf count=3
 debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
 debug: alir: alir_add_function: main
@@ -130,8 +134,53 @@ debug: optlir: Check Type for Struct Marking Point
 debug: optlir: Check Type for Struct Marking Point
 debug: optlir: Check Type for Struct Marking Point
 debug: optlir: Check Type for Struct Marking Point
-step: Finished alir optimization. Start code generation using qbe codegen
-HINT_CLASS Point
-HINT_CLASS Point
-HINT_CLASS Point
-HINT_CLASS Point
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL param 0: num_params=3, expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL param 1: num_params=3, expected_ty=3, arg_ty=3
+debug: codegen: DEBUG CALL: expected_ty=3, arg_ty=3
+debug: codegen: DEBUG CALL param 2: num_params=3, expected_ty=3, arg_ty=3
+debug: codegen: DEBUG CALL: expected_ty=3, arg_ty=3
+debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+%Point = type { double, double }
+
+@str.1 = private constant [23 x i8] c"Point(x: %lf, y: %lf)\0A\00"
+@str.0 = private constant [27 x i8] c"init called with %lf, %lf\0A\00"
+
+declare i32 @printf(ptr %0, ...)
+
+define void @main_Point_init_f64_f64(ptr %0, double %1, double %2) {
+entry:
+  %call = call i32 (ptr, ...) @printf(ptr @str.0, double %1, double %2)
+  %struct_gep = getelementptr inbounds nuw %Point, ptr %0, i32 0, i32 0
+  store double %1, ptr %struct_gep, align 8
+  %struct_gep1 = getelementptr inbounds nuw %Point, ptr %0, i32 0, i32 1
+  store double %2, ptr %struct_gep1, align 8
+  ret void
+}
+
+define void @main_Point_print_cords(ptr %0) {
+entry:
+  %struct_gep = getelementptr inbounds nuw %Point, ptr %0, i32 0, i32 0
+  %load = load double, ptr %struct_gep, align 8
+  %struct_gep1 = getelementptr inbounds nuw %Point, ptr %0, i32 0, i32 1
+  %load2 = load double, ptr %struct_gep1, align 8
+  %call = call i32 (ptr, ...) @printf(ptr @str.1, double %load, double %load2)
+  ret void
+}
+
+define i32 @main() {
+entry:
+  %alloc = alloca %Point, align 8
+  call void @main_Point_init_f64_f64(ptr %alloc, double 5.000000e+00, double 6.500000e+00)
+  call void @main_Point_print_cords(ptr %alloc)
+  ret i32 0
+}

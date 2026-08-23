@@ -1,6 +1,6 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x558c5149c518 target=0x558c5149c3f8
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x562aa07ab378 target=0x562aa07ab258
 debug: c_header: LOOP START token=72
 debug: c_header: LOOP START token=72
 debug: c_header: LOOP START token=84
@@ -330,60 +330,60 @@ debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=4 col=11 name=printf target_type=13 node=0x558c5149c518
-debug: semantic: sem_check_expr: type=2 line=4 col=11 node=0x558c5149c518
+debug: semantic: sem_check_block: Call line=4 col=11 name=printf target_type=13 node=0x562aa07ab378
+debug: semantic: sem_check_expr: type=2 line=4 col=11 node=0x562aa07ab378
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x558c5149c3f8
-debug: semantic: sem_check_expr: type=16 line=4 col=12 node=0x558c5149c478
-debug: semantic: sem_check_expr: type=16 line=4 col=12 node=0x558c5149c478
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x562aa07ab258
+debug: semantic: sem_check_expr: type=16 line=4 col=12 node=0x562aa07ab2d8
+debug: semantic: sem_check_expr: type=16 line=4 col=12 node=0x562aa07ab2d8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class __anon_typedef
-debug: alir: DEBUG_REGISTER: st=0x558c514e6a00 name=__anon_typedef next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x562aa07f5860 name=__anon_typedef next=(nil)
+debug: alir: REGISTER_STRUCT __anon_typedef fields 0
 debug: alir: Visiting class __anon_typedef
 debug: alir: Visiting class _G_fpos_t
-debug: alir: DEBUG_REGISTER: st=0x558c514e6a20 name=_G_fpos_t next=0x558c514e6a00
-REGISTER_STRUCT __anon_typedef fields 0
+debug: alir: DEBUG_REGISTER: st=0x562aa07f5880 name=_G_fpos_t next=0x562aa07f5860
+debug: alir: REGISTER_STRUCT _G_fpos_t fields 0
 debug: alir: Visiting class _G_fpos64_t
-debug: alir: DEBUG_REGISTER: st=0x558c514e6a40 name=_G_fpos64_t next=0x558c514e6a20
-REGISTER_STRUCT _G_fpos_t fields 0
+debug: alir: DEBUG_REGISTER: st=0x562aa07f58a0 name=_G_fpos64_t next=0x562aa07f5880
+debug: alir: REGISTER_STRUCT _G_fpos64_t fields 0
 debug: alir: Visiting class _IO_FILE
-debug: alir: DEBUG_REGISTER: st=0x558c514e6a60 name=_IO_FILE next=0x558c514e6a40
-REGISTER_STRUCT _G_fpos64_t fields 0
+debug: alir: DEBUG_REGISTER: st=0x562aa07f58c0 name=_IO_FILE next=0x562aa07f58a0
+debug: alir: REGISTER_STRUCT _IO_FILE fields 0
 debug: alir: Visiting class _IO_FILE
 debug: alir: Visiting class _IO_FILE
 debug: alir: Visiting class _IO_marker
-debug: alir: DEBUG_REGISTER: st=0x558c514e6a80 name=_IO_marker next=0x558c514e6a60
-REGISTER_STRUCT _IO_FILE fields 0
+debug: alir: DEBUG_REGISTER: st=0x562aa07f58e0 name=_IO_marker next=0x562aa07f58c0
+debug: alir: REGISTER_STRUCT _IO_marker fields 0
 debug: alir: Visiting class _IO_codecvt
-debug: alir: DEBUG_REGISTER: st=0x558c514e6aa0 name=_IO_codecvt next=0x558c514e6a80
-REGISTER_STRUCT _IO_marker fields 0
+debug: alir: DEBUG_REGISTER: st=0x562aa07f5900 name=_IO_codecvt next=0x562aa07f58e0
+debug: alir: REGISTER_STRUCT _IO_codecvt fields 0
 debug: alir: Visiting class _IO_wide_data
-debug: alir: DEBUG_REGISTER: st=0x558c514e6ac0 name=_IO_wide_data next=0x558c514e6aa0
-REGISTER_STRUCT _IO_codecvt fields 0
+debug: alir: DEBUG_REGISTER: st=0x562aa07f5920 name=_IO_wide_data next=0x562aa07f5900
+debug: alir: REGISTER_STRUCT _IO_wide_data fields 0
 debug: alir: Visiting class _IO_FILE
 debug: alir: Visiting class _IO_cookie_io_functions_t
-debug: alir: DEBUG_REGISTER: st=0x558c514e6ae0 name=_IO_cookie_io_functions_t next=0x558c514e6ac0
-REGISTER_STRUCT _IO_wide_data fields 0
+debug: alir: DEBUG_REGISTER: st=0x562aa07f5940 name=_IO_cookie_io_functions_t next=0x562aa07f5920
+debug: alir: REGISTER_STRUCT _IO_cookie_io_functions_t fields 0
+debug: alir: POPULATING __anon_typedef has_body=1
+debug: alir: BUILT __anon_typedef with 1 fields (was -1)
+debug: alir: POPULATING __anon_typedef has_body=1
+debug: alir: POPULATING _G_fpos_t has_body=1
+debug: alir: BUILT _G_fpos_t with 2 fields (was -1)
+debug: alir: POPULATING _G_fpos64_t has_body=1
+debug: alir: BUILT _G_fpos64_t with 2 fields (was -1)
+debug: alir: POPULATING _IO_FILE has_body=0
+debug: alir: POPULATING _IO_FILE has_body=0
+debug: alir: POPULATING _IO_FILE has_body=0
+debug: alir: POPULATING _IO_marker has_body=0
+debug: alir: POPULATING _IO_codecvt has_body=0
+debug: alir: POPULATING _IO_wide_data has_body=0
+debug: alir: POPULATING _IO_FILE has_body=1
+debug: alir: BUILT _IO_FILE with 31 fields (was -1)
+debug: alir: POPULATING _IO_cookie_io_functions_t has_body=1
+debug: alir: BUILT _IO_cookie_io_functions_t with 4 fields (was -1)
 debug: alir: DEBUG_PASS1_END: struct list:
-REGISTER_STRUCT _IO_cookie_io_functions_t fields 0
-POPULATING __anon_typedef has_body=1
-BUILT __anon_typedef with 1 fields (was -1)
-POPULATING __anon_typedef has_body=1
-POPULATING _G_fpos_t has_body=1
-BUILT _G_fpos_t with 2 fields (was -1)
-POPULATING _G_fpos64_t has_body=1
-BUILT _G_fpos64_t with 2 fields (was -1)
-POPULATING _IO_FILE has_body=0
-POPULATING _IO_FILE has_body=0
-POPULATING _IO_FILE has_body=0
-POPULATING _IO_marker has_body=0
-POPULATING _IO_codecvt has_body=0
-POPULATING _IO_wide_data has_body=0
-POPULATING _IO_FILE has_body=1
-BUILT _IO_FILE with 31 fields (was -1)
-POPULATING _IO_cookie_io_functions_t has_body=1
-BUILT _IO_cookie_io_functions_t with 4 fields (was -1)
  - _IO_cookie_io_functions_t fields: 4
  - _IO_wide_data fields: -1
  - _IO_codecvt fields: -1
@@ -680,13 +680,27 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x558c514a4dc0
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x562aa07b3c20
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
 debug: alir: func=main op=35 dest_kind=5 dest_type_base=8 op1_kind=9 op1_type_base=8
-debug: alir: TAINTED PTR: ctx->module=0x558c514e28a8 target_name=printf count=1
+debug: alir: TAINTED PTR: ctx->module=0x562aa07f1708 target_name=printf count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+@str.0 = private constant [15 x i8] c"Hello, World!\0A\00"
+
+declare i32 @printf(ptr %0, ...)
+
+define i32 @main() {
+entry:
+  %call = call i32 (ptr, ...) @printf(ptr @str.0)
+  ret i32 0
+}

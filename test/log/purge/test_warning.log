@@ -2,10 +2,10 @@ step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=45
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=4 col=10 node=0x561986859640
+debug: semantic: sem_check_expr: type=16 line=4 col=10 node=0x5584821cf4a0
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x561986859848
+debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x5584821cf6a8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -19,4 +19,11 @@ debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_ba
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
 debug: optlir: Check Type for Struct Marking string
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+define i32 @main() {
+entry:
+  ret i32 0
+}

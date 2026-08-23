@@ -384,7 +384,7 @@ if (BACKEND_LOWER STREQUAL "mlir" OR BUILDALL)
         target_compile_definitions(alkyl_mlir PRIVATE BACKEND=mlir)
 
         # Setup TableGen
-        set(MLIR_TABLEGEN_EXE "mlir-tblgen")
+        find_program(MLIR_TABLEGEN_EXE mlir-tblgen REQUIRED)
         set(ALKYL_TABLEGEN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/mlir/tablegen)
         set(ALKYL_TABLEGEN_INC_DIR ${CMAKE_CURRENT_BINARY_DIR}/include/mlir/tablegen)
         file(MAKE_DIRECTORY ${ALKYL_TABLEGEN_INC_DIR})

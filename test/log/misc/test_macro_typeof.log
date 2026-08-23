@@ -1,15 +1,15 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=check_type target_type=13 line=0 col=0 node=0x55b21ea01838 target=0x55b21ea01718
+debug: parser: Created Call name=check_type target_type=13 line=0 col=0 node=0x55dcb1d825f8 target=0x55dcb1d824d8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=7 col=15 name=check_type target_type=13 node=0x55b21ea01838
-debug: semantic: sem_check_expr: type=2 line=7 col=15 node=0x55b21ea01838
+debug: semantic: sem_check_block: Call line=7 col=15 name=check_type target_type=13 node=0x55dcb1d825f8
+debug: semantic: sem_check_expr: type=2 line=7 col=15 node=0x55dcb1d825f8
 debug: semantic: sem_check_call: name='check_type', ns='main'
-debug: semantic: sem_check_expr: type=13 line=7 col=5 node=0x55b21ea01718
-debug: semantic: sem_check_expr: type=16 line=7 col=16 node=0x55b21ea01798
+debug: semantic: sem_check_expr: type=13 line=7 col=5 node=0x55dcb1d824d8
+debug: semantic: sem_check_expr: type=16 line=7 col=16 node=0x55dcb1d82558
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x55b21ea018d0
+debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x55dcb1d82690
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -19,13 +19,13 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 debug: alir: GEN_CALL: name=check_type mangled=main.check_type
 debug: alir: Looking up 'main.check_type'
-debug: alir: Found symbol check_type, kind=1, is_macro=1, node_ptr=0x55b21ea01628
+debug: alir: Found symbol check_type, kind=1, is_macro=1, node_ptr=0x55dcb1d823e8
 debug: alir: macro: mangled='main.check_type', old_ns='main'
 debug: alir: macro: setting ns to 'main'
 debug: alir: macro: before sem_check_block, ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=28 line=3 col=17 node=0x55b21ea075a8
+debug: semantic: sem_check_expr: type=28 line=3 col=17 node=0x55dcb1d88368
 debug: parser: inferring type for t, init_type.base=6
 debug: parser: debug: inferred type unsigned long for t
 debug: alir: macro: after sem_check_block, ns='main'
@@ -35,4 +35,11 @@ debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_bas
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+define i32 @main() {
+entry:
+  ret i32 0
+}

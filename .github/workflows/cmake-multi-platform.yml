@@ -54,6 +54,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup LLVM
+      id: llvm
+      uses: llvm/actions/setup-llvm@v2
+      with:
+        llvm-version: "18"
+
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
@@ -69,6 +75,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DLLVM_DIR=${{ steps.llvm.outputs.llvm_dir }}
         -S ${{ github.workspace }}
 
     - name: Build

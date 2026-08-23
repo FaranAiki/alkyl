@@ -4,15 +4,15 @@ debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='clib'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=4 col=17 node=0x55cae99d3738
-debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55cae99d3440
+debug: semantic: sem_check_expr: type=27 line=4 col=17 node=0x55f62309f598
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55f62309f2a0
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
-debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55cae99d3558
-debug: semantic: sem_check_expr: type=16 line=4 col=31 node=0x55cae99d35f8
-debug: semantic: sem_check_expr: type=16 line=4 col=40 node=0x55cae99d3698
-debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55cae99d3558
+debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55f62309f3b8
+debug: semantic: sem_check_expr: type=16 line=4 col=31 node=0x55f62309f458
+debug: semantic: sem_check_expr: type=16 line=4 col=40 node=0x55f62309f4f8
+debug: semantic: sem_check_expr: type=16 line=4 col=17 node=0x55f62309f3b8
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x55cae99d37d0
+debug: semantic: sem_check_expr: type=16 line=5 col=12 node=0x55f62309f630
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -30,4 +30,19 @@ debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_ba
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+@str.1 = private constant [6 x i8] c"hello\00"
+@str.0 = private constant [10 x i8] c"%s is %d\0A\00"
+
+declare i32 @printf(ptr %0, ...)
+
+define i32 @main() {
+entry:
+  %call = call i32 (ptr, ...) @printf(ptr @str.0, ptr @str.1, i32 42)
+  ret i32 0
+}

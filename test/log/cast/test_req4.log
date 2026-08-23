@@ -1,37 +1,37 @@
 step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=16, token.type=32
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x5580a86cbf98 target=0x5580a86cbdd8
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x5604cdd98df8 target=0x5604cdd98c38
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x5580a86cc570 target=0x5580a86cc470
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x5604cdd993d0 target=0x5604cdd992d0
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x5580a86cbf98
+debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x5604cdd98df8
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=8 col=17 node=0x5580a86cbdd8
-debug: semantic: &ctx->ast_tail=0x7fff64cc0fc8, ctx->ast_tail=0x5580a86cc7e0, *ctx->ast_tail=(nil)
-debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x5580a86cbe58
-debug: semantic: sem_check_expr: type=16 line=8 col=26 node=0x5580a86cbef8
+debug: semantic: sem_check_expr: type=47 line=8 col=17 node=0x5604cdd98c38
+debug: semantic: &ctx->ast_tail=0x7fff0b7f0018, ctx->ast_tail=0x5604cdd99640, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x5604cdd98cb8
+debug: semantic: sem_check_expr: type=16 line=8 col=26 node=0x5604cdd98d58
 debug: parser: inferring type for a, init_type.base=16
 debug: parser: debug: inferred type Vector_int for a
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=9 col=22 node=0x5580a86cc570
+debug: semantic: sem_check_expr: type=2 line=9 col=22 node=0x5604cdd993d0
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=9 col=17 node=0x5580a86cc470
-debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x5580a86cc4f0
+debug: semantic: sem_check_expr: type=47 line=9 col=17 node=0x5604cdd992d0
+debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x5604cdd99350
 debug: semantic: copy check: base=16 expected=16 class_name=Vector_int sym_name=Vector_int
 debug: parser: inferring type for b, init_type.base=16
 debug: parser: debug: inferred type Vector_int for b
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=10 col=10 node=0x5580a86cc6c8
+debug: semantic: sem_check_expr: type=16 line=10 col=10 node=0x5604cdd99528
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Vector_int
-debug: alir: DEBUG_REGISTER: st=0x5580a86d1590 name=Vector_int next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x5604cdd9e3f0 name=Vector_int next=(nil)
+debug: alir: REGISTER_STRUCT Vector_int fields 0
+debug: alir: POPULATING Vector_int has_body=1
+debug: alir: BUILT Vector_int with 2 fields (was -1)
 debug: alir: DEBUG_PASS1_END: struct list:
-REGISTER_STRUCT Vector_int fields 0
-POPULATING Vector_int has_body=1
-BUILT Vector_int with 2 fields (was -1)
  - Vector_int fields: 2
 debug: alir: Found func_def main
 debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
@@ -62,4 +62,29 @@ debug: optlir: Check Type for Struct Marking Vector_int
 debug: optlir: Check Type for Struct Marking Vector_int
 debug: optlir: Check Type for Struct Marking Vector_int
 debug: optlir: Check Type for Struct Marking Vector_int
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: DEBUG CALL param 0: num_params=3, expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL param 1: num_params=3, expected_ty=8, arg_ty=8
+debug: codegen: DEBUG CALL param 2: num_params=3, expected_ty=8, arg_ty=8
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+%Vector_int = type { i32, i32 }
+
+define i32 @main() {
+entry:
+  %alloc = alloca %Vector_int, align 8
+  call void @Vector_int(ptr %alloc, i32 1, i32 2)
+  %load = load %Vector_int, ptr %alloc, align 4
+  ret i32 0
+}
+
+define void @Vector_int(ptr %0, i32 %1, i32 %2) {
+entry:
+  %struct_gep = getelementptr inbounds nuw %Vector_int, ptr %0, i32 0, i32 0
+  store i32 %1, ptr %struct_gep, align 4
+  %struct_gep1 = getelementptr inbounds nuw %Vector_int, ptr %0, i32 0, i32 1
+  store i32 %2, ptr %struct_gep1, align 4
+  ret void
+}

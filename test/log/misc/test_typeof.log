@@ -1,12 +1,12 @@
 step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=28 line=2 col=13 node=0x55c0ed6172a8
-debug: semantic: sem_check_expr: type=16 line=2 col=20 node=0x55c0ed617348
+debug: semantic: sem_check_expr: type=28 line=2 col=13 node=0x55637b6fe108
+debug: semantic: sem_check_expr: type=16 line=2 col=20 node=0x55637b6fe1a8
 debug: parser: inferring type for x, init_type.base=6
 debug: parser: debug: inferred type unsigned long for x
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x55c0ed6174a8
+debug: semantic: sem_check_expr: type=16 line=3 col=12 node=0x55637b6fe308
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -19,4 +19,11 @@ debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_bas
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using qbe codegen
+step: Finished alir optimization. Start code generation using LLVM codegen
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+define i32 @main() {
+entry:
+  ret i32 0
+}

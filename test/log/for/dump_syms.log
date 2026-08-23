@@ -2,20 +2,21 @@ step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x5556cff243b0
+debug: semantic: sem_check_expr: type=16 line=4 col=16 node=0x5589d4c52210
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x5556cff24658
+debug: semantic: sem_check_expr: type=16 line=7 col=21 node=0x5589d4c524b8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Range
-debug: alir: DEBUG_REGISTER: st=0x5556cff29980 name=Range next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x5589d4c577e0 name=Range next=(nil)
+debug: alir: REGISTER_STRUCT Range fields 0
+debug: alir: POPULATING Range has_body=1
+debug: alir: BUILT Range with 1 fields (was -1)
 debug: alir: DEBUG_PASS1_END: struct list:
-REGISTER_STRUCT Range fields 0
-POPULATING Range has_body=1
-BUILT Range with 1 fields (was -1)
  - Range fields: 1
-debug: alir: DEBUG_REGISTER: st=0x5556cff29b80 name=FluxCtx_main_Range_iterate next=0x5556cff29980
+debug: alir: DEBUG_REGISTER: st=0x5589d4c579e0 name=FluxCtx_main_Range_iterate next=0x5589d4c577e0
+debug: alir: REGISTER_STRUCT FluxCtx_main_Range_iterate fields 0
 debug: alir: alir_add_function: main_Range_iterate
 debug: alir: alir_add_function: main_Range_iterate_Resume
 debug: alir: alir_add_function: Range
@@ -31,5 +32,11 @@ debug: optlir: Check Type for Struct Marking Range
 debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
 debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
 debug: optlir: Check Type for Struct Marking FluxCtx_main_Range_iterate
-step: Finished alir optimization. Start code generation using qbe codegen
-REGISTER_STRUCT FluxCtx_main_Range_iterate fields 0
+step: Finished alir optimization. Start code generation using LLVM codegen
+; ModuleID = 'main_module'
+source_filename = "main_module"
+
+define i32 @main() {
+entry:
+  ret i32 0
+}
