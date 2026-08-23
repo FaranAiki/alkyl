@@ -1,0 +1,18 @@
+--- src/codegen_llvm/codegen.c
++++ src/codegen_llvm/codegen.c
+@@ -475,6 +479,15 @@
+         b = func->blocks;
+         while(b) {
+             LLVMBasicBlockRef bb = hashmap_get(&ctx->block_map, b->label);
++            if (!bb) {
++                printf("CRITICAL: bb is null\n"); abort();
++            }
++            LLVMValueRef pf = LLVMGetBasicBlockParent(bb);
++            if (!pf) {
++                printf("CRITICAL: bb parent is null for bb %s\n", b->label);
++                abort();
++            }
++
+             if (!bb) {
+                 printf("CRITICAL: block_map returned NULL for %s in func %s\n", b->label, func->name);
+                 abort();

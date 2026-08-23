@@ -368,7 +368,6 @@ int main(int argc, char **argv) {
 #endif
 
     debug_step("Finished alir optimization. Start code generation using " BACKEND_STRING " codegen");
-    arena_reset(&arena);
 
     const char *active_output_basename = output_basename_ptr ? output_basename_ptr : (optimization_level > 0 ? BASENAME_OPT : BASENAME);
 #ifndef ALKYL_ENABLE_MLIR

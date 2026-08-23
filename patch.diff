@@ -1,0 +1,24 @@
+--- src/codegen_llvm/codegen.c
++++ src/codegen_llvm/codegen.c
+@@ -434,6 +434,10 @@
+         if (func->block_count == 0) { func = func->next; continue; }
+ 
+         LLVMValueRef llvm_func = hashmap_get(&ctx->func_map, func->name);
++        if (!llvm_func) {
++            printf("CRITICAL: func_map returned NULL for %s\n", func->name);
++            abort();
++        }
+ 
+         // Scan instructions to find max needed `temps` length
+         ctx->max_temps = 0;
+@@ -475,6 +479,10 @@
+         b = func->blocks;
+         while(b) {
+             LLVMBasicBlockRef bb = hashmap_get(&ctx->block_map, b->label);
++            if (!bb) {
++                printf("CRITICAL: block_map returned NULL for %s in func %s\n", b->label, func->name);
++                abort();
++            }
+             LLVMPositionBuilderAtEnd(ctx->builder, bb);
+ 
+             AlirInst *inst = b->head;
