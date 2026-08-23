@@ -650,7 +650,7 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
             alir_gen_inherited_methods(ctx, cn, fqn, cn);
 
             // Emit an implicit constructor if the user hasn't explicitly supplied `init`
-            if (!has_constructor) {
+            if (!has_constructor && !cn->is_extern) {
                 alir_gen_implicit_constructor(ctx, cn, fqn);
             }
         } else if (curr->type == NODE_NAMESPACE) {

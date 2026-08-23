@@ -7,6 +7,33 @@ link "wayland-server";
 link "wlroots-0.18";
 
 export namespace wlroots {
+    class wl_display {}
+    class wlr_backend {}
+    class wlr_renderer {}
+    class wlr_allocator {}
+    class wlr_compositor {}
+    class wlr_data_device_manager {}
+    class wlr_subcompositor {}
+    class wlr_output_layout {}
+    class wlr_xdg_shell {}
+    class wlr_seat {}
+    class wlr_output {}
+    class wlr_xdg_surface {}
+    class wlr_output_state {}
+    class wlr_scene_tree {}
+    class wlr_xdg_toplevel {}
+    class wlr_scene {}
+
+    @c import "wlr/backend.h"
+    @c import "wlr/render/allocator.h"
+    @c import "wlr/render/wlr_renderer.h"
+    @c import "wlr/types/wlr_output.h"
+    @c import "wlr/types/wlr_xdg_shell.h"
+    @c import "wlr/types/wlr_scene.h"
+    @c import "wlr/types/wlr_seat.h"
+    @c import "wlr/types/wlr_compositor.h"
+    @c import "wlr/types/wlr_data_device.h"
+    @c import "wayland-server-core.h"
 
     extern wlr_output_layout* wlr_output_layout_create(wl_display* display);
     extern wlr_xdg_shell* wlr_xdg_shell_create(wl_display* display, int version);
@@ -20,16 +47,6 @@ export namespace wlroots {
     extern void wlr_output_state_finish(wlr_output_state* state);
     extern void wlr_scene_xdg_surface_create(wlr_scene_tree* tree, wlr_xdg_surface* xdg_surface);
 
-    @c import "wlr/backend.h"
-    @c import "wlr/render/allocator.h"
-    @c import "wlr/render/wlr_renderer.h"
-    @c import "wlr/types/wlr_output.h"
-    @c import "wlr/types/wlr_xdg_shell.h"
-    @c import "wlr/types/wlr_scene.h"
-    @c import "wlr/types/wlr_seat.h"
-    @c import "wlr/types/wlr_compositor.h"
-    @c import "wlr/types/wlr_data_device.h"
-    @c import "wayland-server-core.h"
 
     class wl_list {
         wl_list* prev;
@@ -54,22 +71,6 @@ export namespace wlroots {
         wl_list_insert(signal.listener_list.prev, &(listener.link_node));
     }
 
-    class wl_display {}
-    class wlr_backend {}
-    class wlr_renderer {}
-    class wlr_allocator {}
-    class wlr_compositor {}
-    class wlr_data_device_manager {}
-    class wlr_subcompositor {}
-    class wlr_output_layout {}
-    class wlr_xdg_shell {}
-    class wlr_seat {}
-    class wlr_output {}
-    class wlr_xdg_surface {}
-    class wlr_output_state {}
-    class wlr_scene_tree {}
-    class wlr_xdg_toplevel {}
-    class wlr_scene {}
 
     // Display
     errnum [ErrDisplayCreation] wl_display*? create_display() {

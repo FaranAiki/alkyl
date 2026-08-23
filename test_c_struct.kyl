@@ -1,0 +1,6 @@
+import "lib/c";
+@c import "test_c_struct.h"
+
+int main() {
+    clib.printf("offset of field: %ld\n", sizeof(struct_test));
+}

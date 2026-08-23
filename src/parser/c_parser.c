@@ -881,31 +881,31 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
 
     if (!c_match(p, C_TOKEN_LBRACE)) {
         c_eat(p, C_TOKEN_SEMICOLON);
-        StructNode *sn = arena_alloc(p->ctx->arena, sizeof(StructNode));
-        memset(sn, 0, sizeof(StructNode));
-        sn->base.type = NODE_STRUCT;
+        ClassNode *sn = arena_alloc(p->ctx->arena, sizeof(ClassNode));
+        memset(sn, 0, sizeof(ClassNode));
+        sn->base.type = NODE_CLASS;
         sn->base.line = p->current.line;
         sn->base.col = p->current.col;
         sn->name = name;
         sn->parent_name = parent_name;
         sn->is_union = is_union;
-        sn->is_extern = 1;
+        sn->is_extern = 1; sn->is_container = 1; sn->is_public = 1;
         sn->has_body = 0;
         return (ASTNode*)sn;
     }
 
     c_eat(p, C_TOKEN_LBRACE);
 
-    StructNode *sn = arena_alloc(p->ctx->arena, sizeof(StructNode));
-    memset(sn, 0, sizeof(StructNode));
-    sn->base.type = NODE_STRUCT;
+    ClassNode *sn = arena_alloc(p->ctx->arena, sizeof(ClassNode));
+    memset(sn, 0, sizeof(ClassNode));
+    sn->base.type = NODE_CLASS;
     sn->base.line = p->current.line;
     sn->base.col = p->current.col;
     sn->name = name;
     sn->parent_name = parent_name;
     sn->is_union = is_union;
     sn->has_body = 1;
-    sn->is_extern = 1;
+    sn->is_extern = 1; sn->is_container = 1; sn->is_public = 1;
 
     ASTNode **curr_member = &sn->members;
 
@@ -992,15 +992,15 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
 
         if (member_type.base == TYPE_CLASS && c_match(p, C_TOKEN_LBRACE)) {
             c_eat(p, C_TOKEN_LBRACE);
-            StructNode *sn = arena_alloc(p->ctx->arena, sizeof(StructNode));
-            memset(sn, 0, sizeof(StructNode));
-            sn->base.type = NODE_STRUCT;
+            ClassNode *sn = arena_alloc(p->ctx->arena, sizeof(ClassNode));
+            memset(sn, 0, sizeof(ClassNode));
+            sn->base.type = NODE_CLASS;
             sn->base.line = p->current.line;
             sn->base.col = p->current.col;
             sn->name = arena_strdup(p->ctx->arena, member_type.class_name ? member_type.class_name : "__anonymous_struct");
             sn->is_union = 0;
             sn->has_body = 1;
-            sn->is_extern = 1;
+            sn->is_extern = 1; sn->is_container = 1; sn->is_public = 1;
 
             ASTNode **curr_member = &sn->members;
     while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { debug_c_header("LOOP START token=%d line=%d text='%s'\n", p->current.type, p->current.line, p->current.text ? p->current.text : "N/A");
@@ -1023,15 +1023,15 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
 
                 if (inner_type.base == TYPE_CLASS && c_match(p, C_TOKEN_LBRACE)) {
                     c_eat(p, C_TOKEN_LBRACE);
-                    StructNode *anon = arena_alloc(p->ctx->arena, sizeof(StructNode));
-                    memset(anon, 0, sizeof(StructNode));
-                    anon->base.type = NODE_STRUCT;
+                    ClassNode *anon = arena_alloc(p->ctx->arena, sizeof(ClassNode));
+                    memset(anon, 0, sizeof(ClassNode));
+                    anon->base.type = NODE_CLASS;
                     anon->base.line = p->current.line;
                     anon->base.col = p->current.col;
                     anon->name = arena_strdup(p->ctx->arena, inner_type.class_name ? inner_type.class_name : "__anonymous_struct");
                     anon->is_union = 0;
                     anon->has_body = 1;
-                    anon->is_extern = 1;
+                    anon->is_extern = 1; anon->is_container = 1; anon->is_public = 1;
                     ASTNode **inner_curr = &anon->members;
                     while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { debug_c_header("LOOP START token=%d\n", p->current.type);
                         while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_EXTENSION)) {
@@ -1541,15 +1541,15 @@ static ASTNode* c_parse_typedef(CParser *p) {
         if (c_match(p, C_TOKEN_LBRACE)) {
             c_eat(p, C_TOKEN_LBRACE);
 
-            StructNode *sn = arena_alloc(p->ctx->arena, sizeof(StructNode));
-            memset(sn, 0, sizeof(StructNode));
-            sn->base.type = NODE_STRUCT;
+            ClassNode *sn = arena_alloc(p->ctx->arena, sizeof(ClassNode));
+            memset(sn, 0, sizeof(ClassNode));
+            sn->base.type = NODE_CLASS;
             sn->base.line = p->current.line;
             sn->base.col = p->current.col;
             sn->name = tag_name ? tag_name : arena_strdup(p->ctx->arena, "__anon_typedef");
             sn->is_union = is_union;
             sn->has_body = 1;
-            sn->is_extern = 1;
+            sn->is_extern = 1; sn->is_container = 1; sn->is_public = 1;
 
             ASTNode **curr_member = &sn->members;
 
@@ -1595,15 +1595,15 @@ static ASTNode* c_parse_typedef(CParser *p) {
                     curr_member = &var->base.next;
                 } else if (member_type.base == TYPE_CLASS && c_match(p, C_TOKEN_LBRACE)) {
                     c_eat(p, C_TOKEN_LBRACE);
-                    StructNode *anon = arena_alloc(p->ctx->arena, sizeof(StructNode));
-                    memset(anon, 0, sizeof(StructNode));
-                    anon->base.type = NODE_STRUCT;
+                    ClassNode *anon = arena_alloc(p->ctx->arena, sizeof(ClassNode));
+                    memset(anon, 0, sizeof(ClassNode));
+                    anon->base.type = NODE_CLASS;
                     anon->base.line = p->current.line;
                     anon->base.col = p->current.col;
                     anon->name = arena_strdup(p->ctx->arena, member_type.class_name ? member_type.class_name : "__anonymous_struct");
                     anon->is_union = 0;
                     anon->has_body = 1;
-                    anon->is_extern = 1;
+                    anon->is_extern = 1; anon->is_container = 1; anon->is_public = 1;
                     ASTNode **inner_curr = &anon->members;
                     while (!c_match(p, C_TOKEN_RBRACE) && !p->has_error) { debug_c_header("LOOP START token=%d\n", p->current.type);
                         while (c_match(p, C_TOKEN_CONST) || c_match(p, C_TOKEN_VOLATILE) || c_match(p, C_TOKEN_RESTRICT) || c_match(p, C_TOKEN_EXTENSION)) {
