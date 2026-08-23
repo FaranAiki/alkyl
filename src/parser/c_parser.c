@@ -812,9 +812,11 @@ static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
                     if (out_is_varargs) *out_is_varargs = 1;
                     c_eat(p, C_TOKEN_ELLIPSIS);
                 }
+                continue; // More params may follow
             }
-            continue;
+            break; // At RPAREN, SEMICOLON, or EOF — exit outer loop
         }
+
 
         Parameter *param = arena_alloc(p->ctx->arena, sizeof(Parameter));
         memset(param, 0, sizeof(Parameter));
