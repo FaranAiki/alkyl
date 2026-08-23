@@ -1,7 +1,7 @@
 step: Finished lexing. Start parsing.
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x556c66b891d8
+debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x558b544cc378
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -9,23 +9,23 @@ debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x556c66b89d88 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x558b544ccf28 target_name=print count=1
 debug: metalir: VM CALL: print
 debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x556c66b89d88 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x558b544ccf28 target_name=print count=1
 debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x556c66b89d88 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x558b544ccf28 target_name=print count=1
 debug: alir: GEN_CALL: name=print mangled=NULL
 debug: alir: Looking up 'print'
 debug: alir: Symbol 'print' not found!
 debug: alir: CALL_STD: name=print mangled=NULL target_type=13
-debug: alir: TAINTED PTR: ctx->module=0x556c66b89d88 target_name=print count=1
+debug: alir: TAINTED PTR: ctx->module=0x558b544ccf28 target_name=print count=1
 debug: metalir: VM CALL: print
 debug: metalir: VM CALL: print
 debug: metalir: VM CALL: print
@@ -35,14 +35,7 @@ debug: alir: alir_add_function: main
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-; ModuleID = 'main_module'
-source_filename = "main_module"
-
-define i32 @main() {
-entry:
-  ret i32 0
-}
+step: Finished alir optimization. Start code generation using qbe codegen
 a
 s
 ada

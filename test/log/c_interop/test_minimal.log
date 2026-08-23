@@ -1,11 +1,11 @@
 step: Finished lexing. Start parsing.
-debug: semantic: sem_check_expr: type=50 line=1 col=10 node=0x564e8b280250
+debug: semantic: sem_check_expr: type=50 line=1 col=10 node=0x561fdeeb63f0
 debug: parser: inferring type for ns, init_type.base=18
 debug: parser: debug: inferred type test/code/c_interop/test_minimal.h for ns
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=26 line=2 col=23 node=0x564e8b280410
-debug: semantic: sem_check_expr: type=13 line=2 col=21 node=0x564e8b280390
+debug: semantic: sem_check_expr: type=26 line=2 col=23 node=0x561fdeeb65b0
+debug: semantic: sem_check_expr: type=13 line=2 col=21 node=0x561fdeeb6530
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -19,15 +19,5 @@ debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_bas
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-; ModuleID = 'main_module'
-source_filename = "main_module"
-
-@ns = global i32 0
-
-define i32 @main() {
-entry:
-  %load = load i32, ptr @ns, align 4
-  ret i32 %load
-}
+step: Finished alir optimization. Start code generation using qbe codegen
 HINT_CLASS test/code/c_interop/test_minimal.h

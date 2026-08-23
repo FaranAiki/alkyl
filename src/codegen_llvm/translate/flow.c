@@ -57,13 +57,13 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     }
                 }
                 func_ty = LLVMFunctionType(ret_ty, param_types, param_count, inst->op1->type.fp_is_varargs);
-                
+
             }
 
             if (!func && inst->op1 && (inst->op1->kind == ALIR_VAL_VAR || inst->op1->kind == ALIR_VAL_GLOBAL) && inst->op1->val.str_val) {
                 func = hashmap_get(&ctx->func_map, inst->op1->val.str_val);
                 func_ty = hashmap_get(&ctx->func_type_map, inst->op1->val.str_val);
-                
+
                 if (!func) {
                     // Try to find the function in the module directly
                     func = LLVMGetNamedFunction(ctx->llvm_mod, inst->op1->val.str_val);
@@ -93,7 +93,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             }
 
             if (!func) break;
-            
+
             if (LLVMGetValueKind(func) != LLVMFunctionValueKind) {
                 // TODO(Safety): Null Pointer Safety Check for indirect calls
                 // If uncommented, this introduces a slight overhead but prevents SIGSEGV.
@@ -103,9 +103,9 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 LLVMValueRef current_func = LLVMGetBasicBlockParent(current_bb);
                 LLVMBasicBlockRef ok_bb = LLVMAppendBasicBlockInContext(ctx->llvm_ctx, current_func, "call_ok");
                 LLVMBasicBlockRef err_bb = LLVMAppendBasicBlockInContext(ctx->llvm_ctx, current_func, "call_err");
-                
+
                 LLVMBuildCondBr(ctx->builder, is_not_null, ok_bb, err_bb);
-                
+
                 LLVMPositionBuilderAtEnd(ctx->builder, err_bb);
                 LLVMTypeRef abort_type = LLVMFunctionType(LLVMVoidTypeInContext(ctx->llvm_ctx), NULL, 0, 0);
                 LLVMValueRef abort_func = LLVMGetNamedFunction(ctx->llvm_mod, "abort");
@@ -114,7 +114,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 }
                 LLVMBuildCall2(ctx->builder, abort_type, abort_func, NULL, 0, "");
                 LLVMBuildUnreachable(ctx->builder);
-                
+
                 LLVMPositionBuilderAtEnd(ctx->builder, ok_bb);
                 */
             }
@@ -122,13 +122,13 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             unsigned num_params = LLVMCountParamTypes(func_ty);
             int __pn_sz = num_params > 0 ? num_params : 1; LLVMTypeRef param_tys[__pn_sz];
             LLVMGetParamTypes(func_ty, param_tys);
-            
+
             for(int i = 0; i < inst->arg_count; i++) {
                 args[i] = get_llvm_value(ctx, inst->args[i]);
                 if (!args[i]) {
                     args[i] = LLVMConstInt(LLVMInt64TypeInContext(ctx->llvm_ctx), 0, 0);
                 }
-                
+
                 LLVMTypeRef arg_ty = LLVMTypeOf(args[i]);
 
                 if (inst->args[i]->type.is_tainted) {
@@ -136,7 +136,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         VarType base_t = inst->args[i]->type;
                         base_t.ptr_depth--;
                         LLVMTypeRef struct_ty = get_llvm_type(ctx, base_t);
-                        
+
                         LLVMTypeRef expected_ty = (unsigned)i < num_params ? param_tys[i] : NULL;
                         // If we are passing a tainted pointer to a function that doesn't expect it (either extern, or pristine parameter), unwrap it
                         if ((func && LLVMIsDeclaration(func)) || (expected_ty && LLVMGetTypeKind(expected_ty) == LLVMPointerTypeKind && LLVMGetTypeKind(struct_ty) == LLVMStructTypeKind)) {
@@ -156,7 +156,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 // Only apply C default promotions (char/short -> i32) for variadic tail args.
                 if ((unsigned)i < num_params) {
                     LLVMTypeRef expected_ty = param_tys[i];
-                    printf("DEBUG CALL param %d: num_params=%d, expected_ty=%d, arg_ty=%d\n", i, num_params, LLVMGetTypeKind(expected_ty), LLVMGetTypeKind(arg_ty));
+                    debug_codegen("DEBUG CALL param %d: num_params=%d, expected_ty=%d, arg_ty=%d\n", i, num_params, LLVMGetTypeKind(expected_ty), LLVMGetTypeKind(arg_ty));
                     if (LLVMGetTypeKind(expected_ty) == LLVMIntegerTypeKind &&
                         LLVMGetTypeKind(arg_ty) == LLVMIntegerTypeKind) {
                         unsigned ew = LLVMGetIntTypeWidth(expected_ty);
@@ -182,7 +182,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, args[i], 1, "wrap_val_arg");
                         args[i] = wrapped;
                     } else {
-                        printf("DEBUG CALL: expected_ty=%d, arg_ty=%d\n", LLVMGetTypeKind(expected_ty), LLVMGetTypeKind(arg_ty));
+                        debug_codegen("DEBUG CALL: expected_ty=%d, arg_ty=%d\n", LLVMGetTypeKind(expected_ty), LLVMGetTypeKind(arg_ty));
                     }
                 } else if (LLVMGetTypeKind(arg_ty) == LLVMIntegerTypeKind) {
                     if (inst->args[i]->type.base == TYPE_UNKNOWN || inst->args[i]->type.base == TYPE_AUTO) {
@@ -196,23 +196,23 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     args[i] = LLVMBuildFPExt(ctx->builder, args[i], LLVMDoubleTypeInContext(ctx->llvm_ctx), "prom_f32_f64");
                 }
             }
-            
+
 
             res = LLVMBuildCall2(ctx->builder, func_ty, func, args, inst->arg_count, (LLVMGetReturnType(func_ty) == LLVMVoidTypeInContext(ctx->llvm_ctx)) ? "" : "call");
             LLVMSetInstructionCallConv(res, LLVMGetFunctionCallConv(func));
-            
-            
+
+
             if (inst->dest) {
                 LLVMTypeRef expected_res_ty = get_llvm_type(ctx, inst->dest->type);
                 if (LLVMGetTypeKind(expected_res_ty) == LLVMStructTypeKind && LLVMGetTypeKind(LLVMTypeOf(res)) != LLVMStructTypeKind) {
-                    printf("ALIR_OP_CALL wrap: dest->type.ptr_depth=%d, dest->type.is_tainted=%d, res_kind=%d\n", inst->dest->type.ptr_depth, inst->dest->type.is_tainted, LLVMGetTypeKind(LLVMTypeOf(res)));
+                    debug_codegen("ALIR_OP_CALL wrap: dest->type.ptr_depth=%d, dest->type.is_tainted=%d, res_kind=%d\n", inst->dest->type.ptr_depth, inst->dest->type.is_tainted, LLVMGetTypeKind(LLVMTypeOf(res)));
                     LLVMValueRef wrapped = LLVMGetUndef(expected_res_ty);
                     wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), 0, "wrap_err");
                     wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, res, 1, "wrap_val");
                     res = wrapped;
                 }
             }
-            
+
             break;
         }
         case ALIR_OP_RET: {
@@ -220,7 +220,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             if (LLVMGetBasicBlockTerminator(current_bb) != NULL) break;
             LLVMValueRef current_func = LLVMGetBasicBlockParent(current_bb);
             LLVMTypeRef ret_ty = LLVMGetReturnType(LLVMGlobalGetValueType(current_func));
-            
+
             if (op1) {
                 LLVMTypeRef expected_ty = ret_ty;
                 if (LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind && LLVMCountStructElementTypes(ret_ty) == 2) {
@@ -229,7 +229,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         expected_ty = LLVMStructGetTypeAtIndex(ret_ty, 1);
                     }
                 }
-                
+
                 if ((LLVMGetTypeKind(expected_ty) == LLVMStructTypeKind || LLVMGetTypeKind(expected_ty) == LLVMArrayTypeKind) && LLVMGetTypeKind(LLVMTypeOf(op1)) == LLVMPointerTypeKind) {
                     if (inst->op1 && (inst->op1->type.base == TYPE_CLASS || inst->op1->type.array_size > 0)) {
                         VarType base_t = inst->op1->type;
@@ -269,17 +269,17 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 res = op1;
                 break;
             }
-            
+
             LLVMValueRef err_id = LLVMBuildExtractValue(ctx->builder, op1, 0, "err_id");
             LLVMValueRef val = LLVMCountStructElementTypes(LLVMTypeOf(op1)) > 1 ? LLVMBuildExtractValue(ctx->builder, op1, 1, "val") : LLVMConstNull(LLVMInt32TypeInContext(ctx->llvm_ctx));
-            
+
             LLVMValueRef has_err;
             if (inst->arg_count > 0 && inst->args[0]) {
                 LLVMValueRef target_err = LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), inst->args[0]->val.int_val, 0);
                 has_err = LLVMBuildICmp(ctx->builder, LLVMIntEQ, err_id, target_err, "has_target_err");
-                
+
                 LLVMValueRef new_err_id = LLVMBuildSelect(ctx->builder, has_err, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), err_id, "new_err_id");
-                
+
                 if (LLVMTypeOf(op2) != LLVMTypeOf(val)) {
                     if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMPointerTypeKind) {
                         op2 = LLVMBuildIntToPtr(ctx->builder, op2, LLVMTypeOf(val), "cast_fallback_ptr");
@@ -287,9 +287,9 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         op2 = LLVMBuildIntCast(ctx->builder, op2, LLVMTypeOf(val), "cast_fallback_int");
                     }
                 }
-                
+
                 LLVMValueRef new_val = LLVMBuildSelect(ctx->builder, has_err, op2, val, "new_val");
-                
+
                 LLVMValueRef new_struct = LLVMGetUndef(LLVMTypeOf(op1));
                 new_struct = LLVMBuildInsertValue(ctx->builder, new_struct, new_err_id, 0, "ins_err");
                 if (LLVMCountStructElementTypes(LLVMTypeOf(op1)) > 1) {
@@ -298,7 +298,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 res = new_struct;
             } else {
                 has_err = LLVMBuildICmp(ctx->builder, LLVMIntNE, err_id, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), "has_err");
-                
+
                 if (LLVMTypeOf(op2) != LLVMTypeOf(val)) {
                     if (LLVMGetTypeKind(LLVMTypeOf(val)) == LLVMPointerTypeKind) {
                         op2 = LLVMBuildIntToPtr(ctx->builder, op2, LLVMTypeOf(val), "cast_fallback_ptr");
@@ -306,7 +306,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         op2 = LLVMBuildIntCast(ctx->builder, op2, LLVMTypeOf(val), "cast_fallback_int");
                     }
                 }
-                
+
                 res = LLVMBuildSelect(ctx->builder, has_err, op2, val, "fallback_res");
             }
             break;
@@ -316,18 +316,19 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             if (LLVMGetBasicBlockTerminator(current_bb) != NULL) break;
             LLVMValueRef current_func = LLVMGetBasicBlockParent(current_bb);
             LLVMTypeRef ret_ty = LLVMGetReturnType(LLVMGlobalGetValueType(current_func));
-            
+
             LLVMValueRef err_id_val = op2 ? op2 : LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 1, 0);
-            
-            printf("ALIR_OP_PANIC in func. ret_ty kind: %d\n", LLVMGetTypeKind(ret_ty));
+
+            debug_codegen("ALIR_OP_PANIC in func. ret_ty kind: %d\n", LLVMGetTypeKind(ret_ty));
             if (LLVMGetTypeKind(ret_ty) == LLVMStructTypeKind) {
                 LLVMValueRef ret_struct = LLVMGetUndef(ret_ty);
                 ret_struct = LLVMBuildInsertValue(ctx->builder, ret_struct, err_id_val, 0, "");
                 LLVMBuildRet(ctx->builder, ret_struct);
-                printf("Terminator after LLVMBuildRet: %p\n", LLVMGetBasicBlockTerminator(current_bb));
+                debug_codegen("Terminator after LLVMBuildRet: %p\n", LLVMGetBasicBlockTerminator(current_bb));
                 break;
             }
 
+            // is this hardcoded?
             LLVMValueRef printf_func = LLVMGetNamedFunction(ctx->llvm_mod, "printf");
             if (!printf_func) {
                 LLVMTypeRef args[] = { LLVMPointerType(LLVMInt8TypeInContext(ctx->llvm_ctx), 0) };
@@ -340,7 +341,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                 LLVMTypeRef exit_ty = LLVMFunctionType(LLVMVoidTypeInContext(ctx->llvm_ctx), args, 1, 0);
                 exit_func = LLVMAddFunction(ctx->llvm_mod, "exit", exit_ty);
             }
-            
+
             if (op1) {
                 LLVMValueRef fmt = LLVMBuildGlobalStringPtr(ctx->builder, "purge: %s\n", "purge_fmt");
                 LLVMValueRef args[] = { fmt, op1 };
@@ -348,7 +349,7 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             }
             LLVMValueRef args_exit[] = { LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 1, 0) };
             LLVMBuildCall2(ctx->builder, LLVMGlobalGetValueType(exit_func), exit_func, args_exit, 1, "");
-            
+
             break;
         }
         default: break;

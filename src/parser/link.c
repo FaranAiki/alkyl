@@ -228,23 +228,23 @@ ASTNode* parse_import(Parser *p) {
  * @return AST node for the link statement, or NULL on error.
  */
 ASTNode* parse_link(Parser *p) {
-  eat(p, TOKEN_LINK);
-  char *lib_name = NULL;
-  if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
-    lib_name = parser_strdup(p, p->current_token.text);
-    p->current_token.text = NULL;
-    if (p->current_token.type == TOKEN_IDENTIFIER) eat(p, TOKEN_IDENTIFIER);
-    else if (p->current_token.type == TOKEN_STRING) eat(p, TOKEN_STRING);
-    else eat(p, TOKEN_C_STRING);
-  } else {
-    parser_fail(p, "Expected library name (string or identifier) after 'link'");
-    return NULL;
-  }
-  if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
-  LinkNode *node = parser_alloc(p, sizeof(LinkNode));
-  node->base.type = NODE_LINK;
-  node->lib_name = lib_name;
-  return (ASTNode*)node;
+    eat(p, TOKEN_LINK);
+    char *lib_name = NULL;
+    if (p->current_token.type == TOKEN_IDENTIFIER || p->current_token.type == TOKEN_STRING || p->current_token.type == TOKEN_C_STRING) {
+        lib_name = parser_strdup(p, p->current_token.text);
+        p->current_token.text = NULL;
+        if (p->current_token.type == TOKEN_IDENTIFIER) eat(p, TOKEN_IDENTIFIER);
+        else if (p->current_token.type == TOKEN_STRING) eat(p, TOKEN_STRING);
+        else eat(p, TOKEN_C_STRING);
+    } else {
+        parser_fail(p, "Expected library name (string or identifier) after 'link'");
+        return NULL;
+    }
+    if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
+    LinkNode *node = parser_alloc(p, sizeof(LinkNode));
+    node->base.type = NODE_LINK;
+    node->lib_name = lib_name;
+    return (ASTNode*)node;
 }
 
 typedef struct {
@@ -276,26 +276,26 @@ static void import_stack_pop(ImportStack *stack) {
 
 static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stack) {
     if (!node) return NULL;
-    
+
     if (node->type == NODE_IMPORT) {
         ImportNode *in = (ImportNode*)node;
         const char *path = in->path;
-        
+
         if (import_stack_contains(stack, path)) {
             return NULL;
         }
-        
+
         import_stack_push(stack, path);
-        
+
         ASTNode *resolved = NULL;
         if (in->header == HEADER_C) {
             resolved = resolve_c_import(p, path);
         } else {
             resolved = parse_import_internal(p, path);
         }
-        
+
         import_stack_pop(stack);
-        
+
         if (resolved) {
             ASTNode **curr = &resolved;
             while (*curr) {
@@ -306,18 +306,18 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
                 curr = &(*curr)->next;
             }
         }
-        
+
         in->resolved_body = resolved;
-        
+
         if (resolved) {
             ASTNode *last = resolved;
             while (last->next) last = last->next;
             last->next = node->next;
         }
-        
+
         return resolved;
     }
-    
+
     if (node->type == NODE_IMPORT_EXPR) {
         ImportExprNode *ie = (ImportExprNode*)node;
         const char *path = ie->path;
@@ -342,7 +342,7 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
         }
         return node;
     }
-    
+
     if (node->type == NODE_NAMESPACE) {
         ASTNode **curr = &((NamespaceNode*)node)->body;
         while (*curr) {
@@ -386,7 +386,7 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
         // Do NOT recursively process node->next here!
         // The caller iterates through the linked list.
     }
-    
+
     return node;
 }
 
@@ -397,15 +397,15 @@ static ASTNode* resolve_imports_node(Parser *p, ASTNode *node, ImportStack *stac
  */
 void resolve_imports(Parser *p, ASTNode **root_ptr) {
     if (!root_ptr || !*root_ptr) return;
-    
+
     ImportStack stack = {0};
-    
+
     ASTNode **curr = root_ptr;
     while (*curr) {
         ASTNode *resolved = resolve_imports_node(p, *curr, &stack);
         if (resolved) *curr = resolved;
         curr = &(*curr)->next;
     }
-    
+
     free(stack.paths);
 }

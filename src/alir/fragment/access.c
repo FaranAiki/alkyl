@@ -90,8 +90,8 @@ int alir_robust_get_field_index(AlirCtx *ctx, const char *hint_class, const char
         if (streq_lit(field_name, "data")) return 1;
         if (streq_lit(field_name, "len")) return 0;
     }
-    
-    int idx = -1; if (hint_class) printf("HINT_CLASS %s\n", hint_class);
+
+    int idx = -1; if (hint_class) debug_alir("HINT_CLASS %s\n", hint_class);
     if (hint_class) {
         idx = alir_get_field_index(ctx->module, hint_class, field_name);
         if (idx == -1) {

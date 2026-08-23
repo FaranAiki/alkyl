@@ -37,7 +37,7 @@ static void print_c_ast_node(ASTNode *node, int indent) {
     if (!node) return;
     char indent_str[64] = {0};
     for (int i = 0; i < indent && i < 30; i++) strcat(indent_str, "  ");
-    
+
     switch (node->type) {
         case NODE_FUNC_DEF: {
             FuncDefNode *fn = (FuncDefNode*)node;
@@ -115,6 +115,7 @@ int main(int argc, char **argv) {
     parser_settings.namespace_ausearch_warning = 1;
     parser_settings.function_call_require_comma = 1;
 
+    // TODO: modularize this
     for (int i = 1; i < argc; i++) {
         if (strncmp(argv[i], "-l", 2) == 0) {
             if (strlen(link_flags) + strlen(argv[i]) + 2 < sizeof(link_flags)) {

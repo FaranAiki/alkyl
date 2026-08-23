@@ -1,9 +1,9 @@
 /*
     wlroots wayland window manager
 */
-premeta { 
+premeta {
     reason "Standard block style for C-like code"
-    lexer.scope_style = SCOPE_BRACKETS; 
+    lexer.scope_style = SCOPE_BRACKETS;
 }
 
 import "std/print";
@@ -178,7 +178,12 @@ int main() {
     let server = ac.alloc[Server]();
     untaint server residue err { return 1; }
 
-    let new_input = ac.alloc[Listener](); untaint new_input residue err { return 1; } new_input.link_prev = null; new_input.link_next = null; new_input.notify = null;
+    let new_input = ac.alloc[Listener]();
+    untaint new_input residue err { return 1; }
+    new_input.link_prev = null;
+    new_input.link_next = null;
+    new_input.notify = null;
+
     new_input.data = server as void*;
     server.new_input = new_input as void*;
 
@@ -216,13 +221,13 @@ int main() {
     untaint compositor residue err { return 1; }
     server.compositor = compositor as void*;
 
-    let manager = wlroots.create_data_device_manager(display);
+    void *manager = wlroots.create_data_device_manager(display);
     untaint manager residue err { return 1; }
-    server.manager = manager as void*;
+    server.manager = manager;
 
-    let subcompositor = wlroots.create_subcompositor(display);
+    void *subcompositor = wlroots.create_subcompositor(display);
     untaint subcompositor residue err { return 1; }
-    server.subcompositor = subcompositor as void*;
+    server.subcompositor = subcompositor;
 
     let output_layout = wlroots.create_output_layout(display);
     untaint output_layout residue err { return 1; }

@@ -2,29 +2,29 @@ step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: semantic: sem_check_block: ns='ns'
 debug: semantic: sem_check_block: visiting node type=21
-debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x558b19644198
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x562ce3f6a338
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=27 line=8 col=17 node=0x558b19644498
-debug: semantic: sem_check_expr: type=13 line=8 col=15 node=0x558b19644418
+debug: semantic: sem_check_expr: type=27 line=8 col=17 node=0x562ce3f6a638
+debug: semantic: sem_check_expr: type=13 line=8 col=15 node=0x562ce3f6a5b8
 debug: semantic: sem_check_method_call: method='Clib', obj_base=18, obj_class='ns'
 debug: semantic: sem_check_call: name='ns.Clib', ns='main'
-debug: semantic: sem_check_expr: type=13 line=8 col=17 node=0x558b19645b80
-debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x558b19645c98
+debug: semantic: sem_check_expr: type=13 line=8 col=17 node=0x562ce3f6bd20
+debug: semantic: sem_check_expr: type=16 line=3 col=13 node=0x562ce3f6be38
 debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=9 col=10 node=0x558b196447a8
-debug: semantic: sem_check_expr: type=26 line=9 col=7 node=0x558b19644670
-debug: semantic: sem_check_expr: type=13 line=9 col=6 node=0x558b196445f0
-debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x558b19644708
+debug: semantic: sem_check_expr: type=14 line=9 col=10 node=0x562ce3f6a948
+debug: semantic: sem_check_expr: type=26 line=9 col=7 node=0x562ce3f6a810
+debug: semantic: sem_check_expr: type=13 line=9 col=6 node=0x562ce3f6a790
+debug: semantic: sem_check_expr: type=16 line=9 col=13 node=0x562ce3f6a8a8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=9 col=22 node=0x558b19644850
+debug: semantic: sem_check_expr: type=16 line=9 col=22 node=0x562ce3f6a9f0
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=9 col=32 node=0x558b196449e0
+debug: semantic: sem_check_expr: type=16 line=9 col=32 node=0x562ce3f6ab80
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Clib
-debug: alir: DEBUG_REGISTER: st=0x558b19649938 name=ns.Clib next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x562ce3f6fad8 name=ns.Clib next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
 REGISTER_STRUCT ns.Clib fields 0
 POPULATING ns.Clib has_body=1
@@ -55,35 +55,5 @@ debug: optlir: Check Type for Struct Marking ns.Clib
 debug: optlir: Check Type for Struct Marking ns.Clib
 debug: optlir: Check Type for Struct Marking ns.Clib
 debug: optlir: Check Type for Struct Marking ns.Clib
-step: Finished alir optimization. Start code generation using LLVM codegen
-; ModuleID = 'main_module'
-source_filename = "main_module"
-
-%ns.Clib = type { i32 }
-
-define void @ns.Clib(ptr %0, i32 %1) {
-entry:
-  %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %0, i32 0, i32 0
-  store i32 %1, ptr %struct_gep, align 4
-  ret void
-}
-
-define i32 @main() {
-entry:
-  %alloc = alloca %ns.Clib, align 8
-  call void @ns.Clib(ptr %alloc, i32 1)
-  %struct_gep = getelementptr inbounds nuw %ns.Clib, ptr %alloc, i32 0, i32 0
-  %load = load i32, ptr %struct_gep, align 4
-  %eq = icmp eq i32 %load, 1
-  br i1 %eq, label %then, label %merge
-
-then:                                             ; preds = %entry
-  ret i32 0
-
-merge:                                            ; preds = %entry
-  ret i32 1
-}
+step: Finished alir optimization. Start code generation using qbe codegen
 HINT_CLASS ns.Clib
-DEBUG CALL param 0: num_params=2, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12
-DEBUG CALL param 1: num_params=2, expected_ty=8, arg_ty=8

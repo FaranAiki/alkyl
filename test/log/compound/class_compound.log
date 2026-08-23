@@ -2,70 +2,70 @@ step: Finished lexing. Start parsing.
 debug: parser: after parse_type, vt.base=16, token.type=32
 debug: parser: after parse_type, vt.base=16, token.type=32
 debug: parser: parse_postfix: before parse_call, node->type=47
-debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x55e5c645c520 target=0x55e5c645c360
+debug: parser: Created Call name=(null) target_type=47 line=0 col=0 node=0x5627659886c0 target=0x562765988500
 debug: semantic: sem_check_block: ns='clib'
 debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='clib'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=15 col=38 node=0x55e5c645c520
+debug: semantic: sem_check_expr: type=2 line=15 col=38 node=0x5627659886c0
 debug: semantic: sem_check_call: name='(null)', ns='main'
-debug: semantic: sem_check_expr: type=47 line=15 col=33 node=0x55e5c645c360
-debug: semantic: &ctx->ast_tail=0x7ffc4f7a6cc8, ctx->ast_tail=0x55e5c645cf78, *ctx->ast_tail=(nil)
+debug: semantic: sem_check_expr: type=47 line=15 col=33 node=0x562765988500
+debug: semantic: &ctx->ast_tail=0x7ffcb463f088, ctx->ast_tail=0x562765989118, *ctx->ast_tail=(nil)
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=14 line=9 col=30 node=0x55e5c646cba8
-debug: semantic: sem_check_expr: type=14 line=9 col=21 node=0x55e5c646cc50
-debug: semantic: sem_check_expr: type=26 line=9 col=18 node=0x55e5c646ccf8
-debug: semantic: sem_check_expr: type=13 line=9 col=14 node=0x55e5c646cd90
-debug: semantic: sem_check_expr: type=26 line=9 col=27 node=0x55e5c646ce10
-debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x55e5c646cea8
-debug: semantic: sem_check_expr: type=14 line=9 col=39 node=0x55e5c646cf28
-debug: semantic: sem_check_expr: type=26 line=9 col=36 node=0x55e5c646cfd0
-debug: semantic: sem_check_expr: type=13 line=9 col=32 node=0x55e5c646d068
-debug: semantic: sem_check_expr: type=26 line=9 col=45 node=0x55e5c646d0e8
-debug: semantic: sem_check_expr: type=13 line=9 col=41 node=0x55e5c646d180
-debug: semantic: sem_check_expr: type=16 line=15 col=39 node=0x55e5c645c3e0
-debug: semantic: sem_check_expr: type=16 line=15 col=43 node=0x55e5c645c480
+debug: semantic: sem_check_expr: type=14 line=9 col=30 node=0x562765998d48
+debug: semantic: sem_check_expr: type=14 line=9 col=21 node=0x562765998df0
+debug: semantic: sem_check_expr: type=26 line=9 col=18 node=0x562765998e98
+debug: semantic: sem_check_expr: type=13 line=9 col=14 node=0x562765998f30
+debug: semantic: sem_check_expr: type=26 line=9 col=27 node=0x562765998fb0
+debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x562765999048
+debug: semantic: sem_check_expr: type=14 line=9 col=39 node=0x5627659990c8
+debug: semantic: sem_check_expr: type=26 line=9 col=36 node=0x562765999170
+debug: semantic: sem_check_expr: type=13 line=9 col=32 node=0x562765999208
+debug: semantic: sem_check_expr: type=26 line=9 col=45 node=0x562765999288
+debug: semantic: sem_check_expr: type=13 line=9 col=41 node=0x562765999320
+debug: semantic: sem_check_expr: type=16 line=15 col=39 node=0x562765988580
+debug: semantic: sem_check_expr: type=16 line=15 col=43 node=0x562765988620
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=16 col=15 node=0x55e5c645ca60
-debug: semantic: sem_check_expr: type=13 line=16 col=3 node=0x55e5c645c678
+debug: semantic: sem_check_expr: type=27 line=16 col=15 node=0x562765988c00
+debug: semantic: sem_check_expr: type=13 line=16 col=3 node=0x562765988818
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
-debug: semantic: sem_check_expr: type=16 line=16 col=15 node=0x55e5c645c790
-debug: semantic: sem_check_expr: type=26 line=16 col=43 node=0x55e5c645c8b0
-debug: semantic: sem_check_expr: type=13 line=16 col=34 node=0x55e5c645c830
-debug: semantic: sem_check_expr: type=26 line=16 col=56 node=0x55e5c645c9c8
-debug: semantic: sem_check_expr: type=13 line=16 col=47 node=0x55e5c645c948
-debug: semantic: sem_check_expr: type=16 line=16 col=15 node=0x55e5c645c790
+debug: semantic: sem_check_expr: type=16 line=16 col=15 node=0x562765988930
+debug: semantic: sem_check_expr: type=26 line=16 col=43 node=0x562765988a50
+debug: semantic: sem_check_expr: type=13 line=16 col=34 node=0x5627659889d0
+debug: semantic: sem_check_expr: type=26 line=16 col=56 node=0x562765988b68
+debug: semantic: sem_check_expr: type=13 line=16 col=47 node=0x562765988ae8
+debug: semantic: sem_check_expr: type=16 line=16 col=15 node=0x562765988930
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=17 col=15 node=0x55e5c645cdc8
-debug: semantic: sem_check_expr: type=13 line=17 col=3 node=0x55e5c645caf8
+debug: semantic: sem_check_expr: type=27 line=17 col=15 node=0x562765988f68
+debug: semantic: sem_check_expr: type=13 line=17 col=3 node=0x562765988c98
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
-debug: semantic: sem_check_expr: type=16 line=17 col=15 node=0x55e5c645cc10
-debug: semantic: sem_check_expr: type=27 line=17 col=42 node=0x55e5c645cd30
-debug: semantic: sem_check_expr: type=13 line=17 col=33 node=0x55e5c645ccb0
+debug: semantic: sem_check_expr: type=16 line=17 col=15 node=0x562765988db0
+debug: semantic: sem_check_expr: type=27 line=17 col=42 node=0x562765988ed0
+debug: semantic: sem_check_expr: type=13 line=17 col=33 node=0x562765988e50
 debug: semantic: sem_check_method_call: method='distance_square', obj_base=16, obj_class='Vector_int'
-debug: semantic: sem_lookup_class_call for 'Vector_int', class_sym=0x55e5c646d278
-debug: semantic: sem_check_expr: type=16 line=17 col=15 node=0x55e5c645cc10
+debug: semantic: sem_lookup_class_call for 'Vector_int', class_sym=0x562765999418
+debug: semantic: sem_check_expr: type=16 line=17 col=15 node=0x562765988db0
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=19 col=10 node=0x55e5c645ce60
+debug: semantic: sem_check_expr: type=16 line=19 col=10 node=0x562765989000
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=14 line=9 col=30 node=0x55e5c646cba8
-debug: semantic: sem_check_expr: type=14 line=9 col=21 node=0x55e5c646cc50
-debug: semantic: sem_check_expr: type=26 line=9 col=18 node=0x55e5c646ccf8
-debug: semantic: sem_check_expr: type=13 line=9 col=14 node=0x55e5c646cd90
-debug: semantic: sem_check_expr: type=26 line=9 col=27 node=0x55e5c646ce10
-debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x55e5c646cea8
-debug: semantic: sem_check_expr: type=14 line=9 col=39 node=0x55e5c646cf28
-debug: semantic: sem_check_expr: type=26 line=9 col=36 node=0x55e5c646cfd0
-debug: semantic: sem_check_expr: type=13 line=9 col=32 node=0x55e5c646d068
-debug: semantic: sem_check_expr: type=26 line=9 col=45 node=0x55e5c646d0e8
-debug: semantic: sem_check_expr: type=13 line=9 col=41 node=0x55e5c646d180
+debug: semantic: sem_check_expr: type=14 line=9 col=30 node=0x562765998d48
+debug: semantic: sem_check_expr: type=14 line=9 col=21 node=0x562765998df0
+debug: semantic: sem_check_expr: type=26 line=9 col=18 node=0x562765998e98
+debug: semantic: sem_check_expr: type=13 line=9 col=14 node=0x562765998f30
+debug: semantic: sem_check_expr: type=26 line=9 col=27 node=0x562765998fb0
+debug: semantic: sem_check_expr: type=13 line=9 col=23 node=0x562765999048
+debug: semantic: sem_check_expr: type=14 line=9 col=39 node=0x5627659990c8
+debug: semantic: sem_check_expr: type=26 line=9 col=36 node=0x562765999170
+debug: semantic: sem_check_expr: type=13 line=9 col=32 node=0x562765999208
+debug: semantic: sem_check_expr: type=26 line=9 col=45 node=0x562765999288
+debug: semantic: sem_check_expr: type=13 line=9 col=41 node=0x562765999320
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Vector_int
-debug: alir: DEBUG_REGISTER: st=0x55e5c6471d08 name=Vector_int next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x56276599dea8 name=Vector_int next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
 REGISTER_STRUCT Vector_int fields 0
 POPULATING Vector_int has_body=1
@@ -135,68 +135,10 @@ debug: optlir: Check Type for Struct Marking Vector_int
 debug: optlir: Check Type for Struct Marking Vector_int
 debug: optlir: Check Type for Struct Marking Vector_int
 debug: optlir: Check Type for Struct Marking Vector_int
-step: Finished alir optimization. Start code generation using LLVM codegen
-; ModuleID = 'main_module'
-source_filename = "main_module"
-
-%Vector_int = type { i32, i32 }
-
-@str.1 = private constant [14 x i8] c"distance: %d\0A\00"
-@str.0 = private constant [15 x i8] c"x & y: %d, %d\0A\00"
-
-declare i32 @printf(ptr %0, ...)
-
-define i32 @main() {
-entry:
-  %alloc = alloca %Vector_int, align 8
-  call void @Vector_int(ptr %alloc, i32 10, i32 10)
-  %struct_gep = getelementptr inbounds nuw %Vector_int, ptr %alloc, i32 0, i32 0
-  %load = load i32, ptr %struct_gep, align 4
-  %struct_gep1 = getelementptr inbounds nuw %Vector_int, ptr %alloc, i32 0, i32 1
-  %load2 = load i32, ptr %struct_gep1, align 4
-  %call = call i32 (ptr, ...) @printf(ptr @str.0, i32 %load, i32 %load2)
-  %call3 = call i32 @main_Vector_int_distance_square(ptr %alloc)
-  %call4 = call i32 (ptr, ...) @printf(ptr @str.1, i32 %call3)
-  ret i32 0
-}
-
-define i32 @main_Vector_int_distance_square(ptr %0) {
-entry:
-  %struct_gep = getelementptr inbounds nuw %Vector_int, ptr %0, i32 0, i32 0
-  %load = load i32, ptr %struct_gep, align 4
-  %struct_gep1 = getelementptr inbounds nuw %Vector_int, ptr %0, i32 0, i32 0
-  %load2 = load i32, ptr %struct_gep1, align 4
-  %mul = mul i32 %load, %load2
-  %struct_gep3 = getelementptr inbounds nuw %Vector_int, ptr %0, i32 0, i32 1
-  %load4 = load i32, ptr %struct_gep3, align 4
-  %struct_gep5 = getelementptr inbounds nuw %Vector_int, ptr %0, i32 0, i32 1
-  %load6 = load i32, ptr %struct_gep5, align 4
-  %mul7 = mul i32 %load4, %load6
-  %add = add i32 %mul, %mul7
-  ret i32 %add
-}
-
-define void @Vector_int(ptr %0, i32 %1, i32 %2) {
-entry:
-  %struct_gep = getelementptr inbounds nuw %Vector_int, ptr %0, i32 0, i32 0
-  store i32 %1, ptr %struct_gep, align 4
-  %struct_gep1 = getelementptr inbounds nuw %Vector_int, ptr %0, i32 0, i32 1
-  store i32 %2, ptr %struct_gep1, align 4
-  ret void
-}
+step: Finished alir optimization. Start code generation using qbe codegen
 HINT_CLASS Vector_int
 HINT_CLASS Vector_int
 HINT_CLASS Vector_int
 HINT_CLASS Vector_int
 HINT_CLASS Vector_int
 HINT_CLASS Vector_int
-DEBUG CALL param 0: num_params=3, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12
-DEBUG CALL param 1: num_params=3, expected_ty=8, arg_ty=8
-DEBUG CALL param 2: num_params=3, expected_ty=8, arg_ty=8
-DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12
-DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12
-DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12

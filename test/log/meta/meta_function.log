@@ -1,18 +1,18 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x5626a6fe7510 target=0x5626a6fe7250
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x561c06d33750 target=0x561c06d33490
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=my_print target_type=13 line=0 col=0 node=0x5626a6fe77b8 target=0x5626a6fe7698
+debug: parser: Created Call name=my_print target_type=13 line=0 col=0 node=0x561c06d339f8 target=0x561c06d338d8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=6 col=11 name=my_print target_type=13 node=0x5626a6fe77b8
-debug: semantic: sem_check_expr: type=2 line=6 col=11 node=0x5626a6fe77b8
+debug: semantic: sem_check_block: Call line=6 col=11 name=my_print target_type=13 node=0x561c06d339f8
+debug: semantic: sem_check_expr: type=2 line=6 col=11 node=0x561c06d339f8
 debug: semantic: sem_check_call: name='my_print', ns='main'
-debug: semantic: sem_check_expr: type=13 line=6 col=3 node=0x5626a6fe7698
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x5626a6fe7718
+debug: semantic: sem_check_expr: type=13 line=6 col=3 node=0x561c06d338d8
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x561c06d33958
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=7 col=10 node=0x5626a6fe7850
+debug: semantic: sem_check_expr: type=16 line=7 col=10 node=0x561c06d33a90
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -26,41 +26,27 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 debug: alir: GEN_CALL: name=my_print mangled=main.my_print
 debug: alir: Looking up 'main.my_print'
-debug: alir: Found symbol my_print, kind=1, is_macro=1, node_ptr=0x5626a6fe75a8
+debug: alir: Found symbol my_print, kind=1, is_macro=1, node_ptr=0x561c06d337e8
 debug: alir: macro: mangled='main.my_print', old_ns='main'
 debug: alir: macro: setting ns to 'main'
 debug: alir: macro: before sem_check_block, ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=3 col=9 name=printf target_type=13 node=0x5626a6fed050
-debug: semantic: sem_check_expr: type=2 line=3 col=9 node=0x5626a6fed050
+debug: semantic: sem_check_block: Call line=3 col=9 name=printf target_type=13 node=0x561c06d39290
+debug: semantic: sem_check_expr: type=2 line=3 col=9 node=0x561c06d39290
 debug: semantic: sem_check_call: name='printf', ns='main'
-debug: semantic: sem_check_expr: type=13 line=3 col=3 node=0x5626a6fed0d8
-debug: semantic: sem_check_expr: type=16 line=3 col=10 node=0x5626a6fed158
-debug: semantic: sem_check_expr: type=16 line=3 col=10 node=0x5626a6fed158
+debug: semantic: sem_check_expr: type=13 line=3 col=3 node=0x561c06d39318
+debug: semantic: sem_check_expr: type=16 line=3 col=10 node=0x561c06d39398
+debug: semantic: sem_check_expr: type=16 line=3 col=10 node=0x561c06d39398
 debug: alir: macro: after sem_check_block, ns='main'
 debug: alir: GEN_CALL: name=printf mangled=printf
 debug: alir: Looking up 'printf'
-debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x5626a6fe7160
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x561c06d333a0
 debug: alir: CALL_STD: name=printf mangled=printf target_type=13
 debug: alir: GLOBAL VAR ADDR: printf
-debug: alir: TAINTED PTR: ctx->module=0x5626a6fe89d0 target_name=printf count=2
+debug: alir: TAINTED PTR: ctx->module=0x561c06d34c10 target_name=printf count=2
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-; ModuleID = 'main_module'
-source_filename = "main_module"
-
-@str.0 = private constant [4 x i8] c"%d\0A\00"
-
-declare i32 @printf(ptr %0, ...)
-
-define i32 @main() {
-entry:
-  %call = call i32 (ptr, ...) @printf(ptr @str.0, i32 42)
-  ret i32 0
-}
-DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12
+step: Finished alir optimization. Start code generation using qbe codegen

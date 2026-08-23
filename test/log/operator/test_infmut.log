@@ -3,36 +3,36 @@ debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: after parse_type, vt.base=0, token.type=166
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=14 line=5 col=29 node=0x5633909485b8
-debug: semantic: sem_check_expr: type=26 line=5 col=24 node=0x5633909484a0
-debug: semantic: sem_check_expr: type=13 line=5 col=20 node=0x563390948420
-debug: semantic: sem_check_expr: type=13 line=5 col=31 node=0x563390948538
-debug: semantic: sem_check_expr: type=26 line=5 col=13 node=0x563390948388
-debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x563390948308
+debug: semantic: sem_check_expr: type=14 line=5 col=29 node=0x555ce8215758
+debug: semantic: sem_check_expr: type=26 line=5 col=24 node=0x555ce8215640
+debug: semantic: sem_check_expr: type=13 line=5 col=20 node=0x555ce82155c0
+debug: semantic: sem_check_expr: type=13 line=5 col=31 node=0x555ce82156d8
+debug: semantic: sem_check_expr: type=26 line=5 col=13 node=0x555ce8215528
+debug: semantic: sem_check_expr: type=13 line=5 col=9 node=0x555ce82154a8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
 debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=11 col=13 node=0x563390948a60
-debug: semantic: sem_check_expr: type=26 line=11 col=6 node=0x5633909489c8
-debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x563390948948
+debug: semantic: sem_check_expr: type=16 line=11 col=13 node=0x555ce8215c00
+debug: semantic: sem_check_expr: type=26 line=11 col=6 node=0x555ce8215b68
+debug: semantic: sem_check_expr: type=13 line=11 col=5 node=0x555ce8215ae8
 debug: semantic: sem_check_block: visiting node type=12
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x563390948c18
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x563390948c18
-debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x563390948c18
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x555ce8215db8
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x555ce8215db8
+debug: semantic: sem_check_expr: type=16 line=12 col=10 node=0x555ce8215db8
 debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=13 col=15 node=0x563390948f08
-debug: semantic: sem_check_expr: type=26 line=13 col=10 node=0x563390948dd0
-debug: semantic: sem_check_expr: type=13 line=13 col=9 node=0x563390948d50
-debug: semantic: sem_check_expr: type=16 line=13 col=18 node=0x563390948e68
+debug: semantic: sem_check_expr: type=14 line=13 col=15 node=0x555ce82160a8
+debug: semantic: sem_check_expr: type=26 line=13 col=10 node=0x555ce8215f70
+debug: semantic: sem_check_expr: type=13 line=13 col=9 node=0x555ce8215ef0
+debug: semantic: sem_check_expr: type=16 line=13 col=18 node=0x555ce8216008
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=13 col=29 node=0x563390948fb0
+debug: semantic: sem_check_expr: type=16 line=13 col=29 node=0x555ce8216150
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x563390949140
+debug: semantic: sem_check_expr: type=16 line=14 col=12 node=0x555ce82162e0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Counter
-debug: alir: DEBUG_REGISTER: st=0x56339094e338 name=Counter next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x555ce821b4d8 name=Counter next=(nil)
 debug: alir: DEBUG_PASS1_END: struct list:
 REGISTER_STRUCT Counter fields 0
 POPULATING Counter has_body=1
@@ -78,44 +78,8 @@ debug: optlir: Check Type for Struct Marking Counter
 debug: optlir: Check Type for Struct Marking Counter
 debug: optlir: Check Type for Struct Marking Counter
 debug: optlir: Check Type for Struct Marking Counter
-step: Finished alir optimization. Start code generation using LLVM codegen
-; ModuleID = 'main_module'
-source_filename = "main_module"
-
-%Counter = type { i32 }
-
-define void @main_Counter___op_166_34_i32(ptr %0, i32 %1) {
-entry:
-  %struct_gep = getelementptr inbounds nuw %Counter, ptr %0, i32 0, i32 0
-  %load = load i32, ptr %struct_gep, align 4
-  %add = add i32 %load, %1
-  %struct_gep1 = getelementptr inbounds nuw %Counter, ptr %0, i32 0, i32 0
-  store i32 %add, ptr %struct_gep1, align 4
-  ret void
-}
-
-define i32 @main() {
-entry:
-  %alloc = alloca %Counter, align 8
-  %struct_gep = getelementptr inbounds nuw %Counter, ptr %alloc, i32 0, i32 0
-  store i32 10, ptr %struct_gep, align 4
-  call void @main_Counter___op_166_34_i32(ptr %alloc, i32 5)
-  %struct_gep1 = getelementptr inbounds nuw %Counter, ptr %alloc, i32 0, i32 0
-  %load = load i32, ptr %struct_gep1, align 4
-  %eq = icmp eq i32 %load, 15
-  %not = xor i1 %eq, true
-  br i1 %not, label %then, label %merge
-
-then:                                             ; preds = %entry
-  ret i32 1
-
-merge:                                            ; preds = %entry
-  ret i32 0
-}
+step: Finished alir optimization. Start code generation using qbe codegen
 HINT_CLASS Counter
 HINT_CLASS Counter
 HINT_CLASS Counter
 HINT_CLASS Counter
-DEBUG CALL param 0: num_params=2, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12
-DEBUG CALL param 1: num_params=2, expected_ty=8, arg_ty=8

@@ -1,26 +1,26 @@
 step: Finished lexing. Start parsing.
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=cmalloc target_type=13 line=0 col=0 node=0x55937c9f7590 target=0x55937c9f7470
+debug: parser: Created Call name=cmalloc target_type=13 line=0 col=0 node=0x55dead3a6730 target=0x55dead3a6610
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=cfree target_type=13 line=0 col=0 node=0x55937c9f77e8 target=0x55937c9f76e8
+debug: parser: Created Call name=cfree target_type=13 line=0 col=0 node=0x55dead3a6988 target=0x55dead3a6888
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x55937c9f7590
+debug: semantic: sem_check_expr: type=2 line=8 col=22 node=0x55dead3a6730
 debug: semantic: sem_check_call: name='cmalloc', ns='main'
-debug: semantic: sem_check_expr: type=13 line=8 col=15 node=0x55937c9f7470
-debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x55937c9f74f0
-debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x55937c9f74f0
+debug: semantic: sem_check_expr: type=13 line=8 col=15 node=0x55dead3a6610
+debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x55dead3a6690
+debug: semantic: sem_check_expr: type=16 line=8 col=23 node=0x55dead3a6690
 debug: semantic: sem_check_block: visiting node type=2
-debug: semantic: sem_check_block: Call line=10 col=10 name=cfree target_type=13 node=0x55937c9f77e8
-debug: semantic: sem_check_expr: type=2 line=10 col=10 node=0x55937c9f77e8
+debug: semantic: sem_check_block: Call line=10 col=10 name=cfree target_type=13 node=0x55dead3a6988
+debug: semantic: sem_check_expr: type=2 line=10 col=10 node=0x55dead3a6988
 debug: semantic: sem_check_call: name='cfree', ns='main'
-debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x55937c9f76e8
-debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x55937c9f7768
-debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x55937c9f7768
+debug: semantic: sem_check_expr: type=13 line=10 col=5 node=0x55dead3a6888
+debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x55dead3a6908
+debug: semantic: sem_check_expr: type=13 line=10 col=11 node=0x55dead3a6908
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x55937c9f7880
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x55dead3a6a20
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -35,38 +35,22 @@ debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_nam
 debug: alir: alir_add_function: main
 debug: alir: GEN_CALL: name=cmalloc mangled=malloc
 debug: alir: Looking up 'malloc'
-debug: alir: Found symbol cmalloc, kind=1, is_macro=0, node_ptr=0x55937c9f7240
+debug: alir: Found symbol cmalloc, kind=1, is_macro=0, node_ptr=0x55dead3a63e0
 debug: alir: CALL_STD: name=cmalloc mangled=malloc target_type=13
 debug: alir: GLOBAL VAR ADDR: cmalloc
-debug: alir: TAINTED PTR: ctx->module=0x55937c9f8c60 target_name=malloc count=1
+debug: alir: TAINTED PTR: ctx->module=0x55dead3a7e00 target_name=malloc count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 debug: alir: func=main op=0 dest_kind=5 dest_type_base=0 op1_kind=0 op1_type_base=0
 debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=0
 debug: alir: GEN_CALL: name=cfree mangled=free
 debug: alir: Looking up 'free'
-debug: alir: Found symbol cfree, kind=1, is_macro=0, node_ptr=0x55937c9f7380
+debug: alir: Found symbol cfree, kind=1, is_macro=0, node_ptr=0x55dead3a6520
 debug: alir: CALL_STD: name=cfree mangled=free target_type=13
 debug: alir: GLOBAL VAR ADDR: cfree
 debug: alir: func=main op=3 dest_kind=5 dest_type_base=0 op1_kind=5 op1_type_base=0
-debug: alir: TAINTED PTR: ctx->module=0x55937c9f8c60 target_name=free count=1
+debug: alir: TAINTED PTR: ctx->module=0x55dead3a7e00 target_name=free count=1
 debug: alir: func=main op=31 dest_kind=5 dest_type_base=0 op1_kind=9 op1_type_base=0
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-; ModuleID = 'main_module'
-source_filename = "main_module"
-
-declare ptr @malloc(i32 %0)
-
-declare ptr @free(ptr %0)
-
-define i32 @main() {
-entry:
-  %call = call ptr @malloc(i32 10)
-  %call1 = call ptr @free(ptr %call)
-  ret i32 0
-}
-DEBUG CALL param 0: num_params=1, expected_ty=8, arg_ty=8
-DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12
+step: Finished alir optimization. Start code generation using qbe codegen

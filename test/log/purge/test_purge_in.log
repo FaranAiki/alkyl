@@ -4,22 +4,22 @@ debug: semantic: sem_check_block: visiting node type=1
 debug: semantic: sem_check_block: ns='clib'
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x564c74ad7300
+debug: semantic: sem_check_expr: type=16 line=6 col=21 node=0x564a28a674a0
 debug: semantic: sem_check_block: visiting node type=45
-debug: semantic: sem_check_expr: type=13 line=7 col=22 node=0x564c74ad7558
+debug: semantic: sem_check_expr: type=13 line=7 col=22 node=0x564a28a676f8
 debug: semantic: sem_check_block: visiting node type=8
-debug: semantic: sem_check_expr: type=14 line=8 col=10 node=0x564c74ad76f8
-debug: semantic: sem_check_expr: type=13 line=8 col=8 node=0x564c74ad75d8
-debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x564c74ad7658
+debug: semantic: sem_check_expr: type=14 line=8 col=10 node=0x564a28a67898
+debug: semantic: sem_check_expr: type=13 line=8 col=8 node=0x564a28a67778
+debug: semantic: sem_check_expr: type=16 line=8 col=12 node=0x564a28a677f8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=9 col=13 node=0x564c74ad78e8
-debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x564c74ad77c8
+debug: semantic: sem_check_expr: type=27 line=9 col=13 node=0x564a28a67a88
+debug: semantic: sem_check_expr: type=13 line=9 col=9 node=0x564a28a67968
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='clib'
-debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x564c74ad7848
-debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x564c74ad7848
+debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x564a28a679e8
+debug: semantic: sem_check_expr: type=16 line=9 col=21 node=0x564a28a679e8
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x564c74ad7a00
+debug: semantic: sem_check_expr: type=16 line=11 col=12 node=0x564a28a67ba0
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -49,31 +49,4 @@ debug: alir: func=main op=29 dest_kind=0 dest_type_base=0 op1_kind=6 op1_type_ba
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-; ModuleID = 'main_module'
-source_filename = "main_module"
-
-@str.0 = private constant [12 x i8] c"It worked!\0A\00"
-
-declare i32 @printf(ptr %0, ...)
-
-define { i32, i32 } @main() {
-entry:
-  %alloc = alloca { i32, i32 }, align 8
-  store { i32, i32 } zeroinitializer, ptr %alloc, align 4
-  %taint_gep = getelementptr inbounds nuw { i32, i32 }, ptr %alloc, i32 0, i32 1
-  %ptr_gep = getelementptr i32, ptr %taint_gep, i32 0
-  store i32 1, ptr %ptr_gep, align 4
-  %taint_gep1 = getelementptr inbounds nuw { i32, i32 }, ptr %alloc, i32 0, i32 1
-  %load = load i32, ptr %taint_gep1, align 4
-  br i1 false, label %then, label %merge
-
-then:                                             ; preds = %entry
-  %call = call i32 (ptr, ...) @printf(ptr @str.0)
-  br label %merge
-
-merge:                                            ; preds = %then, %entry
-  ret { i32, i32 } zeroinitializer
-}
-DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12
+step: Finished alir optimization. Start code generation using qbe codegen

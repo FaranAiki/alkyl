@@ -1,17 +1,17 @@
 step: Finished lexing. Start parsing.
 debug: c_header: w_name=printf
 debug: c_header: parsed function printf with 1 params (varargs=1) at line 8
-debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x55f21bba9298
+debug: semantic: sem_check_expr: type=50 line=1 col=13 node=0x55f9c69a4438
 debug: semantic: sem_check_block: ns='main'
 debug: parser: inferring type for stdio, init_type.base=18
 debug: parser: debug: inferred type test/code/c_interop/test_simple.h for stdio
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x55f21bba94f8
-debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55f21bba93d8
+debug: semantic: sem_check_expr: type=27 line=4 col=10 node=0x55f9c69a4698
+debug: semantic: sem_check_expr: type=13 line=4 col=5 node=0x55f9c69a4578
 debug: semantic: sem_check_method_call: method='printf', obj_base=18, obj_class='test/code/c_interop/test_simple.h'
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55f21bba9458
-debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55f21bba9458
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55f9c69a45f8
+debug: semantic: sem_check_expr: type=16 line=4 col=18 node=0x55f9c69a45f8
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: DEBUG_PASS1_END: struct list:
@@ -29,18 +29,4 @@ debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=4 op1_type_ba
 debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
 step: Finished alir. Start alir check and analysis.
 step: Finished alir check and analysis. Start alir optimization.
-step: Finished alir optimization. Start code generation using LLVM codegen
-; ModuleID = 'main_module'
-source_filename = "main_module"
-
-@str.0 = private constant [6 x i8] c"Hello\00"
-
-declare i32 @printf(ptr %0, ...)
-
-define i32 @main() {
-entry:
-  %call = call i32 (ptr, ...) @printf(ptr @str.0)
-  ret i32 0
-}
-DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12
+step: Finished alir optimization. Start code generation using qbe codegen

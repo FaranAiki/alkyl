@@ -4,53 +4,53 @@ debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: after parse_type, vt.base=1, token.type=32
 debug: parser: parse_postfix: before parse_call, node->type=13
-debug: parser: Created Call name=Person target_type=13 line=0 col=0 node=0x564bc3c04fe0 target=0x564bc3c04e20
+debug: parser: Created Call name=Person target_type=13 line=0 col=0 node=0x5571b08e5180 target=0x5571b08e4fc0
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x564bc3c04428
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x5571b08e45c8
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=26
-debug: semantic: sem_check_expr: type=26 line=12 col=19 node=0x564bc3c04ae8
-debug: semantic: sem_check_expr: type=47 line=12 col=9 node=0x564bc3c04a68
-debug: semantic: sem_check_expr: type=18 line=12 col=9 node=0x564bc3c04a68
+debug: semantic: sem_check_expr: type=26 line=12 col=19 node=0x5571b08e4c88
+debug: semantic: sem_check_expr: type=47 line=12 col=9 node=0x5571b08e4c08
+debug: semantic: sem_check_expr: type=18 line=12 col=9 node=0x5571b08e4c08
 debug: semantic: sem_check_index_access type base: 0, array_size: 0
-debug: semantic: sem_check_expr: type=13 line=12 col=5 node=0x564bc3c046e8
-debug: semantic: sem_check_expr: type=16 line=12 col=9 node=0x564bc3c06b60
+debug: semantic: sem_check_expr: type=13 line=12 col=5 node=0x5571b08e4888
+debug: semantic: sem_check_expr: type=16 line=12 col=9 node=0x5571b08e6d00
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=13 col=12 node=0x564bc3c04b80
+debug: semantic: sem_check_expr: type=16 line=13 col=12 node=0x5571b08e4d20
 debug: semantic: sem_check_block: ns='main'
 debug: semantic: sem_check_block: visiting node type=11
-debug: semantic: sem_check_expr: type=2 line=18 col=20 node=0x564bc3c04fe0
+debug: semantic: sem_check_expr: type=2 line=18 col=20 node=0x5571b08e5180
 debug: semantic: sem_check_call: name='Person', ns='main'
-debug: semantic: sem_check_expr: type=13 line=18 col=14 node=0x564bc3c04e20
+debug: semantic: sem_check_expr: type=13 line=18 col=14 node=0x5571b08e4fc0
 at namespace main:
 in .../code/composition/has_compo.kyl:
 18:20: warning: no initialization from Person, using Identity as a constructor
   |   Person p = Person("Faran Aiki", 10);
   |                    ^
-debug: semantic: sem_check_expr: type=16 line=18 col=21 node=0x564bc3c04ea0
-debug: semantic: sem_check_expr: type=16 line=18 col=35 node=0x564bc3c04f40
+debug: semantic: sem_check_expr: type=16 line=18 col=21 node=0x5571b08e5040
+debug: semantic: sem_check_expr: type=16 line=18 col=35 node=0x5571b08e50e0
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=19 col=4 node=0x564bc3c051b8
-debug: semantic: sem_check_expr: type=13 line=19 col=3 node=0x564bc3c05138
+debug: semantic: sem_check_expr: type=27 line=19 col=4 node=0x5571b08e5358
+debug: semantic: sem_check_expr: type=13 line=19 col=3 node=0x5571b08e52d8
 debug: semantic: sem_check_method_call: method='speak', obj_base=16, obj_class='Person'
-debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x564bc3c06208
+debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x5571b08e63a8
 19:4: warning: speak is from Identity, consider p[Identity].speak
   |   p.speak();
   |    ^
 debug: semantic: sem_check_block: visiting node type=27
-debug: semantic: sem_check_expr: type=27 line=20 col=4 node=0x564bc3c052d0
-debug: semantic: sem_check_expr: type=13 line=20 col=3 node=0x564bc3c05250
+debug: semantic: sem_check_expr: type=27 line=20 col=4 node=0x5571b08e5470
+debug: semantic: sem_check_expr: type=13 line=20 col=3 node=0x5571b08e53f0
 debug: semantic: sem_check_method_call: method='intro', obj_base=16, obj_class='Person'
-debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x564bc3c06208
+debug: semantic: sem_lookup_class_call for 'Person', class_sym=0x5571b08e63a8
 debug: semantic: sem_check_block: visiting node type=3
-debug: semantic: sem_check_expr: type=16 line=21 col=10 node=0x564bc3c05368
+debug: semantic: sem_check_expr: type=16 line=21 col=10 node=0x5571b08e5508
 step: Finished Semantic Analysis. Start macro-linking.
 step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
 debug: alir: Visiting class Identity
-debug: alir: DEBUG_REGISTER: st=0x564bc3c0a9e8 name=Identity next=(nil)
+debug: alir: DEBUG_REGISTER: st=0x5571b08eab88 name=Identity next=(nil)
 debug: alir: Visiting class Person
-debug: alir: DEBUG_REGISTER: st=0x564bc3c0aa08 name=Person next=0x564bc3c0a9e8
+debug: alir: DEBUG_REGISTER: st=0x5571b08eaba8 name=Person next=0x5571b08eab88
 REGISTER_STRUCT Identity fields 0
 debug: alir: DEBUG_PASS1_END: struct list:
 REGISTER_STRUCT Person fields 0
@@ -110,51 +110,5 @@ debug: optlir: Check Type for Struct Marking Person
 debug: optlir: Check Type for Struct Marking Person
 debug: optlir: Check Type for Struct Marking Person
 debug: optlir: Check Type for Struct Marking Person
-step: Finished alir optimization. Start code generation using LLVM codegen
-; ModuleID = 'main_module'
-source_filename = "main_module"
-
-%Identity = type { ptr, i32 }
-%Person = type { ptr, i32 }
-
-@str.0 = private constant [11 x i8] c"Faran Aiki\00"
-
-define i32 @main_Identity_speak(ptr %0) {
-entry:
-  ret i32 1
-}
-
-define i32 @main_Person_intro(ptr %0) {
-entry:
-  %struct_gep = getelementptr inbounds nuw %Identity, ptr %0, i32 0, i32 0
-  %load = load ptr, ptr %struct_gep, align 8
-  ret i32 1
-}
-
-define void @Person(ptr %0, ptr %1, i32 %2) {
-entry:
-  %struct_gep = getelementptr inbounds nuw %Person, ptr %0, i32 0, i32 0
-  store ptr %1, ptr %struct_gep, align 8
-  %struct_gep1 = getelementptr inbounds nuw %Person, ptr %0, i32 0, i32 1
-  store i32 %2, ptr %struct_gep1, align 4
-  ret void
-}
-
-define i32 @main() {
-entry:
-  %alloc = alloca %Person, align 8
-  call void @Person(ptr %alloc, ptr @str.0, i32 10)
-  %call = call i32 @main_Identity_speak(ptr %alloc)
-  %call1 = call i32 @main_Person_intro(ptr %alloc)
-  ret i32 0
-}
+step: Finished alir optimization. Start code generation using qbe codegen
 HINT_CLASS Identity
-DEBUG CALL param 0: num_params=3, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12
-DEBUG CALL param 1: num_params=3, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12
-DEBUG CALL param 2: num_params=3, expected_ty=8, arg_ty=8
-DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12
-DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
-DEBUG CALL: expected_ty=12, arg_ty=12

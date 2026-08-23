@@ -202,7 +202,7 @@ void build_struct_fields(AlirCtx *ctx, ClassNode *cn, AlirStruct *st) {
         mem = mem->next;
     }
 
-    st->fields = head; printf("BUILT %s with %d fields (was %d)\n", cn->name, idx, st->field_count);
+    st->fields = head; debug_alir("BUILT %s with %d fields (was %d)\n", cn->name, idx, st->field_count);
     st->field_count = idx;
 }
 
@@ -298,7 +298,7 @@ void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current
                 fqn = alir_strdup(ctx->module, buf);
             }
             AlirStruct *st = alir_find_struct(ctx->module, fqn);
-            if (st) { printf("POPULATING %s has_body=%d\n", fqn, cn->has_body); build_struct_fields(ctx, cn, st); } else { printf("NOT FOUND %s\n", fqn); }
+            if (st) { debug_alir("POPULATING %s has_body=%d\n", fqn, cn->has_body); build_struct_fields(ctx, cn, st); } else { printf("NOT FOUND %s\n", fqn); }
         } else if (n->type == NODE_NAMESPACE) {
             NamespaceNode *ns = (NamespaceNode*)n;
             char *next_ns = ns->name;
@@ -670,7 +670,7 @@ void alir_gen_functions_recursive(AlirCtx *ctx, ASTNode *root, const char *curre
                 snprintf(buf, sizeof(buf), "%s.%s", current_ns, ns->name);
                 next_ns = alir_strdup(ctx->module, buf);
             }
-            
+
             alir_gen_functions_recursive(ctx, ns->body, next_ns);
         } else if (curr->type == NODE_IMPORT) {
             ImportNode *in = (ImportNode*)curr;
