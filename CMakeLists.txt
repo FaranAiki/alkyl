@@ -319,7 +319,7 @@ if (BACKEND_LOWER STREQUAL "llvm" OR BUILDALL)
     endif()
 
     if(UNIX)
-        target_link_libraries(alkyl_llvm PRIVATE m pthread dl z ncurses readline)
+        target_link_libraries(alkyl_llvm PRIVATE m pthread dl z ncurses)
     endif()
 
     if(LIBZIP_FOUND)
@@ -354,7 +354,7 @@ if (BACKEND_LOWER STREQUAL "qbe" OR BUILDALL)
     endif()
 
     if(UNIX)
-        target_link_libraries(alkyl_qbe PRIVATE m pthread dl z ncurses readline)
+        target_link_libraries(alkyl_qbe PRIVATE m pthread dl z ncurses)
     endif()
 
     if(LIBZIP_FOUND)
