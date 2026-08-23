@@ -474,7 +474,7 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                         else if (word_len == 6 && memcmp(buffer + word_start, "extern", 6) == 0) kw = COLOR_RED;
                         else if (word_len == 4 && memcmp(buffer + word_start, "pure", 4) == 0) kw = COLOR_RED;
                         else if (word_len == 6 && memcmp(buffer + word_start, "impure", 6) == 0) kw = COLOR_RED;
-                        else if (word_len == 7 && memcmp(buffer + word_start, "pristine", 7) == 0) kw = COLOR_RED;
+                        else if (word_len == 8 && memcmp(buffer + word_start, "pristine", 8) == 0) kw = COLOR_RED;
                         else if (word_len == 7 && memcmp(buffer + word_start, "tainted", 7) == 0) kw = COLOR_RED;
                         else if (word_len == 8 && memcmp(buffer + word_start, "covalent", 8) == 0) kw = COLOR_RED;
                         else if (word_len == 4 && memcmp(buffer + word_start, "meta", 4) == 0) kw = COLOR_RED;
