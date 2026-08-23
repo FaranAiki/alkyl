@@ -800,6 +800,22 @@ static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
             }
         }
 
+        /* If the type is unknown (unrecognized typedef), skip the param gracefully */
+        if (param_type.base == TYPE_UNKNOWN) {
+            while (!c_match(p, C_TOKEN_COMMA) && !c_match(p, C_TOKEN_RPAREN) &&
+                   !c_match(p, C_TOKEN_SEMICOLON) && !c_match(p, C_TOKEN_EOF) && !p->has_error) {
+                c_eat(p, p->current.type);
+            }
+            if (c_match(p, C_TOKEN_COMMA)) {
+                c_eat(p, C_TOKEN_COMMA);
+                if (c_match(p, C_TOKEN_ELLIPSIS)) {
+                    if (out_is_varargs) *out_is_varargs = 1;
+                    c_eat(p, C_TOKEN_ELLIPSIS);
+                }
+            }
+            continue;
+        }
+
         Parameter *param = arena_alloc(p->ctx->arena, sizeof(Parameter));
         memset(param, 0, sizeof(Parameter));
         param_type.ptr_depth += ptr_depth;
@@ -1082,13 +1098,11 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                         if (c_match(p, C_TOKEN_SEMICOLON)) c_eat(p, C_TOKEN_SEMICOLON);
                     }
                     c_eat(p, C_TOKEN_RBRACE);
-                    fprintf(stderr, "DEBUG_C_PARSER: ate RBRACE, next token is type=%d text=%s\n", p->current.type, p->current.text ? p->current.text : "NULL");
                     *inner_curr_member = (ASTNode*)anon;
                     inner_curr_member = &anon->base.next;
                     if (c_match(p, C_TOKEN_IDENTIFIER)) {
                         char *anon_name = arena_strdup(p->ctx->arena, p->current.text);
                         c_eat(p, C_TOKEN_IDENTIFIER);
-                        fprintf(stderr, "DEBUG_C_PARSER: created nested anon struct member %s\n", anon_name);
                         VarDeclNode *var = arena_alloc(p->ctx->arena, sizeof(VarDeclNode));
                         memset(var, 0, sizeof(VarDeclNode));
                         var->base.type = NODE_VAR_DECL;
@@ -2179,7 +2193,82 @@ char* c_preprocess_header(CompilerContext *ctx, const char *fname) {
         snprintf(cmd, sizeof(cmd), "echo '#include \"%s\"' | gcc -E -DWLR_USE_UNSTABLE -xc - 2>/dev/null", fname);
     } else {
         snprintf(cmd, sizeof(cmd), "echo '#include <%s>' | gcc -E -DWLR_USE_UNSTABLE -I. -xc - 2>/dev/null", fname);
+
+        // Auto-detect include flags for angle-bracket headers using the top-level directory as a pkg-config hint.
+        // E.g. "wlr/types/wlr_xdg_shell.h" -> top dir = "wlr" -> try pkg-config for "wlroots", "wlroots-0.18", etc.
+        const char *slash = strchr(fname, '/');
+        if (slash) {
+            char top_dir[64] = {0};
+            size_t top_len = (size_t)(slash - fname);
+            if (top_len < sizeof(top_dir)) {
+                memcpy(top_dir, fname, top_len);
+                top_dir[top_len] = '\0';
+            }
+
+            // Build a list of candidate pkg-config package names to probe
+            const char *candidates[16];
+            int ncand = 0;
+            char cand_versioned[2][32];
+
+            // Direct name first
+            candidates[ncand++] = top_dir;
+
+            // Try common expansions: wlr -> wlroots, wayland -> wayland-client, etc.
+            if (strcmp(top_dir, "wlr") == 0) {
+                candidates[ncand++] = "wlroots";
+                // Also try versioned variants by querying available packages
+                // We'll just probe a few common ones
+                const char *versions[] = {"0.18", "0.19", "0.20", "0.21", "0.22"};
+                for (int vi = 0; vi < 5 && ncand < 14; vi++) {
+                    snprintf(cand_versioned[0], sizeof(cand_versioned[0]), "wlroots-%s", versions[vi]);
+                    candidates[ncand++] = cand_versioned[0];
+                    if (vi == 0) {
+                        snprintf(cand_versioned[1], sizeof(cand_versioned[1]), "wlroots-%s", versions[vi]);
+                    }
+                }
+            } else if (strcmp(top_dir, "wayland") == 0) {
+                candidates[ncand++] = "wayland-client";
+                candidates[ncand++] = "wayland-server";
+            }
+
+            // Probe each candidate and collect the first successful set of -I flags
+            for (int ci = 0; ci < ncand; ci++) {
+                char pkg_cmd[256];
+                snprintf(pkg_cmd, sizeof(pkg_cmd), "pkg-config --cflags %s 2>/dev/null", candidates[ci]);
+                FILE *pf = popen(pkg_cmd, "r");
+                if (!pf) continue;
+                char pkg_out[512] = {0};
+                size_t pkg_len = fread(pkg_out, 1, sizeof(pkg_out) - 1, pf);
+                pkg_out[pkg_len] = '\0';
+                pclose(pf);
+                if (pkg_len == 0) continue;
+
+                // Parse -I flags from pkg-config output
+                char *p = pkg_out;
+                while (*p) {
+                    while (*p == ' ' || *p == '\t' || *p == '\n') p++;
+                    if (*p == '-' && *(p+1) == 'I') {
+                        p += 2;
+                        char *end = p;
+                        while (*end && *end != ' ' && *end != '\t' && *end != '\n') end++;
+                        size_t path_len = (size_t)(end - p);
+                        if (path_len > 0 && path_len < 256) {
+                            char flag[270];
+                            snprintf(flag, sizeof(flag), " -I%.*s", (int)path_len, p);
+                            if (strlen(include_flags) + strlen(flag) + 1 < sizeof(include_flags)) {
+                                strcat(include_flags, flag);
+                            }
+                        }
+                        p = end;
+                    } else {
+                        while (*p && *p != ' ' && *p != '\t' && *p != '\n') p++;
+                    }
+                }
+                if (include_flags[0]) break; // Got flags, stop probing
+            }
+        }
     }
+
 
     if (fname[0] == '/') {
         char path_copy[512];

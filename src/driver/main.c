@@ -92,6 +92,7 @@ int main(int argc, char **argv) {
     int emit_ast = 0;
     int optimization_level = 0;
     char link_flags[1024] = {0};
+    char extra_cflags[4096] = {0};
     char custom_output_basename[256] = {0};
     LinkerType current_linker = LINKER_GCC;
     ParserSettings parser_settings = {0};
@@ -172,6 +173,22 @@ int main(int argc, char **argv) {
                 fprintf(stderr, "--parse-c requires a file argument\n");
                 return __LINE__;
             }
+        } else if (streq_lit(argv[i], "--cflags")) {
+            // Accept --cflags "-I/path/to/include" to add extra search paths for @c import
+            if (i + 1 < argc) {
+                i++;
+                const char *flag = argv[i];
+                if (strlen(extra_cflags) + strlen(flag) + 2 < sizeof(extra_cflags)) {
+                    if (extra_cflags[0]) strcat(extra_cflags, " ");
+                    strcat(extra_cflags, flag);
+                }
+            }
+        } else if (strncmp(argv[i], "-I", 2) == 0 && argv[i][2] != '\0') {
+            // Accept -I/path/to/include (attached, like gcc)
+            if (strlen(extra_cflags) + strlen(argv[i]) + 2 < sizeof(extra_cflags)) {
+                if (extra_cflags[0]) strcat(extra_cflags, " ");
+                strcat(extra_cflags, argv[i]);
+            }
         } else {
             filename = argv[i];
         }
@@ -239,6 +256,11 @@ int main(int argc, char **argv) {
 
     arena_init(&arena);
     context_init(&comp_ctx, &arena);
+
+    // Merge CLI extra include flags into ctx.cflags for @c import preprocessing
+    if (extra_cflags[0]) {
+        snprintf(comp_ctx.cflags, sizeof(comp_ctx.cflags), "%s", extra_cflags);
+    }
 
     Lexer l;
     lexer_init(&l, &comp_ctx, filename, code, NULL);
