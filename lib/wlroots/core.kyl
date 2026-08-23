@@ -175,6 +175,11 @@ export namespace wlroots {
         void wlr_seat_set_capabilities(wlr_seat* seat, int caps);
         void* wlr_keyboard_from_input_device(void* device);
         void* wlr_pointer_from_input_device(void* device);
+        
+        void wlr_keyboard_on_key(void* keyboard, void* listener, void* notify);
+        void wlr_keyboard_on_modifiers(void* keyboard, void* listener, void* notify);
+        void keyboard_notify_key(void* seat, void* event);
+        void wlr_scene_add_xdg_surface(void* scene, void* xdg_surface);
     }
 
     // Run & Destroy
@@ -211,32 +216,35 @@ export namespace wlroots {
         wl_signal_add(signal, listener);
     }
 
-    void output_on_frame(pristine wlr_output* output, pristine wl_listener* listener, void* notify_func) {
-        listener.notify = notify_func;
+    void output_on_frame(void* output, void* listener, void* notify_func) {
         let signal = ((output as long) + 168) as wl_signal*;
-        wl_signal_add(signal, listener);
+        let lst = listener as wl_listener*;
+        lst.notify = notify_func;
+        wl_signal_add(signal, lst);
     }
 
-    void output_enable_and_commit(pristine wlr_output* output, pristine wlr_allocator* allocator, pristine wlr_renderer* renderer) {
-        wlr_output_init_render(output, allocator, renderer);
-        let state = malloc(1024) as wlr_output_state*;
-        wlr_output_state_init(state);
-        wlr_output_state_set_enabled(state, true);
+    void output_enable_and_commit(void* output, void* allocator, void* renderer) {
+        wlr_output_init_render(output as wlr_output*, allocator as wlr_allocator*, renderer as wlr_renderer*);
         
-        let mode = wlr_output_preferred_mode(output);
-        if (mode != null ? true) {
+        let state = malloc(56) as wlr_output_state*;
+        wlr_output_state_init(state);
+        wlr_output_state_set_enabled(state, 1);
+        
+        let mode = wlr_output_preferred_mode(output as wlr_output*);
+        if (mode != null) {
             wlr_output_state_set_mode(state, mode);
         }
         
-        wlr_output_commit_state(output, state);
+        wlr_output_commit_state(output as wlr_output*, state);
         wlr_output_state_finish(state);
         free(state as void*);
     }
 
-    void xdg_shell_on_new_surface(pristine wlr_xdg_shell* shell, pristine wl_listener* listener, void* notify_func) {
-        listener.notify = notify_func;
+    void xdg_shell_on_new_surface(void* shell, void* listener, void* notify_func) {
+        let lst = listener as wl_listener*;
+        lst.notify = notify_func;
         let signal = ((shell as long) + 80) as wl_signal*;
-        wl_signal_add(signal, listener);
+        wl_signal_add(signal, lst);
     }
 
     void scene_add_xdg_surface(pristine wlr_scene* scene, pristine wlr_xdg_surface* xdg_surface) {
@@ -245,5 +253,13 @@ export namespace wlroots {
             wlr_scene_xdg_surface_create(scene as wlr_scene_tree*, xdg_surface);
             let toplevel_ptr = ((xdg_surface as long) + 56) as wlr_xdg_toplevel**;
         }
+    }
+
+    @c extern {
+        void wlr_keyboard_on_key(void* keyboard, void* listener, void* notify);
+        void wlr_keyboard_on_modifiers(void* keyboard, void* listener, void* notify);
+        void keyboard_notify_key(void* seat, void* event);
+        void wlr_scene_add_xdg_surface(void* scene, void* xdg_surface);
+        void wlr_seat_keyboard_notify_modifiers(void* seat, void* modifiers);
     }
 }

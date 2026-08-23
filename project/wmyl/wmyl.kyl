@@ -12,8 +12,21 @@ import "wlroots/core";
 @c extern int execl(char* path, char* arg0, char* arg1, char* arg2, void* arg3);
 @c extern void _exit(int status);
 
+@c extern void* malloc(long size);
+@c extern void free(void* ptr);
+@c extern void wlr_output_layout_add_auto(void* layout, void* output);
+@c extern void* wlr_scene_create();
+@c extern void* wlr_scene_output_create(void* scene, void* output);
+@c extern void wlr_scene_attach_output_layout(void* scene, void* layout);
+@c extern void wlr_scene_output_commit(void* scene_output, void* opt);
+@c extern void wlr_scene_output_send_frame_done(void* scene_output, void* now);
+@c extern void clock_gettime(int clk_id, void* tp);
+
+
 class Server {
     void* new_input; // wl_listener must be first for container_of hack
+    void* new_output;
+    void* new_xdg_surface;
     void* display;
     void* backend;
     void* renderer;
@@ -23,13 +36,49 @@ class Server {
     void* output_layout;
     void* xdg_shell;
     void* seat;
+    void* scene;
 }
+
+class Output {
+    void* frame_event; // wl_listener
+    void* server;
+    void* wlr_output;
+    void* scene_output;
+}
+
+class Keyboard {
+    void* key; // wl_listener
+    void* modifiers; // wl_listener
+    void* server;
+    void* wlr_keyboard;
+}
+
 
 class Listener {
     void* link_prev;
     void* link_next;
     void* notify;
     void* data; // custom user data
+}
+
+void keyboard_handle_key(void* listener_ptr, void* data) {
+    Listener *listener = listener_ptr;
+    Keyboard *kb = listener.data;
+    Server *server = kb.server as Server*;
+    
+    wlroots.keyboard_notify_key(server.seat, data);
+}
+
+void keyboard_handle_modifiers(void* listener_ptr, void* data) {
+    Listener *listener = listener_ptr;
+    Keyboard *kb = listener.data;
+    Server *server = kb.server as Server*;
+    
+    // In wlroots 0.18, wlr_keyboard_set_modifiers might be called or we can just pass the modifiers struct from wlr_keyboard.
+    // Actually, wlr_seat_keyboard_notify_modifiers(seat, &keyboard->modifiers)
+    let wlr_keyboard = kb.wlr_keyboard;
+    let modifiers_ptr = ((wlr_keyboard as long) + 80) as void*; // approximate offset of modifiers struct
+    wlroots.wlr_seat_keyboard_notify_modifiers(server.seat, modifiers_ptr);
 }
 
 void server_new_input(void* listener_ptr, void* data) {
@@ -42,11 +91,78 @@ void server_new_input(void* listener_ptr, void* data) {
         let keyboard = wlroots.wlr_keyboard_from_input_device(device);
         wlroots.wlr_seat_set_keyboard(server.seat, keyboard);
         wlroots.wlr_seat_set_capabilities(server.seat, 1); // WL_SEAT_CAPABILITY_KEYBOARD
+        
+        let ac = heap.ArenaAllocator(null, 65536);
+        let kb = ac.alloc[Keyboard]();
+        untaint kb residue err { return; }
+        kb.server = server as void*;
+        kb.wlr_keyboard = keyboard;
+        
+        let key_listener = ac.alloc[Listener]();
+        untaint key_listener residue err { return; }
+        key_listener.data = kb as void*;
+        kb.key = key_listener as void*;
+        wlroots.wlr_keyboard_on_key(keyboard, key_listener as void*, keyboard_handle_key as void*);
+        
+        let modifiers_listener = ac.alloc[Listener]();
+        untaint modifiers_listener residue err { return; }
+        modifiers_listener.data = kb as void*;
+        kb.modifiers = modifiers_listener as void*;
+        wlroots.wlr_keyboard_on_modifiers(keyboard, modifiers_listener as void*, keyboard_handle_modifiers as void*);
     } else if (type == 1) { // WLR_INPUT_DEVICE_POINTER
         std.printf("New pointer detected!\n");
         wlroots.wlr_seat_set_capabilities(server.seat, 2); // WL_SEAT_CAPABILITY_POINTER
     }
 }
+
+void output_frame(void* listener_ptr, void* data) {
+    Listener *listener = listener_ptr;
+    Output *output = listener.data;
+    wlr_scene_output_commit(output.scene_output, null);
+    
+    let timespec = malloc(16);
+    clock_gettime(1, timespec); // 1 = CLOCK_MONOTONIC
+    wlr_scene_output_send_frame_done(output.scene_output, timespec);
+    free(timespec);
+}
+
+void server_new_output(void* listener_ptr, void* data) {
+    Listener *listener = listener_ptr;
+    Server *server = listener.data;
+    let wlr_output = data;
+
+    std.printf("New output connected!\n");
+    wlroots.output_enable_and_commit(wlr_output, server.allocator, server.renderer);
+
+    wlr_output_layout_add_auto(server.output_layout, wlr_output);
+    
+    let scene_output = wlr_scene_output_create(server.scene, wlr_output);
+    
+    let ac = heap.ArenaAllocator(null, 65536);
+    let output = ac.alloc[Output]();
+    untaint output residue err { return; }
+    output.server = server as void*;
+    output.wlr_output = wlr_output;
+    output.scene_output = scene_output;
+    
+    let frame_listener = ac.alloc[Listener]();
+    untaint frame_listener residue err { return; }
+    frame_listener.data = output as void*;
+    output.frame_event = frame_listener as void*;
+    
+    wlroots.output_on_frame(wlr_output, frame_listener, output_frame as void*);
+}
+
+void server_new_xdg_surface(void* listener_ptr, void* data) {
+    Listener *listener = listener_ptr;
+    Server *server = listener.data;
+    let xdg_surface = data;
+    
+    std.printf("New XDG Surface requested!\n");
+    // using the bridge function which maps it automatically
+    wlroots.wlr_scene_add_xdg_surface(server.scene, xdg_surface);
+}
+
 
 int main() {
     std.printf("Starting wmyl (wlroots minimal WM)...\n");
@@ -60,6 +176,16 @@ int main() {
     untaint new_input residue err { return 1; }
     new_input.data = server as void*;
     server.new_input = new_input as void*;
+
+    let new_output = ac.alloc[Listener]();
+    untaint new_output residue err { return 1; }
+    new_output.data = server as void*;
+    server.new_output = new_output as void*;
+    
+    let new_xdg_surface = ac.alloc[Listener]();
+    untaint new_xdg_surface residue err { return 1; }
+    new_xdg_surface.data = server as void*;
+    server.new_xdg_surface = new_xdg_surface as void*;
 
     let display = wlroots.create_display();
     untaint display residue err { return 1; }
@@ -96,6 +222,10 @@ int main() {
     untaint output_layout residue err { return 1; }
     server.output_layout = output_layout as void*;
 
+    let scene = wlr_scene_create();
+    server.scene = scene;
+    wlr_scene_attach_output_layout(scene, server.output_layout);
+
     let xdg_shell = wlroots.create_xdg_shell(display, 3);
     untaint xdg_shell residue err { return 1; }
     server.xdg_shell = xdg_shell;
@@ -104,7 +234,11 @@ int main() {
     untaint seat residue err { return 1; }
     server.seat = seat as void*;
 
+    wlroots.backend_on_new_output(backend, server.new_output, server_new_output as void*);
     wlroots.backend_on_new_input(backend, server.new_input, server_new_input as void*);
+    
+    // Set up xdg_shell new surface listener
+    wlroots.xdg_shell_on_new_surface(xdg_shell, server.new_xdg_surface, server_new_xdg_surface as void*);
 
     let started = wlroots.start_backend(backend);
     untaint started residue err { return 1; }

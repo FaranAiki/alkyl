@@ -400,3 +400,7 @@ Check docs/testing.md for details on testing scripts.
 **Line Endings Rule:**
 This project uses Linux, not Windows. Always use LF (`\n`) for line endings. Do NOT use CRLF (`\r\n`).
 </RULE>
+
+<RULE>
+We use Linux, not Windows! Never use CRLF (\r\n) for line endings, always use Unix style LF (\n) only.
+</RULE>

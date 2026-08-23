@@ -1,0 +1,34 @@
+--- project/wmyl/wmyl.kyl
++++ project/wmyl/wmyl.kyl
+@@ -10,8 +10,23 @@
+ @c extern int setenv(char* name, char* value, int overwrite);
+ @c extern int fork();
+ @c extern int execl(char* path, char* arg0, char* arg1, char* arg2, void* arg3);
+ @c extern void _exit(int status);
++@c extern void* malloc(long size);
++@c extern void free(void* ptr);
++@c extern void wlr_output_layout_add_auto(void* layout, void* output);
++@c extern void* wlr_scene_create();
++@c extern void* wlr_scene_output_create(void* scene, void* output);
++@c extern void wlr_scene_attach_output_layout(void* scene, void* layout);
++@c extern void wlr_scene_output_commit(void* scene_output, void* opt);
++@c extern void wlr_scene_output_send_frame_done(void* scene_output, void* now);
++@c extern void clock_gettime(int clk_id, void* tp);
++@c extern void wlr_seat_keyboard_notify_key(void* seat, int time, int key, int state);
++@c extern void wlr_seat_keyboard_notify_modifiers(void* seat, void* modifiers);
+ 
+ class Server {
+     void* new_input; // wl_listener must be first for container_of hack
++    void* new_output;
++    void* new_xdg_surface;
+     void* display;
+     void* backend;
+     void* renderer;
+@@ -21,6 +36,7 @@
+     void* output_layout;
+     void* xdg_shell;
+     void* seat;
++    void* scene;
+ }
+ 
+ class Listener {

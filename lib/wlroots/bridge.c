@@ -3,11 +3,6 @@
 
 void* global_server_ptr = NULL;
 
-extern void server_new_input(void* listener, void* data);
-void* get_server_new_input_ptr() {
-    return (void*)server_new_input;
-}
-
 void init_wl_listener(struct wl_listener *listener, void* notify) {
     listener->notify = notify;
 }
@@ -43,6 +38,19 @@ void wlr_xdg_shell_on_new_surface(struct wlr_xdg_shell *shell, struct wl_listene
 void wlr_scene_add_xdg_surface(struct wlr_scene *scene, struct wlr_xdg_surface *xdg_surface) {
     if (xdg_surface->role == WLR_XDG_SURFACE_ROLE_TOPLEVEL) {
         wlr_scene_xdg_surface_create(&scene->tree, xdg_surface);
-        wlr_xdg_toplevel_set_mapped(xdg_surface->toplevel, true);
     }
+}
+
+void wlr_keyboard_on_key(struct wlr_keyboard *keyboard, struct wl_listener *listener, void* notify) {
+    listener->notify = notify;
+    wl_signal_add(&keyboard->events.key, listener);
+}
+
+void wlr_keyboard_on_modifiers(struct wlr_keyboard *keyboard, struct wl_listener *listener, void* notify) {
+    listener->notify = notify;
+    wl_signal_add(&keyboard->events.modifiers, listener);
+}
+
+void keyboard_notify_key(struct wlr_seat *seat, struct wlr_keyboard_key_event *event) {
+    wlr_seat_keyboard_notify_key(seat, event->time_msec, event->keycode, event->state);
 }

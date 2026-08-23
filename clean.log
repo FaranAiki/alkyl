@@ -1,0 +1,92 @@
+[1;36mstep: [0mFinished lexing. Start parsing.
+at namespace [1mmain[0m:
+in [1;35mproject/wmyl/wmyl.kyl[0m:
+147:12: [1;31merror[0m: No matching overload found for function 'output_on_frame(void*, tainted Listener*, void*)'
+  [0;90m|[0m     wlroots.output_on_frame(wlr_output, frame_listener, output_frame as void*);
+  [0;90m|[0m            [1m^[0m
+182:11: [1;31merror[0m: Class 'Server' has no member named 'new_xdg_surface'
+  [0;90m|[0m     server.new_xdg_surface = new_xdg_surface as void*;
+  [0;90m|[0m           [1m^[0m
+195:22: [1;35mwarning[0m: Implicitly resolved 'wlr_backend' to 'wlroots.wlr_backend'
+  [0;90m|[0m     server.backend = backend as void*;
+  [0;90m|[0m                      [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_backend
+195:22: [1;35mwarning[0m: Implicitly resolved 'wlr_backend' to 'wlroots.wlr_backend'
+  [0;90m|[0m     server.backend = backend as void*;
+  [0;90m|[0m                      [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_backend
+199:23: [1;35mwarning[0m: Implicitly resolved 'wlr_renderer' to 'wlroots.wlr_renderer'
+  [0;90m|[0m     server.renderer = renderer as void*;
+  [0;90m|[0m                       [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_renderer
+199:23: [1;35mwarning[0m: Implicitly resolved 'wlr_renderer' to 'wlroots.wlr_renderer'
+  [0;90m|[0m     server.renderer = renderer as void*;
+  [0;90m|[0m                       [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_renderer
+205:24: [1;35mwarning[0m: Implicitly resolved 'wlr_allocator' to 'wlroots.wlr_allocator'
+  [0;90m|[0m     server.allocator = allocator as void*;
+  [0;90m|[0m                        [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_allocator
+205:24: [1;35mwarning[0m: Implicitly resolved 'wlr_allocator' to 'wlroots.wlr_allocator'
+  [0;90m|[0m     server.allocator = allocator as void*;
+  [0;90m|[0m                        [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_allocator
+209:25: [1;35mwarning[0m: Implicitly resolved 'wlr_compositor' to 'wlroots.wlr_compositor'
+  [0;90m|[0m     server.compositor = compositor as void*;
+  [0;90m|[0m                         [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_compositor
+209:25: [1;35mwarning[0m: Implicitly resolved 'wlr_compositor' to 'wlroots.wlr_compositor'
+  [0;90m|[0m     server.compositor = compositor as void*;
+  [0;90m|[0m                         [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_compositor
+213:22: [1;35mwarning[0m: Implicitly resolved 'wlr_data_device_manager' to 'wlroots.wlr_data_device_manager'
+  [0;90m|[0m     server.manager = manager as void*;
+  [0;90m|[0m                      [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_data_device_manager
+213:22: [1;35mwarning[0m: Implicitly resolved 'wlr_data_device_manager' to 'wlroots.wlr_data_device_manager'
+  [0;90m|[0m     server.manager = manager as void*;
+  [0;90m|[0m                      [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_data_device_manager
+217:28: [1;35mwarning[0m: Implicitly resolved 'wlr_output_layout' to 'wlroots.wlr_output_layout'
+  [0;90m|[0m     server.output_layout = output_layout as void*;
+  [0;90m|[0m                            [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_output_layout
+217:28: [1;35mwarning[0m: Implicitly resolved 'wlr_output_layout' to 'wlroots.wlr_output_layout'
+  [0;90m|[0m     server.output_layout = output_layout as void*;
+  [0;90m|[0m                            [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_output_layout
+229:19: [1;35mwarning[0m: Implicitly resolved 'wlr_seat' to 'wlroots.wlr_seat'
+  [0;90m|[0m     server.seat = seat as void*;
+  [0;90m|[0m                   [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_seat
+229:19: [1;35mwarning[0m: Implicitly resolved 'wlr_seat' to 'wlroots.wlr_seat'
+  [0;90m|[0m     server.seat = seat as void*;
+  [0;90m|[0m                   [1m^[0m
+[1;33mhint:[0m consider writing wlroots.wlr_seat
+235:55: [1;31merror[0m: Class 'Server' has no member named 'new_xdg_surface'
+  [0;90m|[0m     wlroots.xdg_shell_on_new_surface(xdg_shell, server.new_xdg_surface, server_new_xdg_surface as void*);
+  [0;90m|[0m                                                       [1m^[0m
+235:55: [1;31merror[0m: Class 'Server' has no member named 'new_xdg_surface'
+  [0;90m|[0m     wlroots.xdg_shell_on_new_surface(xdg_shell, server.new_xdg_surface, server_new_xdg_surface as void*);
+  [0;90m|[0m                                                       [1m^[0m
+235:12: [1;31merror[0m: No matching overload found for function 'xdg_shell_on_new_surface(wlr_xdg_shell*, unknown, void*)'
+  [0;90m|[0m     wlroots.xdg_shell_on_new_surface(xdg_shell, server.new_xdg_surface, server_new_xdg_surface as void*);
+  [0;90m|[0m            [1m^[0m
+in [1;35mstd/heap[0m:
+135:20: [1;35mwarning[0m: Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
+  [0;90m|[0m             return this.malloc(count * sizeof(T)) as T*;
+  [0;90m|[0m                    [1m^[0m
+[1;33mhint:[0m consider writing heap.ArenaAllocator
+135:20: [1;35mwarning[0m: Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
+  [0;90m|[0m             return this.malloc(count * sizeof(T)) as T*;
+  [0;90m|[0m                    [1m^[0m
+[1;33mhint:[0m consider writing heap.ArenaAllocator
+135:20: [1;35mwarning[0m: Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
+  [0;90m|[0m             return this.malloc(count * sizeof(T)) as T*;
+  [0;90m|[0m                    [1m^[0m
+[1;33mhint:[0m consider writing heap.ArenaAllocator
+135:20: [1;35mwarning[0m: Implicitly resolved 'ArenaAllocator' to 'heap.ArenaAllocator'
+  [0;90m|[0m             return this.malloc(count * sizeof(T)) as T*;
+  [0;90m|[0m                    [1m^[0m
+[1;33mhint:[0m consider writing heap.ArenaAllocator
+Semantic analysis failed with 5 errors.
