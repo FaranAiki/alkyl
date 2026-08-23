@@ -2,7 +2,7 @@
 
 # Compute the installation prefix from the LLVMConfig.cmake file location.
 if(DEFINED LLVM_DIR AND LLVM_FOUND)
-  get_filename_component(MLIR_INSTALL_PREFIX "${LLVM_DIR}/../.." ABSOLUTE)
+  get_filename_component(MLIR_INSTALL_PREFIX "${LLVM_DIR}/../../.." ABSOLUTE)
 else()
   set(MLIR_INSTALL_PREFIX "/usr")
   find_package(LLVM REQUIRED CONFIG

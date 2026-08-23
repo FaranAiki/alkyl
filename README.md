@@ -99,6 +99,34 @@ Alkyl comes with `ethyl`, a powerful, highly interactive Read-Eval-Print Loop (R
 
 This "MetaVM" does not depend on JIT like LLVM's JIT, libgccjit, or MIR, but it uses its own method to execute the ALIR Bytecodes. Currently, it supports FFI on Linux-only, hence we can `extern int printf` in the MetaVM itself, thus making the Alkyl's interpreter/REPL (Ethyl) great.
 
+Here is the example interface:
+```
+Ethyl (Alkyl interpreter) by Faran Aiki
+Type 'exit' or 'quit' to leave.
+
+Linked 'm' successfully.
+In [0]: simul :=
+...        t = 2
+...        while t < 1000
+...            t *= 2
+...            print t
+...
+In [0]: simul
+-> 2 (int)
+481632641282565121024-> (void)
+In [1]: cos 2pi + sin 2pi
+-> 1.000000 (double)
+In [2]: heap.ArenaAllocator ac;
+-> 0x563db5335378 (heap.ArenaAllocator)
+In [3]: let myvar = ac.alloc[int]()
+-> 0x563db533bbc8 (tainted int*)
+In [4]: *myvar = 5
+-> 5 (tainted int)
+In [5]: *myvar
+-> 5 (tainted int)
+In [6]:
+```
+
 # Building Alkyl
 For full instructions on how to build the project using CMake or Bazel, and how to use the different compiler backends (LLVM, QBE, MLIR, Cranelift), please refer to the detailed build guide:
 * [alkyl/docs/build.md](docs/build.md)
