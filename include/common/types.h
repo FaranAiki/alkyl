@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "parser/typestruct.h"
+#include "common/arena.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,35 +12,35 @@ extern "C" {
 
 typedef BaseType VarTypeKind;
 
-// Pre-allocated primitive type singletons
-extern VarType *g_type_void;
-extern VarType *g_type_int;
-extern VarType *g_type_unsigned_int;
-extern VarType *g_type_short;
-extern VarType *g_type_long;
-extern VarType *g_type_long_long;
-extern VarType *g_type_unsigned_long;
-extern VarType *g_type_unsigned_long_long;
-extern VarType *g_type_char;
-extern VarType *g_type_unsigned_char;
-extern VarType *g_type_bool;
-extern VarType *g_type_single;
-extern VarType *g_type_double;
-extern VarType *g_type_long_double;
-extern VarType *g_type_auto;
-extern VarType *g_type_class;
-extern VarType *g_type_enum;
-extern VarType *g_type_namespace;
-extern VarType *g_type_error;
-extern VarType *g_type_unknown;
+/**
+ * @brief Opaque handle to a per-compilation type context.
+ *
+ * All canonical type state (hash table, arena, primitive singletons) lives
+ * inside a TypeContext so the type system is no longer process-global.
+ */
+typedef struct TypeContext {
+    TypeNode **table;
+    Arena arena;
+    bool initialized;
+    VarType *singletons[TYPE_UNKNOWN + 1];
+} TypeContext;
 
 /**
- * @brief Initialize global type singletons and canonical map.
+ * @brief Initializes a type context with an optional pre-configured arena.
+ * @param ctx The type context to initialize.
+ * @param arena If non-NULL, use this arena; otherwise allocate an internal one.
  */
-void types_init(void);
+void types_context_init(TypeContext *ctx, Arena *arena);
+
+/**
+ * @brief Destroys a type context, freeing its hash table and arena.
+ * @param ctx The type context to destroy.
+ */
+void types_context_destroy(TypeContext *ctx);
 
 /**
  * @brief Canonical type constructor with full specification.
+ * @param ctx The type context.
  * @param base The base type kind.
  * @param ptr_depth Pointer indirection depth.
  * @param class_name Class name for class types, or NULL.
@@ -55,7 +56,8 @@ void types_init(void);
  * @param fp_is_varargs Whether the function pointer is variadic.
  * @return A pointer to the canonical VarType.
  */
-VarType* get_canonical_type_full(
+VarType* types_get_canonical_type_full(
+    TypeContext *ctx,
     BaseType base,
     int ptr_depth,
     const char *class_name,
@@ -73,34 +75,41 @@ VarType* get_canonical_type_full(
 
 /**
  * @brief Retrieves or creates a canonical type by base kind, pointer depth, and class name.
+ * @param ctx The type context.
  * @param base The base type kind.
  * @param ptr_depth Pointer indirection depth.
  * @param class_name Class name for class types, or NULL.
  * @return A pointer to the canonical VarType.
  */
-VarType* get_canonical_type(BaseType base, int ptr_depth, const char *class_name);
+VarType* types_get_canonical_type(TypeContext *ctx, BaseType base, int ptr_depth, const char *class_name);
+
 /**
  * @brief Retrieves or creates a canonical array type.
+ * @param ctx The type context.
  * @param element_type The element type of the array.
  * @param size The array size.
  * @return A pointer to the canonical array VarType.
  */
-VarType* get_canonical_array_type(VarType *element_type, int size);
+VarType* types_get_canonical_array_type(TypeContext *ctx, VarType *element_type, int size);
+
 /**
  * @brief Retrieves or creates a canonical pointer type.
+ * @param ctx The type context.
  * @param base_type The pointed-to type.
  * @return A pointer to the canonical pointer VarType.
  */
-VarType* get_canonical_ptr_type(VarType *base_type);
+VarType* types_get_canonical_ptr_type(TypeContext *ctx, VarType *base_type);
+
 /**
  * @brief Retrieves or creates a canonical function-pointer type.
+ * @param ctx The type context.
  * @param ret_type The return type of the function.
  * @param param_types Array of parameter types.
  * @param param_count Number of parameters.
  * @param is_varargs Whether the function is variadic.
  * @return A pointer to the canonical function-pointer VarType.
  */
-VarType* get_canonical_func_ptr_type(VarType *ret_type, VarType **param_types, int param_count, bool is_varargs);
+VarType* types_get_canonical_func_ptr_type(TypeContext *ctx, VarType *ret_type, VarType **param_types, int param_count, bool is_varargs);
 
 /**
  * @brief Checks structural equality of two types via pointer identity.
@@ -109,13 +118,12 @@ VarType* get_canonical_func_ptr_type(VarType *ret_type, VarType **param_types, i
  * @return true if a and b point to the same canonical type.
  */
 bool types_are_equal(const VarType* a, const VarType* b);
+
 /**
- * @brief Checks semantic equality of two types via pointer identity.
- * @param a First type.
- * @param b Second type.
- * @return true if a and b point to the same canonical type.
+ * @brief Returns the default global type context (lazy-initialized).
+ * @return Pointer to the default type context.
  */
-bool sem_types_are_equal(const VarType* a, const VarType* b);
+TypeContext* types_get_default_context(void);
 
 #ifdef __cplusplus
 }

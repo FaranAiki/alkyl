@@ -8,6 +8,9 @@ Variable declarations use C-style: `int x = 10;` or type-inferred `let x = 10;`.
 The `let` keyword is analogous to `auto` in C++ — it infers the type from the initializer.
 **`let t: int = 0` is INVALID and makes no sense in Alkyl.** Do NOT use colon-type annotations (`: type`) after variable names.
 Always write `int p = 1;` for explicit typing, or `let p = 1;` for type inference.
+
+For goddamnit sake DON'T USE WINDOWS \r\n
+Use dos2unix!
 </CRITICAL_SYNTAX_RULE>
 
 <CRITICAL_LANGUAGE_FEATURES_RULE>
@@ -37,34 +40,34 @@ Do NOT use `strcmp` for string comparisons inside the compiler codebase. ALWAYS 
 </RULE>
 
 # How to Program in Alkyl
-1. **Variables and Assignment**: 
+1. **Variables and Assignment**:
    - Declare variables with `let` (type inference) or C-style explicit typing, e.g., `let p = 1;` or `int p = 1;`
    - In the REPL, `p = 1` also acts as an implicit declaration if `p` doesn't exist.
    - The REPL automatically saves the last evaluated expression in a global variable called `res` (similar to `_` in Python or `it` in GHCi).
-2. **Types**: 
+2. **Types**:
    - Primitives: `int`, `double`, `single`, `long`, `char`, `bool`.
    - **`string` is NOT a primitive.** It is a library class in `lib/std/string.kyl` and is NOT fully implemented (contains TODOs). Use `char*` for strings unless explicitly importing the `string` library.
    - Arrays: `[1, 2, 3]` (Array literals are fully supported in REPL).
    - User-defined: `class`, `namespace`, `enum`. Unions are synthetic types.
-3. **Control Flow**: 
+3. **Control Flow**:
    - Standard `if`, `while`, `switch`.
-4. **Functions & Macros**: 
+4. **Functions & Macros**:
    - Functions are defined using C-like syntax WITHOUT a `func` keyword: `int add(int a, int b) { return a + b; }`
    - Visibility modifiers (C++-style): `public`, `private`, `open`, `closed`.
    - Macros are defined with `meta void` and are expanded at the AST level. Never eagerly compile an unexpanded macro to ALIR.
    - Nullability: Alkyl does not use null pointers (e.g. `0 as void*`). Instead, absence of a value is represented as an error state (e.g., `purge ErrNull`).
-5. **Namespaces & Modules**: 
+5. **Namespaces & Modules**:
    - Namespaces use C++-style syntax: `namespace Math { ... }`.
    - Export namespaces with `export namespace`: `export namespace Math { ... }`.
    - Namespaces can be `public`, `private`, `open`, or `closed`.
-6. **Object-Oriented Programming**: 
+6. **Object-Oriented Programming**:
    - Classes support single inheritance (`class Player is Entity`) and traits/mixins (`class User has Printable`).
    - Class visibility: `public` (accessible everywhere), `private` (accessible only within declaring scope), `open` (can be subclassed), `closed` (cannot be subclassed).
-7. **Effects & Error Handling**: 
+7. **Effects & Error Handling**:
    - Functions: `pure` / `impure` (side effects), `total` / `partial` (termination).
    - Values: `pristine` / `tainted` (error safety). `tainted` is orthogonal to `pure`/`impure`. Use `wash`, `clean`, `untaint`, or `?` to handle tainted values.
 8. **Foreign Function Interface (FFI) & Calling Conventions**:
-   - Use `@identifier` before `extern` or `func` to specify calling conventions or name mangling schemas without using pragmas. 
+   - Use `@identifier` before `extern` or `func` to specify calling conventions or name mangling schemas without using pragmas.
    - Example: `@cpp extern { int some_cpp_func(); }` will use C++ Itanium name mangling.
    - Example: `@stdcall int my_func();`
    - Example: `@rust extern int get_rust_data();`
@@ -84,7 +87,7 @@ Here is the architectural documentation for the **Alkyl** compiler project.
 - **MLIR**: Advanced, state-of-the-art lowering dialect.
 - **QBE**: Minimalist, fast-compiling backend.
 
-The project transforms source code through distinct stages: lexical analysis, parsing (AST construction), semantic analysis (type checking and symbol resolution), and finally code generation to the selected backend. 
+The project transforms source code through distinct stages: lexical analysis, parsing (AST construction), semantic analysis (type checking and symbol resolution), and finally code generation to the selected backend.
 
 The system supports two modes of operation:
 
@@ -229,7 +232,7 @@ Between Semantic Analysis and LLVM Codegen, there is the **ALIR (Alkyl Intermedi
 * **Macro Functions (`meta void ...`)**: When a macro function (e.g. `meta void print(...)`) is parsed, it sets `is_macro = 1` on its `FuncDefNode`.
 * **Crucial Rule**: In `cli.c`, we MUST ensure we do not eagerly compile AST nodes into ALIR if `is_macro == 1` (i.e. `if (node->type == NODE_FUNC_DEF && !((FuncDefNode*)node)->is_macro)`). Macros are strictly AST-expansion constructs; eagerly generating ALIR for an unexpanded macro will cause segmentation faults (like `GA ADA COLLECTION!`) since its internal variables (e.g., `for arg in ...`) are unbound placeholders until the call site.
 
-## 6. What to Do 
+## 6. What to Do
 With the given information, do:
 
 <RULE>
@@ -238,13 +241,13 @@ Alkyl files use the extensions .kyl (source) and .hky (header) strictly. Do not 
 
 ### Unions and ALIR Type Layout
 - Unions are registered as synthetic types (`__Union_...`) in the AST and ALIR.
-- In `src/semantic/check.c` and `src/semantic/fragment/switch.c`, when processing union field access (either by explicit field name or by type index like `t[int]`), we must first perform an **exact match** on the field type (`sem_types_are_equal`). If an exact match isn't found, we can fall back to a **compatible match** (`sem_types_are_compatible`). 
+- In `src/semantic/check.c` and `src/semantic/fragment/switch.c`, when processing union field access (either by explicit field name or by type index like `t[int]`), we must first perform an **exact match** on the field type (`sem_types_are_equal`). If an exact match isn't found, we can fall back to a **compatible match** (`sem_types_are_compatible`).
 - This two-pass type checking prevents the compiler from mistakenly returning the first implicitly castable field (e.g. `single` when `int` is requested).
 - In ALIR `src/codegen_llvm/translate/stmt.c`, `ALIR_OP_GET_PTR` on a union evaluates directly to the base pointer of the union (`op1`), bypassing `LLVMBuildStructGEP2`, because unions share the same start address for all members.
 
 ### ALIR Codegen
 - Missing instructions in `translate_inst` (like `ALIR_OP_SIZEOF` or `ALIR_OP_ALIGNOF`) will silently assign `NULL` to the destination temporary variable `res`.
-- If the next instruction attempts to use this `NULL` temporary variable (e.g., `LLVMTypeOf(op1)`), it will cause a `SIGSEGV` during Codegen phase. 
+- If the next instruction attempts to use this `NULL` temporary variable (e.g., `LLVMTypeOf(op1)`), it will cause a `SIGSEGV` during Codegen phase.
 - Ensure all ALIR operators are correctly routed in the giant switch statement in `src/codegen_llvm/translate/core.c` and implemented in their respective files.
 - Missing an operator (like `ALIR_OP_GT`) in `translate_inst` will cause it to fall back to `translate_misc`, which may return `NULL`. If this `NULL` is then used in a conditional branch (`ALIR_OP_CONDI`), the conditional branch will silently fail to be emitted. This leaves the current Basic Block without a terminator, causing LLVM to insert an `unreachable` instruction at the end of the block, which crashes at runtime when hit (e.g., inside loops or if-statements).
 

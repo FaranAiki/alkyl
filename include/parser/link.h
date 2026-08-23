@@ -6,6 +6,7 @@
 #define PARSER_LINK_H
 
 #include "parser_internal.h"
+#include "core.h"
 
 /**
  * @brief Parses an import statement.

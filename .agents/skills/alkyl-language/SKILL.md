@@ -60,6 +60,7 @@ Supports function overloading.
 
 ## 5. Metaprogramming & Macros
 - `define PI as 3.14159;`
+- `e := 2.7182818285` is equivalent to `define e as 2.7182818285`
 - `define MAX(a, b) as ((a > b) ? a : b);`
 - `define foo, bar as 100;`
 - `typedef Integer as int;`
