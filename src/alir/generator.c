@@ -298,7 +298,7 @@ void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current
                 fqn = alir_strdup(ctx->module, buf);
             }
             AlirStruct *st = alir_find_struct(ctx->module, fqn);
-            if (st) { debug_alir("POPULATING %s has_body=%d\n", fqn, cn->has_body); build_struct_fields(ctx, cn, st); } else { printf("NOT FOUND %s\n", fqn); }
+            if (st) { debug_alir("POPULATING %s has_body=%d\n", fqn, cn->has_body); build_struct_fields(ctx, cn, st); } else { debug_alir("NOT FOUND %s\n", fqn); }
         } else if (n->type == NODE_NAMESPACE) {
             NamespaceNode *ns = (NamespaceNode*)n;
             char *next_ns = ns->name;

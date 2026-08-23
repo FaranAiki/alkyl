@@ -54,21 +54,25 @@ Alkyl also features C++-style visibility modifiers: `public`, `private`, `open`,
 
 Alkyl also features a robust, **fully orthogonal** effect and error-handling type system which is heavily similar to Zig:
 * **`pure` vs `impure`**: Determines if a function has side-effects (state mutation, IO).
-* **`total` vs `partial`**: Determines if a function is guaranteed to terminate. A `total` function must not contain infinite loops or call `partial` functions.
-* **`pristine` vs `tainted`**: Determines error-safety. A `tainted` value represents a potential error or failure that must be safely unwrapped (`wash`, `clean`, `untaint`) before it can be used, guaranteeing safety without runtime exceptions.
+* **`total` vs `partial`**: Determines if a function is guaranteed to terminate. A `total` function must not contain infinite loops or call `partial` functions (not 100% implemented).
+* **`pristine` vs `tainted`**: Determines error-safety. A `tainted` value represents a potential error or failure that must be safely unwrapped (`wash`, `clean`, `untaint`) before it can be used, guaranteeing safety without runtime exceptions. There are some bugs in here.
 * **`mutable` vs `immutable`**: Determines if a variable can be modified or not. The default is "mutable" (but marked as immutable for optimization, unless the compiler can prove that it is not immutable)
 
 It also has UFCS (unified function call syntax), e.g. call is treated as if it were a method call. By default, this is true, but can be set to false in the premeta tags.
 
 # Example Code
 ```c
-import "lib/c";
+import "std/print";
 
+define float as single;
+
+errnum[ErrFloatDivisionByZero]
 float divby?(float a, float b) {
   if b == 0 then purge ErrFloatDivisionByZero;
   return a / b;
 }
 
+errnum[ErrIntegerDivisionByZero]
 int? divby(pristine int a, pristine int b) {
   if (b == 0) {
     purge ErrIntegerDivisionByZero;
@@ -76,7 +80,7 @@ int? divby(pristine int a, pristine int b) {
   return a / b;
 }
 
-meta {
+premeta {
   reason "For testing only"
   lexer.scope_style = SCOPE_INDENTATION;
 }
@@ -84,8 +88,9 @@ meta {
 int main() {
   reason "numerator must be an integer"
   immutable int num = 2, denum = 0;
-  printf ("%d", divby(1, 0) ? 2);
-  // return 2
+  std.printf ("{}", divby(1, 0) ? 2);
+  // prints 2 as 1 / 0 is an error
+  return 0;
 }
 ```
 # Interactive REPL (Ethyl)
@@ -136,11 +141,18 @@ This hex sequence is derived from hashing the word `faranaiki` with SHA256, taki
 
 # Status
 
-Don't get me wrong, the reason why I use Artificial Intelligence is because I am a programmer, but not a coder. The low-level C project that I never vibecoded is nihwm (my C window manager forked using dwm) and that is not basic setup, but I have to rtfm the X library. Thus, to avoid that painful reading, I gamble and use combined artificial intelligence as the coders.
+Don't get me wrong, the reason why I use Artificial Intelligence is because I am a programmer, but not a coder. Just kidding, I suck at programming and I don't have any talent in software engineering.
+
+On the other side, the low-level C project that I never vibecoded is nihwm (my C window manager forked using dwm) and that is not basic setup, but I have to rtfm the X library. Thus, to avoid that painful reading, I gamble and use combined artificial intelligence as the coders.
 
 This is why this project is 60% written by AI, 40% written by myself. Although it is not purely vibecoded as AI cannot generate LLVM and C instructions perfectly, most of the backend and some frontend code is written by Gemini AI, Antigravity, Kilo with Stepfun 3.7, Ling, Hy, and others.
 
-# Why C, not C++, Rust, Zig?
+# Why Alkyl looks like C, not C++, Rust, Zig?
 
 C is the lingua franca of languages. Moreover, C gives you a 100% permission over what you can. This is why Alkyl's basic syntax still looks like C even though many modern programmers use something like `x: int`, but Alkyl still uses `int x` because it is more "computer-like".
+
+# Why Use C?
+
+As I said, I am not a software engineer nor a programmer, so the language that I am really fond of is the high level programming language C.
+
 Check docs/testing.md for details on testing scripts.
