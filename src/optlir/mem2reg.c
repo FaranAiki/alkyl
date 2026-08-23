@@ -18,7 +18,40 @@ void optlir_mem2reg_local(AlirModule *module) {
         HashMap repl_map;
         hashmap_init(&repl_map, module->compiler_ctx->arena, 256);
         
+        HashMap addr_taken;
+        hashmap_init(&addr_taken, module->compiler_ctx->arena, 256);
+
         AlirBlock *b = func->blocks;
+        while(b) {
+            AlirInst *inst = b->head;
+            while(inst) {
+                if (inst->op != ALIR_OP_STORE && inst->op != ALIR_OP_LOAD && inst->op != ALIR_OP_ALLOCA && inst->op != ALIR_OP_FREE_STACK) {
+                    if (inst->op1 && inst->op1->kind == ALIR_VAL_TEMP) {
+                        char key[32]; snprintf(key, sizeof(key), "%d", inst->op1->temp_id);
+                        hashmap_put(&addr_taken, key, (void*)1);
+                    }
+                    if (inst->op2 && inst->op2->kind == ALIR_VAL_TEMP) {
+                        char key[32]; snprintf(key, sizeof(key), "%d", inst->op2->temp_id);
+                        hashmap_put(&addr_taken, key, (void*)1);
+                    }
+                    for (int i=0; i<inst->arg_count; i++) {
+                        if (inst->args[i] && inst->args[i]->kind == ALIR_VAL_TEMP) {
+                            char key[32]; snprintf(key, sizeof(key), "%d", inst->args[i]->temp_id);
+                            hashmap_put(&addr_taken, key, (void*)1);
+                        }
+                    }
+                } else if (inst->op == ALIR_OP_STORE) {
+                    if (inst->op1 && inst->op1->kind == ALIR_VAL_TEMP) {
+                        char key[32]; snprintf(key, sizeof(key), "%d", inst->op1->temp_id);
+                        hashmap_put(&addr_taken, key, (void*)1);
+                    }
+                }
+                inst = inst->next;
+            }
+            b = b->next;
+        }
+
+        b = func->blocks;
         while(b) {
             HashMap store_map;
             hashmap_init(&store_map, module->compiler_ctx->arena, 64);
@@ -28,7 +61,9 @@ void optlir_mem2reg_local(AlirModule *module) {
                 if (inst->op == ALIR_OP_STORE && inst->op2 && inst->op2->kind == ALIR_VAL_TEMP && inst->op1) {
                     char key[32];
                     snprintf(key, sizeof(key), "%d", inst->op2->temp_id);
-                    hashmap_put(&store_map, key, inst->op1);
+                    if (!hashmap_get(&addr_taken, key)) {
+                        hashmap_put(&store_map, key, inst->op1);
+                    }
                 }
                 else if (inst->op == ALIR_OP_LOAD && inst->op1 && inst->op1->kind == ALIR_VAL_TEMP && inst->dest && inst->dest->kind == ALIR_VAL_TEMP) {
                     char key[32];
@@ -91,6 +126,7 @@ void optlir_mem2reg_local(AlirModule *module) {
             b = b->next;
         }
         hashmap_free(&repl_map);
+        hashmap_free(&addr_taken);
         func = func->next;
     }
 }
