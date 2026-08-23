@@ -30,7 +30,7 @@ set_property(GLOBAL PROPERTY MLIR_UPSTREAM_CAPI_LIBS "MLIRCAPIDebug;MLIRCAPIAffi
 # level CMakeLists.txt, but also so that it can be imported via `find_package`.
 # This is based on how LLVM handles exports.
 if(NOT TARGET MLIRSupport)
-  include("/usr/lib/cmake/mlir/MLIRTargets.cmake")
+  include("${MLIR_INSTALL_PREFIX}/lib/cmake/mlir/MLIRTargets.cmake" OPTIONAL)
 endif()
 
 # By creating these targets here, subprojects that depend on MLIR's
