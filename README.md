@@ -8,7 +8,7 @@ Alkyl is named after aikil (aiki language: sorry, kind of NPD here as this is a 
 
 Alkyl is a general multipurpose language that is used for experimenting with lexer, parser, and code generation. Its principle is ARCUY: "Always Reasonably Choose Your Way" which means the keyword "reason" is embedded in its lexer and parser. Moreover, Alkyl is similar to C, Dart, Zig, and some other programming languages.
 
-Alkyl does not try to compete with other languages, even languages like Racket or Lisp. It is used for personal project and to understand how old compilers and modern compilers work. This is why Alkyl is not a revolution in programming language, it is just a side hobby project that may be useful to me and others.
+Alkyl does not try to compete with other languages, even languages like Racket or Lisp. It is used for personal project and to understand how old compilers and modern compilers work (duh, mostly vibe coded so I didn't 101% rtfm). This is why Alkyl is not a revolution in programming language, it is just a side hobby project that may be useful to me and others (99% not useful).
 
 # Pipeline
 
@@ -89,13 +89,13 @@ int main() {
   reason "numerator must be an integer"
   immutable int num = 2, denum = 0;
   std.printf ("{}", divby(1, 0) ? 2);
-  // prints 2 as 1 / 0 is an error
+  // prints 2 because 1 / 0 is an error
   return 0;
 }
 ```
 # Interactive REPL (Ethyl)
 
-Alkyl comes with `ethyl`, a powerful, highly interactive Read-Eval-Print Loop (REPL). It allows you to write Alkyl code line-by-line, test expressions dynamically, and see immediate feedback without needing a full AOT compilation step. Ethyl leverages the internal `MetaVM` to seamlessly JIT-execute statements, making it excellent for rapid prototyping, debugging, and learning the language.
+Alkyl comes with `ethyl`, a powerful, highly interactive Read-Eval-Print Loop (REPL). It allows you to write Alkyl code line-by-line, test expressions dynamically, and see immediate feedback without needing a full AOT compilation step. Ethyl leverages the internal `MetaVM` to seamlessly JIT-execute statements, making it excellent for rapid prototyping, debugging, and learning the language. (I hope this is better than Python/Julia for some reasons lol prob not)
 
 This "MetaVM" does not depend on JIT like LLVM's JIT, libgccjit, or MIR, but it uses its own method to execute the ALIR Bytecodes. Currently, it supports FFI on Linux-only, hence we can `extern int printf` in the MetaVM itself, thus making the Alkyl's interpreter/REPL (Ethyl) great.
 
@@ -110,7 +110,6 @@ cmake ..
 cmake --build . -j$(nproc)
 ./alkyl_llvm ../test/code/general/test_real_faran.kyl --unopt
 ./out
-./out
 ```
 
 # Testing and Benchmarking
@@ -118,20 +117,29 @@ Alkyl comes with two very helpful shell scripts inside `scripts/`:
 
 * **`scripts/run_tests.sh`**: The official test runner. It verifies compilation, execution, and output logging of all test cases in `test/code/`. It runs them in `unopt` and `opt` modes. You can run it via:
   ```bash
-  ./scripts/run_tests.sh --parallel
+  ./scripts/run_tests.sh
   ```
+* What I often use is
+```bash
+  ./scripts/run_single.sh --update --llvm
+```
+  and for QBE, I use
+```bash
+  ./scripts/run_single.sh --update --qbe
+```
+
 * **`scripts/compare_bin`**: A benchmarking utility using `hyperfine` (make sure it is installed) and `valgrind`. It compiles a given `.kyl` file across the four compiler backends (LLVM, QBE, MLIR, Cranelift) and compares their compilation time, execution time, binary sizes, and cache misses!
   ```bash
-  ./scripts/compare_bin test/code/examples/mandelbrot.kyl --opt --runs 50
+  ./scripts/compare_bin test/code/examples/fizzbuzz.kyl --opt --runs 50
   ```
 
 # Docs
 For further information, look at
-* alkyl/docs/usage: How to use this programming language.
-* alkyl/docs/spec: The specification of this language: what can be done, what cannot be done (use MoSCoW analysis here and check whether it is implemented correctly or not).
-* alkyl/docs/internal
-* alkyl/docs/software-arch: An archictecture containing rigorous definition, formalization, and standardizaton of this project's scope. This includes the Alkyl Programming Language written in C, Alkyl Programming Language written in Alkyl itself, and others.
-* alkyl/docs/business-arch: An architecture containing views from business perspective of Alkyl Project.
+* `alkyl/docs/usage`: How to use this programming language.
+* `alkyl/docs/spec`: The specification of this language: what can be done, what cannot be done (use MoSCoW analysis here and check whether it is implemented correctly or not).
+* `alkyl/docs/internal`
+* `alkyl/docs/software-arch`: An archictecture containing rigorous definition, formalization, and standardizaton of this project's scope. This includes the Alkyl Programming Language written in C, Alkyl Programming Language written in Alkyl itself, and others. (somewhat unused)
+* `alkyl/docs/business-arch`: An architecture containing views from business perspective of Alkyl Project. (somewhat unused)
 
 # BALIR Format
 The compiled ALIR module uses a binary representation called `.balir`.
