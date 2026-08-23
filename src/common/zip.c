@@ -76,7 +76,7 @@ char* read_zip_file(const char *path) {
 
 #else
 /* Mom, do we have a libzip at home? Libzip at home: */
-char *read_zip_file(const *char path) {
+char *read_zip_file(const char *path) {
     return 0;
 }
 
