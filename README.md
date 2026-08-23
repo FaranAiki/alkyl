@@ -189,6 +189,6 @@ C is the lingua franca of languages. Moreover, C gives you a 100% permission ove
 
 # Why Use C?
 
-As I said, I am not a software engineer nor a programmer, so the language that I am really fond of is the high level programming language C.
+As I said, I am not a software engineer nor a programmer, so the language that I am really fond of is the high level programming language called C. C is too simple, high, and barebones that I can implement anything and understand it myself.
 
 Check docs/testing.md for details on testing scripts.

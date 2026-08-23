@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "common/arena.h"
 
-// --- Terminal Colors ---
+/* Terminal color */
 
 #define COLOR_RESET   "\033[0m"
 #define COLOR_BOLD    "\033[1m"
@@ -33,7 +33,7 @@
 #define COLOR_BOLD_CYAN    "\033[1;36m"
 #define COLOR_BOLD_WHITE   "\033[1;37m"
 
-// --- Terminal Control ---
+/* Terminal control */
 
 #define TERM_CURSOR_UP(n)    "\033[" #n "A"
 #define TERM_CURSOR_DOWN(n)  "\033[" #n "B"
@@ -53,8 +53,6 @@
 
 #define PROMPT_COLOR    COLOR_GREEN
 #define PROMPT_RESET    COLOR_RESET
-
-// --- String Builder ---
 
 /**
  * @brief A dynamic string builder backed by an arena or malloc.
