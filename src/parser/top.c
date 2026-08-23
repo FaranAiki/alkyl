@@ -443,7 +443,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
 
   int modifiers = parse_modifiers(p);
 
-  if (p->current_token.type == TOKEN_LBRACE && modifiers != 0) {
+  if (p->current_token.type == TOKEN_LBRACE) {
       eat(p, TOKEN_LBRACE);
       ASTNode *head = NULL;
       ASTNode **curr = &head;
@@ -451,10 +451,12 @@ ASTNode* parse_top_level_internal(Parser *p) {
           if (p->has_error) break;
           ASTNode *n = parse_top_level(p);
           if (n) {
-              ASTNode *n_curr = n;
-              while (n_curr) {
-                  apply_modifiers_to_node(n_curr, modifiers);
-                  n_curr = n_curr->next;
+              if (modifiers != 0) {
+                  ASTNode *n_curr = n;
+                  while (n_curr) {
+                      apply_modifiers_to_node(n_curr, modifiers);
+                      n_curr = n_curr->next;
+                  }
               }
               *curr = n;
               while (*curr) curr = &(*curr)->next;

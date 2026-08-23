@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stddef.h>
-#include <wlr/backend.h>
+#define WLR_USE_UNSTABLE
+#include <wlr/types/wlr_keyboard.h>
 
 int main() {
-    printf("wlr_backend.events.new_input offset: %zd\n", offsetof(struct wlr_backend, events.new_input));
-    printf("wlr_backend.events.new_output offset: %zd\n", offsetof(struct wlr_backend, events.new_output));
-    printf("wlr_backend.events.destroy offset: %zd\n", offsetof(struct wlr_backend, events.destroy));
+    printf("time_msec: %zd\n", offsetof(struct wlr_keyboard_key_event, time_msec));
+    printf("keycode: %zd\n", offsetof(struct wlr_keyboard_key_event, keycode));
+    printf("state: %zd\n", offsetof(struct wlr_keyboard_key_event, state));
     return 0;
 }

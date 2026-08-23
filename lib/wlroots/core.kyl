@@ -176,10 +176,7 @@ export namespace wlroots {
         void* wlr_keyboard_from_input_device(void* device);
         void* wlr_pointer_from_input_device(void* device);
         
-        void wlr_keyboard_on_key(void* keyboard, void* listener, void* notify);
-        void wlr_keyboard_on_modifiers(void* keyboard, void* listener, void* notify);
-        void keyboard_notify_key(void* seat, void* event);
-        void wlr_scene_add_xdg_surface(void* scene, void* xdg_surface);
+        void wlr_seat_keyboard_notify_key(void* seat, int time_msec, int keycode, int state);
     }
 
     // Run & Destroy
@@ -255,11 +252,30 @@ export namespace wlroots {
         }
     }
 
+    void wlr_keyboard_on_key(void* keyboard, void* listener, void* notify_func) {
+        let lst = listener as wl_listener*;
+        lst.notify = notify_func;
+        let signal = ((keyboard as long) + 304) as wl_signal*;
+        wl_signal_add(signal, lst);
+    }
+
+    void wlr_keyboard_on_modifiers(void* keyboard, void* listener, void* notify_func) {
+        let lst = listener as wl_listener*;
+        lst.notify = notify_func;
+        let signal = ((keyboard as long) + 320) as wl_signal*;
+        wl_signal_add(signal, lst);
+    }
+
+    void keyboard_notify_key(void* seat, void* event) {
+        let ptr = event as int*;
+        wlr_seat_keyboard_notify_key(seat, ptr[0], ptr[1], ptr[3]);
+    }
+
+    void wlr_scene_add_xdg_surface(void* scene, void* xdg_surface) {
+        scene_add_xdg_surface(scene as wlr_scene*, xdg_surface as wlr_xdg_surface*);
+    }
+
     @c extern {
-        void wlr_keyboard_on_key(void* keyboard, void* listener, void* notify);
-        void wlr_keyboard_on_modifiers(void* keyboard, void* listener, void* notify);
-        void keyboard_notify_key(void* seat, void* event);
-        void wlr_scene_add_xdg_surface(void* scene, void* xdg_surface);
         void wlr_seat_keyboard_notify_modifiers(void* seat, void* modifiers);
     }
 }
