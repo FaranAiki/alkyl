@@ -3,6 +3,7 @@
  * @brief Unused-code elimination implementation for ALIR.
  */
 #include "optlir.h"
+#include "unused.h"
 #include "common/arena.h"
 #include <string.h>
 #include <ctype.h>

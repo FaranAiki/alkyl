@@ -3,6 +3,7 @@
  * @brief ALIR constant value constructor implementations.
  */
 #include "alir.h"
+#include "const.h"
 #include "../common/hashmap.h"
 
 /**

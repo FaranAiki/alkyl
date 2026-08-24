@@ -3,6 +3,7 @@
  * @brief LLVM flux-specific codegen implementation.
  */
 #include "../../include/codegen_llvm/codegen.h"
+#include "../../include/codegen_llvm/fragment/flux.h"
 
 /**
  * @brief Initialize an inline iterator state block for a flux collection.

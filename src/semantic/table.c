@@ -3,6 +3,7 @@
  * @brief Semantic hash table implementation.
  */
 #include "semantic.h"
+#include "table.h"
 #include "common/hashmap.h"
 #include <stdlib.h>
 #include <string.h>

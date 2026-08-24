@@ -1,5 +1,7 @@
 #include "alir.h"
 
+#include "fragment/access.h"
+
 /**
  * @brief Get the size in bytes of a variable type.
  * @param t The variable type.

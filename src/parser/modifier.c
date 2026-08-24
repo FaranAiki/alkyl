@@ -3,6 +3,7 @@
  * @brief Modifier parsing and application for the Alkyl parser.
  */
 #include "parser.h"
+#include "modifier.h"
 #include <string.h>
 
 /**

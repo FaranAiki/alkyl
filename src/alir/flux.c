@@ -3,6 +3,7 @@
  * @brief ALIR flux (generator) support implementation.
  */
 #include "alir.h"
+#include "flux.h"
 
 /**
  * @brief Check whether an opcode is a terminator instruction.

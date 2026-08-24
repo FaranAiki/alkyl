@@ -1,5 +1,7 @@
 #include "alir.h"
 
+#include "fragment/function.h"
+
 /**
  * @brief Generate ALIR for a function definition, setting up parameters and body.
  * @param ctx The ALIR context.

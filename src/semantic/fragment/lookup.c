@@ -3,6 +3,7 @@
  * @brief Symbol lookup implementation for semantic analysis.
  */
 #include "semantic.h"
+#include "fragment/lookup.h"
 
 /**
  * @brief Resolve a method call on a class object, searching class members and traits.

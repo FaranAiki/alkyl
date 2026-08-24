@@ -1,4 +1,5 @@
 #include "alir.h"
+#include "fragment/generate.h"
 
 /**
  * @brief Check if a variable type is an integer type.

@@ -3,6 +3,7 @@
  * @brief Semantic checking implementation.
  */
 #include "semantic.h"
+#include "check.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

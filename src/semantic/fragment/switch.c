@@ -3,6 +3,7 @@
  * @brief Switch and for-in checking implementation.
  */
 #include "semantic.h"
+#include "fragment/switch.h"
 
 // TODO check for in
 /**

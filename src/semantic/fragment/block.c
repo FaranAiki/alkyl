@@ -3,6 +3,7 @@
  * @brief Block and statement checking implementation.
  */
 #include "semantic.h"
+#include "fragment/block.h"
 
 /**
  * @brief Type-check a single statement node.

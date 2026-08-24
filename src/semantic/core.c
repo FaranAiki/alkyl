@@ -3,6 +3,7 @@
  * @brief Core semantic analysis implementation.
  */
 #include "semantic.h"
+#include "core.h"
 #include <stdarg.h>
 #include <stdio.h>
 

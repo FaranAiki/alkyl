@@ -7,9 +7,6 @@ link "wayland-server";
 link "wlroots-0.18";
 
 export namespace wlroots {
-    /*
-    For reference, remove this!
-    Just use what wayland C header offers us! Don't do something like this
     class wl_display {}
     class wlr_backend {}
     class wlr_renderer {}
@@ -26,7 +23,6 @@ export namespace wlroots {
     class wlr_scene_tree {}
     class wlr_xdg_toplevel {}
     class wlr_scene {}
-    */
 
     @c import "wlr/backend.h"
     @c import "wlr/render/allocator.h"
@@ -50,7 +46,6 @@ export namespace wlroots {
     extern void wlr_output_commit_state(wlr_output* output, wlr_output_state* state);
     extern void wlr_output_state_finish(wlr_output_state* state);
     extern void wlr_scene_xdg_surface_create(wlr_scene_tree* tree, wlr_xdg_surface* xdg_surface);
-
 
     abstract container class wl_list {
         wl_list* prev;
@@ -76,6 +71,7 @@ export namespace wlroots {
     void wl_signal_add(wl_signal* signal, wl_listener* listener) {
         wl_list_insert(signal.listener_list.prev, &(listener.link_node));
     }
+
 
     // Display
     errnum [ErrDisplayCreation] wl_display*? create_display() {

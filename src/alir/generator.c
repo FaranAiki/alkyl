@@ -3,6 +3,7 @@
  * @brief ALIR generation implementation.
  */
 #include "alir.h"
+#include "generator.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

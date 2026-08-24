@@ -1,8 +1,9 @@
 /**
  * @file stmt.c
- * @brief Statement parsing implementation for the Alkyl parser.
+ * @brief Statement parsing implementation for the Alkyl compiler.
  */
 #include "parser_internal.h"
+#include "stmt.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

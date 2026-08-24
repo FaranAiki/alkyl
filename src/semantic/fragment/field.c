@@ -3,6 +3,7 @@
  * @brief Class field counting and collection implementation.
  */
 #include "semantic.h"
+#include "fragment/field.h"
 
 /**
  * @brief Count the total number of fields in a class, including inherited and trait fields.

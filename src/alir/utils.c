@@ -3,6 +3,7 @@
  * @brief ALIR utility function implementations.
  */
 #include "alir.h"
+#include "utils.h"
 #include "common.h"
 
 /**

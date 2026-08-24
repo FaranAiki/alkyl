@@ -3,6 +3,7 @@
  * @brief ALIR emission and printing implementation.
  */
 #include "alir.h"
+#include "emitter.h"
 
 // TODO: make sure that we have
 // text_read.c && text_write.c

@@ -33,7 +33,36 @@ Variables and expressions use `pristine` / `tainted` for error safety (Zig-inspi
 
 <RULE>
 **Debugging Print Rule:**
-Every `fprintf` or `printf` that is used for debugging MUST be replaced by a module-specific debug macro (e.g. `debug_parser`, `debug_alir`, `debug_lexer`, `debug_semantic`, `debug_codegen`) or `debug_any("msg", ...);` if none fit. Do NOT use `printf("DEBUG: ...")` or `fprintf(stderr, ...)`.
+Every `fprintf` or `printf` that is used for debugging MUST be replaced by a module-specific debug macro (e.g. `debug_parser`, `debug_alir`, `debug_lexer`, `debug_semantic`, `debug_codegen`, `debug_c_header`, `debug_driver`, `debug_alick`, `debug_metalir`, `debug_optlir`, `debug_mlir`) or `debug_any("msg", ...);` if none fit. Do NOT use `printf("DEBUG: ...")` or `fprintf(stderr, ...)`.
+
+Available debug macros (defined in `include/common/debug.h`):
+- `debug_parser(msg, ...)` — parser module
+- `debug_alir(msg, ...)` — ALIR module
+- `debug_alick(msg, ...)` — ALIR checker
+- `debug_lexer(msg, ...)` — lexer module
+- `debug_codegen(msg, ...)` — codegen module
+- `debug_semantic(msg, ...)` — semantic analysis module
+- `debug_c_header(msg, ...)` — C header parser
+- `debug_driver(msg, ...)` — driver/CLI module
+- `debug_metalir(msg, ...)` — MetaVM/JIT module
+- `debug_optlir(msg, ...)` — ALIR optimizer
+- `debug_mlir(msg, ...)` — MLIR backend
+- `debug_any(msg, ...)` — generic fallback
+
+**Doxygen Documentation Rule:**
+When adding any new public function declaration to a header file under `include/`, you MUST precede it with a Doxygen-style `/** ... */` block comment containing `@brief`, `@param` for each parameter, and `@return` if the function returns a value. Example:
+
+```c
+/**
+ * @brief Creates a new ALIR module.
+ * @param ctx The compiler context.
+ * @param name The module name.
+ * @return The new ALIR module.
+ */
+AlirModule* alir_create_module(CompilerContext *ctx, const char *name);
+```
+
+This applies to ALL public headers in `include/`. Internal headers (e.g. `parser_internal.h`) should also document functions where practical. Do NOT add functions without documentation.
 
 **String Comparison Rule:**
 Do NOT use `strcmp` for string comparisons inside the compiler codebase. ALWAYS use the inline function `streq(const char *a, const char *b)` defined in `include/common/common.h` which performs pointer equality first for speed.

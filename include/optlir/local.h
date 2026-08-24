@@ -7,10 +7,4 @@
 
 #include "../alir/alir.h"
 
-/**
- * @brief Runs local optimizations on the module.
- * @param module The ALIR module.
- */
-void optlir_local_optimize(AlirModule *module);
-
-#endif
+#endif // OPTLIR_LOCAL_H

@@ -3,6 +3,7 @@
  * @brief Taint and residue checking implementation.
  */
 #include "semantic.h"
+#include "modifier/taint.h"
 
 // If `node` is a call to a function that has an attached `errnum [...]` set,
 // returns that function's SemSymbol (so the caller can enumerate its errors).

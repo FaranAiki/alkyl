@@ -40,16 +40,9 @@ void mlir_gen_stmt(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node);
 AlkylMlirValue mlir_gen_expr(AlkylMlirContext ctx, AlkylMlirModule mod, ASTNode *node);
 
 /**
- * @brief Generates MLIR for a type.
- * @param ctx The MLIR context.
- * @param type The Alkyl type.
- */
-void mlir_gen_type(AlkylMlirContext ctx, VarType type);
-
-/**
  * @brief Resets the MLIR defer stack.
  */
-void reset_mlir_defers();
+void reset_mlir_defers(void);
 
 /**
  * @brief Executes pending MLIR defer statements.

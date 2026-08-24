@@ -109,6 +109,25 @@ void sb_append_fmt(StringBuilder *sb, const char *fmt, ...) {
 }
 
 /**
+ * @brief Appends a formatted string to the builder (alias for sb_append_fmt).
+ * @param sb The string builder.
+ * @param fmt The printf-style format string.
+ * @param ... Format arguments.
+ */
+void sb_printf(StringBuilder *sb, const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    int len = vsnprintf(NULL, 0, fmt, args);
+    va_end(args);
+    if (len < 0) return;
+    sb_grow(sb, sb->len + len + 1);
+    va_start(args, fmt);
+    vsnprintf(sb->data + sb->len, len + 1, fmt, args);
+    sb->len += len;
+    va_end(args);
+}
+
+/**
  * @brief Appends a string with C-style escaping.
  * @param sb The string builder.
  * @param str The string to append with escapes.
