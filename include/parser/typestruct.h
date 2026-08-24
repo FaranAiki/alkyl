@@ -469,6 +469,7 @@ typedef struct {
   // Each case has a set of error names (err_names == NULL means default).
   ResidueCase *cases;
   int exhaustiveness_checked : 1;
+  int fallback_has_block : 1; // 1 if the fallback RHS is a block { stmts }, 0 if it is a scalar expr
 } BinaryOpNode;
 
 typedef struct {

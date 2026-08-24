@@ -19,6 +19,20 @@ void eat_semi(Parser *p) {
                p->current_token.type == TOKEN_RBRACE || 
                p->current_token.type == TOKEN_EOF) {
         // Implicit
+    } else if (p->current_token.type == TOKEN_IF ||
+               p->current_token.type == TOKEN_WHILE ||
+               p->current_token.type == TOKEN_RETURN ||
+               p->current_token.type == TOKEN_KW_LET ||
+               p->current_token.type == TOKEN_KW_MUT ||
+               p->current_token.type == TOKEN_KW_IMUT ||
+               p->current_token.type == TOKEN_BREAK ||
+               p->current_token.type == TOKEN_CONTINUE ||
+               p->current_token.type == TOKEN_CLEAN ||
+               p->current_token.type == TOKEN_UNTAINT ||
+               p->current_token.type == TOKEN_PURGE ||
+               p->current_token.type == TOKEN_DEFER) {
+        // Block-form expressions (e.g., ? { ... }) consume their closing '}'
+        // so the next statement keyword acts as an implicit semicolon.
     } else if (p->l->settings.require_semicolons == 0) {
         // Optional semicolon
     } else {

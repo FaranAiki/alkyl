@@ -1,10 +1,70 @@
+step: Finished lexing. Start parsing.
+debug: parser: after parse_type, vt.base=1, token.type=32
+debug: parser: after parse_type, vt.base=1, token.type=32
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=A target_type=13 line=0 col=0 node=0x55d72fba7618 target=0x55d72fba7458
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_expr: type=2 line=10 col=18 node=0x55d72fba7618
+debug: semantic: sem_check_call: name='A', ns='main'
+debug: semantic: sem_check_expr: type=13 line=10 col=17 node=0x55d72fba7458
 at namespace main:
 in .../code/cast/test_has.kyl:
 10:18: warning: no initialization from A, using B as a constructor
   |     let mut a = A(0, 0); 
   |                  ^
+debug: semantic: sem_check_expr: type=16 line=10 col=19 node=0x55d72fba74d8
+debug: semantic: sem_check_expr: type=16 line=10 col=22 node=0x55d72fba7578
+debug: parser: inferring type for a, init_type.base=16
+debug: parser: debug: inferred type A for a
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=26 line=11 col=13 node=0x55d72fba77f0
+debug: semantic: sem_check_expr: type=13 line=11 col=12 node=0x55d72fba7770
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: Visiting class A
+debug: alir: DEBUG_REGISTER: st=0x55d72fbac7f0 name=A next=(nil)
+debug: alir: REGISTER_STRUCT A fields 0
+debug: alir: Visiting class B
+debug: alir: DEBUG_REGISTER: st=0x55d72fbac810 name=B next=0x55d72fbac7f0
+debug: alir: REGISTER_STRUCT B fields 0
+debug: alir: POPULATING A has_body=1
+debug: alir: BUILT B with 1 fields (was -1)
+debug: alir: BUILT A with 2 fields (was -1)
+debug: alir: POPULATING B has_body=1
+debug: alir: DEBUG_PASS1_END: struct list:
  - B fields: 1
  - A fields: 2
+debug: alir: alir_add_function: A
+debug: alir: alir_add_function: B
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: func=main op=31 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=0
+debug: alir: HINT_CLASS A
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=3 dest_kind=5 dest_type_base=1 op1_kind=5 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=5 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking A
+debug: optlir: Check Type for Struct Marking A
+debug: optlir: Check Type for Struct Marking A
+debug: optlir: Check Type for Struct Marking A
+debug: optlir: Check Type for Struct Marking A
+debug: optlir: Check Type for Struct Marking A
+debug: optlir: Check Type for Struct Marking A
+debug: optlir: Check Type for Struct Marking A
+debug: optlir: Check Type for Struct Marking A
+debug: optlir: Check Type for Struct Marking A
+debug: optlir: Check Type for Struct Marking A
+debug: optlir: Check Type for Struct Marking A
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: DEBUG CALL param 0: num_params=3, expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL param 1: num_params=3, expected_ty=8, arg_ty=8
+debug: codegen: DEBUG CALL param 2: num_params=3, expected_ty=8, arg_ty=8
 ; ModuleID = 'main_module'
 source_filename = "main_module"
 

@@ -298,6 +298,12 @@ typedef struct AlirCtx {
     int defer_capacity;
 
     HashMap class_map;      // class name -> ClassNode*
+
+    // Fallback block context: when non-NULL, `return` inside a ?{} block stores the value
+    // into `fallback_result_slot` and jumps to `fallback_merge_block` instead of exiting the function.
+    AlirBlock *fallback_merge_block;
+    AlirValue *fallback_result_slot;
+    struct AlirCtx *fallback_parent_ctx;
 } AlirCtx;
 
 // Struct & Enum Registry

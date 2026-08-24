@@ -1,3 +1,35 @@
+step: Finished lexing. Start parsing.
+debug: semantic: sem_check_expr: type=16 line=1 col=23 node=0x55d5eb5161f0
+debug: semantic: sem_check_expr: type=16 line=3 col=24 node=0x55d5eb516350
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=6 col=13 node=0x55d5eb5165d0
+debug: semantic: sem_check_expr: type=13 line=6 col=6 node=0x55d5eb5164b0
+debug: semantic: sem_check_expr: type=16 line=6 col=16 node=0x55d5eb516530
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=6 col=32 node=0x55d5eb516678
+debug: semantic: sem_check_block: visiting node type=8
+debug: semantic: sem_check_expr: type=14 line=7 col=14 node=0x55d5eb516928
+debug: semantic: sem_check_expr: type=13 line=7 col=6 node=0x55d5eb516808
+debug: semantic: sem_check_expr: type=16 line=7 col=17 node=0x55d5eb516888
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=7 col=34 node=0x55d5eb5169d0
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x55d5eb516b60
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found top-level VAR_DECL rm_lol
+debug: alir: Found top-level VAR_DECL rm_lolf
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen
 ; ModuleID = 'main_module'
 source_filename = "main_module"
 

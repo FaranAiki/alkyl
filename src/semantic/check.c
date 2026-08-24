@@ -339,15 +339,106 @@ void sem_inject_default_class_args(SemanticCtx *ctx, CallNode *node, SemSymbol *
 }
 
 /**
+ * @brief Recursively check if a block of statements contains a return statement.
+ * @param block Head of the statement linked list.
+ * @return 1 if a return is found, 0 otherwise.
+ */
+static int block_has_return(ASTNode *block) {
+    ASTNode *s = block;
+    while (s) {
+        if (s->type == NODE_RETURN) return 1;
+        if (s->type == NODE_IF) {
+            IfNode *in = (IfNode*)s;
+            if (block_has_return(in->then_body)) return 1;
+            if (in->else_body && block_has_return(in->else_body)) return 1;
+        } else if (s->type == NODE_LOOP) {
+            LoopNode *ln = (LoopNode*)s;
+            if (block_has_return(ln->body)) return 1;
+        } else if (s->type == NODE_WHILE) {
+            WhileNode *wn = (WhileNode*)s;
+            if (block_has_return(wn->body)) return 1;
+        } else if (s->type == NODE_FOR_IN) {
+            ForInNode *fn = (ForInNode*)s;
+            if (fn->body && block_has_return(fn->body)) return 1;
+        } else if (s->type == NODE_SWITCH) {
+            SwitchNode *sn = (SwitchNode*)s;
+            CaseNode *sc = (CaseNode*)sn->cases;
+            while (sc) {
+                if (sc->body && block_has_return(sc->body)) return 1;
+                sc = (CaseNode*)((ASTNode*)sc)->next;
+            }
+            if (sn->default_case && block_has_return(sn->default_case)) return 1;
+        } else if (s->type == NODE_CLEAN) {
+            CleanNode *cn = (CleanNode*)s;
+            if (cn->body && block_has_return(cn->body)) return 1;
+            if (cn->residue_body && block_has_return(cn->residue_body)) return 1;
+            for (ResidueCase *rc = cn->residue_cases; rc; rc = rc->next) {
+                if (rc->body && block_has_return(rc->body)) return 1;
+            }
+        } else if (s->type == NODE_UNTAINT) {
+            UntaintNode *un = (UntaintNode*)s;
+            if (un->residue_body && block_has_return(un->residue_body)) return 1;
+            for (ResidueCase *rc = un->residue_cases; rc; rc = rc->next) {
+                if (rc->body && block_has_return(rc->body)) return 1;
+            }
+        } else if (s->type == NODE_BINARY_OP) {
+            BinaryOpNode *bn = (BinaryOpNode*)s;
+            if ((bn->op == TOKEN_QUESTION || bn->op == TOKEN_QUESTION_QUESTION) && bn->fallback_has_block) {
+                if (block_has_return(bn->right)) return 1;
+            }
+        }
+        s = s->next;
+    }
+    return 0;
+}
+
+/**
  * @brief Type-check a binary operator expression node.
  * @param ctx Semantic context.
  * @param node Binary operator AST node.
  */
 void sem_check_binary_op(SemanticCtx *ctx, BinaryOpNode *node) {
     sem_check_expr(ctx, node->left);
-    sem_check_expr(ctx, node->right);
 
     VarType l = sem_get_node_type(ctx, node->left);
+
+    // For block-form fallback (? { stmts }), check the block stmts with sem_check_stmt
+    // rather than treating the block as a scalar expression.
+    if ((node->op == TOKEN_QUESTION || node->op == TOKEN_QUESTION_QUESTION) && node->fallback_has_block) {
+        // Type-check each statement in the block body
+        ASTNode *s = node->right;
+        while (s) {
+            sem_check_stmt(ctx, s);
+            s = s->next;
+        }
+
+        // The result type is the type of the LHS (pristine, since the block handles the error)
+        VarType res_ty = l;
+        res_ty.is_tainted = 0; // Block-form fallback always resolves the taint
+        sem_set_node_type(ctx, (ASTNode*)node, res_ty);
+
+        // Register the error ID if it's a specific fallback
+        if (node->fallback_err_name) {
+            void *err_val = hashmap_get(&ctx->compiler_ctx->error_table, node->fallback_err_name);
+            if (!err_val && strncmp(node->fallback_err_name, "Err", 3) == 0) {
+                int id = ctx->compiler_ctx->next_error_id++;
+                hashmap_put(&ctx->compiler_ctx->error_table, node->fallback_err_name, (void*)(intptr_t)(id + 1));
+            }
+        }
+
+        // `? { }` and `?? { }` (no specific error name) MUST have a return because they are
+        // always used as expressions and must produce a value.
+        // `?[ErrX] { }` is allowed without a return because it can be used as a statement.
+        if (!node->fallback_err_name && !block_has_return(node->right)) {
+            sem_error(ctx, (ASTNode*)node,
+                "Fallback block without specific error (? / ??) must have a return statement to provide a value");
+        }
+
+        return;
+    }
+
+    sem_check_expr(ctx, node->right);
+
     VarType r = sem_get_node_type(ctx, node->right);
 
     // Operator Overloading Check

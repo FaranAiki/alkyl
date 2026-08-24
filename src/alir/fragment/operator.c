@@ -30,20 +30,29 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
     }
 
     AlirValue *l = alir_gen_expr(ctx, bn->left);
-    AlirValue *r = alir_gen_expr(ctx, bn->right);
+
+    // For block-form fallback, bn->right is a statement list -- don't evaluate it as an expression.
+    // The block will be generated inline in the fallback operator section below.
+    int is_fallback_block = (bn->op == TOKEN_QUESTION || bn->op == TOKEN_QUESTION_QUESTION) && bn->fallback_has_block;
+
+    AlirValue *r = NULL;
+    if (!is_fallback_block) {
+        r = alir_gen_expr(ctx, bn->right);
+    }
 
     if (!l) {
         l = new_temp(ctx, (VarType){TYPE_INT, 0});
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, l, NULL, NULL));
     }
-    if (!r) {
+    if (!r && !is_fallback_block) {
         r = new_temp(ctx, (VarType){TYPE_INT, 0});
         emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, r, NULL, NULL));
     }
 
     // Check types via Semantic Context to decide on Float vs Int ops
     VarType l_type = sem_get_node_type(ctx->sem, bn->left);
-    VarType r_type = sem_get_node_type(ctx->sem, bn->right);
+    VarType r_type = is_fallback_block ? l_type : sem_get_node_type(ctx->sem, bn->right);
+
 
     // Fallback operator
     if (bn->op == TOKEN_QUESTION || bn->op == TOKEN_QUESTION_QUESTION) {
@@ -63,6 +72,136 @@ AlirValue* alir_gen_binary_op(AlirCtx *ctx, BinaryOpNode *bn) {
                     emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, l, ptr, NULL));
                 }
             }
+        }
+
+        // Block-form fallback: ? { stmts } / ?? { stmts } / ?[ErrX] { stmts }
+        // Generates proper CFG: check error -> enter block -> merge with pristine value.
+        if (bn->fallback_has_block) {
+            VarType res_ty = sem_get_node_type(ctx->sem, (ASTNode*)bn);
+
+            // `res_ptr` is a stack slot that holds the result value.
+            // Both the "no error" path and the fallback body write to it.
+            VarType ptr_ty = res_ty;
+            ptr_ty.ptr_depth++;
+            AlirValue *res_ptr = new_temp(ctx, ptr_ty);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, res_ptr, NULL, NULL));
+            ctx->fallback_result_slot = res_ptr;
+
+            // We need a POINTER to the tainted struct for GET_PTR field access.
+            // `l` is the loaded value, not a pointer. Find the raw stack/alloca ptr.
+            AlirValue *tainted_ptr = NULL;
+
+            if (bn->left->type == NODE_VAR_REF) {
+                VarRefNode *vn2 = (VarRefNode*)bn->left;
+                AlirSymbol *sym2 = alir_find_symbol(ctx, vn2->name);
+                if (sym2 && sym2->type.is_tainted) {
+                    tainted_ptr = sym2->ptr;  // ptr to { i32, T } on stack
+                } else {
+                    SemSymbol *gsym = sem_symbol_lookup(ctx->sem, vn2->name, NULL);
+                    if (gsym && gsym->type.is_tainted) {
+                        tainted_ptr = alir_val_global(ctx->module,
+                            gsym->mangled_name ? gsym->mangled_name : vn2->name, gsym->type);
+                    }
+                }
+            }
+
+            if (!tainted_ptr) {
+                // Fallback: alloca a temp, store the loaded value, use its ptr
+                VarType taint_ty = l ? l->type : res_ty;
+                taint_ty.is_tainted = 1;
+                AlirValue *tmp_ptr = new_temp(ctx, taint_ty);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_ALLOCA, tmp_ptr, NULL, NULL));
+                if (l) emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, l, tmp_ptr));
+                tainted_ptr = tmp_ptr;
+            }
+
+            // Extract error code from the tainted struct (field 0) via pointer
+            AlirValue *err_code_ptr = new_temp(ctx, (VarType){TYPE_INT, 1, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, err_code_ptr, tainted_ptr, alir_const_int(ctx->module, 0)));
+            AlirValue *err_code = new_temp(ctx, (VarType){TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, err_code, err_code_ptr, NULL));
+
+            // Build has_err condition
+            AlirValue *has_err = new_temp(ctx, (VarType){TYPE_BOOL, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+            if (bn->fallback_err_name) {
+                // ?[ErrX] { } -- match a specific error
+                void *err_val_ptr = hashmap_get(&ctx->sem->compiler_ctx->error_table, bn->fallback_err_name);
+                if (err_val_ptr) {
+                    int id = (int)(intptr_t)err_val_ptr;
+                    AlirValue *target_id = alir_const_int(ctx->module, id);
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, has_err, err_code, target_id));
+                } else {
+                    // Error name not registered yet -- treat as any-error check
+                    AlirValue *zero = alir_const_int(ctx->module, 0);
+                    AlirValue *neq = new_temp(ctx, (VarType){TYPE_BOOL, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, neq, err_code, zero));
+                    emit(ctx, mk_inst(ctx->module, ALIR_OP_NOT, has_err, neq, NULL));
+                }
+            } else {
+                // ? { } / ?? { } -- any error
+                AlirValue *zero = alir_const_int(ctx->module, 0);
+                AlirValue *neq = new_temp(ctx, (VarType){TYPE_BOOL, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, neq, err_code, zero));
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_NOT, has_err, neq, NULL));
+            }
+
+            // Pre-load the pristine value from the tainted struct and store it into `res_ptr`
+            // on the "no error" path. If we take the fallback_body path, `return` inside the
+            // block will overwrite `res_ptr` with the return value. At merge, `res_ptr`
+            // holds the correct value regardless of which path was taken.
+            VarType vptr_ty = res_ty;
+            vptr_ty.ptr_depth++;
+            AlirValue *val_ptr = new_temp(ctx, vptr_ty);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, val_ptr, tainted_ptr, alir_const_int(ctx->module, 1)));
+            AlirValue *pristine_val = new_temp(ctx, res_ty);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, pristine_val, val_ptr, NULL));
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pristine_val, res_ptr));
+
+            // Create blocks: fallback_body, merge
+            AlirBlock *fallback_bb = alir_add_block(ctx->module, ctx->current_func, "fallback_body");
+            AlirBlock *merge_bb   = alir_add_block(ctx->module, ctx->current_func, "fallback_merge");
+
+            // Branch: if has_err -> fallback_body, else -> merge
+            AlirInst *br = mk_inst(ctx->module, ALIR_OP_CONDI, NULL, has_err,
+                                   alir_val_label(ctx->module, fallback_bb->label));
+            br->args = alir_alloc(ctx->module, sizeof(AlirValue*));
+            br->args[0] = alir_val_label(ctx->module, merge_bb->label);
+            br->arg_count = 1;
+            emit(ctx, br);
+
+            // --- fallback_body ---
+            ctx->current_block = fallback_bb;
+
+            // Set fallback context so that `return` inside the block stores the result
+            // into `res_ptr` (a stack slot) and jumps to `fallback_merge_block`.
+            AlirBlock *saved_merge_block = ctx->fallback_merge_block;
+            AlirValue *saved_result_slot = ctx->fallback_result_slot;
+            ctx->fallback_merge_block = merge_bb;
+            ctx->fallback_result_slot = res_ptr;
+
+            ASTNode *s = bn->right;
+            while (s) {
+                alir_gen_stmt(ctx, s);
+                s = s->next;
+            }
+
+            // Restore fallback context
+            ctx->fallback_merge_block = saved_merge_block;
+            ctx->fallback_result_slot = saved_result_slot;
+
+            // If the block didn't terminate (e.g., no return), jump to merge
+            if (!ctx->current_block->tail || !is_terminator(ctx->current_block->tail->op)) {
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_JUMP, NULL,
+                                  alir_val_label(ctx->module, merge_bb->label), NULL));
+            }
+
+            // --- merge ---
+            ctx->current_block = merge_bb;
+
+            // Load the final result from the slot
+            AlirValue *res = new_temp(ctx, res_ty);
+            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, res, res_ptr, NULL));
+            return res;
         }
 
         VarType res_ty = sem_get_node_type(ctx->sem, (ASTNode*)bn);

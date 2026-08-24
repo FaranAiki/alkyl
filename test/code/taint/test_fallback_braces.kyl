@@ -1,0 +1,45 @@
+import "std/print";
+
+errnum[ErrOne, ErrTwo, ErrThree]
+int gives_error?(int n) {
+    switch n {
+        case 1:
+            purge ErrOne;
+        case 2:
+            purge ErrTwo;
+        case 3:
+            purge ErrThree;
+    }
+    return 4;
+}
+
+int main() {
+    let t = gives_error(1) ? {
+        std.print("This should be printed\n");
+        return 1;
+    }
+
+    if t != 1 {
+        return 1;
+    }
+
+    let p = gives_error(4) ? {
+        std.print("This should not be printed\n");
+        return 1;
+    }
+
+    if p != 4 {
+        return 4;
+    }
+
+    let q = gives_error(4) ?[ErrOne] {
+        std.print("This should not be printed (ErrOne)\n");
+    }
+
+    if q != 4 {
+        return 4;
+    }
+
+    return 0;
+}
+

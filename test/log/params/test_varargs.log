@@ -1,3 +1,76 @@
+step: Finished lexing. Start parsing.
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55efbb565610 target=0x55efbb565350
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=printf target_type=13 line=0 col=0 node=0x55efbb565a00 target=0x55efbb5656a8
+debug: parser: parse_postfix: before parse_call, node->type=13
+debug: parser: Created Call name=my_print target_type=13 line=0 col=0 node=0x55efbb565ca8 target=0x55efbb565b88
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=7 col=11 name=my_print target_type=13 node=0x55efbb565ca8
+debug: semantic: sem_check_expr: type=2 line=7 col=11 node=0x55efbb565ca8
+debug: semantic: sem_check_call: name='my_print', ns='main'
+debug: semantic: sem_check_expr: type=13 line=7 col=3 node=0x55efbb565b88
+debug: semantic: sem_check_expr: type=16 line=7 col=12 node=0x55efbb565c08
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=8 col=10 node=0x55efbb565d40
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: DEBUG_PASS1_END: struct list:
+debug: alir: Found func_def printf
+debug: alir: alir_gen_function_def fn->name=printf class_name=NULL fn->mangled_name=printf -> func_name=printf
+debug: alir: alir_add_function: printf
+debug: alir: printf adding param '(null)' type.base=8
+debug: alir: Found func_def my_print
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: GEN_CALL: name=my_print mangled=main.my_print
+debug: alir: Looking up 'main.my_print'
+debug: alir: Found symbol my_print, kind=1, is_macro=1, node_ptr=0x55efbb565a98
+debug: alir: macro: mangled='main.my_print', old_ns='main'
+debug: alir: macro: setting ns to 'main'
+debug: alir: macro: before sem_check_block, ns='main'
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=3 col=9 name=printf target_type=13 node=0x55efbb56b110
+debug: semantic: sem_check_expr: type=2 line=3 col=9 node=0x55efbb56b110
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=3 col=3 node=0x55efbb56b198
+debug: semantic: sem_check_expr: type=16 line=3 col=10 node=0x55efbb56b218
+debug: semantic: sem_check_expr: type=16 line=3 col=10 node=0x55efbb56b218
+debug: semantic: sem_check_block: visiting node type=2
+debug: semantic: sem_check_block: Call line=4 col=9 name=printf target_type=13 node=0x55efbb56b450
+debug: semantic: sem_check_expr: type=2 line=4 col=9 node=0x55efbb56b450
+debug: semantic: sem_check_call: name='printf', ns='main'
+debug: semantic: sem_check_expr: type=13 line=4 col=3 node=0x55efbb56b4d8
+debug: semantic: sem_check_expr: type=16 line=4 col=10 node=0x55efbb56b558
+debug: semantic: sem_check_expr: type=28 line=4 col=18 node=0x55efbb56b5f8
+debug: semantic: sem_check_expr: type=16 line=4 col=10 node=0x55efbb56b558
+debug: alir: macro: after sem_check_block, ns='main'
+debug: alir: GEN_CALL: name=printf mangled=printf
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55efbb565260
+debug: alir: CALL_STD: name=printf mangled=printf target_type=13
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: TAINTED PTR: ctx->module=0x55efbb566ec0 target_name=printf count=2
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: GEN_CALL: name=printf mangled=printf
+debug: alir: Looking up 'printf'
+debug: alir: Found symbol printf, kind=1, is_macro=0, node_ptr=0x55efbb565260
+debug: alir: CALL_STD: name=printf mangled=printf target_type=13
+debug: alir: GLOBAL VAR ADDR: printf
+debug: alir: TAINTED PTR: ctx->module=0x55efbb566ec0 target_name=printf count=2
+debug: alir: func=main op=31 dest_kind=5 dest_type_base=1 op1_kind=9 op1_type_base=1
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+step: Finished alir optimization. Start code generation using LLVM codegen
+debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL param 0: num_params=1, expected_ty=12, arg_ty=12
+debug: codegen: DEBUG CALL: expected_ty=12, arg_ty=12
 ; ModuleID = 'main_module'
 source_filename = "main_module"
 

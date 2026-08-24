@@ -1,4 +1,35 @@
+step: Finished lexing. Start parsing.
+debug: semantic: sem_check_block: ns='main'
+debug: semantic: sem_check_block: visiting node type=11
+debug: semantic: sem_check_block: visiting node type=12
+debug: semantic: sem_check_expr: type=16 line=5 col=15 node=0x5588dc430578
+debug: semantic: sem_check_block: visiting node type=3
+debug: semantic: sem_check_expr: type=16 line=6 col=12 node=0x5588dc4306b0
+step: Finished Semantic Analysis. Start macro-linking.
+step: Finished macro linking. Start generating Alkyl Intermediate Representation (alir).
+debug: alir: Visiting class __Union__f0__f1
+debug: alir: DEBUG_REGISTER: st=0x5588dc4357f0 name=__Union__f0__f1 next=(nil)
+debug: alir: REGISTER_STRUCT __Union__f0__f1 fields 0
+debug: alir: POPULATING __Union__f0__f1 has_body=1
+debug: alir: BUILT __Union__f0__f1 with 2 fields (was -1)
+debug: alir: DEBUG_PASS1_END: struct list:
  - __Union__f0__f1 fields: 2
+debug: alir: Found func_def main
+debug: alir: alir_gen_function_def fn->name=main class_name=NULL fn->mangled_name=main -> func_name=main
+debug: alir: alir_add_function: main
+debug: alir: func=main op=0 dest_kind=5 dest_type_base=16 op1_kind=0 op1_type_base=0
+debug: alir: HINT_CLASS __Union__f0__f1
+debug: alir: func=main op=4 dest_kind=5 dest_type_base=8 op1_kind=5 op1_type_base=16
+debug: alir: func=main op=2 dest_kind=0 dest_type_base=0 op1_kind=9 op1_type_base=8
+debug: alir: func=main op=32 dest_kind=0 dest_type_base=0 op1_kind=7 op1_type_base=1
+debug: alir: alir_add_function: __Union__f0__f1
+step: Finished alir. Start alir check and analysis.
+step: Finished alir check and analysis. Start alir optimization.
+debug: optlir: Check Type for Struct Marking __Union__f0__f1
+debug: optlir: Check Type for Struct Marking __Union__f0__f1
+debug: optlir: Check Type for Struct Marking __Union__f0__f1
+debug: optlir: Check Type for Struct Marking __Union__f0__f1
+step: Finished alir optimization. Start code generation using LLVM codegen
 ; ModuleID = 'main_module'
 source_filename = "main_module"
 

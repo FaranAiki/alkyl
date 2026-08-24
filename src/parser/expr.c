@@ -1370,7 +1370,18 @@ ASTNode* parse_fallback(Parser *p) {
           is_default = 1;
       }
 
-      ASTNode *right = parse_logic_or(p);
+      ASTNode *right = NULL;
+      int has_block = 0;
+
+      if (p->current_token.type == TOKEN_LBRACE) {
+          // ? { stmts } or ?? { stmts } or ?[Err] { stmts }
+          has_block = 1;
+          eat(p, TOKEN_LBRACE);
+          right = parse_statements(p);
+          eat(p, TOKEN_RBRACE);
+      } else {
+          right = parse_logic_or(p);
+      }
 
       BinaryOpNode *node = parser_alloc(p, sizeof(BinaryOpNode));
       node->base.type = NODE_BINARY_OP;
@@ -1381,6 +1392,7 @@ ASTNode* parse_fallback(Parser *p) {
       node->right = right;
       node->fallback_err_name = err_id;
       node->err_var_name = err_var;
+      node->fallback_has_block = has_block;
 
       ResidueCase *rc = parser_alloc_raw(p, sizeof(ResidueCase));
       rc->err_names = err_names;
