@@ -395,6 +395,7 @@ AlirValue* alir_gen_unary_op(AlirCtx *ctx, UnaryOpNode *un) {
         }
         case TOKEN_BIT_NOT:
             // ALIR doesn't have an explicit BIT_NOT, usually lowered to XOR -1
+            // TODO wth? try to NOT do this I guess?
             op = ALIR_OP_XOR;
             AlirValue *dest = new_temp(ctx, res_type);
             emit(ctx, mk_inst(ctx->module, op, dest, operand, alir_const_int(ctx->module, -1)));
