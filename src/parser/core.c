@@ -7,7 +7,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef _WIN32
 #include <sys/stat.h>
+#else
+#include <sys/stat.h>
+#endif
 
 /**
  * @brief Initializes a Parser with a lexer and settings.
@@ -1028,7 +1032,11 @@ VarType parse_func_sig_decl(Parser *p, VarType ret_type, char **out_name) {
 
 static char* read_file_content(Parser *p, const char* path) {
     struct stat st;
+#ifdef _WIN32
+    if (_stat(path, &st) == 0 && _S_ISDIR(st.st_mode)) {
+#else
     if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
+#endif
         return NULL;
     }
     FILE* f = fopen(path, "rb");

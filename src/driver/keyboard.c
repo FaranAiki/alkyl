@@ -7,8 +7,10 @@
 #include "common/context.h"
 #include "semantic/typestruct.h"
 #include "../common/arena.h"
+#ifndef _WIN32
 #include <termios.h>
 #include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -659,6 +661,10 @@ static char* get_smart_input_piped(void *arena, int cmd_count) {
  * @return The input string, or NULL on EOF/error.
  */
 char* get_smart_input(void *arena, int cmd_count, void *sem_ctx, int indentation_scope) {
+#ifdef _WIN32
+    (void)arena; (void)cmd_count; (void)sem_ctx; (void)indentation_scope;
+    return get_smart_input_piped(arena, cmd_count);
+#else
     if (!isatty(STDIN_FILENO)) {
         return get_smart_input_piped(arena, cmd_count);
     }
@@ -1061,4 +1067,5 @@ char* get_smart_input(void *arena, int cmd_count, void *sem_ctx, int indentation
     }
 
     return NULL;
+#endif
 }

@@ -2,7 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _WIN32
 #include <sys/stat.h>
+#else
+#include <sys/stat.h>
+#endif
 
 /**
  * @brief Returns the linker command template for a given linker type.
@@ -35,7 +39,11 @@ int alkyl_link(const char *obj_file, const char *output_basename, const char *li
     snprintf(stamp_file, sizeof(stamp_file), "%s.link_stamp", output_basename);
 
     struct stat obj_st;
+#ifdef _WIN32
+    if (_stat(obj_file, &obj_st) != 0) {
+#else
     if (stat(obj_file, &obj_st) != 0) {
+#endif
         return -1;
     }
 
