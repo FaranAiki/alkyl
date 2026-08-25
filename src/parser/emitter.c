@@ -39,6 +39,7 @@ void parser_emit_type(StringBuilder *sb, VarType t) {
         case TYPE_DOUBLE: sb_append(sb, "double"); break;
         case TYPE_LONG_DOUBLE: sb_append(sb, "long double"); break;
         case TYPE_VOID: sb_append(sb, "void"); break;
+        case TYPE_NORETURN: sb_append(sb, "noreturn"); break;
         case TYPE_ERROR: sb_append(sb, "error"); break;
 
         case TYPE_AUTO: sb_append(sb, "let"); break;

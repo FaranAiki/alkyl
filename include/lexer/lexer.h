@@ -141,6 +141,7 @@ typedef enum {
   TOKEN_EXTENDED,
   TOKEN_OVERRIDE,
 
+  TOKEN_KW_NORETURN,
   TOKEN_KW_SHORT,
   TOKEN_KW_LONG,
   TOKEN_KW_UNSIGNED,
@@ -342,6 +343,7 @@ static const KeywordDef keywords[] = {
     {"mutable", TOKEN_KW_MUT},
     {"naked", TOKEN_NAKED},
     {"namespace", TOKEN_NAMESPACE},
+    {"noreturn", TOKEN_KW_NORETURN},
     {"not", TOKEN_NOT},
   {"null", TOKEN_NULL},
     {"once", TOKEN_ONCE},

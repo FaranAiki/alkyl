@@ -337,6 +337,7 @@ const char* alir_op_str(AlirOpcode op) {
         case ALIR_OP_CALL: return "call";
         case ALIR_OP_RET: return "ret";
         case ALIR_OP_PANIC: return "panic";
+        case ALIR_OP_UNREACHABLE: return "unreachable";
 
         case ALIR_OP_CAST: return "cast";
         case ALIR_OP_NOT: return "not";

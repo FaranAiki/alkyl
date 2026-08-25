@@ -352,6 +352,12 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
 
             break;
         }
+        case ALIR_OP_UNREACHABLE: {
+            LLVMBasicBlockRef current_bb = LLVMGetInsertBlock(ctx->builder);
+            if (LLVMGetBasicBlockTerminator(current_bb) != NULL) break;
+            LLVMBuildUnreachable(ctx->builder);
+            break;
+        }
         default: break;
     }
     return res;

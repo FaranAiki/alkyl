@@ -25,6 +25,7 @@ Alkyl is a statically typed, compiled programming language that blends C-style s
 - `single`: Single-precision floating point (float)
 - `double`: Double-precision floating point
 - `void`: Empty type
+- `noreturn`: Function return type indicating the function never returns (e.g. exit, panic)
 - `let` / `auto`: Type inference
 - **`string` is NOT a primitive.** It is a library class (`lib/std/string.kyl`) and NOT fully implemented. Use `char*` for strings.
 

@@ -300,7 +300,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
                             case TYPE_DOUBLE: r_p = 8; break; 
                             case TYPE_LONG_DOUBLE: r_p = 9; break;
                             case TYPE_VOID: case TYPE_ARRAY: case TYPE_AUTO: case TYPE_CLASS: 
-                            case TYPE_NAMESPACE: case TYPE_ERROR: case TYPE_UNKNOWN: break;
+                            case TYPE_NAMESPACE: case TYPE_ERROR: case TYPE_UNKNOWN: case TYPE_NORETURN: break;
                         }
                         switch (arg_t.base) {
                             case TYPE_BOOL: r_a = 1; break; 
@@ -313,7 +313,7 @@ SemSymbol* sem_resolve_overload(SemanticCtx *ctx, ASTNode **args, int *out_arg_c
                             case TYPE_DOUBLE: r_a = 8; break; 
                             case TYPE_LONG_DOUBLE: r_a = 9; break;
                             case TYPE_VOID: case TYPE_ARRAY: case TYPE_AUTO: case TYPE_CLASS: 
-                            case TYPE_NAMESPACE: case TYPE_ERROR: case TYPE_UNKNOWN: break;
+                            case TYPE_NAMESPACE: case TYPE_ERROR: case TYPE_UNKNOWN: case TYPE_NORETURN: break;
                         }
                         if (r_p > r_a) {
                             int score = 20 - (r_p - r_a);

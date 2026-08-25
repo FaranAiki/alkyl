@@ -193,6 +193,7 @@ void types_init(void) {
     g_default_ctx.singletons[TYPE_SINGLE] = types_get_canonical_type(&g_default_ctx, TYPE_SINGLE, 0, NULL);
     g_default_ctx.singletons[TYPE_DOUBLE] = types_get_canonical_type(&g_default_ctx, TYPE_DOUBLE, 0, NULL);
     g_default_ctx.singletons[TYPE_LONG_DOUBLE] = types_get_canonical_type(&g_default_ctx, TYPE_LONG_DOUBLE, 0, NULL);
+    g_default_ctx.singletons[TYPE_NORETURN] = types_get_canonical_type(&g_default_ctx, TYPE_NORETURN, 0, NULL);
     g_default_ctx.singletons[TYPE_AUTO] = types_get_canonical_type(&g_default_ctx, TYPE_AUTO, 0, NULL);
     g_default_ctx.singletons[TYPE_CLASS] = types_get_canonical_type(&g_default_ctx, TYPE_CLASS, 0, NULL);
     g_default_ctx.singletons[TYPE_ENUM] = types_get_canonical_type(&g_default_ctx, TYPE_ENUM, 0, NULL);

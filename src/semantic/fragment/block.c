@@ -56,6 +56,10 @@ void sem_check_stmt(SemanticCtx *ctx, ASTNode *node) {
         case NODE_ASSIGN: sem_check_assign(ctx, (AssignNode*)node); break;
         case NODE_RETURN: {
             ReturnNode *rn = (ReturnNode*)node;
+            if (ctx->current_scope->expected_ret_type.base == TYPE_NORETURN) {
+                sem_error(ctx, node, "noreturn function cannot contain a return statement");
+                break;
+            }
             if (rn->value) {
                 sem_check_expr(ctx, rn->value);
                 VarType val = sem_get_node_type(ctx, rn->value);

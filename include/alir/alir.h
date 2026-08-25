@@ -63,6 +63,7 @@ typedef enum {
     ALIR_OP_CALL,
     ALIR_OP_RET,
     ALIR_OP_PANIC,
+    ALIR_OP_UNREACHABLE,
     ALIR_OP_FALLBACK,
 
     // Misc

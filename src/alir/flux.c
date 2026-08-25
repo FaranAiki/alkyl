@@ -11,7 +11,7 @@
  * @return Non-zero if the opcode is a terminator, 0 otherwise.
  */
 static int is_terminator_op(AlirOpcode op) {
-    return op == ALIR_OP_RET || op == ALIR_OP_JUMP || op == ALIR_OP_CONDI || op == ALIR_OP_PANIC;
+    return op == ALIR_OP_RET || op == ALIR_OP_JUMP || op == ALIR_OP_CONDI || op == ALIR_OP_PANIC || op == ALIR_OP_UNREACHABLE;
 }
 
 // TODO should this use parser tho?

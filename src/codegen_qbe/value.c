@@ -26,7 +26,8 @@ char qbe_type(VarType t) {
         return 'l';
     }
     switch (t.base) {
-        case TYPE_VOID: return 'v';
+        case TYPE_VOID:
+        case TYPE_NORETURN: return 'v';
         case TYPE_INT:
         case TYPE_UNSIGNED_INT:
         case TYPE_SHORT:

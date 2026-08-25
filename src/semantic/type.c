@@ -94,12 +94,20 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         }
     }
 
+    if (node->var_type.base == TYPE_NORETURN) {
+        sem_error(ctx, (ASTNode*)node, "Cannot declare variable of type 'noreturn'");
+    }
+
     if (node->initializer) {
         sem_check_expr(ctx, node->initializer);
         VarType init_type = sem_get_node_type(ctx, node->initializer);
 
         if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0 && !init_type.is_func_ptr) {
             sem_error(ctx, (ASTNode*)node, "Cannot use expression of type 'void' to initialize variable '%s'", node->name);
+        }
+
+        if (init_type.base == TYPE_NORETURN) {
+            sem_error(ctx, (ASTNode*)node, "Cannot use expression of type 'noreturn' to initialize variable '%s'", node->name);
         }
 
         int expr_tainted = sem_get_node_tainted(ctx, node->initializer);
@@ -279,6 +287,10 @@ void sem_check_assign(SemanticCtx *ctx, AssignNode *node) {
 
     if (rhs_type.base == TYPE_VOID && rhs_type.ptr_depth == 0) {
         sem_error(ctx, (ASTNode*)node, "Cannot assign value of type 'void' to variable");
+    }
+
+    if (rhs_type.base == TYPE_NORETURN) {
+        sem_error(ctx, (ASTNode*)node, "Cannot assign value of type 'noreturn' to variable");
     }
 
     if (ctx->current_func_sym && ctx->current_func_sym->is_pure && node->name) {

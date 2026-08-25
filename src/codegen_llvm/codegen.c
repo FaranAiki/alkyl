@@ -112,6 +112,7 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
             break;
         }
         case TYPE_ENUM: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
+        case TYPE_NORETURN: base = LLVMVoidTypeInContext(ctx->llvm_ctx); break;
 
         default: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
     }

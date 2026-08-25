@@ -793,6 +793,7 @@ static void sem_type_to_str_rec(VarType t, char *buf, int max_len, int *pos) {
         case TYPE_DOUBLE: base = "double"; break;
         case TYPE_LONG_DOUBLE: base = "long double"; break;
         case TYPE_VOID: base = "void"; break;
+        case TYPE_NORETURN: base = "noreturn"; break;
         case TYPE_ERROR: base = "error"; break;
         case TYPE_ARRAY: base = "array"; break;
         case TYPE_AUTO: base = "let"; break;
@@ -858,6 +859,7 @@ char* sem_mangle_type(VarType t) {
         case TYPE_DOUBLE: base = "f64"; break;
         case TYPE_LONG_DOUBLE: base = "f64"; break;
         case TYPE_VOID: base = "void"; break;
+        case TYPE_NORETURN: base = "noreturn"; break;
         case TYPE_ERROR: base = "error"; break;
 
         case TYPE_CLASS: base = t.class_name ? t.class_name : "class"; break;

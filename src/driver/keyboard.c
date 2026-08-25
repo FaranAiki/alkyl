@@ -514,10 +514,12 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                         else if (word_len == 4 && memcmp(buffer + word_start, "true", 4) == 0) kw = COLOR_MAGENTA;
                         else if (word_len == 5 && memcmp(buffer + word_start, "false", 5) == 0) kw = COLOR_MAGENTA;
                         else if (word_len == 4 && memcmp(buffer + word_start, "null", 4) == 0) kw = COLOR_MAGENTA;
-                        // Built-ins
+                        // Other keywords
+                        else if (word_len == 5 && memcmp(buffer + word_start, "purge", 5) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 8 && memcmp(buffer + word_start, "compound", 8) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 4 && memcmp(buffer + word_start, "flux", 4) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 4 && memcmp(buffer + word_start, "emit", 4) == 0) kw = COLOR_YELLOW;
+                        // Built-ins
                         else if (word_len == 6 && memcmp(buffer + word_start, "typeof", 6) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 9 && memcmp(buffer + word_start, "hasmethod", 9) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 11 && memcmp(buffer + word_start, "hasattribute", 11) == 0) kw = COLOR_YELLOW;
@@ -532,6 +534,7 @@ static void redraw(const char *base_prompt, const char *base_prompt_no_color, co
                         else if (word_len == 6 && memcmp(buffer + word_start, "single", 6) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 4 && memcmp(buffer + word_start, "bool", 4) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 4 && memcmp(buffer + word_start, "void", 4) == 0) kw = COLOR_YELLOW;
+                        else if (word_len == 8 && memcmp(buffer + word_start, "noreturn", 8) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 4 && memcmp(buffer + word_start, "char", 4) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 6 && memcmp(buffer + word_start, "string", 6) == 0) kw = COLOR_YELLOW;
                         else if (word_len == 5 && memcmp(buffer + word_start, "short", 5) == 0) kw = COLOR_YELLOW;

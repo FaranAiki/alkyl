@@ -804,6 +804,9 @@ void emit_inst(FILE *out, AlirModule *module, AlirInst *inst, AlirBlock *next_bl
                 fprintf(out, "\thlt\n");
             }
             break;
+        case ALIR_OP_UNREACHABLE:
+            fprintf(out, "\thlt\n");
+            break;
         case ALIR_OP_FALLBACK: {
             int lbl = s_next_qbe_temp++;
             char rt = qbe_type(inst->dest->type);

@@ -212,11 +212,12 @@ long long metalir_vm_execute(MetalirVM *vm, AlirModule *module, AlirFunction *fu
                 case ALIR_OP_FALLBACK:
                 case ALIR_OP_SIZEOF:
                 case ALIR_OP_ALIGNOF:
+                case ALIR_OP_UNREACHABLE:
                     vm_eval_misc(&ctx, inst);
                     break;
                 default: break;
             }
-            if (inst->op == ALIR_OP_PANIC) {
+            if (inst->op == ALIR_OP_PANIC || inst->op == ALIR_OP_UNREACHABLE) {
                 if (inst->op1) {
                     if (inst->op1->kind == ALIR_VAL_GLOBAL && inst->op1->val.str_val && module) {
                         AlirGlobal *g = module->globals;

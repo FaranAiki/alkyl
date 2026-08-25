@@ -29,6 +29,7 @@ void alir_fprint_type(FILE *f, VarType t) {
         case TYPE_CHAR: fprintf(f, "char"); break;
         case TYPE_BOOL: fprintf(f, "bool"); break;
         case TYPE_VOID: fprintf(f, "void"); break;
+        case TYPE_NORETURN: fprintf(f, "noreturn"); break;
 
         case TYPE_CLASS: fprintf(f, "%%%s", t.class_name ? t.class_name : "obj"); break;
         case TYPE_ENUM: fprintf(f, "int"); break;

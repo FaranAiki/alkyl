@@ -75,6 +75,7 @@ Do NOT use `strcmp` for string comparisons inside the compiler codebase. ALWAYS 
    - The REPL automatically saves the last evaluated expression in a global variable called `res` (similar to `_` in Python or `it` in GHCi).
 2. **Types**:
    - Primitives: `int`, `double`, `single`, `long`, `char`, `bool`.
+   - `noreturn`: Function return type indicating the function never returns (e.g. `exit`, `panic`).
    - **`string` is NOT a primitive.** It is a library class in `lib/std/string.kyl` and is NOT fully implemented (contains TODOs). Use `char*` for strings unless explicitly importing the `string` library.
    - Arrays: `[1, 2, 3]` (Array literals are fully supported in REPL).
    - User-defined: `class`, `namespace`, `enum`. Unions are synthetic types.

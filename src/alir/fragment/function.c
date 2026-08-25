@@ -170,6 +170,8 @@ void alir_gen_function_def(AlirCtx *ctx, FuncDefNode *fn, const char *class_name
 
             if (streq_lit(func_name, "main")) {
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, alir_const_int(ctx->module, 0), NULL));
+            } else if (fn->ret_type.base == TYPE_NORETURN) {
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_UNREACHABLE, NULL, NULL, NULL));
             } else if (fn->ret_type.base == TYPE_VOID || (class_name && (streq_lit(fn->name, "init") || streq_lit(fn->name, class_name)))) {
                 emit(ctx, mk_inst(ctx->module, ALIR_OP_RET, NULL, NULL, NULL));
             } else {
