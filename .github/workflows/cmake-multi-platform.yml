@@ -74,11 +74,6 @@ jobs:
       with:
         version: "16.0"
 
-    - name: Set LLVM CMake dir (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: echo "LLVM_CMAKE_DIR=$($env:LLVM_PATH -replace '\\', '/')/lib/cmake/llvm" >> $env:GITHUB_ENV
-
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
@@ -97,7 +92,8 @@ jobs:
           -S "${{ github.workspace }}"
         )
         if [ "${{ runner.os }}" = "Windows" ]; then
-          CMAKE_ARGS+=("-DLLVM_DIR=${LLVM_CMAKE_DIR}")
+          SAFE_LLVM_PATH="${LLVM_PATH//\\//}"
+          CMAKE_ARGS+=("-DCMAKE_PREFIX_PATH=${SAFE_LLVM_PATH}")
         fi
         cmake "${CMAKE_ARGS[@]}"
 
