@@ -127,6 +127,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
                 sem_scan_top_level(ctx, in->resolved_body);
             } else if (in->path) {
                 if (in->header == HEADER_C) {
+                    printf("DEBUG: c_preprocess_header PATH='%s'\n", in->path);
                     char *c_src = c_preprocess_header(ctx->compiler_ctx, in->path);
                     if (c_src) {
                         CParser cp;
@@ -240,6 +241,17 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
                 
                 sem_scan_class_members(ctx, cn, sym);
             } else {
+                SemSymbol *existing = NULL;
+                if (ctx->current_scope) {
+                    existing = find_in_scope_direct(ctx->current_scope, cn->name);
+                }
+                
+                if (existing && existing->kind == SYM_CLASS && !cn->has_body && cn->is_extern) {
+                    // Skip forward declaration if we already have the class in the current scope
+                    node = node->next;
+                    continue;
+                }
+                
                 VarType type_class = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, cn->name), 0, 0, NULL, NULL, 0, 0, 0, cn->is_tainted, 0};
                 SemSymbol *sym = sem_symbol_add(ctx, cn->name, SYM_CLASS, type_class);
                 sym->is_is_a = cn->is_is_a;

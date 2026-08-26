@@ -247,6 +247,13 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
 
     // 1.5. Populate Struct Bodies
     st = ctx->alir_mod->structs;
+    AlirStruct *tmp = st;
+    while(tmp) {
+        if (strstr(tmp->name, "wl_listener")) {
+            printf("DEBUG_LLVM: struct %s has field_count %d\n", tmp->name, tmp->field_count);
+        }
+        tmp = tmp->next;
+    }
     LLVMTargetDataRef td = LLVMCreateTargetData("");
     while (st) {
         if (st->field_count >= 0) {

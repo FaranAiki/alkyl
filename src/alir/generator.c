@@ -218,6 +218,12 @@ void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
     while(n) {
         if (n->type == NODE_CLASS) {
             ClassNode *cn = (ClassNode*)n;
+            if (strstr(cn->name, "wl_listener")) {
+                debug_alir("DEBUG_REGISTER: wl_listener seen, has_body=%d\n", cn->has_body);
+                ClassNode *tmp_ex = hashmap_get(&ctx->class_map, cn->name);
+                if (tmp_ex) debug_alir("  -> existing found! name=%s has_body=%d\n", tmp_ex->name, tmp_ex->has_body);
+                else debug_alir("  -> NO existing found!\n");
+            }
             debug_alir("Visiting class %s\n", cn->name);
             char *fqn = cn->name;
             if (current_ns && strlen(current_ns) > 0) {
@@ -301,6 +307,10 @@ void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current
             }
             AlirStruct *st = alir_find_struct(ctx->module, fqn);
             if (st) { debug_alir("POPULATING %s has_body=%d\n", fqn, cn->has_body); build_struct_fields(ctx, cn, st); } else { debug_alir("NOT FOUND %s\n", fqn); }
+            if (strstr(fqn, "wl_listener")) {
+                printf("DEBUG_POPULATE: %s has_body=%d, st=%p\n", fqn, cn->has_body, st);
+                fflush(stdout);
+            }
         } else if (n->type == NODE_NAMESPACE) {
             NamespaceNode *ns = (NamespaceNode*)n;
             char *next_ns = ns->name;

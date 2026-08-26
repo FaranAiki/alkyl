@@ -306,6 +306,9 @@ static CToken c_lex_identifier(CLexer *l, char first) {
     if (!keyword_map_initialized) init_keyword_map(l->ctx->arena);
     t.type = c_lex_keyword(buf);
     t.text = intern_string(l, buf);
+    if (strstr(buf, "wlr_xdg") != NULL) {
+        printf("DEBUG: LEXER PRODUCED %s at line %d!\n", buf, l->line);
+    }
     t.int_val = 0;
     t.double_val = 0;
     return t;
@@ -417,6 +420,9 @@ static CToken c_lex_string(CLexer *l) {
 
     buf[len] = '\0';
     t.text = intern_string(l, buf);
+    if (strstr(buf, "wlr_xdg") != NULL) {
+        printf("DEBUG: LEXER PRODUCED %s at line %d!\n", buf, l->line);
+    }
     return t;
 }
 

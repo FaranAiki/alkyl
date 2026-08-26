@@ -81,7 +81,7 @@ void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) {
 }
 
 static ASTNode* resolve_c_import(Parser *p, const char *fname) {
-
+    printf("DEBUG: link.c resolve_c_import PATH='%s'\n", fname);
     char *src = c_preprocess_header(p->ctx, fname);
     if (!src) {
         char msg[512];

@@ -109,6 +109,15 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
         
         done_search:
         if (!found) {
+            printf("DEBUG: Class '%s' (class_sym=%p, inner_scope=%p) failed to find member '%s'\n", obj_type.class_name, class_sym, class_sym ? class_sym->inner_scope : NULL, node->member_name);
+            if (class_sym && class_sym->inner_scope) {
+                SemSymbol *sym = class_sym->inner_scope->symbols;
+                printf("DEBUG: Members in scope:\n");
+                while (sym) {
+                    printf("DEBUG:   - %s (kind %d)\n", sym->name, sym->kind);
+                    sym = sym->next;
+                }
+            }
             sem_error(ctx, (ASTNode*)node, "Class '%s' has no member named '%s'", obj_type.class_name, node->member_name);
             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         } else if (ctx->settings.function_auto_call && found_member && found_member->kind == SYM_FUNC) {
@@ -202,6 +211,15 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
     ASTNode *mem = cn->members;
     // DO this is why we should separate the shit out of this
     while(mem) {
+        if (streq(class_sym->name, "wlr_backend")) {
+            if (mem->type == NODE_VAR_DECL) {
+                printf("DEBUG: wlr_backend member VAR_DECL: %s\n", ((VarDeclNode*)mem)->name);
+            } else if (mem->type == NODE_CLASS) {
+                printf("DEBUG: wlr_backend member CLASS: %s\n", ((ClassNode*)mem)->name);
+            } else {
+                printf("DEBUG: wlr_backend member type: %d\n", mem->type);
+            }
+        }
         if (mem->type == NODE_VAR_DECL) {
             sem_symbolic_var_decl(ctx, mem);
         } else if (mem->type == NODE_FUNC_DEF) {
@@ -228,7 +246,27 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
         } else if (mem->type == NODE_CLASS) {
             ASTNode *next_node = mem->next;
             mem->next = NULL;
+            
+            // Hoist nested classes (like C anonymous structs) to the parent scope
+            SemScope *saved = ctx->current_scope;
+            ctx->current_scope = saved->parent;
             sem_scan_top_level(ctx, mem);
+            ctx->current_scope = saved;
+            
+            ClassNode *inner_cn = (ClassNode*)mem;
+            printf("DEBUG: Hoisting nested ClassNode: %s\n", inner_cn->name ? inner_cn->name : "NULL");
+            if (inner_cn->name && (strncmp(inner_cn->name, "__anonymous_struct_", 19) == 0 || strncmp(inner_cn->name, "__anonymous_union", 17) == 0)) {
+                // It's an anonymous struct/union! Inline its fields into the current class scope!
+                ASTNode *inner_mem = inner_cn->members;
+                while (inner_mem) {
+                    if (inner_mem->type == NODE_VAR_DECL) {
+                        printf("DEBUG: Inlining anonymous member: %s\n", ((VarDeclNode*)inner_mem)->name);
+                        sem_symbolic_var_decl(ctx, inner_mem);
+                    }
+                    inner_mem = inner_mem->next;
+                }
+            }
+            
             mem->next = next_node;
         }
         mem = mem->next;

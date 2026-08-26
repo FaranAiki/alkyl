@@ -289,8 +289,12 @@ void sem_scope_exit(SemanticCtx *ctx) {
  * @return Pointer to the newly added symbol, or NULL on failure.
  */
 SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, VarType type) {
-    if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return NULL;
-
+    if (!ctx->current_scope) return NULL;
+    
+    if (name && strstr(name, "wlr_backend")) {
+        printf("DEBUG: sem_symbol_add wlr_backend EXACT NAME='%s'\n", name);
+    }
+    
     SemSymbol *sym = arena_alloc_type(ctx->compiler_ctx->arena, SemSymbol);
     memset(sym, 0, sizeof(SemSymbol));
 

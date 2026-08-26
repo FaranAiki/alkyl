@@ -221,11 +221,11 @@ int main() {
     untaint compositor residue err { return 1; }
     server.compositor = compositor as void*;
 
-    void *manager = wlroots.create_data_device_manager(display);
+    tainted void *manager = wlroots.create_data_device_manager(display);
     untaint manager residue err { return 1; }
     server.manager = manager;
 
-    void *subcompositor = wlroots.create_subcompositor(display);
+    tainted void *subcompositor = wlroots.create_subcompositor(display);
     untaint subcompositor residue err { return 1; }
     server.subcompositor = subcompositor;
 

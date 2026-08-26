@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+int global_anon_counter = 0;
 
 /**
  * @brief Report a C header parsing error.
@@ -398,7 +399,11 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
             c_eat(p, C_TOKEN_IDENTIFIER);
         } else {
             type.base = TYPE_CLASS;
-            type.class_name = arena_strdup(p->ctx->arena, "__anonymous_struct");
+            
+    char buf_anon[64];
+    snprintf(buf_anon, sizeof(buf_anon), "__anonymous_struct_%d", ++global_anon_counter);
+    type.class_name = arena_strdup(p->ctx->arena, buf_anon);
+    
         }
     } else if (c_match(p, C_TOKEN_UNION)) {
         c_eat(p, C_TOKEN_UNION);
@@ -408,7 +413,11 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
             c_eat(p, C_TOKEN_IDENTIFIER);
         } else {
             type.base = TYPE_CLASS;
-            type.class_name = arena_strdup(p->ctx->arena, "__anonymous_union");
+            
+    char buf_anon[64];
+    snprintf(buf_anon, sizeof(buf_anon), "__anonymous_union_%d", ++global_anon_counter);
+    type.class_name = arena_strdup(p->ctx->arena, buf_anon);
+    
         }
     } else if (c_match(p, C_TOKEN_ENUM)) {
         c_eat(p, C_TOKEN_ENUM);
@@ -1017,7 +1026,15 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
             sn->base.type = NODE_CLASS;
             sn->base.line = p->current.line;
             sn->base.col = p->current.col;
-            sn->name = arena_strdup(p->ctx->arena, member_type.class_name ? member_type.class_name : "__anonymous_struct");
+            
+    if (member_type.class_name) {
+        sn->name = arena_strdup(p->ctx->arena, member_type.class_name);
+    } else {
+        char buf_anon[64];
+        snprintf(buf_anon, sizeof(buf_anon), "__anonymous_struct_%d", ++global_anon_counter);
+        sn->name = arena_strdup(p->ctx->arena, buf_anon);
+    }
+    
             sn->is_union = 0;
             sn->has_body = 1;
             sn->is_extern = 1; sn->is_container = 1; sn->is_public = 1;
@@ -1048,7 +1065,14 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                     anon->base.type = NODE_CLASS;
                     anon->base.line = p->current.line;
                     anon->base.col = p->current.col;
-                    anon->name = arena_strdup(p->ctx->arena, inner_type.class_name ? inner_type.class_name : "__anonymous_struct");
+                    static int anon_counter = 0;
+                    if (inner_type.class_name) {
+                        anon->name = arena_strdup(p->ctx->arena, inner_type.class_name);
+                    } else {
+                        char buf[64];
+                        snprintf(buf, sizeof(buf), "__anonymous_struct_%d", ++anon_counter);
+                        anon->name = arena_strdup(p->ctx->arena, buf);
+                    }
                     anon->is_union = 0;
                     anon->has_body = 1;
                     anon->is_extern = 1; anon->is_container = 1; anon->is_public = 1;
@@ -1081,6 +1105,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                             v->is_array = ia > 0;
                             v->is_mutable = 1;
                             *inner_curr = (ASTNode*)v;
+                            printf("DEBUG: anonymous struct member: %s\n", v->name);
                             inner_curr = &v->base.next;
                         }
                         while (c_match(p, C_TOKEN_LBRACKET)) {
@@ -1651,7 +1676,15 @@ static ASTNode* c_parse_typedef(CParser *p) {
                     anon->base.type = NODE_CLASS;
                     anon->base.line = p->current.line;
                     anon->base.col = p->current.col;
-                    anon->name = arena_strdup(p->ctx->arena, member_type.class_name ? member_type.class_name : "__anonymous_struct");
+                    
+    if (member_type.class_name) {
+        anon->name = arena_strdup(p->ctx->arena, member_type.class_name);
+    } else {
+        char buf_anon[64];
+        snprintf(buf_anon, sizeof(buf_anon), "__anonymous_struct_%d", ++global_anon_counter);
+        anon->name = arena_strdup(p->ctx->arena, buf_anon);
+    }
+    
                     anon->is_union = 0;
                     anon->has_body = 1;
                     anon->is_extern = 1; anon->is_container = 1; anon->is_public = 1;
@@ -1684,6 +1717,7 @@ static ASTNode* c_parse_typedef(CParser *p) {
                             v->is_array = ia > 0;
                             v->is_mutable = 1;
                             *inner_curr = (ASTNode*)v;
+                            printf("DEBUG: anonymous struct member: %s\n", v->name);
                             inner_curr = &v->base.next;
                         }
                         while (c_match(p, C_TOKEN_LBRACKET)) {
@@ -2194,7 +2228,7 @@ char* c_preprocess_header(CompilerContext *ctx, const char *fname) {
     if (fname[0] == '/') {
         snprintf(cmd, sizeof(cmd), "echo '#include \"%s\"' | gcc -E -DWLR_USE_UNSTABLE -xc - 2>/dev/null", fname);
     } else {
-        snprintf(cmd, sizeof(cmd), "echo '#include <%s>' | gcc -E -DWLR_USE_UNSTABLE -I. -xc - 2>/dev/null", fname);
+        snprintf(cmd, sizeof(cmd), "echo '#include <%s>' | gcc -E -DWLR_USE_UNSTABLE -I. %s -xc - 2>/dev/null", fname, include_flags);
 
         // Auto-detect include flags for angle-bracket headers using the top-level directory as a pkg-config hint.
         // E.g. "wlr/types/wlr_xdg_shell.h" -> top dir = "wlr" -> try pkg-config for "wlroots", "wlroots-0.18", etc.
@@ -2221,12 +2255,10 @@ char* c_preprocess_header(CompilerContext *ctx, const char *fname) {
                 // Also try versioned variants by querying available packages
                 // We'll just probe a few common ones
                 const char *versions[] = {"0.18", "0.19", "0.20", "0.21", "0.22"};
+                static char cand_versioned_bufs[5][32]; // Use separate buffers
                 for (int vi = 0; vi < 5 && ncand < 14; vi++) {
-                    snprintf(cand_versioned[0], sizeof(cand_versioned[0]), "wlroots-%s", versions[vi]);
-                    candidates[ncand++] = cand_versioned[0];
-                    if (vi == 0) {
-                        snprintf(cand_versioned[1], sizeof(cand_versioned[1]), "wlroots-%s", versions[vi]);
-                    }
+                    snprintf(cand_versioned_bufs[vi], sizeof(cand_versioned_bufs[vi]), "wlroots-%s", versions[vi]);
+                    candidates[ncand++] = cand_versioned_bufs[vi];
                 }
             } else if (strcmp(top_dir, "wayland") == 0) {
                 candidates[ncand++] = "wayland-client";
@@ -2243,6 +2275,8 @@ char* c_preprocess_header(CompilerContext *ctx, const char *fname) {
                 size_t pkg_len = fread(pkg_out, 1, sizeof(pkg_out) - 1, pf);
                 pkg_out[pkg_len] = '\0';
                 pclose(pf);
+                
+                printf("DEBUG: probing %s -> out='%s'\n", candidates[ci], pkg_out);
                 if (pkg_len == 0) continue;
 
                 // Parse -I flags from pkg-config output
