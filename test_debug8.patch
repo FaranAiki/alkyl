@@ -1,0 +1,14 @@
+--- src/alir/generator.c
++++ src/alir/generator.c
+@@ -185,11 +185,17 @@
+     // 3. Current Class Fields
+     ASTNode *mem = cn->members;
++    if (strcmp(cn->name, "wlr_backend") == 0) {
++        fprintf(stderr, "DEBUG_WLR_BACKEND: member list starting... cn=%p, mem=%p\n", cn, mem);
++    }
+     while(mem) {
++        if (strcmp(cn->name, "wlr_backend") == 0) {
++            fprintf(stderr, "DEBUG_WLR_BACKEND: mem->type=%d\n", mem->type);
++        }
+         if (mem->type == NODE_VAR_DECL) {
+             VarDeclNode *vd = (VarDeclNode*)mem;

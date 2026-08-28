@@ -255,77 +255,112 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
         tmp = tmp->next;
     }
     LLVMTargetDataRef td = LLVMCreateTargetData("");
+    int changed = 1;
+    while (changed) {
+        changed = 0;
+        st = ctx->alir_mod->structs;
+        while (st) {
+            if (st->field_count >= 0) {
+                LLVMTypeRef struct_ty = hashmap_get(&ctx->struct_map, st->name);
+                if (struct_ty && LLVMIsOpaqueStruct(struct_ty)) {
+                    int all_sized = 1;
+                    AlirField *chk_f = st->fields;
+                    while (chk_f) {
+                        if (chk_f->type.base == TYPE_CLASS && chk_f->type.ptr_depth == 0) {
+                            LLVMTypeRef fty = get_llvm_type(ctx, chk_f->type);
+                            if (fty && LLVMGetTypeKind(fty) == LLVMStructTypeKind && LLVMIsOpaqueStruct(fty)) {
+                                fprintf(stderr, "DEBUG_LLVM: %s blocked by %s (is_func_ptr=%d ptr_depth=%d)\n", st->name, chk_f->type.class_name, chk_f->type.is_func_ptr, chk_f->type.ptr_depth);
+                                all_sized = 0;
+                                break;
+                            }
+                        }
+                        chk_f = chk_f->next;
+                    }
+
+                    if (all_sized) {
+                        if (st->is_union) {
+                            int __ft_sz = st->field_count > 0 ? st->field_count : 1;
+                            LLVMTypeRef field_tys[__ft_sz];
+                            AlirField *f = st->fields;
+                            while(f) {
+                                field_tys[f->index] = get_llvm_type(ctx, f->type);
+                                f = f->next;
+                            }
+
+                            unsigned long long max_size = 0;
+                            unsigned long long max_align = 0;
+
+                            for (int i = 0; i < st->field_count; i++) {
+                                unsigned long long sz = LLVMABISizeOfType(td, field_tys[i]);
+                                unsigned long long al = LLVMABIAlignmentOfType(td, field_tys[i]);
+                                if (sz > max_size) max_size = sz;
+                                if (al > max_align) max_align = al;
+                            }
+
+                            LLVMTypeRef best_align_ty = NULL;
+                            unsigned long long best_align_sz = 0;
+                            for (int i = 0; i < st->field_count; i++) {
+                                unsigned long long sz = LLVMABISizeOfType(td, field_tys[i]);
+                                unsigned long long al = LLVMABIAlignmentOfType(td, field_tys[i]);
+                                if (al == max_align) {
+                                    if (sz >= best_align_sz) {
+                                        best_align_sz = sz;
+                                        best_align_ty = field_tys[i];
+                                    }
+                                }
+                            }
+
+                            if (!best_align_ty) {
+                                best_align_ty = LLVMInt8TypeInContext(ctx->llvm_ctx);
+                                max_align = 1;
+                                max_size = 1;
+                                best_align_sz = 1;
+                            }
+
+                            unsigned long long aligned_max_size = max_align > 0 ? ((max_size + max_align - 1) / max_align * max_align) : max_size;
+                            unsigned long long padding = aligned_max_size > best_align_sz ? (aligned_max_size - best_align_sz) : 0;
+
+                            if (padding > 0) {
+                                LLVMTypeRef union_body[2];
+                                union_body[0] = best_align_ty;
+                                union_body[1] = LLVMArrayType(LLVMInt8TypeInContext(ctx->llvm_ctx), padding);
+                                LLVMStructSetBody(struct_ty, union_body, 2, 0);
+                            } else {
+                                LLVMTypeRef union_body[1];
+                                union_body[0] = best_align_ty;
+                                LLVMStructSetBody(struct_ty, union_body, 1, 0);
+                            }
+                        } else if (st->field_count == 0) {
+                            LLVMTypeRef empty_body[1] = { LLVMInt8TypeInContext(ctx->llvm_ctx) };
+                            LLVMStructSetBody(struct_ty, empty_body, 1, 0);
+                        } else {
+                            LLVMTypeRef field_tys[st->field_count];
+                            AlirField *f = st->fields;
+                            while(f) {
+                                field_tys[f->index] = get_llvm_type(ctx, f->type);
+                                f = f->next;
+                            }
+                            LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
+                        }
+                        changed = 1;
+                    }
+                }
+            }
+            st = st->next;
+        }
+    }
+    
+    st = ctx->alir_mod->structs;
     while (st) {
         if (st->field_count >= 0) {
             LLVMTypeRef struct_ty = hashmap_get(&ctx->struct_map, st->name);
-
-            if (st->is_union) {
-                int __ft_sz = st->field_count > 0 ? st->field_count : 1;
-                LLVMTypeRef field_tys[__ft_sz];
-                AlirField *f = st->fields;
-                while(f) {
-                    field_tys[f->index] = get_llvm_type(ctx, f->type);
-                    f = f->next;
-                }
-
-                unsigned long long max_size = 0;
-                unsigned long long max_align = 0;
-
-                for (int i = 0; i < st->field_count; i++) {
-                    unsigned long long sz = LLVMABISizeOfType(td, field_tys[i]);
-                    unsigned long long al = LLVMABIAlignmentOfType(td, field_tys[i]);
-                    if (sz > max_size) max_size = sz;
-                    if (al > max_align) max_align = al;
-                }
-
-                LLVMTypeRef best_align_ty = NULL;
-                unsigned long long best_align_sz = 0;
-                for (int i = 0; i < st->field_count; i++) {
-                    unsigned long long sz = LLVMABISizeOfType(td, field_tys[i]);
-                    unsigned long long al = LLVMABIAlignmentOfType(td, field_tys[i]);
-                    if (al == max_align) {
-                        if (sz >= best_align_sz) {
-                            best_align_sz = sz;
-                            best_align_ty = field_tys[i];
-                        }
-                    }
-                }
-
-                if (!best_align_ty) {
-                    best_align_ty = LLVMInt8TypeInContext(ctx->llvm_ctx);
-                    max_align = 1;
-                    max_size = 1;
-                    best_align_sz = 1;
-                }
-
-                unsigned long long aligned_max_size = max_align > 0 ? ((max_size + max_align - 1) / max_align * max_align) : max_size;
-                unsigned long long padding = aligned_max_size > best_align_sz ? (aligned_max_size - best_align_sz) : 0;
-
-                if (padding > 0) {
-                    LLVMTypeRef union_body[2];
-                    union_body[0] = best_align_ty;
-                    union_body[1] = LLVMArrayType(LLVMInt8TypeInContext(ctx->llvm_ctx), padding);
-                    LLVMStructSetBody(struct_ty, union_body, 2, 0);
-                } else {
-                    LLVMTypeRef union_body[1];
-                    union_body[0] = best_align_ty;
-                    LLVMStructSetBody(struct_ty, union_body, 1, 0);
-                }
-            } else if (st->field_count == 0) {
-                LLVMTypeRef empty_body[1] = { LLVMInt8TypeInContext(ctx->llvm_ctx) };
-                LLVMStructSetBody(struct_ty, empty_body, 1, 0);
-            } else {
-                LLVMTypeRef field_tys[st->field_count];
-                AlirField *f = st->fields;
-                while(f) {
-                    field_tys[f->index] = get_llvm_type(ctx, f->type);
-                    f = f->next;
-                }
-                LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
+            if (struct_ty && LLVMIsOpaqueStruct(struct_ty)) {
+                fprintf(stderr, "WARNING: Struct %s remained opaque (field_count=%d)\n", st->name, st->field_count);
             }
         }
         st = st->next;
     }
+    
     LLVMDisposeTargetData(td);
 
     // 2. Global Strings / Variables

@@ -1,0 +1,14 @@
+--- src/codegen_llvm/translate/stmt.c
++++ src/codegen_llvm/translate/stmt.c
+@@ -288,5 +288,8 @@
+                         if (st && st->is_union) {
+                             res = op1;
+                         } else {
++                            if (LLVMGetTypeKind(base_ty) == LLVMStructTypeKind && LLVMIsOpaqueStruct(base_ty)) {
++                                fprintf(stderr, "GEP into unsized type!\n");
++                            }
++                            if (LLVMGetTypeKind(base_ty) != LLVMStructTypeKind) {
++                                fprintf(stderr, "Invalid GEP struct type! base_ty kind = %d\n", LLVMGetTypeKind(base_ty));
++                            }
+                             res = LLVMBuildStructGEP2(ctx->builder, base_ty, op1, (unsigned)inst->op2->val.int_val, "struct_gep");
+                         }

@@ -7,22 +7,27 @@ link "wayland-server";
 link "wlroots-0.18";
 
 export namespace wlroots {
-    class wl_display {}
-    class wlr_backend {}
-    class wlr_renderer {}
-    class wlr_allocator {}
-    class wlr_compositor {}
-    class wlr_data_device_manager {}
-    class wlr_subcompositor {}
-    class wlr_output_layout {}
-    class wlr_xdg_shell {}
-    class wlr_seat {}
-    class wlr_output {}
-    class wlr_xdg_surface {}
-    class wlr_output_state {}
-    class wlr_scene_tree {}
-    class wlr_xdg_toplevel {}
-    class wlr_scene {}
+    extern class wl_display;
+    extern class wlr_backend;
+    extern class wlr_renderer;
+    extern class wlr_allocator;
+    extern class wlr_compositor;
+    extern class wlr_data_device_manager;
+    extern class wlr_subcompositor;
+    extern class wlr_output_layout;
+    extern class wlr_xdg_shell;
+    extern class wlr_seat;
+    extern class wlr_output;
+    extern class wlr_xdg_surface;
+    extern class wlr_output_state;
+    extern class wlr_scene_tree;
+    extern class wlr_xdg_toplevel;
+    extern class wlr_scene;
+
+    extern class wl_list;
+    extern class wl_signal;
+    extern class wl_listener;
+
 
     @c import "wlr/backend.h"
     @c import "wlr/render/allocator.h"
@@ -47,29 +52,16 @@ export namespace wlroots {
     extern void wlr_output_state_finish(wlr_output_state* state);
     extern void wlr_scene_xdg_surface_create(wlr_scene_tree* tree, wlr_xdg_surface* xdg_surface);
 
-    abstract container class wl_list {
-        wl_list* prev;
-        wl_list* next;
-    }
 
-    abstract container class wl_signal {
-        wl_list listener_list;
-    }
-
-    abstract container class wl_listener {
-        wl_list link_node;
-        void* notify;
-    }
-
-    void wl_list_insert(wl_list* list, wl_list* elm) {
+    @c void wl_list_insert(wl_list* list, wl_list* elm) {
         elm.prev = list;
         elm.next = list.next;
         list.next = elm;
         elm.next.prev = elm;
     }
 
-    void wl_signal_add(wl_signal* signal, wl_listener* listener) {
-        wl_list_insert(signal.listener_list.prev, &(listener.link_node));
+    @c void wl_signal_add(wl_signal* signal, wl_listener* listener) {
+        wl_list_insert(signal.listener_list.prev, &(listener.link));
     }
 
 

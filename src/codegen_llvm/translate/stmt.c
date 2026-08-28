@@ -131,6 +131,15 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                         if (st && st->is_union) {
                             res = op1;
                         } else {
+                            if (LLVMGetTypeKind(base_ty) != LLVMStructTypeKind) {
+                                fprintf(stderr, "Invalid GEP struct type! base_ty kind = %d, expected = %d, class_name = %s\n", LLVMGetTypeKind(base_ty), LLVMStructTypeKind, ptr_t.class_name);
+                            } else if (LLVMIsOpaqueStruct(base_ty)) {
+                                fprintf(stderr, "GEP into unsized type!\n");
+                            }
+                            unsigned num_elems = LLVMCountStructElementTypes(base_ty);
+                            if ((unsigned)inst->op2->val.int_val >= num_elems) {
+                                fprintf(stderr, "GEP index out of bounds! %s has %u fields, requested %u\n", ptr_t.class_name, num_elems, (unsigned)inst->op2->val.int_val);
+                            }
                             res = LLVMBuildStructGEP2(ctx->builder, base_ty, op1, (unsigned)inst->op2->val.int_val, "struct_gep");
                         }
                     } else {

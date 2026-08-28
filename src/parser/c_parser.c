@@ -334,7 +334,7 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
             c_eat(p, C_TOKEN_RPAREN);
 
             type.base = TYPE_VOID;
-            type.class_name = NULL;
+            // type.class_name = NULL;
             type.ptr_depth = 0;
             type.array_size = 0;
             if (out_ptr_depth) *out_ptr_depth = 0;
@@ -545,7 +545,7 @@ static VarType c_parse_c_type(CParser *p, int *out_ptr_depth, int *out_array_siz
             c_eat(p, C_TOKEN_RPAREN);
 
             type.base = TYPE_VOID;
-            type.class_name = NULL;
+            // type.class_name = NULL;
             type.ptr_depth = 0;
             type.array_size = 0;
             if (out_ptr_depth) *out_ptr_depth = 0;
@@ -746,7 +746,7 @@ static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
 
                 Parameter *param = arena_alloc(p->ctx->arena, sizeof(Parameter));
                 memset(param, 0, sizeof(Parameter));
-                p_type.ptr_depth += pd;
+                p_type.ptr_depth = pd;
                 if (as > 0) p_type.array_size = as;
                 param->type = p_type;
                 param->name = p_name;
@@ -829,7 +829,7 @@ static Parameter* c_parse_parameters(CParser *p, int *out_is_varargs) {
 
         Parameter *param = arena_alloc(p->ctx->arena, sizeof(Parameter));
         memset(param, 0, sizeof(Parameter));
-        param_type.ptr_depth += ptr_depth;
+        param_type.ptr_depth = ptr_depth;
         if (array_size > 0) param_type.array_size = array_size;
         param->type = param_type;
         param->name = param_name;
@@ -1100,7 +1100,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                             v->name = arena_strdup(p->ctx->arena, p->current.text);
                             c_eat(p, C_TOKEN_IDENTIFIER);
                             v->var_type = it;
-                            v->var_type.ptr_depth += ip;
+                            v->var_type.ptr_depth = ip;
                             v->var_type.array_size = ia > 0 ? ia : it.array_size;
                             v->is_array = ia > 0;
                             v->is_mutable = 1;
@@ -1196,7 +1196,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                         if (c_match(p, C_TOKEN_NUMBER)) c_eat(p, C_TOKEN_NUMBER);
                     }
                     var->var_type = inner_type;
-                    var->var_type.ptr_depth += inner_ptr;
+                    var->var_type.ptr_depth = inner_ptr;
                     var->var_type.array_size = inner_array > 0 ? inner_array : inner_type.array_size;
                     var->is_array = inner_array > 0;
                     var->is_mutable = 1;
@@ -1217,7 +1217,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                         var->name = arena_strdup(p->ctx->arena, p->current.text);
                         c_eat(p, C_TOKEN_IDENTIFIER);
                         var->var_type = inner_type;
-                        var->var_type.ptr_depth += inner_ptr;
+                        var->var_type.ptr_depth = inner_ptr;
                         var->var_type.array_size = inner_array > 0 ? inner_array : inner_type.array_size;
                         var->is_array = inner_array > 0;
                         var->is_mutable = 1;
@@ -1338,7 +1338,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
             var->base.col = p->current.col;
             var->name = member_name;
             var->var_type = member_type;
-            var->var_type.ptr_depth += ptr_depth;
+            var->var_type.ptr_depth = ptr_depth;
             var->var_type.array_size = array_size > 0 ? array_size : member_type.array_size;
             var->is_array = array_size > 0;
             var->is_mutable = 1;
@@ -1383,7 +1383,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
                     v->base.col = p->current.col;
                     v->name = mname;
                     v->var_type = member_type;
-                    v->var_type.ptr_depth += ptr_depth + extra_ptr;
+                    v->var_type.ptr_depth = ptr_depth + extra_ptr;
                     v->var_type.array_size = array_size > 0 ? array_size : member_type.array_size;
                     v->is_array = array_size > 0;
                     v->is_mutable = 1;
@@ -1663,7 +1663,7 @@ static ASTNode* c_parse_typedef(CParser *p) {
                     var->base.col = p->current.col;
                     var->name = member_name;
                     var->var_type = member_type;
-                    var->var_type.ptr_depth += ptr_depth;
+                    var->var_type.ptr_depth = ptr_depth;
                     var->var_type.array_size = array_size > 0 ? array_size : member_type.array_size;
                     var->is_mutable = 1;
 
@@ -1712,7 +1712,7 @@ static ASTNode* c_parse_typedef(CParser *p) {
                             v->name = arena_strdup(p->ctx->arena, p->current.text);
                             c_eat(p, C_TOKEN_IDENTIFIER);
                             v->var_type = it;
-                            v->var_type.ptr_depth += ip;
+                            v->var_type.ptr_depth = ip;
                             v->var_type.array_size = ia > 0 ? ia : it.array_size;
                             v->is_array = ia > 0;
                             v->is_mutable = 1;
@@ -1898,7 +1898,7 @@ static ASTNode* c_parse_typedef(CParser *p) {
         }
 
         VarType typedef_type = base_type;
-        typedef_type.ptr_depth += ptr_depth;
+        typedef_type.ptr_depth = ptr_depth;
         typedef_type.array_size = array_size > 0 ? array_size : base_type.array_size;
         c_register_typedef(p, typedef_name, typedef_type);
     } else if (c_match(p, C_TOKEN_LPAREN)) {
@@ -2004,7 +2004,7 @@ static ASTNode* c_parse_extern_variable(CParser *p) {
     var->base.col = p->current.col;
     var->name = var_name;
     var->var_type = var_type;
-    var->var_type.ptr_depth += ptr_depth;
+    var->var_type.ptr_depth = ptr_depth;
     var->var_type.array_size = array_size > 0 ? array_size : var_type.array_size;
     var->is_array = array_size > 0;
     var->is_mutable = 1;

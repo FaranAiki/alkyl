@@ -130,7 +130,10 @@ long alir_eval_constant_int(AlirCtx *ctx, ASTNode *node) {
  * @param st The ALIR struct descriptor to populate.
  */
 void build_struct_fields(AlirCtx *ctx, ClassNode *cn, AlirStruct *st) {
-    if (st->field_count != -1) return; // Already built
+    if (st->field_count != -1) {
+        if (cn->members == NULL) return; // Don't overwrite with empty
+        if (st->fields != NULL) return; // Already has fields
+    }
     if (!cn->has_body) return; // Wait for actual definition
 
     int idx = 0;
@@ -183,7 +186,16 @@ void build_struct_fields(AlirCtx *ctx, ClassNode *cn, AlirStruct *st) {
 
     // 3. Current Class Fields
     ASTNode *mem = cn->members;
+    if (strcmp(cn->name, "wlr_backend") == 0) {
+        fprintf(stderr, "DEBUG_WLR_BACKEND: member list starting... cn=%p, mem=%p\n", cn, mem);
+    }
     while(mem) {
+        if (strcmp(cn->name, "wlr_backend") == 0) {
+            fprintf(stderr, "DEBUG_WLR_BACKEND: mem->type=%d\n", mem->type);
+            if (mem->type == NODE_VAR_DECL) {
+                fprintf(stderr, "DEBUG_WLR_BACKEND: var name=%s\n", ((VarDeclNode*)mem)->name);
+            }
+        }
         if (mem->type == NODE_VAR_DECL) {
             VarDeclNode *vd = (VarDeclNode*)mem;
             AlirField *f = alir_alloc(ctx->module, sizeof(AlirField));
@@ -235,11 +247,14 @@ void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
             if (existing) {
                 if (!existing->has_body && cn->has_body) {
                     hashmap_put(&ctx->class_map, cn->name, cn);
+                } else if (existing->has_body && cn->has_body && !existing->members && cn->members) {
+                    hashmap_put(&ctx->class_map, cn->name, cn);
                 }
             } else {
                 alir_register_struct(ctx->module, fqn, NULL, cn->is_union);
                 hashmap_put(&ctx->class_map, cn->name, cn);
             }
+            pass1_register(ctx, cn->members, current_ns);
         } else if (n->type == NODE_ENUM) {
             EnumNode *en = (EnumNode*)n;
             AlirEnumEntry *head = NULL;
@@ -311,6 +326,7 @@ void pass2_populate(AlirCtx *ctx, ASTNode *root, ASTNode *n, const char *current
                 printf("DEBUG_POPULATE: %s has_body=%d, st=%p\n", fqn, cn->has_body, st);
                 fflush(stdout);
             }
+            pass2_populate(ctx, root, cn->members, current_ns);
         } else if (n->type == NODE_NAMESPACE) {
             NamespaceNode *ns = (NamespaceNode*)n;
             char *next_ns = ns->name;

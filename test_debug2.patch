@@ -1,0 +1,8 @@
+--- src/codegen_llvm/codegen.c
++++ src/codegen_llvm/codegen.c
+@@ -272,2 +272,5 @@
+                             if (fty && LLVMGetTypeKind(fty) == LLVMStructTypeKind && LLVMIsOpaqueStruct(fty)) {
++                                if (streq_lit(st->name, "wlroots.wl_listener")) {
++                                    fprintf(stderr, "DEBUG_LLVM: wl_listener blocked by %s\n", chk_f->type.class_name);
++                                }
+                                 all_sized = 0;

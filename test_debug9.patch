@@ -1,0 +1,12 @@
+--- src/alir/generator.c
++++ src/alir/generator.c
+@@ -131,6 +131,9 @@
+ 
+ void build_struct_fields(AlirCtx *ctx, ClassNode *cn, AlirStruct *st) {
+-    if (st->field_count != -1) return; // Already built
++    if (st->field_count != -1) {
++        if (cn->members == NULL) return; // Don't overwrite with empty
++        if (st->fields != NULL) return; // Already has fields
++    }
+     if (!cn->has_body) return; // Wait for actual definition
+ 
