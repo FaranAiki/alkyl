@@ -1,0 +1,54 @@
+diff --git a/src/parser/c_parser.c b/src/parser/c_parser.c
+index 15bbff7e..f5504b75 100644
+--- a/src/parser/c_parser.c
++++ b/src/parser/c_parser.c
+@@ -1310,8 +1310,13 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
+                 continue;
+             }
+ 
++            int current_array_size = array_size;
+             while (c_match(p, C_TOKEN_LBRACKET)) {
+                 c_eat(p, C_TOKEN_LBRACKET);
++                if (c_match(p, C_TOKEN_NUMBER)) {
++                    current_array_size = p->current.int_val;
++                    c_eat(p, C_TOKEN_NUMBER);
++                }
+                 int depth = 1;
+                 while (depth > 0 && !p->has_error) {
+                     if (c_match(p, C_TOKEN_LBRACKET)) { depth++; c_eat(p, C_TOKEN_LBRACKET); }
+@@ -1339,8 +1344,8 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
+             var->name = member_name;
+             var->var_type = member_type;
+             var->var_type.ptr_depth = ptr_depth;
+-            var->var_type.array_size = array_size > 0 ? array_size : member_type.array_size;
+-            var->is_array = array_size > 0;
++            var->var_type.array_size = current_array_size > 0 ? current_array_size : member_type.array_size;
++            var->is_array = current_array_size > 0;
+             var->is_mutable = 1;
+ 
+             *curr_member = (ASTNode*)var;
+@@ -1361,8 +1366,13 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
+                     char *mname = arena_strdup(p->ctx->arena, p->current.text);
+                     c_eat(p, C_TOKEN_IDENTIFIER);
+                     
++                    int v_array_size = array_size;
+                     while (c_match(p, C_TOKEN_LBRACKET)) {
+                         c_eat(p, C_TOKEN_LBRACKET);
++                        if (c_match(p, C_TOKEN_NUMBER)) {
++                            v_array_size = p->current.int_val;
++                            c_eat(p, C_TOKEN_NUMBER);
++                        }
+                         int depth = 1;
+                         while (depth > 0 && !p->has_error) {
+                             if (c_match(p, C_TOKEN_LBRACKET)) { depth++; c_eat(p, C_TOKEN_LBRACKET); }
+@@ -1384,8 +1394,8 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
+                     v->name = mname;
+                     v->var_type = member_type;
+                     v->var_type.ptr_depth = ptr_depth + extra_ptr;
+-                    v->var_type.array_size = array_size > 0 ? array_size : member_type.array_size;
+-                    v->is_array = array_size > 0;
++                    v->var_type.array_size = v_array_size > 0 ? v_array_size : member_type.array_size;
++                    v->is_array = v_array_size > 0;
+                     v->is_mutable = 1;
+                     
+                     *curr_member = (ASTNode*)v;

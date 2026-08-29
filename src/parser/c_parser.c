@@ -1348,6 +1348,10 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
             var->is_array = current_array_size > 0;
             var->is_mutable = 1;
 
+            if (streq_lit(member_name, "keycodes") || streq_lit(member_name, "led_indexes") || streq_lit(member_name, "mod_indexes")) {
+                printf("DEBUG: parsed %s array_size=%d current_array_size=%d\n", member_name, var->var_type.array_size, current_array_size);
+            }
+
             *curr_member = (ASTNode*)var;
             curr_member = &var->base.next;
         }

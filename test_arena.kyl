@@ -1,0 +1,12 @@
+import "lib/c"
+import "lib/std/heap"
+
+int main() {
+    let ac = heap.ArenaAllocator(null, 65536);
+    let l = ac.alloc[int]();
+    if (l == null) {
+        printf("null\n");
+    } else {
+        printf("not null: %p\n", l);
+    }
+}

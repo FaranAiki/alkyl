@@ -58,11 +58,15 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
     switch (t.base) {
         case TYPE_VOID: base = LLVMVoidTypeInContext(ctx->llvm_ctx); break;
         case TYPE_ERROR: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
-        case TYPE_INT: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
+        case TYPE_INT:
+        case TYPE_UNSIGNED_INT: base = LLVMInt32TypeInContext(ctx->llvm_ctx); break;
         case TYPE_SHORT: base = LLVMInt16TypeInContext(ctx->llvm_ctx); break;
         case TYPE_LONG:
-        case TYPE_LONG_LONG: base = LLVMInt64TypeInContext(ctx->llvm_ctx); break;
-        case TYPE_CHAR: base = LLVMInt8TypeInContext(ctx->llvm_ctx); break;
+        case TYPE_LONG_LONG:
+        case TYPE_UNSIGNED_LONG:
+        case TYPE_UNSIGNED_LONG_LONG: base = LLVMInt64TypeInContext(ctx->llvm_ctx); break;
+        case TYPE_CHAR:
+        case TYPE_UNSIGNED_CHAR: base = LLVMInt8TypeInContext(ctx->llvm_ctx); break;
         case TYPE_BOOL: base = LLVMInt1TypeInContext(ctx->llvm_ctx); break;
         case TYPE_SINGLE: base = LLVMFloatTypeInContext(ctx->llvm_ctx); break;
         case TYPE_DOUBLE:
@@ -127,6 +131,11 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
 
     if (t.array_size > 0) {
         base = LLVMArrayType(base, t.array_size);
+        debug_codegen("DEBUG_LLVM_ARRAY: array_size=%d ptr_depth=%d base_is_ptr=%d\n", t.array_size, t.ptr_depth, LLVMGetTypeKind(base) == LLVMPointerTypeKind);
+    }
+
+    if (t.ptr_depth > 0) {
+        debug_codegen("DEBUG_LLVM_PTR: ptr_depth=%d array_size=%d array_depth=%d\n", t.ptr_depth, t.array_size, t.array_depth);
     }
 
     if (t.is_tainted) {
@@ -349,7 +358,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
             st = st->next;
         }
     }
-    
+
     st = ctx->alir_mod->structs;
     while (st) {
         if (st->field_count >= 0) {
@@ -360,7 +369,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
         }
         st = st->next;
     }
-    
+
     LLVMDisposeTargetData(td);
 
     // 2. Global Strings / Variables
@@ -553,7 +562,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
 
     // Verify Module Integrity Check (Optional safety)
     char *err_msg = NULL;
-    LLVMDumpModule(ctx->llvm_mod);
+    // LLVMDumpModule(ctx->llvm_mod);
     LLVMVerifyModule(ctx->llvm_mod, LLVMPrintMessageAction, &err_msg);
     if (err_msg) {
         LLVMDisposeMessage(err_msg);
@@ -561,4 +570,3 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
 
     return ctx->llvm_mod;
 }
-

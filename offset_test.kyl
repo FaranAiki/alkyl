@@ -1,0 +1,9 @@
+import "lib/c";
+import "lib/wlroots/core.kyl";
+
+int main() {
+    wlr_keyboard* kb = null;
+    let offset = &(kb.events.key) as int;
+    std.printf("Alkyl offset: %d\n", offset);
+    return 0;
+}

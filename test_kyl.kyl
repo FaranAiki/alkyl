@@ -1,0 +1,14 @@
+import "wlroots/core";
+import "std/print";
+meta {
+    reason "Debug offsets"
+    lexer.scope_style = SCOPE_BRACKETS;
+}
+int main() {
+    std.printf("Alkyl wlr_keyboard size: %d\n", sizeof(wlroots.wlr_keyboard));
+    wlroots.wlr_keyboard kb;
+    long kb_ptr = &kb as long;
+    long key_ptr = &(kb.events.key) as long;
+    std.printf("Alkyl offset of events.key: %ld\n", key_ptr - kb_ptr);
+    return 0;
+}

@@ -1,0 +1,9 @@
+import "lib/c"
+import "lib/wlroots/core"
+
+int main() {
+    let kb = 0 as wlroots.wlr_keyboard*;
+    let ptr = &(kb.events.key);
+    let offset = (ptr as long) - (kb as long);
+    printf("Alkyl events.key offset: %ld\n", offset);
+}
