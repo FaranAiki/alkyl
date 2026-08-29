@@ -1,0 +1,22 @@
+link "wayland-server";
+link "wlroots-0.18";
+
+export namespace wlroots {
+    @c import "wayland-server-core.h"
+    @c import "wlr/backend.h"
+    @c import "wlr/render/wlr_renderer.h"
+    @c import "wlr/render/allocator.h"
+    @c import "wlr/types/wlr_compositor.h"
+    @c import "wlr/types/wlr_data_device.h"
+    @c import "wlr/types/wlr_subcompositor.h"
+    @c import "wlr/types/wlr_output_layout.h"
+    @c import "wlr/types/wlr_xdg_shell.h"
+    @c import "wlr/types/wlr_seat.h"
+    @c import "wlr/types/wlr_output.h"
+    @c import "wlr/types/wlr_keyboard.h"
+    @c import "wlr/types/wlr_scene.h"
+}
+
+int main() {
+    return 0;
+}

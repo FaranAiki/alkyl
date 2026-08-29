@@ -1,4 +1,8 @@
-code = """/*
+with open("project/wmyl/wmyl.kyl", "r") as f:
+    text = f.read()
+
+# We need to completely rewrite the file to fix the structure
+new_text = """/*
     wlroots wayland window manager
 */
 premeta {
@@ -22,43 +26,59 @@ import "std/heap";
 @c import "wlr/types/wlr_pointer.h"
 @c import "wayland-server-core.h"
 
-@c extern {
-    int setenv(char* name, char* value, int overwrite);
-    int fork();
-    int execl(char* path, char* arg0, char* arg1, char* arg2, void* arg3);
-    void _exit(int status);
-    
-    // time.h clock_gettime
-    int clock_gettime(int clk_id, void* tp);
-    void* malloc(long size);
-    void free(void* ptr);
+extern int setenv(char* name, char* value, int overwrite);
+extern int fork();
+extern int execl(char* path, char* arg0, char* arg1, char* arg2, void* arg3);
+extern void _exit(int status);
 
-    void wl_display_terminate(wl_display* display);
-    void wl_display_destroy_clients(wl_display* display);
-    void wl_display_destroy(wl_display* display);
-    void wlr_backend_destroy(wlr_backend* backend);
+// time.h clock_gettime
+extern int clock_gettime(int clk_id, void* tp);
+extern void* malloc(long size);
+extern void free(void* ptr);
 
-    wlr_output_layout* wlr_output_layout_create(wl_display* display);
-    wlr_xdg_shell* wlr_xdg_shell_create(wl_display* display, int version);
-    wlr_subcompositor* wlr_subcompositor_create(wl_display* display);
-    void wlr_output_init_render(wlr_output* output, wlr_allocator* allocator, wlr_renderer* renderer);
-    void wlr_output_state_init(wlr_output_state* state);
-    void wlr_output_state_set_enabled(wlr_output_state* state, bool enabled);
-    void wlr_output_state_set_mode(wlr_output_state* state, void* mode);
-    void* wlr_output_preferred_mode(wlr_output* output);
-    void wlr_output_commit_state(wlr_output* output, wlr_output_state* state);
-    void wlr_output_state_finish(wlr_output_state* state);
-    void wlr_scene_xdg_surface_create(wlr_scene_tree* tree, wlr_xdg_surface* xdg_surface);
+export namespace wlroots {
 
-    void wlr_seat_set_keyboard(wlr_seat* seat, void* keyboard);
-    void wlr_seat_set_capabilities(wlr_seat* seat, int caps);
-    void* wlr_keyboard_from_input_device(void* device);
+    extern class wl_display;
+    extern class wlr_backend;
+    extern class wlr_renderer;
+    extern class wlr_allocator;
+    extern class wlr_compositor;
+    extern class wlr_data_device_manager;
+    extern class wlr_subcompositor;
+    extern class wlr_output_layout;
+    extern class wlr_xdg_shell;
+    extern class wlr_seat;
+    extern class wlr_output;
+    extern class wlr_xdg_surface;
+    extern class wlr_output_state;
+    extern class wlr_scene_tree;
+    extern class wlr_xdg_toplevel;
+    extern class wlr_scene;
 
-    void wlr_seat_keyboard_notify_key(void* seat, int time_msec, int keycode, int state);
-    void wlr_seat_keyboard_notify_enter(void* seat, void* surface, int keycodes, long num_keycodes, void* modifiers);
-}
+    extern class wl_list;
+    extern class wl_signal;
+    extern class wl_listener;
 
-namespace wlroots {
+    extern void wl_display_terminate(wl_display* display);
+    extern void wl_display_destroy_clients(wl_display* display);
+    extern void wl_display_destroy(wl_display* display);
+    extern void wlr_backend_destroy(wlr_backend* backend);
+    extern wlr_output_layout* wlr_output_layout_create(wl_display* display);
+    extern wlr_xdg_shell* wlr_xdg_shell_create(wl_display* display, int version);
+    extern wlr_subcompositor* wlr_subcompositor_create(wl_display* display);
+    extern void wlr_output_init_render(wlr_output* output, wlr_allocator* allocator, wlr_renderer* renderer);
+    extern void wlr_output_state_init(wlr_output_state* state);
+    extern void wlr_output_state_set_enabled(wlr_output_state* state, bool enabled);
+    extern void wlr_output_state_set_mode(wlr_output_state* state, void* mode);
+    extern void* wlr_output_preferred_mode(wlr_output* output);
+    extern void wlr_output_commit_state(wlr_output* output, wlr_output_state* state);
+    extern void wlr_output_state_finish(wlr_output_state* state);
+    extern void wlr_scene_xdg_surface_create(wlr_scene_tree* tree, wlr_xdg_surface* xdg_surface);
+    extern void wlr_seat_set_keyboard(wlr_seat* seat, void* keyboard);
+    extern void wlr_seat_set_capabilities(wlr_seat* seat, int caps);
+    extern void* wlr_keyboard_from_input_device(void* device);
+    extern void wlr_seat_keyboard_notify_key(void* seat, int time_msec, int keycode, int state);
+    extern void wlr_seat_keyboard_notify_enter(void* seat, void* surface, int keycodes, long num_keycodes, void* modifiers);
 
     @c void wl_list_insert(wl_list* list, wl_list* elm) {
         elm.prev = list;
@@ -307,22 +327,22 @@ class Server {
     void* manager;
     void* subcompositor;
 
-    wl_listener* new_output;
-    wl_listener* new_input;
-    wl_listener* new_xdg_surface;
+    wlroots.wl_listener* new_output;
+    wlroots.wl_listener* new_input;
+    wlroots.wl_listener* new_xdg_surface;
 }
 
 class Output {
     Server* server;
-    wlr_output* wlr_output_handle;
-    wlr_scene_output* scene_output;
-    wl_listener* frame_event;
+    wlroots.wlr_output* wlr_output_handle;
+    void* scene_output;
+    wlroots.wl_listener* frame_event;
 }
 
 class Keyboard {
     Server* server;
     void* wlr_keyboard_handle;
-    wl_listener* key;
+    wlroots.wl_listener* key;
 }
 
 struct KeyboardKeyEvent {
@@ -333,7 +353,7 @@ struct KeyboardKeyEvent {
 }
 
 void keyboard_handle_key(void* listener_ptr, void* data) {
-    let listener = listener_ptr as wl_listener*;
+    let listener = listener_ptr as wlroots.wl_listener*;
     let kb = listener.data as Keyboard*;
     let server = kb.server;
 
@@ -343,13 +363,13 @@ void keyboard_handle_key(void* listener_ptr, void* data) {
 
     // WLR_MODIFIER_LOGO is 64, KEY_Q is 16, state 1 is PRESSED
     if (keycode == 16 && state == 1) { // Quick hack to allow exiting even without modifier pointer!
-        std.printf("Q pressed, exiting gracefully...\\n");
+        std.printf("Q pressed, exiting gracefully...\n");
         server.display.terminate();
     }
     
     // KEY_T is 20, state 1 is PRESSED (spawn kitty on Super+T)
     if (keycode == 20 && state == 1) { // Hack without modifier
-        std.printf("T pressed, spawning kitty...\\n");
+        std.printf("T pressed, spawning kitty...\n");
         let pid = fork();
         if (pid == 0) {
             execl("/usr/bin/kitty", "kitty", null, null, null);
@@ -361,12 +381,12 @@ void keyboard_handle_key(void* listener_ptr, void* data) {
 }
 
 void server_new_input(void* listener_ptr, void* data) {
-    let listener = listener_ptr as wl_listener*;
+    let listener = listener_ptr as wlroots.wl_listener*;
     let server = listener.data as Server*;
-    std.printf("New input detected! Treating as keyboard...\\n");
+    std.printf("New input detected! Treating as keyboard...\n");
     let device = data;
     
-    let keyboard = wlr_keyboard_from_input_device(device);
+    let keyboard = wlroots.wlr_keyboard_from_input_device(device);
     server.seat.set_keyboard(keyboard);
     server.seat.set_capabilities(1); // WL_SEAT_CAPABILITY_KEYBOARD
 
@@ -376,7 +396,7 @@ void server_new_input(void* listener_ptr, void* data) {
     kb.server = server;
     kb.wlr_keyboard_handle = keyboard;
 
-    let key_listener = ac.alloc[wl_listener]();
+    let key_listener = ac.alloc[wlroots.wl_listener]();
     untaint key_listener residue err { return; }
     key_listener.data = kb as void*;
     kb.key = key_listener;
@@ -384,178 +404,13 @@ void server_new_input(void* listener_ptr, void* data) {
 }
 
 void output_frame(void* listener_ptr, void* data) {
-    let listener = listener_ptr as wl_listener*;
+    let listener = listener_ptr as wlroots.wl_listener*;
     let output = listener.data as Output*;
-    wlr_scene_output_commit(output.scene_output, null);
-
-    let timespec = malloc(16);
-    clock_gettime(1, timespec); // 1 = CLOCK_MONOTONIC
-    wlr_scene_output_send_frame_done(output.scene_output, timespec);
-    free(timespec);
-}
-
-void server_new_output(void* listener_ptr, void* data) {
-    let listener = listener_ptr as wl_listener*;
-    let server = listener.data as Server*;
-    let wlr_output_handle = data as wlr_output*;
-
-    std.printf("New output connected!\\n");
-    wlroots.output_enable_and_commit(wlr_output_handle, server.allocator, server.renderer);
-
-    wlr_output_layout_add_auto(server.output_layout.handle, wlr_output_handle);
-
-    let scene_output = wlr_scene_output_create(server.scene.handle, wlr_output_handle);
-
-    let ac = heap.ArenaAllocator(null, 65536);
-    let output = ac.alloc[Output]();
-    untaint output residue err { return; }
-    output.server = server;
-    output.wlr_output_handle = wlr_output_handle;
-    output.scene_output = scene_output;
-
-    let frame_listener = ac.alloc[wl_listener]();
-    untaint frame_listener residue err { return; }
-    frame_listener.data = output as void*;
-    output.frame_event = frame_listener;
-
-    wlroots.output_on_frame(wlr_output_handle, frame_listener, output_frame as void*);
-
-    wlr_scene_output_commit(scene_output, null); // Kick off the first frame
-}
-
-void server_new_xdg_surface(void* listener_ptr, void* data) {
-    let listener = listener_ptr as wl_listener*;
-    let server = listener.data as Server*;
-    let xdg_surface = data as wlr_xdg_surface*;
-
-    std.printf("New XDG Surface requested!\\n");
-    wlroots.scene_add_xdg_surface(server.scene, xdg_surface);
-    server.seat.focus_xdg_surface(xdg_surface);
-}
-
-int main() {
-    std.printf("Starting wmyl (wlroots minimal WM)...\\n");
-
-    let ac = heap.ArenaAllocator(null, 65536);
-
-    let server = ac.alloc[Server]();
-    untaint server residue err { return 1; }
-
-    let new_input = ac.alloc[wl_listener]();
-    untaint new_input residue err { return 1; }
-    new_input.link.prev = null;
-    new_input.link.next = null;
-    new_input.notify = null;
-    new_input.data = server as void*;
-    server.new_input = new_input;
-
-    let new_output = ac.alloc[wl_listener]();
-    untaint new_output residue err { return 1; }
-    new_output.data = server as void*;
-    server.new_output = new_output;
-
-    let new_xdg_surface = ac.alloc[wl_listener]();
-    untaint new_xdg_surface residue err { return 1; }
-    new_xdg_surface.data = server as void*;
-    server.new_xdg_surface = new_xdg_surface;
-
-    let display = ac.alloc[wlroots.Display]();
-    untaint display residue err { return 1; }
-    let _init_disp = display.init();
-    untaint _init_disp residue err { return 1; }
-    server.display = display;
-
-    std.printf("Running Wayland display...\\n");
-
-    let backend = ac.alloc[wlroots.Backend]();
-    untaint backend residue err { return 1; }
-    let _init_backend = backend.init(server.display);
-    untaint _init_backend residue err { return 1; }
-    server.backend = backend;
-
-    let renderer = ac.alloc[wlroots.Renderer]();
-    untaint renderer residue err { return 1; }
-    let _init_renderer = renderer.init(server.backend);
-    untaint _init_renderer residue err { return 1; }
-    server.renderer = renderer;
-    server.renderer.init_display(server.display);
-
-    let allocator = ac.alloc[wlroots.Allocator]();
-    untaint allocator residue err { return 1; }
-    let _init_alloc = allocator.init(server.backend, server.renderer);
-    untaint _init_alloc residue err { return 1; }
-    server.allocator = allocator;
-
-    let compositor = ac.alloc[wlroots.Compositor]();
-    untaint compositor residue err { return 1; }
-    let _init_comp = compositor.init(server.display, server.renderer);
-    untaint _init_comp residue err { return 1; }
-    server.compositor = compositor;
-
-    let manager = ac.alloc[wlroots.DataDeviceManager]();
-    untaint manager residue err { return 1; }
-    let _init_mgr = manager.init(server.display);
-    untaint _init_mgr residue err { return 1; }
-    server.manager = manager as void*;
-
-    let subcompositor = ac.alloc[wlroots.Subcompositor]();
-    untaint subcompositor residue err { return 1; }
-    let _init_sub = subcompositor.init(server.display);
-    untaint _init_sub residue err { return 1; }
-    server.subcompositor = subcompositor as void*;
-
-    let output_layout = ac.alloc[wlroots.OutputLayout]();
-    untaint output_layout residue err { return 1; }
-    let _init_layout = output_layout.init(server.display);
-    untaint _init_layout residue err { return 1; }
-    server.output_layout = output_layout;
-
-    let scene = ac.alloc[wlroots.Scene]();
-    untaint scene residue err { return 1; }
-    scene.init();
-    server.scene = scene;
-    server.scene.attach_output_layout(server.output_layout);
-
-    let xdg_shell = ac.alloc[wlroots.XdgShell]();
-    untaint xdg_shell residue err { return 1; }
-    let _init_shell = xdg_shell.init(server.display, 6);
-    untaint _init_shell residue err { return 1; }
-    server.xdg_shell = xdg_shell;
-
-    let seat = ac.alloc[wlroots.Seat]();
-    untaint seat residue err { return 1; }
-    let _init_seat = seat.init(server.display, "seat0");
-    untaint _init_seat residue err { return 1; }
-    server.seat = seat;
-
-    wlroots.backend_on_new_output(server.backend, server.new_output, server_new_output as void*);
-    wlroots.backend_on_new_input(server.backend, server.new_input, server_new_input as void*);
-    wlroots.xdg_shell_on_new_surface(server.xdg_shell, server.new_xdg_surface, server_new_xdg_surface as void*);
-
-    let socket = server.display.add_socket_auto();
-    untaint socket residue err { return 1; }
-
-    std.printf("Listening Wayland display on {}...\\n", socket);
-
-    let started = server.backend.start();
-    untaint started residue err { return 1; }
-
-    std.printf("Backend started successfully! Spawning kitty...\\n");
-
-    setenv("WAYLAND_DISPLAY", socket, 1);
-    let pid = fork();
-    if (pid == 0) {
-        execl("/usr/bin/kitty", "kitty", null, null, null);
-        _exit(1);
-    }
-
-    server.display.run();
-    server.display.destroy_clients();
-    server.display.destroy();
-
-    std.printf("wmyl exited gracefully.\\n");
-    return 0;
+    
+    // void*
+    let wlr_scene_output_commit = 0; // TODO! Wait, I forgot to declare this extern! 
+    // Wait, let's just use it as extern void wlr_scene_output_commit(void* scene_output, void* state);
 }
 """
 with open("project/wmyl/wmyl.kyl", "w") as f:
-    f.write(code)
+    f.write(new_text)

@@ -490,6 +490,7 @@ ASTNode* parse_top_level_internal(Parser *p) {
       }
 
       char *old_ns = parser_strdup(p, diag_get_namespace(p->ctx));
+      debug_parser("parse_namespace: changing ns from '%s' to '%s'\n", old_ns, ns_name);
       diag_set_namespace(p->ctx, ns_name);
 
       eat(p, TOKEN_LBRACE);

@@ -1,0 +1,16 @@
+import "std/heap";
+namespace wlroots {
+    class Display {
+        void* handle;
+        void? init() {}
+    }
+}
+class Server {
+    wlroots.Display* display;
+}
+int main() {
+    let ac = heap.ArenaAllocator(null, 65536);
+    let display = ac.alloc[wlroots.Display]();
+    let server = ac.alloc[Server]();
+    server.display = display;
+}

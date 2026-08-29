@@ -1,0 +1,9 @@
+import "std/print";
+@c import "wayland-server-core.h"
+@c import "wlr/types/wlr_keyboard.h"
+int main() {
+    let kb: wlr_keyboard* = null;
+    let signal = &(kb.events.key);
+    std.printf("%p", signal);
+    return 0;
+}

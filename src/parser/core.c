@@ -117,12 +117,14 @@ char* parser_strdup(Parser *p, const char *str) {
  * @param is_enum Non-zero if the type is an enum.
  */
 void register_typename(Parser *p, const char *name, int is_enum) {
+    debug_parser("register_typename: '%s' is_enum=%d\n", name, is_enum);
     hashmap_put(&p->types_map, name, (void*)(intptr_t)(is_enum ? 2 : 1));
 
     const char *current_ns = diag_get_namespace(p->ctx);
     if (current_ns && strlen(current_ns) > 0) {
         char full_name[512];
         snprintf(full_name, sizeof(full_name), "%s.%s", current_ns, name);
+        debug_parser("register_typename: also registering '%s'\n", full_name);
         hashmap_put(&p->types_map, full_name, (void*)(intptr_t)(is_enum ? 2 : 1));
     }
 }
@@ -155,10 +157,9 @@ int is_type_start(Parser *p) {
         }
         
         // Peek ahead for namespaced types e.g. std.string
-        Lexer l_copy = *p->l;
-        Token next1 = lexer_next(&l_copy);
+        Token next1 = parser_peek_token_n(p, 1);
         if (next1.type == TOKEN_DOT) {
-            Token next2 = lexer_next(&l_copy);
+            Token next2 = parser_peek_token_n(p, 2);
             if (next2.type == TOKEN_IDENTIFIER) {
                 char full_name[512];
                 snprintf(full_name, sizeof(full_name), "%s.%s", p->current_token.text, next2.text);
@@ -173,8 +174,11 @@ int is_type_start(Parser *p) {
 
 static int get_typename_kind(Parser *p, const char *name) {
     if (hashmap_has(&p->types_map, name)) {
-        return (int)(intptr_t)hashmap_get(&p->types_map, name);
+        int kind = (int)(intptr_t)hashmap_get(&p->types_map, name);
+        debug_parser("get_typename_kind: '%s' -> %d\n", name, kind);
+        return kind;
     }
+    debug_parser("get_typename_kind: '%s' -> NOT FOUND\n", name);
     return 0;
 }
 
