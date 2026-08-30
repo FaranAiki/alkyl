@@ -238,6 +238,8 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             set_loc(node, line, col);
         }
         else if ((p->current_token.type == TOKEN_LBRACKET || p->current_token.type == TOKEN_LT) && p->disable_space_call == 0 && (!p->current_token.has_space_before || p->in_space_separated_call > 0)) {
+            printf("DEBUG_PARSER: LBRACKET/LT parsed! token type=%d\n", p->current_token.type);
+
             int is_lt = (p->current_token.type == TOKEN_LT);
             int saved_pos = p->token_pos;
             Token saved_tok = p->current_token;

@@ -112,9 +112,8 @@ static ASTNode* resolve_c_import(Parser *p, const char *fname) {
  */
 ASTNode* parse_import_internal(Parser *p, const char *fname) {
    if (p->ctx) {
-       ASTNode *cached = (ASTNode*)hashmap_get(&p->ctx->import_cache, fname);
-       if (cached) {
-           return cached;
+       if (hashmap_has(&p->ctx->import_cache, fname)) {
+           return NULL;
        }
    }
 

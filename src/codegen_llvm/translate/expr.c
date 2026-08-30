@@ -89,6 +89,20 @@ LLVMValueRef translate_expr(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                             cmp2 = LLVMBuildPtrToInt(ctx->builder, cmp2, LLVMInt64TypeInContext(ctx->llvm_ctx), "ptr2int_cmp");
                             cmp1 = LLVMBuildExtractValue(ctx->builder, cmp1, 1, "ext_cmp");
                             cmp1 = LLVMBuildPtrToInt(ctx->builder, cmp1, LLVMInt64TypeInContext(ctx->llvm_ctx), "ptr2int_cmp");
+                        } else if (LLVMGetTypeKind(t1) == LLVMStructTypeKind && LLVMGetTypeKind(t2) == LLVMIntegerTypeKind) {
+                            cmp1 = LLVMBuildExtractValue(ctx->builder, cmp1, 0, "ext_err_tag");
+                            t1 = LLVMTypeOf(cmp1);
+                            unsigned nw1 = LLVMGetIntTypeWidth(t1);
+                            unsigned nw2 = LLVMGetIntTypeWidth(t2);
+                            if (nw1 < nw2) cmp1 = LLVMBuildZExt(ctx->builder, cmp1, t2, "zext_cmp");
+                            else if (nw2 < nw1) cmp2 = LLVMBuildZExt(ctx->builder, cmp2, t1, "zext_cmp");
+                        } else if (LLVMGetTypeKind(t2) == LLVMStructTypeKind && LLVMGetTypeKind(t1) == LLVMIntegerTypeKind) {
+                            cmp2 = LLVMBuildExtractValue(ctx->builder, cmp2, 0, "ext_err_tag");
+                            t2 = LLVMTypeOf(cmp2);
+                            unsigned nw1 = LLVMGetIntTypeWidth(t1);
+                            unsigned nw2 = LLVMGetIntTypeWidth(t2);
+                            if (nw1 < nw2) cmp1 = LLVMBuildZExt(ctx->builder, cmp1, t2, "zext_cmp");
+                            else if (nw2 < nw1) cmp2 = LLVMBuildZExt(ctx->builder, cmp2, t1, "zext_cmp");
                         }
                     }
                     switch (inst->op) {

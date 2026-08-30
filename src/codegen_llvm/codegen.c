@@ -258,7 +258,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
     st = ctx->alir_mod->structs;
     AlirStruct *tmp = st;
     while(tmp) {
-        if (strstr(tmp->name, "wl_listener")) {
+        if (strstr(tmp->name, "wl_list")) {
             printf("DEBUG_LLVM: struct %s has field_count %d\n", tmp->name, tmp->field_count);
         }
         tmp = tmp->next;

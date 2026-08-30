@@ -101,14 +101,16 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             AlirValue *err_code = new_temp(ctx, (VarType){TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, err_code, err_code_ptr, NULL));
 
-            AlirValue *pristine_val_ptr = new_temp(ctx, pristine_type);
-            pristine_val_ptr->type.ptr_depth++;
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, pristine_val_ptr, target_sym->ptr, alir_const_int(ctx->module, 1)));
+            if (!(pristine_type.base == TYPE_VOID && pristine_type.ptr_depth == 0)) {
+                AlirValue *pristine_val_ptr = new_temp(ctx, pristine_type);
+                pristine_val_ptr->type.ptr_depth++;
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, pristine_val_ptr, target_sym->ptr, alir_const_int(ctx->module, 1)));
 
-            AlirValue *pristine_val = new_temp(ctx, pristine_type);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, pristine_val, pristine_val_ptr, NULL));
+                AlirValue *pristine_val = new_temp(ctx, pristine_type);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, pristine_val, pristine_val_ptr, NULL));
 
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pristine_val, pristine_ptr));
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pristine_val, pristine_ptr));
+            }
 
             AlirValue *cond = new_temp(ctx, (VarType){TYPE_BOOL, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, cond, err_code, alir_const_int(ctx->module, 0)));
@@ -180,14 +182,16 @@ void alir_gen_stmt(AlirCtx *ctx, ASTNode *node) {
             AlirValue *err_code = new_temp(ctx, (VarType){TYPE_INT, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, err_code, err_code_ptr, NULL));
 
-            AlirValue *pristine_val_ptr = new_temp(ctx, pristine_type);
-            pristine_val_ptr->type.ptr_depth++;
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, pristine_val_ptr, target_sym->ptr, alir_const_int(ctx->module, 1)));
+            if (!(pristine_type.base == TYPE_VOID && pristine_type.ptr_depth == 0)) {
+                AlirValue *pristine_val_ptr = new_temp(ctx, pristine_type);
+                pristine_val_ptr->type.ptr_depth++;
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_GET_PTR, pristine_val_ptr, target_sym->ptr, alir_const_int(ctx->module, 1)));
 
-            AlirValue *pristine_val = new_temp(ctx, pristine_type);
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, pristine_val, pristine_val_ptr, NULL));
+                AlirValue *pristine_val = new_temp(ctx, pristine_type);
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_LOAD, pristine_val, pristine_val_ptr, NULL));
 
-            emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pristine_val, pristine_ptr));
+                emit(ctx, mk_inst(ctx->module, ALIR_OP_STORE, NULL, pristine_val, pristine_ptr));
+            }
 
             AlirValue *cond = new_temp(ctx, (VarType){TYPE_BOOL, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             emit(ctx, mk_inst(ctx->module, ALIR_OP_EQ, cond, err_code, alir_const_int(ctx->module, 0)));

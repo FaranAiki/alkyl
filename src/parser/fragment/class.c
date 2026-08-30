@@ -359,6 +359,21 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
               continue;
           }
 
+          if (p->current_token.type == TOKEN_ERRNUM) {
+              extern ASTNode* parse_errnum(Parser *p);
+              ASTNode *err_node = parse_errnum(p);
+              if (err_node && err_node->type == NODE_FUNC_DEF) {
+                  FuncDefNode *fd = (FuncDefNode*)err_node;
+                  fd->class_name = parser_strdup(p, class_name);
+                  fd->is_open = member_open;
+                  apply_func_modifiers(fd, member_modifiers);
+                  APPEND_MEMBER(fd);
+              } else if (err_node) {
+                  APPEND_MEMBER(err_node);
+              }
+              continue;
+          }
+
           printf("CLASS MEMBER BEFORE parse_type: token.type=%d text=%s\n", p->current_token.type, p->current_token.text ? p->current_token.text : "");
           VarType vt = parse_type(p);
           member_modifiers |= parse_modifiers(p);

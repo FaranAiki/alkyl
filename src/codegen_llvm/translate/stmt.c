@@ -21,7 +21,7 @@ LLVMValueRef translate_stmt(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
             case ALIR_OP_ALLOCA: {
                 VarType elem_type = inst->dest->type;
                 LLVMTypeRef ty = get_llvm_type(ctx, elem_type);
-                if (elem_type.base == 0 && elem_type.ptr_depth == 0) { // TYPE_VOID
+                if (elem_type.base == 0 && elem_type.ptr_depth == 0 && !elem_type.is_tainted) { // TYPE_VOID
                     res = NULL;
                     break;
                 }

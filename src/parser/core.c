@@ -148,6 +148,7 @@ int is_typename(Parser *p, const char *name) {
  */
 int is_type_start(Parser *p) {
     TokenType ct = p->current_token.type;
+    printf("DEBUG_ISTYPE: ct=%d text='%s'\n", ct, p->current_token.text ? p->current_token.text : "");
     if (ct == TOKEN_KW_INT || ct == TOKEN_KW_SHORT || ct == TOKEN_KW_LONG ||
         ct == TOKEN_KW_DOUBLE || ct == TOKEN_KW_SINGLE || ct == TOKEN_KW_CHAR ||
         ct == TOKEN_KW_VOID || ct == TOKEN_KW_NORETURN || ct == TOKEN_KW_BOOL || ct == TOKEN_KW_UNSIGNED || ct == TOKEN_KW_SIGNED) {
@@ -159,13 +160,16 @@ int is_type_start(Parser *p) {
         }
         
         // Peek ahead for namespaced types e.g. std.string
-        Token next1 = parser_peek_token_n(p, 1);
+        Token next1 = parser_peek_token(p);
         if (next1.type == TOKEN_DOT) {
-            Token next2 = parser_peek_token_n(p, 2);
+            Token next2 = parser_peek_token_n(p, 1);
             if (next2.type == TOKEN_IDENTIFIER) {
                 char full_name[512];
                 snprintf(full_name, sizeof(full_name), "%s.%s", p->current_token.text, next2.text);
                 if (is_typename(p, full_name)) {
+                    return 1;
+                }
+                if (is_typename(p, next2.text)) {
                     return 1;
                 }
             }

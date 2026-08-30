@@ -102,7 +102,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
         sem_check_expr(ctx, node->initializer);
         VarType init_type = sem_get_node_type(ctx, node->initializer);
 
-        if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0 && !init_type.is_func_ptr) {
+        if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0 && !init_type.is_func_ptr && !init_type.is_tainted) {
             sem_error(ctx, (ASTNode*)node, "Cannot use expression of type 'void' to initialize variable '%s'", node->name);
         }
 
@@ -123,7 +123,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
             debug_parser("inferring type for %s, init_type.base=%d\n", node->name, init_type.base);
             if (init_type.base == TYPE_UNKNOWN) {
                 sem_error(ctx, (ASTNode*)node, "Cannot infer type for variable '%s' (unknown initializer type)", node->name);
-            } else if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0 && !init_type.is_func_ptr) {
+            } else if (init_type.base == TYPE_VOID && init_type.ptr_depth == 0 && !init_type.is_func_ptr && !init_type.is_tainted) {
                 sem_error(ctx, (ASTNode*)node, "Cannot infer type 'void' for variable '%s'", node->name);
             } else {
                 node->var_type = init_type;

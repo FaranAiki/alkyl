@@ -23,6 +23,10 @@ ASTNode* parse_var_decl_internal(Parser *p) {
       vtype.base = TYPE_AUTO;
   }
 
+  int extra_modifiers = parse_modifiers(p);
+  printf("VAR_DECL: token type after parse_modifiers=%d text=%s\n", p->current_token.type, p->current_token.text ? p->current_token.text : "");
+
+
   if (p->current_token.type == TOKEN_LPAREN) {
       char *name = NULL;
       vtype = parse_func_ptr_decl(p, vtype, &name);
@@ -40,6 +44,7 @@ ASTNode* parse_var_decl_internal(Parser *p) {
       node->name = name;
       node->initializer = init;
       node->is_mutable = is_mut;
+      apply_var_modifiers(node, extra_modifiers);
       set_loc((ASTNode*)node, line, col);
       return (ASTNode*)node;
   }

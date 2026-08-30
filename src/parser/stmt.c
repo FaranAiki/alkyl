@@ -529,6 +529,8 @@ ASTNode* parse_single_statement_or_block_internal(Parser *p) {
       if (p->current_token.type == TOKEN_KW_MUT) { is_mut = 1; eat(p, TOKEN_KW_MUT); }
       else if (p->current_token.type == TOKEN_KW_IMUT) { is_mut = 0; eat(p, TOKEN_KW_IMUT); }
       
+      modifiers |= parse_modifiers(p);
+
       if (p->current_token.type != TOKEN_IDENTIFIER) parser_fail(p, "Expected variable name in declaration");
       char *name = p->current_token.text;
       p->current_token.text = NULL;

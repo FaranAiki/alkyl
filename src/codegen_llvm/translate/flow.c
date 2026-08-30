@@ -208,7 +208,9 @@ LLVMValueRef translate_flow(CodegenCtx *ctx, AlirInst *inst, LLVMValueRef op1, L
                     debug_codegen("ALIR_OP_CALL wrap: dest->type.ptr_depth=%d, dest->type.is_tainted=%d, res_kind=%d\n", inst->dest->type.ptr_depth, inst->dest->type.is_tainted, LLVMGetTypeKind(LLVMTypeOf(res)));
                     LLVMValueRef wrapped = LLVMGetUndef(expected_res_ty);
                     wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, LLVMConstInt(LLVMInt32TypeInContext(ctx->llvm_ctx), 0, 0), 0, "wrap_err");
-                    wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, res, 1, "wrap_val");
+                    if (LLVMCountStructElementTypes(expected_res_ty) >= 2) {
+                        wrapped = LLVMBuildInsertValue(ctx->builder, wrapped, res, 1, "wrap_val");
+                    }
                     res = wrapped;
                 }
             }

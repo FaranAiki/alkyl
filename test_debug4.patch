@@ -1,9 +1,0 @@
---- src/codegen_llvm/codegen.c
-+++ src/codegen_llvm/codegen.c
-@@ -344,5 +344,5 @@
-                             LLVMTypeRef fty = get_llvm_type(ctx, chk_f->type);
-                             if (fty && LLVMGetTypeKind(fty) == LLVMStructTypeKind && LLVMIsOpaqueStruct(fty)) {
--                                fprintf(stderr, "DEBUG_LLVM: %s blocked by %s\n", st->name, chk_f->type.class_name);
-+                                fprintf(stderr, "DEBUG_LLVM: %s blocked by %s (is_func_ptr=%d ptr_depth=%d)\n", st->name, chk_f->type.class_name, chk_f->type.is_func_ptr, chk_f->type.ptr_depth);
-                                 all_sized = 0;
-                             }

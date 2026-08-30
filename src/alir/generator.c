@@ -243,16 +243,16 @@ void pass1_register(AlirCtx *ctx, ASTNode *n, const char *current_ns) {
                 snprintf(buf, sizeof(buf), "%s.%s", current_ns, cn->name);
                 fqn = alir_strdup(ctx->module, buf);
             }
-            ClassNode *existing = hashmap_get(&ctx->class_map, cn->name);
+            ClassNode *existing = hashmap_get(&ctx->class_map, fqn);
             if (existing) {
                 if (!existing->has_body && cn->has_body) {
-                    hashmap_put(&ctx->class_map, cn->name, cn);
+                    hashmap_put(&ctx->class_map, fqn, cn);
                 } else if (existing->has_body && cn->has_body && !existing->members && cn->members) {
-                    hashmap_put(&ctx->class_map, cn->name, cn);
+                    hashmap_put(&ctx->class_map, fqn, cn);
                 }
             } else {
                 alir_register_struct(ctx->module, fqn, NULL, cn->is_union);
-                hashmap_put(&ctx->class_map, cn->name, cn);
+                hashmap_put(&ctx->class_map, fqn, cn);
             }
             pass1_register(ctx, cn->members, current_ns);
         } else if (n->type == NODE_ENUM) {
