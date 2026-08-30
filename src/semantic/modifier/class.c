@@ -186,6 +186,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
 
 void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sym) {
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
+    printf("DEBUG: scanning class %s (has_body=%d, members=%p)\n", class_sym->name, cn->has_body, (void*)cn->members);
 
     SemScope *class_scope = NULL;
     if (cn->is_extended && class_sym->inner_scope) {
@@ -211,13 +212,14 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
     ASTNode *mem = cn->members;
     // DO this is why we should separate the shit out of this
     while(mem) {
-        if (streq(class_sym->name, "wlr_backend")) {
+        printf("DEBUG: class %s has member type %d\n", class_sym->name, mem->type);
+        if (streq(class_sym->name, "wl_list") || streq(class_sym->name, "wlr_backend")) {
             if (mem->type == NODE_VAR_DECL) {
-                printf("DEBUG: wlr_backend member VAR_DECL: %s\n", ((VarDeclNode*)mem)->name);
+                printf("DEBUG: %s member VAR_DECL: %s\n", class_sym->name, ((VarDeclNode*)mem)->name);
             } else if (mem->type == NODE_CLASS) {
-                printf("DEBUG: wlr_backend member CLASS: %s\n", ((ClassNode*)mem)->name);
+                printf("DEBUG: %s member CLASS: %s\n", class_sym->name, ((ClassNode*)mem)->name);
             } else {
-                printf("DEBUG: wlr_backend member type: %d\n", mem->type);
+                printf("DEBUG: %s member type: %d\n", class_sym->name, mem->type);
             }
         }
         if (mem->type == NODE_VAR_DECL) {

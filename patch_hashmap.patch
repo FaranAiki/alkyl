@@ -1,0 +1,10 @@
+--- src/common/hashmap.c
++++ src/common/hashmap.c
+@@ -212,6 +212,7 @@
+         int idx = indices[i];
+         if ((uint32_t)idx != TOMBSTONE) {
+             if (entries[idx].hash == hash &&
+                 (entries[idx].key == key || streq_lit(entries[idx].key, key))) {
++                if (strstr(key, "wlroots.Display")) printf("DEBUG: hashmap_get EXACT MATCH: '%s' == '%s'\n", key, entries[idx].key);
+                 return entries[idx].value;
+             }

@@ -1,0 +1,9 @@
+--- src/parser/core.c
++++ src/parser/core.c
+@@ -593,6 +593,7 @@
+            }
+ 
+            int kind = get_typename_kind(p, full_type_name);
++           if (p->current_token.line >= 332 && p->current_token.line <= 335) printf("DEBUG: parse_type checking '%s', kind=%d\n", full_type_name, kind);
+            if (kind != 0) {
+                if (kind == 2) {

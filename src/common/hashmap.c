@@ -313,6 +313,7 @@ void* hashmap_get(HashMap *map, const char *key) {
         if ((uint32_t)idx != TOMBSTONE) {
             if (entries[idx].hash == hash &&
                 (entries[idx].key == key || streq_lit(entries[idx].key, key))) {
+                if (strstr(key, "wlroots.Display")) printf("DEBUG: hashmap_get EXACT MATCH: \047%s\047 == \047%s\047\n", key, entries[idx].key);
                 if (steps > 3 || strcmp(key, "void") == 0 || strcmp(key, "short") == 0 || strcmp(key, "int") == 0) {
                 }
                 return entries[idx].value;

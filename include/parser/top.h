@@ -64,4 +64,11 @@ ASTNode* parse_link(Parser *p);
  */
 ASTNode* parse_extern(Parser *p, int modifier);
 
+/**
+ * @brief Parses an errnum block.
+ * @param p The parser.
+ * @return The parsed AST node.
+ */
+ASTNode* parse_errnum(Parser *p);
+
 #endif // PARSER_TOP_H

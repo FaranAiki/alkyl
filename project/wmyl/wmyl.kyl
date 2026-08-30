@@ -34,6 +34,8 @@ extern void free(void* ptr);
 
 export namespace wlroots {
 
+    extern class wl_list;
+    extern class wl_signal;
     extern class wl_display;
     extern class wlr_backend;
     extern class wlr_renderer;
@@ -42,19 +44,30 @@ export namespace wlroots {
     extern class wlr_data_device_manager;
     extern class wlr_subcompositor;
     extern class wlr_output_layout;
-    extern class wlr_xdg_shell;
+    class wlr_xdg_shell_events {
+        wl_signal new_surface;
+    }
+    class wlr_xdg_shell {
+        wlr_xdg_shell_events events;
+    }
     extern class wlr_seat;
     extern class wlr_output;
-    extern class wlr_xdg_surface;
+    extern class wlr_xdg_toplevel;
+    class wlr_xdg_surface {
+        int role;
+        void* surface; // actually wl_surface*
+        wlr_xdg_toplevel* toplevel;
+    }
     extern class wlr_output_state;
     extern class wlr_scene_tree;
-    extern class wlr_xdg_toplevel;
     extern class wlr_scene;
     extern class wlr_scene_output;
 
-    extern class wl_list;
-    extern class wl_signal;
-    extern class wl_listener;
+    class wl_listener {
+        wl_list _link;
+        void* notify;
+        void* data;
+    }
 
     extern void wl_display_terminate(wl_display* display);
     extern void wl_display_destroy_clients(wl_display* display);
@@ -91,7 +104,7 @@ export namespace wlroots {
     }
 
     @c void wl_signal_add(wl_signal* signal, wl_listener* listener) {
-        wl_list_insert(signal.listener_list.prev, &(listener.link));
+        wl_list_insert(signal.listener_list.prev, &(listener._link));
     }
 
     class Display {
@@ -184,7 +197,7 @@ export namespace wlroots {
     class DataDeviceManager {
         wlr_data_device_manager* handle;
         errnum [ErrDataDeviceManagerCreation] void? init(Display* display) {
-            let manager = wlr_data_device_manager_create(display.handle);
+            let tainted manager = wlr_data_device_manager_create(display.handle);
             if (manager == null ? true) {
                 purge ErrDataDeviceManagerCreation;
             }
@@ -195,7 +208,7 @@ export namespace wlroots {
     class Subcompositor {
         wlr_subcompositor* handle;
         errnum [ErrSubcompositorCreation] void? init(Display* display) {
-            let subcompositor = wlr_subcompositor_create(display.handle);
+            let tainted subcompositor = wlr_subcompositor_create(display.handle);
             if (subcompositor == null ? true) {
                 purge ErrSubcompositorCreation;
             }
@@ -467,8 +480,8 @@ int main() {
 
     let new_input = ac.alloc[wlroots.wl_listener]();
     untaint new_input residue err { return 1; }
-    new_input.link.prev = null;
-    new_input.link.next = null;
+    new_input._link.prev = null;
+    new_input._link.next = null;
     new_input.notify = null;
     new_input.data = server as void*;
     server.new_input = new_input;

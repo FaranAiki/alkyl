@@ -1,0 +1,39 @@
+--- src/parser/core.c
++++ src/parser/core.c
+@@ -1268,7 +1268,36 @@
+       }
+   }
+ 
++  int old_scope_style = p->l ? p->l->settings.scope_style : 0;
+   parser_prescan(p);
++
++  if (p->l && p->l->settings.scope_style != old_scope_style) {
++      p->l->pos = 0;
++      p->l->line = 1;
++      p->l->col = 1;
++      p->l->indent_level = 0;
++      p->l->indent_stack[0] = 0;
++      p->l->pending_count = 0;
++      p->l->last_calc_pos = 0;
++
++      p->token_count = 0;
++      p->token_pos = 0;
++      while (1) {
++          Token t = lexer_next(p->l);
++          if (p->token_count >= p->token_capacity) {
++              int new_cap = p->token_capacity * 2;
++              Token *new_tokens = parser_alloc_raw(p, sizeof(Token) * new_cap);
++              memcpy(new_tokens, p->tokens, sizeof(Token) * p->token_count);
++              p->tokens = new_tokens;
++              p->token_capacity = new_cap;
++          }
++          p->tokens[p->token_count++] = t;
++          if (t.type == TOKEN_EOF) break;
++      }
++
++      parser_prescan(p);
++  }
++
+   /* Expand macros on the first token so REPL lines like `t` after
+    * `define t as p` resolve to the same binding as `p`. */
+   p->current_token = expand_macros_from(p, lexer_next_raw(p));

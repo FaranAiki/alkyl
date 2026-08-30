@@ -359,8 +359,10 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
               continue;
           }
 
+          printf("CLASS MEMBER BEFORE parse_type: token.type=%d text=%s\n", p->current_token.type, p->current_token.text ? p->current_token.text : "");
           VarType vt = parse_type(p);
           member_modifiers |= parse_modifiers(p);
+          printf("CLASS MEMBER AFTER parse_type: vt.base=%d, token.type=%d text=%s\n", vt.base, p->current_token.type, p->current_token.text ? p->current_token.text : "");
           debug_parser("after parse_type, vt.base=%d, token.type=%d\n", vt.base, p->current_token.type);
           if (vt.base != TYPE_UNKNOWN || (vt.base == TYPE_UNKNOWN && vt.class_name != NULL)) {
               if (p->current_token.type == TOKEN_LPAREN) {

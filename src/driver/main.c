@@ -264,6 +264,7 @@ int main(int argc, char **argv) {
 
     Lexer l;
     lexer_init(&l, &comp_ctx, filename, code, NULL);
+    printf("SCOPE_STYLE AFTER INIT: %d\n", l.settings.scope_style);
 
     debug_step("Finished lexing. Start parsing.");
 

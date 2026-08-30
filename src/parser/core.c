@@ -117,10 +117,12 @@ char* parser_strdup(Parser *p, const char *str) {
  * @param is_enum Non-zero if the type is an enum.
  */
 void register_typename(Parser *p, const char *name, int is_enum) {
+    if (strstr(name, "Display") || strstr(name, "Backend")) printf("DEBUG: register_typename \047%s\047\n", name);
     debug_parser("register_typename: '%s' is_enum=%d\n", name, is_enum);
     hashmap_put(&p->types_map, name, (void*)(intptr_t)(is_enum ? 2 : 1));
 
     const char *current_ns = diag_get_namespace(p->ctx);
+    if (strstr(name, "Display") || strstr(name, "Backend")) printf("DEBUG: register_typename \047%s\047 with current_ns=\047%s\047\n", name, current_ns ? current_ns : "NULL");
     if (current_ns && strlen(current_ns) > 0) {
         char full_name[512];
         snprintf(full_name, sizeof(full_name), "%s.%s", current_ns, name);
@@ -593,6 +595,7 @@ VarType parse_type(Parser *p) {
            }
 
            int kind = get_typename_kind(p, full_type_name);
+           if (p->current_token.line >= 332 && p->current_token.line <= 335) printf("DEBUG: parse_type checking '%s', kind=%d\n", full_type_name, kind);
            if (kind != 0) {
                if (kind == 2) {
                    t.base = TYPE_ENUM;
@@ -1230,6 +1233,22 @@ void parser_prescan(Parser *p) {
     while (p->token_pos < p->token_count) {
         Token t = lexer_next_raw(p);
         if (t.type == TOKEN_EOF) break;
+        if (t.type == TOKEN_PREMETA) {
+            while (p->token_pos < p->token_count) {
+                Token pt = lexer_next_raw(p);
+                if (pt.type == TOKEN_RBRACE || pt.type == TOKEN_EOF) break;
+                if (pt.type == TOKEN_IDENTIFIER && streq_lit(pt.text, "lexer") && p->token_pos < p->token_count && p->tokens[p->token_pos].type == TOKEN_DOT) {
+                    lexer_next_raw(p); // consume DOT
+                    Token key = lexer_next_raw(p);
+                    Token eq = lexer_next_raw(p);
+                    Token val = lexer_next_raw(p);
+                    if (streq_lit(key.text, "scope_style") && eq.type == TOKEN_ASSIGN && val.type == TOKEN_IDENTIFIER) {
+                        if (streq_lit(val.text, "SCOPE_INDENTATION")) p->l->settings.scope_style = SCOPE_INDENTATION;
+                        else if (streq_lit(val.text, "SCOPE_BRACKETS")) p->l->settings.scope_style = SCOPE_BRACKETS;
+                    }
+                }
+            }
+        }
         if (t.type == TOKEN_CLASS || t.type == TOKEN_STRUCT || t.type == TOKEN_UNION || t.type == TOKEN_ENUM) {
             Token name = lexer_next_raw(p);
             if (name.type == TOKEN_IDENTIFIER) {
@@ -1265,7 +1284,40 @@ ASTNode* parse_program(Parser *p) {
       }
   }
 
+  int old_scope_style = p->l ? p->l->settings.scope_style : 0;
   parser_prescan(p);
+
+  if (p->l && p->l->settings.scope_style != old_scope_style) {
+      p->l->pos = 0;
+      p->l->line = 1;
+      p->l->col = 1;
+      p->l->indent_level = 0;
+      p->l->indent_stack[0] = 0;
+      p->l->pending_count = 0;
+      p->l->last_calc_pos = 0;
+
+      p->token_count = 0;
+      p->token_pos = 0;
+      while (1) {
+          Token t = lexer_next(p->l);
+          if (p->token_count >= p->token_capacity) {
+              int new_cap = p->token_capacity * 2;
+              Token *new_tokens = parser_alloc_raw(p, sizeof(Token) * new_cap);
+              memcpy(new_tokens, p->tokens, sizeof(Token) * p->token_count);
+              p->tokens = new_tokens;
+              p->token_capacity = new_cap;
+          }
+          p->tokens[p->token_count++] = t;
+          if (t.type == TOKEN_EOF) break;
+      }
+      
+      for(int i = 0; i < p->token_count; i++) {
+          if (p->tokens[i].line >= 332 && p->tokens[i].line <= 335) printf("RELEXED: type=%d text=%s line=%d\n", p->tokens[i].type, p->tokens[i].text?p->tokens[i].text:"");
+      }
+
+      parser_prescan(p);
+  }
+
   /* Expand macros on the first token so REPL lines like `t` after
    * `define t as p` resolve to the same binding as `p`. */
   p->current_token = expand_macros_from(p, lexer_next_raw(p));

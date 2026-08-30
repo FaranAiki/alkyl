@@ -243,13 +243,21 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             } else {
                 SemSymbol *existing = NULL;
                 if (ctx->current_scope) {
-                    existing = find_in_scope_direct(ctx->current_scope, cn->name);
+                    existing = sem_symbol_lookup(ctx, cn->name, NULL);
                 }
                 
-                if (existing && existing->kind == SYM_CLASS && !cn->has_body && cn->is_extern) {
-                    // Skip forward declaration if we already have the class in the current scope
-                    node = node->next;
-                    continue;
+                if (streq_lit(cn->name, "wl_list")) {
+                    printf("DEBUG: visiting wl_list node. existing=%p, has_body=%d, scope=%p (global=%p), is_class_scope=%d\n", 
+                        existing, cn->has_body, ctx->current_scope, ctx->global_scope, ctx->current_scope ? ctx->current_scope->is_class_scope : -1);
+                }
+                
+                if (existing && existing->kind == SYM_CLASS && cn->is_extern) {
+                    int existing_has_body = (existing->inner_scope && existing->inner_scope->symbols != NULL);
+                    if (!cn->has_body || existing_has_body) {
+                        // Skip forward declaration or duplicate definition if we already have the class in the current scope
+                        node = node->next;
+                        continue;
+                    }
                 }
                 
                 VarType type_class = {TYPE_CLASS, 0, arena_strdup(ctx->compiler_ctx->arena, cn->name), 0, 0, NULL, NULL, 0, 0, 0, cn->is_tainted, 0};

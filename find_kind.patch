@@ -1,0 +1,10 @@
+--- src/parser/core.c
++++ src/parser/core.c
+@@ -305,6 +305,8 @@
+ int get_typename_kind(Parser *p, const char *name) {
+     int *val = hashmap_get(&p->ctx->types_map, name);
+     if (val) return *val;
++    
++    printf("DEBUG: get_typename_kind('%s') returned 0!\n", name);
+     return 0;
+ }
