@@ -25,7 +25,7 @@ static int is_system_lib(const char *name) {
  * @param ctx Compiler context to update.
  * @param lib_name Name of the library to resolve.
  */
-void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) {
+void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) { fprintf(stderr, "add_pkg_config_flags called with ctx=%p lib=%s\n", ctx, lib_name);
     char cmd[1024];
     char output[2048];
     FILE *pf;
@@ -43,9 +43,11 @@ void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) {
                     output[--len] = '\0';
                 }
                 if (len > 0) {
-                    if (strlen(ctx->cflags) + len + 2 < sizeof(ctx->cflags)) {
-                        strcat(ctx->cflags, " ");
-                        strcat(ctx->cflags, output);
+                    if (strstr(ctx->cflags, output) == NULL) {
+                        if (strlen(ctx->cflags) + len + 2 < sizeof(ctx->cflags)) {
+                            strcat(ctx->cflags, " ");
+                            strcat(ctx->cflags, output);
+                        }
                     }
                 }
             }
@@ -62,9 +64,11 @@ void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) {
                 }
                 if (len > 0) {
                     got_libs = 1;
-                    if (strlen(ctx->link_flags) + len + 2 < sizeof(ctx->link_flags)) {
-                        strcat(ctx->link_flags, " ");
-                        strcat(ctx->link_flags, output);
+                    if (strstr(ctx->link_flags, output) == NULL) {
+                        if (strlen(ctx->link_flags) + len + 2 < sizeof(ctx->link_flags)) {
+                            strcat(ctx->link_flags, " ");
+                            strcat(ctx->link_flags, output);
+                        }
                     }
                 }
             }
@@ -73,11 +77,16 @@ void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) {
     }
 
     if (!got_libs) {
-        if (strlen(ctx->link_flags) + strlen(lib_name) + 4 < sizeof(ctx->link_flags)) {
-            strcat(ctx->link_flags, " -l");
-            strcat(ctx->link_flags, lib_name);
+        char fallback[256];
+        snprintf(fallback, sizeof(fallback), "-l%s", lib_name);
+        if (strstr(ctx->link_flags, fallback) == NULL) {
+            if (strlen(ctx->link_flags) + strlen(fallback) + 2 < sizeof(ctx->link_flags)) {
+                strcat(ctx->link_flags, " ");
+                strcat(ctx->link_flags, fallback);
+            }
         }
     }
+    fprintf(stderr, "DEBUG_LINK: processed link %s, new flags: %s\n", lib_name, ctx->link_flags);
 }
 
 static ASTNode* resolve_c_import(Parser *p, const char *fname) {

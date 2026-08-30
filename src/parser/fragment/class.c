@@ -192,6 +192,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
               stack_depth--;
               continue;
           }
+          printf("AT TOP OF CLASS LOOP: type=%d text=%s\n", p->current_token.type, p->current_token.text);
 
           int member_modifiers = parse_modifiers(p);
 

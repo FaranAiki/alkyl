@@ -61,7 +61,7 @@ int alkyl_link(const char *obj_file, const char *output_basename, const char *li
     const char *cmd_fmt = alkyl_get_linker_command(linker_type);
     snprintf(cmd, sizeof(cmd), cmd_fmt, obj_file, output_basename, link_flags ? link_flags : "");
 
-    int res = system(cmd);
+    fprintf(stderr, "RUNNING: %s\n", cmd); int res = system(cmd);
     if (res != 0) {
         return res;
     }

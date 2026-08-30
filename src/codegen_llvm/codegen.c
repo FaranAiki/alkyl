@@ -75,6 +75,27 @@ LLVMTypeRef get_llvm_type(CodegenCtx *ctx, VarType t) {
         case TYPE_CLASS: {
             if (t.class_name) {
                 base = hashmap_get(&ctx->struct_map, t.class_name);
+                
+                // If the found base is an opaque struct (e.g. from a C header), try to find a sized namespaced version
+                if (base && LLVMIsOpaqueStruct(base)) {
+                    AlirStruct *st = ctx->alir_mod->structs;
+                    LLVMTypeRef sized_base = NULL;
+                    while (st) {
+                        const char *dot = strrchr(st->name, '.');
+                        if (dot && streq_lit(dot + 1, t.class_name)) {
+                            LLVMTypeRef candidate = hashmap_get(&ctx->struct_map, st->name);
+                            if (candidate && !LLVMIsOpaqueStruct(candidate)) {
+                                sized_base = candidate;
+                                break;
+                            }
+                        }
+                        st = st->next;
+                    }
+                    if (sized_base) {
+                        base = sized_base;
+                    }
+                }
+
                 if (!base) {
                     AlirStruct *st = ctx->alir_mod->structs;
                     char mangled_t[512];

@@ -295,3 +295,25 @@ export namespace wlroots {
         }
     }
 }
+
+// Override C definitions with Alkyl definitions that have extra fields needed by wmyl
+export namespace wlroots {
+    class wlr_xdg_shell_events {
+        wl_signal new_surface;
+    }
+    class wlr_xdg_shell {
+        wlr_xdg_shell_events events;
+    }
+    class wlr_xdg_surface {
+        int role;
+        void* surface; // actually wl_surface*
+        wlr_xdg_toplevel* toplevel;
+    }
+    class wl_listener {
+        void* _link; // Actually wl_list but whatever
+        void* notify;
+        void* data;
+    }
+}
+@c link "wlroots-0.18"
+@c link "wayland-server"

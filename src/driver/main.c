@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
     int emit_balir = 0;
     int emit_ast = 0;
     int optimization_level = 0;
-    char link_flags[1024] = {0};
+    char link_flags[4096] = {0};
     char extra_cflags[4096] = {0};
     char custom_output_basename[256] = {0};
     LinkerType current_linker = LINKER_GCC;
@@ -319,7 +319,7 @@ int main(int argc, char **argv) {
 
     debug_step("Finished Semantic Analysis. Start macro-linking.");
 
-    if (comp_ctx.link_flags[0]) {
+    fprintf(stderr, "comp_ctx.link_flags len: %zu\n", strlen(comp_ctx.link_flags)); if (comp_ctx.link_flags[0]) {
         if (strlen(link_flags) + strlen(comp_ctx.link_flags) + 1 < sizeof(link_flags)) {
             strcat(link_flags, comp_ctx.link_flags);
         }

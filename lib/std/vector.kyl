@@ -46,11 +46,11 @@ public {
     }
 
     void insert(unsigned int index, Type val) {
-        if (index > this.size) return;
+        if (index > this.size) { return; }
         if (this.size == this.capacity) {
             pristine unsigned int new_capacity = 0;
-            if (this.capacity == 0) new_capacity = 1;
-            else new_capacity = this.capacity * 2;
+            if (this.capacity == 0) { new_capacity = 1; }
+            else { new_capacity = this.capacity * 2; }
 
             Type* new_data = malloc(new_capacity * sizeof(Type)) as Type*;
             if (this.data != 0 as Type*) {
