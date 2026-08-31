@@ -253,15 +253,17 @@ export namespace wlroots {
             wlr_seat_set_capabilities(this.handle, caps);
         }
         void focus_xdg_surface(wlr_xdg_surface* xdg_surface) {
-            let role_ptr = ((xdg_surface as long) + 40) as int*;
+            // TODO do not hardcode this
+            int *role_ptr = ((xdg_surface as long) + 40);
             if (*role_ptr == 1) { // WLR_XDG_SURFACE_ROLE_TOPLEVEL
-                let surface_ptr = ((xdg_surface as long) + 16) as void**;
+                // TODO do not hardcode this
+                let surface_ptr = ((xdg_surface as long) + 16);
                 let surface = *surface_ptr;
-                wlr_seat_keyboard_notify_enter(this.handle as void*, surface, 0, 0 as long, null);
+                wlr_seat_keyboard_notify_enter(this.handle, surface, 0, 0, null);
             }
         }
         void keyboard_notify_key(int time_msec, int keycode, int state) {
-            wlr_seat_keyboard_notify_key(this.handle as void*, time_msec, keycode, state);
+            wlr_seat_keyboard_notify_key(this.handle, time_msec, keycode, state);
         }
     }
 
@@ -304,7 +306,7 @@ export namespace wlroots {
 
         wlr_output_commit_state(output, state);
         wlr_output_state_finish(state);
-        free(state as void*);
+        free(state);
     }
 
     void output_on_frame(void* output, wl_listener* listener, void* notify_func) {
@@ -399,7 +401,7 @@ void server_new_input(void* listener_ptr, void* data) {
     let server = listener.data as Server*;
     let device = data;
     let device_type = *(device as int*);
-    
+
     if (device_type == 0) { // WLR_INPUT_DEVICE_KEYBOARD
         std.printf("New input detected! Treating as keyboard...\n");
         let keyboard = wlroots.wlr_keyboard_from_input_device(device);
@@ -410,10 +412,11 @@ void server_new_input(void* listener_ptr, void* data) {
         kb.server = server;
         kb.wlr_keyboard_handle = keyboard;
 
+        // use Allocator instead of malloc and free
         let key_listener = malloc(32) as wlroots.wl_listener*;
-        key_listener.data = kb as void*;
+        key_listener.data = kb;
         kb.key = key_listener;
-        wlroots.keyboard_on_key(keyboard, key_listener, keyboard_handle_key as void*);
+        wlroots.keyboard_on_key(keyboard, key_listener, keyboard_handle_key);
     } else {
         std.printf("New input detected, but it is not a keyboard (type {}). Ignoring.\n", device_type);
     }
@@ -448,11 +451,12 @@ void server_new_output(void* listener_ptr, void* data) {
     output.wlr_output_handle = wlr_output_handle;
     output.scene_output = scene_output;
 
+    // Use Allocator instead of malloc!
     let frame_listener = malloc(32) as wlroots.wl_listener*;
-    frame_listener.data = output as void*;
+    frame_listener.data = output;
     output.frame_event = frame_listener;
 
-    wlroots.output_on_frame(wlr_output_handle, frame_listener, output_frame as void*);
+    wlroots.output_on_frame(wlr_output_handle, frame_listener, output_frame);
 
     wlroots.wlr_scene_output_commit(scene_output, null); // Kick off the first frame
 }
@@ -480,17 +484,17 @@ int main() {
     new_input._link.prev = null;
     new_input._link.next = null;
     new_input.notify = null;
-    new_input.data = server as void*;
+    new_input.data = server;
     server.new_input = new_input;
 
     let new_output = ac.alloc[wlroots.wl_listener]();
     untaint new_output residue err { return 1; }
-    new_output.data = server as void*;
+    new_output.data = server;
     server.new_output = new_output;
 
     let new_xdg_surface = ac.alloc[wlroots.wl_listener]();
     untaint new_xdg_surface residue err { return 1; }
-    new_xdg_surface.data = server as void*;
+    new_xdg_surface.data = server;
     server.new_xdg_surface = new_xdg_surface;
 
     let display = ac.alloc[wlroots.Display]();
@@ -530,13 +534,13 @@ int main() {
     untaint manager residue err { return 1; }
     let _init_mgr = manager.init(server.display);
     untaint _init_mgr residue err { return 1; }
-    server.manager = manager as void*;
+    server.manager = manager;
 
     let subcompositor = ac.alloc[wlroots.Subcompositor]();
     untaint subcompositor residue err { return 1; }
     let _init_sub = subcompositor.init(server.display);
     untaint _init_sub residue err { return 1; }
-    server.subcompositor = subcompositor as void*;
+    server.subcompositor = subcompositor;
 
     let output_layout = ac.alloc[wlroots.OutputLayout]();
     untaint output_layout residue err { return 1; }
@@ -562,9 +566,9 @@ int main() {
     untaint _init_seat residue err { return 1; }
     server.seat = seat;
 
-    wlroots.backend_on_new_output(server.backend, server.new_output, server_new_output as void*);
-    wlroots.backend_on_new_input(server.backend, server.new_input, server_new_input as void*);
-    wlroots.xdg_shell_on_new_surface(server.xdg_shell, server.new_xdg_surface, server_new_xdg_surface as void*);
+    wlroots.backend_on_new_output(server.backend, server.new_output, server_new_output);
+    wlroots.backend_on_new_input(server.backend, server.new_input, server_new_input);
+    wlroots.xdg_shell_on_new_surface(server.xdg_shell, server.new_xdg_surface, server_new_xdg_surface);
 
     let socket = server.display.add_socket_auto();
     untaint socket residue err { return 1; }
