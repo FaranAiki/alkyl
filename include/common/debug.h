@@ -72,7 +72,7 @@
   #define debug_mlir(msg, ...)
   #define debug_optlir(msg, ...)
   #define debug_driver(msg, ...)
-  #define debug_c_header(msg, ...)
+  #define debug_c_header(msg, ...) debug_any("c_header: " msg, ##__VA_ARGS__)
 #endif // NDEBUG
 
 #endif // COMPILER_DEBUG_H

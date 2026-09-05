@@ -28,6 +28,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
 
     if ((obj_type.base == TYPE_CLASS && obj_type.class_name) || primitive_class_name) {
         const char *lookup_name = primitive_class_name ? primitive_class_name : obj_type.class_name;
+        printf("LOOKUP NAME: %s\n", lookup_name);
         SemSymbol *class_sym = sem_symbol_lookup_type(ctx, lookup_name);
         if (!class_sym || class_sym->kind != SYM_CLASS) {
             if (class_sym) { debug_semantic("'%s' kind is %d in class.c\n", lookup_name, class_sym->kind); }
@@ -43,7 +44,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
                 }
                 sem_error(ctx, (ASTNode*)node, "'%s' needs types [%s]", lookup_name, expected_types);
             } else {
-                sem_error(ctx, (ASTNode*)node, "Type '%s' is not a class/struct", lookup_name);
+                printf("DEBUG: Looking for %s in global scope. Found: %p\n", lookup_name, find_in_scope_direct(ctx->global_scope, lookup_name)); sem_error(ctx, (ASTNode*)node, "Type '%s' is not a class/struct", lookup_name);
             }
             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             return;
@@ -59,7 +60,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
                 if (member) {
                     sem_set_node_type(ctx, (ASTNode*)node, member->type);
                     found = 1;
-                    found_member = member;
+                    found_member = member; printf("DEBUG: Found member %s with type class_name=%s\n", node->member_name, member->type.class_name ? member->type.class_name : "NULL");
                     if (sem_get_node_tainted(ctx, node->object) && !member->is_pristine) {
                         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
                     } else if (member->is_pristine) {
@@ -76,7 +77,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
                         if (member) {
                             sem_set_node_type(ctx, (ASTNode*)node, member->type);
                             found = 1;
-                            found_member = member;
+                            found_member = member; printf("DEBUG: Found member %s with type class_name=%s\n", node->member_name, member->type.class_name ? member->type.class_name : "NULL");
                             char *obj_name = "obj";
                             int should_warn = 1;
                             if (node->object) {
@@ -211,7 +212,7 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
     ASTNode *mem = cn->members;
     // DO this is why we should separate the shit out of this
     while(mem) {
-        if (streq(class_sym->name, "wl_list") || streq(class_sym->name, "wlr_backend")) {
+        if (streq(class_sym->name, "wlr_keyboard") || streq(class_sym->name, "wlr_xdg_shell")) {
             if (mem->type == NODE_VAR_DECL) {
                 printf("DEBUG: %s member VAR_DECL: %s\n", class_sym->name, ((VarDeclNode*)mem)->name);
             } else if (mem->type == NODE_CLASS) {

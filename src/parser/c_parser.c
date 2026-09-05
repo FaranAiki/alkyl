@@ -870,6 +870,7 @@ static ASTNode* c_parse_struct_or_union(CParser *p, int is_union) {
     }
 
     char *name = NULL;
+    if (c_match(p, C_TOKEN_IDENTIFIER) && streq_lit(p->current.text, "wlr_keyboard")) { printf("DEBUG: c_parser parsing wlr_keyboard\n"); }
     if (c_match(p, C_TOKEN_IDENTIFIER)) {
         name = arena_strdup(p->ctx->arena, p->current.text);
         c_eat(p, C_TOKEN_IDENTIFIER);
@@ -1466,6 +1467,7 @@ static ASTNode* c_parse_enum(CParser *p) {
     }
 
     char *name = NULL;
+    if (c_match(p, C_TOKEN_IDENTIFIER) && streq_lit(p->current.text, "wlr_keyboard")) { printf("DEBUG: c_parser parsing wlr_keyboard\n"); }
     if (c_match(p, C_TOKEN_IDENTIFIER)) {
         name = arena_strdup(p->ctx->arena, p->current.text);
         c_eat(p, C_TOKEN_IDENTIFIER);
@@ -2314,7 +2316,7 @@ char* c_preprocess_header(CompilerContext *ctx, const char *fname) {
                         while (*p && *p != ' ' && *p != '\t' && *p != '\n') p++;
                     }
                 }
-                if (include_flags[0]) break; // Got flags, stop probing
+                if (include_flags[0]) { strcat(include_flags, " -I/usr/local/share/alkyl/wlroots -DWLR_USE_UNSTABLE=1"); break; }
             }
         }
     }

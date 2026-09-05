@@ -411,7 +411,7 @@ SemSymbol* sem_symbol_lookup_type(SemanticCtx *ctx, const char *name) {
     if (ctx->settings.namespace_auto_search) {
         SemSymbol *ns = ctx->global_scope->symbols;
         while (ns) {
-            if (ns->kind == SYM_NAMESPACE && ns->inner_scope) {
+            if (ns->kind == SYM_NAMESPACE && ns->inner_scope) { if (strncmp(name, "__anonymous_struct_", 19) == 0) printf("DEBUG: Searching %s in namespace %s\n", name, ns->name);
                 SemSymbol *sym = find_in_scope_direct(ns->inner_scope, name);
                 if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM || sym->kind == SYM_NAMESPACE || sym->kind == SYM_TEMPLATE)) {
                     if (sym->is_private && ctx->current_filename && sym->filename && strcmp(ctx->current_filename, sym->filename) != 0) {
@@ -561,7 +561,7 @@ SemSymbol* sem_symbol_lookup(SemanticCtx *ctx, const char *name, SemScope **out_
     if (ctx->settings.namespace_auto_search) {
         SemSymbol *ns = ctx->global_scope->symbols;
         while (ns) {
-            if (ns->kind == SYM_NAMESPACE && ns->inner_scope) {
+            if (ns->kind == SYM_NAMESPACE && ns->inner_scope) { if (strncmp(name, "__anonymous_struct_", 19) == 0) printf("DEBUG: Searching %s in namespace %s\n", name, ns->name);
                 SemSymbol *sym = find_in_scope_direct(ns->inner_scope, name);
                 if (sym) {
                     if (sym->is_private && ctx->current_filename && sym->filename && strcmp(ctx->current_filename, sym->filename) != 0) {

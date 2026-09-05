@@ -1,0 +1,8 @@
+export namespace wlroots {
+    @c import "wlr/types/wlr_keyboard.h"
+}
+int main() {
+    let kb = 0 as wlroots.wlr_keyboard*;
+    let sig = &(kb.events.key);
+    return 0;
+}

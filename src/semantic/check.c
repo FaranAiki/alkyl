@@ -208,7 +208,7 @@ void sem_scan_top_level(SemanticCtx *ctx, ASTNode *node) {
             }
         }
         else if (node->type == NODE_CLASS) {
-            ClassNode *cn = (ClassNode*)node;
+            ClassNode *cn = (ClassNode*)node; printf("DEBUG: sem_scan_top_level NODE_CLASS %s (has_body=%d)\n", cn->name ? cn->name : "NULL", cn->has_body);
             
             if (cn->is_extended) {
                 if (!cn->is_method_class) {

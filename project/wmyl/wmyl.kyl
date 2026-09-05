@@ -40,13 +40,64 @@ extern void free(void* ptr);
 
 export namespace wlroots {
 
+    class wl_list { wl_list* prev; wl_list* next; }
+    extern class wl_signal;
+    extern class wl_display;
+    extern class wlr_backend;
+    extern class wlr_renderer;
+    extern class wlr_allocator;
+    extern class wlr_compositor;
+    extern class wlr_data_device_manager;
+    extern class wlr_subcompositor;
+    extern class wlr_output_layout;
+    extern class wlr_xdg_shell;
+    extern class wlr_seat;
+    extern class wlr_output;
+    extern class wlr_xdg_toplevel;
+    extern class wlr_xdg_surface;
+    extern class wlr_output_state;
+    extern class wlr_scene_tree;
+    extern class wlr_scene;
+    extern class wlr_scene_output;
 
+    class wl_listener {
+        wl_list _link;
+        void* notify;
+        void* data;
+    }
 
+    extern void wl_display_terminate(wl_display* display);
+    extern void wl_display_destroy_clients(wl_display* display);
+    extern void wl_display_destroy(wl_display* display);
+    extern void wlr_backend_destroy(wlr_backend* backend);
+    extern wlr_output_layout* wlr_output_layout_create(wl_display* display);
+    extern wlr_xdg_shell* wlr_xdg_shell_create(wl_display* display, int version);
+    extern wlr_subcompositor* wlr_subcompositor_create(wl_display* display);
+    extern void wlr_output_init_render(wlr_output* output, wlr_allocator* allocator, wlr_renderer* renderer);
+    extern void wlr_output_state_init(wlr_output_state* state);
+    extern void wlr_output_state_set_enabled(wlr_output_state* state, bool enabled);
+    extern void wlr_output_state_set_mode(wlr_output_state* state, void* mode);
+    extern void* wlr_output_preferred_mode(wlr_output* output);
+    extern void wlr_output_commit_state(wlr_output* output, wlr_output_state* state);
+    extern void wlr_output_state_finish(wlr_output_state* state);
+    extern void wlr_scene_xdg_surface_create(wlr_scene_tree* tree, wlr_xdg_surface* xdg_surface);
+    extern void wlr_seat_set_keyboard(wlr_seat* seat, void* keyboard);
+    extern void wlr_seat_set_capabilities(wlr_seat* seat, int caps);
+    extern void* wlr_keyboard_from_input_device(void* device);
     extern void wlr_seat_keyboard_notify_key(void* seat, int time_msec, int keycode, int state);
     extern void wlr_seat_keyboard_notify_enter(void* seat, void* surface, int keycodes, long num_keycodes, void* modifiers);
 
+    extern void wlr_scene_output_commit(wlr_scene_output* scene_output, void* state);
+    extern void wlr_scene_output_send_frame_done(wlr_scene_output* scene_output, void* timespec);
+    extern wlr_scene_output* wlr_scene_output_create(wlr_scene* scene, wlr_output* output);
+    extern void wlr_scene_attach_output_layout(wlr_scene* scene, wlr_output_layout* layout);
+    extern void wlr_output_layout_add_auto(wlr_output_layout* layout, wlr_output* output);
 
+    extern void wl_list_insert(wl_list* list, wl_list* elm);
 
+    @c void wl_signal_add(wl_signal* signal, wl_listener* listener) {
+        wl_list_insert(signal.listener_list.prev, &(listener._link));
+    }
 
     class Display {
         wl_display* handle;
@@ -204,7 +255,7 @@ export namespace wlroots {
         void set_capabilities(int caps) {
             wlr_seat_set_capabilities(this.handle, caps);
         }
-        void focus_xdg_surface(wlroots.wlr_xdg_surface* xdg_surface) {
+        void focus_xdg_surface(wlr_xdg_surface* xdg_surface) {
             // TODO do not hardcode this
             int *role_ptr = ((xdg_surface as long) + 40) as int*;
             if (*role_ptr == 1) { // WLR_XDG_SURFACE_ROLE_TOPLEVEL
@@ -219,32 +270,33 @@ export namespace wlroots {
         }
     }
 
-    void backend_on_new_output(Backend* backend, wlroots.wl_listener* listener, void* notify_func) {
+    void backend_on_new_output(Backend* backend, wl_listener* listener, void* notify_func) {
         listener.notify = notify_func;
         let signal = &backend.handle.events.new_output;
-        wlroots.wl_signal_add(signal, listener);
+        wl_signal_add(signal, listener);
     }
 
-    void backend_on_new_input(Backend* backend, wlroots.wl_listener* listener, void* notify_func) {
+    void backend_on_new_input(Backend* backend, wl_listener* listener, void* notify_func) {
         listener.notify = notify_func;
         let signal = &backend.handle.events.new_input;
-        wlroots.wl_signal_add(signal, listener);
+        wl_signal_add(signal, listener);
     }
 
-    void xdg_shell_on_new_surface(XdgShell* shell, wlroots.wl_listener* listener, void* notify_func) {
+    void xdg_shell_on_new_surface(XdgShell* shell, wl_listener* listener, void* notify_func) {
         listener.notify = notify_func;
-        let signal = &(shell.handle.events.new_surface);
-        wlroots.wl_signal_add(signal, listener);
+        let handle = shell.handle as wlroots.wlr_xdg_shell*;
+        let signal = &(handle.events.new_surface);
+        wl_signal_add(signal, listener);
     }
 
-    void scene_add_xdg_surface(Scene* scene, wlroots.wlr_xdg_surface* xdg_surface) {
-        let role_ptr = &(xdg_surface.role);
+    void scene_add_xdg_surface(Scene* scene, wlr_xdg_surface* xdg_surface) {
+        let role_ptr = &((xdg_surface as wlroots.wlr_xdg_surface*).role) as int*;
         if (*role_ptr == 1) {
             wlr_scene_xdg_surface_create(scene.handle as wlr_scene_tree*, xdg_surface);
         }
     }
 
-    void output_enable_and_commit(wlroots.wlr_output* output, Allocator* allocator, Renderer* renderer) {
+    void output_enable_and_commit(wlr_output* output, Allocator* allocator, Renderer* renderer) {
         wlr_output_init_render(output, allocator.handle, renderer.handle);
 
         let state = malloc(128) as wlr_output_state*;
@@ -261,16 +313,16 @@ export namespace wlroots {
         free(state);
     }
 
-    void output_on_frame(void* output, wlroots.wl_listener* listener, void* notify_func) {
+    void output_on_frame(void* output, wl_listener* listener, void* notify_func) {
         listener.notify = notify_func;
-        let signal = &(output.events.frame);
-        wlroots.wl_signal_add(signal, listener);
+        let signal = &((output as wlroots.wlr_output*).events.frame);
+        wl_signal_add(signal, listener);
     }
 
-    void keyboard_on_key(void* keyboard, wlroots.wl_listener* listener, void* notify_func) {
+    void keyboard_on_key(void* keyboard, wl_listener* listener, void* notify_func) {
         listener.notify = notify_func;
-        let signal = &(keyboard.events.key);
-        wlroots.wl_signal_add(signal, listener);
+        let signal = &((keyboard as wlroots.wlr_keyboard*).events.key);
+        wl_signal_add(signal, listener);
     }
 }
 
