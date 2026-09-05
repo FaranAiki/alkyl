@@ -98,14 +98,14 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
           eat(p, TOKEN_QUESTION);
       }
 
-      if (p->current_token.type != TOKEN_IDENTIFIER && 
-          p->current_token.type != TOKEN_KW_INT && 
-          p->current_token.type != TOKEN_KW_CHAR && 
-          p->current_token.type != TOKEN_KW_BOOL && 
-          p->current_token.type != TOKEN_KW_SINGLE && 
-          p->current_token.type != TOKEN_KW_DOUBLE && 
-          p->current_token.type != TOKEN_KW_SHORT && 
-          p->current_token.type != TOKEN_KW_LONG && 
+      if (p->current_token.type != TOKEN_IDENTIFIER &&
+          p->current_token.type != TOKEN_KW_INT &&
+          p->current_token.type != TOKEN_KW_CHAR &&
+          p->current_token.type != TOKEN_KW_BOOL &&
+          p->current_token.type != TOKEN_KW_SINGLE &&
+          p->current_token.type != TOKEN_KW_DOUBLE &&
+          p->current_token.type != TOKEN_KW_SHORT &&
+          p->current_token.type != TOKEN_KW_LONG &&
           p->current_token.type != TOKEN_KW_VOID) {
           parser_fail(p, "Expected name after 'class', 'struct' or 'union'");
       }
@@ -184,7 +184,7 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
       int stack_depth = 0;
       label_modifier_stack[0] = 0;
 
-      while ((p->current_token.type != TOKEN_RBRACE || stack_depth > 0) && p->current_token.type != TOKEN_EOF) { 
+      while ((p->current_token.type != TOKEN_RBRACE || stack_depth > 0) && p->current_token.type != TOKEN_EOF) {
           if (p->has_error) break;
 
           if (p->current_token.type == TOKEN_RBRACE && stack_depth > 0) {
@@ -192,7 +192,6 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
               stack_depth--;
               continue;
           }
-          printf("AT TOP OF CLASS LOOP: type=%d text=%s\n", p->current_token.type, p->current_token.text);
 
           int member_modifiers = parse_modifiers(p);
 
@@ -262,9 +261,9 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
                   num_allowed[num_type_params] = curr_num;
                   num_type_params++;
                   eat(p, TOKEN_IDENTIFIER);
-                  
+
                   register_typename(p, type_param, 0);
-                  
+
                   if (p->current_token.type == TOKEN_COMMA) eat(p, TOKEN_COMMA);
                   else break;
               }
@@ -375,10 +374,8 @@ ASTNode* parse_class_impl(Parser *p, int modifiers) {
               continue;
           }
 
-          printf("CLASS MEMBER BEFORE parse_type: token.type=%d text=%s\n", p->current_token.type, p->current_token.text ? p->current_token.text : "");
           VarType vt = parse_type(p);
           member_modifiers |= parse_modifiers(p);
-          printf("CLASS MEMBER AFTER parse_type: vt.base=%d, token.type=%d text=%s\n", vt.base, p->current_token.type, p->current_token.text ? p->current_token.text : "");
           debug_parser("after parse_type, vt.base=%d, token.type=%d\n", vt.base, p->current_token.type);
           if (vt.base != TYPE_UNKNOWN || (vt.base == TYPE_UNKNOWN && vt.class_name != NULL)) {
               if (p->current_token.type == TOKEN_LPAREN) {

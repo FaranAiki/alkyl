@@ -1066,9 +1066,9 @@ void sem_check_expr(SemanticCtx *ctx, ASTNode *node) {
                 VarType obj_type = sem_get_node_type(ctx, ma->object);
 
                 if (obj_type.base == TYPE_CLASS && obj_type.class_name) {
-                    SemSymbol *class_sym = sem_symbol_lookup_type(ctx, obj_type.class_name);
+                    SemSymbol *class_sym = sem_symbol_lookup_type(ctx, obj_type.class_name); debug_semantic("sem_symbol_lookup_type for %s returned %p\n", obj_type.class_name, class_sym);
                     if (class_sym && class_sym->inner_scope && class_sym->inner_scope->symbol_map) {
-                        sym = hashmap_get((HashMap*)class_sym->inner_scope->symbol_map, ma->member_name);
+                        sym = hashmap_get((HashMap*)class_sym->inner_scope->symbol_map, ma->member_name); debug_semantic("hashmap_get for %s returned %p (kind=%d)\n", ma->member_name, sym, sym ? sym->kind : -1);
                         if (sym) {
                             found_in_scope = class_sym->inner_scope;
                             snprintf(target_name, sizeof(target_name), "%s", ma->member_name);

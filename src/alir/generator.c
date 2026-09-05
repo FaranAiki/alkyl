@@ -752,22 +752,14 @@ AlirModule* alir_generate(SemanticCtx *sem, ASTNode *root) {
         ctx.module->filename = sem->current_filename;
     }
 
-    // 1. SCAN AND REGISTER CLASSES & ENUMS
     alir_scan_and_register_classes(&ctx, root);
 
     debug_alir("DEBUG_PASS1_END: struct list:\n");
     fflush(stdout);
     AlirStruct *ds = ctx.module->structs;
-    while (ds) {
-        printf(" - %s fields: %d\n", ds->name, ds->field_count);
-        fflush(stdout);
-        ds = ds->next;
-    }
 
-    // 1.5. FOLD TOP-LEVEL CONST DECLARATIONS WITH CONSTANT INITIALIZERS
     scan_and_fold_consts(&ctx, root);
 
-    // 2. GEN FUNCTIONS (Recursively to handle classes & namespaces)
     alir_gen_functions_recursive(&ctx, root, NULL);
 
     return ctx.module;

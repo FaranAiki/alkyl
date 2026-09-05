@@ -7,16 +7,16 @@
 void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
     sem_check_expr(ctx, node->object);
     VarType obj_type = sem_get_node_type(ctx, node->object);
-    
+
     if (sem_get_node_tainted(ctx, node->object)) {
         sem_set_node_tainted(ctx, (ASTNode*)node, 1);
     }
-    
+
     if (obj_type.base == TYPE_UNKNOWN) {
         sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
         return;
     }
-    
+
     const char *primitive_class_name = NULL;
     if (obj_type.base != TYPE_CLASS && obj_type.ptr_depth == 0) {
         if (obj_type.base == TYPE_INT) primitive_class_name = "int";
@@ -48,11 +48,11 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
             return;
         }
-        
+
         SemSymbol *current_class = class_sym;
         int found = 0;
         SemSymbol *found_member = NULL;
-        
+
         while (current_class) {
             if (current_class->inner_scope && current_class->inner_scope->symbol_map) {
                 SemSymbol *member = hashmap_get((HashMap*)current_class->inner_scope->symbol_map, node->member_name);
@@ -106,7 +106,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
                 current_class = NULL;
             }
         }
-        
+
         done_search:
         if (!found) {
             printf("DEBUG: Class '%s' (class_sym=%p, inner_scope=%p) failed to find member '%s'\n", obj_type.class_name, class_sym, class_sym ? class_sym->inner_scope : NULL, node->member_name);
@@ -128,7 +128,7 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
     }
     else if (obj_type.base == TYPE_ENUM && obj_type.class_name) {
         SemSymbol *enum_sym = sem_symbol_lookup(ctx, obj_type.class_name, NULL);
-        
+
         if (!enum_sym || enum_sym->kind != SYM_ENUM) {
             sem_error(ctx, (ASTNode*)node, "'%s' is not an enum", obj_type.class_name);
             sem_set_node_type(ctx, (ASTNode*)node, (VarType){TYPE_UNKNOWN, 0, NULL, 0, 0, NULL, NULL, 0, 0, 0, 0});
@@ -186,7 +186,6 @@ void sem_check_member_access(SemanticCtx *ctx, MemberAccessNode *node) {
 
 void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sym) {
     if (!ctx->compiler_ctx || !ctx->compiler_ctx->arena) return;
-    printf("DEBUG: scanning class %s (has_body=%d, members=%p)\n", class_sym->name, cn->has_body, (void*)cn->members);
 
     SemScope *class_scope = NULL;
     if (cn->is_extended && class_sym->inner_scope) {
@@ -197,22 +196,21 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
         class_scope->symbols = NULL;
         class_scope->symbol_map = arena_alloc_type(ctx->compiler_ctx->arena, HashMap);
         hashmap_init((HashMap*)class_scope->symbol_map, ctx->compiler_ctx->arena, 16);
-        class_scope->parent = ctx->current_scope; 
+        class_scope->parent = ctx->current_scope;
         class_scope->is_function_scope = 0;
-        class_scope->is_class_scope = 1; 
-        class_scope->class_sym = class_sym; 
+        class_scope->is_class_scope = 1;
+        class_scope->class_sym = class_sym;
         class_scope->expected_ret_type = (VarType){0};
-        
+
         class_sym->inner_scope = class_scope;
     }
-    
+
     SemScope *old_scope = ctx->current_scope;
     ctx->current_scope = class_scope;
-    
+
     ASTNode *mem = cn->members;
     // DO this is why we should separate the shit out of this
     while(mem) {
-        printf("DEBUG: class %s has member type %d\n", class_sym->name, mem->type);
         if (streq(class_sym->name, "wl_list") || streq(class_sym->name, "wlr_backend")) {
             if (mem->type == NODE_VAR_DECL) {
                 printf("DEBUG: %s member VAR_DECL: %s\n", class_sym->name, ((VarDeclNode*)mem)->name);
@@ -248,13 +246,13 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
         } else if (mem->type == NODE_CLASS) {
             ASTNode *next_node = mem->next;
             mem->next = NULL;
-            
+
             // Hoist nested classes (like C anonymous structs) to the parent scope
             SemScope *saved = ctx->current_scope;
             ctx->current_scope = saved->parent;
             sem_scan_top_level(ctx, mem);
             ctx->current_scope = saved;
-            
+
             ClassNode *inner_cn = (ClassNode*)mem;
             printf("DEBUG: Hoisting nested ClassNode: %s\n", inner_cn->name ? inner_cn->name : "NULL");
             if (inner_cn->name && (strncmp(inner_cn->name, "__anonymous_struct_", 19) == 0 || strncmp(inner_cn->name, "__anonymous_union", 17) == 0)) {
@@ -268,14 +266,14 @@ void sem_scan_class_members(SemanticCtx *ctx, ClassNode *cn, SemSymbol *class_sy
                     inner_mem = inner_mem->next;
                 }
             }
-            
+
             mem->next = next_node;
         }
         mem = mem->next;
     }
-    
+
     ctx->current_scope = old_scope;
-    
+
     SemSymbol *s = class_sym->inner_scope->symbols;
     while(s) {
         s = s->next;

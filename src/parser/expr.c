@@ -238,8 +238,6 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
             set_loc(node, line, col);
         }
         else if ((p->current_token.type == TOKEN_LBRACKET || p->current_token.type == TOKEN_LT) && p->disable_space_call == 0 && (!p->current_token.has_space_before || p->in_space_separated_call > 0)) {
-            printf("DEBUG_PARSER: LBRACKET/LT parsed! token type=%d\n", p->current_token.type);
-
             int is_lt = (p->current_token.type == TOKEN_LT);
             int saved_pos = p->token_pos;
             Token saved_tok = p->current_token;
@@ -305,12 +303,12 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
         else if (p->current_token.type == TOKEN_AS) {
             eat(p, TOKEN_AS);
             VarType t = parse_type(p);
-            
+
             if (t.base == TYPE_UNKNOWN && p->current_token.type == TOKEN_IDENTIFIER) {
                 char full_type_name[512] = "";
                 snprintf(full_type_name, sizeof(full_type_name), "%s", p->current_token.text);
                 eat(p, TOKEN_IDENTIFIER);
-                
+
                 while (p->current_token.type == TOKEN_DOT) {
                     eat(p, TOKEN_DOT);
                     size_t len = strlen(full_type_name);
@@ -321,15 +319,15 @@ ASTNode* parse_postfix(Parser *p, ASTNode *node) {
                         eat(p, TOKEN_IDENTIFIER);
                     }
                 }
-                
+
                 t.base = TYPE_CLASS;
                 t.class_name = parser_strdup(p, full_type_name);
-                
+
                 while (p->current_token.type == TOKEN_STAR) {
                     eat(p, TOKEN_STAR);
                     t.ptr_depth++;
                 }
-                
+
                 while (p->current_token.type == TOKEN_LBRACKET) {
                     eat(p, TOKEN_LBRACKET);
                     if (p->current_token.type != TOKEN_RBRACKET) {
@@ -1033,7 +1031,7 @@ ASTNode* parse_factor(Parser *p) {
     ln->var_type.base = TYPE_VOID;
     ln->var_type.ptr_depth = 1; // void*
     // Do not mark as tainted to allow automatic safe casting to any pointer type
-    ln->var_type.is_tainted = false; 
+    ln->var_type.is_tainted = false;
     ln->val.any = 0; // null pointer
     eat(p, TOKEN_NULL);
     node = (ASTNode*)ln;

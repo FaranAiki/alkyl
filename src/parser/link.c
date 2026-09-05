@@ -25,7 +25,7 @@ static int is_system_lib(const char *name) {
  * @param ctx Compiler context to update.
  * @param lib_name Name of the library to resolve.
  */
-void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) { fprintf(stderr, "add_pkg_config_flags called with ctx=%p lib=%s\n", ctx, lib_name);
+void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) {
     char cmd[1024];
     char output[2048];
     FILE *pf;
@@ -86,11 +86,10 @@ void add_pkg_config_flags(CompilerContext *ctx, const char *lib_name) { fprintf(
             }
         }
     }
-    fprintf(stderr, "DEBUG_LINK: processed link %s, new flags: %s\n", lib_name, ctx->link_flags);
 }
 
 static ASTNode* resolve_c_import(Parser *p, const char *fname) {
-    printf("DEBUG: link.c resolve_c_import PATH='%s'\n", fname);
+    debug_parser("DEBUG: link.c resolve_c_import PATH='%s'\n", fname);
     char *src = c_preprocess_header(p->ctx, fname);
     if (!src) {
         char msg[512];

@@ -148,7 +148,6 @@ int is_typename(Parser *p, const char *name) {
  */
 int is_type_start(Parser *p) {
     TokenType ct = p->current_token.type;
-    printf("DEBUG_ISTYPE: ct=%d text='%s'\n", ct, p->current_token.text ? p->current_token.text : "");
     if (ct == TOKEN_KW_INT || ct == TOKEN_KW_SHORT || ct == TOKEN_KW_LONG ||
         ct == TOKEN_KW_DOUBLE || ct == TOKEN_KW_SINGLE || ct == TOKEN_KW_CHAR ||
         ct == TOKEN_KW_VOID || ct == TOKEN_KW_NORETURN || ct == TOKEN_KW_BOOL || ct == TOKEN_KW_UNSIGNED || ct == TOKEN_KW_SIGNED) {
@@ -158,7 +157,7 @@ int is_type_start(Parser *p) {
         if (is_typename(p, p->current_token.text)) {
             return 1;
         }
-        
+
         // Peek ahead for namespaced types e.g. std.string
         Token next1 = parser_peek_token(p);
         if (next1.type == TOKEN_DOT) {
@@ -1097,7 +1096,7 @@ char* read_import_file(Parser *p, const char* filename) {
             if (dir_len < sizeof(path)) {
                 for (unsigned long j = 0; j < sizeof(exts)/sizeof(*exts); j++) {
                     snprintf(path, sizeof(path), "%.*s/%s%s", (int)dir_len, file_dir, filename, exts[j]);
-                    char *content = read_file_content(p, path);
+                    char *content = read_file_content(p, path); if(content) { debug_parser("OPENED IMPORT: %s\n", path); }
                     if (content) return content;
                 }
             }
@@ -1108,7 +1107,7 @@ char* read_import_file(Parser *p, const char* filename) {
         for (int i = 0; i < p->settings.import_path_count; i++) {
             for (unsigned long j = 0; j < sizeof(exts)/sizeof(*exts); j++) {
                 snprintf(path, sizeof(path), "%s/%s%s", p->settings.import_paths[i], filename, exts[j]);
-                char *content = read_file_content(p, path);
+                char *content = read_file_content(p, path); if(content) { debug_parser("OPENED IMPORT: %s\n", path); }
                 if (content) return content;
             }
         }
@@ -1118,7 +1117,7 @@ char* read_import_file(Parser *p, const char* filename) {
     for (unsigned long i = 0; i < sizeof(fallback_paths)/sizeof(*fallback_paths); i++) {
         for (unsigned long j = 0; j < sizeof(exts)/sizeof(*exts); j++) {
             snprintf(path, sizeof(path), "%s%s%s", fallback_paths[i], filename, exts[j]);
-            char *content = read_file_content(p, path);
+            char *content = read_file_content(p, path); if(content) { printf("OPENED IMPORT: %s\n", path); }
             if (content) return content;
         }
     }
@@ -1191,12 +1190,12 @@ static Token parser_peek_past_parens(Parser *p) {
     if (p->current_token.type != TOKEN_LPAREN) {
         return p->current_token;
     }
-    
+
     int depth = 1;
     int start_idx;
     Token *tokens;
     int max_count;
-    
+
     if (p->expansion_head) {
         start_idx = p->expansion_head->pos + 1;
         tokens = p->expansion_head->tokens;
@@ -1211,14 +1210,14 @@ static Token parser_peek_past_parens(Parser *p) {
         eof.type = TOKEN_EOF;
         return eof;
     }
-    
+
     int i = start_idx;
     while (i < max_count && depth > 0) {
         Token t = tokens[i++];
         if (t.type == TOKEN_LPAREN) depth++;
         else if (t.type == TOKEN_RPAREN) depth--;
     }
-    
+
     if (i < max_count) {
         return tokens[i];
     }
@@ -1314,7 +1313,7 @@ ASTNode* parse_program(Parser *p) {
           p->tokens[p->token_count++] = t;
           if (t.type == TOKEN_EOF) break;
       }
-      
+
       for(int i = 0; i < p->token_count; i++) {
           if (p->tokens[i].line >= 332 && p->tokens[i].line <= 335) printf("RELEXED: type=%d text=%s line=%d\n", p->tokens[i].type, p->tokens[i].text?p->tokens[i].text:"");
       }

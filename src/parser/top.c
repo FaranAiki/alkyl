@@ -730,8 +730,9 @@ ASTNode* parse_top_level_internal(Parser *p) {
            }
            if (p->current_token.type == TOKEN_SEMICOLON) eat_semi(p);
        }
-       eat(p, TOKEN_RBRACE);
-       if (p->current_token.type == TOKEN_EOF) return NULL;
+        eat(p, TOKEN_RBRACE);
+        while (p->current_token.type == TOKEN_RBRACE) eat(p, TOKEN_RBRACE);
+        if (p->current_token.type == TOKEN_EOF) return NULL;
        return parse_top_level(p);
    }
 

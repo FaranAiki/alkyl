@@ -63,6 +63,8 @@ export public open namespace heap {
     public {
         ArenaBlock* head = null;
         long default_block_size = 65536;
+
+        ArenaAllocator() {}
     }
 
     public tainted mutable {
@@ -129,11 +131,14 @@ export public open namespace heap {
             char* base = raw_data as char*;
             return (base + offset) as void*;
         }
+    }
 
+    public tainted mutable {
         compound [type T]
         T* alloc(long count = 1) {
             return this.malloc(count * sizeof(T)) as T*;
         }
+
     }
 
     public tainted mutable {

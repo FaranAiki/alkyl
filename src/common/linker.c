@@ -34,7 +34,7 @@ const char* alkyl_get_linker_command(LinkerType type) {
  */
 int alkyl_link(const char *obj_file, const char *output_basename, const char *link_flags, LinkerType linker_type) {
     if (linker_type == LINKER_NONE) return 0;
-    
+
     char stamp_file[1024];
     snprintf(stamp_file, sizeof(stamp_file), "%s.link_stamp", output_basename);
 
@@ -61,7 +61,7 @@ int alkyl_link(const char *obj_file, const char *output_basename, const char *li
     const char *cmd_fmt = alkyl_get_linker_command(linker_type);
     snprintf(cmd, sizeof(cmd), cmd_fmt, obj_file, output_basename, link_flags ? link_flags : "");
 
-    fprintf(stderr, "RUNNING: %s\n", cmd); int res = system(cmd);
+    int res = system(cmd);
     if (res != 0) {
         return res;
     }

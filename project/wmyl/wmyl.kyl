@@ -7,7 +7,10 @@ premeta {
 }
 
 import "std/print";
-import "std/heap";
+import "../../lib/std/heap";
+
+link "wayland-server";
+link "wlroots-0.18";
 
 @c import "wlr/backend.h"
 @c import "wlr/render/allocator.h"
@@ -254,11 +257,11 @@ export namespace wlroots {
         }
         void focus_xdg_surface(wlr_xdg_surface* xdg_surface) {
             // TODO do not hardcode this
-            int *role_ptr = ((xdg_surface as long) + 40);
+            int *role_ptr = ((xdg_surface as long) + 40) as int*;
             if (*role_ptr == 1) { // WLR_XDG_SURFACE_ROLE_TOPLEVEL
                 // TODO do not hardcode this
                 let surface_ptr = ((xdg_surface as long) + 16);
-                let surface = *surface_ptr;
+                let surface = (surface_ptr as void*);
                 wlr_seat_keyboard_notify_enter(this.handle, surface, 0, 0, null);
             }
         }
@@ -376,7 +379,7 @@ void keyboard_handle_key(void* listener_ptr, void* data) {
     }
     if (keycode == 1) {
         if (state == 1) { // Quick hack to allow exiting even without modifier pointer!
-            std.printf("ESC pressed, exiting gracefully...\n");
+            printf("ESC pressed, exiting gracefully...\n");
             server.display.terminate();
         }
     }
@@ -384,7 +387,7 @@ void keyboard_handle_key(void* listener_ptr, void* data) {
     // KEY_T is 20, state 1 is PRESSED (spawn kitty on Super+T)
     if (keycode == 20) {
         if (state == 1) { // Hack without modifier
-            std.printf("T pressed, spawning kitty...\n");
+            printf("T pressed, spawning kitty...\n");
             let pid = fork();
             if (pid == 0) {
                 execl("/usr/bin/kitty", "kitty", null, null, null);
@@ -403,7 +406,7 @@ void server_new_input(void* listener_ptr, void* data) {
     let device_type = *(device as int*);
 
     if (device_type == 0) { // WLR_INPUT_DEVICE_KEYBOARD
-        std.printf("New input detected! Treating as keyboard...\n");
+        printf("New input detected! Treating as keyboard...\n");
         let keyboard = wlroots.wlr_keyboard_from_input_device(device);
         server.seat.set_keyboard(keyboard);
         server.seat.set_capabilities(1); // WL_SEAT_CAPABILITY_KEYBOARD
@@ -418,7 +421,7 @@ void server_new_input(void* listener_ptr, void* data) {
         kb.key = key_listener;
         wlroots.keyboard_on_key(keyboard, key_listener, keyboard_handle_key);
     } else {
-        std.printf("New input detected, but it is not a keyboard (type {}). Ignoring.\n", device_type);
+        printf("New input detected, but it is not a keyboard (type {}). Ignoring.\n", device_type);
     }
 }
 
@@ -439,7 +442,7 @@ void server_new_output(void* listener_ptr, void* data) {
     let server = listener.data as Server*;
     let wlr_output_handle = data as wlroots.wlr_output*;
 
-    std.printf("New output connected!\n");
+    printf("New output connected!\n");
     wlroots.output_enable_and_commit(wlr_output_handle, server.allocator, server.renderer);
 
     wlroots.wlr_output_layout_add_auto(server.output_layout.handle, wlr_output_handle);
@@ -466,15 +469,17 @@ void server_new_xdg_surface(void* listener_ptr, void* data) {
     let server = listener.data as Server*;
     let xdg_surface = data as wlroots.wlr_xdg_surface*;
 
-    std.printf("New XDG Surface requested!\n");
+    printf("New XDG Surface requested!\n");
     wlroots.scene_add_xdg_surface(server.scene, xdg_surface);
     server.seat.focus_xdg_surface(xdg_surface);
 }
 
 int main() {
-    std.printf("Starting wmyl (wlroots minimal WM)...\n");
+    printf("Starting wmyl (wlroots minimal WM)...\n");
 
-    let ac = heap.ArenaAllocator(null, 65536);
+    let ac = ArenaAllocator();
+    ac.head = null;
+    ac.default_block_size = 65536;
 
     let server = ac.alloc[Server]();
     untaint server residue err { return 1; }
@@ -503,7 +508,7 @@ int main() {
     untaint _init_disp residue err { return 1; }
     server.display = display;
 
-    std.printf("Running Wayland display...\n");
+    printf("Running Wayland display...\n");
 
     let backend = ac.alloc[wlroots.Backend]();
     untaint backend residue err { return 1; }
@@ -573,12 +578,12 @@ int main() {
     let socket = server.display.add_socket_auto();
     untaint socket residue err { return 1; }
 
-    std.printf("Listening Wayland display on {}...\n", socket);
+    printf("Listening Wayland display on {}...\n", socket);
 
     let started = server.backend.start();
     untaint started residue err { return 1; }
 
-    std.printf("Backend started successfully! Spawning kitty...\n");
+    printf("Backend started successfully! Spawning kitty...\n");
 
     setenv("WAYLAND_DISPLAY", socket, 1);
     let pid = fork();
@@ -592,6 +597,6 @@ int main() {
     server.display.destroy_clients();
     server.display.destroy();
 
-    std.printf("wmyl exited gracefully.\n");
+    printf("wmyl exited gracefully.\n");
     return 0;
 }

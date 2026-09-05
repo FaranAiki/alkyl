@@ -264,7 +264,6 @@ int main(int argc, char **argv) {
 
     Lexer l;
     lexer_init(&l, &comp_ctx, filename, code, NULL);
-    printf("SCOPE_STYLE AFTER INIT: %d\n", l.settings.scope_style);
 
     debug_step("Finished lexing. Start parsing.");
 
@@ -318,12 +317,6 @@ int main(int argc, char **argv) {
     // For now, we clean it up as Codegen currently recalculates types (but safely now!)
 
     debug_step("Finished Semantic Analysis. Start macro-linking.");
-
-    fprintf(stderr, "comp_ctx.link_flags len: %zu\n", strlen(comp_ctx.link_flags)); if (comp_ctx.link_flags[0]) {
-        if (strlen(link_flags) + strlen(comp_ctx.link_flags) + 1 < sizeof(link_flags)) {
-            strcat(link_flags, comp_ctx.link_flags);
-        }
-    }
 
 #ifndef ALKYL_ENABLE_MLIR
     debug_step("Finished macro linking. Start generating Alkyl Intermediate Representation (alir).");
@@ -394,6 +387,14 @@ int main(int argc, char **argv) {
     debug_step("Finished alir optimization. Start code generation using " BACKEND_STRING " codegen");
 
     const char *active_output_basename = output_basename_ptr ? output_basename_ptr : (optimization_level > 0 ? BASENAME_OPT : BASENAME);
+
+    if (comp_ctx.link_flags[0] != '\0') {
+        if (strlen(link_flags) + strlen(comp_ctx.link_flags) + 2 < sizeof(link_flags)) {
+            if (link_flags[0] != '\0') strcat(link_flags, " ");
+            strcat(link_flags, comp_ctx.link_flags);
+        }
+    }
+
 #ifndef ALKYL_ENABLE_MLIR
     int final_ret = backend_run_alir(alir_module, active_output_basename, link_flags, optimization_level, current_linker);
 #else
