@@ -202,11 +202,7 @@ void build_struct_fields(AlirCtx *ctx, ClassNode *cn, AlirStruct *st) {
             f->name = alir_strdup(ctx->module, vd->name);
             f->type = vd->var_type;
 
-            // [FIX] Decay inline arrays to pointers to prevent struct bloat and truncation crashes
-            if (f->type.array_size > 0) {
-                f->type.array_size = 0;
-                f->type.ptr_depth++;
-            }
+
 
             f->index = idx++;
 

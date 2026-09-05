@@ -1,0 +1,12 @@
+struct wl_list {
+    wl_list* prev;
+    wl_list* next;
+}
+struct wl_signal { 
+    wl_list listener_list; 
+}
+
+void main() {
+    wl_signal* signal = null;
+    let prev = signal.listener_list.prev;
+}

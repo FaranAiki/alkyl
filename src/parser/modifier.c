@@ -13,7 +13,7 @@
  */
 int parse_modifiers(Parser* p) {
     int modifiers = 0;
-
+    printf("DEBUG parse_modifiers ENTER type=%d TOKEN_EXPORT=%d\n", p->current_token.type, TOKEN_EXPORT);
     while (1) {
         switch (p->current_token.type) {
             case TOKEN_PUBLIC: modifiers |= MODIFIER_PUBLIC; eat(p, TOKEN_PUBLIC); break;

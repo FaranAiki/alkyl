@@ -1,0 +1,11 @@
+import "std/print";
+struct XdgSurface {
+    long p1, p2;
+    void* surface;
+    long p3, p4;
+    int role;
+}
+int main() {
+    std.printf("Size: %d, role offset: %d\n", sizeof(XdgSurface), alignof(XdgSurface));
+    return 0;
+}

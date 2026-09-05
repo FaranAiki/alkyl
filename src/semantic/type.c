@@ -49,7 +49,7 @@ void sem_check_var_decl(SemanticCtx *ctx, VarDeclNode *node, int register_sym) {
     if (node->is_array && node->var_type.ptr_depth == 0) {
         ASTNode *dim = node->array_size;
         while(dim) {
-            node->var_type.ptr_depth++;
+            // node->var_type.ptr_depth++;
             dim = dim->next;
         }
         if (node->array_size && node->array_size->type == NODE_LITERAL) {

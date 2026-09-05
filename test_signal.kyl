@@ -1,0 +1,34 @@
+import "lib/c";
+
+@c extern void* malloc(long size);
+
+struct wl_list {
+    wl_list* prev;
+    wl_list* next;
+}
+
+struct wl_signal {
+    wl_list listener_list;
+}
+
+struct wlr_xdg_shell {
+    char pad[80];
+    wl_signal new_surface;
+}
+
+int main() {
+    let shell = malloc(100) as wlr_xdg_shell*;
+    let ptr = &(shell.new_surface);
+    let expected = (shell as long) + 80;
+    
+    printf("shell = %p\n", shell);
+    printf("&(shell.new_surface) = %p\n", ptr);
+    printf("expected = %p\n", expected);
+
+    if ((ptr as long) == expected) {
+        printf("SUCCESS!\n");
+    } else {
+        printf("FAILED!\n");
+    }
+    return 0;
+}

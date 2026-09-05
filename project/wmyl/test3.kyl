@@ -1,0 +1,10 @@
+extern class wl_signal;
+struct wlr_xdg_shell {
+    char pad[80];
+    wl_signal new_surface;
+}
+int main() { 
+    wlr_xdg_shell shell;
+    let ptr = &shell.new_surface;
+    return 0; 
+}

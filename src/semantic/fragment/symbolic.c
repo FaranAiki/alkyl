@@ -115,6 +115,12 @@ void sem_symbolic_func_def(SemanticCtx *ctx, ASTNode *node) {
 
 void sem_symbolic_var_decl(SemanticCtx *ctx, ASTNode *node) {
     VarDeclNode *vd = (VarDeclNode*)node;
+    if (vd->is_array && vd->var_type.ptr_depth == 0) {
+        if (vd->array_size && vd->array_size->type == NODE_LITERAL) {
+             vd->var_type.array_size = (int)((LiteralNode*)vd->array_size)->val.long_val;
+        }
+        printf("DEBUG_ARRAY: %s is_array=%d array_size=%d node_type=%d\n", vd->name, vd->is_array, vd->var_type.array_size, vd->array_size ? vd->array_size->type : -1);
+    }
     SemSymbol *sym = sem_symbol_add(ctx, vd->name, SYM_VAR, vd->var_type);
     sym->is_mutable = vd->is_mutable;
     sym->is_pure = vd->is_pure;

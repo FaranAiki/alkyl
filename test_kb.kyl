@@ -1,0 +1,22 @@
+import "lib/c";
+
+struct wl_list {
+    wl_list* prev;
+    wl_list* next;
+}
+struct wl_signal { 
+    wl_list listener_list; 
+}
+struct wlr_keyboard {
+    char pad[280];
+    int modifiers;
+    char pad2[20];
+    wl_signal key_signal;
+}
+
+int main() {
+    let kb = 0 as wlr_keyboard*;
+    let sig = &(kb.key_signal);
+    printf("Offset: %ld\n", sig as long);
+    return 0;
+}

@@ -1,10 +1,10 @@
 
-private closed namespace my {
+namespace my {
   @c extern void *malloc(unsigned int);
   @c extern void free(void*);
 }
 
-export public open namespace heap {
+namespace heap {
     abstract method class Allocator {
     public tainted {
         void* malloc(long size);

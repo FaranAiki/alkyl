@@ -442,7 +442,9 @@ ASTNode* parse_top_level_internal(Parser *p) {
       }
   }
 
+  printf("DEBUG: token before parse_modifiers: %d (text: %s)\n", p->current_token.type, p->current_token.text);
   int modifiers = parse_modifiers(p);
+  printf("DEBUG: token after parse_modifiers: %d (text: %s)\n", p->current_token.type, p->current_token.text);
 
   if (p->current_token.type == TOKEN_LBRACE) {
       eat(p, TOKEN_LBRACE);

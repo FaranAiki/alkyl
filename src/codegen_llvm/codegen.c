@@ -296,6 +296,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                     int all_sized = 1;
                     AlirField *chk_f = st->fields;
                     while (chk_f) {
+                        printf("DEBUG_STRUCT_FIELD: struct=%s field=%s array_size=%d ptr_depth=%d base=%d\n", st->name, chk_f->name, chk_f->type.array_size, chk_f->type.ptr_depth, chk_f->type.base);
                         if (chk_f->type.base == TYPE_CLASS && chk_f->type.ptr_depth == 0) {
                             LLVMTypeRef fty = get_llvm_type(ctx, chk_f->type);
                             if (fty && LLVMGetTypeKind(fty) == LLVMStructTypeKind && LLVMIsOpaqueStruct(fty)) {
