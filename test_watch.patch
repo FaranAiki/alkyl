@@ -1,9 +1,0 @@
---- src/semantic/table.c
-+++ src/semantic/table.c
-@@ -296,6 +296,7 @@
-     
-     SemSymbol *sym = arena_alloc_type(ctx->compiler_ctx->arena, SemSymbol); printf("DEBUG: sem_symbol_add adding %s\n", name);
-     memset(sym, 0, sizeof(SemSymbol));
-+    if (name && strcmp(name, "events") == 0) { ctx->compiler_ctx->watch_sym = sym; }
- 
-     sym->name = arena_strdup(ctx->compiler_ctx->arena, name);
