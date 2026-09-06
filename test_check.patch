@@ -1,0 +1,12 @@
+--- src/semantic/check.c
++++ src/semantic/check.c
+@@ -262,4 +262,9 @@
+                         if (streq_lit(cn->name, "wlr_output")) {
+                             printf("DEBUG: Skipping wlr_output\n");
++                            SemSymbol *output_events = hashmap_get((HashMap*)existing->inner_scope->symbol_map, "events");
++                            if (output_events) {
++                                printf("DEBUG: AT SKIP wlr_output, events sym=%p class_name=%s (ptr=%p)\n",
++                                       output_events, output_events->type.class_name, output_events->type.class_name);
++                            }
+                         }
+                         // Skip forward declaration or duplicate definition if we already have the class in the current scope

@@ -121,7 +121,7 @@ void sem_symbolic_var_decl(SemanticCtx *ctx, ASTNode *node) {
         }
         printf("DEBUG_ARRAY: %s is_array=%d array_size=%d node_type=%d\n", vd->name, vd->is_array, vd->var_type.array_size, vd->array_size ? vd->array_size->type : -1);
     }
-    SemSymbol *sym = sem_symbol_add(ctx, vd->name, SYM_VAR, vd->var_type);
+    SemSymbol *sym = sem_symbol_add(ctx, vd->name, SYM_VAR, vd->var_type); if (strstr(vd->name, "events")) printf("DEBUG: sem_symbolic_var_decl events added sym=%p class_name=%s strptr=%p\n", sym, vd->var_type.class_name, vd->var_type.class_name);
     sym->is_mutable = vd->is_mutable;
     sym->is_pure = vd->is_pure;
     sym->must_pure = vd->has_explicit_pure;

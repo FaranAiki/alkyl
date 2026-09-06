@@ -1,0 +1,14 @@
+set pagination off
+set breakpoint pending on
+b report_error
+b report_c_error
+commands 1
+  print (char*)msg
+  continue
+end
+commands 2
+  print (char*)msg
+  continue
+end
+run project/wmyl/wmyl.kyl -o build/out
+quit

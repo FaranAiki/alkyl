@@ -1,0 +1,9 @@
+--- src/semantic/table.c
++++ src/semantic/table.c
+@@ -336,4 +336,7 @@
+                 hashmap_put((HashMap*)ctx->current_scope->symbol_map, sym->name, sym);
+                 if (streq_lit(sym->name, "events")) {
+-                    printf("DEBUG: hashmap_put 'events' into scope %p with type.class_name=%s\n", ctx->current_scope, sym->type.class_name ? sym->type.class_name : "NULL");
++                    printf("DEBUG: hashmap_put 'events' into scope %p with type.class_name=%s (ptr=%p)\n", ctx->current_scope, sym->type.class_name ? sym->type.class_name : "NULL", sym->type.class_name);
+                 }
+             }

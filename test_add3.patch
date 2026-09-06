@@ -1,0 +1,9 @@
+--- src/semantic/table.c
++++ src/semantic/table.c
+@@ -303,5 +303,5 @@
+     sym->type = type;
+     if (streq_lit(name, "events")) {
+-        printf("DEBUG: sem_symbol_add 'events' into scope %p with type.class_name=%s (ptr=%p)\n", ctx->current_scope, type.class_name ? type.class_name : "NULL", type.class_name);
++        printf("DEBUG: sem_symbol_add 'events' into scope %p with type.class_name=%s (str_ptr=%p) (sym=%p)\n", ctx->current_scope, type.class_name ? type.class_name : "NULL", type.class_name, sym);
+     }
+     sym->params = NULL;

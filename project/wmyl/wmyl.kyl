@@ -41,24 +41,7 @@ extern void free(void* ptr);
 export namespace wlroots {
 
     class wl_list { wl_list* prev; wl_list* next; }
-    extern class wl_signal;
-    extern class wl_display;
-    extern class wlr_backend;
-    extern class wlr_renderer;
-    extern class wlr_allocator;
-    extern class wlr_compositor;
-    extern class wlr_data_device_manager;
-    extern class wlr_subcompositor;
-    extern class wlr_output_layout;
-    extern class wlr_xdg_shell;
-    extern class wlr_seat;
-    extern class wlr_output;
-    extern class wlr_xdg_toplevel;
-    extern class wlr_xdg_surface;
-    extern class wlr_output_state;
-    extern class wlr_scene_tree;
-    extern class wlr_scene;
-    extern class wlr_scene_output;
+
 
     class wl_listener {
         wl_list _link;
@@ -284,14 +267,13 @@ export namespace wlroots {
 
     void xdg_shell_on_new_surface(XdgShell* shell, wl_listener* listener, void* notify_func) {
         listener.notify = notify_func;
-        let handle = shell.handle as wlroots.wlr_xdg_shell*;
+        let handle = shell.handle as wlr_xdg_shell*;
         let signal = &(handle.events.new_surface);
         wl_signal_add(signal, listener);
     }
 
     void scene_add_xdg_surface(Scene* scene, wlr_xdg_surface* xdg_surface) {
-        let role_ptr = &((xdg_surface as wlroots.wlr_xdg_surface*).role) as int*;
-        if (*role_ptr == 1) {
+        if ((xdg_surface.role as int) == 1) {
             wlr_scene_xdg_surface_create(scene.handle as wlr_scene_tree*, xdg_surface);
         }
     }
@@ -315,13 +297,13 @@ export namespace wlroots {
 
     void output_on_frame(void* output, wl_listener* listener, void* notify_func) {
         listener.notify = notify_func;
-        let signal = &((output as wlroots.wlr_output*).events.frame);
+        let signal = &((output as wlr_output*).events.frame);
         wl_signal_add(signal, listener);
     }
 
     void keyboard_on_key(void* keyboard, wl_listener* listener, void* notify_func) {
         listener.notify = notify_func;
-        let signal = &((keyboard as wlroots.wlr_keyboard*).events.key);
+        let signal = &((keyboard as wlr_keyboard*).events.key);
         wl_signal_add(signal, listener);
     }
 }
@@ -347,8 +329,8 @@ class Server {
 
 class Output {
     Server* server;
-    wlroots.wlr_output* wlr_output_handle;
-    wlroots.wlr_scene_output* scene_output;
+    wlr_output* wlr_output_handle;
+    wlr_scene_output* scene_output;
     wlroots.wl_listener* frame_event;
 }
 
@@ -408,7 +390,7 @@ void server_new_input(void* listener_ptr, void* data) {
 
     if (device_type == 0) { // WLR_INPUT_DEVICE_KEYBOARD
         printf("New input detected! Treating as keyboard...\n");
-        let keyboard = wlroots.wlr_keyboard_from_input_device(device);
+        let keyboard = wlr_keyboard_from_input_device(device);
         server.seat.set_keyboard(keyboard);
         server.seat.set_capabilities(1); // WL_SEAT_CAPABILITY_KEYBOARD
 
@@ -430,25 +412,25 @@ void output_frame(void* listener_ptr, void* data) {
     let listener = listener_ptr as wlroots.wl_listener*;
     let output = listener.data as Output*;
 
-    wlroots.wlr_scene_output_commit(output.scene_output, null);
+    wlr_scene_output_commit(output.scene_output, null);
 
     let timespec = malloc(16);
     clock_gettime(1, timespec); // 1 = CLOCK_MONOTONIC
-    wlroots.wlr_scene_output_send_frame_done(output.scene_output, timespec);
+    wlr_scene_output_send_frame_done(output.scene_output, timespec);
     free(timespec);
 }
 
 void server_new_output(void* listener_ptr, void* data) {
     let listener = listener_ptr as wlroots.wl_listener*;
     let server = listener.data as Server*;
-    let wlr_output_handle = data as wlroots.wlr_output*;
+    let wlr_output_handle = data as wlr_output*;
 
     printf("New output connected!\n");
     wlroots.output_enable_and_commit(wlr_output_handle, server.allocator, server.renderer);
 
-    wlroots.wlr_output_layout_add_auto(server.output_layout.handle, wlr_output_handle);
+    wlr_output_layout_add_auto(server.output_layout.handle, wlr_output_handle);
 
-    let scene_output = wlroots.wlr_scene_output_create(server.scene.handle, wlr_output_handle);
+    let scene_output = wlr_scene_output_create(server.scene.handle, wlr_output_handle);
 
     let output = malloc(32) as Output*;
     output.server = server;
@@ -462,13 +444,13 @@ void server_new_output(void* listener_ptr, void* data) {
 
     wlroots.output_on_frame(wlr_output_handle, frame_listener, output_frame);
 
-    wlroots.wlr_scene_output_commit(scene_output, null); // Kick off the first frame
+    wlr_scene_output_commit(scene_output, null); // Kick off the first frame
 }
 
 void server_new_xdg_surface(void* listener_ptr, void* data) {
     let listener = listener_ptr as wlroots.wl_listener*;
     let server = listener.data as Server*;
-    let xdg_surface = data as wlroots.wlr_xdg_surface*;
+    let xdg_surface = data as wlr_xdg_surface*;
 
     printf("New XDG Surface requested!\n");
     wlroots.scene_add_xdg_surface(server.scene, xdg_surface);

@@ -1,0 +1,12 @@
+--- src/semantic/modifier/class.c
++++ src/semantic/modifier/class.c
+@@ -62,3 +62,3 @@
+                     found = 1;
+-                    found_member = member; printf("DEBUG: Found member %s with type class_name=%s in scope %p\n", node->member_name, member->type.class_name ? member->type.class_name : "NULL", current_class->inner_scope);
++                    found_member = member; printf("DEBUG: Found member %s with type class_name=%s (ptr=%p) in scope %p\n", node->member_name, member->type.class_name ? member->type.class_name : "NULL", member->type.class_name, current_class->inner_scope);
+                     if (sem_get_node_tainted(ctx, node->object) && !member->is_pristine) {
+@@ -79,3 +79,3 @@
+                             found = 1;
+-                            found_member = member; printf("DEBUG: Found member %s with type class_name=%s in scope %p\n", node->member_name, member->type.class_name ? member->type.class_name : "NULL", trait_sym->inner_scope);
++                            found_member = member; printf("DEBUG: Found member %s with type class_name=%s (ptr=%p) in scope %p\n", node->member_name, member->type.class_name ? member->type.class_name : "NULL", member->type.class_name, trait_sym->inner_scope);
+                             char *obj_name = "obj";

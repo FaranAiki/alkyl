@@ -1,2 +1,1 @@
-#!/bin/bash
-gdb -batch -ex "run" -ex "bt" --args ./build/alkyl_llvm project/wmyl/wmyl.kyl -o build/wmyl_test_run4
+gdb -q -batch -ex "set pagination off" -ex "set breakpoint pending on" -ex "b sem_error" -ex "commands" -ex "print (char*)fmt" -ex "continue" -ex "end" -ex "run project/wmyl/wmyl.kyl -o build/out" build/alkyl > gdb.log 2>&1

@@ -236,6 +236,11 @@ void alir_append_inst(AlirBlock *block, AlirInst *inst) {
  * @param is_union Non-zero if this is a union.
  */
 void alir_register_struct(AlirModule *mod, const char *name, AlirField *fields, int is_union) {
+    AlirStruct *existing = alir_find_struct(mod, name);
+    if (existing && existing->field_count >= 0) {
+        return; // Already registered with valid fields
+    }
+
     AlirStruct *st = alir_alloc(mod, sizeof(AlirStruct));
     debug_alir("DEBUG_REGISTER: st=%p name=%s next=%p\n", st, name, mod->structs);
     fflush(stdout); debug_alir("REGISTER_STRUCT %s fields %d\n", name, st->field_count);

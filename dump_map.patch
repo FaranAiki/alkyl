@@ -1,0 +1,26 @@
+--- src/semantic/table.c
++++ src/semantic/table.c
+@@ -403,6 +409,24 @@
+ 
+     // Check global scope directly if not reached
+     SemSymbol *sym = find_in_scope_direct(ctx->global_scope, name);
++    if (strstr(name, "__anonymous_struct_")) {
++        FILE *f = fopen("symbol_dump.txt", "w");
++        if (f && ctx->global_scope && ctx->global_scope->symbol_map) {
++            HashMap *map = (HashMap*)ctx->global_scope->symbol_map;
++            for (uint32_t i = 0; i < map->capacity; i++) {
++                MapEntry *entry = map->buckets[i];
++                while (entry) {
++                    if (entry->key) {
++                        fprintf(f, "%s\n", entry->key);
++                    }
++                    entry = entry->next;
++                }
++            }
++            fclose(f);
++        }
++        printf("DEBUG: Dumped symbols to symbol_dump.txt\n");
++    }
+     if (sym && (sym->kind == SYM_CLASS || sym->kind == SYM_ENUM || sym->kind == SYM_NAMESPACE || sym->kind == SYM_TEMPLATE)) {
+         if (!(sym->is_private && ctx->current_filename && sym->filename && strcmp(ctx->current_filename, sym->filename) != 0)) {
+             return sym;

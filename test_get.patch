@@ -1,0 +1,10 @@
+--- src/semantic/table.c
++++ src/semantic/table.c
+@@ -359,2 +359,7 @@
+         if (streq_lit(curr->key, key)) {
++            SemSymbol *sym = (SemSymbol*)curr->value;
++            if (streq_lit(key, "events")) {
++                printf("DEBUG: hashmap_get 'events' from scope %p. Returning ptr=%p, class_name=%s (ptr=%p)\n",
++                       map, sym, sym->type.class_name ? sym->type.class_name : "NULL", sym->type.class_name);
++            }
+             return curr->value;

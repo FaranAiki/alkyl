@@ -363,6 +363,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                             }
                         } else if (st->field_count == 0) {
                             LLVMTypeRef empty_body[1] = { LLVMInt8TypeInContext(ctx->llvm_ctx) };
+                            printf("SIZING STRUCT: %s (empty)\n", st->name);
                             LLVMStructSetBody(struct_ty, empty_body, 1, 0);
                         } else {
                             LLVMTypeRef field_tys[st->field_count];
@@ -371,6 +372,7 @@ LLVMModuleRef codegen_generate(CodegenCtx *ctx) {
                                 field_tys[f->index] = get_llvm_type(ctx, f->type);
                                 f = f->next;
                             }
+                            printf("SIZING STRUCT: %s (fields=%d)\n", st->name, st->field_count);
                             LLVMStructSetBody(struct_ty, field_tys, st->field_count, 0);
                         }
                         changed = 1;

@@ -295,12 +295,12 @@ SemSymbol* sem_symbol_add(SemanticCtx *ctx, const char *name, SymbolKind kind, V
         printf("DEBUG: sem_symbol_add wlr_backend EXACT NAME='%s'\n", name);
     }
     
-    SemSymbol *sym = arena_alloc_type(ctx->compiler_ctx->arena, SemSymbol);
+    SemSymbol *sym = arena_alloc_type(ctx->compiler_ctx->arena, SemSymbol); printf("DEBUG: sem_symbol_add adding %s\n", name);
     memset(sym, 0, sizeof(SemSymbol));
 
     sym->name = arena_strdup(ctx->compiler_ctx->arena, name);
     sym->kind = kind;
-    sym->type = type;
+    sym->type = type; if (sym->name && strcmp(sym->name, "events") == 0) { printf("DEBUG: sem_symbol_add assigned events sym=%p type.class_name=%s strptr=%p\n", sym, sym->type.class_name, sym->type.class_name); }
     sym->params = NULL;
     sym->param_count = 0;
     sym->parent_name = NULL;
